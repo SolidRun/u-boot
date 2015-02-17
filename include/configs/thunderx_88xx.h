@@ -68,6 +68,14 @@
 #define CONFIG_CMD_BOOTD
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_SOURCE
+
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_PART
+
 #define CONFIG_CMD_ATF
 
 #define CONFIG_SYS_I2C
