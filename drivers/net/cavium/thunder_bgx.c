@@ -15,6 +15,11 @@
 #include <cavium/thunderx_smi.h>
 #include <cavium/thunderx_vnic.h>
 
+#ifdef CONFIG_OF_LIBFDT
+ #include <libfdt.h>
+ #include <fdt_support.h>
+#endif
+
 #include "nic_reg.h"
 #include "nic.h"
 #include "thunder_bgx.h"
@@ -92,6 +97,64 @@ static int bgx_poll_reg(struct bgx *bgx, uint8_t lmac,
 		timeout--;
 	}
 	return 1;
+}
+
+/**
+ * To remove unwanted nodes from fdt .
+ *
+ *  @param fdt_key - key to preserve.
+ *  fdt_key of formate < bgx, qlm-type >.
+ *  All non-matching keys are removed
+ *
+ * */
+static void bgx_fdt_patch(const char *fdt_key)
+{
+	const char *trim_name = "qlm-mode";
+	void *fdt = (void *)FDT_ADDR_HACK;
+
+	int offset, next_offset;
+	char qlm[32];
+	char *mode;
+	int qlm_key_len;
+	int rc;
+
+	strncpy(qlm, fdt_key, sizeof(qlm));
+	mode = qlm;
+	strsep(&mode, ",");
+	qlm_key_len = strlen(qlm);
+
+	if (!fdt || fdt_check_header(fdt) != 0) {
+		printf("%s: Invalid device tree\n", __func__);
+		return;
+	}
+
+	/* Prune out the unwanted parts based on the QLM mode.  */
+	for (offset = fdt_next_node(fdt, 0, NULL);
+		 offset >= 0; offset = next_offset) {
+		int len;
+		const char *val;
+
+		next_offset = fdt_next_node(fdt, offset, NULL);
+		val = fdt_getprop(fdt, offset, trim_name, &len);
+		if (!val)
+			continue;
+
+		if (strncmp(val, qlm, qlm_key_len) != 0)
+			continue; /* Not this QLM. */
+
+		if (!fdt_stringlist_contains(val, len, fdt_key)) {
+			debug("Key \"%s\" does not match \"%s\"\n",
+			      val, fdt_key);
+			/* This QLM, but wrong mode.  Delete it. */
+			debug("fdt trimming matching key %s\n", fdt_key);
+			next_offset = fdt_parent_offset(fdt, offset);
+			rc = fdt_nop_node(fdt, offset);
+			if (rc) {
+				printf("Error %d noping node in device tree\n",
+				       rc);
+			}
+		}
+	}
 }
 
 /* Return number of BGX present in HW */
@@ -702,10 +765,12 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 {
 	int lmac_type;
 	int train_en;
+	char fdt_key[20];
 
 	/* Read LMAC0 type to figure out QLM mode
 	 * This is configured by low level firmware
-	 **/
+	 */
+
 	lmac_type = bgx_reg_read(bgx, 0, BGX_CMRX_CFG);
 	lmac_type = (lmac_type >> 8) & 0x07;
 
@@ -714,38 +779,49 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 
 	switch (lmac_type) {
 	case BGX_MODE_SGMII:
+		sprintf(fdt_key, "%d,sgmii", bgx->bgx_id);
+		bgx_fdt_patch(fdt_key);
 		bgx->qlm_mode = QLM_MODE_SGMII;
 		printf("BGX%d QLM mode: SGMII\n", bgx->bgx_id);
 		break;
 	case BGX_MODE_XAUI:
+		printf(fdt_key, "%d,xaui", bgx->bgx_id);
+		bgx_fdt_patch(fdt_key);
 		bgx->qlm_mode = QLM_MODE_XAUI_1X4;
 		printf("BGX%d QLM mode: XAUI\n", bgx->bgx_id);
 		break;
 	case BGX_MODE_RXAUI:
+		sprintf(fdt_key, "%d,rxaui", bgx->bgx_id);
+		bgx_fdt_patch(fdt_key);
 		bgx->qlm_mode = QLM_MODE_RXAUI_2X2;
 		printf("BGX%d QLM mode: RXAUI\n", bgx->bgx_id);
 		break;
 	case BGX_MODE_XFI:
 		if (!train_en) {
+			sprintf(fdt_key, "%d,xfi", bgx->bgx_id);
+			bgx_fdt_patch(fdt_key);
 			bgx->qlm_mode = QLM_MODE_XFI_4X1;
 			printf("BGX%d QLM mode: XFI\n", bgx->bgx_id);
 		} else {
+			sprintf(fdt_key, "%d,xfi-10g-kr", bgx->bgx_id);
+			bgx_fdt_patch(fdt_key);
 			bgx->qlm_mode = QLM_MODE_10G_KR_4X1;
 			printf("BGX%d QLM mode: 10G_KR\n", bgx->bgx_id);
 		}
 		break;
 	case BGX_MODE_XLAUI:
 		if (!train_en) {
+			sprintf(fdt_key, "%d,xlaui", bgx->bgx_id);
+			bgx_fdt_patch(fdt_key);
 			bgx->qlm_mode = QLM_MODE_XLAUI_1X4;
 			printf("BGX%d QLM mode: XLAUI\n", bgx->bgx_id);
 		} else {
+			sprintf(fdt_key, "%d,xlaui-40g-kr", bgx->bgx_id);
+			bgx_fdt_patch(fdt_key);
 			bgx->qlm_mode = QLM_MODE_40G_KR4_1X4;
 			printf("BGX%d QLM mode: 40G_KR4\n", bgx->bgx_id);
 		}
 		break;
-	default:
-		bgx->qlm_mode = QLM_MODE_SGMII;
-		printf("BGX%d QLM default mode: SGMII\n", bgx->bgx_id);
 	}
 }
 
