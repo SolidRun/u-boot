@@ -16,12 +16,118 @@
 
 #if defined(CONFIG_OF_LIBFDT)
 
-#if defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup(void *blob, bd_t *bd)
+#ifdef CONFIG_THUNDER_BGX
+/**
+ * To remove unwanted nodes from fdt .
+ *
+ *  @param fdt_key - key to preserve.
+ *  fdt_key of formate < bgx, qlm-type >.
+ *  All non-matching keys are removed
+ *
+ * */
+enum lmac_type {
+	BGX_MODE_SGMII = 0, /* 1 lane, 1.250 Gbaud */
+	BGX_MODE_XAUI = 1,  /* 4 lanes, 3.125 Gbaud */
+	BGX_MODE_DXAUI = 1, /* 4 lanes, 6.250 Gbaud */
+	BGX_MODE_RXAUI = 2, /* 2 lanes, 6.250 Gbaud */
+	BGX_MODE_XFI = 3,   /* 1 lane, 10.3125 Gbaud */
+	BGX_MODE_XLAUI = 4, /* 4 lanes, 10.3125 Gbaud */
+	BGX_MODE_10G_KR = 3,/* 1 lane, 10.3125 Gbaud */
+	BGX_MODE_40G_KR = 4,/* 4 lanes, 10.3125 Gbaud */
+};
+
+static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
+{
+	union bgxx_cmrx_config cmrx_config;
+	union bgxx_spux_br_pmd_control spux_br_pmd_control;
+
+	char fdt_key[20];
+
+	int offset, next_offset;
+	char qlm[32];
+	char *mode;
+	int qlm_key_len;
+	int rc;
+
+	/* Read LMAC0 type to figure out QLM mode
+	 * This is configured by low level firmware
+	 */
+
+	cmrx_config.u = CSR_READ_PA(node, BGXX_CMRX_CONFIG(bgx_id, 0));
+	spux_br_pmd_control.u  = CSR_READ_PA(node, BGXX_SPUX_BR_PMD_CONTROL(bgx_id, 0));
+
+	switch(cmrx_config.s.lmac_type) {
+	case BGX_MODE_SGMII:
+		snprintf(fdt_key, sizeof(fdt_key), "%d,sgmii", bgx_id);
+		break;
+	case BGX_MODE_XAUI:
+		snprintf(fdt_key, sizeof(fdt_key), "%d,xaui", bgx_id);
+		break;
+	case BGX_MODE_RXAUI:
+		snprintf(fdt_key, sizeof(fdt_key), "%d,rxaui", bgx_id);
+		break;
+	case BGX_MODE_XFI:
+		if (!!spux_br_pmd_control.s.train_en) {
+			snprintf(fdt_key, sizeof(fdt_key), "%d,xfi", bgx_id);
+		} else {
+			snprintf(fdt_key, sizeof(fdt_key), "%d,xfi-10g-kr", bgx_id);
+		}
+		break;
+	case BGX_MODE_XLAUI:
+		if (!spux_br_pmd_control.s.train_en) {
+			snprintf(fdt_key, sizeof(fdt_key), "%d,xlaui", bgx_id);
+		} else {
+			snprintf(fdt_key, sizeof(fdt_key), "%d,xlaui-40g-kr", bgx_id);
+		}
+		break;
+	}
+
+	strncpy(qlm, fdt_key, sizeof(qlm));
+	mode = qlm;
+	strsep(&mode, ",");
+	qlm_key_len = strlen(qlm);
+
+	if (!fdt || fdt_check_header(fdt) != 0) {
+		printf("%s: Invalid device tree\n", __func__);
+		return;
+	}
+
+	/* Prune out the unwanted parts based on the QLM mode.  */
+	for (offset = fdt_next_node(fdt, 0, NULL);
+		 offset >= 0; offset = next_offset) {
+		int len;
+		const char *val;
+
+		next_offset = fdt_next_node(fdt, offset, NULL);
+		val = fdt_getprop(fdt, offset, "qlm-mode", &len);
+		if (!val)
+			continue;
+
+		if (strncmp(val, qlm, qlm_key_len) != 0)
+			continue; /* Not this QLM. */
+
+		if (!fdt_stringlist_contains(val, len, fdt_key)) {
+			debug("Key \"%s\" does not match \"%s\"\n",
+					val, fdt_key);
+			/* This QLM, but wrong mode.  Delete it. */
+			debug("fdt trimming matching key %s\n", fdt_key);
+			next_offset = fdt_parent_offset(fdt, offset);
+			rc = fdt_nop_node(fdt, offset);
+			if (rc) {
+				printf("Error %d noping node in device tree\n",
+						rc);
+			}
+		}
+	}
+}
+
+#endif
+
+static void ft_setup_coremask(void *fdt)
 {
 	int err;
 
-	int nodeoffset = fdt_path_offset(blob, "/cpus");
+	int nodeoffset = fdt_path_offset(fdt, "/cpus");
 	char *coremask = getenv("coremask");
 
 	if (coremask == NULL)
@@ -33,7 +139,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 		return;
 	}
 
-	err = fdt_setprop(blob, nodeoffset, "coremask",
+	err = fdt_setprop(fdt, nodeoffset, "coremask",
 			  coremask, sizeof(coremask));
 
 	if (err < 0) {
@@ -41,6 +147,23 @@ void ft_board_setup(void *blob, bd_t *bd)
 		       fdt_strerror(err));
 		return;
 	}
+}
+#if defined(CONFIG_OF_BOARD_SETUP)
+
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	unsigned int node;
+
+	ft_setup_coremask(blob);
+
+#ifdef CONFIG_THUNDER_BGX
+	for (node = 0; node < atf_node_count(); node++) {
+		ft_setup_bgx(blob, node, 0);
+		ft_setup_bgx(blob, node, 1);
+	}
+#endif
+
+	return 0;
 }
 
 #endif
