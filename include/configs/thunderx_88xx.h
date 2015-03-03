@@ -89,6 +89,9 @@
   #define CONFIG_SYS_64BIT_LBA
 #endif
 
+#define CONFIG_CMD_ATF
+#define CONFIG_CMD_VNIC
+
 /* Partition systems */
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
