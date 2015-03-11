@@ -73,7 +73,8 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 					"kernel_addr=08007ffc0\0"	\
 					"fdt_addr=0x94C00000\0"		\
-					"fdt_high=0x9fffffff\0"
+					"fdt_high=0x9fffffff\0"		\
+					"autoload=0\0"
 
 /* Do not preserve environment */
 #define CONFIG_ENV_SIZE			0x1000
