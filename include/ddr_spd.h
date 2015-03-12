@@ -504,6 +504,8 @@ extern void ddr2_spd_dump(const ddr2_spd_eeprom_t *spd);
 extern unsigned int ddr3_spd_check(const ddr3_spd_eeprom_t *spd);
 unsigned int ddr4_spd_check(const struct ddr4_spd_eeprom_s *spd);
 
+const char *ddr3_modtype_str(const ddr3_spd_eeprom_t *spd);
+
 /*
  * Byte 2 Fundamental Memory Types.
  */
