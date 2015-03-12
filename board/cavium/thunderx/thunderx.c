@@ -201,9 +201,3 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 
-#ifdef CONFIG_PCI
-void pci_init_board(void)
-{
-	printf("DEBUG: PCI Init TODO *****\n");
-}
-#endif
