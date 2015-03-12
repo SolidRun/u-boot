@@ -19,6 +19,11 @@
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
+#define CONFIG_BOARD_LATE_INIT
+
+/* Flat Device Tree Definitions */
+#define CONFIG_OF_LIBFDT
+
 /* SMP Spin Table Definitions */
 #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 

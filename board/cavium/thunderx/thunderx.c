@@ -43,33 +43,12 @@ U_BOOT_DEVICE(thunderx_serial1) = {
 	.platdata = &serial1,
 };
 
+#include <cavium/atf.h>
+
+
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct mm_region thunderx_mem_map[] = {
-	{
-		.virt = 0x000000000000UL,
-		.phys = 0x000000000000UL,
-		.size = 0x40000000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_NON_SHARE,
-	}, {
-		.virt = 0x800000000000UL,
-		.phys = 0x800000000000UL,
-		.size = 0x40000000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE,
-	}, {
-		.virt = 0x840000000000UL,
-		.phys = 0x840000000000UL,
-		.size = 0x40000000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE,
-	}, {
-		/* List terminator */
-		0,
-	}
-};
-
-struct mm_region *mem_map = thunderx_mem_map;
+#define BOARD_TYPE "BOARD="
 
 int board_init(void)
 {
@@ -119,8 +98,35 @@ void reset_cpu(ulong addr)
 }
 
 /*
+ * Board late initialization routine.
+ */
+int board_late_init(void)
+{
+	int i;
+	char str[32];
+	const char *boardname;
+
+	for (i = 0; i < atf_env_count(); i++) {
+		atf_env_string(i, str);
+
+		debug("Environment string %d: %s\n", i, str);
+
+		if (!strncmp(str, BOARD_TYPE, strlen(BOARD_TYPE))) {
+			boardname = str + strlen(BOARD_TYPE);
+			setenv("board", boardname);
+			break;
+		}
+	}
+
+	printf("Board type: %s\n", getenv("board"));
+
+	return 0;
+}
+
+/*
  * Board specific ethernet initialization routine.
  */
+
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
