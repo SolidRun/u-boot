@@ -54,6 +54,31 @@
 /* Command line configuration */
 #define CONFIG_MENU
 
+/*#define CONFIG_MENU_SHOW*/
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_RUN
+#define CONFIG_CMD_BOOTD
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_SOURCE
+#define CONFIG_CMD_ATF
+
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_SAVES
+
+/* Partition systems */
+#define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
+
+#define CONFIG_SYS_CACHELINE_SIZE 128
+
 #define CONFIG_THUNDERX_VNIC
 
 /* BOOTP options */
