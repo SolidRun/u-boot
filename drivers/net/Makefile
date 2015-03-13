@@ -62,6 +62,7 @@ obj-$(CONFIG_RENESAS_RAVB) += ravb.o
 obj-$(CONFIG_SMC91111) += smc91111.o
 obj-$(CONFIG_SMC911X) += smc911x.o
 obj-$(CONFIG_TSEC_ENET) += tsec.o fsl_mdio.o
+obj-$(CONFIG_THUNDERX_VNIC) += cavium/
 obj-$(CONFIG_FMAN_ENET) += fsl_mdio.o
 obj-$(CONFIG_ULI526X) += uli526x.o
 obj-$(CONFIG_VSC7385_ENET) += vsc7385.o
