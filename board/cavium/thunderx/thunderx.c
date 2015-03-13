@@ -131,6 +131,26 @@ int board_late_init(void)
 	return 0;
 }
 
+static void eth_random_enetaddr(uchar *enetaddr)
+{
+	uint32_t rval;
+	srand(get_timer(0));
+
+	rval = rand();
+	enetaddr[0] = rval & 0xff;
+	enetaddr[1] = (rval >> 8) & 0xff;
+	enetaddr[2] = (rval >> 16) & 0xff;
+
+	rval = rand();
+	enetaddr[3] = rval & 0xff;
+	enetaddr[4] = (rval >> 8) & 0xff;
+	enetaddr[5] = (rval >> 16) & 0xff;
+
+	/* make sure it's local and unicast */
+	enetaddr[0] = (enetaddr[0] | 0x02) & ~0x01;
+}
+
+
 /*
  * Board specific ethernet initialization routine.
  */
@@ -141,8 +161,16 @@ int board_eth_init(bd_t *bis)
 #if defined(CONFIG_THUNDERX_VNIC)
 	struct nicpf* nicpf;
 	unsigned int node;
-#endif
 
+#ifdef CONFIG_RANDOM_MACADDR
+	unsigned char ethaddr[6];
+
+	if (!eth_getenv_enetaddr("ethaddr", ethaddr)) {
+		eth_random_enetaddr(ethaddr);
+		eth_setenv_enetaddr("ethaddr", ethaddr);
+	}
+#endif
+#endif
 	thunderx_smi_initialize(bis, 0);
 	thunderx_smi_initialize(bis, 1);
 
@@ -150,10 +178,12 @@ int board_eth_init(bd_t *bis)
 #define VNIC_PER_NODE 8
 
 	for (node = 0; node < atf_node_count(); node++) {
-		nicpf = nic_initialize(node);
-
 		bgx_initialize(0, 0, node);
 		bgx_initialize(1, 1, node);
+	}
+
+	for (node = 0; node < atf_node_count(); node++) {
+		nicpf = nic_initialize(node);
 
 		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 0, node);
 		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 1, node);
