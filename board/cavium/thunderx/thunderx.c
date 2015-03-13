@@ -9,6 +9,10 @@
 #include <errno.h>
 #include <linux/compiler.h>
 
+#ifdef CONFIG_OF_LIBFDT
+ #include <libfdt.h>
+ #include <fdt_support.h>
+#endif
 #include <cavium/atf.h>
 #include <asm/armv8/mmu.h>
 
@@ -38,7 +42,6 @@ U_BOOT_DEVICE(thunderx_serial1) = {
 	.name = "serial_pl01x",
 	.platdata = &serial1,
 };
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -70,6 +73,11 @@ struct mm_region *mem_map = thunderx_mem_map;
 
 int board_init(void)
 {
+#ifdef CONFIG_OF_LIBFDT
+	ulong fdt_addr = (ulong)gd->fdt_blob;
+	set_working_fdt_addr(fdt_addr);
+#endif
+
 	return 0;
 }
 
