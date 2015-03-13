@@ -345,6 +345,8 @@ dtb-$(CONFIG_TARGET_AM3517_EVM) += am3517-evm.dtb
 dtb-$(CONFIG_TI816X) += dm8168-evm.dtb
 dtb-$(CONFIG_THUNDERX) += thunderx-88xx.dtb
 
+dtb-$(CONFIG_THUNDER) += thunder-88xx.dtb
+
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_arria5_socdk.dtb			\
 	socfpga_arria10_socdk_sdmmc.dtb			\
