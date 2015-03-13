@@ -75,8 +75,26 @@
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_PART
+#define CONFIG_CMD_SATA
 
 #define CONFIG_CMD_ATF
+
+/* AHCI support Definitions */
+#ifdef CONFIG_CMD_SATA
+  #define CONFIG_SATA_AHCI
+  #define CONFIG_SYS_SATA_MAX_DEVICE	16
+  #define CONFIG_SATA_BASE_ADDR			0x810000000000
+  #define CONFIG_LBA48
+  #define CONFIG_LIBATA
+  #define CONFIG_SYS_64BIT_LBA
+#endif
+
+/* Partition systems */
+#define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
+
+#define CONFIG_SYS_CACHELINE_SIZE 128
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_THUNDERX
