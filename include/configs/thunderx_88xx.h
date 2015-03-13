@@ -53,6 +53,18 @@
 
 #define CONFIG_BAUDRATE			115200
 
+/* Net */
+#define CONFIG_THUNDER_BGX
+#define CONFIG_THUNDER_SMI
+#define CONFIG_RANDOM_MACADDR
+
+#ifndef CONFIG_RANDOM_MACADDR
+#define CONFIG_ETHADDR			aa:d3:31:40:11:00
+#endif
+#define CONFIG_OVERWRITE_ETHADDR_ONCE
+
+#define CONFIG_PHYLIB
+
 /* Command line configuration */
 #define CONFIG_MENU
 
