@@ -4,4 +4,4 @@
 #
 
 obj-y	:= thunderx.o atf.o
-obj-$(CONFIG_OF_LIBFDT) += fdt.o
+obj-$(CONFIG_OF_LIBFDT) += fdt.o psci.o powerburn_dp.o
