@@ -29,7 +29,10 @@
 #define CONFIG_SYS_MEMTEST_END		(MEM_BASE + PHYS_SDRAM_1_SIZE)
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 4 * 1024 * 1024)
+
+#define CONFIG_AP_STACK_SIZE		65536
+#define CONFIG_AP_STACK_ALIGN		16
 
 /* PL011 Serial Configuration */
 
