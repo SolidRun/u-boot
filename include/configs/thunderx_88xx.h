@@ -49,6 +49,13 @@
 #define CONFIG_SYS_SERIAL0		0x87e024000000
 #define CONFIG_SYS_SERIAL1		0x87e025000000
 
+#define CONFIG_BAUDRATE			115200
+
+/* Command line configuration */
+#define CONFIG_MENU
+
+#define CONFIG_THUNDERX_VNIC
+
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 

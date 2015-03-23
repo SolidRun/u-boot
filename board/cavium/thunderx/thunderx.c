@@ -7,6 +7,9 @@
 #include <dm.h>
 #include <malloc.h>
 #include <errno.h>
+#include <netdev.h>
+#include <asm/io.h>
+
 #include <linux/compiler.h>
 
 #ifdef CONFIG_OF_LIBFDT
@@ -45,6 +48,11 @@ U_BOOT_DEVICE(thunderx_serial1) = {
 
 #include <cavium/atf.h>
 
+#ifdef CONFIG_THUNDERX_VNIC
+ #include <cavium/atf.h>
+ #include <cavium/thunderx_smi.h>
+ #include <cavium/thunderx_vnic.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -130,6 +138,35 @@ int board_late_init(void)
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
+#if defined(CONFIG_THUNDERX_VNIC)
+	struct nicpf* nicpf;
+	unsigned int node;
+#endif
+
+	thunderx_smi_initialize(bis, 0);
+	thunderx_smi_initialize(bis, 1);
+
+#if defined(CONFIG_THUNDERX_VNIC)
+#define VNIC_PER_NODE 8
+
+	for (node = 0; node < atf_node_count(); node++) {
+		nicpf = nic_initialize(node);
+
+		bgx_initialize(0, 0, node);
+		bgx_initialize(1, 1, node);
+
+		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 0, node);
+		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 1, node);
+		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 2, node);
+		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 3, node);
+
+		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 4, node);
+		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 5, node);
+		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 6, node);
+		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 7, node);
+	}
+
+#endif
 
 	return rc;
 }
