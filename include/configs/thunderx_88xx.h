@@ -63,6 +63,13 @@
 /* Do not preserve environment */
 #define CONFIG_ENV_SIZE			0x1000
 
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_THUNDERX
+#define CONFIG_SYS_I2C_THUNDERX_SPEED_0 100000
+#define CONFIG_SYS_I2C_THUNDERX_SLAVE_0 0
+#define CONFIG_SYS_I2C_THUNDERX_SPEED_1 100000
+#define CONFIG_SYS_I2C_THUNDERX_SLAVE_1 0
+
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_MAXARGS		64		/* max command args */
