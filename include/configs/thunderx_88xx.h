@@ -98,6 +98,8 @@
 #define CONFIG_CMD_TFTPPUT
 #define CONFIG_CMD_NFS
 
+#define CONFIG_CMD_SAVEENV
+
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
