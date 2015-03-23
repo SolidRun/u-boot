@@ -5,7 +5,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#define DEBUG
 #include <libata.h>
 #include <fis.h>
 #include <sata.h>
@@ -334,6 +333,8 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 		speed_s = "1.5";
 	else if (speed == 2)
 		speed_s = "3";
+	else if (speed == 3)
+		speed_s = "6";
 	else
 		speed_s = "?";
 
@@ -585,9 +586,10 @@ static int ahci_port_start(struct ahci_probe_ent *probe_ent,
 
 	pp->cmd_tbl_sg = (struct ahci_sg *)mem;
 	ahci_writel_with_flush(LOWER32(pp->cmd_slot), &(port_mmio->clb));
-        ahci_writel_with_flush(UPPER32(pp->cmd_slot), &(port_mmio->clbu));
+	ahci_writel_with_flush(UPPER32(pp->cmd_slot), &(port_mmio->clbu));
+
 	ahci_writel_with_flush(LOWER32(pp->rx_fis), &(port_mmio->fb));
-        ahci_writel_with_flush(UPPER32(pp->rx_fis), &(port_mmio->fbu));
+	ahci_writel_with_flush(UPPER32(pp->rx_fis), &(port_mmio->fbu));
 
 	/* Enable FRE */
 	ahci_writel_with_flush((SATA_PORT_CMD_FRE | ahci_readl(&(port_mmio->cmd))),
@@ -666,23 +668,30 @@ static void print_sata_device_info(int dev)
 #endif
 }
 
-static void ahci_sata_identify(int dev, u16 *id)
+static int ahci_sata_identify(int dev, u16 *id)
 {
 	struct ahci_probe_ent *probe_ent =
 		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = probe_ent->hard_port_no;
+	int ret;
 
 	memset(cfis, 0, sizeof(struct sata_fis_h2d));
+
+	if (!(probe_ent->link_port_map & (1 << port))) {
+		return -1;
+	}
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
 	cfis->command = ATA_CMD_ID_ATA;
 
-	ahci_exec_ata_cmd(probe_ent, port, cfis,
+	ret = ahci_exec_ata_cmd(probe_ent, port, cfis,
 			(u8 *)id, ATA_ID_WORDS * 2, READ_CMD);
 	ata_swap_buf_le16(id, ATA_ID_WORDS);
+
+	return (ret != ATA_ID_WORDS * 2);
 }
 
 static void ahci_sata_xfer_mode(int dev, u16 *id)
@@ -927,7 +936,7 @@ u32 ata_low_level_rw_lba28(int dev, u32 blknr, lbaint_t blkcnt,
 /*
  * SATA interface between low level driver and command layer
  */
-ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
+ulong sata_read(int dev, lbaint_t blknr, lbaint_t blkcnt, void *buffer)
 {
 	u32 rc;
 
@@ -940,7 +949,7 @@ ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 	return rc;
 }
 
-ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
+ulong sata_write(int dev, lbaint_t blknr, lbaint_t blkcnt, const void *buffer)
 {
 	u32 rc;
 	struct ahci_probe_ent *probe_ent =
@@ -970,6 +979,8 @@ int scan_sata(int dev)
 	u8 product[ATA_ID_PROD_LEN + 1] = { 0 };
 	u16 *id;
 	u64 n_sectors;
+	int ret;
+
 	struct ahci_probe_ent *probe_ent =
 		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
 	u8 port = probe_ent->hard_port_no;
@@ -984,7 +995,13 @@ int scan_sata(int dev)
 	}
 
 	/* Identify device to get information */
-	ahci_sata_identify(dev, id);
+	ret = ahci_sata_identify(dev, id);
+
+	if (ret) {
+		pdev->type = DEV_TYPE_UNKNOWN;
+		debug("ahci_sata_identify() returned %d\n", ret);
+		return ret;
+	}
 
 	/* Serial number */
 	ata_id_c_string(id, serial, ATA_ID_SERNO, sizeof(serial));
