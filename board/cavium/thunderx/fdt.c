@@ -36,6 +36,11 @@ enum lmac_type {
 	BGX_MODE_40G_KR = 4,/* 4 lanes, 10.3125 Gbaud */
 };
 
+struct mac_range {
+	unsigned char	enetaddr[6];
+	uint32_t		size;
+} __attribute__((packed));
+
 static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 {
 	union bgxx_cmrx_config cmrx_config;
@@ -121,6 +126,54 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 	}
 }
 
+static void ft_setup_macs(void *fdt, int node)
+{
+	int nodeoffset, addr, len, ret, i;
+	char nodename[25];
+
+	struct mac_range mac, *macp;
+
+	mac.size = 1;
+
+	snprintf(nodename, sizeof(nodename), "/ethernet-macs/node%d", node);
+
+	nodeoffset = fdt_path_offset(fdt, nodename);
+
+	if (nodeoffset < 0) {
+		printf("WARNING: could not find %s: %s.\n", nodename,
+					fdt_strerror(nodeoffset));
+	}
+
+	for (addr = (node + 0) * VNIC_PER_NODE;
+		 addr < (node + 1) * VNIC_PER_NODE; addr++) {
+
+		if (!eth_getenv_enetaddr_by_index("eth", addr, mac.enetaddr))
+			continue;
+
+		macp = (void *)fdt_getprop(fdt, nodeoffset, "mac", &len);
+
+		if (len < 0) {
+			printf("WARNING: could not find %s/mac: %s.\n",
+						nodename, fdt_strerror(len));
+			return;
+		}
+
+		for (i = 0; i < len / sizeof(mac); i++) {
+			if (!memcmp(macp[i].enetaddr, mac.enetaddr, 6))
+				continue;
+		}
+
+		ret = fdt_appendprop(fdt, nodeoffset, "mac",
+						&mac, sizeof(struct mac_range));
+
+		if (ret < 0) {
+			printf("WARNING: could not add the ethernet address %pM: %s.\n",
+							mac.enetaddr, fdt_strerror(ret));
+			return;
+		}
+	}
+}
+
 #endif
 
 static void ft_setup_coremask(void *fdt)
@@ -160,6 +213,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	for (node = 0; node < atf_node_count(); node++) {
 		ft_setup_bgx(blob, node, 0);
 		ft_setup_bgx(blob, node, 1);
+		ft_setup_macs(blob, node);
 	}
 #endif
 
