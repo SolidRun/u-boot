@@ -172,6 +172,19 @@
 #define PHYS_SDRAM_1_SIZE		(0x80000000-MEM_BASE)	/* 2048 MB */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_XHCI_THUNDERX
+#define CONFIG_USB_STORAGE
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
+
+
+/* PCIe network controller drivers */
+#define CONFIG_E1000
+#define CONFIG_E1000_SPI
+#define CONFIG_CMD_E1000
+//#define CONFIG_RTL8169
+
 /* Initial environment variables */
 #define UBOOT_IMG_HEAD_SIZE		0x40
 /* C80000 - 0x40 */
