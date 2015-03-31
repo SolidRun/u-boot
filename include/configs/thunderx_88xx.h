@@ -120,7 +120,6 @@
   #define CONFIG_SYS_64BIT_LBA
 #endif
 
-#define CONFIG_CMD_ATF
 #define CONFIG_CMD_VNIC
 
 /* Partition systems */
