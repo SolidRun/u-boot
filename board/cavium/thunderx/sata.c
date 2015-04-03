@@ -16,20 +16,26 @@
 #include <scsi.h>
 #include <sata.h>
 #include <asm/io.h>
-#include <cavm-csrs-sata.h>
-#include <cavm-csrs-mio_boot.h>
+#include <cavium/atf.h>
+#include <cavm-csr.h>
 
+
+#define AHCI_PER_NODE 16
 
 uintptr_t sata_baseaddress(int dev)
 {
 	union satax_uctl_ctl uctl_ctl;
+	int node = dev / AHCI_PER_NODE;
 
-	uctl_ctl.u = readq(SATAX_UCTL_CTL(dev));
+	if (node >= atf_node_count())
+		return 0;
+
+	uctl_ctl.u = readq(CSR_PA(node, SATAX_UCTL_CTL(dev)));
 
 	if (!uctl_ctl.s.sata_uahc_rst &&
 		!uctl_ctl.s.sata_uctl_rst &&
 		uctl_ctl.s.a_clk_en) {
-		return SATAX_PF_BAR0(dev);
+		return CSR_PA(node, SATAX_PF_BAR0(dev));
 	} else {
 		return 0;
 	}
