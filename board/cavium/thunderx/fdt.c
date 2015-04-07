@@ -9,14 +9,14 @@
 #include <errno.h>
 #include <linux/compiler.h>
 
-#ifdef CONFIG_OF_LIBFDT
- #include <libfdt.h>
- #include <fdt_support.h>
-#endif
+#include <libfdt.h>
+#include <fdt_support.h>
+#include <cavium/atf.h>
 
 #if defined(CONFIG_OF_LIBFDT)
 
 #ifdef CONFIG_THUNDER_BGX
+#include <cavm-csr.h>
 /**
  * To remove unwanted nodes from fdt .
  *
@@ -125,6 +125,8 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 		}
 	}
 }
+
+#define VNIC_PER_NODE 2
 
 static void ft_setup_macs(void *fdt, int node)
 {
