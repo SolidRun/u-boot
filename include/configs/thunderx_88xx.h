@@ -251,6 +251,7 @@
 
 /* Do not preserve environment */
 #define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_ENV_OFFSET		0xf00000
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_THUNDERX
