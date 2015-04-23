@@ -178,8 +178,8 @@ int board_eth_init(bd_t *bis)
 #define VNIC_PER_NODE 8
 
 	for (node = 0; node < atf_node_count(); node++) {
-		bgx_initialize(0, 0, node);
-		bgx_initialize(1, 1, node);
+		thunderx_bgx_initialize(0, 0, node);
+		thunderx_bgx_initialize(1, 1, node);
 	}
 
 	for (node = 0; node < atf_node_count(); node++) {
