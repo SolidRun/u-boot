@@ -250,7 +250,16 @@
 					"autoload=0\0"
 
 /* Do not preserve environment */
-#define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_BOOTARGS			\
+					"console=ttyAMA0,115200n8 " \
+					"earlycon=pl011,0x87e024000000 " \
+					"debug maxcpus=48 rootwait rw "\
+					"root=/dev/sda2 coherent_pool=16M"
+#define CONFIG_BOOTDELAY		5
+
+#define CONFIG_ENV_IS_IN_ATF
+#define CONFIG_SYS_ENV_ATF_NOR
+#define CONFIG_ENV_SIZE			0x80000
 #define CONFIG_ENV_OFFSET		0xf00000
 
 #define CONFIG_SYS_I2C
