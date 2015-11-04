@@ -176,8 +176,10 @@ int board_eth_init(bd_t *bis)
 	}
 #endif
 #endif
+#if defined(CONFIG_THUNDERX_SMI)
 	thunderx_smi_initialize(bis, 0);
 	thunderx_smi_initialize(bis, 1);
+#endif
 
 #if defined(CONFIG_THUNDERX_VNIC)
 #define VNIC_PER_NODE 8
