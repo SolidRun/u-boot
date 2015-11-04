@@ -203,6 +203,27 @@ int board_eth_init(bd_t *bis)
 
 #endif
 
+	rc = pci_eth_init(bis);
+
 	return rc;
 }
 
+#ifdef CONFIG_HW_WATCHDOG
+void hw_watchdog_reset(void)
+{
+	ssize_t node, core;
+
+	for (node = 0; node < atf_node_count(); node++)
+		for (core = 0; core < thunderx_core_count(); core++)
+			writeq(~0ULL, CSR_PA(node, GTI_CWD_POKE(core)));
+}
+
+void hw_watchdog_disable(void)
+{
+	ssize_t node, core;
+
+	for (node = 0; node < atf_node_count(); node++)
+		for (core = 0; core < thunderx_core_count(); core++)
+			writeq(0ULL, CSR_PA(node, GTI_CWD_WDOG(core)));
+}
+#endif
