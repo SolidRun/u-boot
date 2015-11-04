@@ -176,6 +176,41 @@ static inline unsigned long read_mpidr(void)
 	return val;
 }
 
+static inline unsigned long read_far(void)
+{
+	unsigned int el;
+	unsigned long val;
+
+	el = current_el();
+	if (el == 1)
+		asm volatile("mrs %0, far_el1" : "=r" (val) : : "cc");
+	else if (el == 2)
+		asm volatile("mrs %0, far_el2" : "=r" (val) : : "cc");
+	else
+		asm volatile("mrs %0, far_el3" : "=r" (val) : : "cc");
+
+	asm volatile("isb");
+
+	return val;
+}
+
+static inline long unsigned int read_spsr(void)
+{
+	unsigned int el, val;
+
+	el = current_el();
+	if (el == 1)
+		asm volatile("mrs %0, spsr_el1" : "=r" (val) : : "cc");
+	else if (el == 2)
+		asm volatile("mrs %0, spsr_el2" : "=r" (val) : : "cc");
+	else
+		asm volatile("mrs %0, spsr_el3" : "=r" (val) : : "cc");
+
+	asm volatile("isb");
+
+	return val;
+}
+
 #define BSP_COREID	0
 
 void __asm_flush_dcache_all(void);
