@@ -12,6 +12,8 @@
 
 #include <linux/compiler.h>
 
+#include "cavm-csr.h"
+
 #ifdef CONFIG_OF_LIBFDT
  #include <libfdt.h>
  #include <fdt_support.h>
@@ -103,6 +105,9 @@ int dram_init(void)
  */
 void reset_cpu(ulong addr)
 {
+	u64 val = readq(RST_SOFT_RST) | 1;
+
+	writeq(val, RST_SOFT_RST);
 }
 
 /*
