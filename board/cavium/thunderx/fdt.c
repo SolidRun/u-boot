@@ -14,9 +14,9 @@
 #include <cavium/atf.h>
 
 #if defined(CONFIG_OF_LIBFDT)
+#include <cavm-csr.h>
 
 #ifdef CONFIG_THUNDER_BGX
-#include <cavm-csr.h>
 /**
  * To remove unwanted nodes from fdt .
  *
