@@ -205,6 +205,33 @@ static void ft_setup_coremask(void *fdt)
 }
 #if defined(CONFIG_OF_BOARD_SETUP)
 
+static void ft_setup_uaa_clk(char *fdt)
+{
+	unsigned int ibrd, fbrd;
+	unsigned long baud = CONFIG_BAUDRATE;
+	uint32_t refclk;
+	int nodeoffset, err;
+
+
+	ibrd = CSR_READ_PA(0, UAAX_IBRD(0));
+	ibrd = ibrd & 0xffff;
+
+	fbrd = CSR_READ_PA(0, UAAX_FBRD(0));
+	fbrd = fbrd & 0x3f;
+
+	refclk = (baud * (64 * ibrd + fbrd)) / 4;
+
+	nodeoffset = fdt_path_offset(fdt, "/soc/refclkuaa");
+
+	err = fdt_setprop_u32(fdt, nodeoffset, "clock-frequency", refclk);
+
+	if(err < 0) {
+		printf("WARNING: could not set %s: %s.\n", "clock-frequency",
+				fdt_strerror(err));
+		return;
+	}
+}
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	unsigned int node;
@@ -218,6 +245,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 		ft_setup_macs(blob, node);
 	}
 #endif
+	ft_setup_uaa_clk(blob);
 
 	return 0;
 }
