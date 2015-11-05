@@ -27,10 +27,15 @@ uintptr_t sata_baseaddress(int dev)
 	union satax_uctl_ctl uctl_ctl;
 	int node = dev / AHCI_PER_NODE;
 
+	dev %= AHCI_PER_NODE;
+
 	if (node >= atf_node_count())
 		return 0;
 
 	uctl_ctl.u = readq(CSR_PA(node, SATAX_UCTL_CTL(dev)));
+
+	debug("sata %d at node %d: uctl_ctl.u: %llx\n",
+	      dev, node, uctl_ctl.u);
 
 	if (!uctl_ctl.s.sata_uahc_rst &&
 		!uctl_ctl.s.sata_uctl_rst &&
