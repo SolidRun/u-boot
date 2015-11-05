@@ -41,6 +41,66 @@ struct mac_range {
 	uint32_t		size;
 } __attribute__((packed));
 
+
+int arch_fixup_memory_node(void *blob)
+{
+	int err, nodeoffset;
+	u64 tmp[2], start, size;
+	char nodename[64];
+	int node;
+
+	err = fdt_check_header(blob);
+	if (err < 0) {
+		printf("%s: %s\n", __FUNCTION__, fdt_strerror(err));
+		return err;
+	}
+
+	for (node = 0; node < atf_node_count(); node++) {
+		/* update, or add and update /memory node */
+		snprintf(nodename, sizeof(nodename), "/memory@%.8lx",
+			 (phys_addr_t)node << 40);
+		nodeoffset = fdt_path_offset(blob, nodename);
+
+		if (nodeoffset < 0) {
+			nodeoffset = fdt_add_subnode(blob, 0, nodename);
+			if (nodeoffset < 0) {
+				printf("WARNING: could not create %s: %s.\n",
+						nodename,
+						fdt_strerror(nodeoffset));
+				return nodeoffset;
+			}
+		}
+		err = fdt_setprop(blob, nodeoffset, "device_type", "memory",
+				  sizeof("memory"));
+		if (err < 0) {
+			printf("WARNING: could not set %s %s.\n",
+					"device_type",
+					fdt_strerror(err));
+			return err;
+		}
+
+		start = (phys_addr_t)node << 40;
+		size = atf_dram_size(node);
+
+		if (node == 0) {
+			start += MEM_BASE;
+			size -= MEM_BASE;
+		}
+
+		tmp[0] = cpu_to_be64(start);
+		tmp[1] = cpu_to_be64(size);
+
+		err = fdt_setprop(blob, nodeoffset, "reg", tmp, sizeof(tmp));
+		if (err < 0) {
+			printf("WARNING: could not set %s %s.\n",
+					"reg", fdt_strerror(err));
+			return err;
+		}
+	}
+
+	return 0;
+}
+
 static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 {
 	union bgxx_cmrx_config cmrx_config;
