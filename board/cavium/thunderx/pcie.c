@@ -30,6 +30,7 @@
 struct thunderx_ecam {
 	int node;
 	int ecam;
+	bool present;
 };
 
 static struct thunderx_ecam thunderx_ecam[CONFIG_THUNDERX_ECAMS];
@@ -47,13 +48,17 @@ void do_sync(struct pt_regs *pt_regs, unsigned int esr)
 	uintptr_t far = read_far();
 	uintptr_t baseaddr, endaddr;
 
-	int ecam, el, Rt;
+	uint8_t Rt;
 
 	/* get faulting address */
 
 	for (ecam = 0; ecam < CONFIG_THUNDERX_ECAMS; ecam++) {
 		node = thunderx_ecam[ecam].node;
-		ecam = thunderx_ecam[ecam].node;
+		ecam = thunderx_ecam[ecam].ecam;
+
+		if (!thunderx_ecam[ecam].present)
+			continue;
+
 		baseaddr = CSR_PA(node, ECAMX_PF_BAR2(ecam));
 		endaddr = baseaddr + ECAMX_PF_BAR2_SIZE;
 		if (far >= baseaddr && far < endaddr) {
@@ -260,8 +265,10 @@ void pci_init_board(void)
 		thunderx_ecam[ecam].node = ecam / ECAMS_PER_NODE;
 		thunderx_ecam[ecam].ecam = ecam % ECAMS_PER_NODE;
 
-		if (thunderx_ecam[ecam].node >= atf_node_count())
+		if (thunderx_ecam[ecam].node >= atf_node_count()) {
+			thunderx_ecam[ecam].present = false;
 			break;
+		}
 
 		debug("%s: %d, ecam: %ld\n", __FUNCTION__, __LINE__, ecam);
 
@@ -287,6 +294,8 @@ void pci_init_board(void)
 
 		if (ret > 0)
 			ecam_hose[ecam].last_busno = ret;
+
+		thunderx_ecam[ecam].present = true;
 	}
 
 	for (pem = 0; pem < CONFIG_THUNDERX_RCS; pem++) {
