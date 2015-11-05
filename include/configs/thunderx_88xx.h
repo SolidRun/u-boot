@@ -6,8 +6,6 @@
 #ifndef __THUNDERX_88XX_H__
 #define __THUNDERX_88XX_H__
 
-#define CONFIG_REMAKE_ELF
-
 #define CONFIG_THUNDERX
 
 #define CONFIG_SPECIAL_SYNC_HANDLER
@@ -17,6 +15,16 @@
 #define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_SYS_64BIT
+
+#define CONFIG_SYS_NO_FLASH
+
+#define CONFIG_SUPPORT_RAW_INITRD
+
+#define CONFIG_SYS_BOOTM_LEN (16 << 20)
+
+#define CONFIG_IDENT_STRING	\
+	" for Cavium Thunder CN88XX ARM v8 Multi-Core"
+#define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
 
 #define MEM_BASE			0x00500000
 
@@ -137,10 +145,12 @@
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_FLASH
+#define CONFIG_CMD_GO
 #define CONFIG_CMD_IMI
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_RUN
 #define CONFIG_CMD_BOOTD
+#define CONFIG_CMD_BOOTI
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_SOURCE
 
