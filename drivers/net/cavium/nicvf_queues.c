@@ -95,7 +95,7 @@ static int nicvf_init_rbdr(struct nicvf *nic, struct rbdr *rbdr,
 	rbdr->enable = true;
 	rbdr->thresh = RBDR_THRESH;
 
-	debug("%s: %d: allocating %d bytes for rcv buffers\n",
+	debug("%s: %d: allocating %lld bytes for rcv buffers\n",
 	      __FUNCTION__, __LINE__,
 	      ring_len * buf_size + NICVF_RCV_BUF_ALIGN_BYTES);
 	rbdr->buf_mem = (uintptr_t)malloc(ring_len * buf_size
@@ -291,8 +291,10 @@ static void nicvf_rcv_queue_config(struct nicvf *nic, struct queue_set *qs,
 {
 	union nic_mbx mbx = {};
 	struct rcv_queue *rq;
-	struct cmp_queue *cq;
-	struct rq_cfg rq_cfg;
+	union {
+		struct rq_cfg s;
+		u64    u;
+	} rq_cfg;
 
 	rq = &qs->rq[qidx];
 	rq->enable = enable;
@@ -337,9 +339,9 @@ static void nicvf_rcv_queue_config(struct nicvf *nic, struct queue_set *qs,
 	nicvf_queue_reg_write(nic, NIC_QSET_RQ_GEN_CFG, 0, 0x00);
 
 	/* Enable Receive queue */
-	rq_cfg.ena = 1;
-	rq_cfg.tcp_ena = 0;
-	nicvf_queue_reg_write(nic, NIC_QSET_RQ_0_7_CFG, qidx, *(u64 *)&rq_cfg);
+	rq_cfg.s.ena = 1;
+	rq_cfg.s.tcp_ena = 0;
+	nicvf_queue_reg_write(nic, NIC_QSET_RQ_0_7_CFG, qidx, rq_cfg.u);
 }
 
 void nicvf_cmp_queue_config(struct nicvf *nic, struct queue_set *qs,
@@ -388,7 +390,11 @@ static void nicvf_snd_queue_config(struct nicvf *nic, struct queue_set *qs,
 {
 	union nic_mbx mbx = {};
 	struct snd_queue *sq;
-	struct sq_cfg sq_cfg;
+
+	union {
+		struct sq_cfg s;
+		u64 u;
+	} sq_cfg;
 
 	sq = &qs->sq[qidx];
 	sq->enable = enable;
@@ -417,12 +423,12 @@ static void nicvf_snd_queue_config(struct nicvf *nic, struct queue_set *qs,
 			      qidx, (u64)(sq->dmem.phys_base));
 
 	/* Enable send queue  & set queue size */
-	sq_cfg.ena = 1;
-	sq_cfg.reset = 0;
-	sq_cfg.ldwb = 0;
-	sq_cfg.qsize = SND_QSIZE;
-	sq_cfg.tstmp_bgx_intf = 0;
-	nicvf_queue_reg_write(nic, NIC_QSET_SQ_0_7_CFG, qidx, *(u64 *)&sq_cfg);
+	sq_cfg.s.ena = 1;
+	sq_cfg.s.reset = 0;
+	sq_cfg.s.ldwb = 0;
+	sq_cfg.s.qsize = SND_QSIZE;
+	sq_cfg.s.tstmp_bgx_intf = 0;
+	nicvf_queue_reg_write(nic, NIC_QSET_SQ_0_7_CFG, qidx, sq_cfg.u);
 
 	/* Set threshold value for interrupt generation */
 	nicvf_queue_reg_write(nic, NIC_QSET_SQ_0_7_THRESH, qidx, sq->thresh);
@@ -433,7 +439,10 @@ static void nicvf_rbdr_config(struct nicvf *nic, struct queue_set *qs,
 			      int qidx, bool enable)
 {
 	struct rbdr *rbdr;
-	struct rbdr_cfg rbdr_cfg;
+	union {
+		struct rbdr_cfg s;
+		u64 u;
+	} rbdr_cfg;
 
 	rbdr = &qs->rbdr[qidx];
 	nicvf_reclaim_rbdr(nic, rbdr, qidx);
@@ -446,14 +455,14 @@ static void nicvf_rbdr_config(struct nicvf *nic, struct queue_set *qs,
 
 	/* Enable RBDR  & set queue size */
 	/* Buffer size should be in multiples of 128 bytes */
-	rbdr_cfg.ena = 1;
-	rbdr_cfg.reset = 0;
-	rbdr_cfg.ldwb = 0;
-	rbdr_cfg.qsize = RBDR_SIZE;
-	rbdr_cfg.avg_con = 0;
-	rbdr_cfg.lines = rbdr->dma_size / 128;
+	rbdr_cfg.s.ena = 1;
+	rbdr_cfg.s.reset = 0;
+	rbdr_cfg.s.ldwb = 0;
+	rbdr_cfg.s.qsize = RBDR_SIZE;
+	rbdr_cfg.s.avg_con = 0;
+	rbdr_cfg.s.lines = rbdr->dma_size / 128;
 	nicvf_queue_reg_write(nic, NIC_QSET_RBDR_0_1_CFG,
-			      qidx, *(u64 *)&rbdr_cfg);
+			      qidx, rbdr_cfg.u);
 
 	/* Notify HW */
 	nicvf_queue_reg_write(nic, NIC_QSET_RBDR_0_1_DOOR,
@@ -803,18 +812,16 @@ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
 	for (frag = 0; frag < cqe_rx->rb_cnt; frag++) {
 		payload_len = rb_lens[frag_num(frag)];
 
-/*		invalidate_dcache_range((uintptr_t)(*rb_ptrs),
+		invalidate_dcache_range((uintptr_t)(*rb_ptrs),
 					(uintptr_t)(*rb_ptrs) + rbdr->dma_size);
-*/
 
 		/* First fragment */
 		*rb_ptrs = *rb_ptrs - cqe_rx->align_pad;
 
 		pkt = nicvf_rb_ptr_to_pkt(nic, *rb_ptrs);
 
-/*		invalidate_dcache_range((uintptr_t)pkt,
+		invalidate_dcache_range((uintptr_t)pkt,
 					(uintptr_t)pkt + payload_len);
-*/
 
 		if (cqe_rx->align_pad) {
 			pkt += cqe_rx->align_pad;
