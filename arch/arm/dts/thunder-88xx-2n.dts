@@ -49,12 +49,11 @@
 
 /dts-v1/;
 
-/include/ "thunder-88xx.dtsi"
+/include/ "thunder-88xx-2n.dtsi"
 
 / {
 	model = "Cavium ThunderX CN88XX board";
 	compatible = "cavium,thunder-88xx";
-	arm,associativity-reference-points = <0>;
 
 	aliases {
 		serial0 = &uaa0;
@@ -64,7 +63,20 @@
 	memory@00000000 {
 		device_type = "memory";
 		reg = <0x0 0x01400000 0x3 0xFEC00000>;
-		/* socket 0, no specific cluster, core */
-		arm,associativity = <0 0xffff 0xffff>;
+		/* socket 0 */
+		proximity = <0>;
+	};
+
+	memory@10000000000 {
+		device_type = "memory";
+		reg = <0x100 0x00400000 0x3 0xFFC00000>;
+		 /* socket 1 */
+		proximity = <1>;
+	};
+
+	distance-map {
+		distance-matrix = <0 0  10>,
+				  <0 1  20>,
+				  <1 1  10>;
 	};
 };

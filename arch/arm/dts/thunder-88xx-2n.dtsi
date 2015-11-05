@@ -1,0 +1,2112 @@
+/*
+ * Cavium Thunder DTS file - Thunder SoC description
+ *
+ * Copyright (C) 2014, Cavium Inc.
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPL or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public
+ *     License along with this library; if not, write to the Free
+ *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ *     MA 02110-1301 USA
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/ {
+	compatible = "cavium,thunder-88xx";
+	interrupt-parent = <&gic0>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
+	};
+
+	cpus {
+		#address-cells = <2>;
+		#size-cells = <0>;
+
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <&CPU0>;
+				};
+				core1 {
+					cpu = <&CPU1>;
+				};
+				core2 {
+					cpu = <&CPU2>;
+				};
+				core3 {
+					cpu = <&CPU3>;
+				};
+				core4 {
+					cpu = <&CPU4>;
+				};
+				core5 {
+					cpu = <&CPU5>;
+				};
+				core6 {
+					cpu = <&CPU6>;
+				};
+				core7 {
+					cpu = <&CPU7>;
+				};
+				core8 {
+					cpu = <&CPU8>;
+				};
+				core9 {
+					cpu = <&CPU9>;
+				};
+				core10 {
+					cpu = <&CPU10>;
+				};
+				core11 {
+					cpu = <&CPU11>;
+				};
+				core12 {
+					cpu = <&CPU12>;
+				};
+				core13 {
+					cpu = <&CPU13>;
+				};
+				core14 {
+					cpu = <&CPU14>;
+				};
+				core15 {
+					cpu = <&CPU15>;
+				};
+				core16 {
+					cpu = <&CPU16>;
+				};
+				core17 {
+					cpu = <&CPU17>;
+				};
+				core18 {
+					cpu = <&CPU18>;
+				};
+				core19 {
+					cpu = <&CPU19>;
+				};
+				core20 {
+					cpu = <&CPU20>;
+				};
+				core21 {
+					cpu = <&CPU21>;
+				};
+				core22 {
+					cpu = <&CPU22>;
+				};
+				core23 {
+					cpu = <&CPU23>;
+				};
+				core24 {
+					cpu = <&CPU24>;
+				};
+				core25 {
+					cpu = <&CPU25>;
+				};
+				core26 {
+					cpu = <&CPU26>;
+				};
+				core27 {
+					cpu = <&CPU27>;
+				};
+				core28 {
+					cpu = <&CPU28>;
+				};
+				core29 {
+					cpu = <&CPU29>;
+				};
+				core30 {
+					cpu = <&CPU30>;
+				};
+				core31 {
+					cpu = <&CPU31>;
+				};
+				core32 {
+					cpu = <&CPU32>;
+				};
+				core33 {
+					cpu = <&CPU33>;
+				};
+				core34 {
+					cpu = <&CPU34>;
+				};
+				core35 {
+					cpu = <&CPU35>;
+				};
+				core36 {
+					cpu = <&CPU36>;
+				};
+				core37 {
+					cpu = <&CPU37>;
+				};
+				core38 {
+					cpu = <&CPU38>;
+				};
+				core39 {
+					cpu = <&CPU39>;
+				};
+				core40 {
+					cpu = <&CPU40>;
+				};
+				core41 {
+					cpu = <&CPU41>;
+				};
+				core42 {
+					cpu = <&CPU42>;
+				};
+				core43 {
+					cpu = <&CPU43>;
+				};
+				core44 {
+					cpu = <&CPU44>;
+				};
+				core45 {
+					cpu = <&CPU45>;
+				};
+				core46 {
+					cpu = <&CPU46>;
+				};
+				core47 {
+					cpu = <&CPU47>;
+				};
+			};
+
+			cluster1 {
+				core0 {
+					cpu = <&CPU48>;
+				};
+				core1 {
+					cpu = <&CPU49>;
+				};
+				core2 {
+					cpu = <&CPU50>;
+				};
+				core3 {
+					cpu = <&CPU51>;
+				};
+				core4 {
+					cpu = <&CPU52>;
+				};
+				core5 {
+					cpu = <&CPU53>;
+				};
+				core6 {
+					cpu = <&CPU54>;
+				};
+				core7 {
+					cpu = <&CPU55>;
+				};
+				core8 {
+					cpu = <&CPU56>;
+				};
+				core9 {
+					cpu = <&CPU57>;
+				};
+				core10 {
+					cpu = <&CPU58>;
+				};
+				core11 {
+					cpu = <&CPU59>;
+				};
+				core12 {
+					cpu = <&CPU60>;
+				};
+				core13 {
+					cpu = <&CPU61>;
+				};
+				core14 {
+					cpu = <&CPU62>;
+				};
+				core15 {
+					cpu = <&CPU63>;
+				};
+				core16 {
+					cpu = <&CPU64>;
+				};
+				core17 {
+					cpu = <&CPU65>;
+				};
+				core18 {
+					cpu = <&CPU66>;
+				};
+				core19 {
+					cpu = <&CPU67>;
+				};
+				core20 {
+					cpu = <&CPU68>;
+				};
+				core21 {
+					cpu = <&CPU69>;
+				};
+				core22 {
+					cpu = <&CPU70>;
+				};
+				core23 {
+					cpu = <&CPU71>;
+				};
+				core24 {
+					cpu = <&CPU72>;
+				};
+				core25 {
+					cpu = <&CPU73>;
+				};
+				core26 {
+					cpu = <&CPU74>;
+				};
+				core27 {
+					cpu = <&CPU75>;
+				};
+				core28 {
+					cpu = <&CPU76>;
+				};
+				core29 {
+					cpu = <&CPU77>;
+				};
+				core30 {
+					cpu = <&CPU78>;
+				};
+				core31 {
+					cpu = <&CPU79>;
+				};
+				core32 {
+					cpu = <&CPU80>;
+				};
+				core33 {
+					cpu = <&CPU81>;
+				};
+				core34 {
+					cpu = <&CPU82>;
+				};
+				core35 {
+					cpu = <&CPU83>;
+				};
+				core36 {
+					cpu = <&CPU84>;
+				};
+				core37 {
+					cpu = <&CPU85>;
+				};
+				core38 {
+					cpu = <&CPU86>;
+				};
+				core39 {
+					cpu = <&CPU87>;
+				};
+				core40 {
+					cpu = <&CPU88>;
+				};
+				core41 {
+					cpu = <&CPU89>;
+				};
+				core42 {
+					cpu = <&CPU90>;
+				};
+				core43 {
+					cpu = <&CPU91>;
+				};
+				core44 {
+					cpu = <&CPU92>;
+				};
+				core45 {
+					cpu = <&CPU93>;
+				};
+				core46 {
+					cpu = <&CPU94>;
+				};
+				core47 {
+					cpu = <&CPU95>;
+				};
+			};
+		};
+
+		CPU0: cpu@000 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x000>;
+			enable-method = "psci";
+			/* socket 0 */
+			proximity = <0>;
+		};
+		CPU1: cpu@001 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x001>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU2: cpu@002 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x002>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU3: cpu@003 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x003>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU4: cpu@004 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x004>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU5: cpu@005 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x005>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU6: cpu@006 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x006>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU7: cpu@007 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x007>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU8: cpu@008 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x008>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU9: cpu@009 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x009>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU10: cpu@00a {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x00a>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU11: cpu@00b {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x00b>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU12: cpu@00c {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x00c>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU13: cpu@00d {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x00d>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU14: cpu@00e {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x00e>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU15: cpu@00f {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x00f>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU16: cpu@100 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x100>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU17: cpu@101 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x101>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU18: cpu@102 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x102>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU19: cpu@103 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x103>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU20: cpu@104 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x104>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU21: cpu@105 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x105>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU22: cpu@106 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x106>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU23: cpu@107 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x107>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU24: cpu@108 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x108>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU25: cpu@109 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x109>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU26: cpu@10a {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10a>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU27: cpu@10b {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10b>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU28: cpu@10c {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10c>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU29: cpu@10d {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10d>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU30: cpu@10e {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10e>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU31: cpu@10f {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10f>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU32: cpu@200 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x200>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU33: cpu@201 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x201>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU34: cpu@202 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x202>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU35: cpu@203 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x203>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU36: cpu@204 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x204>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU37: cpu@205 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x205>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU38: cpu@206 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x206>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU39: cpu@207 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x207>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU40: cpu@208 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x208>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU41: cpu@209 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x209>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU42: cpu@20a {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x20a>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU43: cpu@20b {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x20b>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU44: cpu@20c {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x20c>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU45: cpu@20d {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x20d>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU46: cpu@20e {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x20e>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU47: cpu@20f {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x20f>;
+			enable-method = "psci";
+			proximity = <0>;
+		};
+		CPU48: cpu@10000 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10000>;
+			enable-method = "psci";
+			/* socket 1 */
+			proximity = <1>;
+		};
+		CPU49: cpu@10001 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10001>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU50: cpu@10002 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10002>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU51: cpu@10003 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10003>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU52: cpu@10004 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10004>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU53: cpu@10005 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10005>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU54: cpu@10006 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10006>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU55: cpu@10007 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10007>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU56: cpu@10008 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10008>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU57: cpu@10009 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10009>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU58: cpu@1000a {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1000a>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU59: cpu@1000b {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1000b>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU60: cpu@1000c {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1000c>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU61: cpu@1000d {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1000d>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU62: cpu@1000e {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1000e>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU63: cpu@1000f {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1000f>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU64: cpu@10100 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10100>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU65: cpu@10101 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10101>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU66: cpu@10102 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10102>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU67: cpu@10103 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10103>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU68: cpu@10104 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10104>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU69: cpu@10105 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10105>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU70: cpu@10106 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10106>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU71: cpu@10107 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10107>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU72: cpu@10108 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10108>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU73: cpu@10109 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10109>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU74: cpu@1010a {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1010a>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU75: cpu@1010b {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1010b>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU76: cpu@1010c {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1010c>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU77: cpu@1010d {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1010d>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU78: cpu@1010e {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1010e>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU79: cpu@1010f {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1010f>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU80: cpu@10200 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10200>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU81: cpu@10201 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10201>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU82: cpu@10202 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10202>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU83: cpu@10203 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10203>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU84: cpu@10204 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10204>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU85: cpu@10205 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10205>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU86: cpu@10206 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10206>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU87: cpu@10207 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10207>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU88: cpu@10208 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10208>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU89: cpu@10209 {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x10209>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU90: cpu@1020a {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1020a>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU91: cpu@1020b {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1020b>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU92: cpu@1020c {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1020c>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU93: cpu@1020d {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1020d>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU94: cpu@1020e {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1020e>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+		CPU95: cpu@1020f {
+			device_type = "cpu";
+			compatible = "cavium,thunder", "arm,armv8";
+			reg = <0x0 0x1020f>;
+			enable-method = "psci";
+			proximity = <1>;
+		};
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <1 13 0xff01>,
+			     <1 14 0xff01>,
+			     <1 11 0xff01>,
+			     <1 10 0xff01>;
+	};
+
+	pmu {
+		compatible = "arm,armv8-pmuv3";
+		interrupts = <1 7 4>;
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		refclkuaa: refclkuaa {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <116640000>;
+			clock-output-names = "refclkuaa";
+		};
+
+		gic0: interrupt-controller@8010,00000000 {
+			compatible = "arm,gic-v3";
+			#interrupt-cells = <3>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			#redistributor-regions = <2>;
+			ranges;
+			interrupt-controller;
+			reg = <0x8010 0x00000000 0x0 0x010000>, /* GICD */
+			      <0x8010 0x80000000 0x0 0x600000>, /* GICR Node 0 */
+			      <0x9010 0x80000000 0x0 0x600000>; /* GICR Node 1 */
+			interrupts = <1 9 0xf04>;
+
+			its: gic-its@8010,00020000 {
+				compatible = "arm,gic-v3-its";
+				msi-controller;
+				reg = <0x8010 0x20000 0x0 0x200000>;
+				proximity = <0>;
+			};
+
+			its1: gic-its@9010,00020000 {
+				compatible = "arm,gic-v3-its";
+				msi-controller;
+				reg = <0x9010 0x20000 0x0 0x200000>;
+				proximity = <1>;
+			};
+		};
+
+		uaa0: serial@87e0,24000000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0x87e0 0x24000000 0x0 0x1000>;
+			interrupts = <0 5 4>;
+			clocks = <&refclkuaa>;
+			clock-names = "apb_pclk";
+		};
+
+		uaa1: serial@87e0,25000000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0x87e0 0x25000000 0x0 0x1000>;
+			interrupts = <0 6 4>;
+			clocks = <&refclkuaa>;
+			clock-names = "apb_pclk";
+		};
+	};
+
+	pcie0: pcie0@0x8480,00000000 {
+		compatible = "cavium,thunder-pcie";
+		device_type = "pci";
+		msi-parent = <&its>;
+		bus-range = <0 255>;
+		#size-cells = <2>;
+		#address-cells = <3>;
+		#stream-id-cells = <1>;
+		reg = <0x8480 0x00000000 0 0x10000000>;  /* Configuration space */
+		ranges = <0x03000000 0x8010 0x00000000 0x8010 0x00000000 0x70 0x00000000>, /* mem ranges */
+			 <0x03000000 0x8300 0x00000000 0x8300 0x00000000 0x500 0x00000000>;
+	};
+
+	pcie1: pcie1@0x8490,00000000 {
+		compatible = "cavium,thunder-pcie";
+		device_type = "pci";
+		msi-parent = <&its>;
+		bus-range = <0 255>;
+		#size-cells = <2>;
+		#address-cells = <3>;
+		#stream-id-cells = <1>;
+		reg = <0x8490 0x00000000 0 0x10000000>;  /* Configuration space */
+		ranges = <0x03000000 0x8310 0x00000000 0x8310 0x00000000 0x00 0x10000000>, /* mem ranges */
+			 <0x03000000 0x8100 0x00000000 0x8100 0x00000000 0x80 0x00000000>;
+	};
+
+	pcie2: pcie2@0x84a0,00000000 {
+		compatible = "cavium,thunder-pcie";
+		device_type = "pci";
+		msi-parent = <&its>;
+		bus-range = <0 255>;
+		#size-cells = <2>;
+		#address-cells = <3>;
+		#stream-id-cells = <1>;
+		reg = <0x84a0 0x00000000 0 0x10000000>;  /* Configuration space */
+		ranges = <0x03000000 0x8320 0x00000000 0x8320 0x00000000 0x00 0x10000000>, /* mem ranges */
+			 <0x03000000 0x8430 0x00000000 0x8430 0x00000000 0x01 0x00000000>;
+	};
+
+	pcie3: pcie3@0x84b0,00000000 {
+		compatible = "cavium,thunder-pcie";
+		device_type = "pci";
+		msi-parent = <&its>;
+		bus-range = <0 255>;
+		#size-cells = <2>;
+		#address-cells = <3>;
+		#stream-id-cells = <1>;
+		reg = <0x84b0 0x00000000 0 0x10000000>;  /* Configuration space */
+		ranges = <0x03000000 0x8330 0x00000000 0x8330 0x00000000 0x00 0x10000000>, /* mem ranges */
+			 <0x03000000 0x8180 0x00000000 0x8180 0x00000000 0x80 0x00000000>;
+	};
+
+	pcie4: pcie4@0x9480,00000000 {
+		compatible = "cavium,thunder-pcie";
+		device_type = "pci";
+		msi-parent = <&its1>;
+		bus-range = <0 255>;
+		#size-cells = <2>;
+		#address-cells = <3>;
+		#stream-id-cells = <1>;
+		reg = <0x9480 0x00000000 0 0x10000000>;  /* Configuration space */
+		ranges = <0x03000000 0x9010 0x00000000 0x9010 0x00000000 0x70 0x00000000>, /* mem ranges */
+			 <0x03000000 0x9300 0x00000000 0x9300 0x00000000 0x500 0x00000000>;
+	};
+
+	pcie5: pcie5@0x9490,00000000 {
+		compatible = "cavium,thunder-pcie";
+		device_type = "pci";
+		msi-parent = <&its1>;
+		bus-range = <0 255>;
+		#size-cells = <2>;
+		#address-cells = <3>;
+		#stream-id-cells = <1>;
+		reg = <0x9490 0x00000000 0 0x10000000>;  /* Configuration space */
+		ranges = <0x03000000 0x9310 0x00000000 0x9310 0x00000000 0x00 0x10000000>, /* mem ranges */
+			 <0x03000000 0x9100 0x00000000 0x9100 0x00000000 0x80 0x00000000>;
+	};
+
+	pcie6: pcie6@0x94a0,00000000 {
+		compatible = "cavium,thunder-pcie";
+		device_type = "pci";
+		msi-parent = <&its1>;
+		bus-range = <0 255>;
+		#size-cells = <2>;
+		#address-cells = <3>;
+		#stream-id-cells = <1>;
+		reg = <0x94a0 0x00000000 0 0x10000000>;  /* Configuration space */
+		ranges = <0x03000000 0x9320 0x00000000 0x9320 0x00000000 0x00 0x10000000>, /* mem ranges */
+			 <0x03000000 0x9430 0x00000000 0x9430 0x00000000 0x01 0x00000000>;
+	};
+
+	pcie7: pcie7@0x94b0,00000000 {
+		compatible = "cavium,thunder-pcie";
+		device_type = "pci";
+		msi-parent = <&its1>;
+		bus-range = <0 255>;
+		#size-cells = <2>;
+		#address-cells = <3>;
+		#stream-id-cells = <1>;
+		reg = <0x94b0 0x00000000 0 0x10000000>;  /* Configuration space */
+		ranges = <0x03000000 0x9330 0x00000000 0x9330 0x00000000 0x00 0x10000000>, /* mem ranges */
+			 <0x03000000 0x9180 0x00000000 0x9180 0x00000000 0x80 0x00000000>;
+	};
+
+	smmu0@0x8300,00000000 {
+		compatible = "arm,smmu-v2";
+		reg = <0x8300 0x0 0x0 0x2000000>;
+		#global-interrupts = <1>;
+		interrupts = <0 68 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+			     <0 69 4>, <0 69 4>, <0 69 4>;
+
+		mmu-masters = <&pcie0 0x100>;
+		thunderx,smmu-64-bit-writes-only;
+	};
+
+	smmu1@0x8310,00000000 {
+		compatible = "arm,smmu-v2";
+		reg = <0x8310 0x0 0x0 0x2000000>;
+		#global-interrupts = <1>;
+		interrupts = <0 70 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+			     <0 71 4>, <0 71 4>, <0 71 4>;
+
+		mmu-masters = <&pcie1 0x100>;
+		thunderx,smmu-64-bit-writes-only;
+	};
+
+	smmu2@0x8320,00000000 {
+		compatible = "arm,smmu-v2";
+		reg = <0x8320 0x0 0x0 0x2000000>;
+		#global-interrupts = <1>;
+		interrupts = <0 72 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+			     <0 73 4>, <0 73 4>, <0 73 4>;
+
+		mmu-masters = <&pcie2 0x100>;
+		thunderx,smmu-64-bit-writes-only;
+	};
+
+	smmu3@0x8330,00000000 {
+		compatible = "arm,smmu-v2";
+		reg = <0x8330 0x0 0x0 0x2000000>;
+		#global-interrupts = <1>;
+		interrupts = <0 74 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+			     <0 75 4>, <0 75 4>, <0 75 4>;
+
+		mmu-masters = <&pcie3 0x100>;
+		thunderx,smmu-64-bit-writes-only;
+	};
+
+	smmu4@0x9300,00000000 {
+		compatible = "arm,smmu-v2";
+		reg = <0x9300 0x0 0x0 0x2000000>;
+		#global-interrupts = <1>;
+		interrupts = <0 76 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>, <0 77 4>,
+			     <0 77 4>, <0 77 4>, <0 77 4>;
+
+		mmu-masters = <&pcie4 0x100>;
+		thunderx,smmu-64-bit-writes-only;
+	};
+
+	smmu5@0x9310,00000000 {
+		compatible = "arm,smmu-v2";
+		reg = <0x9310 0x0 0x0 0x2000000>;
+		#global-interrupts = <1>;
+		interrupts = <0 78 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>, <0 79 4>,
+			     <0 79 4>, <0 79 4>, <0 79 4>;
+
+		mmu-masters = <&pcie5 0x100>;
+		thunderx,smmu-64-bit-writes-only;
+	};
+
+	smmu6@0x9320,00000000 {
+		compatible = "arm,smmu-v2";
+		reg = <0x9320 0x0 0x0 0x2000000>;
+		#global-interrupts = <1>;
+		interrupts = <0 80 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>, <0 81 4>,
+			     <0 81 4>, <0 81 4>, <0 81 4>;
+
+		mmu-masters = <&pcie6 0x100>;
+		thunderx,smmu-64-bit-writes-only;
+	};
+
+	smmu7@0x9330,00000000 {
+		compatible = "arm,smmu-v2";
+		reg = <0x9330 0x0 0x0 0x2000000>;
+		#global-interrupts = <1>;
+
+		interrupts = <0 82 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>, <0 83 4>,
+			     <0 83 4>, <0 83 4>, <0 83 4>;
+
+		mmu-masters = <&pcie7 0x100>;
+		thunderx,smmu-64-bit-writes-only;
+	};
+
+	mdio@0x87e00,5003800 {
+		compatible = "cavium,octeon-3860-mdio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x87e0 0x05003800 0x0 0x30>;
+
+		sgmii00: sgmii00 {
+			qlm-mode = "0,sgmii";
+			reg = <0> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			/* LED[2,1]: Speed, LED[3]: RX, LED[0]: TX, all open-drain */
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		sgmii01: sgmii01 {
+			qlm-mode = "0,sgmii";
+			reg = <1> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		sgmii02: sgmii02 {
+			qlm-mode = "0,sgmii";
+			reg = <2> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		sgmii03: sgmii03 {
+			qlm-mode = "0,sgmii";
+			reg = <3> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		xfi00: xfi00 {
+			qlm-mode = "0,xfi","0,xfi-10g-kr";
+			reg = <0> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi01: xfi01 {
+			qlm-mode = "0,xfi","0,xfi-10g-kr";
+			reg = <1> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi02: xfi02 {
+			qlm-mode = "0,xfi","0,xfi-10g-kr";
+			reg = <2> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi03: xfi03 {
+			qlm-mode = "0,xfi","0,xfi-10g-kr";
+			reg = <3> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xlaui00: xlaui00 {
+			qlm-mode = "0,xlaui","0,xlaui-40g-kr";
+			reg = <0> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xaui00: xaui00 {
+			qlm-mode = "0,xaui";
+			reg = <0> ;
+			compatible = "broadcom,bcm8706", "ethernet-phy-ieee802.3-c45";
+			broadcom,c45-reg-init = <1 0xc808 0xff8f 0x70>;
+		};
+		rxaui00: rxaui00 {
+			qlm-mode = "0,rxaui";
+			reg = <0> ;
+			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+		};
+		rxaui01: rxaui01 {
+			qlm-mode = "0,rxaui";
+			reg = <1> ;
+			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+		};
+	};
+
+	mdio@0x87e00,5003880 {
+		compatible = "cavium,octeon-3860-mdio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x87e0 0x05003880 0x0 0x30>;
+
+		sgmii10: sgmii10 {
+			qlm-mode = "1,sgmii";
+			reg = <4> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		sgmii11: sgmii11 {
+			qlm-mode = "1,sgmii";
+			reg = <5> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		sgmii12: sgmii12 {
+			qlm-mode = "1,sgmii";
+			reg = <6> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		sgmii13: sgmii13 {
+			qlm-mode = "1,sgmii";
+			reg = <7> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		xfi10: xfi10 {
+			qlm-mode = "1,xfi","1,xfi-10g-kr";
+			reg = <0> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi11: xfi11 {
+			qlm-mode = "1,xfi","1,xfi-10g-kr";
+			reg = <1> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi12: xfi12 {
+			qlm-mode = "1,xfi","1,xfi-10g-kr";
+			reg = <2> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi13: xfi13 {
+			qlm-mode = "1,xfi","1,xfi-10g-kr";
+			reg = <3> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xlaui10: xlaui10 {
+			qlm-mode = "1,xlaui","1,xlaui-40g-kr";
+			reg = <0> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xaui10: xaui10 {
+			qlm-mode = "1,xaui";
+			reg = <4> ;
+			compatible = "broadcom,bcm8706", "ethernet-phy-ieee802.3-c45";
+			broadcom,c45-reg-init = <1 0xc808 0xff8f 0x70>;
+		};
+		rxaui10: rxaui10 {
+			qlm-mode = "1,rxaui";
+			reg = <0> ;
+			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+		};
+		rxaui11: rxaui11 {
+			qlm-mode = "1,rxaui";
+			reg = <1> ;
+			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+		};
+	};
+
+	mdio@0x97e00,5003800 {
+		compatible = "cavium,octeon-3860-mdio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x97e0 0x05003800 0x0 0x30>;
+
+		sgmii20: sgmii20 {
+			qlm-mode = "2,sgmii";
+			reg = <0> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			/* LED[2,1]: Speed, LED[3]: RX, LED[0]: TX, all open-drain */
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		sgmii21: sgmii21 {
+			qlm-mode = "2,sgmii";
+			reg = <1> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+			      <3 0x11 0 0x00aa>,
+			      <3 0x12 0 0x4105>,
+			      <3 0x13 0 0x8a08>;
+		};
+		sgmii22: sgmii22 {
+			qlm-mode = "2,sgmii";
+			reg = <2> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+			      <3 0x11 0 0x00aa>,
+			      <3 0x12 0 0x4105>,
+			      <3 0x13 0 0x8a08>;
+		};
+		sgmii23: sgmii23 {
+			qlm-mode = "2,sgmii";
+			reg = <3> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		xfi20: xfi20 {
+			qlm-mode = "2,xfi","2,xfi-10g-kr";
+			reg = <0> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi21: xfi21 {
+			qlm-mode = "2,xfi","2,xfi-10g-kr";
+			reg = <1> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi22: xfi22 {
+			qlm-mode = "2,xfi","2,xfi-10g-kr";
+			reg = <2> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi23: xfi23 {
+			qlm-mode = "2,xfi","2,xfi-10g-kr";
+			reg = <3> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xlaui20: xlaui20 {
+			qlm-mode = "2,xlaui","2,xlaui-40g-kr";
+			reg = <0> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xaui20: xaui20 {
+			qlm-mode = "2,xaui";
+			reg = <0> ;
+			compatible = "broadcom,bcm8706", "ethernet-phy-ieee802.3-c45";
+			broadcom,c45-reg-init = <1 0xc808 0xff8f 0x70>;
+		};
+		rxaui20: rxaui20 {
+			qlm-mode = "2,rxaui";
+			reg = <0> ;
+			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+		};
+		rxaui21: rxaui21 {
+			qlm-mode = "2,rxaui";
+			reg = <1> ;
+			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+		};
+	};
+
+	mdio@0x97e00,5003880 {
+		compatible = "cavium,octeon-3860-mdio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x97e0 0x05003880 0x0 0x30>;
+
+		sgmii30: sgmii30 {
+			qlm-mode = "3,sgmii";
+			reg = <4> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		sgmii31: sgmii31 {
+			qlm-mode = "3,sgmii";
+			reg = <5> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		sgmii32: sgmii32 {
+			qlm-mode = "3,sgmii";
+			reg = <6> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		sgmii33: sgmii33 {
+			qlm-mode = "3,sgmii";
+			reg = <7> ;
+			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+			marvell,reg-init = <3 0x10 0 0x8665>,
+				<3 0x11 0 0x00aa>,
+				<3 0x12 0 0x4105>,
+				<3 0x13 0 0x8a08>;
+		};
+		xfi30: xfi30 {
+			qlm-mode = "3,xfi","3,xfi-10g-kr";
+			reg = <0> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi31: xfi31 {
+			qlm-mode = "3,xfi","3,xfi-10g-kr";
+			reg = <1> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi32: xfi32 {
+			qlm-mode = "3,xfi","3,xfi-10g-kr";
+			reg = <2> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xfi33: xfi33 {
+			qlm-mode = "3,xfi","3,xfi-10g-kr";
+			reg = <3> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xlaui30: xlaui30 {
+			qlm-mode = "3,xlaui","3,xlaui-40g-kr";
+			reg = <0> ;
+			compatible = "cortina,cs4223-slice";
+		};
+		xaui30: xaui30 {
+			qlm-mode = "3,xaui";
+			reg = <4> ;
+			compatible = "broadcom,bcm8706", "ethernet-phy-ieee802.3-c45";
+			broadcom,c45-reg-init = <1 0xc808 0xff8f 0x70>;
+		};
+		rxaui30: rxaui30 {
+			qlm-mode = "3,rxaui";
+			reg = <0> ;
+			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+		};
+		rxaui31: rxaui31 {
+			qlm-mode = "3,rxaui";
+			reg = <1> ;
+			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+		};
+	};
+
+	/**BGX0**/
+	bgx0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x87e0 0xe0000000 0x0 0x1000000>;
+		/* typename+qlm+typenumber eg :
+		   sgmii+bgx0+sgmmi0
+		 */
+		// SGMII
+		sgmii00 {
+			qlm-mode = "0,sgmii";
+			phy-handle = <&sgmii00>;
+		};
+		sgmii01 {
+			qlm-mode = "0,sgmii";
+			phy-handle = <&sgmii01>;
+		};
+		sgmii02 {
+			qlm-mode = "0,sgmii";
+			phy-handle = <&sgmii02>;
+		};
+		sgmii03 {
+			qlm-mode = "0,sgmii";
+			phy-handle = <&sgmii03>;
+		};
+		xfi00 {
+			qlm-mode = "0,xfi";
+			phy-handle = <&xfi00>;
+		};
+		xfi01 {
+			qlm-mode = "0,xfi";
+			phy-handle = <&xfi01>;
+		};
+		xfi02 {
+			qlm-mode = "0,xfi";
+			phy-handle = <&xfi02>;
+		};
+		xfi03 {
+			qlm-mode = "0,xfi";
+			phy-handle = <&xfi03>;
+		};
+		// 10g-kr
+		xfi-10g-kr00 {
+			qlm-mode = "0,xfi-10g-kr";
+			phy-handle = <&xfi00>;
+		};
+		xfi-10g-kr01 {
+			qlm-mode = "0,xfi-10g-kr";
+			phy-handle = <&xfi01>;
+		};
+		xfi-10g-kr02 {
+			qlm-mode = "0,xfi-10g-kr";
+			phy-handle = <&xfi02>;
+		};
+		xfi-10g-kr03 {
+			qlm-mode = "0,xfi-10g-kr";
+			phy-handle = <&xfi03>;
+		};
+		xlaui00 {
+			qlm-mode = "0,xlaui";
+			phy-handle = <&xlaui00>;
+			};
+		xlaui-40g-kr00 {
+			qlm-mode = "0,xlaui-40g-kr";
+			phy-handle = <&xlaui00>;
+			};
+		xaui00 {
+			qlm-mode = "0,xaui";
+			phy-handle = <&xaui00>;
+		};
+		rxaui00 {
+			qlm-mode = "0,rxaui";
+			phy-handle = <&rxaui00>;
+		};
+		rxaui01 {
+			qlm-mode = "0,rxaui";
+			phy-handle = <&rxaui01>;
+		};
+	};
+	/**BGX1**/
+	bgx1 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x87e0 0xe1000000 0x0 0x1000000>;
+		sgmii10 {
+			qlm-mode = "1,sgmii";
+			phy-handle = <&sgmii10>; /*"sgmmi"+bgx+no */
+		};
+		sgmii11 {
+			qlm-mode = "1,sgmii";
+			phy-handle = <&sgmii11>;
+		};
+		sgmii12 {
+			qlm-mode = "1,sgmii";
+			phy-handle = <&sgmii12>;
+		};
+		sgmii13 {
+			qlm-mode = "1,sgmii";
+			phy-handle = <&sgmii13>;
+		};
+		xfi10 {
+			qlm-mode = "1,xfi";
+			phy-handle = <&xfi10>;
+		};
+		xfi11 {
+			qlm-mode = "1,xfi";
+			phy-handle = <&xfi11>;
+		};
+		xfi12 {
+			qlm-mode = "1,xfi";
+			phy-handle = <&xfi12>;
+		};
+		xfi13 {
+			qlm-mode = "1,xfi";
+			phy-handle = <&xfi13>;
+		};
+		// 10g_kr
+		xfi-10g-kr10 {
+			qlm-mode = "1,xfi-10g-kr";
+			phy-handle = <&xfi10>;
+		};
+		xfi-10g-kr11 {
+			qlm-mode = "1,xfi-10g-kr";
+			phy-handle = <&xfi11>;
+		};
+		xfi-10g-kr12 {
+			qlm-mode = "1,xfi-10g-kr";
+			phy-handle = <&xfi12>;
+		};
+		xfi-10g-kr13 {
+			qlm-mode = "1,xfi-10g-kr";
+			phy-handle = <&xfi13>;
+		};
+		xlaui10 {
+			qlm-mode = "1,xlaui";
+			phy-handle = <&xlaui10>;
+		};
+		xlaui-40g-kr-10 {
+			qlm-mode = "1,xlaui-40g-kr";
+			phy-handle = <&xlaui10>;
+		};
+		xaui10 {
+			qlm-mode = "1,xaui";
+			phy-handle = <&xaui10>;
+		};
+		rxaui10 {
+			qlm-mode = "1,rxaui";
+			phy-handle = <&rxaui10>;
+		};
+		rxaui11 {
+			qlm-mode = "1,rxaui";
+			phy-handle = <&rxaui11>;
+		};
+	};
+
+	/**BGX2**/
+	bgx2 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x97e0 0xe0000000 0x0 0x1000000>;
+		/* typename+qlm+typenumber eg :
+		   sgmii+bgx0+sgmmi0
+		 */
+		// SGMII
+		sgmii20 {
+			qlm-mode = "2,sgmii";
+			phy-handle = <&sgmii20>;
+		};
+		sgmii21 {
+			qlm-mode = "2,sgmii";
+			phy-handle = <&sgmii21>;
+		};
+		sgmii22 {
+			qlm-mode = "2,sgmii";
+			phy-handle = <&sgmii22>;
+		};
+		sgmii23 {
+			qlm-mode = "2,sgmii";
+			phy-handle = <&sgmii23>;
+		};
+		xfi20 {
+			qlm-mode = "2,xfi";
+			phy-handle = <&xfi20>;
+		};
+		xfi21 {
+			qlm-mode = "2,xfi";
+			phy-handle = <&xfi21>;
+		};
+		xfi22 {
+			qlm-mode = "2,xfi";
+			phy-handle = <&xfi22>;
+		};
+		xfi23 {
+			qlm-mode = "2,xfi";
+			phy-handle = <&xfi23>;
+		};
+		// 10g-kr
+		xfi-10g-kr20 {
+			qlm-mode = "2,xfi-10g-kr";
+			phy-handle = <&xfi20>;
+		};
+		xfi-10g-kr21 {
+			qlm-mode = "2,xfi-10g-kr";
+			phy-handle = <&xfi21>;
+		};
+		xfi-10g-kr22 {
+			qlm-mode = "2,xfi-10g-kr";
+			phy-handle = <&xfi22>;
+		};
+		xfi-10g-kr23 {
+			qlm-mode = "2,xfi-10g-kr";
+			phy-handle = <&xfi23>;
+		};
+		xlaui20 {
+			qlm-mode = "2,xlaui";
+			phy-handle = <&xlaui20>;
+			};
+		xlaui-40g-kr20 {
+			qlm-mode = "2,xlaui-40g-kr";
+			phy-handle = <&xlaui20>;
+			};
+		xaui20 {
+			qlm-mode = "2,xaui";
+			phy-handle = <&xaui20>;
+		};
+		rxaui20 {
+			qlm-mode = "2,rxaui";
+			phy-handle = <&rxaui20>;
+		};
+		rxaui21 {
+			qlm-mode = "2,rxaui";
+			phy-handle = <&rxaui21>;
+		};
+	};
+	/**BGX3**/
+	bgx3 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x97e0 0xe1000000 0x0 0x1000000>;
+		sgmii30 {
+			qlm-mode = "3,sgmii";
+			phy-handle = <&sgmii30>; /*"sgmmi"+bgx+no */
+		};
+		sgmii31 {
+			qlm-mode = "3,sgmii";
+			phy-handle = <&sgmii31>;
+		};
+		sgmii32 {
+			qlm-mode = "3,sgmii";
+			phy-handle = <&sgmii32>;
+		};
+		sgmii33 {
+			qlm-mode = "3,sgmii";
+			phy-handle = <&sgmii33>;
+		};
+		xfi30 {
+			qlm-mode = "3,xfi";
+			phy-handle = <&xfi30>;
+		};
+		xfi31 {
+			qlm-mode = "3,xfi";
+			phy-handle = <&xfi31>;
+		};
+		xfi32 {
+			qlm-mode = "3,xfi";
+			phy-handle = <&xfi32>;
+		};
+		xfi33 {
+			qlm-mode = "3,xfi";
+			phy-handle = <&xfi33>;
+		};
+		// 10g_kr
+		xfi-10g-kr30 {
+			qlm-mode = "3,xfi-10g-kr";
+			phy-handle = <&xfi30>;
+		};
+		xfi-10g-kr31 {
+			qlm-mode = "3,xfi-10g-kr";
+			phy-handle = <&xfi31>;
+		};
+		xfi-10g-kr32 {
+			qlm-mode = "3,xfi-10g-kr";
+			phy-handle = <&xfi32>;
+		};
+		xfi-10g-kr33 {
+			qlm-mode = "3,xfi-10g-kr";
+			phy-handle = <&xfi33>;
+		};
+		xlaui30 {
+			qlm-mode = "3,xlaui";
+			phy-handle = <&xlaui30>;
+			};
+		xlaui-40g-kr-30 {
+			qlm-mode = "3,xlaui-40g-kr";
+			phy-handle = <&xlaui30>;
+			};
+		xaui30 {
+			qlm-mode = "3,xaui";
+			phy-handle = <&xaui30>;
+		};
+		rxaui30 {
+			qlm-mode = "3,rxaui";
+			phy-handle = <&rxaui30>;
+		};
+		rxaui31 {
+			qlm-mode = "3,rxaui";
+			phy-handle = <&rxaui31>;
+		};
+	};
+};
