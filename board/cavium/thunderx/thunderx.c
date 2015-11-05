@@ -152,6 +152,7 @@ int board_eth_init(bd_t *bis)
 
 	if (!eth_getenv_enetaddr("ethaddr", ethaddr)) {
 		net_random_ethaddr(ethaddr);
+		printf("Generating random MAC address: %pM\n", ethaddr);
 		eth_setenv_enetaddr("ethaddr", ethaddr);
 	}
 #endif
