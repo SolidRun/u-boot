@@ -136,26 +136,6 @@ int board_late_init(void)
 	return 0;
 }
 
-static void eth_random_enetaddr(uchar *enetaddr)
-{
-	uint32_t rval;
-	srand(get_timer(0));
-
-	rval = rand();
-	enetaddr[0] = rval & 0xff;
-	enetaddr[1] = (rval >> 8) & 0xff;
-	enetaddr[2] = (rval >> 16) & 0xff;
-
-	rval = rand();
-	enetaddr[3] = rval & 0xff;
-	enetaddr[4] = (rval >> 8) & 0xff;
-	enetaddr[5] = (rval >> 16) & 0xff;
-
-	/* make sure it's local and unicast */
-	enetaddr[0] = (enetaddr[0] | 0x02) & ~0x01;
-}
-
-
 /*
  * Board specific ethernet initialization routine.
  */
@@ -171,7 +151,7 @@ int board_eth_init(bd_t *bis)
 	unsigned char ethaddr[6];
 
 	if (!eth_getenv_enetaddr("ethaddr", ethaddr)) {
-		eth_random_enetaddr(ethaddr);
+		net_random_ethaddr(ethaddr);
 		eth_setenv_enetaddr("ethaddr", ethaddr);
 	}
 #endif
