@@ -12,17 +12,18 @@
 
 #include <linux/netdevice.h>
 #include "thunder_bgx.h"
-#include <asm/io.h>
 
 /**
  * Macro to get the physical address of a CSR on a node
  */
-#define CSR_PA(csr, node) ((csr) | ((uint64_t)(node) << 44))
+#define CSR_PA(node, csr) ((csr) | ((uint64_t)(node) << 44))
 
 /* PCI device IDs */
 #define	PCI_DEVICE_ID_THUNDER_NIC_PF	0xA01E
 #define	PCI_DEVICE_ID_THUNDER_NIC_VF	0x0011
 #define	PCI_DEVICE_ID_THUNDER_BGX	0xA026
+
+#define	IS_PASS1(rev)	(rev == 0x0 || rev == 0x1 || rev == 0x2)
 
 /* PCI BAR nos */
 #define	PCI_CFG_REG_BAR_NUM		0
@@ -58,8 +59,7 @@
 
 /* Min/Max packet size */
 #define	NIC_HW_MIN_FRS			64
-#define	NIC_HW_MAX_FRS			9200
-/* 9216 max packet including FCS */
+#define	NIC_HW_MAX_FRS			9200 /* 9216 max packet including FCS */
 
 /* Max pkinds */
 #define	NIC_MAX_PKIND			16
@@ -74,25 +74,24 @@
  * ...
  * BGX1-LMAC3-CHAN0 - VNIC CHAN174
  */
-#define	NIC_INF_COUNT			2	/* No of interfaces */
+#define	NIC_INF_COUNT			2  /* No of interfaces */
 #define	NIC_CHANS_PER_INF		128
 #define	NIC_MAX_CHANS			(NIC_INF_COUNT * NIC_CHANS_PER_INF)
-/* No of channel parse indices */
-#define	NIC_CPI_COUNT			2048
+#define	NIC_CPI_COUNT			2048 /* No of channel parse indices */
 
 /* TNS bypass mode: 1-1 mapping between VNIC and BGX:LMAC */
 #define NIC_MAX_BGX				MAX_BGX_PER_CN88XX
 #define	NIC_CPI_PER_BGX			(NIC_CPI_COUNT / NIC_MAX_BGX)
-#define	NIC_MAX_CPI_PER_LMAC	64	/* Max when CPI_ALG is IP diffserv */
+#define	NIC_MAX_CPI_PER_LMAC	64 /* Max when CPI_ALG is IP diffserv */
 #define	NIC_RSSI_PER_BGX		(NIC_RSSI_COUNT / NIC_MAX_BGX)
 
 /* Tx scheduling */
 #define	NIC_MAX_TL4				1024
-#define	NIC_MAX_TL4_SHAPERS		256	/* 1 shaper for 4 TL4s */
+#define	NIC_MAX_TL4_SHAPERS		256 /* 1 shaper for 4 TL4s */
 #define	NIC_MAX_TL3				256
-#define	NIC_MAX_TL3_SHAPERS		64	/* 1 shaper for 4 TL3s */
+#define	NIC_MAX_TL3_SHAPERS		64  /* 1 shaper for 4 TL3s */
 #define	NIC_MAX_TL2				64
-#define	NIC_MAX_TL2_SHAPERS		2	/* 1 shaper for 32 TL2s */
+#define	NIC_MAX_TL2_SHAPERS		2  /* 1 shaper for 32 TL2s */
 #define	NIC_MAX_TL1				2
 
 /* TNS bypass mode */
@@ -148,13 +147,13 @@
 #define NICPF_CLK_PER_INT_TICK		43750
 
 struct nicvf_cq_poll {
-	uint8_t cq_idx;		/* Completion queue index */
+	uint8_t	cq_idx;		/* Completion queue index */
 };
 
-#define	NIC_RSSI_COUNT			4096	/* Total no of RSS indices */
+#define	NIC_RSSI_COUNT			4096 /* Total no of RSS indices */
 #define NIC_MAX_RSS_HASH_BITS		8
 #define NIC_MAX_RSS_IDR_TBL_SIZE	(1 << NIC_MAX_RSS_HASH_BITS)
-#define RSS_HASH_KEY_SIZE		5	/* 320 bit key */
+#define RSS_HASH_KEY_SIZE		5 /* 320 bit key */
 
 #ifdef VNIC_RSS_SUPPORT
 struct nicvf_rss_info {
@@ -169,9 +168,9 @@ struct nicvf_rss_info {
 #define	RSS_L3_BI_DIRECTION_ENA		(1 << 7)
 #define	RSS_L4_BI_DIRECTION_ENA		(1 << 8)
 	uint64_t cfg;
-	uint8_t hash_bits;
+	uint8_t  hash_bits;
 	uint16_t rss_size;
-	uint8_t ind_tbl[NIC_MAX_RSS_IDR_TBL_SIZE];
+	uint8_t  ind_tbl[NIC_MAX_RSS_IDR_TBL_SIZE];
 	uint64_t key[RSS_HASH_KEY_SIZE];
 };
 #endif
@@ -243,46 +242,72 @@ struct nicvf_drv_stats {
 	u64 tx_tso;
 };
 
+
 struct nicpf {
-	struct eth_device *netdev;
+	struct eth_device	*netdev;
 #define NIC_NODE_ID_MASK	0x300000000000
 #define NIC_NODE_ID(x)		((x & NODE_ID_MASK) >> 44)
-	uint8_t node;
-	unsigned int flags;
-	uint16_t total_vf_cnt;	/* Total num of VF supported */
-	uint16_t num_vf_en;	/* No of VF enabled */
-	uint64_t reg_base;	/* Register start address */
-	struct pkind_cfg pkind;
-	uint8_t bgx_cnt;
+	uint8_t			node;
+	unsigned int		flags;
+	uint16_t		total_vf_cnt;   /* Total num of VF supported */
+	uint16_t		num_vf_en;      /* No of VF enabled */
+	uint64_t		reg_base;       /* Register start address */
+	struct pkind_cfg	pkind;
+	uint8_t			bgx_cnt;
+	uint8_t			rev_id;
 #define	NIC_SET_VF_LMAC_MAP(bgx, lmac)	(((bgx & 0xF) << 4) | (lmac & 0xF))
 #define	NIC_GET_BGX_FROM_VF_LMAC_MAP(map)	((map >> 4) & 0xF)
 #define	NIC_GET_LMAC_FROM_VF_LMAC_MAP(map)	(map & 0xF)
-	uint8_t vf_lmac_map[MAX_LMAC];
-	uint16_t cpi_base[MAX_NUM_VFS_SUPPORTED];
-	uint16_t rss_ind_tbl_size;
-	uint64_t mac[MAX_NUM_VFS_SUPPORTED];
+	uint8_t			vf_lmac_map[MAX_LMAC];
+	uint16_t		cpi_base[MAX_NUM_VFS_SUPPORTED];
+	uint16_t		rss_ind_tbl_size;
+	uint64_t		mac[MAX_NUM_VFS_SUPPORTED];
+	bool			mbx_lock[MAX_NUM_VFS_SUPPORTED];
+	uint8_t			link[MAX_LMAC];
+	uint8_t			duplex[MAX_LMAC];
+	uint32_t		speed[MAX_LMAC];
+	bool			vf_enabled[MAX_NUM_VFS_SUPPORTED];
+	uint16_t		rssi_base[MAX_NUM_VFS_SUPPORTED];
+	uint8_t			lmac_cnt;
 };
 
 struct nicvf {
-	struct eth_device *netdev;
-	uint8_t vf_id;
-	uint8_t tns_mode;
-	uint8_t node;
-	uint16_t mtu;
-	struct queue_set *qs;
-	uint8_t num_qs;
-	void *addnl_qs;
-	uint16_t vf_mtu;
-	uint64_t reg_base;
-#ifdef VNIC_RSS_SUPPORT
-	struct nicvf_rss_info rss_info;
-#endif
-	uint8_t cpi_alg;
+	struct eth_device	*netdev;
+	uint8_t			vf_id;
+	bool                    sqs_mode:1;
+	bool			loopback_supported:1;
+	uint8_t			tns_mode;
+	uint8_t			node;
+	uint16_t		mtu;
+	struct queue_set	*qs;
+	uint8_t			num_qs;
+	void			*addnl_qs;
+	uint16_t		vf_mtu;
+	uint64_t		reg_base;
+	struct nicvf_cq_poll	*napi[8];
 
-	struct nicvf_hw_stats stats;
-	struct nicvf_drv_stats drv_stats;
+	uint8_t			cpi_alg;
 
-	struct nicpf *nicpf;
+	struct nicvf_hw_stats   stats;
+	struct nicvf_drv_stats  drv_stats;
+
+	struct nicpf		*nicpf;
+
+	/* VF <-> PF mailbox communication */
+	bool			pf_acked;
+	bool			pf_nacked;
+	bool			set_mac_pending;
+
+	bool			link_up;
+	uint8_t			duplex;
+	uint32_t		speed;
+	uint8_t			rev_id;
+	uint8_t			rx_queues;
+	uint8_t			tx_queues;
+
+	bool			open;
+	bool			rb_alloc_fail;
+	void 			*rcv_buf;
 };
 
 /* PF <--> VF Mailbox communication
@@ -292,126 +317,184 @@ struct nicvf {
  */
 
 /* PF <--> VF mailbox communication */
-#define	NIC_PF_VF_MAILBOX_SIZE		8
-#define	NIC_PF_VF_MBX_TIMEOUT		2000	/* ms */
+#define	NIC_PF_VF_MAILBOX_SIZE		2
+#define	NIC_PF_VF_MBX_TIMEOUT		2000 /* ms */
 
 /* Mailbox message types */
-/* Is PF ready to rcv msgs */
-#define	NIC_PF_VF_MSG_READY		0x01	/* Is PF ready to rcv msgs */
-#define	NIC_PF_VF_MSG_ACK		0x02	/* ACK the message received */
-#define	NIC_PF_VF_MSG_NACK		0x03	/* NACK the message received */
-#define	NIC_PF_VF_MSG_QS_CFG		0x04	/* Configure Qset */
-#define	NIC_PF_VF_MSG_RQ_CFG		0x05	/* Configure receive queue */
-#define	NIC_PF_VF_MSG_SQ_CFG		0x06	/* Configure Send queue */
-#define	NIC_PF_VF_MSG_RQ_DROP_CFG	0x07	/* Configure receive queue */
-#define	NIC_PF_VF_MSG_SET_MAC		0x08	/* Add MAC ID to DMAC filter */
-#define	NIC_PF_VF_MSG_SET_MAX_FRS	0x09	/* Set max frame size */
-#define	NIC_PF_VF_MSG_CPI_CFG		0x0A	/* Config CPI, RSSI */
-#define	NIC_PF_VF_MSG_RSS_SIZE		0x0B	/* Get RSS indir_tbl size */
-#define	NIC_PF_VF_MSG_RSS_CFG		0x0C	/* Config RSS table */
-#define	NIC_PF_VF_MSG_RSS_CFG_CONT	0x0D	/* RSS config continuation */
-#define	NIC_PF_VF_MSG_RQ_BP_CFG		0x0E
-#define	NIC_PF_VF_MSG_RQ_SW_SYNC	0x0F
+#define	NIC_MBOX_MSG_READY		0x01	/* Is PF ready to rcv msgs */
+#define	NIC_MBOX_MSG_ACK		0x02	/* ACK the message received */
+#define	NIC_MBOX_MSG_NACK		0x03	/* NACK the message received */
+#define	NIC_MBOX_MSG_QS_CFG		0x04	/* Configure Qset */
+#define	NIC_MBOX_MSG_RQ_CFG		0x05	/* Configure receive queue */
+#define	NIC_MBOX_MSG_SQ_CFG		0x06	/* Configure Send queue */
+#define	NIC_MBOX_MSG_RQ_DROP_CFG	0x07	/* Configure receive queue */
+#define	NIC_MBOX_MSG_SET_MAC		0x08	/* Add MAC ID to DMAC filter */
+#define	NIC_MBOX_MSG_SET_MAX_FRS	0x09	/* Set max frame size */
+#define	NIC_MBOX_MSG_CPI_CFG		0x0A	/* Config CPI, RSSI */
+#define	NIC_MBOX_MSG_RSS_SIZE		0x0B	/* Get RSS indir_tbl size */
+#define	NIC_MBOX_MSG_RSS_CFG		0x0C	/* Config RSS table */
+#define	NIC_MBOX_MSG_RSS_CFG_CONT	0x0D	/* RSS config continuation */
+#define	NIC_MBOX_MSG_RQ_BP_CFG		0x0E	/* RQ backpressure config */
+#define	NIC_MBOX_MSG_RQ_SW_SYNC		0x0F	/* Flush inflight pkts to RQ */
+#define	NIC_MBOX_MSG_BGX_STATS		0x10	/* Get stats from BGX */
+#define	NIC_MBOX_MSG_BGX_LINK_CHANGE	0x11	/* BGX:LMAC link status */
+#define	NIC_MBOX_MSG_ALLOC_SQS		0x12	/* Allocate secondary Qset */
+#define	NIC_MBOX_MSG_NICVF_PTR		0x13	/* Send nicvf ptr to PF */
+#define	NIC_MBOX_MSG_PNICVF_PTR		0x14	/* Get primary qset nicvf ptr */
+#define	NIC_MBOX_MSG_SNICVF_PTR		0x15	/* Send sqet nicvf ptr to PVF */
+#define	NIC_MBOX_MSG_LOOPBACK		0x16	/* Set interface in loopback */
+#define	NIC_MBOX_MSG_CFG_DONE		0xF0	/* VF configuration done */
+#define	NIC_MBOX_MSG_SHUTDOWN		0xF1	/* VF is being shutdown */
 
 struct nic_cfg_msg {
-	uint64_t vf_id;
-	uint64_t tns_mode;
-	uint64_t mac_addr;
-	uint64_t node_id;
+	u8    msg;
+	u8    vf_id;
+	u8    node_id;
+	bool  tns_mode:1;
+	bool  sqs_mode:1;
+	bool  loopback_supported:1;
+	u8    mac_addr[6];
 };
 
 /* Qset configuration */
 struct qs_cfg_msg {
-	uint64_t num;
-	uint64_t cfg;
+	u8    msg;
+	u8    num;
+	u8    sqs_count;
+	u64   cfg;
 };
 
 /* Receive queue configuration */
 struct rq_cfg_msg {
-	uint64_t qs_num;
-	uint64_t rq_num;
-	uint64_t cfg;
+	u8    msg;
+	u8    qs_num;
+	u8    rq_num;
+	u64   cfg;
 };
 
 /* Send queue configuration */
 struct sq_cfg_msg {
-	uint64_t qs_num;
-	uint64_t sq_num;
-	uint64_t cfg;
+	u8    msg;
+	u8    qs_num;
+	u8    sq_num;
+	bool  sqs_mode;
+	u64   cfg;
 };
 
 /* Set VF's MAC address */
 struct set_mac_msg {
-	uint64_t vf_id;
-	uint64_t addr;
+	u8    msg;
+	u8    vf_id;
+	u8    mac_addr[6];
 };
 
 /* Set Maximum frame size */
 struct set_frs_msg {
-	uint64_t vf_id;
-	uint64_t max_frs;
+	u8    msg;
+	u8    vf_id;
+	u16   max_frs;
 };
 
 /* Set CPI algorithm type */
 struct cpi_cfg_msg {
-	uint64_t vf_id;
-	uint64_t rq_cnt;
-	uint64_t cpi_alg;
+	u8    msg;
+	u8    vf_id;
+	u8    rq_cnt;
+	u8    cpi_alg;
 };
 
-#ifdef VNIC_RSS_SUPPORT
 /* Get RSS table size */
 struct rss_sz_msg {
-	uint64_t vf_id;
-	uint64_t ind_tbl_size;
+	u8    msg;
+	u8    vf_id;
+	u16   ind_tbl_size;
 };
 
 /* Set RSS configuration */
 struct rss_cfg_msg {
-	uint8_t vf_id;
-	uint8_t hash_bits;
-	uint16_t tbl_len;
-	uint16_t tbl_offset;
-#define RSS_IND_TBL_LEN_PER_MBX_MSG	42
-	uint8_t ind_tbl[RSS_IND_TBL_LEN_PER_MBX_MSG];
+	u8    msg;
+	u8    vf_id;
+	u8    hash_bits;
+	u8    tbl_len;
+	u8    tbl_offset;
+#define RSS_IND_TBL_LEN_PER_MBX_MSG	8
+	u8    ind_tbl[RSS_IND_TBL_LEN_PER_MBX_MSG];
+};
+
+struct bgx_stats_msg {
+	u8    msg;
+	u8    vf_id;
+	u8    rx;
+	u8    idx;
+	u64   stats;
+};
+
+/* Physical interface link status */
+struct bgx_link_status {
+	u8    msg;
+	u8    link_up;
+	u8    duplex;
+	u32   speed;
+};
+
+#ifdef VNIC_MULTI_QSET_SUPPORT
+/* Get Extra Qset IDs */
+struct sqs_alloc {
+	u8    msg;
+	u8    vf_id;
+	u8    qs_count;
+};
+
+struct nicvf_ptr {
+	u8    msg;
+	u8    vf_id;
+	bool  sqs_mode;
+	u8    sqs_id;
+	u64   nicvf;
 };
 #endif
 
-/* Maximum 8 64bit locations */
-struct nic_mbx {
-#define	NIC_PF_VF_MBX_MSG_MASK		0xFFFF
-	uint16_t msg;
-#define	NIC_PF_VF_MBX_LOCK_OFFSET	0
-#define	NIC_PF_VF_MBX_LOCK_VAL(x)	((x >> 16) & 0xFFFF)
-#define	NIC_PF_VF_MBX_LOCK_CLEAR(x)	(x & ~(0xFFFF0000))
-#define	NIC_PF_VF_MBX_LOCK_SET(x)\
-	(NIC_PF_VF_MBX_LOCK_CLEAR(x) | (1 << 16))
-	uint16_t mbx_lock;
-	uint32_t unused;
-	union {
-		struct nic_cfg_msg nic_cfg;
-		struct qs_cfg_msg qs;
-		struct rq_cfg_msg rq;
-		struct sq_cfg_msg sq;
-		struct set_mac_msg mac;
-		struct set_frs_msg frs;
-		struct cpi_cfg_msg cpi_cfg;
-#ifdef VNIC_RSS_SUPPORT
-		struct rss_sz_msg rss_size;
-		struct rss_cfg_msg rss_cfg;
+/* Set interface in loopback mode */
+struct set_loopback {
+	u8    msg;
+	u8    vf_id;
+	bool  enable;
+};
+/* 128 bit shared memory between PF and each VF */
+union nic_mbx {
+	struct { u8 msg; }	msg;
+	struct nic_cfg_msg	nic_cfg;
+	struct qs_cfg_msg	qs;
+	struct rq_cfg_msg	rq;
+	struct sq_cfg_msg	sq;
+	struct set_mac_msg	mac;
+	struct set_frs_msg	frs;
+	struct cpi_cfg_msg	cpi_cfg;
+	struct rss_sz_msg	rss_size;
+	struct rss_cfg_msg	rss_cfg;
+	struct bgx_stats_msg    bgx_stats;
+	struct bgx_link_status  link_status;
+#ifdef VNIC_MULTI_QSET_SUPPORT
+	struct sqs_alloc        sqs_alloc;
+	struct nicvf_ptr	nicvf;
 #endif
-		uint64_t rsvd[6];
-	} data;
-	uint64_t mbx_trigger_intr;
+	struct set_loopback	lbk;
 };
 
 int nicvf_set_real_num_queues(struct eth_device *netdev,
 			      int tx_queues, int rx_queues);
-int nicvf_send_msg_to_pf(struct nicvf *vf, struct nic_mbx *mbx);
+int nicvf_open(struct eth_device *netdev, bd_t *bis);
+void nicvf_stop(struct eth_device *netdev);
+int nicvf_send_msg_to_pf(struct nicvf *vf, union nic_mbx *mbx);
 void nicvf_free_pkt(struct nicvf *nic, void *pkt);
 void nicvf_update_stats(struct nicvf *nic);
 
 void nic_handle_mbx_intr(struct nicpf *nic, int vf);
 
+const u8 *bgx_get_lmac_mac(int node, int bgx_idx, int lmacid);
+void bgx_set_lmac_mac(int node, int bgx_idx, int lmacid, const u8 *mac);
+void bgx_lmac_rx_tx_enable(int node, int bgx_idx, int lmacid, bool enable);
+void bgx_lmac_internal_loopback(int node, int bgx_idx,
+				int lmac_idx, bool enable);
 
 #endif /* NIC_H */

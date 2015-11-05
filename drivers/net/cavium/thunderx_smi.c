@@ -251,6 +251,8 @@ int thunderx_smi_initialize(bd_t *bis, unsigned int index)
 	struct mii_dev *bus = mdio_alloc();
 	struct thunderx_priv *priv = malloc(sizeof(*priv));
 
+	debug("%s: %d\n", __FUNCTION__, __LINE__);
+
 	if (!bus || !priv) {
 		printf("Failed to allocate ThunderX MDIO bus # %u\n", index);
 		return -1;
@@ -267,6 +269,8 @@ int thunderx_smi_initialize(bd_t *bis, unsigned int index)
 
 	/* use given name or generate its own unique name */
 	snprintf(bus->name, MDIO_NAME_LEN, "thunderx%d", priv->bus_num);
+
+	debug("%s: %d\n", __FUNCTION__, __LINE__);
 
 	return mdio_register(bus);
 }

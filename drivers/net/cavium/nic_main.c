@@ -34,11 +34,12 @@ unsigned long rounddown_pow_of_two(unsigned long n)
 	n |= n >> 16;
 	n |= n >> 32;
 
-	return n + 1;
+	return(n + 1);
 }
 
 static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg);
-static void nic_tx_channel_cfg(struct nicpf *nic, int vnic, int sq_idx);
+static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
+			       struct sq_cfg_msg *sq);
 static int nic_update_hw_frs(struct nicpf *nic, int new_frs, int vf);
 static int nic_rcv_queue_sw_sync(struct nicpf *nic);
 
@@ -57,187 +58,264 @@ static uint64_t nic_reg_read(struct nicpf *nic, uint64_t offset)
 	return readq((void *)addr);
 }
 
-static uint64_t nic_get_mbx_addr(int vf)
+static u64 nic_get_mbx_addr(int vf)
 {
-	return NIC_PF_VF_0_127_MAILBOX_0_7 + (vf << NIC_VF_NUM_SHIFT);
+	return NIC_PF_VF_0_127_MAILBOX_0_1 + (vf << NIC_VF_NUM_SHIFT);
 }
 
-static int nic_lock_mbox(struct nicpf *nic, int vf)
-{
-	int timeout = NIC_PF_VF_MBX_TIMEOUT;
-	int sleep = 10;
-	uint64_t lock, mbx_addr;
 
-	mbx_addr = nic_get_mbx_addr(vf) + NIC_PF_VF_MBX_LOCK_OFFSET;
-	lock = NIC_PF_VF_MBX_LOCK_VAL(nic_reg_read(nic, mbx_addr));
-	while (lock) {
-		mdelay(sleep);
-		lock = NIC_PF_VF_MBX_LOCK_VAL(nic_reg_read(nic, mbx_addr));
-		timeout -= sleep;
-		if (!timeout) {
-			printf("PF couldn't lock mailbox\n");
-			return 0;
-		}
+static void nic_send_msg_to_vf(struct nicpf *nic, int vf, union nic_mbx *mbx)
+{
+	void __iomem *mbx_addr = (void *)(nic->reg_base + nic_get_mbx_addr(vf));
+	u64 *msg = (u64 *)mbx;
+
+	/* In first revision HW, mbox interrupt is triggerred
+	 * when PF writes to MBOX(1), in next revisions when
+	 * PF writes to MBOX(0)
+	 */
+	if (IS_PASS1(nic->rev_id)) {
+		/* see the comment for nic_reg_write()/nic_reg_read()
+		 * functions above
+		 */
+		writeq(msg[0], mbx_addr);
+		writeq(msg[1], mbx_addr + 8);
+	} else {
+		writeq(msg[1], mbx_addr + 8);
+		writeq(msg[0], mbx_addr);
 	}
-	lock = nic_reg_read(nic, mbx_addr);
-	nic_reg_write(nic, mbx_addr, NIC_PF_VF_MBX_LOCK_SET(lock));
-	return 1;
-}
-
-void nic_release_mbx(struct nicpf *nic, int vf)
-{
-	uint64_t mbx_addr, lock;
-
-	mbx_addr = nic_get_mbx_addr(vf) + NIC_PF_VF_MBX_LOCK_OFFSET;
-	lock = nic_reg_read(nic, mbx_addr);
-	nic_reg_write(nic, mbx_addr, NIC_PF_VF_MBX_LOCK_CLEAR(lock));
-}
-
-static int nic_send_msg_to_vf(struct nicpf *nic, int vf,
-			      struct nic_mbx *mbx, bool lock_needed)
-{
-	int i;
-	uint64_t *msg;
-	uint64_t mbx_addr;
-
-	if (lock_needed && (!nic_lock_mbox(nic, vf)))
-		return -1;
-
-	mbx->mbx_trigger_intr = 1;
-	msg = (uint64_t *)mbx;
-	mbx_addr = nic->reg_base + nic_get_mbx_addr(vf);
-
-	for (i = 0; i < NIC_PF_VF_MAILBOX_SIZE; i++)
-		writeq(*(msg + i), (void *)(mbx_addr + (i * 8)));
-
-	if (lock_needed)
-		nic_release_mbx(nic, vf);
-	return 0;
 }
 
 static void nic_mbx_send_ready(struct nicpf *nic, int vf)
 {
-	struct nic_mbx mbx = { };
+	union nic_mbx mbx = {};
+	int bgx_idx, lmac;
+	const u8 *mac;
 
-	/* Respond with VNIC ID */
-	mbx.msg = NIC_PF_VF_MSG_READY;
-	mbx.data.nic_cfg.vf_id = vf;
+	mbx.nic_cfg.msg = NIC_MBOX_MSG_READY;
+	mbx.nic_cfg.vf_id = vf;
 
 	if (nic->flags & NIC_TNS_ENABLED)
-		mbx.data.nic_cfg.tns_mode = NIC_TNS_MODE;
+		mbx.nic_cfg.tns_mode = NIC_TNS_MODE;
 	else
-		mbx.data.nic_cfg.tns_mode = NIC_TNS_BYPASS_MODE;
+		mbx.nic_cfg.tns_mode = NIC_TNS_BYPASS_MODE;
 
-/*
-	memcpy(&mbx.data.nic_cfg.mac_addr,
-	       &nic->mac[vf], 6);
-*/
-	mbx.data.nic_cfg.node_id = nic->node;
+	if (vf < MAX_LMAC) {
+		bgx_idx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
+		lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
 
-	nic_send_msg_to_vf(nic, vf, &mbx, false);
+		mac = bgx_get_lmac_mac(nic->node, bgx_idx, lmac);
+		if (mac)
+			memcpy((u8 *)&mbx.nic_cfg.mac_addr, mac, 6);
+	}
+#ifdef VNIC_MULTI_QSET_SUPPORT
+	mbx.nic_cfg.sqs_mode = (vf >= nic->num_vf_en) ? true : false;
+#endif
+	mbx.nic_cfg.node_id = nic->node;
+
+	mbx.nic_cfg.loopback_supported = vf < MAX_LMAC;
+
+	nic_send_msg_to_vf(nic, vf, &mbx);
 }
 
+
+/* ACKs VF's mailbox message
+ * @vf: VF to which ACK to be sent
+ */
 static void nic_mbx_send_ack(struct nicpf *nic, int vf)
 {
-	struct nic_mbx mbx = { };
+	union nic_mbx mbx = {};
 
-	mbx.msg = NIC_PF_VF_MSG_ACK;
-	nic_send_msg_to_vf(nic, vf, &mbx, false);
+	mbx.msg.msg = NIC_MBOX_MSG_ACK;
+	nic_send_msg_to_vf(nic, vf, &mbx);
 }
 
+/* NACKs VF's mailbox message that PF is not able to
+ * complete the action
+ * @vf: VF to which ACK to be sent
+ */
 static void nic_mbx_send_nack(struct nicpf *nic, int vf)
 {
-	struct nic_mbx mbx = { };
+	union nic_mbx mbx = {};
 
-	mbx.msg = NIC_PF_VF_MSG_NACK;
-	nic_send_msg_to_vf(nic, vf, &mbx, false);
+	mbx.msg.msg = NIC_MBOX_MSG_NACK;
+	nic_send_msg_to_vf(nic, vf, &mbx);
 }
 
-/* Handle Mailbox messages from VF and ack the message. */
+static int nic_config_loopback(struct nicpf *nic, struct set_loopback *lbk)
+{
+	int bgx_idx, lmac_idx;
+
+	if (lbk->vf_id > MAX_LMAC)
+		return -1;
+
+	bgx_idx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[lbk->vf_id]);
+	lmac_idx = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[lbk->vf_id]);
+
+	bgx_lmac_internal_loopback(nic->node, bgx_idx, lmac_idx, lbk->enable);
+
+	return 0;
+}
+
+/* Interrupt handler to handle mailbox messages from VFs */
 void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 {
-	struct nic_mbx mbx = { };
-	uint64_t *mbx_data;
-	uint64_t mbx_addr;
-	uint64_t reg_addr;
-	int lmac;
+	union nic_mbx mbx = {};
+	u64 *mbx_data;
+	u64 mbx_addr;
+	u64 reg_addr;
+	u64 cfg;
+	int bgx, lmac;
 	int i;
 	int ret = 0;
 
+	nic->mbx_lock[vf] = true;
+
 	mbx_addr = nic_get_mbx_addr(vf);
-	mbx_data = (uint64_t *)&mbx;
+	mbx_data = (u64 *)&mbx;
 
 	for (i = 0; i < NIC_PF_VF_MAILBOX_SIZE; i++) {
 		*mbx_data = nic_reg_read(nic, mbx_addr);
 		mbx_data++;
-		mbx_addr += NIC_PF_VF_MAILBOX_SIZE;
+		mbx_addr += sizeof(u64);
 	}
 
-	mbx.msg &= NIC_PF_VF_MBX_MSG_MASK;
-
-	debug("%s: Mailbox msg %d from VF%d\n", __func__, mbx.msg, vf);
-
-	switch (mbx.msg) {
-	case NIC_PF_VF_MSG_READY:
+	debug("%s: Mailbox msg %d from VF%d\n",
+		__func__, mbx.msg.msg, vf);
+	switch (mbx.msg.msg) {
+	case NIC_MBOX_MSG_READY:
 		nic_mbx_send_ready(nic, vf);
+		if (vf < MAX_LMAC) {
+			nic->link[vf] = 0;
+			nic->duplex[vf] = 0;
+			nic->speed[vf] = 0;
+		}
 		ret = 1;
 		break;
-	case NIC_PF_VF_MSG_QS_CFG:
+	case NIC_MBOX_MSG_QS_CFG:
 		reg_addr = NIC_PF_QSET_0_127_CFG |
-		    (mbx.data.qs.num << NIC_QS_ID_SHIFT);
-		nic_reg_write(nic, reg_addr, mbx.data.qs.cfg);
+			   (mbx.qs.num << NIC_QS_ID_SHIFT);
+		cfg = mbx.qs.cfg;
+#ifdef VNIC_MULTI_QSET_SUPPORT
+		/* Check if its a secondary Qset */
+		if (vf >= nic->num_vf_en) {
+			cfg = cfg & (~0x7FULL);
+			/* Assign this Qset to primary Qset's VF */
+			cfg |= nic->pqs_vf[vf];
+		}
+#endif
+		nic_reg_write(nic, reg_addr, cfg);
 		break;
-	case NIC_PF_VF_MSG_RQ_CFG:
+	case NIC_MBOX_MSG_RQ_CFG:
 		reg_addr = NIC_PF_QSET_0_127_RQ_0_7_CFG |
-		    (mbx.data.rq.qs_num << NIC_QS_ID_SHIFT) |
-		    (mbx.data.rq.rq_num << NIC_Q_NUM_SHIFT);
-		nic_reg_write(nic, reg_addr, mbx.data.rq.cfg);
+			   (mbx.rq.qs_num << NIC_QS_ID_SHIFT) |
+			   (mbx.rq.rq_num << NIC_Q_NUM_SHIFT);
+		nic_reg_write(nic, reg_addr, mbx.rq.cfg);
 		break;
-	case NIC_PF_VF_MSG_RQ_BP_CFG:
+	case NIC_MBOX_MSG_RQ_BP_CFG:
 		reg_addr = NIC_PF_QSET_0_127_RQ_0_7_BP_CFG |
-		    (mbx.data.rq.qs_num << NIC_QS_ID_SHIFT) |
-		    (mbx.data.rq.rq_num << NIC_Q_NUM_SHIFT);
-		nic_reg_write(nic, reg_addr, mbx.data.rq.cfg);
+			   (mbx.rq.qs_num << NIC_QS_ID_SHIFT) |
+			   (mbx.rq.rq_num << NIC_Q_NUM_SHIFT);
+		nic_reg_write(nic, reg_addr, mbx.rq.cfg);
 		break;
-	case NIC_PF_VF_MSG_RQ_SW_SYNC:
+	case NIC_MBOX_MSG_RQ_SW_SYNC:
 		ret = nic_rcv_queue_sw_sync(nic);
 		break;
-	case NIC_PF_VF_MSG_RQ_DROP_CFG:
+	case NIC_MBOX_MSG_RQ_DROP_CFG:
 		reg_addr = NIC_PF_QSET_0_127_RQ_0_7_DROP_CFG |
-		    (mbx.data.rq.qs_num << NIC_QS_ID_SHIFT) |
-		    (mbx.data.rq.rq_num << NIC_Q_NUM_SHIFT);
-		nic_reg_write(nic, reg_addr, mbx.data.rq.cfg);
+			   (mbx.rq.qs_num << NIC_QS_ID_SHIFT) |
+			   (mbx.rq.rq_num << NIC_Q_NUM_SHIFT);
+		nic_reg_write(nic, reg_addr, mbx.rq.cfg);
 		break;
-	case NIC_PF_VF_MSG_SQ_CFG:
+	case NIC_MBOX_MSG_SQ_CFG:
 		reg_addr = NIC_PF_QSET_0_127_SQ_0_7_CFG |
-		    (mbx.data.sq.qs_num << NIC_QS_ID_SHIFT) |
-		    (mbx.data.sq.sq_num << NIC_Q_NUM_SHIFT);
-		nic_reg_write(nic, reg_addr, mbx.data.sq.cfg);
-		nic_tx_channel_cfg(nic, mbx.data.qs.num, mbx.data.sq.sq_num);
+			   (mbx.sq.qs_num << NIC_QS_ID_SHIFT) |
+			   (mbx.sq.sq_num << NIC_Q_NUM_SHIFT);
+		nic_reg_write(nic, reg_addr, mbx.sq.cfg);
+		nic_tx_channel_cfg(nic, mbx.qs.num, (struct sq_cfg_msg*)&mbx.sq);
 		break;
-	case NIC_PF_VF_MSG_SET_MAC:
-		lmac = mbx.data.mac.vf_id;
-		debug("LMAC: %d, map: %x\n", lmac, nic->vf_lmac_map[lmac]);
+	case NIC_MBOX_MSG_SET_MAC:
+#ifdef VNIC_MULTI_QSET_SUPPORT
+		if (vf >= nic->num_vf_en)
+			break;
+#endif
+		lmac = mbx.mac.vf_id;
+		bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[lmac]);
 		lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[lmac]);
+		bgx_set_lmac_mac(nic->node, bgx, lmac, mbx.mac.mac_addr);
+		break;
+	case NIC_MBOX_MSG_SET_MAX_FRS:
+		ret = nic_update_hw_frs(nic, mbx.frs.max_frs,
+					mbx.frs.vf_id);
+		break;
+	case NIC_MBOX_MSG_CPI_CFG:
+		nic_config_cpi(nic, &mbx.cpi_cfg);
+		break;
+#ifdef VNIC_RSS_SUPPORT
+	case NIC_MBOX_MSG_RSS_SIZE:
+		nic_send_rss_size(nic, vf);
+		goto unlock;
+	case NIC_MBOX_MSG_RSS_CFG:
+	case NIC_MBOX_MSG_RSS_CFG_CONT:
+		nic_config_rss(nic, &mbx.rss_cfg);
+		break;
+#endif
+	case NIC_MBOX_MSG_CFG_DONE:
+		/* Last message of VF config msg sequence */
+		nic->vf_enabled[vf] = true;
+		if (vf >= nic->lmac_cnt)
+			goto unlock;
 
+		bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
+		lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
+
+		bgx_lmac_rx_tx_enable(nic->node, bgx, lmac, true);
+		goto unlock;
+	case NIC_MBOX_MSG_SHUTDOWN:
+		/* First msg in VF teardown sequence */
+		nic->vf_enabled[vf] = false;
+#ifdef VNIC_MULTI_QSET_SUPPORT
+		if (vf >= nic->num_vf_en)
+			nic->sqs_used[vf - nic->num_vf_en] = false;
+		nic->pqs_vf[vf] = 0;
+#endif
+		if (vf >= nic->lmac_cnt)
+			break;
+
+		bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
+		lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
+
+		bgx_lmac_rx_tx_enable(nic->node, bgx, lmac, false);
 		break;
-	case NIC_PF_VF_MSG_SET_MAX_FRS:
-		ret = nic_update_hw_frs(nic, mbx.data.frs.max_frs,
-					mbx.data.frs.vf_id);
+#ifdef VNIC_MULTI_QSET_SUPPORT
+	case NIC_MBOX_MSG_ALLOC_SQS:
+		nic_alloc_sqs(nic, &mbx.sqs_alloc);
+		goto unlock;
+	case NIC_MBOX_MSG_NICVF_PTR:
+		nic->nicvf[vf] = mbx.nicvf.nicvf;
 		break;
-	case NIC_PF_VF_MSG_CPI_CFG:
-		nic_config_cpi(nic, &mbx.data.cpi_cfg);
+	case NIC_MBOX_MSG_PNICVF_PTR:
+		nic_send_pnicvf(nic, vf);
+		goto unlock;
+	case NIC_MBOX_MSG_SNICVF_PTR:
+		nic_send_snicvf(nic, &mbx.nicvf);
+		goto unlock;
+#endif
+	case NIC_MBOX_MSG_LOOPBACK:
+		ret = nic_config_loopback(nic, &mbx.lbk);
 		break;
 	default:
-		printf("Invalid msg from VF%d, msg 0x%x\n", vf, mbx.msg);
+		printf("Invalid msg from VF%d, msg 0x%x\n", vf, mbx.msg.msg);
 		break;
 	}
 
 	if (!ret)
 		nic_mbx_send_ack(nic, vf);
-	else if (mbx.msg != NIC_PF_VF_MSG_READY)
+	else if (mbx.msg.msg != NIC_MBOX_MSG_READY)
 		nic_mbx_send_nack(nic, vf);
+unlock:
+	nic->mbx_lock[vf] = false;
 }
+
 
 static int nic_rcv_queue_sw_sync(struct nicpf *nic)
 {
@@ -262,8 +340,8 @@ static int nic_update_hw_frs(struct nicpf *nic, int new_frs, int vf)
 {
 	uint64_t *pkind = (uint64_t *)&nic->pkind;
 	if ((new_frs > NIC_HW_MAX_FRS) || (new_frs < NIC_HW_MIN_FRS)) {
-		printf("MTU from VF%d rejected, out of range %d..%d\n",
-		       vf, NIC_HW_MIN_FRS, NIC_HW_MAX_FRS);
+		printf("Invalid MTU setting from VF%d rejected, should be between %d and %d\n",
+				vf, NIC_HW_MIN_FRS, NIC_HW_MAX_FRS);
 		return 1;
 	}
 	new_frs += ETH_HLEN;
@@ -313,6 +391,7 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
 	debug("bgx_count: %d\n", bgx_count);
 
 	for (bgx = 0; bgx < NIC_MAX_BGX; bgx++) {
+
 		if (!(bgx_count & (1 << bgx)))
 			continue;
 		nic->bgx_cnt++;
@@ -320,16 +399,16 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
 		debug("lmac_cnt: %d\n", lmac_cnt);
 		for (lmac = 0; lmac < lmac_cnt; lmac++)
 			nic->vf_lmac_map[next_bgx_lmac++] =
-			    NIC_SET_VF_LMAC_MAP(bgx, lmac);
+						NIC_SET_VF_LMAC_MAP(bgx, lmac);
 		nic->num_vf_en += lmac_cnt;
 
 		/* Program LMAC credits */
-		lmac_credit = (1ull << 1);	/* chennel credit enable */
+		lmac_credit = (1ull << 1); /* chennel credit enable */
 		lmac_credit |= (0x1ff << 2);
 		lmac_credit |= (((((48 * 1024) / lmac_cnt) -
-				  NIC_HW_MAX_FRS) / 16) << 12);
+				NIC_HW_MAX_FRS) / 16) << 12);
 		nic_reg_write(nic,
-			      NIC_PF_LMAC_0_7_CREDIT + (lmac * 8), lmac_credit);
+				NIC_PF_LMAC_0_7_CREDIT + (lmac * 8), lmac_credit);
 	}
 }
 
@@ -339,17 +418,13 @@ static void nic_init_hw(struct nicpf *nic)
 	uint64_t reg;
 	uint64_t *pkind = (uint64_t *)&nic->pkind;
 
-	/* Reset NIC, incase if driver is repeatedly inserted and removed */
-	nic_reg_write(nic, NIC_PF_SOFT_RESET, 1);
-
 	/* Enable NIC HW block */
 	nic_reg_write(nic, NIC_PF_CFG, 0x3);
 
 	/* Enable backpressure */
 	nic_reg_write(nic, NIC_PF_BP_CFG, (1ULL << 6) | 0x03);
 	nic_reg_write(nic, NIC_PF_INTF_0_1_BP_CFG, (1ULL << 63) | 0x08);
-	nic_reg_write(nic, NIC_PF_INTF_0_1_BP_CFG + (1 << 8),
-		      (1ULL << 63) | 0x09);
+	nic_reg_write(nic, NIC_PF_INTF_0_1_BP_CFG + (1 << 8), (1ULL << 63) | 0x09);
 
 	for (i = 0; i < NIC_MAX_CHANS; i++)
 		nic_reg_write(nic, NIC_PF_CHAN_0_255_TX_CFG | (i << 3), 1);
@@ -364,7 +439,7 @@ static void nic_init_hw(struct nicpf *nic)
 	} else {
 		/* Disable TNS mode on both interfaces */
 		reg = NIC_TNS_BYPASS_MODE << 7;
-		reg |= 0x08;	/* Block identifier */
+		reg |= 0x08; /* Block identifier */
 		nic_reg_write(nic, NIC_PF_INTF_0_1_SEND_CFG, reg);
 		reg &= ~0xFull;
 		reg |= 0x09;
@@ -387,34 +462,35 @@ static void nic_init_hw(struct nicpf *nic)
 	nic_reg_write(nic, NIC_PF_INTR_TIMER_CFG, NICPF_CLK_PER_INT_TICK);
 }
 
+/* Channel parse index configuration */
 static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg)
 {
-	uint32_t vnic, bgx, lmac, chan;
-	uint32_t padd, cpi_count = 0;
-	uint64_t cpi_base, cpi, rssi_base, rssi;
-	uint8_t qset, rq_idx = 0;
+	u32 vnic, bgx, lmac, chan;
+	u32 padd, cpi_count = 0;
+	u64 cpi_base, cpi, rssi_base, rssi;
+	u8  qset, rq_idx = 0;
 
 	vnic = cfg->vf_id;
 	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vnic]);
 	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vnic]);
-
-	debug("%s: vnic: %d, bgx: %d, lmac: %d\n", __func__, vnic, bgx, lmac);
 
 	chan = (lmac * MAX_BGX_CHANS_PER_LMAC) + (bgx * NIC_CHANS_PER_INF);
 	cpi_base = (lmac * NIC_MAX_CPI_PER_LMAC) + (bgx * NIC_CPI_PER_BGX);
 	rssi_base = (lmac * nic->rss_ind_tbl_size) + (bgx * NIC_RSSI_PER_BGX);
 
 	/* Rx channel configuration */
+	nic_reg_write(nic, NIC_PF_CHAN_0_255_RX_BP_CFG | (chan << 3),
+		      (1ull << 63) | (vnic << 0));
 	nic_reg_write(nic, NIC_PF_CHAN_0_255_RX_CFG | (chan << 3),
-		      (cfg->cpi_alg << 62) | (cpi_base << 48));
+		      ((u64)cfg->cpi_alg << 62) | (cpi_base << 48));
 
 	if (cfg->cpi_alg == CPI_ALG_NONE)
 		cpi_count = 1;
-	else if (cfg->cpi_alg == CPI_ALG_VLAN)	/* 3 bits of PCP */
+	else if (cfg->cpi_alg == CPI_ALG_VLAN) /* 3 bits of PCP */
 		cpi_count = 8;
-	else if (cfg->cpi_alg == CPI_ALG_VLAN16)	/* 3 bits PCP + DEI */
+	else if (cfg->cpi_alg == CPI_ALG_VLAN16) /* 3 bits PCP + DEI */
 		cpi_count = 16;
-	else if (cfg->cpi_alg == CPI_ALG_DIFF)	/* 6bits DSCP */
+	else if (cfg->cpi_alg == CPI_ALG_DIFF) /* 6bits DSCP */
 		cpi_count = NIC_MAX_CPI_PER_LMAC;
 
 	/* RSS Qset, Qidx mapping */
@@ -423,6 +499,7 @@ static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg)
 	for (; rssi < (rssi_base + cfg->rq_cnt); rssi++) {
 		nic_reg_write(nic, NIC_PF_RSSI_0_4097_RQ | (rssi << 3),
 			      (qset << 3) | rq_idx);
+		rq_idx++;
 	}
 
 	rssi = 0;
@@ -432,11 +509,21 @@ static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg)
 		if (cfg->cpi_alg != CPI_ALG_DIFF)
 			padd = cpi % cpi_count;
 		else
-			padd = cpi % 8;	/* 3 bits CS out of 6bits DSCP */
+			padd = cpi % 8; /* 3 bits CS out of 6bits DSCP */
 
 		/* Leave RSS_SIZE as '0' to disable RSS */
-		nic_reg_write(nic, NIC_PF_CPI_0_2047_CFG | (cpi << 3),
-			      (vnic << 24) | (padd << 16) | (rssi_base + rssi));
+		if (IS_PASS1(nic->rev_id)) {
+			nic_reg_write(nic, NIC_PF_CPI_0_2047_CFG | (cpi << 3),
+				      (vnic << 24) | (padd << 16) |
+				      (rssi_base + rssi));
+		} else {
+			/* Set MPI_ALG to '0' to disable MCAM parsing */
+			nic_reg_write(nic, NIC_PF_CPI_0_2047_CFG | (cpi << 3),
+				      (padd << 16));
+			/* MPI index is same as CPI if MPI_ALG is not enabled */
+			nic_reg_write(nic, NIC_PF_MPI_0_2047_CFG | (cpi << 3),
+				      (vnic << 24) | (rssi_base + rssi));
+		}
 
 		if ((rssi + 1) >= cfg->rq_cnt)
 			continue;
@@ -449,7 +536,9 @@ static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg)
 			rssi = ((cpi - cpi_base) & 0x38) >> 3;
 	}
 	nic->cpi_base[cfg->vf_id] = cpi_base;
+	nic->rssi_base[cfg->vf_id] = rssi_base;
 }
+
 
 /* Transmit channel configuration (TL4 -> TL3 -> Chan)
  * VNIC0-SQ0 -> TL4(0)  -> TL4A(0) -> TL3[0] -> BGX0/LMAC0/Chan0
@@ -461,33 +550,41 @@ static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg)
  * VNIC6-SQ0 -> TL4(528)  -> TL4A(132) -> TL3[132] -> BGX1/LMAC2/Chan0
  * VNIC7-SQ0 -> TL4(536)  -> TL4A(134) -> TL3[134] -> BGX1/LMAC3/Chan0
  */
-static void nic_tx_channel_cfg(struct nicpf *nic, int vnic, int sq_idx)
+static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
+			       struct sq_cfg_msg *sq)
 {
-	uint32_t bgx, lmac;
-	uint32_t tl2, tl3, tl4;
+	u32 bgx, lmac, chan;
+	u32 tl2, tl3, tl4;
+	u32 rr_quantum;
+	u8 sq_idx = sq->sq_num;
+	u8 pqs_vnic = vnic;
 
-	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vnic]);
-	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vnic]);
+	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[pqs_vnic]);
+	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[pqs_vnic]);
 
-	debug("%s: bgx: %u, lmac: %u\n", __func__, bgx, lmac);
+	/* 24 bytes for FCS, IPG and preamble */
+	rr_quantum = ((NIC_HW_MAX_FRS + 24) / 4);
 
 	tl4 = (lmac * NIC_TL4_PER_LMAC) + (bgx * NIC_TL4_PER_BGX);
 	tl4 += sq_idx;
+
 	tl3 = tl4 / (NIC_MAX_TL4 / NIC_MAX_TL3);
 	nic_reg_write(nic, NIC_PF_QSET_0_127_SQ_0_7_CFG2 |
-		      (vnic << NIC_QS_ID_SHIFT) |
-		      (sq_idx << NIC_Q_NUM_SHIFT), tl4);
+		      ((u64)vnic << NIC_QS_ID_SHIFT) |
+		      ((u32)sq_idx << NIC_Q_NUM_SHIFT), tl4);
 	nic_reg_write(nic, NIC_PF_TL4_0_1023_CFG | (tl4 << 3),
-		      (vnic << 27) | (sq_idx << 24) | (NIC_HW_MAX_FRS / 4));
+		      ((u64)vnic << 27) | ((u32)sq_idx << 24) | rr_quantum);
 
-	nic_reg_write(nic, NIC_PF_TL3_0_255_CFG | (tl3 << 3),
-		      NIC_HW_MAX_FRS / 4);
-	nic_reg_write(nic, NIC_PF_TL3_0_255_CHAN | (tl3 << 3), lmac << 4);
+	nic_reg_write(nic, NIC_PF_TL3_0_255_CFG | (tl3 << 3), rr_quantum);
+	chan = (lmac * MAX_BGX_CHANS_PER_LMAC) + (bgx * NIC_CHANS_PER_INF);
+	nic_reg_write(nic, NIC_PF_TL3_0_255_CHAN | (tl3 << 3), chan);
+	/* Enable backpressure on the channel */
+	nic_reg_write(nic, NIC_PF_CHAN_0_255_TX_CFG | (chan << 3), 1);
 
 	tl2 = tl3 >> 2;
 	nic_reg_write(nic, NIC_PF_TL3A_0_63_CFG | (tl2 << 3), tl2);
-	nic_reg_write(nic, NIC_PF_TL2_0_63_CFG | (tl2 << 3),
-		      NIC_HW_MAX_FRS / 4);
+	nic_reg_write(nic, NIC_PF_TL2_0_63_CFG | (tl2 << 3), rr_quantum);
+	/* No priorities as of now */
 	nic_reg_write(nic, NIC_PF_TL2_0_63_PRI | (tl2 << 3), 0x00);
 }
 
@@ -500,13 +597,18 @@ struct nicpf *nic_initialize(unsigned int node)
 		return nic;
 
 	/* MAP PF's configuration registers */
-	nic->reg_base = CSR_PA(NIC_PF_BAR0, node);
+	nic->reg_base = CSR_PA(node, NIC_PF_BAR0);
 	if (!nic->reg_base) {
 		printf("Cannot map config register space, aborting\n");
 		goto exit;
 	}
 
+#if 0
+	nic->node = NIC_NODE_ID(pci_resource_start(pdev, PCI_CFG_REG_BAR_NUM));
+#endif
+
 	nic->node = node;
+	nic->rev_id = 3;
 
 	/* By default set NIC in TNS bypass mode */
 	nic->flags &= ~NIC_TNS_ENABLED;
@@ -526,3 +628,5 @@ exit:
 	free(nic);
 	return NULL;
 }
+
+
