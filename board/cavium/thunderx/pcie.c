@@ -13,11 +13,14 @@
 
 #include <common.h>
 #include <pci.h>
+#include <asm/errno.h>
 #include <cavm-csr.h>
 #include <cavium/atf.h>
 
 #define PCI_VENDOR_CAVIUM 0x177d
 #define PCI_DEV_CAVIUM_RC 0xa100
+
+#define PCI_CAP_EA 0x14
 
 #define RTARGET_MASK 0x1f;
 #define OPCODE_SIZE 4;
@@ -27,10 +30,24 @@
 #define RCS_PER_NODE 6
 #define RCS_PER_SLI 3
 
+struct resource {
+	uintptr_t start;
+	uintptr_t end;
+
+	unsigned long type;
+};
+
 struct thunderx_ecam {
 	int node;
 	int ecam;
 	bool present;
+
+	uintptr_t baseaddr;
+
+	struct resource memory;
+	struct resource buses;
+	struct resource pref_mem;
+	struct resource ioports;
 };
 
 static struct thunderx_ecam thunderx_ecam[CONFIG_THUNDERX_ECAMS];
@@ -387,3 +404,233 @@ int pci_print_dev(struct pci_controller *hose, pci_dev_t dev)
 	return 1;
 }
 
+static unsigned long pci_ea_set_flags(struct pci_controller *hose,
+				      pci_dev_t dev, u8 prop)
+{
+	unsigned long flags = 0;
+	switch (prop) {
+	case PCI_EA_P_MEM:
+	case PCI_EA_P_VIRT_MEM:
+		flags = PCI_REGION_MEM;
+		break;
+	case PCI_EA_P_MEM_PREFETCH:
+	case PCI_EA_P_VIRT_MEM_PREFETCH:
+		flags = PCI_REGION_MEM | PCI_REGION_PREFETCH;
+		break;
+	case PCI_EA_P_IO:
+		flags = PCI_REGION_IO;
+		break;
+	default:
+		return 0;
+	}
+
+	return flags;
+}
+#if 0
+static struct resource *pci_ea_get_resource(struct pci_dev *dev, u8 bei,
+					    u8 prop)
+{
+	if (bei <= PCI_EA_BEI_BAR5 && prop <= PCI_EA_P_IO)
+		return &dev->resource[bei];
+#ifdef CONFIG_PCI_IOV
+	else if (bei >= PCI_EA_BEI_VF_BAR0 && bei <= PCI_EA_BEI_VF_BAR5 &&
+		 (prop == PCI_EA_P_VIRT_MEM ||
+		  prop == PCI_EA_P_VIRT_MEM_PREFETCH))
+		return &dev->resource[PCI_IOV_RESOURCES +
+				      bei - PCI_EA_BEI_VF_BAR0];
+#endif
+	else if (bei == PCI_EA_BEI_ROM)
+		return &dev->resource[PCI_ROM_RESOURCE];
+	else
+		return NULL;
+}
+#endif
+
+/* Read an Enhanced Allocation (EA) entry */
+static int pci_ea_read(struct pci_controller *hose,
+		       pci_dev_t dev, int offset)
+{
+	struct resource r;
+	struct resource *res = &r;
+	int ent_offset = offset;
+	int ent_size;
+	size_t start;
+	size_t end;
+	unsigned long flags;
+	u32 dw0;
+	u32 base;
+	u32 max_offset;
+	u8 prop;
+	bool support_64 = (sizeof(uintptr_t) >= 8);
+
+	debug("%s: %d: dev: %x, ent_offset: %x\n", 
+	       __FUNCTION__, __LINE__, dev, ent_offset);
+
+	pci_hose_read_config_dword(hose, dev,
+				   ent_offset, &dw0);
+
+	debug("%s: %d: dw0: %lx\n", __FUNCTION__, __LINE__, dw0);
+
+	
+	ent_offset += sizeof(u32);
+
+	/* Entry size field indicates DWORDs after 1st */
+	ent_size = ((dw0 & PCI_EA_ES) + 1) * sizeof(u32);
+
+	if (!(dw0 & PCI_EA_ENABLE)) /* Entry not enabled */
+		goto out;
+
+	prop = PCI_EA_PP(dw0);
+
+	debug("EA property: %x\n", prop);
+
+	/*
+	 * If the Property is in the reserved range, try the Secondary
+	 * Property instead.
+	 */
+	if (prop > PCI_EA_P_BRIDGE_IO && prop < PCI_EA_P_MEM_RESERVED)
+		prop = PCI_EA_SP(dw0);
+	if (prop > PCI_EA_P_BRIDGE_IO)
+		goto out;
+
+	debug("EA property: %x\n", prop);
+
+#if 0
+	res = pci_ea_get_resource(dev, PCI_EA_BEI(dw0), prop);
+	if (!res) {
+		dev_err(&dev->dev, "Unsupported EA entry BEI: %u\n",
+			PCI_EA_BEI(dw0));
+		goto out;
+	}
+#endif
+
+	flags = pci_ea_set_flags(hose, dev, prop);
+
+	/* Read Base */
+	pci_hose_read_config_dword(hose, dev, ent_offset, &base);
+	start = (base & PCI_EA_FIELD_MASK);
+	ent_offset += sizeof(u32);
+
+	/* Read MaxOffset */
+	pci_hose_read_config_dword(hose, dev, ent_offset, &max_offset);
+	ent_offset += sizeof(u32);
+
+	/* Read Base MSBs (if 64-bit entry) */
+	if (base & PCI_EA_IS_64) {
+		u32 base_upper;
+
+		pci_hose_read_config_dword(hose, dev,
+					   ent_offset, &base_upper);
+		ent_offset += sizeof(u32);
+
+		/* entry starts above 32-bit boundary, can't use */
+		if (!support_64 && base_upper)
+			goto out;
+
+		if (support_64)
+			start |= ((u64)base_upper << 32);
+	}
+
+	debug("EA (%u,%u) start = %pa\n", PCI_EA_BEI(dw0), prop, &start);
+
+	end = start + (max_offset | 0x03);
+
+	/* Read MaxOffset MSBs (if 64-bit entry) */
+	if (max_offset & PCI_EA_IS_64) {
+		u32 max_offset_upper;
+
+		pci_hose_read_config_dword(hose, dev,
+				      ent_offset, &max_offset_upper);
+		ent_offset += sizeof(u32);
+
+		/* entry too big, can't use */
+		if (!support_64 && max_offset_upper)
+			goto out;
+
+		if (support_64)
+			end += ((u64)max_offset_upper << 32);
+	}
+
+	debug("EA (%u,%u) end = %pa\n", PCI_EA_BEI(dw0), prop, &end);
+
+	if (end < start) {
+		printf("EA Entry crosses address boundary\n");
+		goto out;
+	}
+
+	if (ent_size != ent_offset - offset) {
+		printf("EA Entry Size (%d) does not match length read (%d)\n",
+			ent_size, ent_offset - offset);
+		goto out;
+	}
+
+	res->start = start;
+	res->end = end;
+	res->type = flags;
+
+out:
+	return offset + ent_size;
+}
+
+/* Enhanced Allocation Initalization */
+int pci_hose_ea_init(struct pci_controller *hose, pci_dev_t dev)
+{
+	int ea;
+	u8 num_ent;
+	int offset;
+	u8 hdr_type;
+	int i;
+
+	/* find PCI EA capability in list */
+	ea = pci_hose_find_capability(hose, dev, PCI_CAP_ID_EA);
+	if (!ea)
+		return 0;
+
+	/* determine the number of entries */
+	pci_hose_read_config_byte(hose, dev, ea + PCI_EA_NUM_ENT, &num_ent);
+	num_ent &= PCI_EA_NUM_ENT_MASK;
+
+	offset = ea + PCI_EA_FIRST_ENT;
+
+	pci_hose_read_config_byte(hose, dev, PCI_HEADER_TYPE, &hdr_type);
+	/* Skip DWORD 2 for type 1 functions */
+	if (hdr_type == PCI_HEADER_TYPE_BRIDGE)
+		offset += sizeof(u32);
+
+	printf("%s: %d: offset: %lx\n", __FUNCTION__, __LINE__, offset);
+
+	/* parse each EA entry */
+	for (i = 0; i < num_ent; ++i)
+		offset = pci_ea_read(hose, dev, offset);
+
+	return 1;
+}
+
+
+int pci_postscan_config(struct pci_controller *hose, pci_dev_t dev)
+{
+	struct thunderx_ecam *ecam = hose->priv_data;
+	u32 reg;
+	u64 bar_start;
+	u64 bar_size;
+	int bar, res;
+
+	res = pci_hose_ea_init(hose, dev);
+
+	printf("%s: %d: cap: %lx\n", __FUNCTION__, __LINE__, res);
+
+
+	for (bar = 0; bar <= 5; bar++) {
+		bar_start = pci_read_bar32(hose, dev, bar);
+		if (reg & PCI_BASE_ADDRESS_MEM_TYPE_64) {
+			bar++;
+			bar_start |= ((u64)pci_read_bar32(hose, dev, bar) << 32);
+			bar_size = 1 << ffs(bar_start);
+		}
+
+		printf("%s: %d: bar_start: %lx, bar_size: %lx\n",
+		       __FUNCTION__, __LINE__, bar_start, bar_size);
+	}
+
+	return 0;
+}
