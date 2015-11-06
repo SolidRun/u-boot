@@ -142,7 +142,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	struct sata_host_regs *host_mmio =
 		(struct sata_host_regs *)probe_ent->mmio_base;
 /* 	int clk = mxc_get_clock(MXC_SATA_CLK); */
-	int clk = 100000000; /* arbitrary for now */
+//	int clk = 100000000; /* arbitrary for now */
 
 	cap_save = ahci_readl(&(host_mmio->cap));
 	cap_save |= SATA_HOST_CAP_SSS;
@@ -162,7 +162,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	}
 
 	/* Set timer 1ms */
-	ahci_writel(clk / 1000, &(host_mmio->timer1ms));
+//	ahci_writel(clk / 1000, &(host_mmio->timer1ms));
 	ahci_setup_oobr(probe_ent, 0);
 
 	ahci_writel_with_flush(SATA_HOST_GHC_AE, &(host_mmio->ghc));
