@@ -49,7 +49,7 @@
 
 /dts-v1/;
 
-/include/ "thunder-88xx.dtsi"
+/include/ "thunder-88xx-2n.dtsi"
 
 / {
 	model = "Cavium ThunderX CN88XX board";
