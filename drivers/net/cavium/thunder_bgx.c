@@ -178,7 +178,7 @@ static void bgx_flush_dmac_addrs(struct bgx *bgx, uint64_t lmac)
 			(lmac * MAX_DMAC_PER_LMAC * sizeof(dmac));
 		addr = (uintptr_t)bgx->reg_base + 
 				BGX_CMR_RX_DMACX_CAM + offset;
-		writeq_relaxed(dmac, (void *)addr);
+		writeq(dmac, (void *)addr);
 		bgx->lmac[lmac].dmac--;
 	}
 }
