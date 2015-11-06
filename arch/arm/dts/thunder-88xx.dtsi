@@ -553,9 +553,9 @@
 	timer {
 		compatible = "arm,armv8-timer";
 		interrupts = <1 13 0xff01>,
-		             <1 14 0xff01>,
-		             <1 11 0xff01>,
-		             <1 10 0xff01>;
+			     <1 14 0xff01>,
+			     <1 11 0xff01>,
+			     <1 10 0xff01>;
 	};
 
 	pmu {
@@ -563,7 +563,27 @@
 		interrupts = <1 7 4>;
 	};
 
-	soc {
+	gic0: interrupt-controller@8010,00000000 {
+		compatible = "arm,gic-v3";
+		#interrupt-cells = <3>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		#redistributor-regions = <1>;
+		ranges;
+		interrupt-controller;
+		reg = <0x8010 0x00000000 0x0 0x010000>, /* GICD */
+		      <0x8010 0x80000000 0x0 0x600000>; /* GICR Node 0 */
+		interrupts = <1 9 0xf04>;
+
+		its: gic-its@8010,00020000 {
+			compatible = "arm,gic-v3-its";
+			reg = <0x8010 0x20000 0x0 0x200000>;
+			msi-controller;
+			#msi-cells = <1>;
+		};
+	};
+
+	soc@0 {
 		compatible = "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -574,24 +594,6 @@
 			#clock-cells = <0>;
 			clock-frequency = <116640000>;
 			clock-output-names = "refclkuaa";
-		};
-
-		gic0: interrupt-controller@8010,00000000 {
-			compatible = "arm,gic-v3";
-			#interrupt-cells = <3>;
-			#address-cells = <2>;
-			#size-cells = <2>;
-			ranges;
-			interrupt-controller;
-			reg = <0x8010 0x00000000 0x0 0x010000>, /* GICD */
-			      <0x8010 0x80000000 0x0 0x600000>; /* GICR */
-			interrupts = <1 9 0xf04>;
-
-			its: gic-its@8010,00020000 {
-				compatible = "arm,gic-v3-its";
-				msi-controller;
-				reg = <0x8010 0x20000 0x0 0x200000>;
-			};
 		};
 
 		uaa0: serial@87e0,24000000 {
@@ -609,508 +611,562 @@
 			clocks = <&refclkuaa>;
 			clock-names = "apb_pclk";
 		};
-	};
 
-	pcie0: pcie0@0x8480,00000000 {
-	        compatible = "cavium,pci-host-thunder-ecam";
-		device_type = "pci";
-		msi-parent = <&its>;
-		bus-range = <0 255>;
-		#size-cells = <2>;
-		#address-cells = <3>;
-		#stream-id-cells = <1>;
-		reg = <0x00008480 0x00000000 0x00000000 0x10000000>;  /* Configuration space */
-		ranges = <0x03000000 0x00008010 0x00000000  0x8010 0x00000000  0x070 0x00000000
-			  0x03000000 0x00008680 0x00000000  0x8680 0x00000000  0x160 0x24000000
-			  0x03000000 0x000087e0 0x26000000  0x87e0 0x26000000  0x01f 0xda000000>;
-        };
+		smmu0@8300,00000000 {
+			compatible = "arm,smmu-v2";
+			reg = <0x8300 0x0 0x0 0x2000000>;
+			#global-interrupts = <1>;
+			interrupts = <0 68 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
+				     <0 69 4>, <0 69 4>, <0 69 4>;
+	
+			mmu-masters = <&pcie0 0x100>;
+			thunderx,smmu-64-bit-writes-only;
+		};
 
-	pcie1: pcie1@0x8490,00000000 {
-	        compatible = "cavium,pci-host-thunder-ecam";
-		device_type = "pci";
-		msi-parent = <&its>;
-		bus-range = <0 255>;
-		#size-cells = <2>;
-		#address-cells = <3>;
-		#stream-id-cells = <1>;
-		reg = <0x8490 0x00000000 0 0x10000000>;  /* Configuration space */
-		ranges = <0x3000000 0x00008100 0x00000000  0x00008100 0x00000000  0x80 0x00>;
-        };
+		smmu1@8310,00000000 {
+			compatible = "arm,smmu-v2";
+			reg = <0x8310 0x0 0x0 0x2000000>;
+			#global-interrupts = <1>;
+			interrupts = <0 70 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
+				     <0 71 4>, <0 71 4>, <0 71 4>;
+	
+			mmu-masters = <&pcie1 0x100>;
+			thunderx,smmu-64-bit-writes-only;
+		};
 
-	pcie2: pcie2@0x84a0,00000000 {
-	        compatible = "cavium,pci-host-thunder-ecam";
-		device_type = "pci";
-		msi-parent = <&its>;
-		bus-range = <0 255>;
-		#size-cells = <2>;
-		#address-cells = <3>;
-		#stream-id-cells = <1>;
-		reg = <0x84a0 0x00000000 0 0x10000000>;  /* Configuration space */
-		ranges = <0x3000000 0x00008420 0x00000000  0x00008420 0x00000000  0x20 0x00>;
-        };
+		smmu2@8320,00000000 {
+			compatible = "arm,smmu-v2";
+			reg = <0x8320 0x0 0x0 0x2000000>;
+			#global-interrupts = <1>;
+			interrupts = <0 72 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
+				     <0 73 4>, <0 73 4>, <0 73 4>;
+	
+			mmu-masters = <&pcie2 0x100>;
+			thunderx,smmu-64-bit-writes-only;
+		};
 
-	pcie3: pcie3@0x84b0,00000000 {
-	        compatible = "cavium,pci-host-thunder-ecam";
-		device_type = "pci";
-		msi-parent = <&its>;
-		bus-range = <0 255>;
-		#size-cells = <2>;
-		#address-cells = <3>;
-		#stream-id-cells = <1>;
-		reg = <0x84b0 0x00000000 0 0x10000000>;  /* Configuration space */
-		ranges = <0x3000000 0x00008180 0x00000000  0x00008180 0x00000000  0x80 0x00>;
-        };
+		smmu3@8330,00000000 {
+			compatible = "arm,smmu-v2";
+			reg = <0x8330 0x0 0x0 0x2000000>;
+			#global-interrupts = <1>;
+			interrupts = <0 74 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
+				     <0 75 4>, <0 75 4>, <0 75 4>;
+	
+			mmu-masters = <&pcie3 0x100>;
+			thunderx,smmu-64-bit-writes-only;
+		};
 
-	smmu0@0x8300,00000000 {
-                compatible = "arm,smmu-v2";
-                reg = <0x8300 0x0 0x0 0x2000000>;
-                #global-interrupts = <1>;
-		interrupts = <0 68 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>, <0 69 4>,
-			     <0 69 4>, <0 69 4>, <0 69 4>;
+		pcie0: pcie0@8480,00000000 {
+			compatible = "cavium,pci-host-thunder-ecam";
+			device_type = "pci";
+			msi-parent = <&its>;
+			msi-map = <0 &its 0 0x10000>;
+			bus-range = <0 255>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			#stream-id-cells = <1>;
+			reg = <0x8480 0x00000000 0 0x10000000>;	 /* Configuration space */
+			ranges = <0x03000000 0x8010 0x00000000 0x8010 0x00000000 0x070 0x00000000>, /* mem ranges */
+				 <0x03000000 0x8680 0x00000000 0x8680 0x00000000 0x160 0x24000000>, /* hole for UARTs */
+				 <0x03000000 0x87e0 0x26000000 0x87e0 0x26000000 0x01f 0xda000000>;
 
-                mmu-masters = <&pcie0 0x100>;
-		thunderx,smmu-64-bit-writes-only;
-        };
+			mrml-bridge0@1,0 {
+				compatible = "cavium,thunder-8890-mrml-bridge";
+				#size-cells = <2>;
+				#address-cells = <3>;
+				ranges = <0x03000000 0x87e0 0x00000000 0x03000000 0x87e0 0x00000000 0x10 0x00000000>;
+				reg = <0x0800 0 0 0 0>; /* DEVFN = 0x08 (1:0) */
 
-	smmu1@0x8310,00000000 {
-                compatible = "arm,smmu-v2";
-                reg = <0x8310 0x0 0x0 0x2000000>;
-                #global-interrupts = <1>;
-                interrupts = <0 70 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>, <0 71 4>,
-			     <0 71 4>, <0 71 4>, <0 71 4>;
+				mdio-nexus@1,3 {
+					compatible = "cavium,thunder-8890-mdio-nexus";
+					#address-cells = <2>;
+					#size-cells = <2>;
+					reg = <0x0b00 0 0 0 0>; /* DEVFN = 0x0b (1:3) */
+					assigned-addresses = <0x03000000 0x87e0 0x05000000 0x0 0x800000>;
+					ranges = <0x87e0 0x05000000 0x03000000 0x87e0 0x05000000 0x0 0x800000>;
 
-                mmu-masters = <&pcie1 0x100>;
-		thunderx,smmu-64-bit-writes-only;
-        };
+					mdio0@87e0,05003800 {
+						compatible = "cavium,thunder-8890-mdio";
+						#address-cells = <1>;
+						#size-cells = <0>;
+						reg = <0x87e0 0x05003800 0x0 0x30>;
 
-	smmu2@0x8320,00000000 {
-                compatible = "arm,smmu-v2";
-                reg = <0x8320 0x0 0x0 0x2000000>;
-                #global-interrupts = <1>;
-                interrupts = <0 72 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>, <0 73 4>,
-			     <0 73 4>, <0 73 4>, <0 73 4>;
+						sgmii00: sgmii00 {
+							qlm-mode = "0,sgmii";
+							reg = <0> ;
+							compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+							/* LED[2,1]: Speed, LED[3]: RX, LED[0]: TX, all open-drain */
+							marvell,reg-init = <3 0x10 0 0x8665>,
+									   <3 0x11 0 0x00aa>,
+									   <3 0x12 0 0x4105>,
+									   <3 0x13 0 0x8a08>;
 
-                mmu-masters = <&pcie2 0x100>;
-		thunderx,smmu-64-bit-writes-only;
-        };
+						};
+						sgmii01: sgmii01 {
+							qlm-mode = "0,sgmii";
+							reg = <1> ;
+							compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+							marvell,reg-init = <3 0x10 0 0x8665>,
+									   <3 0x11 0 0x00aa>,
+										   <3 0x12 0 0x4105>,
+									   <3 0x13 0 0x8a08>;
+						};
+						sgmii02: sgmii02 {
+							qlm-mode = "0,sgmii";
+							reg = <2> ;
+							compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+							marvell,reg-init = <3 0x10 0 0x8665>,
+									   <3 0x11 0 0x00aa>,
+									   <3 0x12 0 0x4105>,
+									   <3 0x13 0 0x8a08>;
+						};
+						sgmii03: sgmii03 {
+							qlm-mode = "0,sgmii";
+							reg = <3> ;
+							compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+							marvell,reg-init = <3 0x10 0 0x8665>,
+									   <3 0x11 0 0x00aa>,
+									   <3 0x12 0 0x4105>,
+									   <3 0x13 0 0x8a08>;
+						};
+						xfi00: xfi00 {
+							qlm-mode = "0,xfi","0,xfi-10g-kr";
+							reg = <0> ;
+							compatible = "cortina,cs4223-slice";
+						};
+						xfi01: xfi01 {
+							qlm-mode = "0,xfi","0,xfi-10g-kr";
+							reg = <1> ;
+							compatible = "cortina,cs4223-slice";
+						};
+						xfi02: xfi02 {
+							qlm-mode = "0,xfi","0,xfi-10g-kr";
+							reg = <2> ;
+							compatible = "cortina,cs4223-slice";
+						};
+						xfi03: xfi03 {
+							qlm-mode = "0,xfi","0,xfi-10g-kr";
+							reg = <3> ;
+							compatible = "cortina,cs4223-slice";
+						};
+						xlaui00: xlaui00 {
+							qlm-mode = "0,xlaui","0,xlaui-40g-kr";
+							reg = <0> ;
+							compatible = "cortina,cs4223-slice";
+						};
+						xaui00: xaui00 {
+							qlm-mode = "0,xaui";
+							reg = <0> ;
+							compatible = "broadcom,bcm8706", "ethernet-phy-ieee802.3-c45";
+							broadcom,c45-reg-init = <1 0xc808 0xff8f 0x70>;
+						};
+						rxaui00: rxaui00 {
+							qlm-mode = "0,rxaui";
+							reg = <0> ;
+							compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+						};
+						rxaui01: rxaui01 {
+							qlm-mode = "0,rxaui";
+							reg = <1> ;
+							compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+						};
+					};
 
-	smmu3@0x8330,00000000 {
-                compatible = "arm,smmu-v2";
-                reg = <0x8330 0x0 0x0 0x2000000>;
-                #global-interrupts = <1>;
-                interrupts = <0 74 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>, <0 75 4>,
-			     <0 75 4>, <0 75 4>, <0 75 4>;
+					mdio1@87e0,05003880 {
+						compatible = "cavium,thunder-8890-mdio";
+						#address-cells = <1>;
+						#size-cells = <0>;
+						reg = <0x87e0 0x05003880 0x0 0x30>;
 
-                mmu-masters = <&pcie3 0x100>;
-		thunderx,smmu-64-bit-writes-only;
-        };
+						sgmii10: sgmii10 {
+							qlm-mode = "1,sgmii";
+							reg = <4> ;
+							compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+							marvell,reg-init = <3 0x10 0 0x8665>,
+									   <3 0x11 0 0x00aa>,
+									   <3 0x12 0 0x4105>,
+									   <3 0x13 0 0x8a08>;
+						};
+						sgmii11: sgmii11 {
+							qlm-mode = "1,sgmii";
+							reg = <5> ;
+							compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+							marvell,reg-init = <3 0x10 0 0x8665>,
+									   <3 0x11 0 0x00aa>,
+									   <3 0x12 0 0x4105>,
+									   <3 0x13 0 0x8a08>;
+						};
+						sgmii12: sgmii12 {
+							qlm-mode = "1,sgmii";
+							reg = <6> ;
+							compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+							marvell,reg-init = <3 0x10 0 0x8665>,
+									   <3 0x11 0 0x00aa>,
+									   <3 0x12 0 0x4105>,
+									   <3 0x13 0 0x8a08>;
+						};
+						sgmii13: sgmii13 {
+							qlm-mode = "1,sgmii";
+							reg = <7> ;
+							compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+							marvell,reg-init = <3 0x10 0 0x8665>,
+									   <3 0x11 0 0x00aa>,
+									   <3 0x12 0 0x4105>,
+									   <3 0x13 0 0x8a08>;
+						};
+						xfi10: xfi10 {
+							qlm-mode = "1,xfi","1,xfi-10g-kr";
+							reg = <0> ;
+							compatible = "cortina,cs4223-slice";
+						};
+						xfi11: xfi11 {
+							qlm-mode = "1,xfi","1,xfi-10g-kr";
+							reg = <1> ;
+							compatible = "cortina,cs4223-slice";
+						};
+						xfi12: xfi12 {
+							qlm-mode = "1,xfi","1,xfi-10g-kr";
+							reg = <2> ;
+							compatible = "cortina,cs4223-slice";
+						};
+						xfi13: xfi13 {
+							qlm-mode = "1,xfi","1,xfi-10g-kr";
+							reg = <3> ;
+							compatible = "cortina,cs4223-slice";
+						};
+						xlaui10: xlaui10 {
+							qlm-mode = "1,xlaui","1,xlaui-40g-kr";
+							reg = <0> ;
+							compatible = "cortina,cs4223-slice";
+						};
+						xaui10: xaui10 {
+							qlm-mode = "1,xaui";
+							reg = <4> ;
+							compatible = "broadcom,bcm8706", "ethernet-phy-ieee802.3-c45";
+							broadcom,c45-reg-init = <1 0xc808 0xff8f 0x70>;
+						};
+						rxaui10: rxaui10 {
+							qlm-mode = "1,rxaui";
+							reg = <0> ;
+							compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+						};
+						rxaui11: rxaui11 {
+							qlm-mode = "1,rxaui";
+							reg = <1> ;
+							compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
+						};
+					};
+				};
 
-	mdio@0x87e00,5003800 {
-		compatible = "cavium,octeon-3860-mdio";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0x87e0 0x05003800 0x0 0x30>;
+				bgx0 {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <0x8000 0 0 0 0>; /* DEVFN = 0x80 (16:0) */
+					/* typename+qlm+typenumber eg :
+					   sgmii+bgx0+sgmmi0
+					 */
+					// SGMII
+					sgmii00 {
+						reg = <0>;
+						qlm-mode = "0,sgmii";
+						phy-handle = <&sgmii00>;
+					};
+					sgmii01 {
+						reg = <1>;
+						qlm-mode = "0,sgmii";
+						phy-handle = <&sgmii01>;
+					};
+					sgmii02 {
+						reg = <2>;
+						qlm-mode = "0,sgmii";
+						phy-handle = <&sgmii02>;
+					};
+					sgmii03 {
+						reg = <3>;
+						qlm-mode = "0,sgmii";
+						phy-handle = <&sgmii03>;
+					};
+					xfi00 {
+						reg = <0>;
+						qlm-mode = "0,xfi";
+						phy-handle = <&xfi00>;
+					};
+					xfi01 {
+						reg = <1>;
+						qlm-mode = "0,xfi";
+						phy-handle = <&xfi01>;
+					};
+					xfi02 {
+						reg = <2>;
+						qlm-mode = "0,xfi";
+						phy-handle = <&xfi02>;
+					};
+					xfi03 {
+						reg = <3>;
+						qlm-mode = "0,xfi";
+						phy-handle = <&xfi03>;
+					};
+					// 10g-kr
+					xfi-10g-kr00 {
+						reg = <0>;
+						qlm-mode = "0,xfi-10g-kr";
+						phy-handle = <&xfi00>;
+					};
+					xfi-10g-kr01 {
+						reg = <1>;
+						qlm-mode = "0,xfi-10g-kr";
+						phy-handle = <&xfi01>;
+					};
+					xfi-10g-kr02 {
+						reg = <2>;
+						qlm-mode = "0,xfi-10g-kr";
+						phy-handle = <&xfi02>;
+					};
+					xfi-10g-kr03 {
+						reg = <3>;
+						qlm-mode = "0,xfi-10g-kr";
+						phy-handle = <&xfi03>;
+					};
+					xlaui00 {
+						reg = <0>;
+						qlm-mode = "0,xlaui";
+						phy-handle = <&xlaui00>;
+					};
+					xlaui-40g-kr00 {
+						reg = <0>;
+						qlm-mode = "0,xlaui-40g-kr";
+						phy-handle = <&xlaui00>;
+					};
+					xaui00 {
+						reg = <0>;
+						qlm-mode = "0,xaui";
+						phy-handle = <&xaui00>;
+					};
+					rxaui00 {
+						reg = <0>;
+						qlm-mode = "0,rxaui";
+						phy-handle = <&rxaui00>;
+					};
+					rxaui01 {
+						reg = <1>;
+						qlm-mode = "0,rxaui";
+						phy-handle = <&rxaui01>;
+					};
+				};
 
-		sgmii00: sgmii00 {
-			qlm-mode = "0,sgmii";
-			reg = <0> ;
-			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
-			/* LED[2,1]: Speed, LED[3]: RX, LED[0]: TX, all open-drain */
-			marvell,reg-init = <3 0x10 0 0x8665>,
-					<3 0x11 0 0x00aa>,
-					<3 0x12 0 0x4105>,
-					<3 0x13 0 0x8a08>;
+				bgx1 {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <0x8100 0 0 0 0>; /* DEVFN = 0x81 (16:1) */
 
-		};
-		sgmii01: sgmii01 {
-			qlm-mode = "0,sgmii";
-			reg = <1> ;
-			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
-			marvell,reg-init = <3 0x10 0 0x8665>,
-			      <3 0x11 0 0x00aa>,
-			      <3 0x12 0 0x4105>,
-			      <3 0x13 0 0x8a08>;
-		};
-		sgmii02: sgmii02 {
-			qlm-mode = "0,sgmii";
-			reg = <2> ;
-			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
-			marvell,reg-init = <3 0x10 0 0x8665>,
-			      <3 0x11 0 0x00aa>,
-			      <3 0x12 0 0x4105>,
-			      <3 0x13 0 0x8a08>;
-
-		};
-		sgmii03: sgmii03 {
-			qlm-mode = "0,sgmii";
-			reg = <3> ;
-			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
-			marvell,reg-init = <3 0x10 0 0x8665>,
-			      <3 0x11 0 0x00aa>,
-			      <3 0x12 0 0x4105>,
-			      <3 0x13 0 0x8a08>;
-		};
-		xfi00: xfi00 {
-			qlm-mode = "0,xfi","0,xfi-10g-kr";
-			reg = <0> ;
-			compatible = "cortina,cs4223-slice";
-		};
-		xfi01: xfi01 {
-			qlm-mode = "0,xfi","0,xfi-10g-kr";
-			reg = <1> ;
-			compatible = "cortina,cs4223-slice";
-		};
-		xfi02: xfi02 {
-			qlm-mode = "0,xfi","0,xfi-10g-kr";
-			reg = <2> ;
-			compatible = "cortina,cs4223-slice";
-		};
-		xfi03: xfi03 {
-			qlm-mode = "0,xfi","0,xfi-10g-kr";
-			reg = <3> ;
-			compatible = "cortina,cs4223-slice";
-		};
-		xlaui00: xlaui00 {
-			qlm-mode = "0,xlaui","0,xlaui-40g-kr";
-			reg = <0> ;
-			compatible = "cortina,cs4223-slice";
-		};
-		xaui00: xaui00 {
-			qlm-mode = "0,xaui";
-			reg = <0> ;
-			compatible = "broadcom,bcm8706", "ethernet-phy-ieee802.3-c45";
-			broadcom,c45-reg-init = <1 0xc808 0xff8f 0x70>;
-		};
-		rxaui00: rxaui00 {
-			qlm-mode = "0,rxaui";
-			reg = <0> ;
-			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
-		};
-		rxaui01: rxaui01 {
-			qlm-mode = "0,rxaui";
-			reg = <1> ;
-			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
-		};
-	};
-
-	mdio@0x87e00,5003880 {
-		compatible = "cavium,octeon-3860-mdio";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0x87e0 0x05003880 0x0 0x30>;
-
-		sgmii10: sgmii10 {
-			qlm-mode = "1,sgmii";
-			reg = <4> ;
-			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
-			marvell,reg-init = <3 0x10 0 0x8665>,
-			      <3 0x11 0 0x00aa>,
-			      <3 0x12 0 0x4105>,
-			      <3 0x13 0 0x8a08>;
-		};
-		sgmii11: sgmii11 {
-			qlm-mode = "1,sgmii";
-			reg = <5> ;
-			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
-			marvell,reg-init = <3 0x10 0 0x8665>,
-			      <3 0x11 0 0x00aa>,
-			      <3 0x12 0 0x4105>,
-			      <3 0x13 0 0x8a08>;
-
-		};
-		sgmii12: sgmii12 {
-			qlm-mode = "1,sgmii";
-			reg = <6> ;
-			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
-			marvell,reg-init = <3 0x10 0 0x8665>,
-			      <3 0x11 0 0x00aa>,
-			      <3 0x12 0 0x4105>,
-			      <3 0x13 0 0x8a08>;
-		};
-		sgmii13: sgmii13 {
-			qlm-mode = "1,sgmii";
-			reg = <7> ;
-			compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
-			marvell,reg-init = <3 0x10 0 0x8665>,
-			      <3 0x11 0 0x00aa>,
-			      <3 0x12 0 0x4105>,
-			      <3 0x13 0 0x8a08>;
-		};
-		xfi10: xfi10 {
-			qlm-mode = "1,xfi","1,xfi-10g-kr";
-			reg = <0> ;
-			compatible = "cortina,cs4223-slice";
-		};
-		xfi11: xfi11 {
-			qlm-mode = "1,xfi","1,xfi-10g-kr";
-			reg = <1> ;
-			compatible = "cortina,cs4223-slice";
-		};
-		xfi12: xfi12 {
-			qlm-mode = "1,xfi","1,xfi-10g-kr";
-			reg = <2> ;
-			compatible = "cortina,cs4223-slice";
-		};
-		xfi13: xfi13 {
-			qlm-mode = "1,xfi","1,xfi-10g-kr";
-			reg = <3> ;
-			compatible = "cortina,cs4223-slice";
-		};
-		xlaui10: xlaui10 {
-			qlm-mode = "1,xlaui","1,xlaui-40g-kr";
-			reg = <0> ;
-			compatible = "cortina,cs4223-slice";
-		};
-		xaui10: xaui10 {
-			qlm-mode = "1,xaui";
-			reg = <4> ;
-			compatible = "broadcom,bcm8706", "ethernet-phy-ieee802.3-c45";
-			broadcom,c45-reg-init = <1 0xc808 0xff8f 0x70>;
-		};
-		rxaui10: rxaui10 {
-			qlm-mode = "1,rxaui";
-			reg = <0> ;
-			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
-		};
-		rxaui11: rxaui11 {
-			qlm-mode = "1,rxaui";
-			reg = <1> ;
-			compatible = "marvell,88x3120", "ethernet-phy-ieee802.3-c45";
-		};
-	};
-
-	/**BGX0**/
-	bgx0 {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0x87e0 0xe0000000 0x0 0x1000000>;
-		/* typename+qlm+typenumber eg :
-		   sgmii+bgx0+sgmmi0
-		 */
-		// SGMII
-		sgmii00 {
-			qlm-mode = "0,sgmii";
-			phy-handle = <&sgmii00>;
-		};
-		sgmii01 {
-			qlm-mode = "0,sgmii";
-			phy-handle = <&sgmii01>;
-		};
-		sgmii02 {
-			qlm-mode = "0,sgmii";
-			phy-handle = <&sgmii02>;
-		};
-		sgmii03 {
-			qlm-mode = "0,sgmii";
-			phy-handle = <&sgmii03>;
-		};
-		xfi00 {
-			qlm-mode = "0,xfi";
-			phy-handle = <&xfi00>;
-		};
-		xfi01 {
-			qlm-mode = "0,xfi";
-			phy-handle = <&xfi01>;
-		};
-		xfi02 {
-			qlm-mode = "0,xfi";
-			phy-handle = <&xfi02>;
-		};
-		xfi03 {
-			qlm-mode = "0,xfi";
-			phy-handle = <&xfi03>;
-		};
-		// 10g-kr
-		xfi-10g-kr00 {
-			qlm-mode = "0,xfi-10g-kr";
-			phy-handle = <&xfi00>;
-		};
-		xfi-10g-kr01 {
-			qlm-mode = "0,xfi-10g-kr";
-			phy-handle = <&xfi01>;
-		};
-		xfi-10g-kr02 {
-			qlm-mode = "0,xfi-10g-kr";
-			phy-handle = <&xfi02>;
-		};
-		xfi-10g-kr03 {
-			qlm-mode = "0,xfi-10g-kr";
-			phy-handle = <&xfi03>;
-		};
-		xlaui00 {
-			qlm-mode = "0,xlaui";
-			phy-handle = <&xlaui00>;
+					sgmii10 {
+						reg = <0>;
+						qlm-mode = "1,sgmii";
+						phy-handle = <&sgmii10>; /*"sgmmi"+bgx+no */
+					};
+					sgmii11 {
+						reg = <1>;
+						qlm-mode = "1,sgmii";
+						phy-handle = <&sgmii11>;
+					};
+					sgmii12 {
+						reg = <2>;
+						qlm-mode = "1,sgmii";
+						phy-handle = <&sgmii12>;
+					};
+					sgmii13 {
+						reg = <3>;
+						qlm-mode = "1,sgmii";
+						phy-handle = <&sgmii13>;
+					};
+					xfi10 {
+						reg = <0>;
+						qlm-mode = "1,xfi";
+						phy-handle = <&xfi10>;
+					};
+					xfi11 {
+						reg = <1>;
+						qlm-mode = "1,xfi";
+						phy-handle = <&xfi11>;
+					};
+					xfi12 {
+						reg = <2>;
+						qlm-mode = "1,xfi";
+						phy-handle = <&xfi12>;
+					};
+					xfi13 {
+						reg = <3>;
+						qlm-mode = "1,xfi";
+						phy-handle = <&xfi13>;
+					};
+					// 10g_kr
+					xfi-10g-kr10 {
+						reg = <0>;
+						qlm-mode = "1,xfi-10g-kr";
+						phy-handle = <&xfi10>;
+					};
+					xfi-10g-kr11 {
+						reg = <1>;
+						qlm-mode = "1,xfi-10g-kr";
+						phy-handle = <&xfi11>;
+					};
+					xfi-10g-kr12 {
+						reg = <2>;
+						qlm-mode = "1,xfi-10g-kr";
+						phy-handle = <&xfi12>;
+					};
+					xfi-10g-kr13 {
+						reg = <3>;
+						qlm-mode = "1,xfi-10g-kr";
+						phy-handle = <&xfi13>;
+					};
+					xlaui10 {
+						reg = <0>;
+						qlm-mode = "1,xlaui";
+						phy-handle = <&xlaui10>;
+						};
+					xlaui-40g-kr-10 {
+						reg = <0>;
+						qlm-mode = "1,xlaui-40g-kr";
+						phy-handle = <&xlaui10>;
+						};
+					xaui10 {
+						reg = <0>;
+						qlm-mode = "1,xaui";
+						phy-handle = <&xaui10>;
+					};
+					rxaui10 {
+						reg = <0>;
+						qlm-mode = "1,rxaui";
+						phy-handle = <&rxaui10>;
+					};
+					rxaui11 {
+						reg = <1>;
+						qlm-mode = "1,rxaui";
+						phy-handle = <&rxaui11>;
+					};
+				};
 			};
-		xlaui-40g-kr00 {
-			qlm-mode = "0,xlaui-40g-kr";
-			phy-handle = <&xlaui00>;
-			};
-		xaui00 {
-			qlm-mode = "0,xaui";
-			phy-handle = <&xaui00>;
 		};
-		rxaui00 {
-			qlm-mode = "0,rxaui";
-			phy-handle = <&rxaui00>;
+
+		pcie1: pcie1@8490,00000000 {
+			compatible = "cavium,pci-host-thunder-ecam";
+			device_type = "pci";
+			msi-parent = <&its>;
+			msi-map = <0 &its 0x10000 0x10000>;
+			bus-range = <0 255>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			#stream-id-cells = <1>;
+			reg = <0x8490 0x00000000 0 0x10000000>;	 /* Configuration space */
+			ranges = <0x03000000 0x8100 0x00000000 0x8100 0x00000000 0x80 0x00000000>; /* mem ranges */
 		};
-		rxaui01 {
-			qlm-mode = "0,rxaui";
-			phy-handle = <&rxaui01>;
+
+		pcie2: pcie2@84a0,00000000 {
+			compatible = "cavium,pci-host-thunder-ecam";
+			device_type = "pci";
+			msi-parent = <&its>;
+			msi-map = <0 &its 0x20000 0x10000>;
+			bus-range = <0 255>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			#stream-id-cells = <1>;
+			reg = <0x84a0 0x00000000 0 0x10000000>;  /* Configuration space */
+			ranges = <0x03000000 0x8420 0x00000000 0x8420 0x00000000 0x20 0x00000000>; /* mem ranges */
 		};
-	};
-	/**BGX1**/
-	bgx1 {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0x87e0 0xe1000000 0x0 0x1000000>;
-		sgmii10 {
-			qlm-mode = "1,sgmii";
-			phy-handle = <&sgmii10>; /*"sgmmi"+bgx+no */
+
+		pcie3: pcie3@84b0,00000000 {
+			compatible = "cavium,pci-host-thunder-ecam";
+			device_type = "pci";
+			msi-parent = <&its>;
+			msi-map = <0 &its 0x30000 0x10000>;
+			bus-range = <0 255>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			#stream-id-cells = <1>;
+			reg = <0x84b0 0x00000000 0 0x10000000>;  /* Configuration space */
+			ranges = <0x03000000 0x8180 0x00000000 0x8180 0x00000000 0x80 0x00000000>; /* mem ranges */
 		};
-		sgmii11 {
-			qlm-mode = "1,sgmii";
-			phy-handle = <&sgmii11>;
-		};
-		sgmii12 {
-			qlm-mode = "1,sgmii";
-			phy-handle = <&sgmii12>;
-		};
-		sgmii13 {
-			qlm-mode = "1,sgmii";
-			phy-handle = <&sgmii13>;
-		};
-		xfi10 {
-			qlm-mode = "1,xfi";
-			phy-handle = <&xfi10>;
-		};
-		xfi11 {
-			qlm-mode = "1,xfi";
-			phy-handle = <&xfi11>;
-		};
-		xfi12 {
-			qlm-mode = "1,xfi";
-			phy-handle = <&xfi12>;
-		};
-		xfi13 {
-			qlm-mode = "1,xfi";
-			phy-handle = <&xfi13>;
-		};
-		// 10g_kr
-		xfi-10g-kr10 {
-			qlm-mode = "1,xfi-10g-kr";
-			phy-handle = <&xfi10>;
-		};
-		xfi-10g-kr11 {
-			qlm-mode = "1,xfi-10g-kr";
-			phy-handle = <&xfi11>;
-		};
-		xfi-10g-kr12 {
-			qlm-mode = "1,xfi-10g-kr";
-			phy-handle = <&xfi12>;
-		};
-		xfi-10g-kr13 {
-			qlm-mode = "1,xfi-10g-kr";
-			phy-handle = <&xfi13>;
-		};
-		xlaui10 {
-			qlm-mode = "1,xlaui";
-			phy-handle = <&xlaui10>;
-			};
-		xlaui-40g-kr-10 {
-			qlm-mode = "1,xlaui-40g-kr";
-			phy-handle = <&xlaui10>;
-			};
-		xaui10 {
-			qlm-mode = "1,xaui";
-			phy-handle = <&xaui10>;
-		};
-		rxaui10 {
-			qlm-mode = "1,rxaui";
-			phy-handle = <&rxaui10>;
-		};
-		rxaui11 {
-			qlm-mode = "1,rxaui";
-			phy-handle = <&rxaui11>;
-		};
+
 	};
 };
