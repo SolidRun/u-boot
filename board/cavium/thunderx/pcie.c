@@ -69,14 +69,15 @@ void do_sync(struct pt_regs *pt_regs, unsigned int esr)
 
 	/* get faulting address */
 
+#ifdef DEBUG
+	show_regs(pt_regs);
+#endif
+
 	for (ecam = 0; ecam < CONFIG_THUNDERX_ECAMS; ecam++) {
-		node = thunderx_ecam[ecam].node;
-		ecam = thunderx_ecam[ecam].ecam;
-
 		if (!thunderx_ecam[ecam].present)
-			continue;
+			break;
 
-		baseaddr = CSR_PA(node, ECAMX_PF_BAR2(ecam));
+		baseaddr = thunderx_ecam[ecam].baseaddr;
 		endaddr = baseaddr + ECAMX_PF_BAR2_SIZE;
 		if (far >= baseaddr && far < endaddr) {
 			opcode = readl(pt_regs->elr);
