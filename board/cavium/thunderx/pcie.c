@@ -131,19 +131,23 @@ static int thunderx_rd_ecam_u##size(struct pci_controller *hose,		\
 	union ecam_cfg_addr_s address;						\
 	struct thunderx_ecam *ecam = hose->priv_data;				\
 										\
+	if (!ecam->present) {							\
+		*val = (u##size)~0UL;						\
+		return -ENODEV;							\
+	}									\
+										\
 	b = PCI_BUS(dev) - hose->first_busno;					\
 	d = PCI_DEV(dev);							\
 	f = PCI_FUNC(dev);							\
 										\
-	address.u = 0;								\
+	address.u = ecam->baseaddr;						\
 	address.s.func = (d << 3) | (f << 0);					\
 	address.s.bus  = b;							\
 	address.s.addr = offset;						\
-	address.u += CSR_PA(ecam->node, ECAMX_PF_BAR2(ecam->ecam));		\
 										\
 	*val = read##size(address.u);						\
-	debug("%d.%d::%02x.%02x.%02x: u%d %x -> %x\n",				\
-		ecam->node, ecam->ecam, b, d, f, size, offset, *val);		\
+	/* debug("%d.%d::%02x.%02x.%02x: u%d %x -> %x\n",			\
+		ecam->node, ecam->ecam, b, d, f, size, offset, *val); */	\
 										\
 	return 0;								\
 }
@@ -160,18 +164,20 @@ static int thunderx_wr_ecam_u##size(struct pci_controller *hose,		\
 	union ecam_cfg_addr_s address;						\
 	struct thunderx_ecam *ecam = hose->priv_data;				\
 										\
+	if (!ecam->present)							\
+		return -ENODEV;							\
+										\
 	b = PCI_BUS(dev) - hose->first_busno;					\
 	d = PCI_DEV(dev);							\
 	f = PCI_FUNC(dev);							\
 	dev = PCI_BDF(b, d, f);							\
-	debug("%d.%d::%02x.%02x.%02x: u%d %x <- %x\n",				\
-		ecam->node, ecam->ecam, b, d, f, size, offset, val);		\
+	/* debug("%d.%d::%02x.%02x.%02x: u%d %x <- %x\n",			\
+		ecam->node, ecam->ecam, b, d, f, size, offset, val); */		\
 										\
-	address.u = 0;								\
+	address.u = ecam->baseaddr;						\
 	address.s.func = (d << 3) | (f << 0);					\
 	address.s.bus  = b;							\
 	address.s.addr = offset;						\
-	address.u += CSR_PA(ecam->node, ECAMX_PF_BAR2(ecam->ecam));		\
 										\
 	write##size(val, address.u);						\
 										\
@@ -268,7 +274,9 @@ static int thunderx_read_rc_u32(int rc, int offset, u32 * val)
 
 void pci_init_board(void)
 {
-	long ecam, pem;
+	long index, pem;
+	struct thunderx_ecam *ecam;
+	struct pci_controller *hose;
 	u32 reg;
 	u8 sec_bus, sub_bus;
 
@@ -278,24 +286,36 @@ void pci_init_board(void)
 	uintptr_t baseaddr;
 	int ret, node;
 
-	for (ecam = 0; ecam < CONFIG_THUNDERX_ECAMS; ecam++) {
-		thunderx_ecam[ecam].node = ecam / ECAMS_PER_NODE;
-		thunderx_ecam[ecam].ecam = ecam % ECAMS_PER_NODE;
+	for (index = 0; index < CONFIG_THUNDERX_ECAMS; index++) {
+		ecam = &thunderx_ecam[index];
+		hose = &ecam_hose[index];
 
-		if (thunderx_ecam[ecam].node >= atf_node_count()) {
-			thunderx_ecam[ecam].present = false;
+		ecam->node = index / ECAMS_PER_NODE;
+		ecam->ecam = index % ECAMS_PER_NODE;
+
+		if (ecam->node >= atf_node_count()) {
+			ecam->present = false;
 			break;
 		}
 
-		debug("%s: %d, ecam: %ld\n", __FUNCTION__, __LINE__, ecam);
+		ecam->baseaddr = CSR_PA(ecam->node,
+					ECAMX_PF_BAR2(ecam->ecam));
+		ecam->present = true;
 
-		ecam_hose[ecam].first_busno = pci_last_busno() + 1;
-		ecam_hose[ecam].last_busno = 0xff;
+		debug("%s: %d, ecam: %ld, baseaddr: %p\n",
+		      __FUNCTION__, __LINE__, index, (void *)ecam->baseaddr);
 
-		ecam_hose[ecam].region_count = 0;
-		ecam_hose[ecam].priv_data = &thunderx_ecam[ecam];
+		hose->first_busno = pci_last_busno() + 1;
+		hose->last_busno = 0xff;
 
-		pci_set_ops(&ecam_hose[ecam],
+		hose->region_count = 0;
+		hose->priv_data = ecam;
+
+		debug("%s: %d, ecam: %p\n",
+		      __FUNCTION__, __LINE__, hose->priv_data);
+
+
+		pci_set_ops(hose,
 			    thunderx_rd_ecam_u8,
 			    thunderx_rd_ecam_u16,
 			    thunderx_rd_ecam_u32,
@@ -303,16 +323,15 @@ void pci_init_board(void)
 			    thunderx_wr_ecam_u16,
 			    thunderx_wr_ecam_u32);
 
-		pci_register_hose(&ecam_hose[ecam]);
+		pci_register_hose(hose);
 
-		ret = pci_hose_scan(&ecam_hose[ecam]);
+		ret = pci_hose_scan(hose);
 
 		debug("%s: %d, ret: %d\n", __FUNCTION__, __LINE__, ret);
 
 		if (ret > 0)
-			ecam_hose[ecam].last_busno = ret;
+			hose->last_busno = ret;
 
-		thunderx_ecam[ecam].present = true;
 	}
 
 	for (pem = 0; pem < CONFIG_THUNDERX_RCS; pem++) {
@@ -371,7 +390,8 @@ void pci_init_board(void)
 			    thunderx_wr_pem_u32);
 
 		pci_register_hose(&pem_hose[pem]);
-			ret = pci_hose_scan(&pem_hose[pem]);
+
+		ret = pci_hose_scan(&pem_hose[pem]);
 
 	}
 }
