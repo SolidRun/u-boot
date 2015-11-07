@@ -638,8 +638,7 @@ int pci_postscan_config(struct pci_controller *hose, pci_dev_t dev)
 
 	res = pci_hose_ea_init(hose, dev);
 
-	printf("%s: %d: cap: %lx\n", __FUNCTION__, __LINE__, res);
-
+	debug("%s: %d: cap: %lx\n", __FUNCTION__, __LINE__, res);
 
 	for (bar = 0; bar <= 5; bar++) {
 		bar_start = pci_read_bar32(hose, dev, bar);
@@ -649,7 +648,7 @@ int pci_postscan_config(struct pci_controller *hose, pci_dev_t dev)
 			bar_size = 1 << ffs(bar_start);
 		}
 
-		printf("%s: %d: bar_start: %lx, bar_size: %lx\n",
+		debug("%s: %d: bar_start: %lx, bar_size: %lx\n",
 		       __FUNCTION__, __LINE__, bar_start, bar_size);
 	}
 
