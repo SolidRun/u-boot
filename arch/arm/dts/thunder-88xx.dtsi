@@ -1139,7 +1139,7 @@
 			#address-cells = <3>;
 			#stream-id-cells = <1>;
 			reg = <0x8490 0x00000000 0 0x10000000>;	 /* Configuration space */
-			ranges = <0x03000000 0x8100 0x00000000 0x8100 0x00000000 0x80 0x00000000>; /* mem ranges */
+			ranges = <0x03000000 0x8100 0x00000000  0x8100 0x00000000  0x80 0x00000000>; /* mem ranges */
 		};
 
 		pcie2: pcie2@84a0,00000000 {
@@ -1152,7 +1152,7 @@
 			#address-cells = <3>;
 			#stream-id-cells = <1>;
 			reg = <0x84a0 0x00000000 0 0x10000000>;  /* Configuration space */
-			ranges = <0x03000000 0x8420 0x00000000 0x8420 0x00000000 0x20 0x00000000>; /* mem ranges */
+			ranges = <0x03000000 0x8420 0x00000000  0x8420 0x00000000  0x20 0x00000000>; /* mem ranges */
 		};
 
 		pcie3: pcie3@84b0,00000000 {
@@ -1165,8 +1165,139 @@
 			#address-cells = <3>;
 			#stream-id-cells = <1>;
 			reg = <0x84b0 0x00000000 0 0x10000000>;  /* Configuration space */
-			ranges = <0x03000000 0x8180 0x00000000 0x8180 0x00000000 0x80 0x00000000>; /* mem ranges */
+			ranges = <0x03000000 0x8180 0x00000000  0x8180 0x00000000  0x80 0x00000000>; /* mem ranges */
 		};
 
+		pem0 {
+			compatible = "cavium,pci-host-thunder-pem";
+			device_type = "pci";
+			msi-parent = <&its>;
+			msi-map = <0 &its 0x10000 0x10000>;
+			bus-range = <0x20 0x57>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			#stream-id-cells = <1>;
+			reg = <0x8800 0x20000000 0x0 0x38000000>;  /* Configuration space */
+			ranges = <0x01000000 0x00 0x00000000  0x8830 0x00000000  0x00 0x00010000>, /* I/O */
+				 <0x03000000 0x00 0x10000000  0x8810 0x10000000  0x0f 0xf0000000>, /* mem64 */
+				 <0x43000000 0x10 0x00000000  0x8820 0x00000000  0x10 0x00000000>; /* mem64-pref */
+
+			#interrupt-cells = <1>;
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-map = <0 0 0 1 &gic0 0 0 0 16 4>, /* INTA */
+					<0 0 0 2 &gic0 0 0 0 17 4>, /* INTB */
+					<0 0 0 3 &gic0 0 0 0 18 4>, /* INTC */
+					<0 0 0 4 &gic0 0 0 0 19 4>; /* INTD */
+		};
+
+		pem1 {
+			compatible = "cavium,pci-host-thunder-pem";
+			device_type = "pci";
+			msi-parent = <&its>;
+			msi-map = <0 &its 0x10000 0x10000>;
+			bus-range = <0x58 0x8f>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			#stream-id-cells = <1>;
+			reg = <0x8840 0x58000000 0x0 0x38000000>;  /* Configuration space */
+			ranges = <0x01000000 0x00 0x00010000  0x8870 0x00010000  0x00 0x00010000>, /* I/O */
+				 <0x03000000 0x00 0x10000000  0x8850 0x10000000  0x0f 0xf0000000>, /* mem64 */
+				 <0x43000000 0x10 0x00000000  0x8860 0x00000000  0x10 0x00000000>; /* mem64-pref */
+
+			#interrupt-cells = <1>;
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-map = <0 0 0 1 &gic0 0 0 0 20 4>, /* INTA */
+					<0 0 0 2 &gic0 0 0 0 21 4>, /* INTB */
+					<0 0 0 3 &gic0 0 0 0 22 4>, /* INTC */
+					<0 0 0 4 &gic0 0 0 0 23 4>; /* INTD */
+		};
+
+		pem2 {
+			compatible = "cavium,pci-host-thunder-pem";
+			device_type = "pci";
+			msi-parent = <&its>;
+			msi-map = <0 &its 0x10000 0x10000>;
+			bus-range = <0x90 0xc7>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			#stream-id-cells = <1>;
+			reg = <0x8880 0x90000000 0x0 0x58000000>;  /* Configuration space */
+			ranges = <0x01000000 0x00 0x00020000  0x88b0 0x00020000  0x00 0x00010000>, /* I/O */
+				 <0x03000000 0x00 0x10000000  0x8890 0x10000000  0x0f 0xf0000000>, /* mem64 */
+				 <0x43000000 0x10 0x00000000  0x88a0 0x00000000  0x10 0x00000000>; /* mem64-pref */
+
+			#interrupt-cells = <1>;
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-map = <0 0 0 1 &gic0 0 0 0 24 4>, /* INTA */
+					<0 0 0 2 &gic0 0 0 0 25 4>, /* INTB */
+					<0 0 0 3 &gic0 0 0 0 26 4>, /* INTC */
+					<0 0 0 4 &gic0 0 0 0 27 4>; /* INTD */
+		};
+
+		pem3 {
+			compatible = "cavium,pci-host-thunder-pem";
+			device_type = "pci";
+			msi-parent = <&its>;
+			msi-map = <0 &its 0x30000 0x10000>;
+			bus-range = <0x20 0x57>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			#stream-id-cells = <1>;
+			reg = <0x8900 0x20000000 0x0 0x38000000>;  /* Configuration space */
+			ranges = <0x01000000 0x00 0x00030000  0x8930 0x00030000  0x00 0x00010000>, /* I/O */
+				 <0x03000000 0x00 0x10000000  0x8910 0x10000000  0x0f 0xf0000000>, /* mem64 */
+				 <0x43000000 0x10 0x00000000  0x8920 0x00000000  0x10 0x00000000>; /* mem64-pref */
+
+			#interrupt-cells = <1>;
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-map = <0 0 0 1 &gic0 0 0 0 28 4>, /* INTA */
+					<0 0 0 2 &gic0 0 0 0 29 4>, /* INTB */
+					<0 0 0 3 &gic0 0 0 0 30 4>, /* INTC */
+					<0 0 0 4 &gic0 0 0 0 31 4>; /* INTD */
+		};
+
+		pem4 {
+			compatible = "cavium,pci-host-thunder-pem";
+			device_type = "pci";
+			msi-parent = <&its>;
+			msi-map = <0 &its 0x30000 0x10000>;
+			bus-range = <0x58 0x8f>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			#stream-id-cells = <1>;
+			reg = <0x8940 0x58000000 0x0 0x38000000>;  /* Configuration space */
+			ranges = <0x01000000 0x00 0x00040000  0x8970 0x00040000  0x00 0x00010000>, /* I/O */
+				 <0x03000000 0x00 0x10000000  0x8950 0x10000000  0x0f 0xf0000000>, /* mem64 */
+				 <0x43000000 0x10 0x00000000  0x8960 0x00000000  0x10 0x00000000>; /* mem64-pref */
+
+			#interrupt-cells = <1>;
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-map = <0 0 0 1 &gic0 0 0 0 32 4>, /* INTA */
+					<0 0 0 2 &gic0 0 0 0 33 4>, /* INTB */
+					<0 0 0 3 &gic0 0 0 0 34 4>, /* INTC */
+					<0 0 0 4 &gic0 0 0 0 35 4>; /* INTD */
+		};
+
+		pem5 {
+			compatible = "cavium,pci-host-thunder-pem";
+			device_type = "pci";
+			msi-parent = <&its>;
+			msi-map = <0 &its 0x30000 0x10000>;
+			bus-range = <0x90 0xc7>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			#stream-id-cells = <1>;
+			reg = <0x8980 0x90000000 0x0 0x38000000>;  /* Configuration space */
+			ranges = <0x01000000 0x00 0x00050000  0x89b0 0x00050000  0x00 0x00010000>, /* I/O */
+				 <0x03000000 0x00 0x10000000  0x8990 0x10000000  0x0f 0xf0000000>, /* mem64 */
+				 <0x43000000 0x10 0x00000000  0x89a0 0x00000000  0x10 0x00000000>; /* mem64-pref */
+
+			#interrupt-cells = <1>;
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-map = <0 0 0 1 &gic0 0 0 0 36 4>, /* INTA */
+					<0 0 0 2 &gic0 0 0 0 37 4>, /* INTB */
+					<0 0 0 3 &gic0 0 0 0 38 4>, /* INTC */
+					<0 0 0 4 &gic0 0 0 0 39 4>; /* INTD */
+		};
 	};
 };
