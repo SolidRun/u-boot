@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
 **/
-
 #include <common.h>
 #include <malloc.h>
 #include <errno.h>
@@ -113,6 +112,12 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 	char *mode;
 	int qlm_key_len;
 	int rc;
+
+	err = fdt_check_header(fdt);
+	if (err < 0) {
+		printf("%s: %s\n", __FUNCTION__, fdt_strerror(err));
+		return err;
+	}
 
 	/* Read LMAC0 type to figure out QLM mode
 	 * This is configured by low level firmware
@@ -292,10 +297,50 @@ static void ft_setup_uaa_clk(char *fdt)
 	}
 }
 
+extern int rc_is_ready(unsigned int rc);
+
+static void ft_setup_pems(char *fdt)
+{
+	unsigned int pem;
+	char name[32];
+	const char *nodename;
+	int node, len, res;
+
+	for (pem = 0; pem < CONFIG_THUNDERX_RCS; pem++) {
+		snprintf(name, sizeof(name), "/soc/pem%u", pem);
+		node = fdt_path_offset(fdt, name);
+
+		if (node < 0) {
+			debug("WARNING: could not find %s: %s.\n", name,
+			       fdt_strerror(node));
+			continue;
+		}
+
+		nodename = fdt_get_name(fdt, node, &len);
+
+		strncpy(name, nodename, sizeof(name));
+
+		res = rc_is_ready(pem);
+
+		debug("%s: %d: name: %s, ready: %d\n",
+		      __FUNCTION__, __LINE__, name, res);
+
+		if (!rc_is_ready(pem)) {
+			debug("%s: %d: removing: %s\n",
+			      __FUNCTION__, __LINE__, name);
+			res = fdt_del_node(fdt, node);
+
+			if (res < 0) {
+				printf("WARNING: could not delete %s: %s.\n",
+				       name, fdt_strerror(res));
+				continue;
+			}
+		}
+	}
+}
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	unsigned int node;
-
 	ft_setup_coremask(blob);
 
 #ifdef CONFIG_THUNDER_BGX
@@ -306,6 +351,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 #endif
 	ft_setup_uaa_clk(blob);
+
+	ft_setup_pems(blob);
 
 	return 0;
 }
