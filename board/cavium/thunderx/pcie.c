@@ -10,7 +10,6 @@
 #  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #
 #**/
-
 #include <common.h>
 #include <pci.h>
 #include <asm/errno.h>
@@ -245,14 +244,21 @@ PCI_PEM_WRITE(8)
 PCI_PEM_WRITE(16)
 PCI_PEM_WRITE(32)
 
-int rc_is_on(unsigned int rc)
+static int rc_is_on(unsigned int rc)
 {
 	union pemx_on pemx_on;
+	unsigned int node, pem;
+
+	node = rc / RCS_PER_NODE;
+	pem = rc % RCS_PER_NODE;
 
 	if (rc > 5)
 		return 0;
 
-	pemx_on.u = readq(PEMX_ON(rc));
+	pemx_on.u = readq(CSR_PA(node, PEMX_ON(pem)));
+
+	debug("node: %d, pem: %d, pemx_on.u: %lx\n",
+	      node, pem, pemx_on.u);
 
 	return ((pemx_on.s.pemon != 0) && (pemx_on.s.pemoor != 0));
 }
@@ -260,22 +266,54 @@ int rc_is_on(unsigned int rc)
 static int thunderx_read_rc_u32(int rc, int offset, u32 * val)
 {
 	union pemx_cfg_rd pemx_cfg_rd;
+	uintptr_t address;
+	unsigned int node, pem;
+
 	pemx_cfg_rd.u = 0;
 
-	if ((rc >= 0) && rc_is_on(rc)) {
+	node = rc / RCS_PER_NODE;
+	pem = rc % RCS_PER_NODE;
+
+	address = CSR_PA(node, PEMX_CFG_RD(pem));
+
+	debug("node: %d, pem: %d, address: %lx\n", node, pem, address);
+
+	*val = (u32) ~0UL;
+
+	if (node >= atf_node_count())
+		return -ENODEV;
+
+	if ((pem >= 0) && rc_is_on(pem)) {
 		pemx_cfg_rd.s.addr = offset & ~0x3;
-		writeq(pemx_cfg_rd.u, PEMX_CFG_RD(rc));
-		pemx_cfg_rd.u = readq(PEMX_CFG_RD(rc));
+		writeq(pemx_cfg_rd.u, address);
+		pemx_cfg_rd.u = readq(address);
 		*val = pemx_cfg_rd.s.data;
-	} else {
-		*val = (u32) ~ 0UL;
 	}
+
 	return 0;
+}
+
+#define PCIE_RC_LNK_CAP_STA (32 << 2)
+#define PCIE_RC_LNK_STA_DLLA (1 << 29)
+
+int rc_is_ready(unsigned int rc)
+{
+	u32 lnk_sta;
+	int res;
+
+	if (!rc_is_on(rc))
+		return 0;
+
+	res = thunderx_read_rc_u32(rc, PCIE_RC_LNK_CAP_STA, &lnk_sta);
+
+	debug("%s: %d, lnk_sta: %x\n", __FUNCTION__, __LINE__, lnk_sta);
+
+	return (res >=0) && (lnk_sta & PCIE_RC_LNK_STA_DLLA);
 }
 
 void pci_init_board(void)
 {
-	long index, pem;
+	long dev, pem;
 	struct thunderx_ecam *ecam;
 	struct pci_controller *hose;
 	u32 reg;
@@ -287,12 +325,12 @@ void pci_init_board(void)
 	uintptr_t baseaddr;
 	int ret, node;
 
-	for (index = 0; index < CONFIG_THUNDERX_ECAMS; index++) {
-		ecam = &thunderx_ecam[index];
-		hose = &ecam_hose[index];
+	for (dev = 0; dev < CONFIG_THUNDERX_ECAMS; dev++) {
+		ecam = &thunderx_ecam[dev];
+		hose = &ecam_hose[dev];
 
-		ecam->node = index / ECAMS_PER_NODE;
-		ecam->ecam = index % ECAMS_PER_NODE;
+		ecam->node = dev / ECAMS_PER_NODE;
+		ecam->ecam = dev % ECAMS_PER_NODE;
 
 		if (ecam->node >= atf_node_count()) {
 			ecam->present = false;
@@ -303,8 +341,8 @@ void pci_init_board(void)
 					ECAMX_PF_BAR2(ecam->ecam));
 		ecam->present = true;
 
-		debug("%s: %d, ecam: %ld, baseaddr: %p\n",
-		      __FUNCTION__, __LINE__, index, (void *)ecam->baseaddr);
+		debug("%s: %d, node: %ld, dev: %ld, baseaddr: %p\n",
+		      __FUNCTION__, __LINE__, node, dev, (void *)ecam->baseaddr);
 
 		hose->first_busno = pci_last_busno() + 1;
 		hose->last_busno = 0xff;
@@ -312,8 +350,8 @@ void pci_init_board(void)
 		hose->region_count = 0;
 		hose->priv_data = ecam;
 
-		debug("%s: %d, ecam: %p\n",
-		      __FUNCTION__, __LINE__, hose->priv_data);
+		debug("%s: %d, ecam: %p, pci_last_busno(): %d\n",
+		      __FUNCTION__, __LINE__, hose->priv_data, pci_last_busno());
 
 
 		pci_set_ops(hose,
@@ -393,26 +431,30 @@ void pci_init_board(void)
 		pci_register_hose(&pem_hose[pem]);
 
 		ret = pci_hose_scan(&pem_hose[pem]);
-
 	}
 }
 
 int pci_config_fixed(struct pci_controller *hose, pci_dev_t dev)
 {
 	u16 vendor, device;
-	int ret = 0;
+	int res = 0;
+
+	res = pci_hose_find_capability(hose, dev, PCI_CAP_ID_EA);
+
+	if (res)
+		return 1;
 
 	pci_hose_read_config_word(hose, dev, PCI_DEVICE_ID, &device);
 	pci_hose_read_config_word(hose, dev, PCI_VENDOR_ID, &vendor);
 
 	if (vendor == PCI_VENDOR_CAVIUM) {
-		ret = 1;
+		res = 1;
 	} else {
 		debug("Non-fixed configuration at %02x:%02x.%02x\n",
 		      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev));
 	}
 
-	return ret;
+	return res;
 }
 
 int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
@@ -618,7 +660,7 @@ int pci_hose_ea_init(struct pci_controller *hose, pci_dev_t dev)
 	if (hdr_type == PCI_HEADER_TYPE_BRIDGE)
 		offset += sizeof(u32);
 
-	printf("%s: %d: offset: %lx\n", __FUNCTION__, __LINE__, offset);
+	debug("%s: %d: offset: %lx\n", __FUNCTION__, __LINE__, offset);
 
 	/* parse each EA entry */
 	for (i = 0; i < num_ent; ++i)
