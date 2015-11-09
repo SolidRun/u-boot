@@ -42,13 +42,21 @@
 					 {0x880000000000UL, 0x40000000000UL, \
 					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
 					  PTL2_BLOCK_NON_SHARE},	     \
-					  MT_DEVICE_NGNRNE}, 		     \
+					 {0x900000000000UL, 0x40000000000UL, \
+					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
+					  PTL2_BLOCK_NON_SHARE},	     \
+					 {0x940000000000UL, 0x40000000000UL, \
+					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
+					  PTL2_BLOCK_NON_SHARE},	     \
+					 {0x980000000000UL, 0x40000000000UL, \
+					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
+					  PTL2_BLOCK_NON_SHARE},	     \
 					 {0xffffffffffffUL, 0xfffffffffffUL, \
 					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
 					  PTL2_BLOCK_NON_SHARE},	     \
 					}
 
-#define CONFIG_SYS_MEM_MAP_SIZE		4
+#define CONFIG_SYS_MEM_MAP_SIZE		7
 
 #define CONFIG_COREID_MASK		0xffffff
 #define CONFIG_SYS_FULL_VA
@@ -246,6 +254,8 @@
 #define CONFIG_E1000
 #define CONFIG_E1000_SPI
 #define CONFIG_CMD_E1000
+
+#define E1000_DEBUG
 //#define CONFIG_RTL8169
 
 /* Initial environment variables */
