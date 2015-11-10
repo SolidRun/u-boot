@@ -602,6 +602,7 @@
 			interrupts = <0 5 4>;
 			clocks = <&refclkuaa>;
 			clock-names = "apb_pclk";
+			uboot,skip-init;
 		};
 
 		uaa1: serial@87e0,25000000 {
@@ -610,6 +611,7 @@
 			interrupts = <0 6 4>;
 			clocks = <&refclkuaa>;
 			clock-names = "apb_pclk";
+			uboot,skip-init;
 		};
 
 		smmu0@8300,00000000 {
