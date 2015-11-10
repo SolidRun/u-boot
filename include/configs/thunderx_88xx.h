@@ -149,29 +149,18 @@
 
 /*#define CONFIG_MENU_SHOW*/
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_BDI
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_FLASH
-#define CONFIG_CMD_IMI
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_RUN
-#define CONFIG_CMD_BOOTD
+#undef  CONFIG_CMD_IMLS
 #define CONFIG_CMD_BOOTI
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_SOURCE
 
 #define CONFIG_CMD_I2C
 
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_TFTP
 #define CONFIG_CMD_TFTPPUT
-#define CONFIG_CMD_NFS
-
-#define CONFIG_CMD_SAVEENV
 
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
@@ -221,8 +210,6 @@
 #define CONFIG_SYS_SPD_ADDR_LIST {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}
 #define CONFIG_SYS_SPD_I2C_BUS 1
 
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_LOADS
 #define CONFIG_CMD_SAVES
 
 /* Partition systems */
