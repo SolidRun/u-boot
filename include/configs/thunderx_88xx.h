@@ -22,6 +22,8 @@
 
 #define CONFIG_SYS_BOOTM_LEN (16 << 20)
 
+#define CONFIG_SYS_VSNPRINTF
+
 #define CONFIG_IDENT_STRING	\
 	" for Cavium Thunder CN88XX ARM v8 Multi-Core"
 #define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
