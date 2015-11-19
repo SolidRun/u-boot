@@ -562,7 +562,9 @@ static int bgx_lmac_count(struct bgx *bgx)
 	const char *boardtype = getenv("board");
 	int lmac_count = 0;
 
-	if (!strcmp(boardtype, "ebb8800") || !strcmp(boardtype, "ebb8804")) {
+	if (!strcmp(boardtype, "ebb8800") ||
+	    !strcmp(boardtype, "ebb8804") ||
+	    !strcmp(boardtype, "ebb8604")) {
 		switch (bgx->qlm_mode) {
 		case QLM_MODE_SGMII:
 		case QLM_MODE_XFI_4X1:
