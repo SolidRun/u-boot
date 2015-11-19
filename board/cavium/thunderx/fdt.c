@@ -100,6 +100,23 @@ int arch_fixup_memory_node(void *blob)
 	return 0;
 }
 
+static void ft_del_phy(void *fdt, int offset)
+{
+	int len, phy_offset;
+	const fdt32_t *php;
+	uint32_t phandle;
+
+	php = fdt_getprop(fdt, offset, "phy-handle", &len);
+
+	if (php && len == sizeof(*php)) {
+		phandle = fdt32_to_cpu(*php);
+		fdt_nop_property(fdt, offset, "phy-handle");
+		phy_offset = fdt_node_offset_by_phandle(fdt, phandle);
+		if (phy_offset > 0)
+			fdt_nop_node(fdt, phy_offset);
+	}
+}
+
 static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 {
 	union bgxx_cmrx_config cmrx_config;
@@ -107,11 +124,14 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 
 	char fdt_key[20];
 
-	int offset, next_offset;
-	char qlm[32];
-	char *mode;
-	int qlm_key_len;
-	int rc;
+	int parent, offset, next_offset, rc = 0, temp;
+	int qlm_key_len, qlm_mode;
+	char bgx_node[12];
+
+	if (!fdt) {
+		printf("%s: Invalid device tree\n", __func__);
+		return;
+	}
 
 	err = fdt_check_header(fdt);
 	if (err < 0) {
@@ -126,7 +146,9 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 	cmrx_config.u = CSR_READ_PA(node, BGXX_CMRX_CONFIG(bgx_id, 0));
 	spux_br_pmd_control.u  = CSR_READ_PA(node, BGXX_SPUX_BR_PMD_CONTROL(bgx_id, 0));
 
-	switch(cmrx_config.s.lmac_type) {
+	qlm_mode = cmrx_config.s.lmac_type;
+
+	switch(qlm_mode) {
 	case BGX_MODE_SGMII:
 		snprintf(fdt_key, sizeof(fdt_key), "%d,sgmii", bgx_id);
 		break;
@@ -153,40 +175,38 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 	}
 
 	strncpy(qlm, fdt_key, sizeof(qlm));
-	mode = qlm;
-	strsep(&mode, ",");
 	qlm_key_len = strlen(qlm);
 
-	if (!fdt || fdt_check_header(fdt) != 0) {
-		printf("%s: Invalid device tree\n", __func__);
-		return;
-	}
+	sprintf(bgx_node, "/bgx%d", bgx_id);
 
-	/* Prune out the unwanted parts based on the QLM mode.  */
-	for (offset = fdt_next_node(fdt, 0, NULL);
-		 offset >= 0; offset = next_offset) {
+	parent = fdt_path_offset(fdt, bgx_node);
+	if(parent < 0)
+		return;
+
+        offset= fdt_first_subnode(fdt,parent);
+	while (offset >= 0) {
 		int len;
 		const char *val;
 
-		next_offset = fdt_next_node(fdt, offset, NULL);
+		if (!rc)
+			next_offset = fdt_next_subnode(fdt, offset);
+
 		val = fdt_getprop(fdt, offset, "qlm-mode", &len);
+
 		if (!val)
-			continue;
+			break;
 
-		if (strncmp(val, qlm, qlm_key_len) != 0)
-			continue; /* Not this QLM. */
-
-		if (!fdt_stringlist_contains(val, len, fdt_key)) {
-			debug("Key \"%s\" does not match \"%s\"\n",
-					val, fdt_key);
-			/* This QLM, but wrong mode.  Delete it. */
-			debug("fdt trimming matching key %s\n", fdt_key);
-			next_offset = fdt_parent_offset(fdt, offset);
-			rc = fdt_nop_node(fdt, offset);
-			if (rc) {
-				printf("Error %d noping node in device tree\n",
-						rc);
-			}
+		if (!strncmp(val, qlm, qlm_key_len)) {
+			offset = next_offset;
+			rc = 0;
+		} else {
+			ft_del_phy(fdt,offset);
+			/* fdt_del_node puts the offset to next
+			 * node, so no need to get next node
+			 * while deleting.
+			 */
+			fdt_del_node(fdt, offset);
+			rc = 1;
 		}
 	}
 }
