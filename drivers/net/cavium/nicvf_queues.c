@@ -137,6 +137,46 @@ static void nicvf_free_rbdr(struct nicvf *nic, struct rbdr *rbdr)
 	nicvf_free_q_desc_mem(nic, &rbdr->dmem);
 }
 
+/* Refill receive buffer descriptors with new buffers.
+ * This runs in softirq context .
+ */
+void nicvf_refill_rbdr(struct nicvf *nic)
+{
+	struct queue_set *qs = nic->qs;
+	int rbdr_idx = qs->rbdr_cnt;
+	unsigned long qcount, head, tail, rb_cnt;
+	struct rbdr *rbdr;
+
+	if (!rbdr_idx)
+		return;
+	rbdr_idx--;
+	rbdr = &qs->rbdr[rbdr_idx];
+	/* Check if it's enabled */
+	if (!rbdr->enable) {
+		printf("Receive queue %d is disabled\n", rbdr_idx);
+		return;
+	}
+
+	/* check if valid descs reached or crossed threshold level */
+	qcount = nicvf_queue_reg_read(nic, NIC_QSET_RBDR_0_1_STATUS0, rbdr_idx);
+	head = nicvf_queue_reg_read(nic, NIC_QSET_RBDR_0_1_HEAD, rbdr_idx);
+	tail = nicvf_queue_reg_read(nic, NIC_QSET_RBDR_0_1_TAIL, rbdr_idx);
+
+	qcount &= 0x7FFFF;
+
+	rb_cnt = qs->rbdr_len - qcount - 1;
+
+	debug("%s: %d: qcount: %lu, head: %lx, tail: %lx, rb_cnt: %lu\n",
+	      __FUNCTION__, __LINE__, qcount, head, tail, rb_cnt);
+
+
+	/* Notify HW */
+	nicvf_queue_reg_write(nic, NIC_QSET_RBDR_0_1_DOOR, rbdr_idx, rb_cnt);
+
+	asm volatile ("dsb sy");
+}
+
+
 /* TBD: how to handle full packets received in CQ
  * i.e conversion of buffers into SKBs
  */

@@ -6,7 +6,7 @@
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
  */
-
+#define DEBUG
 #include <config.h>
 #include <common.h>
 #include <net.h>
@@ -381,7 +381,7 @@ static int nicvf_recv(struct eth_device *netdev)
 	struct nicvf *nic = netdev->priv;
 	void *pkt;
 	int pkt_len = 0;
-#if 0
+#ifdef DEBUG
 	u8 *dpkt;
 	int i, j;
 #endif
@@ -389,7 +389,7 @@ static int nicvf_recv(struct eth_device *netdev)
 	nicvf_cq_handler(nic, &pkt, &pkt_len);
 
 	if (pkt_len) {
-#if 0
+#ifdef DEBUG
 		dpkt = pkt;
 		printf("RX packet contents:\n");
 		for (i = 0; i < 8; i++) {
@@ -401,6 +401,7 @@ static int nicvf_recv(struct eth_device *netdev)
 		}
 #endif
 		net_process_received_packet(pkt, pkt_len);
+		nicvf_refill_rbdr(nic);
 	}
 
 	return pkt_len;
