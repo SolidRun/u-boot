@@ -298,16 +298,23 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 
 int reset_sata(int dev)
 {
-	struct ahci_probe_ent *probe_ent =
-			(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
-	struct sata_host_regs *host_mmio =
-			(struct sata_host_regs *)probe_ent->mmio_base;
+	struct ahci_probe_ent *probe_ent;
+	struct sata_host_regs *host_mmio;
+
+	probe_ent = (struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+
+	if (!probe_ent)
+		return -ENODEV;
+
+	host_mmio = (struct sata_host_regs *)probe_ent->mmio_base;
+
+	if (!host_mmio)
+		return -ENODEV;
 
 	if (dev < 0 || dev > (CONFIG_SYS_SATA_MAX_DEVICE - 1)) {
 		printf("The sata index %d is out of ranges\n\r", dev);
-		return -1;
+		return -ENODEV;
 	}
-
 	setbits_le32(&host_mmio->ghc, SATA_HOST_GHC_HR);
 	while (readl(&host_mmio->ghc) & SATA_HOST_GHC_HR)
 		udelay(100);
