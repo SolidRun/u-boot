@@ -6,7 +6,7 @@
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
  */
-#define DEBUG
+
 #include <config.h>
 #include <common.h>
 #include <net.h>
