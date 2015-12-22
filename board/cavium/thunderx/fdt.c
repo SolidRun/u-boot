@@ -15,7 +15,7 @@
 #if defined(CONFIG_OF_LIBFDT)
 #include <cavm-csr.h>
 
-#ifdef CONFIG_THUNDER_BGX
+#ifdef CONFIG_THUNDERX_BGX
 /**
  * To remove unwanted nodes from fdt .
  *
@@ -121,12 +121,11 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 {
 	union bgxx_cmrx_config cmrx_config;
 	union bgxx_spux_br_pmd_control spux_br_pmd_control;
-
 	char fdt_key[20];
-
-	int parent, offset, next_offset, rc = 0, temp;
+	int parent, offset, next_offset = 0, rc = 0, err;
 	int qlm_key_len, qlm_mode;
-	char bgx_node[12];
+	char bgx_node[12], qlm[32];
+	const char *fdt_node_name;
 
 	if (!fdt) {
 		printf("%s: Invalid device tree\n", __func__);
@@ -136,7 +135,7 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 	err = fdt_check_header(fdt);
 	if (err < 0) {
 		printf("%s: %s\n", __FUNCTION__, fdt_strerror(err));
-		return err;
+		return;
 	}
 
 	/* Read LMAC0 type to figure out QLM mode
@@ -177,11 +176,18 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 	strncpy(qlm, fdt_key, sizeof(qlm));
 	qlm_key_len = strlen(qlm);
 
-	sprintf(bgx_node, "/bgx%d", bgx_id);
+	sprintf(bgx_node, "bgx%d", bgx_id);
+	for (parent = 0; parent >= 0; parent = fdt_next_node(fdt, parent, NULL)) {
+                fdt_node_name = fdt_get_name(fdt, parent, &err);
+                if (err < 0) {
+			printf("WARNING : Couldn't find BGX node\n");
+			return;
+                }
+                if (strcmp(bgx_node, fdt_node_name) == 0) {
+                        break;
+                }       
+        }
 
-	parent = fdt_path_offset(fdt, bgx_node);
-	if(parent < 0)
-		return;
 
         offset= fdt_first_subnode(fdt,parent);
 	while (offset >= 0) {
@@ -361,9 +367,12 @@ static void ft_setup_pems(char *fdt)
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
+#ifdef CONFIG_THUNDERX_BGX
+	int node = 0;
+#endif
 	ft_setup_coremask(blob);
 
-#ifdef CONFIG_THUNDER_BGX
+#ifdef CONFIG_THUNDERX_BGX
 	for (node = 0; node < atf_node_count(); node++) {
 		ft_setup_bgx(blob, node, 0);
 		ft_setup_bgx(blob, node, 1);

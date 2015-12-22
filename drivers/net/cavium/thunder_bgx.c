@@ -510,6 +510,7 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 
 	
 	if ((bgx->lmac_type != BGX_MODE_XFI) &&
+	    (bgx->lmac_type != BGX_MODE_XAUI) &&
 	    (bgx->lmac_type != BGX_MODE_XLAUI) &&
 	    (bgx->lmac_type != BGX_MODE_40G_KR) &&
 	    (bgx->lmac_type != BGX_MODE_10G_KR)) {
