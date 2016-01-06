@@ -217,53 +217,109 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
 	}
 }
 
-#define VNIC_PER_NODE 2
+#define VNIC_PER_NODE 4
 
-static void ft_setup_macs(void *fdt, int node)
+static void ft_setup_macs(void *fdt, unsigned int node, unsigned int bgxnum)
 {
-	int nodeoffset, addr, len, ret, i;
-	char nodename[25];
+	int bgxnode, addr, phynode, len;
+	char bgxname[25];
+	const char *fdt_node_name;
+	uint8_t mac[VNIC_PER_NODE][6];
+	int mac_set[VNIC_PER_NODE];
 
-	struct mac_range mac, *macp;
-
-	mac.size = 1;
-
-	snprintf(nodename, sizeof(nodename), "/ethernet-macs/node%d", node);
-
-	nodeoffset = fdt_path_offset(fdt, nodename);
-
-	if (nodeoffset < 0) {
-		printf("WARNING: could not find %s: %s.\n", nodename,
-					fdt_strerror(nodeoffset));
+	/* Look up the bgx<n> value in the dt. */
+	snprintf(bgxname, sizeof(bgxname), "bgx%d", bgxnum);
+        
+	for (bgxnode = 0; bgxnode >= 0; bgxnode = 
+			fdt_next_node(fdt, bgxnode, NULL)) {
+		fdt_node_name = fdt_get_name(fdt, bgxnode, &len);
+		if (len < 0) {
+			printf("WARNING : couldn't find node with offset %d\n",
+				bgxnode);
+			return;
+		}
+		if (strcmp(bgxname, fdt_node_name) == 0)
+			break;
+	}
+	
+	if (bgxnode < 0) {
+		printf("WARNING: could not find %s: %s.\n", bgxname,
+					fdt_strerror(bgxnode));
+		return;
 	}
 
-	for (addr = (node + 0) * VNIC_PER_NODE;
-		 addr < (node + 1) * VNIC_PER_NODE; addr++) {
+	/* Fetch all the ethernet addresses for this node. */
+	for (addr = 0; addr < VNIC_PER_NODE; addr++) {
+                int taddr = addr + (bgxnum * VNIC_PER_NODE);
 
-		if (!eth_getenv_enetaddr_by_index("eth", addr, mac.enetaddr))
+                mac_set[addr] = 1;
+                if (!eth_getenv_enetaddr_by_index("eth", taddr, mac[addr])) {
+                        mac_set[addr] = 0;
+                        printf("WARNING: failed to get eth addr %d.\n", taddr);
+                        continue;
+                }
+        }
+	
+	/* Now for each phy in the node, set it's ethernet address. */
+	fdt_for_each_subnode(fdt, phynode, bgxnode) {
+		int phynum, len, ret;
+		const char *phyname;
+		char *end, strnum[2];
+		
+		phyname = fdt_get_name(fdt, phynode, &len);
+		if (!phyname) {
+			printf("WARNING: No phy name for node in %s.\n",
+				bgxname);
+			continue;
+		}
+
+		if (len < 2) {
+			printf("WARNING: phy name too short for %s:%s.\n",
+				bgxname, phyname);
+			continue;
+		}
+		
+		if (!fdt_getprop(fdt, phynode, "phy-handle", NULL))
+			continue;
+		
+		if (fdt_getprop(fdt, phynode, "mac-address", NULL))
+			/* Address already set. */
 			continue;
 
-		macp = (void *)fdt_getprop(fdt, nodeoffset, "mac", &len);
+		/* phyname=typename+qlm+typenum. consider only
+  		the type number from phyname for phynum */
+		
+		strnum[0] = phyname[len - 1];
+		strnum[1] = '\0';
 
-		if (len < 0) {
-			printf("WARNING: could not find %s/mac: %s.\n",
-						nodename, fdt_strerror(len));
-			return;
-		}
-
-		for (i = 0; i < len / sizeof(mac); i++) {
-			if (!memcmp(macp[i].enetaddr, mac.enetaddr, 6))
+		phynum = simple_strtol(strnum, &end, 10);
+		if (*end  != '\0') {
+			printf("WARNING: "
+				"phy for %s doesn't end in a 2 digit "
+				"number: %s.\n", bgxname, phyname);
 				continue;
 		}
-
-		ret = fdt_appendprop(fdt, nodeoffset, "mac",
-						&mac, sizeof(struct mac_range));
-
-		if (ret < 0) {
-			printf("WARNING: could not add the ethernet address %pM: %s.\n",
-							mac.enetaddr, fdt_strerror(ret));
-			return;
+		
+		if (phynum >= VNIC_PER_NODE) {
+			printf("WARNING: "
+				"Too many phys for %s, maximum %d "
+				"supported: %s.\n", bgxname, VNIC_PER_NODE,
+				phyname);
+			continue;
 		}
+	
+		
+		if (!mac_set[phynum])
+			continue;
+		
+		ret = fdt_appendprop(fdt, phynode, "mac-address",
+				mac[phynum], 6);
+		if (ret < 0) {
+			printf("WARNING: "
+				"could not add mac address to %s:%s: %s\n",
+				bgxname, phyname, fdt_strerror(ret));
+			return;
+		} 
 	}
 }
 
@@ -376,7 +432,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 	for (node = 0; node < atf_node_count(); node++) {
 		ft_setup_bgx(blob, node, 0);
 		ft_setup_bgx(blob, node, 1);
-		ft_setup_macs(blob, node);
+		ft_setup_macs(blob, node, 0);
+		ft_setup_macs(blob, node, 1);
 	}
 #endif
 	ft_setup_uaa_clk(blob);
