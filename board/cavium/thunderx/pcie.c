@@ -377,7 +377,7 @@ void pci_init_board(void)
 		if (pem / RCS_PER_NODE >= atf_node_count())
 			break;
 
-		if (!rc_is_on(pem))
+		if (!rc_is_ready(pem))
 			continue;
 
 		thunderx_read_rc_u32(pem, PCI_PRIMARY_BUS, &reg);
