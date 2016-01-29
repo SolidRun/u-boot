@@ -12,8 +12,6 @@
 
 /*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
 
-#define CONFIG_SYS_GENERIC_BOARD
-
 #define CONFIG_SYS_64BIT
 
 #define CONFIG_SYS_NO_FLASH
@@ -173,6 +171,7 @@
 #define CONFIG_CMD_SATA
 
 #define CONFIG_CMD_ATF
+#define CONFIG_CMD_PCI
 
 /* AHCI support Definitions */
 #ifdef CONFIG_CMD_SATA
