@@ -13,6 +13,7 @@
 #include <linux/compiler.h>
 
 #include "cavm-csr.h"
+#include <cavium/atf.h>
 
 #ifdef CONFIG_OF_LIBFDT
  #include <libfdt.h>
@@ -47,11 +48,9 @@ U_BOOT_DEVICE(thunderx_serial1) = {
 	.name = "serial_pl01x",
 	.platdata = &serial1,
 };
-
-#include <cavium/atf.h>
+#endif
 
 #ifdef CONFIG_THUNDERX_VNIC
- #include <cavium/atf.h>
  #include <cavium/thunderx_smi.h>
  #include <cavium/thunderx_vnic.h>
 #endif
