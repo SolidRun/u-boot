@@ -59,6 +59,29 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define BOARD_TYPE "BOARD="
 
+#ifdef CONFIG_OF_LIBFDT
+static const void *get_prop_value(void *fdt, const char *prop_name, int *len)
+{
+	int depth = 0, node;
+	node = fdt_next_node(fdt, 0, &depth);
+
+	while (node >= 0) {
+		int prop_off;
+		prop_off = fdt_first_property_offset(fdt, node);
+		while (prop_off >= 0) {
+			const char *name;
+			const void *val = fdt_getprop_by_offset(fdt, prop_off,
+						&name, len);
+			if (strcmp(name, prop_name) == 0)
+				return val;
+			prop_off = fdt_next_property_offset(fdt, prop_off);
+		}
+		node = fdt_next_node(fdt, node, &depth);
+	}
+	return NULL;
+}
+#endif
+
 int board_init(void)
 {
 #ifdef CONFIG_OF_LIBFDT
@@ -114,6 +137,31 @@ void reset_cpu(ulong addr)
  */
 int board_late_init(void)
 {
+#ifdef CONFIG_OF_LIBFDT
+	char boardname[32];
+	const char *str;
+	void *fdt = (void *)CONFIG_BDK_FDT_START;
+	int ret = 0, len = 32;
+
+	atf_get_bdk_fdt(fdt, CONFIG_BDK_FDT_SIZE);
+
+	if (fdt != NULL) {
+		ret = fdt_check_header(fdt);
+		if (ret < 0) {
+			printf("fdt: %s\n", fdt_strerror(ret));
+		} else {
+			debug("fdt:size %d\n", fdt_totalsize(fdt));
+			str = get_prop_value(fdt, "BOARD-MODEL", &len);
+			debug("fdt:len %d\n", len);
+			if (str) {
+				strncpy(boardname, str, len);
+				setenv("board", boardname);
+			} else {
+				printf("Err: cannot retrieve board type from fdt\n");
+			}
+		}
+	}
+#else
 	int i;
 	char str[32];
 	const char *boardname;
@@ -129,7 +177,7 @@ int board_late_init(void)
 			break;
 		}
 	}
-
+#endif
 	printf("Board type: %s\n", getenv("board"));
 
 	return 0;

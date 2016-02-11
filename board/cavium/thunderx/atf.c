@@ -155,6 +155,16 @@ ssize_t atf_env_string(size_t index, char *str)
 	}
 }
 
+ssize_t atf_get_bdk_fdt(void *buffer, size_t buffer_size)
+{
+	struct pt_regs regs;
+	regs.regs[0] = THUNDERX_FDT_GET;
+	regs.regs[1] = (uintptr_t)buffer;
+	regs.regs[2] = buffer_size;
+	smc_call(&regs);
+	return regs.regs[0];
+}
+
 #ifdef CONFIG_CMD_ATF
 
 static void atf_print_ver(void)

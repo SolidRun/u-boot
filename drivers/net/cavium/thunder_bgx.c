@@ -563,9 +563,9 @@ static int bgx_lmac_count(struct bgx *bgx)
 	const char *boardtype = getenv("board");
 	int lmac_count = 0;
 
-	if (!strcmp(boardtype, "ebb8800") ||
-	    !strcmp(boardtype, "ebb8804") ||
-	    !strcmp(boardtype, "ebb8604")) {
+	if (!strcasecmp(boardtype, "ebb8800") ||
+	    !strcasecmp(boardtype, "ebb8804") ||
+	    !strcasecmp(boardtype, "ebb8604")) {
 		switch (bgx->qlm_mode) {
 		case QLM_MODE_SGMII:
 		case QLM_MODE_XFI_4X1:
@@ -581,7 +581,7 @@ static int bgx_lmac_count(struct bgx *bgx)
 			lmac_count = 2;
 			break;
 		}
-	} else if (!strcmp(boardtype, "crb_1s")) {
+	} else if (!strcasecmp(boardtype, "crb_1s")) {
 		switch (bgx->bgx_id) {
 		case 0:
 			lmac_count = 1;
@@ -590,7 +590,7 @@ static int bgx_lmac_count(struct bgx *bgx)
 			lmac_count = 2;
 			break;
 		}
-	} else if (!strcmp(boardtype, "crb_2s")) {
+	} else if (!strcasecmp(boardtype, "crb_2s")) {
 		lmac_count = 1;
 	} else {
 		printf("Unsupported board\n");
