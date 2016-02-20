@@ -459,7 +459,12 @@ int pci_config_fixed(struct pci_controller *hose, pci_dev_t dev)
 
 int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
 {
-        return 0;
+	u16 vendor, device;
+
+	pci_hose_read_config_word(hose, dev, PCI_DEVICE_ID, &device);
+	pci_hose_read_config_word(hose, dev, PCI_VENDOR_ID, &vendor);
+
+	return (vendor == PCI_VENDOR_CAVIUM && device == PCI_DEV_CAVIUM_RC);
 }
 
 int pci_print_dev(struct pci_controller *hose, pci_dev_t dev)
