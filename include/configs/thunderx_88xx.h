@@ -173,6 +173,8 @@
 #define CONFIG_CMD_ATF
 #define CONFIG_CMD_PCI
 
+#define CONFIG_CMD_NET
+
 /* AHCI support Definitions */
 #ifdef CONFIG_CMD_SATA
   #define CONFIG_SATA_AHCI
@@ -267,6 +269,9 @@
 #define CONFIG_SYS_ENV_ATF_NOR
 #define CONFIG_ENV_SIZE			0x80000
 #define CONFIG_ENV_OFFSET		0xf00000
+
+#define CONFIG_BDK_FDT_START		0xa00000
+#define CONFIG_BDK_FDT_SIZE		0x10000
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_THUNDERX
