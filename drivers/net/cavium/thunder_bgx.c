@@ -56,7 +56,7 @@ struct bgx {
 	struct pci_dev		*pdev;
 };
 
-
+struct bgx_board_info bgx_board_info[MAX_BGX_PER_CN88XX];
 struct bgx *bgx_vnic[MAX_BGX_THUNDER];
 static int lmac_count = 0; /* Total no of LMACs in system */
 
@@ -514,7 +514,7 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 	    (bgx->lmac_type != BGX_MODE_XLAUI) &&
 	    (bgx->lmac_type != BGX_MODE_40G_KR) &&
 	    (bgx->lmac_type != BGX_MODE_10G_KR)) {
-		lmac->phydev = phy_connect(lmac->mii_bus, lmac->lmacid,
+		lmac->phydev = phy_connect(lmac->mii_bus, lmac->lmacid_bd,
 					   &lmac->netdev, PHY_INTERFACE_MODE_SGMII);
 
 		if (!lmac->phydev)
@@ -668,7 +668,8 @@ static void bgx_init_hw(struct bgx *bgx)
 		}
 		bgx_reg_write(bgx, i, BGX_CMRX_CFG,
 						(bgx->lmac_type << 8) | (bgx->lane_to_sds + i));
-		bgx->lmac[i].lmacid_bd = lmac_count;
+		bgx->lmac[i].lmacid_bd =
+				bgx_board_info[bgx->bgx_id].phy_addr[i];
 		lmac_count++;
 	}
 
@@ -741,7 +742,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 #define	GSERX_CFG(x) (0x000087E090000080ull + (x) * 0x1000000ull)
 #define		GSERX_CFG_BGX	(1 << 2)
 
-int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int smi_idx, unsigned int node)
+int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 {
 	int err;
 	struct bgx *bgx = NULL;
@@ -764,7 +765,8 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int smi_idx, unsigned
 	bgx_get_qlm_mode(bgx);
 	debug("bgx_vnic[%u]: %p\n", bgx->bgx_id, bgx);
 
-	snprintf(mii_name, sizeof(mii_name), "thunderx%d", smi_idx);
+	snprintf(mii_name, sizeof(mii_name), "thunderx%d",
+		 bgx_board_info[bgx_idx].mdio_bus);
 
 	debug("mii_name: %s\n", mii_name);
 
@@ -796,4 +798,15 @@ error:
 	bgx_vnic[bgx->bgx_id] = NULL;
 	free(bgx);
 	return err;
+}
+
+void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
+			unsigned int *phy_addr)
+{
+	unsigned int i;
+
+	bgx_board_info[bgx_id].mdio_bus = mdio_bus;
+
+	for (i = 0; i < MAX_LMAC_PER_BGX; i++)
+		bgx_board_info[bgx_id].phy_addr[i] = phy_addr[i];
 }

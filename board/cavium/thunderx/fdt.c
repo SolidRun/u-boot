@@ -12,6 +12,10 @@
 #include <fdt_support.h>
 #include <cavium/atf.h>
 
+#ifdef CONFIG_THUNDERX_VNIC
+ #include <cavium/thunderx_vnic.h>
+#endif
+
 #if defined(CONFIG_OF_LIBFDT)
 #include <cavm-csr.h>
 
@@ -40,6 +44,87 @@ struct mac_range {
 	uint32_t		size;
 } __attribute__((packed));
 
+#ifdef CONFIG_OF_LIBFDT
+
+#define MAX_LMAC_PER_BGX 4
+#define MAX_BGX_PER_NODE 2
+
+static const void *get_prop_value(void *fdt, const char *prop_name, int *len)
+{
+	int depth = 0, node;
+
+	node = fdt_next_node(fdt, 0, &depth);
+	while (node >= 0) {
+		int prop_off;
+		prop_off = fdt_first_property_offset(fdt, node);
+		while (prop_off >= 0) {
+			const char *name;
+			const void *val = fdt_getprop_by_offset(fdt, prop_off,
+								&name, len);
+			if (strcmp(name, prop_name) == 0)
+				return val;
+			prop_off = fdt_next_property_offset(fdt, prop_off);
+		}
+		node = fdt_next_node(fdt, node, &depth);
+	}
+	return NULL;
+}
+
+static void thunderx_parse_phy_address(void *fdt)
+{
+	char bgxname[32];
+	const char *str;
+	int len = 0, bgx_id, phy_id;
+	unsigned int phy_addr[MAX_LMAC_PER_BGX] = {0}, mdio_bus = 0;
+	unsigned long buffer = 0x0;
+
+	for (bgx_id = 0; bgx_id < MAX_BGX_PER_NODE; bgx_id++) {
+		for (phy_id = 0; phy_id < MAX_LMAC_PER_BGX; phy_id++)   {
+			snprintf(bgxname, sizeof(bgxname),
+				 "PHY-ADDRESS.N0.BGX%d.P%d", bgx_id, phy_id);
+			str = get_prop_value(fdt, bgxname, &len);
+			debug("fdt: str %s len %d\n", str, len);
+			if (str) {
+				buffer = simple_strtoul(str, NULL, 16);
+				mdio_bus = (buffer >> 8) & 0xF;
+				phy_addr[phy_id] = buffer & 0xFF;
+			} else {
+				printf("Err: cannot retrieve phy address from fdt\n");
+			}
+		}
+		bgx_set_board_info(bgx_id, mdio_bus, &phy_addr[0]);
+	}
+}
+#endif
+
+void thunderx_parse_bdk_config(void)
+{
+#ifdef CONFIG_OF_LIBFDT
+	char boardname[32];
+	const char *str;
+	void *fdt = (void *)CONFIG_BDK_FDT_START;
+	int ret = 0, len = 32;
+
+	atf_get_bdk_fdt(fdt, CONFIG_BDK_FDT_SIZE);
+	if (fdt != NULL) {
+		ret = fdt_check_header(fdt);
+		if (ret < 0) {
+			printf("fdt: %s\n", fdt_strerror(ret));
+		} else {
+			debug("fdt:size %d\n", fdt_totalsize(fdt));
+			str = get_prop_value(fdt, "BOARD-MODEL", &len);
+			debug("fdt: str %s len %d\n", str, len);
+			if (str) {
+				strncpy(boardname, str, len);
+				setenv("board", boardname);
+			} else {
+				printf("Err: cannot retrieve board type from fdt\n");
+			}
+			thunderx_parse_phy_address(fdt);
+		}
+}
+#endif
+}
 
 int arch_fixup_memory_node(void *blob)
 {

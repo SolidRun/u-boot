@@ -186,13 +186,13 @@ enum MCAST_MODE {
 #define BCAST_ACCEPT	1
 #define CAM_ACCEPT	1
 
-int thunderx_bgx_initialize(unsigned int bgx_idx, 
-			    unsigned int smi_idx, unsigned int node);
-
+int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node);
 void bgx_add_dmac_addr(uint64_t dmac, int node, int bgx_idx, int lmac);
 void bgx_get_count(int node, int *bgx_count);
 int bgx_get_lmac_count(int node, int bgx);
 void bgx_print_stats(int bgx_idx, int lmac);
+void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
+			unsigned int *phy_addr);
 
 #undef LINK_INTR_ENABLE
 
@@ -217,4 +217,8 @@ enum qlm_mode {
 	QLM_MODE_40G_KR4_1X4,   /* 1 40GBASE-KR4, 4 lanes each */
 };
 
+struct bgx_board_info {
+	unsigned int mdio_bus;
+	unsigned int phy_addr[MAX_LMAC_PER_BGX];
+};
 #endif /* THUNDER_BGX_H */
