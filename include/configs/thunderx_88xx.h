@@ -154,26 +154,23 @@
 #undef  CONFIG_CMD_IMLS
 #define CONFIG_CMD_BOOTI
 
-#define CONFIG_CMD_I2C
-
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_TFTP
-#define CONFIG_CMD_TFTPPUT
 
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_PART
 #define CONFIG_CMD_SATA
 
 #define CONFIG_CMD_ATF
 #define CONFIG_CMD_PCI
 
-#define CONFIG_CMD_NET
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_ENV_FLAGS
+#define CONFIG_CMD_GREPENV
+#define CONFIG_CMD_ENV_CALLBACK
 
 /* AHCI support Definitions */
 #ifdef CONFIG_CMD_SATA
@@ -246,7 +243,6 @@
 #define CONFIG_CMD_E1000
 
 #define E1000_DEBUG
-//#define CONFIG_RTL8169
 
 /* Initial environment variables */
 #define UBOOT_IMG_HEAD_SIZE		0x40
