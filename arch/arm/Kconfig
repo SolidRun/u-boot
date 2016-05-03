@@ -1614,6 +1614,16 @@ config ARCH_ASPEED
 	select OF_CONTROL
 	imply CMD_DM
 
+config TARGET_THUNDERX_81XX
+	bool "Support ThunderX 81xx"
+	select THUNDERX
+	select OF_CONTROL
+	select DM
+	select DM_SERIAL
+	select DM_PCI
+	select DM_PCI_COMPAT
+	select OF_SEPARATE
+
 endchoice
 
 config ARCH_SUPPORT_TFABOOT

@@ -1,4 +1,4 @@
-if TARGET_THUNDERX_88XX
+if TARGET_THUNDERX_88XX || TARGET_THUNDERX_81XX
 
 config SYS_CPU
 	string
@@ -12,10 +12,6 @@ config SYS_VENDOR
 	string
 	default "cavium"
 
-config SYS_CONFIG_NAME
-	string
-	default "thunderx_88xx"
-
 config CMD_ATF
 	bool "Enable ATF query commands"
 	default y
@@ -23,5 +19,21 @@ config CMD_ATF
 	  Enable vendor specific ATF query commands such as SPI and SD/MMC
 	  devices access, low level environment query, boot device layout
 	  and node count.
+
+endif
+
+if TARGET_THUNDERX_88XX
+
+config SYS_CONFIG_NAME
+	string
+	default "thunderx_88xx"
+
+endif
+
+if TARGET_THUNDERX_81XX
+
+config SYS_CONFIG_NAME
+	string
+	default "thunderx_81xx"
 
 endif
