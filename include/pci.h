@@ -1688,6 +1688,16 @@ int dm_pci_flr(struct udevice *dev);
 	dm_pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
 
 /**
+ * dm_pci_find_capability() - find a capability offset for a given device
+ *
+ * @dev: 	Device to check
+ * @cap:	Capability ID
+ * @return: capability offset if found, 0 otherwise
+ */
+int dm_pci_find_capability(struct udevice *dev, int cap);
+
+
+/**
  * dm_pci_find_device() - find a device by vendor/device ID
  *
  * @vendor:	Vendor ID
