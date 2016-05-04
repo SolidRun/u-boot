@@ -912,13 +912,7 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 			continue;
 		}
 
-		pos = -1;
-		for (i = 0; i < hose->region_count; i++) {
-			if (hose->regions[i].flags == type)
-				pos = i;
-		}
-		if (pos == -1)
-			pos = hose->region_count++;
+		pos = hose->region_count++;
 		debug(" - type=%d, pos=%d\n", type, pos);
 		pci_set_region(hose->regions + pos, pci_addr, addr, size, type);
 	}
