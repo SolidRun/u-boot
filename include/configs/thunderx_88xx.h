@@ -6,7 +6,7 @@
 #ifndef __THUNDERX_88XX_H__
 #define __THUNDERX_88XX_H__
 
-#define CONFIG_THUNDERX
+#define DEBUG
 
 #define CONFIG_SPECIAL_SYNC_HANDLER
 
