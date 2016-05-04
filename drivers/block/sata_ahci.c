@@ -8,6 +8,7 @@
 #include <libata.h>
 #include <fis.h>
 #include <sata.h>
+#include <pci.h>
 
 #include <common.h>
 #include <malloc.h>
@@ -15,7 +16,6 @@
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
-/* #include <asm/arch/clock.h> */
 #include "sata_ahci.h"
 
 struct sata_port_regs {
@@ -377,11 +377,10 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 		cap & (1 << 13) ? "part " : "");
 }
 
-extern uintptr_t sata_baseaddress(int dev);
-
 static int ahci_init_one(int dev)
 {
 	int rc;
+	struct udevice *pdev;
 	struct ahci_probe_ent *probe_ent = NULL;
 	probe_ent = malloc(sizeof(struct ahci_probe_ent));
 	memset(probe_ent, 0, sizeof(struct ahci_probe_ent));
@@ -393,7 +392,13 @@ static int ahci_init_one(int dev)
 				| ATA_FLAG_PIO_DMA
 				| ATA_FLAG_NO_ATAPI;
 
-	probe_ent->mmio_base = sata_baseaddress(dev);
+	rc = dm_pci_find_class(PCI_CLASS_STORAGE_SATA_AHCI, dev, &pdev);
+
+	if (rc)
+		goto err_out;
+
+	probe_ent->mmio_base = 	dm_pci_map_bar(pdev, PCI_BASE_ADDRESS_0,
+					       PCI_REGION_MEM);
 	debug("Base address for ahci%d is: 0x%llx\n", dev, probe_ent->mmio_base);
 
 	if (!probe_ent->mmio_base) {
@@ -797,51 +802,6 @@ static u32 ahci_sata_rw_cmd_ext(int dev, u32 start, lbaint_t blkcnt,
 	else
 		return 0;
 }
-
-#if 0
-u32 cn88_ahsata_rw_ncq_cmd(int dev, u32 start, lbaint_t blkcnt,
-				u8 *buffer, int is_write)
-{
-	struct ahci_probe_ent *probe_ent =
-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
-	struct sata_fis_h2d *cfis = &h2d;
-	u8 port = probe_ent->hard_port_no;
-	u64 block;
-
-	if (sata_dev_desc[dev].lba48 != 1) {
-		printf("execute FPDMA command on non-LBA48 hard disk\n\r");
-		return -1;
-	}
-
-	block = (u64)start;
-
-	memset(cfis, 0, sizeof(struct sata_fis_h2d));
-
-	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
-	cfis->pm_port_c = 0x80; /* is command */
-
-	cfis->command = (is_write) ? ATA_CMD_FPDMA_WRITE
-				 : ATA_CMD_FPDMA_READ;
-
-	cfis->lba_high_exp = (block >> 40) & 0xff;
-	cfis->lba_mid_exp = (block >> 32) & 0xff;
-	cfis->lba_low_exp = (block >> 24) & 0xff;
-	cfis->lba_high = (block >> 16) & 0xff;
-	cfis->lba_mid = (block >> 8) & 0xff;
-	cfis->lba_low = block & 0xff;
-
-	cfis->device = ATA_LBA;
-	cfis->features_exp = (blkcnt >> 8) & 0xff;
-	cfis->features = blkcnt & 0xff;
-
-	/* Use the latest queue */
-	ahci_exec_ata_cmd(probe_ent, port, cfis,
-			buffer, ATA_SECT_SIZE * blkcnt, is_write);
-
-	return blkcnt;
-}
-#endif
 
 void ahci_sata_flush_cache_ext(int dev)
 {
