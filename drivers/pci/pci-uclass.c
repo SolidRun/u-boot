@@ -599,12 +599,22 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 {
 	int sub_bus;
 	int ret;
+	int ea_pos;
+	u8 reg;
 
 	debug("%s\n", __func__);
 
-	sub_bus = pci_get_bus_max() + 1;
-	debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
-	dm_pciauto_prescan_setup_bridge(bus, sub_bus);
+	ea_pos = dm_pci_find_capability(bus, PCI_CAP_ID_EA);
+
+	if (ea_pos) {
+		dm_pci_read_config8(bus, ea_pos + sizeof(u32) + sizeof(u8), &reg);
+		sub_bus = reg;
+		debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
+	} else {
+		sub_bus = pci_get_bus_max() + 1;
+		debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
+		dm_pciauto_prescan_setup_bridge(bus, sub_bus);
+	}
 
 	ret = device_probe(bus);
 	if (ret) {
@@ -612,13 +622,16 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 		      ret);
 		return ret;
 	}
-	if (sub_bus != bus->seq) {
-		printf("%s: Internal error, bus '%s' got seq %d, expected %d\n",
-		       __func__, bus->name, bus->seq, sub_bus);
-		return -EPIPE;
+
+	if (!ea_pos) {
+		if (sub_bus != bus->seq) {
+			printf("%s: Internal error, bus '%s' got seq %d, expected %d\n",
+			       __func__, bus->name, bus->seq, sub_bus);
+			return -EPIPE;
+		}
+		sub_bus = pci_get_bus_max();
+		dm_pciauto_postscan_setup_bridge(bus, sub_bus);
 	}
-	sub_bus = pci_get_bus_max();
-	dm_pciauto_postscan_setup_bridge(bus, sub_bus);
 
 	return sub_bus;
 }
@@ -1380,7 +1393,9 @@ static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
 
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 {
-	pci_addr_t pci_bus_addr;
+	int ea_pos;
+	pci_addr_t pci_bus_start;
+	pci_addr_t pci_bus_end;
 	u32 bar_response;
 	int ea_off;
 
@@ -1392,9 +1407,22 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 	if (ea_off)
 		return dm_pci_map_ea_bar(dev, bar, flags, ea_off);
 
-	/* read BAR address */
-	dm_pci_read_config32(dev, bar, &bar_response);
-	pci_bus_addr = (pci_addr_t)(bar_response & ~0xf);
+	ea_pos = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+
+	if (ea_pos) {
+		dm_pci_ea_bar_read(dev, (bar - PCI_BASE_ADDRESS_0) >> 2,
+				   &pci_bus_start, &pci_bus_end);
+	} else {
+		/* read BAR address */
+		dm_pci_read_config32(dev, bar, &bar_response);
+		pci_bus_start = (pci_addr_t)(bar_response & ~0xf);
+
+		if ((bar_response & PCI_BASE_ADDRESS_MEM_TYPE_MASK) ==
+				PCI_BASE_ADDRESS_MEM_TYPE_64) {
+			dm_pci_read_config32(dev, bar + 4, &bar_response);
+		}
+		pci_bus_start |= (pci_addr_t)bar_response << 32;
+	}
 
 	/*
 	 * Pass "0" as the length argument to pci_bus_to_virt.  The arg
@@ -1402,7 +1430,7 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 	 * linear mapping.  In the future, this could read the BAR size
 	 * and pass that as the size if needed.
 	 */
-	return dm_pci_bus_to_virt(dev, pci_bus_addr, flags, 0, MAP_NOCACHE);
+	return dm_pci_bus_to_virt(dev, pci_bus_start, flags, 0, MAP_NOCACHE);
 }
 
 static int _dm_pci_find_next_capability(struct udevice *dev, u8 pos, int cap)
@@ -1516,6 +1544,121 @@ int dm_pci_flr(struct udevice *dev)
 	mdelay(100);
 
 	return 0;
+}
+
+/* Read an Enhanced Allocation (EA) entry */
+static int dm_pci_ea_entry_read(struct udevice *dev, int offset, int *bei, pci_addr_t *start, pci_addr_t *end)
+{
+	u32 base;
+	u32 max_offset;
+	u8  prop;
+	int ent_offset = offset;
+	int ent_size;
+	u32 dw0;
+
+	dm_pci_read_config32(dev, ent_offset, &dw0);
+
+	debug("%s: %d: dw0: %lx\n", __FUNCTION__, __LINE__, (unsigned long)dw0);
+
+	ent_offset += sizeof(u32);
+
+	/* Entry size field indicates DWORDs after 1st */
+	ent_size = ((dw0 & PCI_EA_ES) + 1) * sizeof(u32);
+
+	if (!(dw0 & PCI_EA_ENABLE))
+		goto out;
+	*bei = PCI_EA_BEI(dw0);
+
+	prop = PCI_EA_PP(dw0);
+
+	debug("EA property: %x\n", prop);
+
+	/*
+	* If the Property is in the reserved range, try the Secondary
+	* Property instead.
+	*/
+	if (prop > PCI_EA_P_BRIDGE_IO && prop < PCI_EA_P_MEM_RESERVED)
+		prop = PCI_EA_SP(dw0);
+	if (prop > PCI_EA_P_BRIDGE_IO)
+		goto out;
+
+	debug("EA property: %x\n", prop);
+
+	/* Read Base */
+	dm_pci_read_config32(dev, ent_offset, &base);
+	ent_offset += sizeof(u32);
+	*start = (pci_addr_t)base & PCI_EA_FIELD_MASK;
+
+	/* Read MaxOffset */
+	dm_pci_read_config32(dev, ent_offset, &max_offset);
+	ent_offset += sizeof(u32);
+
+	/* Read Base MSBs (if 64-bit entry) */
+	if (base & PCI_EA_IS_64) {
+		dm_pci_read_config32(dev, ent_offset, &base);
+		ent_offset += sizeof(u32);
+
+		*start |= (pci_addr_t)base << 32;
+	}
+
+	debug("EA (%u,%u) start = %lx\n", PCI_EA_BEI(dw0), prop, (unsigned long)*start);
+
+	*end = (*start) + ((pci_addr_t)max_offset | 0x03);
+
+	/* Read MaxOffset MSBs (if 64-bit entry) */
+	if (max_offset & PCI_EA_IS_64) {
+		dm_pci_read_config32(dev, ent_offset, &max_offset);
+		ent_offset += sizeof(u32);
+
+		*end |= (pci_addr_t)max_offset << 32;
+	}
+
+	debug("EA (%u,%u) end = %lx\n", PCI_EA_BEI(dw0), prop, (unsigned long)*end);
+
+	if (*end < *start) {
+		*end = 0;
+		*start = 0;
+		printf("EA Entry crosses address boundary\n");
+		goto out;
+	}
+
+	if (ent_size != ent_offset - offset) {
+		printf("EA Entry Size (%d) does not match length read (%d)\n",
+			ent_size, ent_offset - offset);
+		goto out;
+	}
+
+out:
+	return offset + ent_size;
+}
+
+/* Read an Enhanced Allocation (EA) BAR */
+int dm_pci_ea_bar_read(struct udevice *dev, int bar, pci_addr_t *start, pci_addr_t *end)
+{
+	int ea;
+	int offset;
+	u8  num_ent;
+	u8  hdr_type;
+	int i, bei = -1;
+
+	ea = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+
+	dm_pci_read_config8(dev, ea + PCI_EA_NUM_ENT, &num_ent);
+	num_ent &= PCI_EA_NUM_ENT_MASK;
+
+	offset = ea + PCI_EA_FIRST_ENT;
+
+	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &hdr_type);
+
+	/* Skip DWORD 2 for type 1 functions */
+	if (hdr_type == PCI_HEADER_TYPE_BRIDGE)
+		offset += sizeof(u32);
+
+	for (i = 0; (i < num_ent) && (bar != bei); i++) {
+		offset = dm_pci_ea_entry_read(dev, offset, &bei, start, end);
+	}
+
+	return (bar == bei);
 }
 
 UCLASS_DRIVER(pci) = {
