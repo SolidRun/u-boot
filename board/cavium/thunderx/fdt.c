@@ -464,7 +464,69 @@ static void ft_setup_uaa_clk(char *fdt)
 	}
 }
 
-extern int rc_is_ready(unsigned int rc);
+static int rc_is_on(unsigned int rc)
+{
+	union pemx_on pemx_on;
+	unsigned int node, pem;
+
+	node = rc / CONFIG_THUNDERX_RCS_PER_NODE;
+	pem = rc % CONFIG_THUNDERX_RCS_PER_NODE;
+
+	pemx_on.u = readq(CSR_PA(node, PEMX_ON(pem)));
+
+	debug("node: %d, pem: %d, pemx_on.u: %lx\n",
+	      node, pem, pemx_on.u);
+
+	return ((pemx_on.s.pemon != 0) && (pemx_on.s.pemoor != 0));
+}
+
+static int thunderx_read_rc_u32(int rc, int offset, u32 * val)
+{
+	union pemx_cfg_rd pemx_cfg_rd;
+	uintptr_t address;
+	unsigned int node, pem;
+
+	pemx_cfg_rd.u = 0;
+
+	node = rc / CONFIG_THUNDERX_RCS_PER_NODE;
+	pem = rc % CONFIG_THUNDERX_RCS_PER_NODE;
+
+	address = CSR_PA(node, PEMX_CFG_RD(pem));
+
+	debug("node: %d, pem: %d, address: %lx\n", node, pem, address);
+
+	*val = (u32) ~0UL;
+
+	if (node >= atf_node_count())
+		return -ENODEV;
+
+	if ((pem >= 0) && rc_is_on(pem)) {
+		pemx_cfg_rd.s.addr = offset & ~0x3;
+		writeq(pemx_cfg_rd.u, address);
+		pemx_cfg_rd.u = readq(address);
+		*val = pemx_cfg_rd.s.data;
+	}
+
+	return 0;
+}
+
+#define PCIE_RC_LNK_CAP_STA (32 << 2)
+#define PCIE_RC_LNK_STA_DLLA (1 << 29)
+
+int rc_is_ready(unsigned int rc)
+{
+	u32 lnk_sta;
+	int res;
+
+	if (!rc_is_on(rc))
+		return 0;
+
+	res = thunderx_read_rc_u32(rc, PCIE_RC_LNK_CAP_STA, &lnk_sta);
+
+	debug("%s: %d, lnk_sta: %x\n", __FUNCTION__, __LINE__, lnk_sta);
+
+	return (res >=0) && (lnk_sta & PCIE_RC_LNK_STA_DLLA);
+}
 
 static void ft_setup_pems(char *fdt)
 {
