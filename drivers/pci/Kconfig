@@ -151,4 +151,13 @@ config PCI_KEYSTONE
 	help
 	  Say Y here if you want to enable PCI controller support on AM654 SoC.
 
+config PCI_THUNDERX_ECAM
+	bool "ThunderX ECAM support"
+	depends on THUNDERX
+	help
+	  Enable support for the Cavium ThunderX SoC family ECAM controllers.
+	  These controllers provide PCI configuration access to all on-board
+	  peripherals so it should only be disabled for testing purposes
+
 endif
+endmenu
