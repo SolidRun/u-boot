@@ -144,6 +144,9 @@
 
 #define CONFIG_PHYLIB
 
+#define CONFIG_MAX_BGX_PER_NODE		2
+#define CONFIG_MAX_BGX			4 /* 2 nodes, 2 bgx per node */
+
 /* Command line configuration */
 #define CONFIG_MENU
 
