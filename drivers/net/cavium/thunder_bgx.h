@@ -194,25 +194,14 @@ void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
 
 #undef LINK_INTR_ENABLE
 
-enum LMAC_TYPE {
-	BGX_MODE_SGMII = 0, /* 1 lane, 1.250 Gbaud */
-	BGX_MODE_XAUI = 1,  /* 4 lanes, 3.125 Gbaud */
-	BGX_MODE_DXAUI = 1, /* 4 lanes, 6.250 Gbaud */
-	BGX_MODE_RXAUI = 2, /* 2 lanes, 6.250 Gbaud */
-	BGX_MODE_XFI = 3,   /* 1 lane, 10.3125 Gbaud */
-	BGX_MODE_XLAUI = 4, /* 4 lanes, 10.3125 Gbaud */
-	BGX_MODE_10G_KR = 3,/* 1 lane, 10.3125 Gbaud */
-	BGX_MODE_40G_KR = 4,/* 4 lanes, 10.3125 Gbaud */
-};
-
 enum qlm_mode {
 	QLM_MODE_SGMII,         /* SGMII, each lane independent */
-	QLM_MODE_XAUI_1X4,      /* 1 XAUI or DXAUI, 4 lanes */
-	QLM_MODE_RXAUI_2X2,     /* 2 RXAUI, 2 lanes each */
-	QLM_MODE_XFI_4X1,       /* 4 XFI, 1 lane each */
-	QLM_MODE_XLAUI_1X4,     /* 1 XLAUI, 4 lanes each */
-	QLM_MODE_10G_KR_4X1,    /* 4 10GBASE-KR, 1 lane each */
-	QLM_MODE_40G_KR4_1X4,   /* 1 40GBASE-KR4, 4 lanes each */
+	QLM_MODE_XAUI,      /* 1 XAUI or DXAUI, 4 lanes */
+	QLM_MODE_RXAUI,     /* 2 RXAUI, 2 lanes each */
+	QLM_MODE_XFI,       /* 4 XFI, 1 lane each */
+	QLM_MODE_XLAUI,     /* 1 XLAUI, 4 lanes each */
+	QLM_MODE_10G_KR,    /* 4 10GBASE-KR, 1 lane each */
+	QLM_MODE_40G_KR4,   /* 1 40GBASE-KR4, 4 lanes each */
 };
 
 struct bgx_board_info {
