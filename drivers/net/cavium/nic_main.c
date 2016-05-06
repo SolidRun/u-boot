@@ -364,7 +364,7 @@ static void nic_set_tx_pkt_pad(struct nicpf *nic, int size)
 	if (size > 60)
 		size = 60;
 
-	for (lmac = 0; lmac < (MAX_BGX_PER_CN88XX * MAX_LMAC_PER_BGX); lmac++) {
+	for (lmac = 0; lmac < (CONFIG_MAX_BGX_PER_NODE * MAX_LMAC_PER_BGX); lmac++) {
 		lmac_cfg = nic_reg_read(nic, NIC_PF_LMAC_0_7_CFG | (lmac << 3));
 		lmac_cfg &= ~(0xF << 2);
 		lmac_cfg |= ((size / 4) << 2);

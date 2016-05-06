@@ -56,8 +56,8 @@ struct bgx {
 	struct pci_dev		*pdev;
 };
 
-struct bgx_board_info bgx_board_info[MAX_BGX_PER_CN88XX];
-struct bgx *bgx_vnic[MAX_BGX_THUNDER];
+struct bgx_board_info bgx_board_info[CONFIG_MAX_BGX];
+struct bgx *bgx_vnic[CONFIG_MAX_BGX];
 static int lmac_count = 0; /* Total no of LMACs in system */
 
 /* Register read/write APIs */
@@ -107,7 +107,7 @@ static int bgx_poll_reg(struct bgx *bgx, uint8_t lmac,
 
 const u8 *bgx_get_lmac_mac(int node, int bgx_idx, int lmacid)
 {
-	struct bgx *bgx = bgx_vnic[(node * MAX_BGX_PER_CN88XX) + bgx_idx];
+	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
 
 	if (bgx)
 		return bgx->lmac[lmacid].mac;
@@ -117,7 +117,7 @@ const u8 *bgx_get_lmac_mac(int node, int bgx_idx, int lmacid)
 
 void bgx_set_lmac_mac(int node, int bgx_idx, int lmacid, const u8 *mac)
 {
-	struct bgx *bgx = bgx_vnic[(node * MAX_BGX_PER_CN88XX) + bgx_idx];
+	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
 
 	if (!bgx)
 		return;
@@ -132,9 +132,9 @@ void bgx_get_count(int node, int *bgx_count)
 	struct bgx *bgx;
 
 	*bgx_count = 0;
-	for (i = 0; i < MAX_BGX_PER_CN88XX; i++) {
-		bgx = bgx_vnic[node * MAX_BGX_PER_CN88XX + i];
-		debug("bgx_vnic[%u]: %p\n", node * MAX_BGX_PER_CN88XX + i, bgx);
+	for (i = 0; i < CONFIG_MAX_BGX_PER_NODE; i++) {
+		bgx = bgx_vnic[node * CONFIG_MAX_BGX_PER_NODE + i];
+		debug("bgx_vnic[%u]: %p\n", node * CONFIG_MAX_BGX_PER_NODE + i, bgx);
 		if (bgx)
 			*bgx_count |= (1 << i);
 	}
@@ -145,7 +145,7 @@ int bgx_get_lmac_count(int node, int bgx_idx)
 {
 	struct bgx *bgx;
 
-	bgx = bgx_vnic[(node * MAX_BGX_PER_CN88XX) + bgx_idx];
+	bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
 	if (bgx)
 		return bgx->lmac_count;
 
@@ -154,7 +154,7 @@ int bgx_get_lmac_count(int node, int bgx_idx)
 
 void bgx_lmac_rx_tx_enable(int node, int bgx_idx, int lmacid, bool enable)
 {
-	struct bgx *bgx = bgx_vnic[(node * MAX_BGX_PER_CN88XX) + bgx_idx];
+	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
 	u64 cfg;
 
 	if (!bgx)
@@ -191,7 +191,7 @@ void bgx_lmac_internal_loopback(int node, int bgx_idx,
 	struct lmac *lmac;
 	u64    cfg;
 
-	bgx = bgx_vnic[(node * MAX_BGX_PER_CN88XX) + bgx_idx];
+	bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
 	if (!bgx)
 		return;
 
@@ -759,7 +759,7 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 
 	/* MAP configuration registers */
 	bgx->reg_base = (void *)CSR_PA(node, BGXX_PF_BAR0(bgx_idx));
-	bgx->bgx_id = bgx_idx + node * MAX_BGX_PER_CN88XX;
+	bgx->bgx_id = bgx_idx + node * CONFIG_MAX_BGX_PER_NODE;
 
 	bgx_vnic[bgx->bgx_id] = bgx;
 	bgx_get_qlm_mode(bgx);

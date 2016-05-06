@@ -80,7 +80,7 @@
 #define	NIC_CPI_COUNT			2048 /* No of channel parse indices */
 
 /* TNS bypass mode: 1-1 mapping between VNIC and BGX:LMAC */
-#define NIC_MAX_BGX				MAX_BGX_PER_CN88XX
+#define NIC_MAX_BGX			CONFIG_MAX_BGX_PER_NODE
 #define	NIC_CPI_PER_BGX			(NIC_CPI_COUNT / NIC_MAX_BGX)
 #define	NIC_MAX_CPI_PER_LMAC	64 /* Max when CPI_ALG is IP diffserv */
 #define	NIC_RSSI_PER_BGX		(NIC_RSSI_COUNT / NIC_MAX_BGX)
