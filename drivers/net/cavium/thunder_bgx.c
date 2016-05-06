@@ -226,7 +226,7 @@ static int get_qlm_for_bgx(int node, int bgx_id, int index)
 
 	cfg1 = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
 	cfg2 = readq(CSR_PA(node, GSERX_CFG(qlm+1))) & GSERX_CFG_BGX;
-	debug("get_qlm_for_bgx:qlm%d: cfg1 = %d, cfg2 = %d\n", qlm, cfg1, cfg2);
+	debug("get_qlm_for_bgx:qlm%d: cfg1 = %lld, cfg2 = %lld\n", qlm, cfg1, cfg2);
 
 	/* Check if both DLMs are configured as BGX# */
 	if (cfg2) {
@@ -298,7 +298,7 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 	u64 cfg;
 	struct lmac *lmac;
 
-	lmac = &bgx[lmacid];
+	lmac = &bgx->lmac[lmacid];
 
 	/* Reset SPU */
 	bgx_reg_modify(bgx, lmacid, BGX_SPUX_CONTROL1, SPU_CTL_RESET);
@@ -605,7 +605,6 @@ static void bgx_init_hw(struct bgx *bgx)
 {
 	struct lmac *lmac;
 	int i, lmacid, lmac_count = 0;
-	uint64_t rx_lmacs;
 
 	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
 		lmac = &bgx->lmac[lmacid];
