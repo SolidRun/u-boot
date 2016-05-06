@@ -348,7 +348,11 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 
 	/* Disable autoneg */
 	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_CONTROL);
-	cfg = cfg & ~(SPU_AN_CTL_AN_EN | SPU_AN_CTL_XNP_EN);
+	cfg = cfg & ~(SPU_AN_CTL_XNP_EN);
+	if (lmac->use_training)
+		cfg = cfg | (SPU_AN_CTL_AN_EN);
+	else
+		cfg = cfg & ~(SPU_AN_CTL_AN_EN);
 	bgx_reg_write(bgx, lmacid, BGX_SPUX_AN_CONTROL, cfg);
 
 	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_ADV);
@@ -362,7 +366,10 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 	bgx_reg_write(bgx, lmacid, BGX_SPUX_AN_ADV, cfg);
 
 	cfg = bgx_reg_read(bgx, 0, BGX_SPU_DBG_CONTROL);
-	cfg &= ~SPU_DBG_CTL_AN_ARB_LINK_CHK_EN;
+	if (lmac->use_training)
+		cfg |= SPU_DBG_CTL_AN_ARB_LINK_CHK_EN;
+	else
+		cfg &= ~SPU_DBG_CTL_AN_ARB_LINK_CHK_EN;
 	bgx_reg_write(bgx, 0, BGX_SPU_DBG_CONTROL, cfg);
 
 	/* Enable lmac */
