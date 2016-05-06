@@ -12,14 +12,11 @@
 
 #include <linux/compiler.h>
 
-#include "cavm-csr.h"
 #include <cavium/atf.h>
 
-#ifdef CONFIG_OF_LIBFDT
- #include <libfdt.h>
- #include <fdt_support.h>
- #include <cavium/thunderx_fdt.h>
-#endif
+#include <libfdt.h>
+#include <fdt_support.h>
+#include <cavium/thunderx_fdt.h>
 #include <cavium/atf.h>
 #include <asm/armv8/mmu.h>
 
@@ -62,10 +59,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-#ifdef CONFIG_OF_LIBFDT
 	ulong fdt_addr = (ulong)gd->fdt_blob;
 	set_working_fdt_addr(fdt_addr);
-#endif
 
 	return 0;
 }
@@ -116,25 +111,8 @@ void reset_cpu(ulong addr)
  */
 int board_late_init(void)
 {
-#ifdef CONFIG_OF_LIBFDT
 	thunderx_parse_bdk_config();
-#else
-	int i;
-	char str[32];
-	const char *boardname;
 
-	for (i = 0; i < atf_env_count(); i++) {
-		atf_env_string(i, str);
-
-		debug("Environment string %d: %s\n", i, str);
-
-		if (!strncmp(str, BOARD_TYPE, strlen(BOARD_TYPE))) {
-			boardname = str + strlen(BOARD_TYPE);
-			setenv("board", boardname);
-			break;
-		}
-	}
-#endif
 	printf("Board type: %s\n", getenv("board"));
 
 	return 0;
