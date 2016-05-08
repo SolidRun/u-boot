@@ -624,7 +624,7 @@ static void bgx_init_hw(struct bgx *bgx)
 				continue;
 			lmac->lmac_type = 1;
 			lmac->lane_to_sds = 0xE4;
-			lmac_count = 4;
+			lmac_count = 1;
 			break;
 		case QLM_MODE_RXAUI:
 			lmac->lmac_type = 2;
@@ -641,7 +641,7 @@ static void bgx_init_hw(struct bgx *bgx)
 				continue;
 			lmac->lmac_type = 4;
 			lmac->lane_to_sds = 0xE4;
-			lmac_count = 4;
+			lmac_count = 1;
 			break;
 		case QLM_MODE_10G_KR:
 			lmac->lmac_type = 3;
