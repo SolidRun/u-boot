@@ -7,8 +7,6 @@
 #ifndef __THUNDERX_81XX_H__
 #define __THUNDERX_81XX_H__
 
-#define CONFIG_THUNDERX
-
 #define CONFIG_SPECIAL_SYNC_HANDLER
 
 /*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
@@ -24,7 +22,7 @@
 #define CONFIG_SYS_VSNPRINTF
 
 #define CONFIG_IDENT_STRING	\
-	" for Cavium Thunder CN81XX ARM v8 Multi-Core"
+	" for Cavium Thunder CN81XX ARM v8 Core"
 #define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
 
 #define MEM_BASE			0x00500000
@@ -152,6 +150,9 @@
 #endif
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 
+#define CONFIG_MAX_BGX_PER_NODE		2
+#define CONFIG_MAX_BGX			2
+
 #define CONFIG_PHYLIB
 
 /* Command line configuration */
@@ -246,7 +247,7 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 #define CONFIG_USB_XHCI
-#define CONFIG_USB_XHCI_THUNDERX
+#define CONFIG_USB_XHCI_PCI
 #define CONFIG_USB_STORAGE
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 4

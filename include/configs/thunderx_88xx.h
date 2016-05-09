@@ -6,8 +6,6 @@
 #ifndef __THUNDERX_88XX_H__
 #define __THUNDERX_88XX_H__
 
-#define DEBUG
-
 #define CONFIG_SPECIAL_SYNC_HANDLER
 
 /*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
