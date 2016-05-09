@@ -243,34 +243,6 @@ struct nicvf_drv_stats {
 };
 
 
-struct nicpf {
-	struct eth_device	*netdev;
-#define NIC_NODE_ID_MASK	0x300000000000
-#define NIC_NODE_ID(x)		((x & NODE_ID_MASK) >> 44)
-	uint8_t			node;
-	unsigned int		flags;
-	uint16_t		total_vf_cnt;   /* Total num of VF supported */
-	uint16_t		num_vf_en;      /* No of VF enabled */
-	uint64_t		reg_base;       /* Register start address */
-	struct pkind_cfg	pkind;
-	uint8_t			bgx_cnt;
-	uint8_t			rev_id;
-#define	NIC_SET_VF_LMAC_MAP(bgx, lmac)	(((bgx & 0xF) << 4) | (lmac & 0xF))
-#define	NIC_GET_BGX_FROM_VF_LMAC_MAP(map)	((map >> 4) & 0xF)
-#define	NIC_GET_LMAC_FROM_VF_LMAC_MAP(map)	(map & 0xF)
-	uint8_t			vf_lmac_map[MAX_LMAC];
-	uint16_t		cpi_base[MAX_NUM_VFS_SUPPORTED];
-	uint16_t		rss_ind_tbl_size;
-	uint64_t		mac[MAX_NUM_VFS_SUPPORTED];
-	bool			mbx_lock[MAX_NUM_VFS_SUPPORTED];
-	uint8_t			link[MAX_LMAC];
-	uint8_t			duplex[MAX_LMAC];
-	uint32_t		speed[MAX_LMAC];
-	bool			vf_enabled[MAX_NUM_VFS_SUPPORTED];
-	uint16_t		rssi_base[MAX_NUM_VFS_SUPPORTED];
-	uint8_t			lmac_cnt;
-};
-
 struct nicvf {
 	struct eth_device	*netdev;
 	uint8_t			vf_id;
@@ -280,6 +252,8 @@ struct nicvf {
 	uint8_t			node;
 	uint16_t		mtu;
 	struct queue_set	*qs;
+#define		MAX_SQS_PER_VF_SINGLE_NODE	5
+#define		MAX_SQS_PER_VF			11   
 	uint8_t			num_qs;
 	void			*addnl_qs;
 	uint16_t		vf_mtu;
@@ -308,6 +282,39 @@ struct nicvf {
 	bool			open;
 	bool			rb_alloc_fail;
 	void 			*rcv_buf;
+};
+
+struct nicpf {
+	struct eth_device	*netdev;
+#define NIC_NODE_ID_MASK	0x300000000000
+#define NIC_NODE_ID(x)		((x & NODE_ID_MASK) >> 44)
+	uint8_t			node;
+	unsigned int		flags;
+	uint16_t		total_vf_cnt;   /* Total num of VF supported */
+	uint16_t		num_vf_en;      /* No of VF enabled */
+	uint64_t		reg_base;       /* Register start address */
+	u8			num_sqs_en;     /* Secondary qsets enabled */
+	u64			nicvf[MAX_NUM_VFS_SUPPORTED];
+	u8			vf_sqs[MAX_NUM_VFS_SUPPORTED][MAX_SQS_PER_VF];
+	u8			pqs_vf[MAX_NUM_VFS_SUPPORTED];
+	bool			sqs_used[MAX_NUM_VFS_SUPPORTED];
+	struct pkind_cfg	pkind;
+	uint8_t			bgx_cnt;
+	uint8_t			rev_id;
+#define	NIC_SET_VF_LMAC_MAP(bgx, lmac)	(((bgx & 0xF) << 4) | (lmac & 0xF))
+#define	NIC_GET_BGX_FROM_VF_LMAC_MAP(map)	((map >> 4) & 0xF)
+#define	NIC_GET_LMAC_FROM_VF_LMAC_MAP(map)	(map & 0xF)
+	uint8_t			vf_lmac_map[MAX_LMAC];
+	uint16_t		cpi_base[MAX_NUM_VFS_SUPPORTED];
+	uint16_t		rss_ind_tbl_size;
+	uint64_t		mac[MAX_NUM_VFS_SUPPORTED];
+	bool			mbx_lock[MAX_NUM_VFS_SUPPORTED];
+	uint8_t			link[MAX_LMAC];
+	uint8_t			duplex[MAX_LMAC];
+	uint32_t		speed[MAX_LMAC];
+	bool			vf_enabled[MAX_NUM_VFS_SUPPORTED];
+	uint16_t		rssi_base[MAX_NUM_VFS_SUPPORTED];
+	uint8_t			lmac_cnt;
 };
 
 /* PF <--> VF Mailbox communication
