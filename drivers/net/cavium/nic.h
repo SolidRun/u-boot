@@ -243,14 +243,14 @@ struct hw_info {
 struct nicvf {
 	struct eth_device	*netdev;
 	uint8_t			vf_id;
-	bool                    sqs_mode:1;
+	bool			sqs_mode:1;
 	bool			loopback_supported:1;
 	uint8_t			tns_mode;
 	uint8_t			node;
 	uint16_t		mtu;
 	struct queue_set	*qs;
 #define		MAX_SQS_PER_VF_SINGLE_NODE	5
-#define		MAX_SQS_PER_VF			11   
+#define		MAX_SQS_PER_VF			11
 	uint8_t			num_qs;
 	void			*addnl_qs;
 	uint16_t		vf_mtu;
@@ -260,8 +260,8 @@ struct nicvf {
 
 	uint8_t			cpi_alg;
 
-	struct nicvf_hw_stats   stats;
-	struct nicvf_drv_stats  drv_stats;
+	struct nicvf_hw_stats	stats;
+	struct nicvf_drv_stats	drv_stats;
 
 	struct nicpf		*nicpf;
 
@@ -279,20 +279,22 @@ struct nicvf {
 
 	bool			open;
 	bool			rb_alloc_fail;
-	void 			*rcv_buf;
+	void			*rcv_buf;
+	bool			hw_tso;
 };
 
 struct nicpf {
 	struct eth_device	*netdev;
-	struct hw_info          *hw;
+	struct hw_info		*hw;
 #define NIC_NODE_ID_MASK	0x300000000000
 #define NIC_NODE_ID(x)		((x & NODE_ID_MASK) >> 44)
 	uint8_t			node;
-	unsigned int		flags;
+	unsigned int	flags;
+	unsigned int	rev;
 	uint16_t		total_vf_cnt;   /* Total num of VF supported */
 	uint16_t		num_vf_en;      /* No of VF enabled */
 	uint64_t		reg_base;       /* Register start address */
-	u16                     rss_ind_tbl_size;
+	u16			rss_ind_tbl_size;
 	u8			num_sqs_en;     /* Secondary qsets enabled */
 	u64			nicvf[MAX_NUM_VFS_SUPPORTED];
 	u8			vf_sqs[MAX_NUM_VFS_SUPPORTED][MAX_SQS_PER_VF];
@@ -502,5 +504,15 @@ void bgx_set_lmac_mac(int node, int bgx_idx, int lmacid, const u8 *mac);
 void bgx_lmac_rx_tx_enable(int node, int bgx_idx, int lmacid, bool enable);
 void bgx_lmac_internal_loopback(int node, int bgx_idx,
 				int lmac_idx, bool enable);
+
+static inline bool pass1_silicon(unsigned int revision)
+{
+	return (revision < 8);
+}
+
+static inline bool pass2_silicon(unsigned int revision)
+{
+	return (revision == 8);
+}
 
 #endif /* NIC_H */

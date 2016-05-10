@@ -847,7 +847,17 @@ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
 	rq = &qs->rq[cqe_rx->rq_idx];
 	rbdr = &qs->rbdr[rq->start_qs_rbdr_idx];
 	rb_lens = cq_desc + (3 * sizeof(uint64_t)); /* Use offsetof */
-	rb_ptrs = cq_desc + (6 * sizeof(uint64_t));
+	/* Except 88xx pass1 on all other chips CQE_RX2_S is added to
+	 * CQE_RX at word6, hence buffer pointers move by word
+	 *
+	 * Use existing 'hw_tso' flag which will be set for all chips
+	 * except 88xx pass1 instead of a additional cache line
+	 * access (or miss) by using pci dev's revision.
+	 */
+	if (!nic->hw_tso)
+		rb_ptrs = (void *)cqe_rx + (6 * sizeof(u64));
+	else
+		rb_ptrs = (void *)cqe_rx + (7 * sizeof(u64));
 
 	for (frag = 0; frag < cqe_rx->rb_cnt; frag++) {
 		payload_len = rb_lens[frag_num(frag)];
