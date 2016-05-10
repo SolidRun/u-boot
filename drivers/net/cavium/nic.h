@@ -23,6 +23,13 @@
 #define	PCI_DEVICE_ID_THUNDER_NIC_VF	0x0011
 #define	PCI_DEVICE_ID_THUNDER_BGX	0xA026
 
+/* Subsystem device IDs */
+#define PCI_SUBSYS_DEVID_88XX_NIC_PF	0xA11E
+
+#define	NIC_INTF_COUNT			2  /* Interfaces btw VNIC and TNS/BGX */
+#define	NIC_CHANS_PER_INF		128
+#define	NIC_MAX_CHANS			(NIC_INTF_COUNT * NIC_CHANS_PER_INF)
+
 #define	IS_PASS1(rev)	(rev == 0x0 || rev == 0x1 || rev == 0x2)
 
 /* PCI BAR nos */
@@ -64,39 +71,8 @@
 /* Max pkinds */
 #define	NIC_MAX_PKIND			16
 
-/* Rx Channels */
-/* Receive channel configuration in TNS bypass mode
- * Below is configuration in TNS bypass mode
- * BGX0-LMAC0-CHAN0 - VNIC CHAN0
- * BGX0-LMAC1-CHAN0 - VNIC CHAN16
- * ...
- * BGX1-LMAC0-CHAN0 - VNIC CHAN128
- * ...
- * BGX1-LMAC3-CHAN0 - VNIC CHAN174
- */
-#define	NIC_INF_COUNT			2  /* No of interfaces */
-#define	NIC_CHANS_PER_INF		128
-#define	NIC_MAX_CHANS			(NIC_INF_COUNT * NIC_CHANS_PER_INF)
-#define	NIC_CPI_COUNT			2048 /* No of channel parse indices */
-
-/* TNS bypass mode: 1-1 mapping between VNIC and BGX:LMAC */
-#define NIC_MAX_BGX			CONFIG_MAX_BGX_PER_NODE
-#define	NIC_CPI_PER_BGX			(NIC_CPI_COUNT / NIC_MAX_BGX)
-#define	NIC_MAX_CPI_PER_LMAC	64 /* Max when CPI_ALG is IP diffserv */
-#define	NIC_RSSI_PER_BGX		(NIC_RSSI_COUNT / NIC_MAX_BGX)
-
-/* Tx scheduling */
-#define	NIC_MAX_TL4				1024
-#define	NIC_MAX_TL4_SHAPERS		256 /* 1 shaper for 4 TL4s */
-#define	NIC_MAX_TL3				256
-#define	NIC_MAX_TL3_SHAPERS		64  /* 1 shaper for 4 TL3s */
-#define	NIC_MAX_TL2				64
-#define	NIC_MAX_TL2_SHAPERS		2  /* 1 shaper for 32 TL2s */
-#define	NIC_MAX_TL1				2
-
-/* TNS bypass mode */
-#define	NIC_TL4_PER_BGX			(NIC_MAX_TL4 / NIC_MAX_BGX)
-#define	NIC_TL4_PER_LMAC		(NIC_MAX_TL4 / NIC_CHANS_PER_INF)
+/* Max when CPI_ALG is IP diffserv */
+#define	NIC_MAX_CPI_PER_LMAC		64
 
 /* NIC VF Interrupts */
 #define	NICVF_INTR_CQ			0
@@ -150,7 +126,6 @@ struct nicvf_cq_poll {
 	uint8_t	cq_idx;		/* Completion queue index */
 };
 
-#define	NIC_RSSI_COUNT			4096 /* Total no of RSS indices */
 #define NIC_MAX_RSS_HASH_BITS		8
 #define NIC_MAX_RSS_IDR_TBL_SIZE	(1 << NIC_MAX_RSS_HASH_BITS)
 #define RSS_HASH_KEY_SIZE		5 /* 320 bit key */
@@ -242,6 +217,19 @@ struct nicvf_drv_stats {
 	u64 tx_tso;
 };
 
+struct hw_info {
+	u8		bgx_cnt;
+	u8		chans_per_lmac;
+	u8		chans_per_bgx; /* Rx/Tx chans */
+	u16		cpi_cnt;
+	u16		rssi_cnt;
+	u16		rss_ind_tbl_size;
+	u16		tl4_cnt;
+	u16		tl3_cnt;
+	u8		tl2_cnt;
+	u8		tl1_cnt;
+	bool		tl1_per_bgx; /* TL1 per BGX or per LMAC */
+};
 
 struct nicvf {
 	struct eth_device	*netdev;
@@ -258,6 +246,7 @@ struct nicvf {
 	void			*addnl_qs;
 	uint16_t		vf_mtu;
 	uint64_t		reg_base;
+#define	MAX_QUEUES_PER_QSET			8
 	struct nicvf_cq_poll	*napi[8];
 
 	uint8_t			cpi_alg;
@@ -286,6 +275,7 @@ struct nicvf {
 
 struct nicpf {
 	struct eth_device	*netdev;
+	struct hw_info          *hw;
 #define NIC_NODE_ID_MASK	0x300000000000
 #define NIC_NODE_ID(x)		((x & NODE_ID_MASK) >> 44)
 	uint8_t			node;
@@ -293,6 +283,7 @@ struct nicpf {
 	uint16_t		total_vf_cnt;   /* Total num of VF supported */
 	uint16_t		num_vf_en;      /* No of VF enabled */
 	uint64_t		reg_base;       /* Register start address */
+	u16                     rss_ind_tbl_size;
 	u8			num_sqs_en;     /* Secondary qsets enabled */
 	u64			nicvf[MAX_NUM_VFS_SUPPORTED];
 	u8			vf_sqs[MAX_NUM_VFS_SUPPORTED][MAX_SQS_PER_VF];
@@ -306,7 +297,6 @@ struct nicpf {
 #define	NIC_GET_LMAC_FROM_VF_LMAC_MAP(map)	(map & 0xF)
 	uint8_t			vf_lmac_map[MAX_LMAC];
 	uint16_t		cpi_base[MAX_NUM_VFS_SUPPORTED];
-	uint16_t		rss_ind_tbl_size;
 	uint64_t		mac[MAX_NUM_VFS_SUPPORTED];
 	bool			mbx_lock[MAX_NUM_VFS_SUPPORTED];
 	uint8_t			link[MAX_LMAC];
