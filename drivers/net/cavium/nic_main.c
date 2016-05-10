@@ -413,8 +413,16 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
 
 static void nic_get_hw_info(struct nicpf *nic)
 {
-	u16 sdevid = PCI_SUBSYS_DEVID_88XX_NIC_PF;
+	u16 sdevid = 0;
 	struct hw_info *hw = nic->hw;
+
+#if defined(CONFIG_TARGET_THUNDERX_88XX)
+	sdevid = PCI_SUBSYS_DEVID_88XX_NIC_PF;
+#elif defined(CONFIG_TARGET_THUNDERX_81XX)
+	sdevid = PCI_SUBSYS_DEVID_81XX_NIC_PF;
+#elif defined(CONFIG_TARGET_THUNDERX_83XX)
+	sdevid = PCI_SUBSYS_DEVID_83XX_NIC_PF;
+#endif
 
 //	pci_read_config_word(nic->pdev, PCI_SUBSYSTEM_ID, &sdevid);
 
@@ -430,6 +438,33 @@ static void nic_get_hw_info(struct nicpf *nic)
 		hw->tl2_cnt = 64;
 		hw->tl1_cnt = 2;
 		hw->tl1_per_bgx = true;
+		break;
+	case PCI_SUBSYS_DEVID_81XX_NIC_PF:
+		hw->bgx_cnt = CONFIG_MAX_BGX_PER_NODE;
+		hw->chans_per_lmac = 8;
+		hw->chans_per_bgx = 32;
+		hw->chans_per_rgx = 8;
+		hw->chans_per_lbk = 24;
+		hw->cpi_cnt = 512;
+		hw->rssi_cnt = 256;
+		hw->rss_ind_tbl_size = 32; /* Max RSSI / Max interfaces */
+		hw->tl3_cnt = 64;
+		hw->tl2_cnt = 16;
+		hw->tl1_cnt = 10;
+		hw->tl1_per_bgx = false;
+		break;
+	case PCI_SUBSYS_DEVID_83XX_NIC_PF:
+		hw->bgx_cnt = CONFIG_MAX_BGX_PER_NODE;
+		hw->chans_per_lmac = 8;
+		hw->chans_per_bgx = 32;
+		hw->chans_per_lbk = 64;
+		hw->cpi_cnt = 2048;
+		hw->rssi_cnt = 1024;
+		hw->rss_ind_tbl_size = 64; /* Max RSSI / Max interfaces */
+		hw->tl3_cnt = 256;
+		hw->tl2_cnt = 64;
+		hw->tl1_cnt = 18;
+		hw->tl1_per_bgx = false;
 		break;
 	}
 	hw->tl4_cnt = MAX_QUEUES_PER_QSET * /*pci_sriov_get_totalvfs(nic->pdev)*/ 8;
@@ -597,20 +632,23 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
 	rr_quantum = ((NIC_HW_MAX_FRS + 24) / 4);
 
 	/* For 88xx 0-511 TL4 transmits via BGX0 and
-	* 512-1023 TL4s transmit via BGX1.
-	*/
-	tl4 = bgx * (hw->tl4_cnt / hw->bgx_cnt);
-
-	if (!sq->sqs_mode) {
-		tl4 += (lmac * MAX_QUEUES_PER_QSET);
-	} else {
-		for (svf = 0; svf < MAX_SQS_PER_VF; svf++) {
-			if (nic->vf_sqs[pqs_vnic][svf] == vnic)
-				break;
+	 * 512-1023 TL4s transmit via BGX1.
+	 */
+	if (hw->tl1_per_bgx) {
+		tl4 = bgx * (hw->tl4_cnt / hw->bgx_cnt);
+		if (!sq->sqs_mode) {
+			tl4 += (lmac * MAX_QUEUES_PER_QSET);
+		} else {
+			for (svf = 0; svf < MAX_SQS_PER_VF; svf++) {
+				if (nic->vf_sqs[pqs_vnic][svf] == vnic)
+					break;
+			}
+			tl4 += (MAX_LMAC_PER_BGX * MAX_QUEUES_PER_QSET);
+			tl4 += (lmac * MAX_QUEUES_PER_QSET * MAX_SQS_PER_VF);
+			tl4 += (svf * MAX_QUEUES_PER_QSET);
 		}
-		tl4 += (MAX_LMAC_PER_BGX * MAX_QUEUES_PER_QSET);
-		tl4 += (lmac * MAX_QUEUES_PER_QSET * MAX_SQS_PER_VF);
-		tl4 += (svf * MAX_QUEUES_PER_QSET);
+	} else {
+		tl4 = (vnic * MAX_QUEUES_PER_QSET);
 	}
 
 	tl4 += sq_idx;
@@ -626,9 +664,15 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
 
 	/* On 88xx 0-127 channels are for BGX0 and
 	 * 127-255 channels for BGX1.
+	 *
+	 * On 81xx/83xx TL3_CHAN reg should be configured with channel
+	 * within LMAC i.e 0-7 and not the actual channel number like on 88xx
 	 */
 	chan = (lmac * hw->chans_per_lmac) + (bgx * hw->chans_per_bgx);
-	nic_reg_write(nic, NIC_PF_TL3_0_255_CHAN | (tl3 << 3), chan);
+	if (hw->tl1_per_bgx)
+		nic_reg_write(nic, NIC_PF_TL3_0_255_CHAN | (tl3 << 3), chan);
+	else
+		nic_reg_write(nic, NIC_PF_TL3_0_255_CHAN | (tl3 << 3), 0);
 
 	/* Enable backpressure on the channel */
 	nic_reg_write(nic, NIC_PF_CHAN_0_255_TX_CFG | (chan << 3), 1);
@@ -638,6 +682,16 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
 	nic_reg_write(nic, NIC_PF_TL2_0_63_CFG | (tl2 << 3), rr_quantum);
 	/* No priorities as of now */
 	nic_reg_write(nic, NIC_PF_TL2_0_63_PRI | (tl2 << 3), 0x00);
+
+	/* Unlike 88xx where TL2s 0-31 transmits to TL1 '0' and rest to TL1 '1'
+	 * on 81xx/83xx TL2 needs to be configured to transmit to one of the
+	 * possible LMACs.
+	 *
+	 * This register doesn't exist on 88xx.
+	 */
+	if (!hw->tl1_per_bgx)
+		nic_reg_write(nic, NIC_PF_TL2_LMAC | (tl2 << 3),
+			      lmac + (bgx * MAX_LMAC_PER_BGX));
 }
 
 struct nicpf *nic_initialize(unsigned int node)

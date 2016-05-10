@@ -228,6 +228,8 @@ struct hw_info {
 	u8		bgx_cnt;
 	u8		chans_per_lmac;
 	u8		chans_per_bgx; /* Rx/Tx chans */
+	u8		chans_per_rgx;
+	u8		chans_per_lbk;
 	u16		cpi_cnt;
 	u16		rssi_cnt;
 	u16		rss_ind_tbl_size;
