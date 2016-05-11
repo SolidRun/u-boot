@@ -478,6 +478,9 @@ int nicvf_initialize(struct nicpf *nicpf, int vf_num, unsigned int node)
 
 	nic->rev_id = 3;
 
+	/* Enable TSO support */
+	nic->hw_tso = true;
+
 	/* MAP VF's configuration registers */
 	nic->reg_base = CSR_PA(node, NIC_VFX_BAR0(vf_num));
 	if (!nic->reg_base) {
