@@ -84,7 +84,7 @@ static void bgx_reg_write(struct bgx *bgx, uint8_t lmac,
 }
 
 static void bgx_reg_modify(struct bgx *bgx, uint8_t lmac,
-                           uint64_t offset, uint64_t val)
+			   uint64_t offset, uint64_t val)
 {
 	uint64_t addr = (uintptr_t)bgx->reg_base +
 				((uint32_t)lmac << 20) + offset;
@@ -108,6 +108,16 @@ static int bgx_poll_reg(struct bgx *bgx, uint8_t lmac,
 		timeout--;
 	}
 	return 1;
+}
+
+struct lmac *bgx_get_lmac(int node, int bgx_idx, int lmacid)
+{
+	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
+
+	if (bgx)
+		return &bgx->lmac[lmacid];
+
+	return NULL;
 }
 
 const u8 *bgx_get_lmac_mac(int node, int bgx_idx, int lmacid)
@@ -490,35 +500,58 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 	return 0;
 }
 
-static void bgx_poll_for_link(struct lmac *lmac)
+void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 {
 	u64 link;
+	int ret;
+	struct lmac *lmac = bgx_get_lmac(node, bgx_idx, lmacid);
 
-	/* Receive link is latching low. Force it high and verify it */
-	bgx_reg_modify(lmac->bgx, lmac->lmacid,
-		       BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
-	bgx_poll_reg(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1,
-		     SPU_STATUS1_RCV_LNK, false);
-
-	link = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1);
-	if (link & SPU_STATUS1_RCV_LNK) {
-		lmac->link_up = 1;
-		if (lmac->lmac_type == 4)
-			lmac->last_speed = 40000;
-		else
-			lmac->last_speed = 10000;
-		lmac->last_duplex = 1;
+	if (lmac->qlm_mode == QLM_MODE_SGMII){
+		ret = phy_startup(lmac->phydev);
+		if (ret) {
+			printf("%s: Could not initialize PHY %s\n",
+				lmac->netdev.name, lmac->phydev->dev->name);
+		}
 	} else {
-		lmac->link_up = 0;
-		lmac->last_speed = 0;
-		lmac->last_duplex = 0;
+		/* Receive link is latching low. Force it high and verify it */
+		bgx_reg_modify(lmac->bgx, lmac->lmacid,
+			       BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
+		bgx_poll_reg(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1,
+			     SPU_STATUS1_RCV_LNK, false);
+
+		link = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1);
+
+		debug("BGX%d LMAC%d BGX_SPUX_STATUS1: %lx\n",
+		      bgx_idx, lmacid,
+		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1));
+		debug("BGX%d LMAC%d BGX_SMUX_RX_CTL: %lx\n",
+		      bgx_idx, lmacid,
+		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_RX_CTL));
+		debug("BGX%d LMAC%d BGX_SMUX_TX_CTL: %lx\n",
+		      bgx_idx, lmacid,
+		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_TX_CTL));
+
+		if (link & SPU_STATUS1_RCV_LNK) {
+			lmac->link_up = 1;
+			if (lmac->lmac_type == 4)
+				lmac->last_speed = 40000;
+			else
+				lmac->last_speed = 10000;
+			lmac->last_duplex = 1;
+		} else {
+			lmac->link_up = 0;
+			lmac->last_speed = 0;
+			lmac->last_duplex = 0;
+		}
+
+		if (lmac->last_link != lmac->link_up) {
+			lmac->last_link = lmac->link_up;
+			if (lmac->link_up)
+				bgx_xaui_check_link(lmac);
+		}
 	}
 
-	if (lmac->last_link != lmac->link_up) {
-		lmac->last_link = lmac->link_up;
-		if (lmac->link_up)
-			bgx_xaui_check_link(lmac);
-	}
+	printf("LMAC %u link %s\n", lmacid,  (lmac->link_up) ? "up" : "down");
 }
 
 static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
@@ -566,15 +599,10 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 				lmac->netdev.name, lmac->phydev->dev->name);
 			return ret;
 		}
-
-		ret = phy_startup(lmac->phydev);
-		if (ret) {
-			printf("%s: Could not initialize PHY %s\n",
-				lmac->netdev.name, lmac->phydev->dev->name);
-			return ret;
-		}
 	} else {
-		bgx_poll_for_link(lmac);
+		/* bgx_poll_for_link(lmac); */
+		bgx_reg_modify(lmac->bgx, lmac->lmacid,
+			       BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
 	}
 
 	return 0;
@@ -696,11 +724,11 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 	struct lmac *lmac;
 	int lmacid;
 
-        /* Read LMACx type to figure out QLM mode
+	/* Read LMACx type to figure out QLM mode
 	 * This is configured by low level firmware
 	 */
 	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
-        	int lmac_type;
+		int lmac_type;
 		int train_en;
 		int index = (lmacid < 2) ? 1 : 3;
 
@@ -709,30 +737,30 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 		if (lmac->qlm == -1)
 			continue;
 
-        	lmac_type = bgx_reg_read(bgx, index, BGX_CMRX_CFG);
-        	lmac->lmac_type = (lmac_type >> 8) & 0x07;
+		lmac_type = bgx_reg_read(bgx, index, BGX_CMRX_CFG);
+		lmac->lmac_type = (lmac_type >> 8) & 0x07;
 		debug("bgx_get_qlm_mode:%d:%d: lmac_type = %d\n", bgx->bgx_id,
 				lmacid, lmac->lmac_type);
 
 		train_en = (readq(CSR_PA(0, GSERX_SCRATCH(lmac->qlm))) & 0xf);
 
-        	switch(lmac->lmac_type) {
-        	case 0:
-                	lmac->qlm_mode = QLM_MODE_SGMII;
+	switch(lmac->lmac_type) {
+		case 0:
+			lmac->qlm_mode = QLM_MODE_SGMII;
 			printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
-                	break;
-        	case 1:
-                	lmac->qlm_mode = QLM_MODE_XAUI;
+			break;
+		case 1:
+			lmac->qlm_mode = QLM_MODE_XAUI;
 			printf("BGX%d QLM%d LMAC%d mode: XAUI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
-                	break;
-        	case 2:
-                	lmac->qlm_mode = QLM_MODE_RXAUI;
+			break;
+		case 2:
+			lmac->qlm_mode = QLM_MODE_RXAUI;
 			printf("BGX%d QLM%d LMAC%d mode: RXAUI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
-                	break;
-        	case 3:
+			break;
+		case 3:
 			if (((lmacid < 2) && (train_en & (1 << lmacid)))
 			    || (train_en & (1 << (lmacid - 2)))) {
 				lmac->qlm_mode = QLM_MODE_10G_KR;
@@ -743,10 +771,10 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				printf("BGX%d QLM%d LMAC%d mode: XFI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
-                	break;
-        	case 4:
-			if (((lmacid < 2) && (train_en & (1 << lmacid)))
-			    || (train_en & (1 << (lmacid - 2)))) {
+			break;
+		case 4:
+			if (((lmacid < 2) && (train_en & (1 << lmacid))) ||
+			    (train_en & (1 << (lmacid - 2)))) {
 				lmac->qlm_mode = QLM_MODE_40G_KR4;
 				printf("BGX%d QLM%d LMAC%d mode: 40G_KR4\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
@@ -755,10 +783,10 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				printf("BGX%d QLM%d LMAC%d mode: XLAUI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
-                	break;
+		break;
 		default:
 			break;
-        	}
+		}
 	}
 }
 

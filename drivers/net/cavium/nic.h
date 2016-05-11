@@ -499,6 +499,7 @@ void nicvf_update_stats(struct nicvf *nic);
 
 void nic_handle_mbx_intr(struct nicpf *nic, int vf);
 
+void bgx_poll_for_link(int node, int bgx_idx, int lmacid);
 const u8 *bgx_get_lmac_mac(int node, int bgx_idx, int lmacid);
 void bgx_set_lmac_mac(int node, int bgx_idx, int lmacid, const u8 *mac);
 void bgx_lmac_rx_tx_enable(int node, int bgx_idx, int lmacid, bool enable);

@@ -90,6 +90,7 @@ static void nic_mbx_send_ready(struct nicpf *nic, int vf)
 	union nic_mbx mbx = {};
 	int bgx_idx, lmac;
 	const u8 *mac;
+	struct lmac *lmac_dev;
 
 	mbx.nic_cfg.msg = NIC_MBOX_MSG_READY;
 	mbx.nic_cfg.vf_id = vf;
@@ -106,6 +107,8 @@ static void nic_mbx_send_ready(struct nicpf *nic, int vf)
 		mac = bgx_get_lmac_mac(nic->node, bgx_idx, lmac);
 		if (mac)
 			memcpy((u8 *)&mbx.nic_cfg.mac_addr, mac, 6);
+
+		bgx_poll_for_link(nic->node, bgx_idx, lmac);
 	}
 #ifdef VNIC_MULTI_QSET_SUPPORT
 	mbx.nic_cfg.sqs_mode = (vf >= nic->num_vf_en) ? true : false;
