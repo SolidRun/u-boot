@@ -502,7 +502,6 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 
 void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 {
-	u64 link;
 	int ret;
 	struct lmac *lmac = bgx_get_lmac(node, bgx_idx, lmacid);
 
@@ -528,7 +527,12 @@ void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 				lmac->netdev.name, lmac->phydev->dev->name);
 		}
 	} else {
-		link = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1);
+		u64 status1;
+		u64 tx_ctl;
+		u64 rx_ctl;
+		status1 = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1);
+		tx_ctl = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_TX_CTL);
+		rx_ctl = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_RX_CTL);
 
 		debug("BGX%d LMAC%d BGX_SPUX_STATUS1: %lx\n",
 		      bgx_idx, lmacid,
@@ -540,7 +544,9 @@ void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 		      bgx_idx, lmacid,
 		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_TX_CTL));
 
-		if (link & SPU_STATUS1_RCV_LNK) {
+		if ((status1 & SPU_STATUS1_RCV_LNK) &&
+		    ((tx_ctl & SMU_TX_CTL_LNK_STATUS) == 0) &&
+		    ((rx_ctl & SMU_RX_CTL_STATUS) == 0)) {
 			lmac->link_up = 1;
 			if (lmac->lmac_type == 4)
 				lmac->last_speed = 40000;
