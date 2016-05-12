@@ -736,10 +736,10 @@ struct nicpf *nic_initialize(unsigned int node)
 	/* By default set NIC in TNS bypass mode */
 	nic->flags &= ~NIC_TNS_ENABLED;
 
-	nic_set_lmac_vf_mapping(nic);
-
 	/* Initialize hardware */
 	nic_init_hw(nic);
+
+	nic_set_lmac_vf_mapping(nic);
 
 	/* Set RSS TBL size for each VF */
 	nic->rss_ind_tbl_size = NIC_MAX_RSS_IDR_TBL_SIZE;
