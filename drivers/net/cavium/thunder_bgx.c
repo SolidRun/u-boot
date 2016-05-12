@@ -743,7 +743,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
 		int lmac_type;
 		int train_en;
-		int index = (lmacid < 2) ? 1 : 3;
+		int index = (lmacid < 2) ? 0 : 2;
 
 		lmac = &bgx->lmac[lmacid];
 
