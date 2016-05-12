@@ -37,13 +37,13 @@ struct lmac {
 	int			lmacid_bd; /* ID on board */
 	struct eth_device	netdev;
 	struct mii_dev		*mii_bus;
-	struct phy_device       *phydev;
-	unsigned int            last_duplex;
-	unsigned int            last_link;
-	unsigned int            last_speed;
-	int                     lane_to_sds;
+	struct phy_device	*phydev;
+	unsigned int		last_duplex;
+	unsigned int		last_link;
+	unsigned int		last_speed;
+	int			lane_to_sds;
 	int			use_training;
-	int                     lmac_type;
+	int			lmac_type;
 	u8			qlm_mode;
 	int			qlm;
 };
@@ -89,7 +89,7 @@ static void bgx_reg_modify(struct bgx *bgx, uint8_t lmac,
 	uint64_t addr = (uintptr_t)bgx->reg_base +
 				((uint32_t)lmac << 20) + offset;
 
-        writeq(val | bgx_reg_read(bgx, lmac, offset), (void *)addr);
+	writeq(val | bgx_reg_read(bgx, lmac, offset), (void *)addr);
 }
 
 static int bgx_poll_reg(struct bgx *bgx, uint8_t lmac,
@@ -506,8 +506,23 @@ void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 	int ret;
 	struct lmac *lmac = bgx_get_lmac(node, bgx_idx, lmacid);
 
+	if (lmac == NULL) {
+		printf("LMAC %d/%d/%d is disabled or doesn't exist\n",
+		       node, bgx_idx, lmacid);
+		return;
+	}
+
+	debug("%s: %d, lmac: %p\n", __FILE__, __LINE__, lmac);
+
 	if (lmac->qlm_mode == QLM_MODE_SGMII){
+		debug("%s: %d, phydev: %p\n", __FILE__, __LINE__, lmac->phydev);
+		if (!lmac->phydev) {
+			printf("%s: No PHY device\n",
+				lmac->netdev.name);
+			return;
+		}
 		ret = phy_startup(lmac->phydev);
+		debug("%s: %d\n", __FILE__, __LINE__);
 		if (ret) {
 			printf("%s: Could not initialize PHY %s\n",
 				lmac->netdev.name, lmac->phydev->dev->name);
@@ -563,11 +578,13 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 	lmac = &bgx->lmac[lmacid];
 	lmac->bgx = bgx;
 
-	debug("bgx_lmac_enable: lmac: %p, lmacid = %d", lmac, lmacid);
+	debug("bgx_lmac_enable: lmac: %p, lmacid = %d\n", lmac, lmacid);
 
 	if (lmac->qlm_mode == QLM_MODE_SGMII) {
-		if (bgx_lmac_sgmii_init(bgx, lmacid))
+		if (bgx_lmac_sgmii_init(bgx, lmacid)) {
+			debug("bgx_lmac_sgmii_init failed\n");
 			return -1;
+		}
 		cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND);
 		cfg |= ((1ull << 2) | (1ull << 1)); /* FCS and PAD */
 		bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND, cfg);
@@ -600,7 +617,6 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 			return ret;
 		}
 	} else {
-		/* bgx_poll_for_link(lmac); */
 		bgx_reg_modify(lmac->bgx, lmac->lmacid,
 			       BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
 	}
@@ -845,7 +861,6 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 		if (err) {
 			printf("BGX%d failed to enable lmac%d\n",
 				bgx->bgx_id, lmac);
-			goto error;
 		}
 	}
 
