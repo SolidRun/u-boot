@@ -528,12 +528,6 @@ void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 				lmac->netdev.name, lmac->phydev->dev->name);
 		}
 	} else {
-		/* Receive link is latching low. Force it high and verify it */
-		bgx_reg_modify(lmac->bgx, lmac->lmacid,
-			       BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
-		bgx_poll_reg(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1,
-			     SPU_STATUS1_RCV_LNK, false);
-
 		link = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1);
 
 		debug("BGX%d LMAC%d BGX_SPUX_STATUS1: %lx\n",
@@ -616,9 +610,6 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 				lmac->netdev.name, lmac->phydev->dev->name);
 			return ret;
 		}
-	} else {
-		bgx_reg_modify(lmac->bgx, lmac->lmacid,
-			       BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
 	}
 
 	return 0;
