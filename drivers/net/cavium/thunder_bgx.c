@@ -34,7 +34,7 @@ struct lmac {
 	u8			mac[6];
 	bool			link_up;
 	int			lmacid; /* ID within BGX */
-	int			lmacid_bd; /* ID on board */
+	int			phy_addr; /* ID on board */
 	struct eth_device	netdev;
 	struct mii_dev		*mii_bus;
 	struct phy_device	*phydev;
@@ -604,7 +604,7 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 
 	
 	if (lmac->qlm_mode == QLM_MODE_SGMII) {
-		lmac->phydev = phy_connect(lmac->mii_bus, lmac->lmacid_bd,
+		lmac->phydev = phy_connect(lmac->mii_bus, lmac->phy_addr,
 					   &lmac->netdev, PHY_INTERFACE_MODE_SGMII);
 
 		if (!lmac->phydev)
@@ -846,6 +846,7 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
 		if (bgx->lmac[lmac].qlm_mode == QLM_MODE_SGMII) {
 			bgx->lmac[lmac].mii_bus = miiphy_get_dev_by_name(mii_name);
+			bgx->lmac[lmac].phy_addr = bgx_board_info[bgx_idx].phy_addr[lmac];
 			debug("bgx->lmac[lmac].mii_bus: %p\n", bgx->lmac[lmac].mii_bus);
 			if (!bgx->lmac[lmac].mii_bus) {
 				printf("MDIO device %s not found\n", mii_name);
