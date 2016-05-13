@@ -420,12 +420,12 @@ int __rx_equalization(int qlm, int lane)
 	   This ensures the rx data is valid */
 	if (lane == -1) {
 		if (gser_poll_reg(GSER_RX_EIE_DETSTS(qlm), GSER_CDRLOCK, 0xf, (1 << max_lanes) - 1, 100)) {
-			printf("ERROR: DLM%d: CDR Lock not detected for 2 lanes\n", qlm);
+			debug("ERROR: DLM%d: CDR Lock not detected for 2 lanes\n", qlm);
 			return -1;
 		}
 	} else {
 		if (gser_poll_reg(GSER_RX_EIE_DETSTS(qlm), GSER_CDRLOCK, (0xf & (1 << lane)), (1 << lane), 100)) {
-			printf("ERROR: DLM%d: CDR Lock not detected on %d lane\n", qlm, lane);
+			debug("ERROR: DLM%d: CDR Lock not detected on %d lane\n", qlm, lane);
 			return -1;
 		}
 	}
@@ -464,9 +464,10 @@ int __rx_equalization(int qlm, int lane)
 		writeq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)), rctl);
 
 		if (reer & GSER_BR_RXX_EER_RXT_ESV) {
-			printf("Rx equalization completed on DLM%d lane%d\n", qlm, l);
+			debug("Rx equalization completed on DLM%d lane%d, rxt_esm = 0x%llx\n",
+				qlm, l, (reer & 0x3fff));
 		} else {
-			printf("Rx equalization timedout on DLM%d lane%d\n", qlm, l);
+			debug("Rx equalization timedout on DLM%d lane%d\n", qlm, l);
 			fail = 1;
 		}
 	}
