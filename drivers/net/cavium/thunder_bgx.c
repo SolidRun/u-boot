@@ -58,14 +58,9 @@ struct bgx {
 
 struct bgx_board_info bgx_board_info[CONFIG_MAX_BGX];
 
-#define GSERX_CFG(x)		(0x000087E090000080ull + (x) * 0x1000000ull)
-#define GSERX_SCRATCH(x)	(0x000087E090000020ull + (x) * 0x1000000ull)
-#define GSERX_PHY_CTL(x)	(0x000087E090000000ull + (x) * 0x1000000ull)
-#define GSERX_CFG_BGX		(1 << 2)
-
 struct bgx *bgx_vnic[CONFIG_MAX_BGX];
 
-/* Register read/write APIs */
+/* APIs to read/write BGXX CSRs */
 static uint64_t bgx_reg_read(struct bgx *bgx, uint8_t lmac, uint64_t offset)
 {
 	uint64_t addr = (uintptr_t)bgx->reg_base +
@@ -103,6 +98,19 @@ static int bgx_poll_reg(struct bgx *bgx, uint8_t lmac,
 		if (zero && !(reg_val & mask))
 			return 0;
 		if (!zero && (reg_val & mask))
+			return 0;
+		mdelay(1);
+		timeout--;
+	}
+	return 1;
+}
+
+static int gser_poll_reg(uint64_t reg, int bit, uint64_t mask, uint64_t expected_val, int timeout)
+{
+	uint64_t reg_val;
+	while (timeout) {
+		reg_val = readq(CSR_PA(0, reg)) >> bit;
+		if ((reg_val & mask) == (expected_val))
 			return 0;
 		mdelay(1);
 		timeout--;
@@ -402,6 +410,70 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 	return 0;
 }
 
+int __rx_equalization(int qlm, int lane)
+{
+	int max_lanes = 2;
+	int l;
+	int fail = 0;
+
+	/* Before completing Rx equalization wait for GSERx_RX_EIE_DETSTS[CDRLOCK] to be set
+	   This ensures the rx data is valid */
+	if (lane == -1) {
+		if (gser_poll_reg(GSER_RX_EIE_DETSTS(qlm), GSER_CDRLOCK, 0xf, (1 << max_lanes) - 1, 100)) {
+			printf("ERROR: DLM%d: CDR Lock not detected for 2 lanes\n", qlm);
+			return -1;
+		}
+	} else {
+		if (gser_poll_reg(GSER_RX_EIE_DETSTS(qlm), GSER_CDRLOCK, (0xf & (1 << lane)), (1 << lane), 100)) {
+			printf("ERROR: DLM%d: CDR Lock not detected on %d lane\n", qlm, lane);
+			return -1;
+		}
+	}
+
+	for (l = 0; l < max_lanes; l++) {
+		uint64_t rctl, reer;
+
+		if ((lane != -1) && (lane != l))
+			continue;
+
+		/* Enable software control */
+		rctl = readq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)));
+		rctl |= GSER_BR_RXX_CTL_RXT_SWM;
+		writeq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)), rctl);
+
+		/* Clear the completion flag and initiate a new request */
+		reer = readq(CSR_PA(0, GSER_BR_RXX_EER(qlm, l)));
+		reer &= ~GSER_BR_RXX_EER_RXT_ESV;
+		reer |= GSER_BR_RXX_EER_RXT_EER;
+		writeq(CSR_PA(0, GSER_BR_RXX_EER(qlm, l)), reer);
+	}
+
+	/* Wait for RX equalization to complete */
+	for (l = 0; l < max_lanes; l++) {
+		uint64_t rctl, reer;
+
+		if ((lane != -1) && (lane != l))
+			continue;
+
+		gser_poll_reg(GSER_BR_RXX_CTL(qlm, l), EER_RXT_ESV, 1, 1, 200);
+		reer = readq(CSR_PA(0, GSER_BR_RXX_EER(qlm, l)));
+
+		/* Switch back to hardware control */
+		rctl = readq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)));
+		rctl &= ~GSER_BR_RXX_CTL_RXT_SWM;
+		writeq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)), rctl);
+
+		if (reer & GSER_BR_RXX_EER_RXT_ESV) {
+			printf("Rx equalization completed on DLM%d lane%d\n", qlm, l);
+		} else {
+			printf("Rx equalization timedout on DLM%d lane%d\n", qlm, l);
+			fail = 1;
+		}
+	}
+
+	return (fail) ? -1 : 0;
+}
+
 static int bgx_xaui_check_link(struct lmac *lmac)
 {
 	struct bgx *bgx = lmac->bgx;
@@ -419,6 +491,39 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 			cfg |= (1ull << 0);
 			bgx_reg_write(bgx, lmacid, BGX_SPUX_BR_PMD_CRTL, cfg);
 			return -1;
+		}
+	}
+
+	/* Perform RX Equalization. Applies to non-KR interfaces for speeds 
+	   >= 6.25Gbps. */ 
+	if (!lmac->use_training) {
+		int index;
+		switch (lmac->lmac_type) {
+		default:
+		case 0: // SGMII
+		case 1: // XAUI
+			/* Nothing to do */
+			break;
+		case 4: // XLAUI
+			if (__rx_equalization(lmac->qlm, -1) ||
+				__rx_equalization(lmac->qlm+1, -1))
+				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d/DLM%d\n",
+					bgx->bgx_id, lmacid, lmac->qlm, lmac->qlm+1);
+			break;
+		case 2: // RXAUI
+			if (lmacid > 1)
+				index = lmacid - 2;
+			else
+				index = lmacid;
+			if (__rx_equalization(lmac->qlm, index))
+				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d\n",
+					bgx->bgx_id, index, lmac->qlm);
+			break;
+		case 3: // XFI
+			if (__rx_equalization(lmac->qlm, lmacid))
+				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d\n",
+					bgx->bgx_id, lmacid, lmac->qlm);
+			break;
 		}
 	}
 

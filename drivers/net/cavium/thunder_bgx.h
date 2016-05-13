@@ -23,6 +23,19 @@
 #define    NODE_ID(x)				((x & NODE_ID_MASK) >> 44)
 
 /* Registers */
+#define GSERX_CFG(x)		(0x000087E090000080ull + (x) * 0x1000000ull)
+#define GSERX_SCRATCH(x)	(0x000087E090000020ull + (x) * 0x1000000ull)
+#define GSERX_PHY_CTL(x)	(0x000087E090000000ull + (x) * 0x1000000ull)
+#define GSERX_CFG_BGX		(1 << 2)
+#define GSER_RX_EIE_DETSTS(x)	(0x000087e090000150ull + (x) * 0x1000000ull)
+#define GSER_CDRLOCK		(8)
+#define GSER_BR_RXX_CTL(x,y)	(0x000087e090000400ull + (x) * 0x1000000ull + (y) * 0x80) 
+#define GSER_BR_RXX_CTL_RXT_SWM	(1 << 2)
+#define GSER_BR_RXX_EER(x,y)	(0x000087e090000418ull + (x) * 0x1000000ull + (y) * 0x80)
+#define GSER_BR_RXX_EER_RXT_ESV (1 << 14)
+#define GSER_BR_RXX_EER_RXT_EER (1 << 15)
+#define EER_RXT_ESV		(14)
+
 #define BGX_CMRX_CFG			0x00
 #define CMR_PKT_TX_EN				(1ull << 13)
 #define CMR_PKT_RX_EN				(1ull << 14)
