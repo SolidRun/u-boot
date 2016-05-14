@@ -18,6 +18,8 @@
 
 #define MAX_LMAC_PER_BGX 4
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static const void *get_prop_value(void *fdt, const char *prop_name, int *len)
 {
 	int depth = 0, node;
@@ -69,17 +71,15 @@ void thunderx_parse_bdk_config(void)
 {
 	char boardname[32];
 	const char *str;
-	void *fdt = (void *)CONFIG_BDK_FDT_START;
 	int ret = 0, len = 32;
 
-	atf_get_bdk_fdt(fdt, CONFIG_BDK_FDT_SIZE);
-	if (fdt != NULL) {
-		ret = fdt_check_header(fdt);
+	if (gd->fdt_blob != NULL) {
+		ret = fdt_check_header(gd->fdt_blob);
 		if (ret < 0) {
 			printf("fdt: %s\n", fdt_strerror(ret));
 		} else {
-			debug("fdt:size %d\n", fdt_totalsize(fdt));
-			str = get_prop_value(fdt, "BOARD-MODEL", &len);
+			debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
+			str = get_prop_value(gd->fdt_blob, "BOARD-MODEL", &len);
 			debug("fdt: str %s len %d\n", str, len);
 			if (str) {
 				strncpy(boardname, str, len);
@@ -87,7 +87,7 @@ void thunderx_parse_bdk_config(void)
 			} else {
 				printf("Err: cannot retrieve board type from fdt\n");
 			}
-			thunderx_parse_phy_address(fdt);
+			thunderx_parse_phy_address(gd->fdt_blob);
 		}
 	}
 
