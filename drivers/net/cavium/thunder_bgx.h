@@ -109,6 +109,9 @@
 #define BGX_SPUX_AN_CONTROL		0x100C8
 #define SPU_AN_CTL_AN_EN			(1ull << 12)
 #define SPU_AN_CTL_XNP_EN			(1ull << 13)
+#define SPU_AN_CTL_AN_RESTART			(1ull << 15)
+#define BGX_SPUX_AN_STATUS		0x100D0
+#define SPU_AN_STS_AN_COMPLETE			(1ull << 5)
 #define BGX_SPUX_AN_ADV			0x100D8
 #define BGX_SPUX_MISC_CONTROL		0x10218
 #define SPU_MISC_CTL_INTLV_RDISP		(1ull << 10)

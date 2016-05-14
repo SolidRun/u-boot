@@ -88,7 +88,7 @@ static void nic_send_msg_to_vf(struct nicpf *nic, int vf, union nic_mbx *mbx)
 static void nic_mbx_send_ready(struct nicpf *nic, int vf)
 {
 	union nic_mbx mbx = {};
-	int bgx_idx, lmac;
+	int bgx_idx, lmac, timeout = 5, link = -1;
 	const u8 *mac;
 	struct lmac *lmac_dev;
 
@@ -108,7 +108,12 @@ static void nic_mbx_send_ready(struct nicpf *nic, int vf)
 		if (mac)
 			memcpy((u8 *)&mbx.nic_cfg.mac_addr, mac, 6);
 
-		bgx_poll_for_link(nic->node, bgx_idx, lmac);
+		while (timeout-- && (link <= 0)){
+			link = bgx_poll_for_link(nic->node, bgx_idx, lmac);
+			debug("Link status: %d\n", link);
+			if (link <= 0)
+				mdelay(2000);
+		}
 	}
 #ifdef VNIC_MULTI_QSET_SUPPORT
 	mbx.nic_cfg.sqs_mode = (vf >= nic->num_vf_en) ? true : false;

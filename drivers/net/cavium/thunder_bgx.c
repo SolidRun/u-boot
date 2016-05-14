@@ -483,11 +483,29 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 	u64 cfg;
 
 	bgx_reg_modify(bgx, lmacid, BGX_SPUX_MISC_CONTROL, SPU_MISC_CTL_RX_DIS);
+
+	/* check if auto negotiation is complete */
+	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_CONTROL);
+	if (cfg & SPU_AN_CTL_AN_EN) {
+		cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_STATUS);
+		if (!(cfg & SPU_AN_STS_AN_COMPLETE)) {
+			/* Restart autonegotiation */
+			debug("restarting auto-neg\n");
+			bgx_reg_modify(bgx, lmacid, BGX_SPUX_AN_CONTROL, SPU_AN_CTL_AN_RESTART);
+			return -1;
+		}
+	}
+			
 	if (lmac->use_training) {
 		cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_INT);
 		if (!(cfg & (1ull << 13))) {
+			debug("waiting for link training\n");
+			/* Clear the training interrupts (W1C) */
 			cfg = (1ull << 13) | (1ull << 14);
 			bgx_reg_write(bgx, lmacid, BGX_SPUX_INT, cfg);
+
+			udelay(2000);
+			/* Restart training */
 			cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_BR_PMD_CRTL);
 			cfg |= (1ull << 0);
 			bgx_reg_write(bgx, lmacid, BGX_SPUX_BR_PMD_CRTL, cfg);
@@ -607,7 +625,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 	return 0;
 }
 
-void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 {
 	int ret;
 	struct lmac *lmac = bgx_get_lmac(node, bgx_idx, lmacid);
@@ -615,17 +633,19 @@ void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 	if (lmac == NULL) {
 		printf("LMAC %d/%d/%d is disabled or doesn't exist\n",
 		       node, bgx_idx, lmacid);
-		return;
+		return 0;
 	}
 
-	debug("%s: %d, lmac: %p\n", __FILE__, __LINE__, lmac);
+	debug("%s: %d, lmac: %d/%d/%d %p\n",
+	      __FILE__, __LINE__,
+	      node, bgx_idx, lmacid, lmac);
 
 	if (lmac->qlm_mode == QLM_MODE_SGMII){
 		debug("%s: %d, phydev: %p\n", __FILE__, __LINE__, lmac->phydev);
 		if (!lmac->phydev) {
 			printf("%s: No PHY device\n",
 				lmac->netdev.name);
-			return;
+			return 0;
 		}
 		ret = phy_startup(lmac->phydev);
 		debug("%s: %d\n", __FILE__, __LINE__);
@@ -641,6 +661,9 @@ void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 		tx_ctl = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_TX_CTL);
 		rx_ctl = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_RX_CTL);
 
+		debug("BGX%d LMAC%d BGX_SPUX_STATUS2: %lx\n",
+		      bgx_idx, lmacid,
+		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS2));
 		debug("BGX%d LMAC%d BGX_SPUX_STATUS1: %lx\n",
 		      bgx_idx, lmacid,
 		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1));
@@ -664,23 +687,28 @@ void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 			lmac->link_up = 0;
 			lmac->last_speed = 0;
 			lmac->last_duplex = 0;
+			return bgx_xaui_check_link(lmac);
 		}
 
-		if (lmac->last_link != lmac->link_up) {
-			lmac->last_link = lmac->link_up;
-			if (lmac->link_up)
-				bgx_xaui_check_link(lmac);
-		}
+		lmac->last_link = lmac->link_up;
 	}
 
 	printf("LMAC %u link %s\n", lmacid,  (lmac->link_up) ? "up" : "down");
+
+	return lmac->link_up;
 }
+
 
 static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 {
 	struct lmac *lmac;
 	uint64_t cfg;
 	int ret;
+	static const phy_interface_t if_mode[] = {
+		[QLM_MODE_SGMII] = PHY_INTERFACE_MODE_SGMII,
+		[QLM_MODE_XAUI]  = PHY_INTERFACE_MODE_XAUI,
+		[QLM_MODE_RXAUI] = PHY_INTERFACE_MODE_RXAUI,
+	};
 
 	lmac = &bgx->lmac[lmacid];
 	lmac->bgx = bgx;
@@ -710,9 +738,12 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 		       CMR_EN | CMR_PKT_RX_EN | CMR_PKT_TX_EN);
 
 	
-	if (lmac->qlm_mode == QLM_MODE_SGMII) {
+	if ((lmac->qlm_mode == QLM_MODE_SGMII) ||
+	    (lmac->qlm_mode == QLM_MODE_RXAUI) ||
+	    (lmac->qlm_mode == QLM_MODE_XAUI)) {
 		lmac->phydev = phy_connect(lmac->mii_bus, lmac->phy_addr,
-					   &lmac->netdev, PHY_INTERFACE_MODE_SGMII);
+					   &lmac->netdev,
+					   if_mode[lmac->qlm_mode]);
 
 		if (!lmac->phydev)
 			return -1;
@@ -942,7 +973,7 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 	bgx_get_qlm_mode(bgx);
 	debug("bgx_vnic[%u]: %p\n", bgx->bgx_id, bgx);
 
-	snprintf(mii_name, sizeof(mii_name), "thunderx%d",
+	snprintf(mii_name, sizeof(mii_name), "txsmi%d",
 		 bgx_board_info[bgx_idx].mdio_bus);
 
 	debug("mii_name: %s\n", mii_name);
@@ -951,7 +982,9 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 
 	/* Enable all LMACs */
 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
-		if (bgx->lmac[lmac].qlm_mode == QLM_MODE_SGMII) {
+		if (bgx->lmac[lmac].qlm_mode == QLM_MODE_SGMII ||
+		    bgx->lmac[lmac].qlm_mode == QLM_MODE_RXAUI ||
+		    bgx->lmac[lmac].qlm_mode == QLM_MODE_XAUI) {
 			bgx->lmac[lmac].mii_bus = miiphy_get_dev_by_name(mii_name);
 			bgx->lmac[lmac].phy_addr = bgx_board_info[bgx_idx].phy_addr[lmac];
 			debug("bgx->lmac[lmac].mii_bus: %p\n", bgx->lmac[lmac].mii_bus);
