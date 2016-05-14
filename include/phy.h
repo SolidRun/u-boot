@@ -90,6 +90,7 @@ static const char *phy_interface_strings[] = {
 	[PHY_INTERFACE_MODE_XAUI]		= "xaui",
 	[PHY_INTERFACE_MODE_RXAUI]		= "rxaui",
 	[PHY_INTERFACE_MODE_SFI]		= "sfi",
+	[PHY_INTERFACE_MODE_XLAUI]		= "xlaui",
 	[PHY_INTERFACE_MODE_NONE]		= "",
 };
 
@@ -294,7 +295,10 @@ extern struct phy_driver gen10g_driver;
 /* For now, XGMII is the only 10G interface */
 static inline int is_10g_interface(phy_interface_t interface)
 {
-	return interface == PHY_INTERFACE_MODE_XGMII;
+	return (interface == PHY_INTERFACE_MODE_XGMII) ||
+	       (interface == PHY_INTERFACE_MODE_XAUI)  ||
+	       (interface == PHY_INTERFACE_MODE_XLAUI) ||
+	       (interface == PHY_INTERFACE_MODE_RXAUI);
 }
 
 #endif
