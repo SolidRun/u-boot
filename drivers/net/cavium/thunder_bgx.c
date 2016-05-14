@@ -653,6 +653,10 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 			printf("%s: Could not initialize PHY %s\n",
 				lmac->netdev.name, lmac->phydev->dev->name);
 		}
+
+		lmac->link_up = lmac->phydev->link;
+		lmac->last_speed = lmac->phydev->speed;
+		lmac->last_duplex = lmac->phydev->duplex;
 	} else {
 		u64 status1;
 		u64 tx_ctl;
