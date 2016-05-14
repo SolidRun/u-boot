@@ -383,6 +383,7 @@ int dm_pciauto_config_device(struct udevice *dev)
 	default:
 		dm_pciauto_setup_device(dev, 6, pci_mem, pci_prefetch, pci_io,
 					enum_only);
+		device_probe(dev);
 		break;
 	}
 
