@@ -838,7 +838,7 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac->lmac_type = 4;
 			lmac->lane_to_sds = 0xE4;
 			lmac->use_training = 1;
-			lmac_count = 4;
+			lmac_count = 1;
 			break;
 		default:
 			lmac_count++;
