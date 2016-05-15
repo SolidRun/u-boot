@@ -240,34 +240,17 @@ void bgx_lmac_internal_loopback(int node, int bgx_idx,
 static int get_qlm_for_bgx(int node, int bgx_id, int index)
 {
 	int qlm = (bgx_id) ? 2 : 0;
-	uint64_t cfg1, cfg2;
+	uint64_t cfg;
 
-	cfg1 = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
-	cfg2 = readq(CSR_PA(node, GSERX_CFG(qlm+1))) & GSERX_CFG_BGX;
-	debug("get_qlm_for_bgx:qlm%d: cfg1 = %lld, cfg2 = %lld\n", qlm, cfg1, cfg2);
+	qlm += (index >= 2) ? 1 : 0;
+	cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
+	debug("get_qlm_for_bgx:qlm%d: cfg = %lld\n", qlm, cfg);
 
-	/* Check if both DLMs are configured as BGX# */
-	if (cfg2) {
-		if (cfg1) {
-			if (readq(CSR_PA(node, GSERX_PHY_CTL(qlm)))
-			    && readq(CSR_PA(node, GSERX_PHY_CTL(qlm+1))))
-				return -1;
-			if (index >= 2)
-				return qlm+1;
-			else
-				return qlm;
-		} else { /* Only 2nd DLM is used */
-			if (readq(CSR_PA(node, GSERX_PHY_CTL(qlm + 1))))
-				return -1;
-			return qlm + 1;
-		}
-	} else if (cfg1) {
+	/* Check if DLM is configured as BGX# */
+	if (cfg) {
 		if (readq(CSR_PA(node, GSERX_PHY_CTL(qlm))))
 			return -1;
-		if (index < 2)
-			return qlm;
-		else
-			return -1;
+		return qlm;
 	}
 	return -1;
 }
