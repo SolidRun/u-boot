@@ -152,6 +152,7 @@
 #define BGX_GMP_PCS_ANX_AN_RESULTS	0x30020
 #define BGX_GMP_PCS_SGM_AN_ADV		0x30068
 #define BGX_GMP_PCS_MISCX_CTL		0x30078
+#define PCS_MISCX_CTL_DISP_EN			(1ull << 13)
 #define PCS_MISC_CTL_GMX_ENO			(1ull << 11)
 #define PCS_MISC_CTL_SAMP_PT_MASK		0x7Full
 #define BGX_GMP_GMI_PRTX_CFG		0x38020
@@ -218,6 +219,7 @@ enum qlm_mode {
 	QLM_MODE_XLAUI,     /* 1 XLAUI, 4 lanes each */
 	QLM_MODE_10G_KR,    /* 4 10GBASE-KR, 1 lane each */
 	QLM_MODE_40G_KR4,   /* 1 40GBASE-KR4, 4 lanes each */
+	QLM_MODE_QSGMII,    /* 4 QSGMII, each lane independent */
 };
 
 struct bgx_board_info {

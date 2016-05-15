@@ -285,6 +285,12 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 	cfg |= (PCS_MRX_CTL_RST_AN | PCS_MRX_CTL_AN_EN);
 	bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MRX_CTL, cfg);
 
+	/* Disable disparity for QSGMII mode, to prevent propogation across
+	   ports. */
+	cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL);
+	cfg &= ~PCS_MISCX_CTL_DISP_EN;
+	bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL, cfg);
+
 	if (bgx_poll_reg(bgx, lmacid, BGX_GMP_PCS_MRX_STATUS,
 			 PCS_MRX_STATUS_AN_CPT, false)) {
 		printf("BGX AN_CPT not completed\n");
@@ -623,7 +629,8 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 	      __FILE__, __LINE__,
 	      node, bgx_idx, lmacid, lmac);
 
-	if (lmac->qlm_mode == QLM_MODE_SGMII){
+	if (lmac->qlm_mode == QLM_MODE_SGMII ||
+	    lmac->qlm_mode == QLM_MODE_QSGMII){
 		debug("%s: %d, phydev: %p\n", __FILE__, __LINE__, lmac->phydev);
 		if (!lmac->phydev) {
 			printf("%s: No PHY device\n",
@@ -692,9 +699,10 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 	uint64_t cfg;
 	int ret;
 	static const phy_interface_t if_mode[] = {
-		[QLM_MODE_SGMII] = PHY_INTERFACE_MODE_SGMII,
-		[QLM_MODE_XAUI]  = PHY_INTERFACE_MODE_XAUI,
-		[QLM_MODE_RXAUI] = PHY_INTERFACE_MODE_RXAUI,
+		[QLM_MODE_SGMII]  = PHY_INTERFACE_MODE_SGMII,
+		[QLM_MODE_QSGMII] = PHY_INTERFACE_MODE_SGMII,
+		[QLM_MODE_XAUI]   = PHY_INTERFACE_MODE_XAUI,
+		[QLM_MODE_RXAUI]  = PHY_INTERFACE_MODE_RXAUI,
 	};
 
 	lmac = &bgx->lmac[lmacid];
@@ -702,7 +710,8 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 
 	debug("bgx_lmac_enable: lmac: %p, lmacid = %d\n", lmac, lmacid);
 
-	if (lmac->qlm_mode == QLM_MODE_SGMII) {
+	if (lmac->qlm_mode == QLM_MODE_SGMII ||
+	    lmac->qlm_mode == QLM_MODE_QSGMII) {
 		if (bgx_lmac_sgmii_init(bgx, lmacid)) {
 			debug("bgx_lmac_sgmii_init failed\n");
 			return -1;
@@ -726,6 +735,7 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 
 	
 	if ((lmac->qlm_mode == QLM_MODE_SGMII) ||
+	    (lmac->qlm_mode == QLM_MODE_QSGMII) ||
 	    (lmac->qlm_mode == QLM_MODE_RXAUI) ||
 	    (lmac->qlm_mode == QLM_MODE_XAUI)) {
 		lmac->phydev = phy_connect(lmac->mii_bus, lmac->phy_addr,
@@ -823,6 +833,20 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac->use_training = 1;
 			lmac_count = 1;
 			break;
+		case QLM_MODE_QSGMII:
+			if ((lmacid == 0) || (lmacid == 2)) {
+				lmac_count = 4;
+				for (i = 0; i < 4; i++) {
+					struct lmac *l;
+					l = &bgx->lmac[i];
+					l->lmac_type = 6;
+					l->qlm_mode = QLM_MODE_QSGMII;
+					l->lane_to_sds = lmacid;
+					bgx_reg_write(bgx, i, BGX_CMRX_CFG,
+						(l->lmac_type << 8) | lmacid);
+				}
+			}
+			continue;
 		default:
 			lmac_count++;
 			continue;
@@ -922,6 +946,13 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
 		break;
+		case 6:
+			if ((lmacid == 0) || (lmacid == 2)) {
+				lmac->qlm_mode = QLM_MODE_QSGMII;
+				printf("BGX%d QLM%d LMAC%d mode: QSGMII\n",
+					bgx->bgx_id, lmac->qlm, lmacid);
+			}
+			break;
 		default:
 			break;
 		}
@@ -939,6 +970,7 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac+=2) {
 		qlm[lmac] = get_qlm_for_bgx(node, bgx_idx, lmac);
 		qlm[lmac+1] = qlm[lmac];
+		debug("qlm[%d] = %d\n", lmac, qlm[lmac]);
 	}
 
 	/* A BGX can take 1 or 2 DLMs, if both the DLMs are not configured
@@ -970,6 +1002,7 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 	/* Enable all LMACs */
 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
 		if (bgx->lmac[lmac].qlm_mode == QLM_MODE_SGMII ||
+		    bgx->lmac[lmac].qlm_mode == QLM_MODE_QSGMII ||
 		    bgx->lmac[lmac].qlm_mode == QLM_MODE_RXAUI ||
 		    bgx->lmac[lmac].qlm_mode == QLM_MODE_XAUI) {
 			bgx->lmac[lmac].mii_bus = miiphy_get_dev_by_name(mii_name);
