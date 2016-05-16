@@ -505,7 +505,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 	/* Perform RX Equalization. Applies to non-KR interfaces for speeds 
 	   >= 6.25Gbps. */ 
 	if (!lmac->use_training) {
-		int index;
+		int index, qlm;
 		switch (lmac->lmac_type) {
 		default:
 		case 0: // SGMII
@@ -514,18 +514,28 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 			break;
 		case 4: // XLAUI
 			if (__rx_equalization(lmac->qlm, -1) ||
-				__rx_equalization(lmac->qlm+1, -1))
+				__rx_equalization(lmac->qlm+1, -1)) {
 				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d/DLM%d\n",
 					bgx->bgx_id, lmacid, lmac->qlm, lmac->qlm+1);
+				return -1;
+			}
 			break;
 		case 2: // RXAUI
-			if (lmacid > 1)
-				index = lmacid - 2;
-			else
-				index = lmacid;
-			if (__rx_equalization(lmac->qlm, index))
+			if (lmacid) {
+				struct lmac *l;
+				index = 2;
+				l= &bgx->lmac[index];
+				qlm = lmac->qlm;
+			} else {
+				index = 0;
+				qlm = lmac->qlm;
+			}
+			if (__rx_equalization(qlm, index) ||
+			    __rx_equalization(qlm, index + 1)) { 
 				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d\n",
 					bgx->bgx_id, index, lmac->qlm);
+				return -1;
+			}
 			break;
 		case 3: // XFI
 			if (__rx_equalization(lmac->qlm, lmacid))
@@ -733,7 +743,6 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 	bgx_reg_modify(bgx, lmacid, BGX_CMRX_CFG,
 		       CMR_EN | CMR_PKT_RX_EN | CMR_PKT_TX_EN);
 
-	
 	if ((lmac->qlm_mode == QLM_MODE_SGMII) ||
 	    (lmac->qlm_mode == QLM_MODE_QSGMII) ||
 	    (lmac->qlm_mode == QLM_MODE_RXAUI) ||
@@ -803,9 +812,11 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac_count = 1;
 			break;
 		case QLM_MODE_RXAUI:
-			lmac->lmac_type = 2;
-			lmac->lane_to_sds = (lmacid) ? 0xE : 0x4;
-			lmac_count++;
+			if (lmacid < 2) {
+				lmac->lmac_type = 2;
+				lmac->lane_to_sds = (lmacid) ? 0xE : 0x4;
+				lmac_count++;
+			}
 			break;
 		case QLM_MODE_XFI:
 			lmac->lmac_type = 3;
@@ -919,8 +930,10 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			break;
 		case 2:
 			lmac->qlm_mode = QLM_MODE_RXAUI;
-			printf("BGX%d QLM%d LMAC%d mode: RXAUI\n",
+			if (lmacid < 2) {
+				printf("BGX%d QLM%d LMAC%d mode: RXAUI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
+			}
 			break;
 		case 3:
 			if (((lmacid < 2) && (train_en & (1 << lmacid)))
