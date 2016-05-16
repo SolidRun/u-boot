@@ -258,6 +258,9 @@ static int get_qlm_for_bgx(int node, int bgx_id, int index)
 static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 {
 	u64 cfg;
+	struct lmac *lmac;
+
+	lmac = &bgx->lmac[lmacid];
 
 	bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_THRESH, 0x30);
 	/* max packet size */
@@ -287,9 +290,13 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 
 	/* Disable disparity for QSGMII mode, to prevent propogation across
 	   ports. */
-	cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL);
-	cfg &= ~PCS_MISCX_CTL_DISP_EN;
-	bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL, cfg);
+
+	if (lmac->qlm_mode == QLM_MODE_QSGMII) {
+		cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL);
+		cfg &= ~PCS_MISCX_CTL_DISP_EN;
+		bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL, cfg);
+		return 0; /* Skip checking AN_CPT */
+	}
 
 	if (bgx_poll_reg(bgx, lmacid, BGX_GMP_PCS_MRX_STATUS,
 			 PCS_MRX_STATUS_AN_CPT, false)) {
