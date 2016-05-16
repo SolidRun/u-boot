@@ -7,6 +7,8 @@
 #ifndef __THUNDERX_81XX_H__
 #define __THUNDERX_81XX_H__
 
+#define DEBUG
+
 #define CONFIG_SPECIAL_SYNC_HANDLER
 
 /*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
@@ -154,6 +156,8 @@
 #define CONFIG_MAX_BGX			2
 
 #define CONFIG_PHYLIB
+#define CONFIG_PHYLIB_10G
+
 
 /* Command line configuration */
 #define CONFIG_MENU
@@ -181,6 +185,8 @@
 #define CONFIG_CMD_ENV_FLAGS
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_ENV_CALLBACK
+
+#define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
 
 /* AHCI support Definitions */
 #ifdef CONFIG_CMD_SATA
@@ -240,11 +246,9 @@
 #define PHYS_SDRAM_1_SIZE		(0x80000000-MEM_BASE)	/* 2048 MB */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_PCI
-#define CONFIG_USB_STORAGE
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 4
+
 
 
 /* PCIe network controller drivers */
@@ -254,6 +258,8 @@
 
 #define E1000_DEBUG
 
+#define CONFIG_RTL8169
+
 /* Initial environment variables */
 #define UBOOT_IMG_HEAD_SIZE		0x40
 /* C80000 - 0x40 */
@@ -261,6 +267,8 @@
 					"kernel_addr=04007ffc0\0"	\
 					"fdt_addr=0x54C00000\0"		\
 					"fdt_high=0x5fffffff\0"		\
+					"smi0mode=0.0.0\0"		\
+					"smi1mode=0.0.0\0"		\
 					"autoload=0\0"
 
 #define CONFIG_BOOTARGS			\
