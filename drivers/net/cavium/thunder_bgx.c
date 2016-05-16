@@ -841,9 +841,9 @@ static void bgx_init_hw(struct bgx *bgx)
 					l = &bgx->lmac[i];
 					l->lmac_type = 6;
 					l->qlm_mode = QLM_MODE_QSGMII;
-					l->lane_to_sds = lmacid;
+					l->lane_to_sds = lmacid + i;
 					bgx_reg_write(bgx, i, BGX_CMRX_CFG,
-						(l->lmac_type << 8) | lmacid);
+						(l->lmac_type << 8) | l->lane_to_sds);
 				}
 			}
 			continue;
