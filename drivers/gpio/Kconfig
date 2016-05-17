@@ -383,4 +383,11 @@ config MT7621_GPIO
 	help
 	  Say yes here to support MediaTek MT7621 compatible GPIOs.
 
+config THUNDERX_GPIO
+	bool "Cavium ThunderX GPIO driver"
+	depends on DM_GPIO
+	default y
+	help
+	  Say yes here to support Cavium ThunderX GPIOs.
+
 endmenu
