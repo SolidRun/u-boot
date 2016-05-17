@@ -28,6 +28,13 @@
 #include "nic.h"
 #include "thunder_bgx.h"
 
+static const phy_interface_t if_mode[] = {
+	[QLM_MODE_SGMII]  = PHY_INTERFACE_MODE_SGMII,
+	[QLM_MODE_QSGMII] = PHY_INTERFACE_MODE_SGMII,
+	[QLM_MODE_XAUI]   = PHY_INTERFACE_MODE_XAUI,
+	[QLM_MODE_RXAUI]  = PHY_INTERFACE_MODE_RXAUI,
+};
+
 struct lmac {
 	struct bgx		*bgx;
 	int			dmac;
@@ -636,6 +643,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 {
 	int ret;
 	struct lmac *lmac = bgx_get_lmac(node, bgx_idx, lmacid);
+	char mii_name[10];
 
 	if (lmac == NULL) {
 		printf("LMAC %d/%d/%d is disabled or doesn't exist\n",
@@ -649,12 +657,38 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 
 	if (lmac->qlm_mode == QLM_MODE_SGMII ||
 	    lmac->qlm_mode == QLM_MODE_QSGMII){
-		debug("%s: %d, phydev: %p\n", __FILE__, __LINE__, lmac->phydev);
+		snprintf(mii_name, sizeof(mii_name), "txsmi%d",
+			 bgx_board_info[bgx_idx].mdio_bus);
+
+		debug("mii_name: %s\n", mii_name);
+
+		lmac->mii_bus = miiphy_get_dev_by_name(mii_name);
+		lmac->phy_addr = bgx_board_info[bgx_idx].phy_addr[lmacid];
+
+		debug("lmac->mii_bus: %p\n",lmac->mii_bus);
+		if (!lmac->mii_bus) {
+			printf("MDIO device %s not found\n", mii_name);
+			ret = -ENODEV;
+			return ret;
+		}
+
+		lmac->phydev = phy_connect(lmac->mii_bus, lmac->phy_addr,
+					   &lmac->netdev,
+					   if_mode[lmac->qlm_mode]);
+
 		if (!lmac->phydev) {
 			printf("%s: No PHY device\n",
 				lmac->netdev.name);
-			return 0;
+			return -1;
 		}
+
+		ret = phy_config(lmac->phydev);
+		if (ret) {
+			printf("%s: Could not initialize PHY %s\n",
+				lmac->netdev.name, lmac->phydev->dev->name);
+			return ret;
+		}
+
 		ret = phy_startup(lmac->phydev);
 		debug("%s: %d\n", __FILE__, __LINE__);
 		if (ret) {
@@ -716,12 +750,6 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 	struct lmac *lmac;
 	uint64_t cfg;
 	int ret;
-	static const phy_interface_t if_mode[] = {
-		[QLM_MODE_SGMII]  = PHY_INTERFACE_MODE_SGMII,
-		[QLM_MODE_QSGMII] = PHY_INTERFACE_MODE_SGMII,
-		[QLM_MODE_XAUI]   = PHY_INTERFACE_MODE_XAUI,
-		[QLM_MODE_RXAUI]  = PHY_INTERFACE_MODE_RXAUI,
-	};
 
 	lmac = &bgx->lmac[lmacid];
 	lmac->bgx = bgx;
@@ -750,25 +778,6 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 	/* Enable lmac */
 	bgx_reg_modify(bgx, lmacid, BGX_CMRX_CFG,
 		       CMR_EN | CMR_PKT_RX_EN | CMR_PKT_TX_EN);
-
-	if ((lmac->qlm_mode == QLM_MODE_SGMII) ||
-	    (lmac->qlm_mode == QLM_MODE_QSGMII) ||
-	    (lmac->qlm_mode == QLM_MODE_RXAUI) ||
-	    (lmac->qlm_mode == QLM_MODE_XAUI)) {
-		lmac->phydev = phy_connect(lmac->mii_bus, lmac->phy_addr,
-					   &lmac->netdev,
-					   if_mode[lmac->qlm_mode]);
-
-		if (!lmac->phydev)
-			return -1;
-
-		ret = phy_config(lmac->phydev);
-		if (ret) {
-			printf("%s: Could not initialize PHY %s\n",
-				lmac->netdev.name, lmac->phydev->dev->name);
-			return ret;
-		}
-	}
 
 	return 0;
 }
@@ -926,7 +935,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 
 		train_en = (readq(CSR_PA(0, GSERX_SCRATCH(lmac->qlm))) & 0xf);
 
-	switch(lmac->lmac_type) {
+		switch(lmac->lmac_type) {
 		case 0:
 			lmac->qlm_mode = QLM_MODE_SGMII;
 			printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
@@ -986,7 +995,6 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 	int err;
 	struct bgx *bgx = NULL;
 	uint8_t lmac = 0;
-	char mii_name[10];
 	int qlm[4] = {-1};
 
 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac+=2) {
@@ -1014,11 +1022,6 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 	bgx_get_qlm_mode(bgx);
 	debug("bgx_vnic[%u]: %p\n", bgx->bgx_id, bgx);
 
-	snprintf(mii_name, sizeof(mii_name), "txsmi%d",
-		 bgx_board_info[bgx_idx].mdio_bus);
-
-	debug("mii_name: %s\n", mii_name);
-
 	bgx_init_hw(bgx);
 
 	/* Enable all LMACs */
@@ -1027,15 +1030,12 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 		    bgx->lmac[lmac].qlm_mode == QLM_MODE_QSGMII ||
 		    bgx->lmac[lmac].qlm_mode == QLM_MODE_RXAUI ||
 		    bgx->lmac[lmac].qlm_mode == QLM_MODE_XAUI) {
-			bgx->lmac[lmac].mii_bus = miiphy_get_dev_by_name(mii_name);
-			bgx->lmac[lmac].phy_addr = bgx_board_info[bgx_idx].phy_addr[lmac];
-			debug("bgx->lmac[lmac].mii_bus: %p\n", bgx->lmac[lmac].mii_bus);
-			if (!bgx->lmac[lmac].mii_bus) {
-				printf("MDIO device %s not found\n", mii_name);
-				err = -ENODEV;
-				goto error;
-			}
+
 		}
+
+		snprintf(bgx->lmac[lmac].netdev.name,
+			 sizeof(bgx->lmac[lmac].netdev.name),
+			 "lmac%d", lmac);
 
 		err = bgx_lmac_enable(bgx, lmac);
 		if (err) {
@@ -1045,10 +1045,6 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 	}
 
 	return 0;
-error:
-	bgx_vnic[bgx->bgx_id] = NULL;
-	free(bgx);
-	return err;
 }
 
 void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
@@ -1061,3 +1057,5 @@ void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
 	for (i = 0; i < MAX_LMAC_PER_BGX; i++)
 		bgx_board_info[bgx_id].phy_addr[i] = phy_addr[i];
 }
+
+
