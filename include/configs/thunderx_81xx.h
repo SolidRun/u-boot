@@ -129,7 +129,6 @@
 #define CONFIG_MAX_BGX_PER_NODE		2
 #define CONFIG_MAX_BGX			2
 
-#define CONFIG_PHYLIB
 #define CONFIG_PHYLIB_10G
 
 
