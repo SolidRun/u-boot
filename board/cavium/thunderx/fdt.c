@@ -98,6 +98,32 @@ int arch_fixup_memory_node(void *blob)
 	return 0;
 }
 
+static void ft_setup_uaa_clk(void *fdt)
+{
+	unsigned int ibrd, fbrd;
+	unsigned long baud = CONFIG_BAUDRATE;
+	uint32_t refclk;
+	int nodeoffset, err;
+
+	ibrd = CSR_READ_PA(0, UAAX_IBRD(0));
+	ibrd = ibrd & 0xffff;
+
+	fbrd = CSR_READ_PA(0, UAAX_FBRD(0));
+	fbrd = fbrd & 0x3f;
+
+	refclk = (baud * (64 * ibrd + fbrd)) / 4;
+
+	nodeoffset = fdt_path_offset(fdt, "/soc/refclkuaa");
+
+	err = fdt_setprop_u32(fdt, nodeoffset, "clock-frequency", refclk);
+
+	if(err < 0) {
+		printf("WARNING: could not set %s: %s.\n", "clock-frequency",
+				fdt_strerror(err));
+		return;
+	}
+}
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	/* remove "cavium, bdk" node from DT */
@@ -110,6 +136,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 
 	if (blob != NULL) {
+		ft_setup_uaa_clk(blob);
+
 		offset = fdt_path_offset(blob, "/cavium,bdk");
 		if(offset < 0) {
 			printf("ERROR: FDT BDK node not found\n");
