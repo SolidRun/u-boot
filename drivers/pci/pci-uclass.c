@@ -1488,7 +1488,6 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 {
 	int ea_pos;
 	pci_addr_t pci_bus_start;
-	pci_addr_t pci_bus_end;
 	u32 bar_response;
 	int ea_off;
 
@@ -1503,7 +1502,7 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 	ea_pos = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
 
 	if (ea_pos) {
-		dm_pci_ea_bar_read(dev, bar, &pci_bus_start, &pci_bus_end);
+		dm_pci_ea_bar_read(dev, bar, &pci_bus_start, size);
 	} else {
 		/* read BAR address */
 		bar = PCI_BASE_ADDRESS_0 + bar * 4;
@@ -1641,7 +1640,7 @@ int dm_pci_flr(struct udevice *dev)
 }
 
 /* Read an Enhanced Allocation (EA) entry */
-static int dm_pci_ea_entry_read(struct udevice *dev, int offset, int *bei, pci_addr_t *start, pci_addr_t *end)
+static int dm_pci_ea_entry_read(struct udevice *dev, int offset, int *bei, pci_addr_t *start, size_t *size)
 {
 	u32 base;
 	u32 max_offset;
@@ -1697,20 +1696,20 @@ static int dm_pci_ea_entry_read(struct udevice *dev, int offset, int *bei, pci_a
 
 	debug("EA (%u,%u) start = %lx\n", PCI_EA_BEI(dw0), prop, (unsigned long)*start);
 
-	*end = (*start) + ((pci_addr_t)max_offset | 0x03);
+	*size = ((size_t)max_offset | 0x03) + 1;
 
 	/* Read MaxOffset MSBs (if 64-bit entry) */
 	if (max_offset & PCI_EA_IS_64) {
 		dm_pci_read_config32(dev, ent_offset, &max_offset);
 		ent_offset += sizeof(u32);
 
-		*end |= (pci_addr_t)max_offset << 32;
+		*size |= (size_t)max_offset << 32;
 	}
 
-	debug("EA (%u,%u) end = %lx\n", PCI_EA_BEI(dw0), prop, (unsigned long)*end);
+	debug("EA (%u,%u) size = %lx\n", PCI_EA_BEI(dw0), prop, (unsigned long)*size);
 
-	if (*end < *start) {
-		*end = 0;
+	if (*start + *size < *start) {
+		*size = 0;
 		*start = 0;
 		printf("EA Entry crosses address boundary\n");
 		goto out;
@@ -1727,7 +1726,7 @@ out:
 }
 
 /* Read an Enhanced Allocation (EA) BAR */
-int dm_pci_ea_bar_read(struct udevice *dev, int bar, pci_addr_t *start, pci_addr_t *end)
+int dm_pci_ea_bar_read(struct udevice *dev, int bar, pci_addr_t *start, size_t *size)
 {
 	int ea;
 	int offset;
@@ -1749,7 +1748,7 @@ int dm_pci_ea_bar_read(struct udevice *dev, int bar, pci_addr_t *start, pci_addr
 		offset += sizeof(u32);
 
 	for (i = 0; (i < num_ent) && (bar != bei); i++) {
-		offset = dm_pci_ea_entry_read(dev, offset, &bei, start, end);
+		offset = dm_pci_ea_entry_read(dev, offset, &bei, start, size);
 	}
 
 	return (bar == bei);
