@@ -766,6 +766,104 @@ error:
 	return ret;
 }
 
+int pci_sriov_init(struct udevice *pdev, int vf_en)
+{
+	u16 vendor, device;
+	struct udevice *bus;
+	struct udevice *dev;
+	pci_dev_t bdf;
+	u16 ctrl;
+	u16 num_vfs;
+	u16 total_vf;
+	u16 vf_offset;
+	u16 vf_stride;
+	int vf, ret;
+
+	int pos;
+
+	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
+
+	if (!pos)
+		return -ENODEV;
+
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_CTRL, &ctrl);
+
+	if (!(ctrl & PCI_SRIOV_CTRL_VFE) || !(ctrl & PCI_SRIOV_CTRL_MSE)) {
+		dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
+
+		if (vf_en > total_vf)
+			vf_en = total_vf;
+
+		dm_pci_write_config16(pdev, pos + PCI_SRIOV_NUM_VF,
+				      vf_en);
+
+		ctrl |= PCI_SRIOV_CTRL_VFE | PCI_SRIOV_CTRL_MSE;
+		dm_pci_write_config16(pdev, pos + PCI_SRIOV_CTRL, ctrl);
+	}
+
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_NUM_VF, &num_vfs);
+
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_OFFSET, &vf_offset);
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_STRIDE, &vf_stride);
+
+	dm_pci_read_config16(pdev, PCI_VENDOR_ID, &vendor);
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_DID, &device);
+
+	bdf = dm_pci_get_bdf(pdev);
+
+	pci_get_bus(PCI_BUS(bdf), &bus);
+
+	if (!bus)
+		return -ENODEV;
+
+	bdf += PCI_BDF(0, 0, vf_offset);
+
+	for (vf = 0; vf < num_vfs; vf++) {
+		struct pci_child_platdata *pplat;
+		ulong class;
+
+		pci_bus_read_config(bus, bdf, PCI_CLASS_REVISION,
+				    &class, PCI_SIZE_32);
+
+		class >>= 8;
+
+		debug("%s: bus %d/%s: found VF %x:%x\n", __func__,
+		      bus->seq, bus->name, PCI_DEV(bdf), PCI_FUNC(bdf));
+
+		/* Find this device in the device tree */
+		ret = pci_bus_find_devfn(bus, PCI_MASK_BUS(bdf), &dev);
+
+		if (ret == -ENODEV) {
+			struct pci_device_id find_id;
+
+			memset(&find_id, 0, sizeof(find_id));
+
+			find_id.vendor = vendor;
+			find_id.device = device;
+			find_id.class = class >> 8;
+
+			ret = pci_find_and_bind_driver(bus, &find_id,
+						       bdf, &dev);
+
+			if (ret)
+				return ret;
+		}
+
+		/* Update the platform data */
+		pplat = dev_get_parent_platdata(dev);
+		pplat->devfn = PCI_MASK_BUS(bdf);
+		pplat->vendor = vendor;
+		pplat->device = device;
+		pplat->class = class;
+		pplat->is_phys = false;
+
+		bdf += PCI_BDF(0, 0, vf_stride);
+	}
+
+	return num_vfs;
+
+}
+
 int pci_bind_bus_devices(struct udevice *bus)
 {
 	ulong vendor, device;
@@ -844,6 +942,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 		pplat->vendor = vendor;
 		pplat->device = device;
 		pplat->class = class;
+		pplat->is_phys = true;
 	}
 
 	return 0;

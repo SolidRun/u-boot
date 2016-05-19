@@ -635,6 +635,39 @@
 #define PCI_EA_IS_64			(1 << 1)	/* 64-bit field flag */
 #define PCI_EA_FIELD_MASK		0xfffffffc	/* For Base & Max Offset */
 
+/* Single Root I/O Virtualization */
+#define PCI_SRIOV_CAP		0x04	/* SR-IOV Capabilities */
+#define  PCI_SRIOV_CAP_VFM	0x01	/* VF Migration Capable */
+#define  PCI_SRIOV_CAP_INTR(x)	((x) >> 21) /* Interrupt Message Number */
+#define PCI_SRIOV_CTRL		0x08	/* SR-IOV Control */
+#define  PCI_SRIOV_CTRL_VFE	0x01	/* VF Enable */
+#define  PCI_SRIOV_CTRL_VFM	0x02	/* VF Migration Enable */
+#define  PCI_SRIOV_CTRL_INTR	0x04	/* VF Migration Interrupt Enable */
+#define  PCI_SRIOV_CTRL_MSE	0x08	/* VF Memory Space Enable */
+#define  PCI_SRIOV_CTRL_ARI	0x10	/* ARI Capable Hierarchy */
+#define PCI_SRIOV_STATUS	0x0a	/* SR-IOV Status */
+#define  PCI_SRIOV_STATUS_VFM	0x01	/* VF Migration Status */
+#define PCI_SRIOV_INITIAL_VF	0x0c	/* Initial VFs */
+#define PCI_SRIOV_TOTAL_VF	0x0e	/* Total VFs */
+#define PCI_SRIOV_NUM_VF	0x10	/* Number of VFs */
+#define PCI_SRIOV_FUNC_LINK	0x12	/* Function Dependency Link */
+#define PCI_SRIOV_VF_OFFSET	0x14	/* First VF Offset */
+#define PCI_SRIOV_VF_STRIDE	0x16	/* Following VF Stride */
+#define PCI_SRIOV_VF_DID	0x1a	/* VF Device ID */
+#define PCI_SRIOV_SUP_PGSIZE	0x1c	/* Supported Page Sizes */
+#define PCI_SRIOV_SYS_PGSIZE	0x20	/* System Page Size */
+#define PCI_SRIOV_BAR		0x24	/* VF BAR0 */
+#define  PCI_SRIOV_NUM_BARS	6	/* Number of VF BARs */
+#define PCI_SRIOV_VFM		0x3c	/* VF Migration State Array Offset*/
+#define  PCI_SRIOV_VFM_BIR(x)	((x) & 7)	/* State BIR */
+#define  PCI_SRIOV_VFM_OFFSET(x) ((x) & ~7)	/* State Offset */
+#define  PCI_SRIOV_VFM_UA	0x0	/* Inactive.Unavailable */
+#define  PCI_SRIOV_VFM_MI	0x1	/* Dormant.MigrateIn */
+#define  PCI_SRIOV_VFM_MO	0x2	/* Active.MigrateOut */
+#define  PCI_SRIOV_VFM_AV	0x3	/* Active.Available */
+#define PCI_EXT_CAP_SRIOV_SIZEOF 64
+
+
 #define PCI_MAX_PCI_DEVICES	32
 #define PCI_MAX_PCI_FUNCTIONS	8
 
@@ -1085,6 +1118,8 @@ struct pci_child_platdata {
 	unsigned short vendor;
 	unsigned short device;
 	unsigned int class;
+
+	bool is_phys;
 };
 
 /* PCI bus operations */
@@ -1394,6 +1429,8 @@ int pci_generic_mmap_read_config(
 	uint offset,
 	ulong *valuep,
 	enum pci_size_t size);
+
+int pci_sriov_init(struct udevice *pdev, int vf_en);
 
 #ifdef CONFIG_DM_PCI_COMPAT
 /* Compatibility with old naming */
