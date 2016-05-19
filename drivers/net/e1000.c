@@ -5508,6 +5508,8 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 
 	/* Assign the passed-in values */
 #ifdef CONFIG_DM_ETH
+	size_t size;
+
 	hw->pdev = devno;
 #else
 	hw->pdev = devno;
@@ -5555,7 +5557,7 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 	hw->eeprom_semaphore_present = true;
 #endif
 #ifdef CONFIG_DM_ETH
-	hw->hw_addr = dm_pci_map_bar(devno, 0, PCI_REGION_MEM);
+	hw->hw_addr = dm_pci_map_bar(devno, 0, &size, PCI_REGION_MEM);
 #else
 	hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
 						PCI_REGION_MEM);
@@ -5773,6 +5775,8 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
 #if !defined(CONFIG_DM_ETH) || defined(CONFIG_E1000_SPI)
 	struct e1000_hw *hw;
 #endif
+	struct e1000_hw *hw;
+
 	int cardnum;
 
 	if (argc < 3) {
@@ -5789,6 +5793,7 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
 		plat = dev_get_platdata(dev);
 		mac = plat->enetaddr;
 	}
+	hw = dev_get_priv(dev);
 #else
 	hw = e1000_find_card(cardnum);
 	if (hw)
