@@ -87,7 +87,9 @@ void thunderx_parse_bdk_config(void)
 			} else {
 				printf("Err: cannot retrieve board type from fdt\n");
 			}
+#ifdef CONFIG_THUNDERX_BGX
 			thunderx_parse_phy_address(gd->fdt_blob);
+#endif
 		}
 	}
 
