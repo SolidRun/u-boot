@@ -140,29 +140,12 @@ int board_eth_init(bd_t *bis)
 #endif
 #endif
 
-#if defined(CONFIG_THUNDERX_VNIC)
-#define VNIC_PER_NODE 8
+
 
 	for (node = 0; node < atf_node_count(); node++) {
 		thunderx_bgx_initialize(0, node);
 		thunderx_bgx_initialize(1, node);
 	}
-
-	for (node = 0; node < atf_node_count(); node++) {
-		nicpf = nic_initialize(node);
-
-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 0, node);
-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 1, node);
-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 2, node);
-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 3, node);
-
-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 4, node);
-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 5, node);
-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 6, node);
-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 7, node);
-	}
-
-#endif
 
 	rc = pci_eth_init(bis);
 
