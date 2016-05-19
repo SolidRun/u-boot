@@ -1404,11 +1404,12 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 	ea_pos = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
 
 	if (ea_pos) {
-		dm_pci_ea_bar_read(dev, (bar - PCI_BASE_ADDRESS_0) >> 2,
-				   &pci_bus_start, &pci_bus_end);
+		dm_pci_ea_bar_read(dev, bar, &pci_bus_start, &pci_bus_end);
 	} else {
 		/* read BAR address */
-		dm_pci_read_config32(dev, bar, &bar_response);
+		bar = PCI_BASE_ADDRESS_0 + bar * 4;
+		dm_pci_read_config32(dev, bar,
+				     &bar_response);
 		pci_bus_start = (pci_addr_t)(bar_response & ~0xf);
 
 		if ((bar_response & PCI_BASE_ADDRESS_MEM_TYPE_MASK) ==
