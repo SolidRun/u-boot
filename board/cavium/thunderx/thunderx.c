@@ -125,9 +125,6 @@ int board_late_init(void)
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
-#if defined(CONFIG_THUNDERX_VNIC)
-	struct nicpf* nicpf;
-	unsigned int node;
 
 #ifdef CONFIG_RANDOM_MACADDR
 	unsigned char ethaddr[6];
@@ -138,14 +135,6 @@ int board_eth_init(bd_t *bis)
 		eth_setenv_enetaddr("ethaddr", ethaddr);
 	}
 #endif
-#endif
-
-
-
-	for (node = 0; node < atf_node_count(); node++) {
-		thunderx_bgx_initialize(0, node);
-		thunderx_bgx_initialize(1, node);
-	}
 
 	rc = pci_eth_init(bis);
 
