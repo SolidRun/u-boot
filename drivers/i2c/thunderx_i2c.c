@@ -334,11 +334,12 @@ static int thunderx_i2c_probe(struct udevice *dev)
 {
 	struct thunderx_twsi *twsi = dev_get_priv(dev);
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
+	size_t size;
 
 	debug("TWSI PCI device: %x\n", bdf);
 	dev->req_seq = PCI_FUNC(bdf);
 
-	twsi->baseaddr = dm_pci_map_bar(dev, 0, PCI_REGION_MEM);
+	twsi->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 
 	debug("TWSI bus %d at %p\n",dev->seq, twsi->baseaddr);
 
