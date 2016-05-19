@@ -160,7 +160,7 @@ static const struct udevice_id thunderx_gpio_ids[] = {
 };
 
 U_BOOT_DRIVER(gpio_tegra) = {
-	.name	= "gpio_tegra",
+	.name	= "gpio_thunderx",
 	.id	= UCLASS_GPIO,
 	.of_match = thunderx_gpio_ids,
 	.probe = thunderx_gpio_probe,
