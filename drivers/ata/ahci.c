@@ -429,6 +429,8 @@ static int ahci_init_one(struct ahci_uc_priv *uc_priv, pci_dev_t dev)
 {
 #if !defined(CONFIG_DM_SCSI)
 	u16 vendor;
+#ifdef CONFIG_DM_PCI
+	size_t size;
 #endif
 	int rc;
 
@@ -445,7 +447,7 @@ static int ahci_init_one(struct ahci_uc_priv *uc_priv, pci_dev_t dev)
 #if !defined(CONFIG_DM_SCSI)
 #ifdef CONFIG_DM_PCI
 	uc_priv->mmio_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_5,
-					      PCI_REGION_MEM);
+					    &size, PCI_REGION_MEM);
 
 	/* Take from kernel:
 	 * JMicron-specific fixup:
@@ -1223,4 +1225,3 @@ __weak int scsi_bus_reset(struct udevice *dev)
 
 	return 0;
 }
-#endif
