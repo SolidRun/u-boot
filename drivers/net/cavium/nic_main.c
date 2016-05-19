@@ -13,7 +13,9 @@
 #include <netdev.h>
 #include <malloc.h>
 #include <miiphy.h>
-
+#include <dm.h>
+#include <misc.h>
+#include <pci.h>
 #include <asm/io.h>
 
 #include <cavium/thunderx_vnic.h>
@@ -46,16 +48,12 @@ static int nic_rcv_queue_sw_sync(struct nicpf *nic);
 /* Register read/write APIs */
 static void nic_reg_write(struct nicpf *nic, uint64_t offset, uint64_t val)
 {
-	uint64_t addr = nic->reg_base + offset;
-
-	writeq(val, (void *)addr);
+	writeq(val, nic->reg_base + offset);
 }
 
 static uint64_t nic_reg_read(struct nicpf *nic, uint64_t offset)
 {
-	uint64_t addr = nic->reg_base + offset;
-
-	return readq((void *)addr);
+	return readq(nic->reg_base + offset);
 }
 
 static u64 nic_get_mbx_addr(int vf)
@@ -73,7 +71,7 @@ static void nic_send_msg_to_vf(struct nicpf *nic, int vf, union nic_mbx *mbx)
 	 * when PF writes to MBOX(1), in next revisions when
 	 * PF writes to MBOX(0)
 	 */
-	if (IS_PASS1(nic->rev_id)) {
+	if (pass1_silicon(nic->rev_id)) {
 		/* see the comment for nic_reg_write()/nic_reg_read()
 		 * functions above
 		 */
@@ -90,7 +88,6 @@ static void nic_mbx_send_ready(struct nicpf *nic, int vf)
 	union nic_mbx mbx = {};
 	int bgx_idx, lmac, timeout = 5, link = -1;
 	const u8 *mac;
-	struct lmac *lmac_dev;
 
 	mbx.nic_cfg.msg = NIC_MBOX_MSG_READY;
 	mbx.nic_cfg.vf_id = vf;
@@ -223,7 +220,7 @@ void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 		 * for consistency enabling the same on 88xx pass2
 		 * where this is introduced.
 		 */
-		if (pass2_silicon(nic->rev))
+		if (pass2_silicon(nic->rev_id))
 			nic_reg_write(nic, NIC_PF_RX_CFG, 0x01);
 		break;
 	case NIC_MBOX_MSG_RQ_BP_CFG:
@@ -591,7 +588,7 @@ static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg)
 			padd = cpi % 8; /* 3 bits CS out of 6bits DSCP */
 
 		/* Leave RSS_SIZE as '0' to disable RSS */
-		if (IS_PASS1(nic->rev_id)) {
+		if (pass1_silicon(nic->rev_id)) {
 			nic_reg_write(nic, NIC_PF_CPI_0_2047_CFG | (cpi << 3),
 				      (vnic << 24) | (padd << 16) |
 				      (rssi_base + rssi));
@@ -709,34 +706,26 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
 			      lmac + (bgx * MAX_LMAC_PER_BGX));
 }
 
-struct nicpf *nic_initialize(unsigned int node)
+int nic_initialize(struct udevice *dev)
 {
-	struct nicpf *nic;
+	struct nicpf *nic = dev_get_priv(dev);
+	size_t size;
 
-	nic = malloc(sizeof(struct nicpf));
-	if (!nic)
-		return nic;
-
+	nic->udev = dev;
 	nic->hw = malloc(sizeof(struct hw_info));
 	if (!nic->hw) {
-		free(nic);
-		return NULL;
+		return -ENOMEM;
 	}
 
 	/* MAP PF's configuration registers */
-	nic->reg_base = CSR_PA(node, NIC_PF_BAR0);
+	nic->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 	if (!nic->reg_base) {
 		printf("Cannot map config register space, aborting\n");
 		goto exit;
 	}
 
-
-#if 0
-	nic->node = NIC_NODE_ID(pci_resource_start(pdev, PCI_CFG_REG_BAR_NUM));
-#endif
-
-	nic->node = node;
-	nic->rev_id = 3;
+	nic->node = node_id(nic->reg_base);
+	dm_pci_read_config8(dev, PCI_REVISION_ID, &nic->rev_id);
 
 	/* By default set NIC in TNS bypass mode */
 	nic->flags &= ~NIC_TNS_ENABLED;
@@ -751,10 +740,51 @@ struct nicpf *nic_initialize(unsigned int node)
 
 	nic->rss_ind_tbl_size = rounddown_pow_of_two(nic->rss_ind_tbl_size);
 
-	return nic;
+	return 0;
 exit:
-	free(nic);
-	return NULL;
+	free(nic->hw);
+	return -ENODEV;
 }
 
+int thunderx_nic_probe(struct udevice *dev)
+{
+	int vf;
+	int num_vfs;
+	struct nicpf *nicpf;
+
+	nic_initialize(dev);
+	nicpf = dev_get_priv(dev);
+
+	num_vfs = pci_sriov_init(dev, nicpf->num_vf_en);
+
+	for (vf = 0; vf < num_vfs; vf++) {
+		 nicvf_initialize(dev, vf);
+	}
+
+	return 0;
+}
+
+static const struct misc_ops thunderx_nic_ops = {
+};
+
+static const struct udevice_id thunderx_nic_ids[] = {
+	{ .compatible = "cavium,nic" },
+	{}
+};
+
+U_BOOT_DRIVER(thunderx_nic) = {
+	.name	= "thunderx_nic",
+	.id	= UCLASS_MISC,
+	.probe	= thunderx_nic_probe,
+	.of_match = thunderx_nic_ids,
+	.ops	= &thunderx_nic_ops,
+	.priv_auto_alloc_size = sizeof(struct nicpf),
+};
+
+static struct pci_device_id thunderx_nic_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_NIC_PF) },
+	{}
+};
+
+U_BOOT_PCI_DEVICE(thunderx_nic, thunderx_nic_supported);
 

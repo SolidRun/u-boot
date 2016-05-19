@@ -20,7 +20,8 @@
 
 /* PCI device IDs */
 #define	PCI_DEVICE_ID_THUNDER_NIC_PF	0xA01E
-#define	PCI_DEVICE_ID_THUNDER_NIC_VF	0x0011
+#define	PCI_DEVICE_ID_THUNDER_NIC_VF_1	0x0011
+#define PCI_DEVICE_ID_THUNDER_NIC_VF_2	0xA034
 #define	PCI_DEVICE_ID_THUNDER_BGX	0xA026
 
 /* Subsystem device IDs */
@@ -36,8 +37,6 @@
 #define	NIC_INTF_COUNT			2  /* Interfaces btw VNIC and TNS/BGX */
 #define	NIC_CHANS_PER_INF		128
 #define	NIC_MAX_CHANS			(NIC_INTF_COUNT * NIC_CHANS_PER_INF)
-
-#define	IS_PASS1(rev)	(rev == 0x0 || rev == 0x1 || rev == 0x2)
 
 /* PCI BAR nos */
 #define	PCI_CFG_REG_BAR_NUM		0
@@ -254,7 +253,7 @@ struct nicvf {
 	uint8_t			num_qs;
 	void			*addnl_qs;
 	uint16_t		vf_mtu;
-	uint64_t		reg_base;
+	void __iomem		*reg_base;
 #define	MAX_QUEUES_PER_QSET			8
 	struct nicvf_cq_poll	*napi[8];
 
@@ -283,19 +282,22 @@ struct nicvf {
 	bool			hw_tso;
 };
 
+inline int node_id(void *addr)
+{
+	return ((uintptr_t)addr >> 44) & 0x3;
+}
+
 struct nicpf {
+	struct udevice		*udev;
 	struct eth_device	*netdev;
 	struct hw_info		*hw;
-#define NIC_NODE_ID_MASK	0x300000000000
-#define NIC_NODE_ID(x)		((x & NODE_ID_MASK) >> 44)
 	uint8_t			node;
-	unsigned int	flags;
-	unsigned int	rev;
-	uint16_t		total_vf_cnt;   /* Total num of VF supported */
-	uint16_t		num_vf_en;      /* No of VF enabled */
-	uint64_t		reg_base;       /* Register start address */
+	unsigned int		flags;
+	uint16_t		total_vf_cnt;	/* Total num of VF supported */
+	uint16_t		num_vf_en;	/* No of VF enabled */
+	void __iomem		*reg_base;	/* Register start address */
 	u16			rss_ind_tbl_size;
-	u8			num_sqs_en;     /* Secondary qsets enabled */
+	u8			num_sqs_en;	/* Secondary qsets enabled */
 	u64			nicvf[MAX_NUM_VFS_SUPPORTED];
 	u8			vf_sqs[MAX_NUM_VFS_SUPPORTED][MAX_SQS_PER_VF];
 	u8			pqs_vf[MAX_NUM_VFS_SUPPORTED];

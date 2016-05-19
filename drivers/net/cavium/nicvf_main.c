@@ -9,7 +9,10 @@
 
 #include <config.h>
 #include <common.h>
+#include <dm.h>
+#include <pci.h>
 #include <net.h>
+#include <misc.h>
 #include <netdev.h>
 #include <malloc.h>
 #include <asm/io.h>
@@ -27,29 +30,25 @@
 /* Register read/write APIs */
 void nicvf_reg_write(struct nicvf *nic, uint64_t offset, uint64_t val)
 {
-	uint64_t addr = nic->reg_base + offset;
-
-	writeq(val, (void *)addr);
+	writeq(val, nic->reg_base + offset);
 }
 
 uint64_t nicvf_reg_read(struct nicvf *nic, uint64_t offset)
 {
-	uint64_t addr = nic->reg_base + offset;
-
-	return readq((void *)addr);
+	return readq(nic->reg_base + offset);
 }
 
 void nicvf_queue_reg_write(struct nicvf *nic, uint64_t offset,
 			   uint64_t qidx, uint64_t val)
 {
-	uint64_t addr = nic->reg_base + offset;
+	void *addr = nic->reg_base + offset;
 
 	writeq(val, (void *)(addr + (qidx << NIC_Q_NUM_SHIFT)));
 }
 
 uint64_t nicvf_queue_reg_read(struct nicvf *nic, uint64_t offset, uint64_t qidx)
 {
-	uint64_t addr = nic->reg_base + offset;
+	void *addr = nic->reg_base + offset;
 
 	return readq((void *)(addr + (qidx << NIC_Q_NUM_SHIFT)));
 }
@@ -451,74 +450,114 @@ int nicvf_open(struct eth_device *netdev, bd_t *bis)
 	return 0;
 }
 
-int nicvf_initialize(struct nicpf *nicpf, int vf_num, unsigned int node)
+int nicvf_initialize(struct udevice *pdev, int vf_num)
 {
 	struct eth_device *netdev = NULL;
-	struct nicvf *nic = NULL;
-	int    err;
+	struct nicvf *nicvf = NULL;
+	int    ret;
+	size_t size;
 
 	netdev = malloc(sizeof(struct eth_device));
 
 	if (!netdev) {
-		err = -1;
+		ret = -ENOMEM;
 		goto fail;
 	}
 
-	nic = malloc(sizeof(struct nicvf));
+	nicvf = malloc(sizeof(struct nicvf));
 
-	if (!nic) {
-		err = -1;
+	if (!nicvf) {
+		ret = -ENOMEM;
 		goto fail;
 	}
 
-	netdev->priv = nic;
-	nic->netdev = netdev;
-	nic->nicpf = nicpf;
-	nic->vf_id = vf_num;
+	netdev->priv = nicvf;
+	nicvf->netdev = netdev;
+	nicvf->nicpf = dev_get_priv(pdev);
+	nicvf->vf_id = vf_num;
 
-	nic->rev_id = 3;
 
 	/* Enable TSO support */
-	nic->hw_tso = true;
+	nicvf->hw_tso = true;
 
-	/* MAP VF's configuration registers */
-	nic->reg_base = CSR_PA(node, NIC_VFX_BAR0(vf_num));
-	if (!nic->reg_base) {
+	nicvf->reg_base = dm_pci_map_bar(pdev, 9, &size, PCI_REGION_MEM);
+
+	nicvf->reg_base += size * nicvf->vf_id;
+
+	debug("nicvf->reg_base: %p\n", nicvf->reg_base);
+
+	if (!nicvf->reg_base) {
 		printf("Cannot map config register space, aborting\n");
-		err = -1;
+		ret = -1;
 		goto fail;
 	}
 
-	err = nicvf_set_qset_resources(nic);
-	if (err)
+	ret = nicvf_set_qset_resources(nicvf);
+	if (ret)
 		return -1;
 
-	snprintf(netdev->name, sizeof(netdev->name), "vnic%u", vf_num);
+	snprintf(netdev->name, sizeof(netdev->name), "vnic%u", nicvf->vf_id);
 
 	netdev->halt = nicvf_stop;
 	netdev->init = nicvf_open;
 	netdev->send = nicvf_xmit;
 	netdev->recv = nicvf_recv;
 
-	if (!eth_getenv_enetaddr_by_index("eth", vf_num, netdev->enetaddr)) {
+	if (!eth_getenv_enetaddr_by_index("eth", nicvf->vf_id, netdev->enetaddr)) {
 		eth_getenv_enetaddr("ethaddr", netdev->enetaddr);
-		netdev->enetaddr[5] += vf_num;
+		netdev->enetaddr[5] += nicvf->vf_id;
 	}
 
-	err = eth_register(netdev);
+	ret = eth_register(netdev);
 
-	if (err) {
+	if (ret) {
 		printf("Failed to register netdevice\n");
-		return -1;
+		return ret;
 	}
 
 
 	return 0;
 fail:
-	if (nic)
-		free(nic);
+	if (nicvf)
+		free(nicvf);
 	if(netdev)
 		free(netdev);
-	return err;
+	return ret;
 }
 
+int thunderx_vnic_probe(struct udevice *dev)
+{
+	int pos;
+	printf("%s: %d, dev: %p, bdf: %x\n", __FUNCTION__, __LINE__, dev, dm_pci_get_bdf(dev));
+
+	pos = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+
+	printf("%s: %d, pos: %d\n", __FUNCTION__, __LINE__, pos);
+
+	return 0;
+}
+
+static const struct misc_ops thunderx_vnic_ops = {
+};
+
+static const struct udevice_id thunderx_vnic_ids[] = {
+	{ .compatible = "cavium,vnic" },
+	{}
+};
+
+U_BOOT_DRIVER(thunderx_vnic) = {
+	.name	= "thunderx_vnic",
+	.id	= UCLASS_MISC,
+	.probe	= thunderx_vnic_probe,
+	.of_match = thunderx_vnic_ids,
+	.ops	= &thunderx_vnic_ops,
+	.priv_auto_alloc_size = sizeof(struct nicvf),
+};
+
+static struct pci_device_id thunderx_vnic_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_NIC_VF_1) },
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_NIC_VF_2) },
+	{}
+};
+
+U_BOOT_PCI_DEVICE(thunderx_vnic, thunderx_vnic_supported);
