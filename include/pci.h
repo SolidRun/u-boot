@@ -994,8 +994,6 @@ extern int pci_hose_find_cap_start(struct pci_controller *hose, pci_dev_t dev,
 extern int pci_find_cap(struct pci_controller *hose, pci_dev_t dev, int pos,
 			int cap);
 
-int pci_find_next_ext_capability(struct pci_controller *hose,
-				 pci_dev_t dev, int start, int cap);
 int pci_hose_find_ext_capability(struct pci_controller *hose,
 				 pci_dev_t dev, int cap);
 
@@ -1696,6 +1694,15 @@ int dm_pci_flr(struct udevice *dev);
  */
 int dm_pci_find_capability(struct udevice *dev, int cap);
 
+/**
+ * dm_pci_find_ext_capability() - find an extended capability
+ * 		offset for a given device
+ *
+ * @dev: 	Device to check
+ * @cap:	Capability ID
+ * @return: capability offset if found, 0 otherwise
+ */
+int dm_pci_find_ext_capability(struct udevice *dev, int cap);
 
 /**
  * dm_pci_find_device() - find a device by vendor/device ID

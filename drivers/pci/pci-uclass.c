@@ -1655,6 +1655,110 @@ int dm_pci_ea_bar_read(struct udevice *dev, int bar, pci_addr_t *start, pci_addr
 	return (bar == bei);
 }
 
+/**
+ * dm_pci_find_next_ext_capability - Find an extended capability
+ *
+ * Returns the address of the next matching extended capability structure
+ * within the device's PCI configuration space or 0 if the device does
+ * not support it.  Some capabilities can occur several times, e.g., the
+ * vendor-specific capability, and this provides a way to find them all.
+ */
+int dm_pci_find_next_ext_capability(struct udevice *dev,
+				    int start, int cap)
+{
+	u32 header;
+	int ttl, pos = PCI_CFG_SPACE_SIZE;
+
+	/* minimum 8 bytes per capability */
+	ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;
+
+	if (start)
+		pos = start;
+
+	dm_pci_read_config32(dev, pos, &header);
+	if (header == 0xffffffff || header == 0)
+		return 0;
+
+	while (ttl-- > 0) {
+		if (PCI_EXT_CAP_ID(header) == cap && pos != start)
+			return pos;
+
+		pos = PCI_EXT_CAP_NEXT(header);
+		if (pos < PCI_CFG_SPACE_SIZE)
+			break;
+
+		dm_pci_read_config32(dev, pos, &header);
+		if (header == 0xffffffff || header == 0)
+			break;
+	}
+
+	return 0;
+}
+
+/**
+ * dm_pci_find_ext_capability - Find an extended capability
+ *
+ * Returns the address of the requested extended capability structure
+ * within the device's PCI configuration space or 0 if the device does
+ * not support it.
+ */
+int dm_pci_find_ext_capability(struct udevice *dev, int cap)
+{
+	return dm_pci_find_next_ext_capability(dev, 0, cap);
+}
+
+/**
+ * pci_bus_find_next_ext_capability - Find an extended capability
+ *
+ * Returns the address of the next matching extended capability structure
+ * within the device's PCI configuration space or 0 if the device does
+ * not support it.  Some capabilities can occur several times, e.g., the
+ * vendor-specific capability, and this provides a way to find them all.
+ */
+static int pci_bus_find_next_ext_capability(struct udevice *bus,
+					    pci_dev_t bdf, int start, int cap)
+{
+	ulong header;
+	int ttl, pos = PCI_CFG_SPACE_SIZE;
+
+	/* minimum 8 bytes per capability */
+	ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;
+
+	if (start)
+		pos = start;
+
+	pci_bus_read_config(bus, bdf, pos, &header, PCI_SIZE_32);
+	if (header == 0xffffffff || header == 0)
+		return 0;
+
+	while (ttl-- > 0) {
+		if (PCI_EXT_CAP_ID(header) == cap && pos != start)
+			return pos;
+
+		pos = PCI_EXT_CAP_NEXT(header);
+		if (pos < PCI_CFG_SPACE_SIZE)
+			break;
+
+		pci_bus_read_config(bus, bdf, pos, &header, PCI_SIZE_32);
+		if (header == 0xffffffff || header == 0)
+			break;
+	}
+
+	return 0;
+}
+
+/**
+ * pci_find_ext_capability - Find an extended capability
+ *
+ * Returns the address of the requested extended capability structure
+ * within the device's PCI configuration space or 0 if the device does
+ * not support it.
+ */
+int pci_bus_find_ext_capability(struct udevice *bus, pci_dev_t bdf, int cap)
+{
+	return pci_bus_find_next_ext_capability(bus, bdf, 0, cap);
+}
+
 UCLASS_DRIVER(pci) = {
 	.id		= UCLASS_PCI,
 	.name		= "pci",
