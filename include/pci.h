@@ -1120,6 +1120,8 @@ struct pci_child_platdata {
 	unsigned int class;
 
 	bool is_phys;
+	int pf;
+	int vf_id;
 };
 
 /* PCI bus operations */

@@ -856,6 +856,8 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 		pplat->device = device;
 		pplat->class = class;
 		pplat->is_phys = false;
+		pplat->pf = dm_pci_get_bdf(pdev);
+		pplat->vf_id = vf;
 
 		bdf += PCI_BDF(0, 0, vf_stride);
 	}
