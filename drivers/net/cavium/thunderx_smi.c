@@ -269,6 +269,7 @@ int thunderx_smi_reset(struct mii_dev *bus)
 int thunderx_smi_probe(struct udevice *dev)
 {
 	struct mii_dev *bus;
+	size_t size;
 	int ctlr, ret;
 
 	struct thunderx_smi_priv *priv;
@@ -288,8 +289,8 @@ int thunderx_smi_probe(struct udevice *dev)
 
 		bus->priv = priv;
 
-		priv->baseaddr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
-						PCI_REGION_MEM) + 0x80 * ctlr;
+		priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+		priv->baseaddr += 0x80 * ctlr;
 		priv->mode = CLAUSE22;
 
 		priv->sample_lo = 0;
