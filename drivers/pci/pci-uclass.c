@@ -856,8 +856,8 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 		pplat->device = device;
 		pplat->class = class;
 		pplat->is_phys = false;
-		pplat->pf = dm_pci_get_bdf(pdev);
-		pplat->vf_id = vf;
+		pplat->pdev = pdev;
+		pplat->vf_id = vf * vf_stride + vf_offset;
 
 		bdf += PCI_BDF(0, 0, vf_stride);
 	}
@@ -1449,28 +1449,36 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
 	return bus_addr;
 }
 
+int dm_pci_ea_bar_read(struct udevice *dev, int bar,
+		       pci_addr_t *start, size_t *size);
+
 void *dm_pci_map_bar(struct udevice *dev, int bar, size_t *size, int flags)
 {
-	int ea_pos;
+	int pos;
 	pci_addr_t pci_bus_start;
 	u32 bar_response;
 	int ea_off;
+	struct pci_child_platdata *pdata = dev_get_parent_platdata(dev);
 
-	/*
-	 * if the function supports Enhanced Allocation use that instead of
-	 * BARs
-	 */
-	ea_off = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
-	if (ea_off)
-		return dm_pci_map_ea_bar(dev, bar, flags, ea_off);
+	if (!pdata->is_phys) {
+		if (bar < 9 || bar > 14)
+			return NULL;
+		dev = pdata->pdev;
+	}
 
-	ea_pos = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+	pos = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
 
-	if (ea_pos) {
+	if (pos) {
 		dm_pci_ea_bar_read(dev, bar, &pci_bus_start, size);
 	} else {
 		/* read BAR address */
-		bar = PCI_BASE_ADDRESS_0 + bar * 4;
+		if (bar >= 0 && bar <= 5) {
+			bar = PCI_BASE_ADDRESS_0 + bar * 4;
+		} else if (bar >= 9 && bar <= 14) {
+			pos = dm_pci_find_ext_capability(dev, PCI_EXT_CAP_ID_SRIOV);
+			bar = pos + PCI_SRIOV_BAR + bar * 4;
+			//TODO: Get BAR size
+		}
 		dm_pci_read_config32(dev, bar,
 				     &bar_response);
 		pci_bus_start = (pci_addr_t)(bar_response & ~0xf);
@@ -1480,6 +1488,10 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, size_t *size, int flags)
 			dm_pci_read_config32(dev, bar + 4, &bar_response);
 		}
 		pci_bus_start |= (pci_addr_t)bar_response << 32;
+	}
+
+	if (!pdata->is_phys) {
+		pci_bus_start += (pdata->vf_id - 1) * (*size);
 	}
 
 	/*

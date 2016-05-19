@@ -1112,6 +1112,9 @@ struct udevice;
  * @vendor:	PCI vendor ID (see pci_ids.h)
  * @device:	PCI device ID (see pci_ids.h)
  * @class:	PCI class, 3 bytes: (base, sub, prog-if)
+ * @is_phys:	Whether device is a physical or virtual function
+ * @pdev:	Physical function for VFs
+ * @vf_id:	VF identifier
  */
 struct pci_child_platdata {
 	int devfn;
@@ -1120,7 +1123,7 @@ struct pci_child_platdata {
 	unsigned int class;
 
 	bool is_phys;
-	int pf;
+	struct udevice *pdev;
 	int vf_id;
 };
 
