@@ -10,6 +10,9 @@
 #include <config.h>
 #include <common.h>
 #include <net.h>
+#include <dm.h>
+#include <pci.h>
+#include <misc.h>
 #include <netdev.h>
 #include <malloc.h>
 #include <miiphy.h>
@@ -57,6 +60,7 @@ struct lmac {
 
 struct bgx {
 	u8			bgx_id;
+	int			node;
 	struct	lmac		lmac[MAX_LMAC_PER_BGX];
 	int			lmac_count;
 	void __iomem		*reg_base;
@@ -79,7 +83,7 @@ static uint64_t bgx_reg_read(struct bgx *bgx, uint8_t lmac, uint64_t offset)
 static void bgx_reg_write(struct bgx *bgx, uint8_t lmac,
 			  uint64_t offset, uint64_t val)
 {
-	uint64_t addr = (uintptr_t)bgx->reg_base + 
+	uint64_t addr = (uintptr_t)bgx->reg_base +
 				((uint32_t)lmac << 20) + offset;
 
 	writeq(val, (void *)addr);
@@ -115,8 +119,8 @@ static int bgx_poll_reg(struct bgx *bgx, uint8_t lmac,
 static int gser_poll_reg(uint64_t reg, int bit, uint64_t mask, uint64_t expected_val, int timeout)
 {
 	uint64_t reg_val;
-	debug("gser_poll_reg: reg = 0x%llx, mask = 0x%llx, expected_val = 0x%llx, bit = %d\n",
-		reg, CSR_PA(0, reg), mask, expected_val, bit); 
+	debug("gser_poll_reg: reg = %#llx, mask = %#llx, expected_val = %#llx, bit = %d\n",
+		reg, mask, expected_val, bit);
 	while (timeout) {
 		reg_val = readq(CSR_PA(0, reg)) >> bit;
 		if ((reg_val & mask) == (expected_val))
@@ -208,7 +212,7 @@ static void bgx_flush_dmac_addrs(struct bgx *bgx, uint64_t lmac)
 	while (bgx->lmac[lmac].dmac > 0) {
 		offset = ((bgx->lmac[lmac].dmac - 1) * sizeof(dmac)) +
 			(lmac * MAX_DMAC_PER_LMAC * sizeof(dmac));
-		addr = (uintptr_t)bgx->reg_base + 
+		addr = (uintptr_t)bgx->reg_base +
 				BGX_CMR_RX_DMACX_CAM + offset;
 		writeq(dmac, (void *)addr);
 		bgx->lmac[lmac].dmac--;
@@ -500,7 +504,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 			return -1;
 		}
 	}
-			
+
 	if (lmac->use_training) {
 		cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_INT);
 		if (!(cfg & (1ull << 13))) {
@@ -518,8 +522,8 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 		}
 	}
 
-	/* Perform RX Equalization. Applies to non-KR interfaces for speeds 
-	   >= 6.25Gbps. */ 
+	/* Perform RX Equalization. Applies to non-KR interfaces for speeds
+	   >= 6.25Gbps. */
 	if (!lmac->use_training) {
 		int qlm;
 		switch (lmac->lmac_type) {
@@ -546,7 +550,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 			} else {
 				qlm = lmac->qlm;
 			}
-			if (__rx_equalization(qlm, 0) || __rx_equalization(qlm, 1)) { 
+			if (__rx_equalization(qlm, 0) || __rx_equalization(qlm, 1)) {
 				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d\n",
 					bgx->bgx_id, lmacid, qlm);
 				return -1;
@@ -749,7 +753,6 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 {
 	struct lmac *lmac;
 	uint64_t cfg;
-	int ret;
 
 	lmac = &bgx->lmac[lmacid];
 	lmac->bgx = bgx;
@@ -990,16 +993,35 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 	}
 }
 
-int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
+void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
+			unsigned int *phy_addr)
+{
+	unsigned int i;
+
+	bgx_board_info[bgx_id].mdio_bus = mdio_bus;
+
+	for (i = 0; i < MAX_LMAC_PER_BGX; i++)
+		bgx_board_info[bgx_id].phy_addr[i] = phy_addr[i];
+}
+
+int thunderx_bgx_probe(struct udevice *dev)
 {
 	int err;
-	struct bgx *bgx = NULL;
+	struct bgx *bgx = dev_get_priv(dev);
 	uint8_t lmac = 0;
 	int qlm[4] = {-1};
+	int bgx_idx, node;
+	size_t size;
 
-	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac+=2) {
-		qlm[lmac] = get_qlm_for_bgx(node, bgx_idx, lmac);
-		qlm[lmac+1] = qlm[lmac];
+	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+
+	node = node_id(bgx->reg_base);
+	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 1;
+	bgx->bgx_id = node * CONFIG_MAX_BGX_PER_NODE + bgx_idx;
+
+	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac += 2) {
+		qlm[lmac + 0] = get_qlm_for_bgx(node, bgx_idx, lmac);
+		qlm[lmac + 1] = qlm[lmac];
 		debug("qlm[%d] = %d\n", lmac, qlm[lmac]);
 	}
 
@@ -1008,11 +1030,7 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 	if ((qlm[0] == -1) && (qlm[2] == -1))
 		return -ENODEV;
 
-	bgx = malloc(sizeof(struct bgx));
-
 	/* MAP configuration registers */
-	bgx->reg_base = (void *)CSR_PA(node, BGXX_PF_BAR0(bgx_idx));
-	bgx->bgx_id = bgx_idx + node * CONFIG_MAX_BGX_PER_NODE;
 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac++) {
 		bgx->lmac[lmac].qlm = qlm[lmac];
 		bgx->lmac[lmac].lmacid = lmac;
@@ -1047,15 +1065,26 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node)
 	return 0;
 }
 
-void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
-			unsigned int *phy_addr)
-{
-	unsigned int i;
+static const struct misc_ops thunderx_bgx_ops = {
+};
 
-	bgx_board_info[bgx_id].mdio_bus = mdio_bus;
+static const struct udevice_id thunderx_bgx_ids[] = {
+	{ .compatible = "cavium,bgx" },
+	{}
+};
 
-	for (i = 0; i < MAX_LMAC_PER_BGX; i++)
-		bgx_board_info[bgx_id].phy_addr[i] = phy_addr[i];
-}
+U_BOOT_DRIVER(thunderx_bgx) = {
+	.name	= "thunderx_bgx",
+	.id	= UCLASS_MISC,
+	.probe	= thunderx_bgx_probe,
+	.of_match = thunderx_bgx_ids,
+	.ops	= &thunderx_bgx_ops,
+	.priv_auto_alloc_size = sizeof(struct bgx),
+};
 
+static struct pci_device_id thunderx_bgx_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_BGX) },
+	{}
+};
 
+U_BOOT_PCI_DEVICE(thunderx_bgx, thunderx_bgx_supported);
