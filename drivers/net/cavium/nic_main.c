@@ -425,18 +425,10 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
 
 static void nic_get_hw_info(struct nicpf *nic)
 {
-	u16 sdevid = 0;
+	u16 sdevid;
 	struct hw_info *hw = nic->hw;
 
-#if defined(CONFIG_TARGET_THUNDERX_88XX)
-	sdevid = PCI_SUBSYS_DEVID_88XX_NIC_PF;
-#elif defined(CONFIG_TARGET_THUNDERX_81XX)
-	sdevid = PCI_SUBSYS_DEVID_81XX_NIC_PF;
-#elif defined(CONFIG_TARGET_THUNDERX_83XX)
-	sdevid = PCI_SUBSYS_DEVID_83XX_NIC_PF;
-#endif
-
-//	pci_read_config_word(nic->pdev, PCI_SUBSYSTEM_ID, &sdevid);
+	dm_pci_read_config16(nic->udev, PCI_SUBSYSTEM_ID, &sdevid);
 
 	switch (sdevid) {
 	case PCI_SUBSYS_DEVID_88XX_NIC_PF:
