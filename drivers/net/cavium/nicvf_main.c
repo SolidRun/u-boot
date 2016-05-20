@@ -527,12 +527,12 @@ fail:
 
 int thunderx_vnic_probe(struct udevice *dev)
 {
-	int pos;
-	printf("%s: %d, dev: %p, bdf: %x\n", __FUNCTION__, __LINE__, dev, dm_pci_get_bdf(dev));
+	void *regs;
+	size_t size;
 
-	pos = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+	regs = dm_pci_map_bar(dev, 9, &size, PCI_REGION_MEM);
 
-	printf("%s: %d, pos: %d\n", __FUNCTION__, __LINE__, pos);
+	debug("%s: %d, regs: %p\n", __FUNCTION__, __LINE__, regs);
 
 	return 0;
 }
