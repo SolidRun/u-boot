@@ -282,7 +282,7 @@ struct nicvf {
 	bool			hw_tso;
 };
 
-inline int node_id(void *addr)
+static inline int node_id(void *addr)
 {
 	return ((uintptr_t)addr >> 44) & 0x3;
 }
