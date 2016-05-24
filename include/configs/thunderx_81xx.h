@@ -157,6 +157,8 @@
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_ENV_CALLBACK
 
+#define CONFIG_CMD_DATE
+
 #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
 
 /* AHCI support Definitions */
@@ -186,6 +188,9 @@
 #define CONFIG_SYS_CACHELINE_SIZE 128
 
 #define CONFIG_SYS_I2C_THUNDERX
+#define CONFIG_SYS_RTC_BUS_NUM 0
+#define CONFIG_SYS_I2C_RTC_ADDR 0x68
+#define CONFIG_RTC_DS1337
 
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_ADDR_LIST {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}
