@@ -73,6 +73,9 @@ void thunderx_parse_bdk_config(void)
 {
 	char boardname[32];
 	const char *str;
+#ifdef CONFIG_THUNDERX_BGX
+	const u8* ethaddr;
+#endif
 	int ret = 0, len = 32;
 
 	if (gd->fdt_blob != NULL) {
@@ -91,6 +94,11 @@ void thunderx_parse_bdk_config(void)
 			}
 #ifdef CONFIG_THUNDERX_BGX
 			thunderx_parse_phy_address(gd->fdt_blob);
+			ethaddr = get_prop_value(gd->fdt_blob, "BOARD-MAC-ADDRESS", &len);
+			if (ethaddr && !eth_getenv_enetaddr("ethaddr", ethaddr)) {
+				printf("Board MAC address: %pM\n", ethaddr);
+				eth_setenv_enetaddr("ethaddr", ethaddr);
+			}
 #endif
 		}
 	}
