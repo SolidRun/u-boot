@@ -12,6 +12,8 @@
 #include <fdt_support.h>
 #include <cavium/atf.h>
 
+#include "cavm-arch.h"
+
 #ifdef CONFIG_THUNDERX_VNIC
  #include <cavium/thunderx_vnic.h>
 #endif
@@ -20,7 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const void *get_prop_value(void *fdt, const char *prop_name, int *len)
+static const void *get_prop_value(const void *fdt, const char *prop_name, int *len)
 {
 	int depth = 0, node;
 

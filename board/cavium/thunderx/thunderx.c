@@ -48,11 +48,6 @@ U_BOOT_DEVICE(thunderx_serial1) = {
 };
 #endif
 
-#ifdef CONFIG_THUNDERX_VNIC
- #include <cavium/thunderx_smi.h>
- #include <cavium/thunderx_vnic.h>
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #define BOARD_TYPE "BOARD="
