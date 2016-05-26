@@ -244,7 +244,7 @@
 #define CONFIG_E1000_SPI
 #define CONFIG_CMD_E1000
 
-#define E1000_DEBUG
+/* #define E1000_DEBUG */
 
 /* Initial environment variables */
 #define UBOOT_IMG_HEAD_SIZE		0x40
