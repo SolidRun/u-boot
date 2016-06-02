@@ -3,66 +3,44 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
 **/
+
 #include <common.h>
 #include <malloc.h>
 #include <errno.h>
 #include <linux/compiler.h>
 
 #include <libfdt.h>
+#include <fdtdec.h>
 #include <fdt_support.h>
 #include <cavium/atf.h>
 
 #include "cavm-arch.h"
 
 #ifdef CONFIG_THUNDERX_VNIC
- #include <cavium/thunderx_vnic.h>
+# include <cavium/thunderx_vnic.h>
 #endif
 
 #define MAX_LMAC_PER_BGX 4
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const void *get_prop_value(const void *fdt, const char *prop_name, int *len)
-{
-	int depth = 0, node;
-
-	node = fdt_next_node(fdt, 0, &depth);
-	while (node >= 0) {
-		int prop_off;
-		prop_off = fdt_first_property_offset(fdt, node);
-		while (prop_off >= 0) {
-			const char *name;
-			const void *val = fdt_getprop_by_offset(fdt, prop_off,
-								&name, len);
-			if (strcmp(name, prop_name) == 0)
-				return val;
-			prop_off = fdt_next_property_offset(fdt, prop_off);
-		}
-		node = fdt_next_node(fdt, node, &depth);
-	}
-	return NULL;
-}
-
-static void thunderx_parse_phy_address(void *fdt)
+static void thunderx_parse_phy_address(const void *fdt, int node)
 {
 	char bgxname[32];
-	const char *str;
-	int len = 0, bgx_id, phy_id;
+	int bgx_id, phy_id;
 	unsigned int phy_addr[MAX_LMAC_PER_BGX] = {0}, mdio_bus = 0;
-	unsigned long buffer = 0x0;
+	unsigned int buffer = 0x0;
 
 	for (bgx_id = 0; bgx_id < CONFIG_MAX_BGX_PER_NODE; bgx_id++) {
 		for (phy_id = 0; phy_id < MAX_LMAC_PER_BGX; phy_id++)   {
 			snprintf(bgxname, sizeof(bgxname),
 				 "PHY-ADDRESS.N0.BGX%d.P%d", bgx_id, phy_id);
-			str = get_prop_value(fdt, bgxname, &len);
-			debug("fdt: str %s len %d\n", str, len);
-			if (str) {
-				buffer = simple_strtoul(str, NULL, 16);
+			buffer = fdtdec_get_uint(fdt, node, bgxname, -1);
+			if (buffer != (unsigned)-1) {
 				mdio_bus = (buffer >> 8) & 0xF;
 				phy_addr[phy_id] = buffer & 0xFF;
 			} else {
-				printf("Err: cannot retrieve phy address from fdt\n");
+				printf("Error: cannot retrieve phy address from fdt\n");
 			}
 		}
 		bgx_set_board_info(bgx_id, mdio_bus, &phy_addr[0]);
@@ -74,35 +52,65 @@ void thunderx_parse_bdk_config(void)
 	char boardname[32];
 	const char *str;
 #ifdef CONFIG_THUNDERX_BGX
-	const u8* ethaddr;
+	uint64_t val64;
+	uint8_t ethaddr[6];
+	uint8_t mac_addr[6] = { 0, 0, 0, 0, 0, 0};
+	int i, shift;
 #endif
-	int ret = 0, len = 32;
+	int node;
+	int ret = 0, len = sizeof(boardname);
 
-	if (gd->fdt_blob != NULL) {
-		ret = fdt_check_header(gd->fdt_blob);
-		if (ret < 0) {
-			printf("fdt: %s\n", fdt_strerror(ret));
-		} else {
-			debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
-			str = get_prop_value(gd->fdt_blob, "BOARD-MODEL", &len);
-			debug("fdt: str %s len %d\n", str, len);
-			if (str) {
-				strncpy(boardname, str, len);
-				setenv("board", boardname);
-			} else {
-				printf("Err: cannot retrieve board type from fdt\n");
-			}
-#ifdef CONFIG_THUNDERX_BGX
-			thunderx_parse_phy_address(gd->fdt_blob);
-			ethaddr = get_prop_value(gd->fdt_blob, "BOARD-MAC-ADDRESS", &len);
-			if (ethaddr && !eth_getenv_enetaddr("ethaddr", ethaddr)) {
-				printf("Board MAC address: %pM\n", ethaddr);
-				eth_setenv_enetaddr("ethaddr", ethaddr);
-			}
-#endif
-		}
+	debug("%s: ENTER\n", __func__);
+	if (!gd->fdt_blob) {
+		printf("ERROR: %s: no valid device tree found\n", __func__);
+		return;
 	}
 
+	ret = fdt_check_header(gd->fdt_blob);
+	if (ret < 0) {
+		printf("fdt: %s\n", fdt_strerror(ret));
+		return;
+	}
+
+	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
+	if (node < 0) {
+		printf("%s: /cavium,bdk is missing from device tree: %s\n",
+		       __func__, fdt_strerror(node));
+		return;
+	}
+
+	debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
+	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
+	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
+	if (str) {
+		strncpy(boardname, str, sizeof(boardname));
+		setenv("board", boardname);
+	} else {
+		printf("Error: cannot retrieve board type from fdt\n");
+	}
+
+#ifdef CONFIG_THUNDERX_BGX
+	thunderx_parse_phy_address(gd->fdt_blob, node);
+	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS", &len);
+	if (!str) {
+		printf("%s: BOARD-MAC-ADDRESS missing from device tree\n",
+		       __func__);
+		return;
+	}
+	val64 = simple_strtoull(str, NULL, 16);
+	for (i = 0, shift = 40; i < 6; i++, shift -= 8)
+		mac_addr[i] = (val64 >> shift) & 0xff;
+
+	if (!eth_getenv_enetaddr("ethaddr", ethaddr)) {
+		char addr_str[18];
+		snprintf(addr_str, sizeof(addr_str), "%pM", mac_addr);
+		debug("Setting ethaddr to \"%s\"\n", addr_str);
+		setenv_force("ethaddr", addr_str);
+	} else {
+		memcpy(mac_addr, ethaddr, sizeof(mac_addr));
+	}
+	printf("Board MAC address: %pM\n", mac_addr);
+#endif
 }
 
 int arch_fixup_memory_node(void *blob)
