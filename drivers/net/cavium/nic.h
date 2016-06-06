@@ -515,7 +515,7 @@ static inline bool pass1_silicon(unsigned int revision)
 
 static inline bool pass2_silicon(unsigned int revision)
 {
-	return (revision == 8);
+	return (revision >= 8);
 }
 
 #endif /* NIC_H */
