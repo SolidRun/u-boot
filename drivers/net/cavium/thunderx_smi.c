@@ -230,10 +230,10 @@ int thunderx_phy_write(struct mii_dev *bus, int addr, int devad, int regnum,
 
 	if (mode == CLAUSE45) {
 		smix_cmd.s.reg_adr = devad;
-		smix_cmd.s.phy_op = SMI_OP_C45_READ;
+		smix_cmd.s.phy_op = SMI_OP_C45_WRITE;
 	} else {
 		smix_cmd.s.reg_adr = regnum;
-		smix_cmd.s.phy_op = SMI_OP_C22_READ;
+		smix_cmd.s.phy_op = SMI_OP_C22_WRITE;
 	}
 
 	writeq(smix_cmd.u, priv->baseaddr + SMI_X_CMD);
