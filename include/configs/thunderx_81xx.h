@@ -124,8 +124,8 @@
 #endif
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 
-#define CONFIG_MAX_BGX_PER_NODE		2
-#define CONFIG_MAX_BGX			2
+#define CONFIG_MAX_BGX_PER_NODE		3
+#define CONFIG_MAX_BGX			3 /* 2 BGX + 1 RGX */
 
 #define CONFIG_PHYLIB_10G
 

@@ -208,6 +208,7 @@ int bgx_get_lmac_count(int node, int bgx);
 void bgx_print_stats(int bgx_idx, int lmac);
 void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
 			unsigned int *phy_addr);
+int xcv_setup_link(bool link_up, int link_speed);
 
 #undef LINK_INTR_ENABLE
 
@@ -220,6 +221,7 @@ enum qlm_mode {
 	QLM_MODE_10G_KR,    /* 4 10GBASE-KR, 1 lane each */
 	QLM_MODE_40G_KR4,   /* 1 40GBASE-KR4, 4 lanes each */
 	QLM_MODE_QSGMII,    /* 4 QSGMII, each lane independent */
+	QLM_MODE_RGMII,     /* 1 RGX */
 };
 
 struct bgx_board_info {

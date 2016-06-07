@@ -33,6 +33,7 @@
 
 static const phy_interface_t if_mode[] = {
 	[QLM_MODE_SGMII]  = PHY_INTERFACE_MODE_SGMII,
+	[QLM_MODE_RGMII]  = PHY_INTERFACE_MODE_SGMII,
 	[QLM_MODE_QSGMII] = PHY_INTERFACE_MODE_SGMII,
 	[QLM_MODE_XAUI]   = PHY_INTERFACE_MODE_XAUI,
 	[QLM_MODE_RXAUI]  = PHY_INTERFACE_MODE_RXAUI,
@@ -63,8 +64,10 @@ struct bgx {
 	int			node;
 	struct	lmac		lmac[MAX_LMAC_PER_BGX];
 	int			lmac_count;
+	u8			max_lmac;
 	void __iomem		*reg_base;
 	struct pci_dev		*pdev;
+	bool			is_rgx;
 };
 
 struct bgx_board_info bgx_board_info[CONFIG_MAX_BGX];
@@ -275,6 +278,8 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 
 	lmac = &bgx->lmac[lmacid];
 
+	debug("bgx_lmac_sgmii_init: bgx_id = %d, lmacid = %d\n", bgx->bgx_id, lmacid);
+
 	bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_THRESH, 0x30);
 	/* max packet size */
 	bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_RXX_JABBER, MAX_FRAME_SIZE);
@@ -311,10 +316,12 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 		return 0; /* Skip checking AN_CPT */
 	}
 
-	if (bgx_poll_reg(bgx, lmacid, BGX_GMP_PCS_MRX_STATUS,
+	if (lmac->qlm_mode == QLM_MODE_SGMII) {
+		if (bgx_poll_reg(bgx, lmacid, BGX_GMP_PCS_MRX_STATUS,
 			 PCS_MRX_STATUS_AN_CPT, false)) {
-		printf("BGX AN_CPT not completed\n");
-		return -1;
+			printf("BGX AN_CPT not completed\n");
+			return -1;
+		}
 	}
 
 	return 0;
@@ -529,6 +536,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 		switch (lmac->lmac_type) {
 		default:
 		case 0: // SGMII
+		case 5: // RGMII
 		case 1: // XAUI
 			/* Nothing to do */
 			break;
@@ -659,8 +667,9 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 	      __FILE__, __LINE__,
 	      node, bgx_idx, lmacid, lmac);
 
-	if (lmac->qlm_mode == QLM_MODE_SGMII ||
-	    lmac->qlm_mode == QLM_MODE_QSGMII){
+	if ((lmac->qlm_mode == QLM_MODE_SGMII) ||
+	    (lmac->qlm_mode == QLM_MODE_RGMII) ||
+	    (lmac->qlm_mode == QLM_MODE_QSGMII)) {
 		snprintf(mii_name, sizeof(mii_name), "txsmi%d",
 			 bgx_board_info[bgx_idx].mdio_bus);
 
@@ -699,6 +708,9 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 			printf("%s: Could not initialize PHY %s\n",
 				lmac->netdev.name, lmac->phydev->dev->name);
 		}
+
+		if (lmac->qlm_mode == QLM_MODE_RGMII)
+			xcv_setup_link(lmac->phydev->link, lmac->phydev->speed);
 
 		lmac->link_up = lmac->phydev->link;
 		lmac->last_speed = lmac->phydev->speed;
@@ -759,8 +771,9 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 
 	debug("bgx_lmac_enable: lmac: %p, lmacid = %d\n", lmac, lmacid);
 
-	if (lmac->qlm_mode == QLM_MODE_SGMII ||
-	    lmac->qlm_mode == QLM_MODE_QSGMII) {
+	if ((lmac->qlm_mode == QLM_MODE_SGMII) ||
+	    (lmac->qlm_mode == QLM_MODE_RGMII) ||
+	    (lmac->qlm_mode == QLM_MODE_QSGMII)) {
 		if (bgx_lmac_sgmii_init(bgx, lmacid)) {
 			debug("bgx_lmac_sgmii_init failed\n");
 			return -1;
@@ -865,6 +878,13 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac->use_training = 1;
 			lmac_count = 1;
 			break;
+		case QLM_MODE_RGMII:
+			if (lmacid != 0)
+				continue;
+			lmac->lmac_type = 5;
+			lmac->lane_to_sds = 0xE4;
+			lmac_count = 1;
+			break;
 		case QLM_MODE_QSGMII:
 			if ((lmacid == 0) || (lmacid == 2)) {
 				lmac_count = 4;
@@ -940,9 +960,18 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 
 		switch(lmac->lmac_type) {
 		case 0:
-			lmac->qlm_mode = QLM_MODE_SGMII;
-			printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
-					bgx->bgx_id, lmac->qlm, lmacid);
+			if (bgx->is_rgx) {
+				if (lmacid == 0) {
+					lmac->qlm_mode = QLM_MODE_RGMII;
+					printf("BGX%d LMAC%d mode: RGMII\n",
+							bgx->bgx_id, lmacid);
+				}
+				continue;
+			} else {
+				lmac->qlm_mode = QLM_MODE_SGMII;
+				printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
+						bgx->bgx_id, lmac->qlm, lmacid);
+			}
 			break;
 		case 1:
 			lmac->qlm_mode = QLM_MODE_XAUI;
@@ -1015,6 +1044,21 @@ int thunderx_bgx_probe(struct udevice *dev)
 
 	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 
+	/* Use FAKE BGX2 for RGX interface */
+	if ((((uintptr_t)bgx->reg_base >> 24) & 0xf) == 0x8) {
+		bgx->bgx_id = 2;
+		bgx->is_rgx = true;
+		for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac++) {
+			if (lmac == 0) {
+				bgx->lmac[lmac].lmacid = 0;
+				bgx->lmac[lmac].qlm = 0;
+			} else {
+				bgx->lmac[lmac].qlm = -1;
+			}
+		}
+		goto skip_qlm_config;
+	}
+
 	node = node_id(bgx->reg_base);
 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 1;
 	bgx->bgx_id = node * CONFIG_MAX_BGX_PER_NODE + bgx_idx;
@@ -1036,6 +1080,7 @@ int thunderx_bgx_probe(struct udevice *dev)
 		bgx->lmac[lmac].lmacid = lmac;
 	}
 
+skip_qlm_config:
 	bgx_vnic[bgx->bgx_id] = bgx;
 	bgx_get_qlm_mode(bgx);
 	debug("bgx_vnic[%u]: %p\n", bgx->bgx_id, bgx);
@@ -1084,6 +1129,7 @@ U_BOOT_DRIVER(thunderx_bgx) = {
 
 static struct pci_device_id thunderx_bgx_supported[] = {
 	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_BGX) },
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_RGX) },
 	{}
 };
 
