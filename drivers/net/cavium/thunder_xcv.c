@@ -57,7 +57,6 @@ int xcv_setup_link(bool link_up, int link_speed)
 	credits = link_up && !reset.s.enable;
 	xcv_ctl.u = readq(CSR_PA(0, XCVX_CTL(0)));
 
-printf("link_up = %d, speed = %d, xcv_ctl.speed = %d\n", link_up, link_speed, speed, xcv_ctl.s.speed);
 	if (link_up && (!reset.s.enable || (xcv_ctl.s.speed != speed))) {
 		/* Enable the XCV block */
 		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
@@ -112,7 +111,6 @@ printf("link_up = %d, speed = %d, xcv_ctl.speed = %d\n", link_up, link_speed, sp
 		reset.s.tx_dat_rst_n = 1; 
 		reset.s.rx_dat_rst_n = 1; 
 		writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
-printf("done with rx/tx data rst\n");
 	}
 
 	/* Enable the packet flow
@@ -152,7 +150,6 @@ int thunderx_xcv_probe(struct udevice *dev)
 	}
 
 	xcv->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
-printf("xcv_reg_base = 0x%llx\n", xcv->reg_base);
 
 	return 0;
 }
