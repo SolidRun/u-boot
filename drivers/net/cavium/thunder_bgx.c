@@ -1089,13 +1089,6 @@ skip_qlm_config:
 
 	/* Enable all LMACs */
 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
-		if (bgx->lmac[lmac].qlm_mode == QLM_MODE_SGMII ||
-		    bgx->lmac[lmac].qlm_mode == QLM_MODE_QSGMII ||
-		    bgx->lmac[lmac].qlm_mode == QLM_MODE_RXAUI ||
-		    bgx->lmac[lmac].qlm_mode == QLM_MODE_XAUI) {
-
-		}
-
 		snprintf(bgx->lmac[lmac].netdev.name,
 			 sizeof(bgx->lmac[lmac].netdev.name),
 			 "lmac%d", lmac);

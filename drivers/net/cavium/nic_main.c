@@ -413,7 +413,7 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
 			continue;
 		nic->bgx_cnt++;
 		lmac_cnt = bgx_get_lmac_count(nic->node, bgx);
-		debug("lmac_cnt: %d\n", lmac_cnt);
+		debug("lmac_cnt: %d for BGX%d\n", lmac_cnt, bgx);
 		for (lmac = 0; lmac < lmac_cnt; lmac++)
 			nic->vf_lmac_map[next_bgx_lmac++] =
 						NIC_SET_VF_LMAC_MAP(bgx, lmac);
