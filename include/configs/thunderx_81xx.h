@@ -23,7 +23,7 @@
 #define CONFIG_SYS_VSNPRINTF
 
 #define CONFIG_IDENT_STRING	\
-	" for Cavium Thunder CN81XX ARM v8 Core"
+	" for Cavium OcteonTX CN81XX ARM v8 Core"
 #define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
 
 #define MEM_BASE			0x00500000
