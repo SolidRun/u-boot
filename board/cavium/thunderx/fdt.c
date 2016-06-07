@@ -29,16 +29,18 @@ static void thunderx_parse_phy_address(const void *fdt, int node)
 	char bgxname[32];
 	int bgx_id, phy_id;
 	unsigned int phy_addr[MAX_LMAC_PER_BGX] = {0}, mdio_bus = 0;
-	unsigned int buffer = 0x0;
+	const char *buffer;
+	uint32_t val;
 
 	for (bgx_id = 0; bgx_id < CONFIG_MAX_BGX_PER_NODE; bgx_id++) {
 		for (phy_id = 0; phy_id < MAX_LMAC_PER_BGX; phy_id++)   {
 			snprintf(bgxname, sizeof(bgxname),
 				 "PHY-ADDRESS.N0.BGX%d.P%d", bgx_id, phy_id);
-			buffer = fdtdec_get_uint(fdt, node, bgxname, -1);
-			if (buffer != (unsigned)-1) {
-				mdio_bus = (buffer >> 8) & 0xF;
-				phy_addr[phy_id] = buffer & 0xFF;
+			buffer = fdt_getprop(fdt, node, bgxname, NULL);
+			if (buffer != NULL) {
+				val = simple_strtoul(buffer, NULL, 16);
+				mdio_bus = (val >> 8) & 0xF;
+				phy_addr[phy_id] = val & 0xFF;
 			} else {
 				debug("Err: cannot retrieve phy address from fdt\n");
 			}
