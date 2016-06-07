@@ -755,7 +755,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 		lmac->last_link = lmac->link_up;
 	}
 
-	printf("LMAC %u link %s\n", lmacid,  (lmac->link_up) ? "up" : "down");
+	printf("BGX%d:LMAC %u link %s\n", bgx_idx, lmacid,  (lmac->link_up) ? "up" : "down");
 
 	return lmac->link_up;
 }
@@ -845,7 +845,7 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac_count = 1;
 			break;
 		case QLM_MODE_RXAUI:
-			if (lmacid < 2) {
+			if ((lmacid == 0) || (lmacid == 2)) {
 				lmac->lmac_type = 2;
 				lmac->lane_to_sds = (lmacid) ? 0xE : 0x4;
 				lmac_count++;
@@ -979,10 +979,10 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 					bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case 2:
-			lmac->qlm_mode = QLM_MODE_RXAUI;
-			if (lmacid < 2) {
+			if (index == lmacid) {
+				lmac->qlm_mode = QLM_MODE_RXAUI;
 				printf("BGX%d QLM%d LMAC%d mode: RXAUI\n",
-					bgx->bgx_id, lmac->qlm+1, lmacid);
+					bgx->bgx_id, lmac->qlm, lmacid);
 			}
 			break;
 		case 3:
