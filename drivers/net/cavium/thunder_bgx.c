@@ -709,8 +709,10 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 				lmac->netdev.name, lmac->phydev->dev->name);
 		}
 
+#ifdef CONFIG_THUNDER_XCV
 		if (lmac->qlm_mode == QLM_MODE_RGMII)
 			xcv_setup_link(lmac->phydev->link, lmac->phydev->speed);
+#endif
 
 		lmac->link_up = lmac->phydev->link;
 		lmac->last_speed = lmac->phydev->speed;
@@ -1044,6 +1046,7 @@ int thunderx_bgx_probe(struct udevice *dev)
 
 	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 
+#ifdef CONFIG_THUNDER_XCV
 	/* Use FAKE BGX2 for RGX interface */
 	if ((((uintptr_t)bgx->reg_base >> 24) & 0xf) == 0x8) {
 		bgx->bgx_id = 2;
@@ -1058,6 +1061,7 @@ int thunderx_bgx_probe(struct udevice *dev)
 		}
 		goto skip_qlm_config;
 	}
+#endif
 
 	node = node_id(bgx->reg_base);
 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 1;
@@ -1080,7 +1084,9 @@ int thunderx_bgx_probe(struct udevice *dev)
 		bgx->lmac[lmac].lmacid = lmac;
 	}
 
+#ifdef CONFIG_THUNDER_XCV
 skip_qlm_config:
+#endif
 	bgx_vnic[bgx->bgx_id] = bgx;
 	bgx_get_qlm_mode(bgx);
 	debug("bgx_vnic[%u]: %p\n", bgx->bgx_id, bgx);
@@ -1122,7 +1128,9 @@ U_BOOT_DRIVER(thunderx_bgx) = {
 
 static struct pci_device_id thunderx_bgx_supported[] = {
 	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_BGX) },
+#ifdef CONFIG_THUNDER_XCV
 	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_RGX) },
+#endif
 	{}
 };
 
