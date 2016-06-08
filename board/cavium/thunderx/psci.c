@@ -4,7 +4,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
 **/
 
-#define DEBUG
 #include <common.h>
 #include <asm/io.h>
 #include <linux/psci.h>

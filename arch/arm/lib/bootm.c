@@ -11,7 +11,6 @@
  * Copyright (C) 2001  Erik Mouw (J.A.K.Mouw@its.tudelft.nl)
  */
 
-#define DEBUG
 #include <common.h>
 #include <command.h>
 #include <dm.h>
@@ -91,15 +90,12 @@ __weak void board_quiesce_devices(void)
 static void announce_and_cleanup(int fake)
 {
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
-printf("done with bootstage\n");
 #ifdef CONFIG_BOOTSTAGE_FDT
 	bootstage_fdt_add_report();
 #endif
-printf("done iwth fdt\n");
 #ifdef CONFIG_BOOTSTAGE_REPORT
 	bootstage_report();
 #endif
-printf("Done with bootstage\n");
 
 #ifdef CONFIG_USB_DEVICE
 	udc_disconnect();
@@ -116,9 +112,7 @@ printf("Done with bootstage\n");
 	 */
 	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
 
-printf("done with usb device\n");
 	cleanup_before_linux();
-printf("Done with cleanup\n");
 }
 
 static void setup_start_tag (bd_t *bd)
@@ -225,10 +219,12 @@ __weak void setup_board_tags(struct tag **in_params) {}
 #ifdef CONFIG_ARM64
 static void do_nonsec_virt_switch(void)
 {
-printf("virt_switch:\n");
 	smp_kick_all_cpus();
-printf("1.\n");
 	dcache_disable();	/* flush cache before swtiching to EL2 */
+	armv8_switch_to_el2();
+#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
+	armv8_switch_to_el1();
+#endif
 }
 #endif
 
@@ -344,7 +340,6 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 
 	announce_and_cleanup(fake);
 
-printf("fake = %d\n", fake);
 	if (!fake) {
 #ifdef CONFIG_ARMV8_PSCI
 		armv8_setup_psci();
