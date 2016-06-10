@@ -14,8 +14,6 @@
 #include <fdt_support.h>
 #include <cavium/atf.h>
 
-#include "cavm-arch.h"
-
 #ifdef CONFIG_THUNDERX_VNIC
 # include <cavium/thunderx_vnic.h>
 #endif
@@ -120,47 +118,6 @@ int arch_fixup_memory_node(void *blob)
 	return 0;
 }
 
-static void ft_setup_uaa_clk(void *fdt)
-{
-	unsigned int ibrd, fbrd;
-	unsigned long baud = CONFIG_BAUDRATE;
-	uint32_t refclk;
-	int nodeoffset, err;
-	uint64_t rst_boot;
-
-	ibrd = CSR_READ_PA(0, UAAX_IBRD(0));
-	ibrd = ibrd & 0xffff;
-
-	fbrd = CSR_READ_PA(0, UAAX_FBRD(0));
-	fbrd = fbrd & 0x3f;
-
-	refclk = (baud * (64 * ibrd + fbrd)) / 4;
-
-	/* Set RCLK */
-	nodeoffset = fdt_path_offset(fdt, "/soc/refclkuaa");
-
-	err = fdt_setprop_u32(fdt, nodeoffset, "clock-frequency", refclk);
-
-	if(err < 0) {
-		printf("WARNING: could not set %s for RCLK: %s.\n", "clock-frequency",
-				fdt_strerror(err));
-		return;
-	}
-
-	/* Set SCLK (rst_boot.pnr_mul */
-	rst_boot = CSR_READ_PA(0, RST_BOOT);
-	rst_boot = ((rst_boot >> 33) & 0x3f);
-
-	nodeoffset = fdt_path_offset(fdt, "/soc/sclk");
-	err = fdt_setprop_u32(fdt, nodeoffset, "clock-frequency", rst_boot * 50000000ull);
-
-	if(err < 0) {
-		printf("WARNING: could not set %s for SCLK: %s.\n", "clock-frequency",
-				fdt_strerror(err));
-		return;
-	}
-}
-
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	/* remove "cavium, bdk" node from DT */
@@ -173,8 +130,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 
 	if (blob != NULL) {
-		ft_setup_uaa_clk(blob);
-
 		offset = fdt_path_offset(blob, "/cavium,bdk");
 		if(offset < 0) {
 			printf("ERROR: FDT BDK node not found\n");
