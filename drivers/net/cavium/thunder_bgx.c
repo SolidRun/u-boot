@@ -976,9 +976,9 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			}
 			break;
 		case 1:
+			lmac->qlm_mode = QLM_MODE_XAUI;
 			if (lmacid != 0)
 				continue;
-			lmac->qlm_mode = QLM_MODE_XAUI;
 			printf("BGX%d QLM%d LMAC%d mode: XAUI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			break;
