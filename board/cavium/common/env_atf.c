@@ -20,9 +20,9 @@
 #include <linux/stddef.h>
 #include <memalign.h>
 
-#include <cavium/atf.h>
-#include <cavium/atf_part.h>
-#include <cavium/thunderx_svc.h>
+#include <asm/arch/atf.h>
+#include <asm/arch/atf_part.h>
+#include <asm/arch/thunderx_svc.h>
 
 #include <search.h>
 #include <errno.h>

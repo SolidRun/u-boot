@@ -24,8 +24,8 @@
  #include <fdt_support.h>
 #endif
 
-#include <cavium/thunderx_smi.h>
-#include <cavium/thunderx_vnic.h>
+#include <asm/arch/thunderx_smi.h>
+#include <asm/arch/thunderx_vnic.h>
 
 #include "nic_reg.h"
 #include "nic.h"

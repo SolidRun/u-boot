@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
 **/
-
+#define DEBUG
 #include <common.h>
 #include <malloc.h>
 #include <errno.h>
@@ -12,10 +12,10 @@
 #include <libfdt.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
-#include <cavium/atf.h>
+#include <asm/arch/atf.h>
 
 #ifdef CONFIG_THUNDERX_VNIC
-# include <cavium/thunderx_vnic.h>
+# include <asm/arch/thunderx_vnic.h>
 #endif
 
 #define MAX_LMAC_PER_BGX 4
@@ -66,6 +66,7 @@ void thunderx_parse_bdk_config(void)
 		return;
 	}
 
+	debug("%s: fdt blob at %p\n", __func__, gd->fdt_blob);
 	ret = fdt_check_header(gd->fdt_blob);
 	if (ret < 0) {
 		printf("fdt: %s\n", fdt_strerror(ret));

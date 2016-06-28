@@ -11,11 +11,6 @@
 
 #define CONFIG_SPECIAL_SYNC_HANDLER
 
-/*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
-//#define DEBUG
-
-#define CONFIG_SYS_64BIT
-
 /** Thunder 81xx does not support NOR flash */
 #define CONFIG_SYS_NO_FLASH
 
@@ -25,10 +20,6 @@
 
 /** Enable vsnprintf support */
 #define CONFIG_SYS_VSNPRINTF
-
-/** Identification string */
-#define CONFIG_IDENT_STRING	\
-	" for Cavium OcteonTX CN81XX ARM v8 Core"
 
 #define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
 
@@ -111,9 +102,6 @@
 
 /* Flat Device Tree Definitions */
 
-/** Enable flat device tree support */
-#define CONFIG_OF_LIBFDT
-
 /**
  * The board code has additional modification that it wants to make to the flat
  * device tree before handing it off to the Linux kernel.
@@ -146,19 +134,6 @@
  */
 #define CONFIG_SYS_MEM_TOP_HIDE		0x1000000
 
-/** Stack size for PSCI calls */
-#define CONFIG_AP_STACK_SIZE		65536
-
-/** Stack alignment for PSCI calls */
-#define CONFIG_AP_STACK_ALIGN		16
-
-/* PL011 Serial Configuration */
-/** Enable PL011 serial driver */
-#define CONFIG_PL01X_SERIAL
-
-/** PL011 serial clock speed */
-#define CONFIG_PL011_CLOCK		24000000
-
 /** Console serial port number */
 #define CONFIG_CONS_INDEX		1
 
@@ -167,12 +142,6 @@
 /** Base address of Global Interrupt Controller GICD registers */
 #define GICD_BASE			(0x801000000000)
 #define GICR_BASE			(0x801000002000)
-
-/** Base address of UART0 registers */
-#define CONFIG_SYS_SERIAL0		0x87e028000000
-
-/** Base address of UART1 registers */
-#define CONFIG_SYS_SERIAL1		0x87e029000000
 
 #define CONFIG_BAUDRATE			115200
 
@@ -291,40 +260,15 @@
 #define CONFIG_PARTITION_UUIDS
 
 /* PCIe */
-/** Enable PCI support */
-#define CONFIG_PCI
-/** Enable 64-bit PCI addressing support */
-#define CONFIG_SYS_PCI_64BIT
 /** Show devices found on PCI bus */
 #define CONFIG_PCI_SCAN_SHOW
 #undef CONFIG_PCI_ENUM_ONLY
-/** Enable PCI plug-and-play support */
-#define CONFIG_PCI_PNP
-#define CONFIG_SYS_PCI_ARI
-/** Enable ThunderX ECAMS PCIE support */
-#define CONFIG_THUNDERX_ECAMS 1
-#define CONFIG_THUNDERX_RCS 3
-
-/** Define the cacheline size */
-#define CONFIG_SYS_CACHELINE_SIZE 128
 
 /** Number of I2C buses */
 #define CONFIG_SYS_MAX_I2C_BUS	2
 
-/** Enable ThunderX I2C support */
-#define CONFIG_SYS_I2C_THUNDERX
-
 /** I2C slave address */
 #define CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR	0x77
-
-/** I2C bus speed */
-#define CONFIG_SYS_I2C_SPEED			100000
-
-/** Speed for bus 0 */
-#define CONFIG_SYS_I2C_THUNDERX_SPEED_0		100000
-
-/** Speed for bus 1 */
-#define CONFIG_SYS_I2C_THUNDERX_SPEED_1		100000
 
 /** I2C bus real-time clock resides on */
 #define CONFIG_SYS_RTC_BUS_NUM 0

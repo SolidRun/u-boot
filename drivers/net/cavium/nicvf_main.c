@@ -17,7 +17,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 
-#include <cavium/thunderx_vnic.h>
+#include <asm/arch/thunderx_vnic.h>
 
 #include "nic_reg.h"
 #include "nic.h"

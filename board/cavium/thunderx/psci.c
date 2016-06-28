@@ -12,7 +12,7 @@
 #include <asm/bootm.h>
 #include <asm/armv8/mmu.h>
 
-#include <cavium/slt.h>
+#include <asm/arch/slt.h>
 
 #ifdef CONFIG_OF_LIBFDT
 #include <libfdt.h>

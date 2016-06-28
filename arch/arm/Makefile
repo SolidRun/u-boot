@@ -43,6 +43,7 @@ tune-$(CONFIG_CPU_ARM1176)	=
 tune-$(CONFIG_CPU_V7A)		=-mtune=generic-armv7-a
 tune-$(CONFIG_CPU_V7R)		=
 tune-$(CONFIG_ARM64)		=
+tune-$(CONFIG_THUNDERX)		=
 
 # Evaluate tune cc-option calls now
 tune-y := $(tune-y)
@@ -79,6 +80,7 @@ machine-$(CONFIG_ARCH_ROCKCHIP)		+= rockchip
 machine-$(CONFIG_STM32)			+= stm32
 machine-$(CONFIG_ARCH_STM32MP)		+= stm32mp
 machine-$(CONFIG_TEGRA)			+= tegra
+machine-$(CONFIG_ARCH_THUNDERX)		+= thunderx
 machine-$(CONFIG_ARCH_UNIPHIER)		+= uniphier
 machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
 machine-$(CONFIG_ARCH_ZYNQMP)		+= zynqmp

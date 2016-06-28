@@ -16,7 +16,7 @@
 #include <net.h>
 
 #include <malloc.h>
-#include <cavium/atf.h>
+#include <asm/arch/atf.h>
 
 #include <libfdt.h>
 

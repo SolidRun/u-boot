@@ -1,0 +1,173 @@
+if ARCH_THUNDERX
+
+config	THUNDERX_COMMON
+	bool
+	default y
+	select DM
+	select DM_I2C
+	select DM_I2C_COMPAT
+	select DM_GPIO
+	select DM_PCI
+	select DM_PCI_COMPAT
+	select DM_SERIAL
+	select DM_USB
+	select OF_CONTROL
+	select OF_EMBED
+	select OF_LIBFDT
+	select ARM64
+	select PCI_THUNDERX_ECAM
+	select PL01X_SERIAL
+	select SYS_64BIT
+	select NO_RELOCATION
+	select PCI
+	select SYS_PCI_64BIT
+	select PCI_PNP
+	select PCI_AUTO
+
+choice
+	prompt "Choose target processor"
+
+	config TARGET_THUNDERX_CN81XX
+		bool "ThunderX CN81XX family"
+		select SYS_SOC_THUNDERX_81XX
+
+	config TARGET_THUNDERX_CN88XX
+		bool "ThunderX CN88XX family"
+		select SYS_SOC_THUNDERX_88XX
+
+endchoice
+
+config PCI_AUTO
+	bool
+	default y
+
+config OF_LIBFDT
+	bool
+	default y
+
+config SYS_ARCH
+	string
+	default "thunderx"
+
+config SYS_VENDOR
+	string
+	default	"cavium"
+
+config SYS_SOC
+	string
+	default "thunderx"
+
+config SYS_CPU
+	string
+	default "armv8"
+
+config PL01X_SERIAL
+	bool
+	default y
+
+config PL011_CLOCK
+	int
+	default 24000000
+	help
+	 Default clock for the built-in serial port.
+
+config SYS_SERIAL0
+	hex
+	default 0x87e028000000
+
+config SYS_SERIAL1
+	hex
+	default 0x87e029000000
+
+config AP_STACK_ALIGN
+	int
+	default 16
+	help
+	 Stack alignment for PSCI calls
+
+config AP_STACK_SIZE
+	hex
+	default 10000
+	help
+	 Stack size for PSCI calls
+
+config SYS_64BIT
+	bool
+	default y
+
+config SYS_VA_BITS
+	int
+	default 48
+
+config SYS_PTL2_BITS
+	int
+	default 42
+
+config SYS_BLOCK_SHIFT
+	int
+	default 29
+
+config SYS_PTL1_ENTRIES
+	int
+	default 64
+
+config SYS_PTL2_ENTRIES
+	int
+	default 8192
+
+config NO_RELOCATION
+	bool
+	default y
+
+config PCI
+	bool
+	default y
+
+config SYS_PCI_64BIT
+	bool
+	default y
+
+config PCI_PNP
+	bool
+	default y
+
+config SYS_PCI_ARI
+	bool
+	default y
+
+config DM_I2C
+	bool
+	default y
+
+config DM_I2C_COMPAT
+	bool
+	default y
+
+config DM_GPIO
+	bool
+	default y
+
+config CMD_ATF
+	bool "Enable ATF query commands"
+	default y
+	help
+	 Enable vendor specific ATF query commands such as SPI and SD/MMC
+	 devices access, low level environment query, boot device layout
+	 and node count.
+
+config SYS_CACHELINE_SIZE
+	int
+	default 128
+
+config PCI_THUNDERX_ECAM
+	bool
+	default y
+	help
+	 This enables support for the PCI Common Configuration Unit (PCC) in
+	 the ThunderX series of processors.  The PCC implements the PCI
+	 Enhanced Configuration Access Mechanism (ECAM), and PCI configuration
+	 blocks for ThunderX on-chip functions.
+
+#source "arch/arm/mach-octeontx/cn81xx/Kconfig"
+
+endif

@@ -24,8 +24,8 @@
  #include <fdt_support.h>
 #endif
 
-#include <cavium/thunderx_smi.h>
-#include <cavium/thunderx_vnic.h>
+#include <asm/arch/thunderx_smi.h>
+#include <asm/arch/thunderx_vnic.h>
 
 #include "cavm-arch.h"
 #define	PCI_DEVICE_ID_THUNDER_XCV	0xA056
@@ -108,8 +108,8 @@ int xcv_setup_link(bool link_up, int link_speed)
 		   - XCV will continue to return TX credits for each tick
 		     that is sent on the TX data path */
 		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
-		reset.s.tx_dat_rst_n = 1; 
-		reset.s.rx_dat_rst_n = 1; 
+		reset.s.tx_dat_rst_n = 1;
+		reset.s.rx_dat_rst_n = 1;
 		writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
 	}
 
@@ -118,8 +118,8 @@ int xcv_setup_link(bool link_up, int link_speed)
 	   - XCV will continue to return TX credits for each tick that is sent
 	     on the TX data path */
 	reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
-	reset.s.tx_dat_rst_n = link_up; 
-	reset.s.rx_dat_rst_n = link_up; 
+	reset.s.tx_dat_rst_n = link_up;
+	reset.s.rx_dat_rst_n = link_up;
 	writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
 
 	/* Full reset when link is down */
@@ -162,14 +162,14 @@ static const struct udevice_id thunderx_xcv_ids[] = {
 	{}
 };
 
-U_BOOT_DRIVER(thunderx_xcv) = {                         
+U_BOOT_DRIVER(thunderx_xcv) = {
         .name   = "thunderx_xcv",
         .id     = UCLASS_MISC,
-        .probe  = thunderx_xcv_probe,                   
+        .probe  = thunderx_xcv_probe,
         .of_match = thunderx_xcv_ids,
         .ops    = &thunderx_xcv_ops,
         .priv_auto_alloc_size = sizeof(struct lxcv),
-};                                                      
+};
 
 static struct pci_device_id thunderx_xcv_supported[] = {
         { PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_XCV) },

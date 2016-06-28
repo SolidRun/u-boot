@@ -7,9 +7,9 @@
 #include <asm/io.h>
 
 #include <asm/system.h>
-#include <cavium/thunderx_svc.h>
-#include <cavium/atf.h>
-#include <cavium/atf_part.h>
+#include <asm/arch/thunderx_svc.h>
+#include <asm/arch/atf.h>
+#include <asm/arch/atf_part.h>
 
 #include <asm/psci.h>
 

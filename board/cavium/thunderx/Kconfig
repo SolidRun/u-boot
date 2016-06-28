@@ -1,16 +1,32 @@
-if TARGET_THUNDERX_88XX || TARGET_THUNDERX_81XX
 
-config SYS_CPU
-	string
-	default "armv8"
+choice
+	prompt "Target board"
+
+config	TARGET_THUNDERX_81XX
+	bool "ThunderX CN81XX"
+
+config	TARGET_THUNDERX_88XX
+	bool "ThunderX CN88XX"
+
+endchoice
 
 config SYS_BOARD
 	string
 	default "thunderx"
 
-config SYS_VENDOR
-	string
-	default "cavium"
+config DM_I2C
+	bool
+	default y
+
+config DM_I2C_COMPAT
+	bool
+	default y
+
+config DM_GPIO
+	bool
+	default y
+
+if TARGET_THUNDERX_88XX || TARGET_THUNDERX_81XX
 
 config CMD_ATF
 	bool "Enable ATF query commands"
@@ -19,21 +35,32 @@ config CMD_ATF
 	  Enable vendor specific ATF query commands such as SPI and SD/MMC
 	  devices access, low level environment query, boot device layout
 	  and node count.
-
 endif
 
 if TARGET_THUNDERX_88XX
 
-config SYS_CONFIG_NAME
-	string
-	default "thunderx_88xx"
+	config SYS_CONFIG_NAME
+		string
+		default "thunderx_88xx"
+
+	config SYS_PROMPT
+		string "Prompt to use"
+		default	"ThunderX_88XX> "
 
 endif
 
 if TARGET_THUNDERX_81XX
 
-config SYS_CONFIG_NAME
-	string
-	default "thunderx_81xx"
+	config SYS_CONFIG_NAME
+		string
+		default "thunderx_81xx"
+
+	config IDENT_STRING
+		string
+		default " for Cavium OcteonTX CN81XX ARM V8 Core"
+
+	config SYS_PROMPT
+		string "Prompt to use"
+		default	"ThunderX_81XX> "
 
 endif

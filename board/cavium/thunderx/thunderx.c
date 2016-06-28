@@ -2,7 +2,7 @@
 /**
  * (C) Copyright 2014, Cavium Inc.
 **/
-
+#define DEBUG
 #include <common.h>
 #include <dm.h>
 #include <malloc.h>
@@ -12,7 +12,7 @@
 
 #include <linux/compiler.h>
 
-#include <cavium/atf.h>
+#include <asm/arch/atf.h>
 
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -47,6 +47,11 @@ U_BOOT_DEVICE(thunderx_serial1) = {
 	.platdata = &serial1,
 };
 #endif
+#include <asm/arch/thunderx_fdt.h>
+#include <asm/arch/atf.h>
+#include <dm/util.h>
+
+#include "cavm-arch.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -106,9 +111,14 @@ void reset_cpu(ulong addr)
  */
 int board_late_init(void)
 {
+	debug("%s()\n", __func__);
 	thunderx_parse_bdk_config();
 
 	printf("Board type: %s\n", getenv("board"));
+
+#ifdef DEBUG
+	dm_dump_all();
+#endif
 
 	return 0;
 }
