@@ -2,7 +2,7 @@
 /**
  * (C) Copyright 2014, Cavium Inc.
 **/
-#define DEBUG
+
 #include <common.h>
 #include <dm.h>
 #include <malloc.h>
