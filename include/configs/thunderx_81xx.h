@@ -178,6 +178,7 @@
 
 /** Enable 10G PHY support */
 #define CONFIG_PHYLIB_10G
+#define CONFIG_PHY_VITESSE
 
 
 /** Command line configuration */
