@@ -1002,13 +1002,16 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			}
 			break;
 		case 4:
-			if (((lmacid < 2) && (train_en & (1 << lmacid))) ||
-			    (train_en & (1 << (lmacid - 2)))) {
+			if (train_en) {
 				lmac->qlm_mode = QLM_MODE_40G_KR4;
+				if (lmacid != 0)
+					break;
 				printf("BGX%d QLM%d LMAC%d mode: 40G_KR4\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			} else {
 				lmac->qlm_mode = QLM_MODE_XLAUI;
+				if (lmacid != 0)
+					break;
 				printf("BGX%d QLM%d LMAC%d mode: XLAUI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
