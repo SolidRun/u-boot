@@ -40,7 +40,7 @@ static void thunderx_parse_phy_address(const void *fdt, int node)
 				mdio_bus = (val >> 8) & 0xF;
 				phy_addr[phy_id] = val & 0xFF;
 			} else {
-				debug("Err: cannot retrieve phy address from fdt\n");
+				debug("Err: cannot retrieve phy address from fdt:%d:%d\n", bgx_id, phy_id);
 			}
 		}
 		bgx_set_board_info(bgx_id, mdio_bus, &phy_addr[0]);
