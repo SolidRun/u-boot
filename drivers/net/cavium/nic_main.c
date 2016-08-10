@@ -71,7 +71,7 @@ static void nic_send_msg_to_vf(struct nicpf *nic, int vf, union nic_mbx *mbx)
 	 * when PF writes to MBOX(1), in next revisions when
 	 * PF writes to MBOX(0)
 	 */
-	if (pass1_silicon(nic->rev_id)) {
+	if (pass1_silicon(nic->rev_id, nic->hw->model_id)) {
 		/* see the comment for nic_reg_write()/nic_reg_read()
 		 * functions above
 		 */
@@ -220,7 +220,7 @@ void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 		 * for consistency enabling the same on 88xx pass2
 		 * where this is introduced.
 		 */
-		if (pass2_silicon(nic->rev_id))
+		if (pass2_silicon(nic->rev_id, nic->hw->model_id))
 			nic_reg_write(nic, NIC_PF_RX_CFG, 0x01);
 		break;
 	case NIC_MBOX_MSG_RQ_BP_CFG:
@@ -456,6 +456,7 @@ static void nic_get_hw_info(struct nicpf *nic)
 		hw->tl2_cnt = 64;
 		hw->tl1_cnt = 2;
 		hw->tl1_per_bgx = true;
+		hw->model_id = 0x88;
 		break;
 	case PCI_SUBSYS_DEVID_81XX_NIC_PF:
 		hw->bgx_cnt = CONFIG_MAX_BGX_PER_NODE;
@@ -470,6 +471,7 @@ static void nic_get_hw_info(struct nicpf *nic)
 		hw->tl2_cnt = 16;
 		hw->tl1_cnt = 10;
 		hw->tl1_per_bgx = false;
+		hw->model_id = 0x81;
 		break;
 	case PCI_SUBSYS_DEVID_83XX_NIC_PF:
 		hw->bgx_cnt = CONFIG_MAX_BGX_PER_NODE;
@@ -483,6 +485,7 @@ static void nic_get_hw_info(struct nicpf *nic)
 		hw->tl2_cnt = 64;
 		hw->tl1_cnt = 18;
 		hw->tl1_per_bgx = false;
+		hw->model_id = 0x83;
 		break;
 	}
 	hw->tl4_cnt = MAX_QUEUES_PER_QSET * /*pci_sriov_get_totalvfs(nic->pdev)*/ 8;
@@ -602,7 +605,7 @@ static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg)
 			padd = cpi % 8; /* 3 bits CS out of 6bits DSCP */
 
 		/* Leave RSS_SIZE as '0' to disable RSS */
-		if (pass1_silicon(nic->rev_id)) {
+		if (pass1_silicon(nic->rev_id, nic->hw->model_id)) {
 			nic_reg_write(nic, NIC_PF_CPI_0_2047_CFG | (cpi << 3),
 				      (vnic << 24) | (padd << 16) |
 				      (rssi_base + rssi));

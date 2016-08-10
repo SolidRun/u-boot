@@ -238,6 +238,7 @@ struct hw_info {
 	u8		tl2_cnt;
 	u8		tl1_cnt;
 	bool		tl1_per_bgx; /* TL1 per BGX or per LMAC */
+	u8		model_id;
 };
 
 struct nicvf {
@@ -509,14 +510,14 @@ void bgx_lmac_rx_tx_enable(int node, int bgx_idx, int lmacid, bool enable);
 void bgx_lmac_internal_loopback(int node, int bgx_idx,
 				int lmac_idx, bool enable);
 
-static inline bool pass1_silicon(unsigned int revision)
+static inline bool pass1_silicon(unsigned int revision, int model_id)
 {
-	return (revision < 8);
+	return ((revision < 8) && (model_id == 0x88));
 }
 
-static inline bool pass2_silicon(unsigned int revision)
+static inline bool pass2_silicon(unsigned int revision, int model_id)
 {
-	return (revision >= 8);
+	return ((revision >= 8) && (model_id == 0x88));
 }
 
 #endif /* NIC_H */

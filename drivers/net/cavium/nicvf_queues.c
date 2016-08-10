@@ -190,7 +190,7 @@ static int nicvf_init_cmp_queue(struct nicvf *nic,
 		return -1;
 	}
 	cq->desc = cq->dmem.base;
-	if (!pass1_silicon(nic->rev_id))
+	if (!pass1_silicon(nic->rev_id, nic->nicpf->hw->model_id))
 		cq->thresh = CMP_QUEUE_CQE_THRESH;
 	else
 		cq->thresh = 0;
