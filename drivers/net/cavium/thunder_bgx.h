@@ -208,7 +208,8 @@ int bgx_get_lmac_count(int node, int bgx);
 void bgx_print_stats(int bgx_idx, int lmac);
 void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
 			unsigned int *phy_addr);
-int xcv_setup_link(bool link_up, int link_speed);
+void xcv_init_hw(void);
+void xcv_setup_link(bool link_up, int link_speed);
 
 #undef LINK_INTR_ENABLE
 

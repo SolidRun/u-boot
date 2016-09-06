@@ -33,7 +33,7 @@
 
 static const phy_interface_t if_mode[] = {
 	[QLM_MODE_SGMII]  = PHY_INTERFACE_MODE_SGMII,
-	[QLM_MODE_RGMII]  = PHY_INTERFACE_MODE_SGMII,
+	[QLM_MODE_RGMII]  = PHY_INTERFACE_MODE_RGMII,
 	[QLM_MODE_QSGMII] = PHY_INTERFACE_MODE_QSGMII,
 	[QLM_MODE_XAUI]   = PHY_INTERFACE_MODE_XAUI,
 	[QLM_MODE_RXAUI]  = PHY_INTERFACE_MODE_RXAUI,
@@ -955,7 +955,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 
 		lmac_type = bgx_reg_read(bgx, index, BGX_CMRX_CFG);
 		lmac->lmac_type = (lmac_type >> 8) & 0x07;
-		debug("bgx_get_qlm_mode:%d:%d: lmac_type = %d\n", bgx->bgx_id,
+		printf("bgx_get_qlm_mode:%d:%d: lmac_type = %d\n", bgx->bgx_id,
 				lmacid, lmac->lmac_type);
 
 		train_en = (readq(CSR_PA(0, GSERX_SCRATCH(lmac->qlm))) & 0xf);
@@ -1064,13 +1064,14 @@ int thunderx_bgx_probe(struct udevice *dev)
 				bgx->lmac[lmac].qlm = -1;
 			}
 		}
+		xcv_init_hw();
 		goto skip_qlm_config;
 	}
 #endif
 
 	node = node_id(bgx->reg_base);
 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 1;
-	bgx->bgx_id = node * CONFIG_MAX_BGX_PER_NODE + bgx_idx;
+	bgx->bgx_id = (node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx;
 
 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac += 2) {
 		qlm[lmac + 0] = get_qlm_for_bgx(node, bgx_idx, lmac);

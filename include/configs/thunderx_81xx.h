@@ -148,7 +148,7 @@
 /* Net */
 /** Enable ThunderX BGX networking support */
 #define CONFIG_THUNDERX_BGX
-/* #define CONFIG_THUNDERX_XCV */
+#define CONFIG_THUNDERX_XCV
 
 /** Enable ThunderX SMI MDIO driver */
 #define CONFIG_THUNDERX_SMI
@@ -179,6 +179,7 @@
 /** Enable 10G PHY support */
 #define CONFIG_PHYLIB_10G
 #define CONFIG_PHY_VITESSE
+#define CONFIG_PHY_MICREL
 
 
 /** Command line configuration */

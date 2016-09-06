@@ -97,7 +97,7 @@ static void nic_mbx_send_ready(struct nicpf *nic, int vf)
 	else
 		mbx.nic_cfg.tns_mode = NIC_TNS_BYPASS_MODE;
 
-	if (vf < MAX_LMAC) {
+	if (vf < nic->num_vf_en) {
 		bgx_idx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
 		lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
 
@@ -117,7 +117,7 @@ static void nic_mbx_send_ready(struct nicpf *nic, int vf)
 #endif
 	mbx.nic_cfg.node_id = nic->node;
 
-	mbx.nic_cfg.loopback_supported = vf < MAX_LMAC;
+	mbx.nic_cfg.loopback_supported = vf < nic->num_vf_en;
 
 	nic_send_msg_to_vf(nic, vf, &mbx);
 }
@@ -150,7 +150,7 @@ static int nic_config_loopback(struct nicpf *nic, struct set_loopback *lbk)
 {
 	int bgx_idx, lmac_idx;
 
-	if (lbk->vf_id > MAX_LMAC)
+	if (lbk->vf_id > nic->num_vf_en)
 		return -1;
 
 	bgx_idx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[lbk->vf_id]);
@@ -189,7 +189,7 @@ void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 	switch (mbx.msg.msg) {
 	case NIC_MBOX_MSG_READY:
 		nic_mbx_send_ready(nic, vf);
-		if (vf < MAX_LMAC) {
+		if (vf < nic->num_vf_en) {
 			nic->link[vf] = 0;
 			nic->duplex[vf] = 0;
 			nic->speed[vf] = 0;
@@ -372,15 +372,15 @@ static void nic_set_tx_pkt_pad(struct nicpf *nic, int size)
 	int lmac;
 	uint64_t lmac_cfg;
 	struct hw_info *hw = nic->hw;
-	int max_lmac = CONFIG_MAX_BGX_PER_NODE * MAX_LMAC_PER_BGX;
+	int max_lmac = nic->hw->bgx_cnt * MAX_LMAC_PER_BGX;
 
 	/* Max value that can be set is 60 */
-	if (size > 60)
-		size = 60;
+	if (size > 52)
+		size = 52;
 
 	/* CN81XX has RGX configured as FAKE BGX, adjust mac_lmac accordingly */
 	if (hw->chans_per_rgx)
-		max_lmac = (CONFIG_MAX_BGX_PER_NODE - 1) * MAX_LMAC_PER_BGX;
+		max_lmac = ((nic->hw->bgx_cnt - 1) * MAX_LMAC_PER_BGX) + 1;
 
 	for (lmac = 0; lmac < max_lmac; lmac++) {
 		lmac_cfg = nic_reg_read(nic, NIC_PF_LMAC_0_7_CFG | (lmac << 3));
@@ -424,7 +424,9 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
 		lmac_credit |= (0x1ff << 2);
 		lmac_credit |= (((((48 * 1024) / lmac_cnt) -
 				NIC_HW_MAX_FRS) / 16) << 12);
-		nic_reg_write(nic,
+		lmac = bgx * MAX_LMAC_PER_BGX;
+		for (; lmac < lmac_cnt + (bgx * MAX_LMAC_PER_BGX); lmac++)
+			nic_reg_write(nic,
 				NIC_PF_LMAC_0_7_CREDIT + (lmac * 8), lmac_credit);
 
 		/* On CN81XX there are only 8 VFs but max possible no of
@@ -552,25 +554,15 @@ static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg)
 	u32 padd, cpi_count = 0;
 	u64 cpi_base, cpi, rssi_base, rssi;
 	u8  qset, rq_idx = 0;
-	u16 sdevid;
-
-	dm_pci_read_config16(nic->udev, PCI_SUBSYSTEM_ID, &sdevid);
 
 	vnic = cfg->vf_id;
 	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vnic]);
 	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vnic]);
 
 	chan = (lmac * hw->chans_per_lmac) + (bgx * hw->chans_per_bgx);
-	/* Check for RGX interface on CN81XX */
-	if ((sdevid == PCI_SUBSYS_DEVID_81XX_NIC_PF) && (bgx == 2)) {
-		cpi_base = (3 * NIC_MAX_CPI_PER_LMAC) + (hw->cpi_cnt / 2);
-		rssi_base = (3 * hw->rss_ind_tbl_size) + (hw->rssi_cnt / 2);
-	} else {
-		cpi_base = (lmac * NIC_MAX_CPI_PER_LMAC) +
-			(bgx * (hw->cpi_cnt / hw->bgx_cnt));
-		rssi_base = (lmac * hw->rss_ind_tbl_size) +
-			(bgx * (hw->rssi_cnt / hw->bgx_cnt));
-	}
+	cpi_base = vnic * NIC_MAX_CPI_PER_LMAC;
+	rssi_base = vnic * hw->rss_ind_tbl_size;
+
 	/* Rx channel configuration */
 	nic_reg_write(nic, NIC_PF_CHAN_0_255_RX_BP_CFG | (chan << 3),
 		      (1ull << 63) | (vnic << 0));
@@ -667,11 +659,7 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
 	 * 512-1023 TL4s transmit via BGX1.
 	 */
 	if (hw->tl1_per_bgx) {
-		/* Check for RGX interface on CN81XX */
-		if ((sdevid == PCI_SUBSYS_DEVID_81XX_NIC_PF) && (bgx == 2))
-			tl4 = (MAX_QUEUES_PER_QSET * 3) + (hw->tl4_cnt / 2);
-		else
-			tl4 = bgx * (hw->tl4_cnt / hw->bgx_cnt);
+		tl4 = bgx * (hw->tl4_cnt / hw->bgx_cnt);
 		if (!sq->sqs_mode) {
 			tl4 += (lmac * MAX_QUEUES_PER_QSET);
 		} else {
