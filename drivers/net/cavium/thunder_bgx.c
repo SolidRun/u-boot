@@ -835,10 +835,24 @@ static void bgx_init_hw(struct bgx *bgx)
 
 		switch (lmac->qlm_mode) {
 		case QLM_MODE_SGMII:
-			lmac->lmac_type = 0;
-			lmac->lane_to_sds = lmacid;
-			lmac_count++;
-			break;
+			{
+				const char *boardname;
+				boardname = getenv("board");
+				/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
+				   lane_to_sds for 2nd port in BGX0 to DLM1, lane0. */
+				if (strcmp(boardname, "EBB8004") == 0) {
+					if (lmacid >= 2)
+						continue;
+					else if (lmacid == 1)
+						lmac->lane_to_sds = lmacid + 1;
+					else
+						lmac->lane_to_sds = lmacid;
+				} else
+					lmac->lane_to_sds = lmacid;
+				lmac->lmac_type = 0;
+				lmac_count++;
+				break;
+			}
 		case QLM_MODE_XAUI:
 			if (lmacid != 0)
 				continue;
@@ -955,7 +969,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 
 		lmac_type = bgx_reg_read(bgx, index, BGX_CMRX_CFG);
 		lmac->lmac_type = (lmac_type >> 8) & 0x07;
-		printf("bgx_get_qlm_mode:%d:%d: lmac_type = %d\n", bgx->bgx_id,
+		debug("bgx_get_qlm_mode:%d:%d: lmac_type = %d\n", bgx->bgx_id,
 				lmacid, lmac->lmac_type);
 
 		train_en = (readq(CSR_PA(0, GSERX_SCRATCH(lmac->qlm))) & 0xf);
@@ -970,6 +984,12 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				}
 				continue;
 			} else {
+				const char *boardname;
+				boardname = getenv("board");
+				if ((bgx->bgx_id == 0) && (strcmp(boardname, "EBB8004") == 0)) {
+					if (lmacid >= 2)
+						continue;
+				}
 				lmac->qlm_mode = QLM_MODE_SGMII;
 				printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
 						bgx->bgx_id, lmac->qlm, lmacid);
