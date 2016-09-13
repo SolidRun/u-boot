@@ -105,6 +105,15 @@ void reset_cpu(ulong addr)
 	writeq(val, RST_SOFT_RST);
 }
 
+/*
+ * Return board alternative package
+ */
+bool alternate_pkg(void)
+{
+	u64 val = readq(MIO_FUS_DAT2);
+
+	return (val >> 22) & 0x3;
+}
 
 /*
  * Board late initialization routine.

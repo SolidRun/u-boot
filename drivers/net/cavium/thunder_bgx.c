@@ -73,6 +73,7 @@ struct bgx {
 struct bgx_board_info bgx_board_info[CONFIG_MAX_BGX];
 
 struct bgx *bgx_vnic[CONFIG_MAX_BGX];
+bool is_altpkg = 0;
 
 /* APIs to read/write BGXX CSRs */
 static uint64_t bgx_reg_read(struct bgx *bgx, uint8_t lmac, uint64_t offset)
@@ -565,9 +566,19 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 			}
 			break;
 		case 3: // XFI
-			if (__rx_equalization(lmac->qlm, lmacid))
-				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d\n",
-					bgx->bgx_id, lmacid, lmac->qlm);
+			{
+				int lid;
+				if ((bgx->bgx_id == 0) && is_altpkg && lmacid)
+					lid = 0;
+				else if (lmacid >= 2)
+					lid = lmacid - 2;
+				else
+					lid = lmacid;
+
+				if (__rx_equalization(lmac->qlm, lid))
+					printf("BGX%d:%d: Waiting for RX Equalization on DLM%d\n",
+						bgx->bgx_id, lid, lmac->qlm);
+			}
 			break;
 		}
 	}
@@ -835,24 +846,20 @@ static void bgx_init_hw(struct bgx *bgx)
 
 		switch (lmac->qlm_mode) {
 		case QLM_MODE_SGMII:
-			{
-				const char *boardname;
-				boardname = getenv("board");
-				/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
-				   lane_to_sds for 2nd port in BGX0 to DLM1, lane0. */
-				if (strcmp(boardname, "EBB8004") == 0) {
-					if (lmacid >= 2)
-						continue;
-					else if (lmacid == 1)
-						lmac->lane_to_sds = lmacid + 1;
-					else
-						lmac->lane_to_sds = lmacid;
-				} else
+			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
+			   lane_to_sds for 2nd port in BGX0 to DLM1, lane0. */
+			if ((bgx->bgx_id == 0) && is_altpkg) {
+				if (lmacid >= 2)
+					continue;
+				else if (lmacid == 1)
+					lmac->lane_to_sds = lmacid + 1;
+				else
 					lmac->lane_to_sds = lmacid;
-				lmac->lmac_type = 0;
-				lmac_count++;
-				break;
-			}
+			} else
+				lmac->lane_to_sds = lmacid;
+			lmac->lmac_type = 0;
+			lmac_count++;
+			break;
 		case QLM_MODE_XAUI:
 			if (lmacid != 0)
 				continue;
@@ -869,8 +876,18 @@ static void bgx_init_hw(struct bgx *bgx)
 				continue;
 			break;
 		case QLM_MODE_XFI:
+			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
+			   lane_to_sds for 2nd port in BGX0 to DLM1 lane0. */
+			if ((bgx->bgx_id == 0) && is_altpkg) {
+				if (lmacid >= 2)
+					continue;
+				else if (lmacid == 1)
+					lmac->lane_to_sds = lmacid + 1;
+				else
+					lmac->lane_to_sds = lmacid;
+			} else
+				lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 3;
-			lmac->lane_to_sds = lmacid;
 			lmac_count++;
 			break;
 		case QLM_MODE_XLAUI:
@@ -881,8 +898,16 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac_count = 1;
 			break;
 		case QLM_MODE_10G_KR:
+			if ((bgx->bgx_id == 0) && is_altpkg) {
+				if (lmacid >= 2)
+					continue;
+				else if (lmacid == 1)
+					lmac->lane_to_sds = lmacid + 1;
+				else
+					lmac->lane_to_sds = lmacid;
+			} else
+				lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 3;
-			lmac->lane_to_sds = lmacid;
 			lmac->use_training = 1;
 			lmac_count++;
 			break;
@@ -984,9 +1009,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				}
 				continue;
 			} else {
-				const char *boardname;
-				boardname = getenv("board");
-				if ((bgx->bgx_id == 0) && (strcmp(boardname, "EBB8004") == 0)) {
+				if ((bgx->bgx_id == 0) && is_altpkg) {
 					if (lmacid >= 2)
 						continue;
 				}
@@ -996,6 +1019,8 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			}
 			break;
 		case 1:
+			if ((bgx->bgx_id == 0) && is_altpkg)
+				continue;
 			lmac->qlm_mode = QLM_MODE_XAUI;
 			if (lmacid != 0)
 				continue;
@@ -1003,6 +1028,8 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 					bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case 2:
+			if ((bgx->bgx_id == 0) && is_altpkg)
+				continue;
 			if (index == lmacid) {
 				lmac->qlm_mode = QLM_MODE_RXAUI;
 				printf("BGX%d QLM%d LMAC%d mode: RXAUI\n",
@@ -1010,6 +1037,10 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			}
 			break;
 		case 3:
+			if ((bgx->bgx_id == 0) && is_altpkg) {
+				if (lmacid >= 2)
+					continue;
+			}
 			if (((lmacid < 2) && (train_en & (1 << lmacid)))
 			    || (train_en & (1 << (lmacid - 2)))) {
 				lmac->qlm_mode = QLM_MODE_10G_KR;
@@ -1022,6 +1053,8 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			}
 			break;
 		case 4:
+			if ((bgx->bgx_id == 0) && is_altpkg)
+				continue;
 			if (train_en) {
 				lmac->qlm_mode = QLM_MODE_40G_KR4;
 				if (lmacid != 0)
@@ -1071,6 +1104,8 @@ int thunderx_bgx_probe(struct udevice *dev)
 
 	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 
+	is_altpkg = alternate_pkg();
+
 #ifdef CONFIG_THUNDERX_XCV
 	/* Use FAKE BGX2 for RGX interface */
 	if ((((uintptr_t)bgx->reg_base >> 24) & 0xf) == 0x8) {
@@ -1094,9 +1129,14 @@ int thunderx_bgx_probe(struct udevice *dev)
 	bgx->bgx_id = (node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx;
 
 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac += 2) {
-		qlm[lmac + 0] = get_qlm_for_bgx(node, bgx_idx, lmac);
-		qlm[lmac + 1] = qlm[lmac];
-		debug("qlm[%d] = %d\n", lmac, qlm[lmac]);
+		if (is_altpkg && (lmac == 2) && (bgx_id == 0)) {
+			qlm[lmac - 1] = get_qlm_for_bgx(node, bgx_idx, lmac);
+			debug("qlm[%d] = %d\n", lmac, qlm[lmac-1]);
+		} else {
+			qlm[lmac + 0] = get_qlm_for_bgx(node, bgx_idx, lmac);
+			qlm[lmac + 1] = qlm[lmac];
+			debug("qlm[%d] = %d\n", lmac, qlm[lmac]);
+		}
 	}
 
 	/* A BGX can take 1 or 2 DLMs, if both the DLMs are not configured
