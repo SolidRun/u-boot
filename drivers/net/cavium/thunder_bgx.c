@@ -885,7 +885,7 @@ static void bgx_init_hw(struct bgx *bgx)
 					lmac->lane_to_sds = 0xe;
 					lmac_count++;
 				}
-				continue
+				continue;
 			} else
 				continue;
 			break;
@@ -1143,7 +1143,7 @@ int thunderx_bgx_probe(struct udevice *dev)
 	bgx->bgx_id = (node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx;
 
 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac += 2) {
-		if (is_altpkg && (lmac == 2) && (bgx_id == 0)) {
+		if (is_altpkg && (lmac == 2) && (bgx_idx == 0)) {
 			qlm[lmac - 1] = get_qlm_for_bgx(node, bgx_idx, lmac);
 			debug("qlm[%d] = %d\n", lmac, qlm[lmac-1]);
 		} else {
