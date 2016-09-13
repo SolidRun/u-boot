@@ -559,8 +559,13 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 			} else {
 				qlm = lmac->qlm;
 			}
-			if (__rx_equalization(qlm, 0) || __rx_equalization(qlm, 1)) {
-				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d\n",
+			if (__rx_equalization(qlm, 0)) {
+				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d, Lane0\n",
+					bgx->bgx_id, lmacid, qlm);
+				return -1;
+			}
+			if (__rx_equalization(qlm, 1)) {
+				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d, Lane1\n",
 					bgx->bgx_id, lmacid, qlm);
 				return -1;
 			}
@@ -868,10 +873,19 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac_count = 1;
 			break;
 		case QLM_MODE_RXAUI:
-			if ((lmacid == 0) || (lmacid == 2)) {
+			if (lmacid == 0) {
 				lmac->lmac_type = 2;
-				lmac->lane_to_sds = (lmacid) ? 0xE : 0x4;
+				lmac->lane_to_sds = 0x4;
 				lmac_count++;
+			} else if (lmacid == 1) {
+				struct lmac *tlmac;
+				tlmac = &bgx->lmac[2];
+				if (tlmac->qlm_mode == QLM_MODE_RXAUI) {
+					lmac->lmac_type = 2;
+					lmac->lane_to_sds = 0xe;
+					lmac_count++;
+				}
+				continue
 			} else
 				continue;
 			break;
@@ -1030,10 +1044,10 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 		case 2:
 			if ((bgx->bgx_id == 0) && is_altpkg)
 				continue;
+			lmac->qlm_mode = QLM_MODE_RXAUI;
 			if (index == lmacid) {
-				lmac->qlm_mode = QLM_MODE_RXAUI;
 				printf("BGX%d QLM%d LMAC%d mode: RXAUI\n",
-					bgx->bgx_id, lmac->qlm, lmacid);
+					bgx->bgx_id, lmac->qlm, (index ? 1 : 0));
 			}
 			break;
 		case 3:
