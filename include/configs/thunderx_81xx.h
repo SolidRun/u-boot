@@ -103,8 +103,8 @@
 /* Flat Device Tree Definitions */
 
 /**
- * The board code has additional modification that it wants to make to the flat
- * device tree before handing it off to the Linux kernel.
+ * The board code has additional modification that it wants to make to the
+ * flat device tree before handing it off to the Linux kernel.
  */
 #define CONFIG_OF_BOARD_SETUP
 
@@ -127,10 +127,11 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 64 * 1024 * 1024)
 
 /**
- * This is defined in the board config header.  This specified memory area will
- * get subtracted from the top (end) of memory and won't get "touched" at all
- * by U-Boot.  By fixing up gd->ram_size the Linux kernel should get passed the
- * now "corrected" memory size and won't touch it either.
+ * This is defined in the board config header.  This specified memory area
+ * will get subtracted from the top (end) of memory and won't get
+ * "touched" at all by U-Boot.  By fixing up gd->ram_size the Linux kernel
+ * should get passed the now "corrected" memory size and won't touch it
+ * either.
  */
 #define CONFIG_SYS_MEM_TOP_HIDE		0x1000000
 
@@ -165,8 +166,8 @@
 #endif
 
 /**
- * Only allow the Ethernet MAC address environment variable to be overwritten
- * once.
+ * Only allow the Ethernet MAC address environment variable to be
+ * overwritten once.
  */
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 
@@ -231,7 +232,10 @@
 /** Enable grepenv command */
 #define CONFIG_CMD_GREPENV
 
-/** Enable callback support when environment variables are set, or changed */
+/**
+ * Enable callback support when environment variables are set, or
+ * changed
+ */
 #define CONFIG_CMD_ENV_CALLBACK
 
 /** Enable date command */
@@ -282,7 +286,9 @@
 #define CONFIG_RTC_DS1337
 
 #define CONFIG_DDR_SPD
-#define CONFIG_SYS_SPD_ADDR_LIST {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}
+#define CONFIG_SYS_SPD_ADDR_LIST 	\
+	{ 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57 }
+
 #define CONFIG_SYS_SPD_I2C_BUS 1
 
 #define CONFIG_CMD_SAVES
@@ -359,12 +365,19 @@
 /** Maximum size of the BDK flat device-tree */
 #define CONFIG_BDK_FDT_SIZE		0x20000
 
+#define CONFIG_THUNDERX_PROMPT_SIZE	32
+
 /* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/** Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					 sizeof(CONFIG_SYS_PROMPT) + 16)
+					 CONFIG_THUNDERX_PROMPT_SIZE + 16)\
+
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
+
+#undef CONFIG_SYS_PROMPT
+#define CONFIG_SYS_PROMPT		getenv("prompt")
+
 /** Enable long help support */
 #define CONFIG_SYS_LONGHELP
 /** Enable editing of the command line */

@@ -2,7 +2,7 @@
 /**
  * (C) Copyright 2014, Cavium Inc.
 **/
-
+#define DEBUG
 #include <common.h>
 #include <dm.h>
 #include <malloc.h>
@@ -57,6 +57,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define BOARD_TYPE "BOARD="
 
+char thunderx_prompt[CONFIG_THUNDERX_PROMPT_SIZE] = "ThunderX> ";
+
 int board_init(void)
 {
 	ulong fdt_addr = (ulong)gd->fdt_blob;
@@ -95,7 +97,7 @@ int dram_init(void)
 	return 0;
 }
 
-/*
+/**
  * Board specific reset that is system reset.
  */
 void reset_cpu(ulong addr)
@@ -115,15 +117,29 @@ bool alternate_pkg(void)
 	return (val >> 22) & 0x3;
 }
 
-/*
+/**
  * Board late initialization routine.
  */
 int board_late_init(void)
 {
+	const char *board;
 	debug("%s()\n", __func__);
 	thunderx_parse_bdk_config();
 
+	board = getenv("board");
 	printf("Board type: %s\n", getenv("board"));
+
+	if (board != NULL && !getenv("prompt")) {
+		snprintf(thunderx_prompt, sizeof(thunderx_prompt), "%s> ",
+			 board);
+		printf("Set prompt to \"%s\"\n", thunderx_prompt);
+		setenv("prompt", thunderx_prompt);
+	} else if (getenv("prompt")) {
+		printf("%s: prompt already set to \"%s\"\n",
+		       __func__, getenv("prompt"));
+	} else {
+		printf("%s: board is NULL\n", __func__);
+	}
 
 #ifdef DEBUG
 	dm_dump_all();
