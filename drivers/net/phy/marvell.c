@@ -331,7 +331,7 @@ static int m88e1518_config(struct phy_device *phydev)
 	 * As per Marvell Release Notes - Alaska 88E1510/88E1518/88E1512
 	 * /88E1514 Rev A0, Errata Section 3.1
 	 */
-
+	debug("%s(%s)\n", __func__, phydev->dev->name);
 	/* EEE initialization */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x00ff);
 	phy_write(phydev, MDIO_DEVAD_NONE, 17, 0x214B);
@@ -404,6 +404,7 @@ static int m88e1518_config(struct phy_device *phydev)
 /* Marvell 88E1510 */
 static int m88e1510_config(struct phy_device *phydev)
 {
+	debug("%s(%s)\n", __func__, phydev->dev->name);
 	/* Select page 3 */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE,
 		  MIIM_88E1118_PHY_LED_PAGE);
@@ -424,8 +425,72 @@ static int m88e1510_config(struct phy_device *phydev)
 
 	/* Reset page selection */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0);
+	debug("%s: interface mode: %s\n", __func__,
+	      phy_string_for_interface(phydev->interface));
+	/* SGMII-to-Copper mode initialization (88E1512 & 88E1514 only) */
+	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
+		/* Select page 18 */
+		phy_write(phydev, MDIO_DEVAD_NONE, 22, 18);
 
-	return m88e1518_config(phydev);
+		/* In reg 20, write MODE[2:0] = 0x1 (SGMII to Copper) */
+		m88e1518_phy_writebits(phydev, 20, 0, 3, 1);
+
+		/* PHY reset is necessary after changing MODE[2:0] */
+		m88e1518_phy_writebits(phydev, 20, 15, 1, 1);
+
+		/* Reset page selection */
+		phy_write(phydev, MDIO_DEVAD_NONE, 22, 0);
+	} else if (phydev->interface == PHY_INTERFACE_MODE_RGMII      ||
+		   phydev->interface == PHY_INTERFACE_MODE_RGMII_ID   ||
+		   phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
+		   phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
+		/* RGMII-to-Copper mode initialization */
+
+		/* Select page 2 */
+		phy_write(phydev, MDIO_DEVAD_NONE, 22, 2);
+		/* Set rx and tx delay as needed */
+		switch (phydev->interface) {
+		default:
+		case PHY_INTERFACE_MODE_RGMII:	/* no delay */
+			m88e1518_phy_writebits(phydev, 21, 4, 2, 0);
+			break;
+		case PHY_INTERFACE_MODE_RGMII_ID:	/* delay both */
+			m88e1518_phy_writebits(phydev, 21, 4, 2, 3);
+			break;
+		case PHY_INTERFACE_MODE_RGMII_RXID:	/* delay rx */
+			m88e1518_phy_writebits(phydev, 21, 4, 2, 2);
+			break;
+		case PHY_INTERFACE_MODE_RGMII_TXID:	/* delay tx */
+			m88e1518_phy_writebits(phydev, 21, 4, 2, 1);
+			break;
+		}
+		/* Select page 18 */
+		phy_write(phydev, MDIO_DEVAD_NONE, 22, 18);
+
+		/* In reg 20, write MODE[2:0] = 0x1 (RGMII to Copper) */
+		m88e1518_phy_writebits(phydev, 20, 0, 3, 0);
+
+		/* PHY reset is necessary after changing MODE[2:0] */
+		m88e1518_phy_writebits(phydev, 20, 15, 1, 1);
+
+		/* Reset page selection */
+		phy_write(phydev, MDIO_DEVAD_NONE, 22, 0);
+	} else {
+		printf("%s(%s): Error: unsupported mode %s\n", __func__,
+		       phydev->dev->name,
+		       phy_string_for_interface(phydev->interface));
+		return -1;
+	}
+
+	udelay(100);
+
+	/* soft reset */
+	phy_reset(phydev);
+
+	genphy_config_aneg(phydev);
+	genphy_restart_aneg(phydev);
+
+	return 0;
 }
 
 /* Marvell 88E1118 */
