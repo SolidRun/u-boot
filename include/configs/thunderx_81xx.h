@@ -181,7 +181,7 @@
 #define CONFIG_PHYLIB_10G
 #define CONFIG_PHY_VITESSE
 #define CONFIG_PHY_MICREL
-
+#define CONFIG_PHY_MARVELL
 
 /** Command line configuration */
 #define CONFIG_MENU
