@@ -40,51 +40,51 @@ struct lxcv *xcv;
 /* Initialize XCV block */
 void xcv_init_hw(void)
 {
-	xcvx_ctl_t xcv_ctl;
-	xcvx_reset_t reset;
-	xcvx_dll_ctl_t xcv_dll_ctl;
-	xcvx_comp_ctl_t xcv_comp_ctl;
+	//union cavm_xcvx_ctl xcv_ctl;
+	union cavm_xcvx_reset reset;
+	union cavm_xcvx_dll_ctl xcv_dll_ctl;
+	//union cavm_xcvx_comp_ctl xcv_comp_ctl;
 
 	/* Take the DLL out of reset */
-	reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
+	reset.u = readq(CSR_PA(0, CAVM_XCVX_RESET(0)));
 	reset.s.dllrst = 0;
-	writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
+	writeq(reset.u, CSR_PA(0, CAVM_XCVX_RESET(0)));
 
 	/* Take the clock tree out of reset */
-	reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
+	reset.u = readq(CSR_PA(0, CAVM_XCVX_RESET(0)));
 	reset.s.clkrst = 0;
-	writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
+	writeq(reset.u, CSR_PA(0, CAVM_XCVX_RESET(0)));
 
 	/* Once the 125MHz ref clock is stable, wait 10us for DLL to lock *.
  */
 	udelay(10);
 
 	/* Optionally, bypass the DLL setting */
-	xcv_dll_ctl.u = readq(CSR_PA(0, XCVX_DLL_CTL(0)));
+	xcv_dll_ctl.u = readq(CSR_PA(0, CAVM_XCVX_DLL_CTL(0)));
 	xcv_dll_ctl.s.clkrx_set = 0;
 	xcv_dll_ctl.s.clkrx_byp = 1;
 	xcv_dll_ctl.s.clktx_byp = 0;
-	writeq(xcv_dll_ctl.u, CSR_PA(0, XCVX_DLL_CTL(0)));
+	writeq(xcv_dll_ctl.u, CSR_PA(0, CAVM_XCVX_DLL_CTL(0)));
 
 	/* Enable the compensation controller */
-	reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
+	reset.u = readq(CSR_PA(0, CAVM_XCVX_RESET(0)));
 	reset.s.comp = 1;
-	writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
-	reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
+	writeq(reset.u, CSR_PA(0, CAVM_XCVX_RESET(0)));
+	reset.u = readq(CSR_PA(0, CAVM_XCVX_RESET(0)));
 
 	/* Wait for 1040 reference clock cycles for the compensation state 
 	   machine lock. */
 	udelay(100); 
 
 	/* Enable the XCV block */
-	reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
+	reset.u = readq(CSR_PA(0, CAVM_XCVX_RESET(0)));
 	reset.s.enable = 1;
-	writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
+	writeq(reset.u, CSR_PA(0, CAVM_XCVX_RESET(0)));
 
 	/* set XCV(0)_RESET[CLKRST] to 1 */
-	reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
+	reset.u = readq(CSR_PA(0, CAVM_XCVX_RESET(0)));
 	reset.s.clkrst = 1;
-	writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
+	writeq(reset.u, CSR_PA(0, CAVM_XCVX_RESET(0)));
 }
 
 /* 
@@ -94,10 +94,10 @@ void xcv_init_hw(void)
  */ 
 void xcv_setup_link(bool link_up, int link_speed)
 {
-	xcvx_ctl_t xcv_ctl;
-	xcvx_reset_t reset;
-	xcvx_comp_ctl_t xcv_comp_ctl;
-	xcvx_batch_crd_ret_t xcv_crd_ret;
+	union cavm_xcvx_ctl xcv_ctl;
+	union cavm_xcvx_reset reset;
+	//union cavm_xcvx_comp_ctl xcv_comp_ctl;
+	union cavm_xcvx_batch_crd_ret xcv_crd_ret;
 	int speed = 2;
 
 	/* Check RGMII link */
@@ -108,36 +108,36 @@ void xcv_setup_link(bool link_up, int link_speed)
 
 	if (link_up) {
 		/* Set operating speed */
-		xcv_ctl.u = readq(CSR_PA(0, XCVX_CTL(0)));
+		xcv_ctl.u = readq(CSR_PA(0, CAVM_XCVX_CTL(0)));
 		xcv_ctl.s.speed = speed;
-		writeq(xcv_ctl.u, CSR_PA(0, XCVX_CTL(0)));
+		writeq(xcv_ctl.u, CSR_PA(0, CAVM_XCVX_CTL(0)));
 
 		/* Datapaths come out of reset
 		   - The datapath resets will disengage BGX from the
 		     RGMII interface
 		   - XCV will continue to return TX credits for each tick
 		     that is sent on the TX data path */
-		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
+		reset.u = readq(CSR_PA(0, CAVM_XCVX_RESET(0)));
 		reset.s.tx_dat_rst_n = 1;
 		reset.s.rx_dat_rst_n = 1;
-		writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
+		writeq(reset.u, CSR_PA(0, CAVM_XCVX_RESET(0)));
 
 		/* Enable packet flow */
-		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
+		reset.u = readq(CSR_PA(0, CAVM_XCVX_RESET(0)));
 		reset.s.tx_pkt_rst_n = 1;
 		reset.s.rx_pkt_rst_n = 1;
-		writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
+		writeq(reset.u, CSR_PA(0, CAVM_XCVX_RESET(0)));
 
-		xcv_crd_ret.u = readq(CSR_PA(0, XCVX_BATCH_CRD_RET(0)));
+		xcv_crd_ret.u = readq(CSR_PA(0, CAVM_XCVX_BATCH_CRD_RET(0)));
 		xcv_crd_ret.s.crd_ret = 1;
-		writeq(xcv_crd_ret.u, CSR_PA(0, XCVX_BATCH_CRD_RET(0)));
+		writeq(xcv_crd_ret.u, CSR_PA(0, CAVM_XCVX_BATCH_CRD_RET(0)));
 	} else {
 		/* Enable packet flow */
-		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
+		reset.u = readq(CSR_PA(0, CAVM_XCVX_RESET(0)));
 		reset.s.tx_pkt_rst_n = 0;
 		reset.s.rx_pkt_rst_n = 0;
-		writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
-		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
+		writeq(reset.u, CSR_PA(0, CAVM_XCVX_RESET(0)));
+		reset.u = readq(CSR_PA(0, CAVM_XCVX_RESET(0)));
 	}
 }
 

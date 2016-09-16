@@ -102,9 +102,9 @@ int dram_init(void)
  */
 void reset_cpu(ulong addr)
 {
-	u64 val = readq(RST_SOFT_RST) | 1;
+	u64 val = readq(CAVM_RST_SOFT_RST) | 1;
 
-	writeq(val, RST_SOFT_RST);
+	writeq(val, CAVM_RST_SOFT_RST);
 }
 
 /*
@@ -112,7 +112,7 @@ void reset_cpu(ulong addr)
  */
 bool alternate_pkg(void)
 {
-	u64 val = readq(MIO_FUS_DAT2);
+	u64 val = readq(CAVM_MIO_FUS_DAT2);
 
 	return (val >> 22) & 0x3;
 }
@@ -178,7 +178,7 @@ void hw_watchdog_reset(void)
 
 	for (node = 0; node < atf_node_count(); node++)
 		for (core = 0; core < thunderx_core_count(); core++)
-			writeq(~0ULL, CSR_PA(node, GTI_CWD_POKE(core)));
+			writeq(~0ULL, CSR_PA(node, CAVM_GTI_CWD_POKE(core)));
 }
 
 void hw_watchdog_disable(void)
@@ -187,6 +187,6 @@ void hw_watchdog_disable(void)
 
 	for (node = 0; node < atf_node_count(); node++)
 		for (core = 0; core < thunderx_core_count(); core++)
-			writeq(0ULL, CSR_PA(node, GTI_CWD_WDOG(core)));
+			writeq(0ULL, CSR_PA(node, CAVM_GTI_CWD_WDOG(core)));
 }
 #endif
