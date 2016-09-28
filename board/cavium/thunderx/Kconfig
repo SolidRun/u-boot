@@ -2,6 +2,9 @@
 choice
 	prompt "Target board"
 
+config	TARGET_THUNDERX_83XX
+	bool "ThunderX CN83XX"
+
 config	TARGET_THUNDERX_81XX
 	bool "ThunderX CN81XX"
 
@@ -26,7 +29,7 @@ config DM_GPIO
 	bool
 	default y
 
-if TARGET_THUNDERX_88XX || TARGET_THUNDERX_81XX
+if TARGET_THUNDERX_88XX || TARGET_THUNDERX_81XX || TARGET_THUNDERX_83XX
 
 config CMD_ATF
 	bool "Enable ATF query commands"
@@ -64,3 +67,20 @@ if TARGET_THUNDERX_81XX
 		default	"ThunderX_81XX> "
 
 endif
+
+if TARGET_THUNDERX_83XX
+
+	config SYS_CONFIG_NAME
+		string
+		default "thunderx_83xx"
+
+	config IDENT_STRING
+		string
+		default " for Cavium OcteonTX CN83XX ARM V8 Core"
+
+	config SYS_PROMPT
+		string "Prompt to use"
+		default	"ThunderX_83XX> "
+
+endif
+
