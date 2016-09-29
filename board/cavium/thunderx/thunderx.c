@@ -113,8 +113,16 @@ void reset_cpu(ulong addr)
 bool alternate_pkg(void)
 {
 	u64 val = readq(CAVM_MIO_FUS_DAT2);
+	int altpkg;
 
-	return (val >> 22) & 0x3;
+	altpkg = (val >> 22) & 0x3;
+
+	/* Figure out alternative pkg by reading chip_id
+	   or lmc_mode32 on 81xx */
+	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX)
+	    && (altpkg || ((val >> 30) & 0x1)))
+		return 2;
+	return altpkg;
 }
 
 /**
