@@ -149,7 +149,6 @@
 /* Net */
 /** Enable ThunderX BGX networking support */
 #define CONFIG_THUNDERX_BGX
-#define CONFIG_THUNDERX_XCV
 
 /** Enable ThunderX SMI MDIO driver */
 #define CONFIG_THUNDERX_SMI
@@ -172,10 +171,10 @@
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 
 /** Maximum number of BGX interfaces per CPU node */
-#define CONFIG_MAX_BGX_PER_NODE		3
+#define CONFIG_MAX_BGX_PER_NODE		4
 
 /** Maximum total number of BGX interfaces across all nodes */
-#define CONFIG_MAX_BGX			3
+#define CONFIG_MAX_BGX			4
 
 /** Enable 10G PHY support */
 #define CONFIG_PHYLIB_10G
@@ -345,7 +344,7 @@
 #define CONFIG_BOOTARGS			\
 					"console=ttyAMA0,115200n8 " \
 					"earlycon=pl011,0x87e028000000 " \
-					"debug maxcpus=4 rootwait rw "\
+					"debug maxcpus=24 rootwait rw "\
 					"root=/dev/sda2 coherent_pool=16M"
 
 /** Store U-Boot version in "ver" environment variable */
