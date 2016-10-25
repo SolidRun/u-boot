@@ -1018,6 +1018,11 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 		pci_set_region(hose->regions + pos, pci_addr, addr, size, type);
 	}
 
+	if(hose->region_count == MAX_PCI_REGIONS) {
+		printf("PCI region count reached limit, cannot add local memory region");
+		return 1;
+	}
+
 	/* Add a region for our local memory */
 #ifdef CONFIG_NR_DRAM_BANKS
 	bd_t *bd = gd->bd;
