@@ -778,28 +778,25 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 	u16 vf_offset;
 	u16 vf_stride;
 	int vf, ret;
-
 	int pos;
 
 	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
-
-	if (!pos)
+	if (!pos) {
+		printf("Error: SRIOV capability not found\n");
 		return -ENODEV;
+	}
 
 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_CTRL, &ctrl);
 
-	if (!(ctrl & PCI_SRIOV_CTRL_VFE) || !(ctrl & PCI_SRIOV_CTRL_MSE)) {
-		dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
 
-		if (vf_en > total_vf)
-			vf_en = total_vf;
+	if (vf_en > total_vf)
+		vf_en = total_vf;
 
-		dm_pci_write_config16(pdev, pos + PCI_SRIOV_NUM_VF,
-				      vf_en);
+	dm_pci_write_config16(pdev, pos + PCI_SRIOV_NUM_VF, vf_en);
 
-		ctrl |= PCI_SRIOV_CTRL_VFE | PCI_SRIOV_CTRL_MSE;
-		dm_pci_write_config16(pdev, pos + PCI_SRIOV_CTRL, ctrl);
-	}
+	ctrl |= PCI_SRIOV_CTRL_VFE | PCI_SRIOV_CTRL_MSE;
+	dm_pci_write_config16(pdev, pos + PCI_SRIOV_CTRL, ctrl);
 
 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_NUM_VF, &num_vfs);
 
@@ -862,7 +859,7 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 		bdf += PCI_BDF(0, 0, vf_stride);
 	}
 
-	return num_vfs;
+	return 0;
 
 }
 
