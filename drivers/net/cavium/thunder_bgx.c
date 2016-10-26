@@ -256,11 +256,28 @@ void bgx_lmac_internal_loopback(int node, int bgx_idx,
 /* Return the DLM used for the BGX */
 static int get_qlm_for_bgx(int node, int bgx_id, int index)
 {
-	int qlm = (bgx_id) ? 2 : 0;
+	int qlm = -1;
 	uint64_t cfg;
 
-	qlm += (index >= 2) ? 1 : 0;
-	cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
+	switch(bgx_id) {
+		case 0:
+			qlm = 2;
+			cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
+			break;
+		case 1: 
+			qlm = 3;
+			cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
+			break;
+		case 2:
+			qlm = 6;
+			cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
+			break;
+		case 3:
+			qlm = 4;
+			cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
+			break;
+	}
+
 	debug("get_qlm_for_bgx:qlm%d: cfg = %lld\n", qlm, cfg);
 
 	/* Check if DLM is configured as BGX# */
@@ -1118,6 +1135,7 @@ int thunderx_bgx_probe(struct udevice *dev)
 
 	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 
+	printf("%s: bgx base = %llx\n", __func__, (uint64_t)bgx->reg_base);
 	is_altpkg = alternate_pkg();
 
 #ifdef CONFIG_THUNDERX_XCV
@@ -1139,9 +1157,10 @@ int thunderx_bgx_probe(struct udevice *dev)
 #endif
 
 	node = node_id(bgx->reg_base);
-	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 1;
+	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 3;
 	bgx->bgx_id = (node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx;
 
+/*
 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac += 2) {
 		if (is_altpkg && (lmac == 2) && (bgx_idx == 0)) {
 			qlm[lmac - 1] = get_qlm_for_bgx(node, bgx_idx, lmac);
@@ -1152,11 +1171,17 @@ int thunderx_bgx_probe(struct udevice *dev)
 			debug("qlm[%d] = %d\n", lmac, qlm[lmac]);
 		}
 	}
+*/
+	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac++) {
+		qlm[lmac] = get_qlm_for_bgx(node, bgx_idx, lmac);
+	}
 
+#if 0
 	/* A BGX can take 1 or 2 DLMs, if both the DLMs are not configured
 	   as BGX, then return, nothing to initialize */
 	if ((qlm[0] == -1) && (qlm[2] == -1))
 		return -ENODEV;
+#endif
 
 	/* MAP configuration registers */
 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac++) {

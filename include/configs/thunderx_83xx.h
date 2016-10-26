@@ -148,13 +148,13 @@
 
 /* Net */
 /** Enable ThunderX BGX networking support */
-//#define CONFIG_THUNDERX_BGX
+#define CONFIG_THUNDERX_BGX
 
 /** Enable ThunderX SMI MDIO driver */
-//#define CONFIG_THUNDERX_SMI
+#define CONFIG_THUNDERX_SMI
 
 /** Enable ThunderX VNIC driver support */
-//#define CONFIG_THUNDERX_VNIC
+#define CONFIG_THUNDERX_VNIC
 
 /** Generate a random MAC address if it is not already defined */
 #define CONFIG_RANDOM_MACADDR

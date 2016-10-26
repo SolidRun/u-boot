@@ -761,15 +761,19 @@ exit:
 int thunderx_nic_probe(struct udevice *dev)
 {
 	int vf;
-	int num_vfs;
+	int ret;
 	struct nicpf *nicpf;
 
 	nic_initialize(dev);
 	nicpf = dev_get_priv(dev);
 
-	num_vfs = pci_sriov_init(dev, nicpf->num_vf_en);
+	ret = pci_sriov_init(dev, nicpf->num_vf_en);
+	if(ret < 0) {
+		printf("enabling SRIOV failed for num VFs %d",nicpf->num_vf_en);
+		return ret;
+	}
 
-	for (vf = 0; vf < num_vfs; vf++) {
+	for (vf = 0; vf < nicpf->num_vf_en; vf++) {
 		 nicvf_initialize(dev, vf);
 	}
 
