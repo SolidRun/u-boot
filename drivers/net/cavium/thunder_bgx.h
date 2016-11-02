@@ -229,4 +229,19 @@ struct bgx_board_info {
 	unsigned int mdio_bus;
 	unsigned int phy_addr[MAX_LMAC_PER_BGX];
 };
+
+enum LMAC_TYPE {
+	BGX_MODE_SGMII = 0, /* 1 lane, 1.250 Gbaud */
+	BGX_MODE_XAUI = 1,  /* 4 lanes, 3.125 Gbaud */
+	BGX_MODE_DXAUI = 1, /* 4 lanes, 6.250 Gbaud */
+	BGX_MODE_RXAUI = 2, /* 2 lanes, 6.250 Gbaud */
+	BGX_MODE_XFI = 3,   /* 1 lane, 10.3125 Gbaud */
+	BGX_MODE_XLAUI = 4, /* 4 lanes, 10.3125 Gbaud */
+	BGX_MODE_10G_KR = 3,/* 1 lane, 10.3125 Gbaud */
+	BGX_MODE_40G_KR = 4,/* 4 lanes, 10.3125 Gbaud */
+	BGX_MODE_RGMII = 5,
+	BGX_MODE_QSGMII = 6,
+	BGX_MODE_INVALID = 7,
+};
+
 #endif /* THUNDER_BGX_H */
