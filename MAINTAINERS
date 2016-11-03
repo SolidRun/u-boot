@@ -170,6 +170,13 @@ F:	board/CZ.NIC/
 F:	configs/turris_*_defconfig
 F:	include/configs/turris_*.h
 
+ARM CAVIUM THUNDERX/OCTEONTX
+M:	Aaron Williams <aaron.williams@cavium.com>
+S:	Maintained
+F:	arch/arm/mach-thunderx
+F:	arch/arm/include/asm-cavium
+F:	board/cavium
+
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
 M:	Fabio Estevam <festevam@gmail.com>
