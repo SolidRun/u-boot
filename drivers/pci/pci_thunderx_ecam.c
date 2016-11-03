@@ -31,8 +31,8 @@ struct thunderx_pci {
 };
 
 static int pci_thunderx_ecam_read_config(struct udevice *bus, pci_dev_t bdf,
-				 uint offset, ulong *valuep,
-				 enum pci_size_t size)
+					 uint offset, ulong *valuep,
+					 enum pci_size_t size)
 {
 	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
 	struct pci_controller *hose = dev_get_uclass_priv(bus);
@@ -67,8 +67,8 @@ static int pci_thunderx_ecam_read_config(struct udevice *bus, pci_dev_t bdf,
 }
 
 static int pci_thunderx_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
-				 uint offset, ulong valuep,
-				 enum pci_size_t size)
+					 uint offset, ulong valuep,
+					 enum pci_size_t size)
 {
 	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
 	struct pci_controller *hose = dev_get_uclass_priv(bus);
@@ -103,8 +103,8 @@ static int pci_thunderx_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
 }
 
 static int pci_thunderx_pem_read_config(struct udevice *bus, pci_dev_t bdf,
-				 uint offset, ulong *valuep,
-				 enum pci_size_t size)
+					uint offset, ulong *valuep,
+					enum pci_size_t size)
 {
 	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
 	struct pci_controller *hose = dev_get_uclass_priv(bus);
@@ -157,8 +157,8 @@ static int pci_thunderx_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 }
 
 static int pci_thunderx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
-				 uint offset, ulong value,
-				 enum pci_size_t size)
+					 uint offset, ulong value,
+					 enum pci_size_t size)
 {
 	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
 	struct pci_controller *hose = dev_get_uclass_priv(bus);
@@ -218,14 +218,16 @@ static int pci_thunderx_ecam_probe(struct udevice *dev)
 	struct thunderx_pci *pcie = (void *)dev_get_priv(dev);
 	int err;
 
-	err = fdt_get_resource(gd->fdt_blob, dev->of_offset, "reg", 0, &pcie->cfg);
+	err = fdt_get_resource(gd->fdt_blob, dev->of_offset, "reg", 0,
+			       &pcie->cfg);
 
 	if (err) {
 		printf("Error reading resource: %s\n", fdt_strerror(err));
 		return err;
 	}
 
-	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->of_offset, &pcie->bus);
+	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->of_offset,
+				       &pcie->bus);
 
 	if (err) {
 		printf("Error reading resource: %s\n", fdt_strerror(err));
