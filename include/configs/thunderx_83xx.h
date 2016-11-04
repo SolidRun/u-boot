@@ -247,7 +247,7 @@
 /** Enable AHCI SATA driver */
 # define CONFIG_SATA_AHCI
 /** Maximum number of SATA devices */
-# define CONFIG_SYS_SATA_MAX_DEVICE	2
+# define CONFIG_SYS_SATA_MAX_DEVICE	6
 /** Enable 48-bit SATA addressing */
 # define CONFIG_LBA48
 /** Enable libata, required for SATA */
