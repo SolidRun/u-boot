@@ -567,6 +567,13 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 		return -1;
 	}
 
+	/* Wait for MAC RX to be ready */
+	if (bgx_poll_reg(bgx, lmacid, BGX_SMUX_RX_CTL,
+			 SMU_RX_CTL_STATUS, true)) {
+		printf( "SMU RX link not okay\n");
+		return -1;
+	}
+
 	/* Wait for BGX RX to be idle */
 	if (bgx_poll_reg(bgx, lmacid, BGX_SMUX_CTL, SMU_CTL_RX_IDLE, false)) {
 		dev_err(&bgx->pdev->dev, "SMU RX not idle\n");
