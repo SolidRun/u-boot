@@ -932,12 +932,61 @@ static void bgx_init_hw(struct bgx *bgx)
 		bgx_reg_write(bgx, 0, BGX_CMR_RX_STREERING + (i * 8), 0x00);
 }
 
+static void bgx_set_max_lmac(struct bgx *bgx)
+{
+	int lmac_type;
+	bgx->max_lmac = MAX_LMAC_PER_BGX;
+
+	/* Read LMACx type to figure out QLM mode
+	 * This is configured by low level firmware
+	 */
+	lmac_type = bgx_reg_read(bgx, 0, BGX_CMRX_CFG);
+	lmac_type = (lmac_type >> 8) & 0x07;
+
+	switch (lmac_type) {
+		case BGX_MODE_SGMII:
+			bgx->max_lmac = 4;
+			break;
+		case BGX_MODE_XAUI:
+			bgx->max_lmac = 1;
+			break;
+		case BGX_MODE_RXAUI:
+			bgx->max_lmac = 2;
+			break;
+		case BGX_MODE_XFI:
+			bgx->max_lmac = 4;
+			break;
+		case BGX_MODE_XLAUI:
+			bgx->max_lmac = 1;
+			break;
+		case BGX_MODE_QSGMII:
+			bgx->max_lmac = 4;
+			break;
+		default:
+			break;
+	}
+	debug("BGX:%d MAX_LMAC:%d\n",bgx->bgx_id, bgx->max_lmac);
+}
+
+/* BDK programs lmac_type for lmac0
+ * let us program for others as well
+ */
+static void bgx_prog_lmac_type(struct bgx *bgx)
+{
+	int lmac_type;
+	int lmacid;
+
+	lmac_type = bgx_reg_read(bgx, 0, BGX_CMRX_CFG);
+
+	for (lmacid = 1; lmacid < bgx->max_lmac && lmac_type != -1;
+			lmacid++)
+		bgx_reg_modify(bgx, lmacid, BGX_CMRX_CFG,lmac_type);
+}
+
 static void bgx_get_qlm_mode(struct bgx *bgx)
 {
 	struct lmac *lmac;
 	int lmacid;
-
-	bgx->max_lmac = MAX_LMAC_PER_BGX;
 
 	/* Read LMACx type to figure out QLM mode
 	 * This is configured by low level firmware
@@ -960,7 +1009,6 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 
 		switch(lmac->lmac_type) {
 		case BGX_MODE_SGMII:
-			bgx->max_lmac = 4;
 			if (bgx->is_rgx) {
 				if (lmacid == 0) {
 					lmac->qlm_mode = QLM_MODE_RGMII;
@@ -979,7 +1027,6 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			}
 			break;
 		case BGX_MODE_XAUI:
-			bgx->max_lmac = 1;
 			if ((bgx->bgx_id == 0) && is_altpkg)
 				continue;
 			lmac->qlm_mode = QLM_MODE_XAUI;
@@ -987,13 +1034,11 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 					bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case BGX_MODE_RXAUI:
-			bgx->max_lmac = 2;
 			if ((bgx->bgx_id == 0) && is_altpkg)
 				continue;
 			lmac->qlm_mode = QLM_MODE_RXAUI;
 			break;
 		case BGX_MODE_XFI:
-			bgx->max_lmac = 4;
 			if (((lmacid < 2) && (train_en & (1 << lmacid)))
 			    || (train_en & (1 << (lmacid - 2)))) {
 				lmac->qlm_mode = QLM_MODE_10G_KR;
@@ -1006,7 +1051,6 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			}
 			break;
 		case BGX_MODE_XLAUI:
-			bgx->max_lmac = 1;
 			if ((bgx->bgx_id == 0) && is_altpkg)
 				continue;
 			if (train_en) {
@@ -1024,7 +1068,6 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			}
 		break;
 		case BGX_MODE_QSGMII:
-			bgx->max_lmac = 4;
 			lmac->qlm_mode = QLM_MODE_QSGMII;
 			printf("BGX%d QLM%d LMAC%d mode: QSGMII\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
@@ -1087,6 +1130,9 @@ int thunderx_bgx_probe(struct udevice *dev)
 		bgx->lmac[lmac].lmacid = lmac;
 		debug("qlm[%d] =%d \n", lmac, bgx->lmac[lmac].qlm);
 	}
+
+	bgx_set_max_lmac(bgx);
+	bgx_prog_lmac_type(bgx);
 
 #ifdef CONFIG_THUNDERX_XCV
 skip_qlm_config:
