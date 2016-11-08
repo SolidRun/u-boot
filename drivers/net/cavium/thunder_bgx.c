@@ -965,6 +965,11 @@ static void bgx_set_max_lmac(struct bgx *bgx)
 		default:
 			break;
 	}
+
+	/* BGX3 is connected to DLM4 */
+	if (bgx->bgx_id == 3 && bgx->max_lmac > 2)
+		bgx->max_lmac = 2;
+
 	debug("BGX:%d MAX_LMAC:%d\n",bgx->bgx_id, bgx->max_lmac);
 }
 
