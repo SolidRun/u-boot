@@ -11,6 +11,10 @@
 #include <sparse_format.h>
 #include <image-sparse.h>
 
+#ifdef CONFIG_CAVIUM_MMC
+extern void print_mmc_device_info(struct mmc *mmc);
+#endif
+
 static int curr_device = -1;
 
 static void print_mmcinfo(struct mmc *mmc)
@@ -133,7 +137,11 @@ static int do_mmcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
+#ifdef CONFIG_CAVIUM_MMC
+	print_mmc_device_info(mmc);
+#else
 	print_mmcinfo(mmc);
+#endif
 	return CMD_RET_SUCCESS;
 }
 
