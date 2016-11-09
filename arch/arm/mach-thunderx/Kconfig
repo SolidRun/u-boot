@@ -11,6 +11,7 @@ config	THUNDERX_COMMON
 	select DM_PCI_COMPAT
 	select DM_SERIAL
 	select DM_USB
+	select DM_MMC
 	select OF_CONTROL
 	select OF_EMBED
 	select OF_LIBFDT
@@ -23,6 +24,8 @@ config	THUNDERX_COMMON
 	select SYS_PCI_64BIT
 	select PCI_PNP
 	select PCI_AUTO
+	select CAVIUM_MMC
+	select MMC
 
 choice
 	prompt "Choose target processor"
@@ -144,6 +147,30 @@ config DM_I2C_COMPAT
 	default y
 
 config DM_GPIO
+	bool
+	default y
+
+config DM_MMC
+	bool
+	default y
+
+config DM
+	bool
+	default y
+
+
+config MMC
+	bool
+	default y
+
+config CAVIUM_MMC
+	bool
+	default y
+	select DM_MMC
+	select MMC
+	select FS_EXT4
+
+config OF_CONTROL
 	bool
 	default y
 
