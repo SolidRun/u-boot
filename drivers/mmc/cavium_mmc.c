@@ -1860,10 +1860,10 @@ void print_mmc_devices(char separator)
  */
 void print_mmc_device_info(struct mmc *mmc)
 {
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	const struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
 	const char *type;
 	const char *version;
-	uint8_t *ext_csd;
+	const uint8_t *ext_csd = slot->ext_csd;
 	uint32_t card_type;
 	int prev = 0;
 	int i;
@@ -2151,7 +2151,6 @@ void print_mmc_device_info(struct mmc *mmc)
 			}
 			puts("\n");
 		}
-		ext_csd = slot->ext_csd;
 		printf("Current power Class:   %smA\n",
 		       pwr_classes[ext_csd[EXT_CSD_POWER_CLASS] & 0xF]);
 		printf("Power 4-bit@52MHz:     %smA\n",
