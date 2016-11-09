@@ -46,7 +46,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_ENV_OFFSET 0
 #endif
 
-__weak int atf_get_env_addr(int copy, u32 *env_addr)
+__weak int atf_get_env_addr(int copy, ulong *env_addr)
 {
 	s64 offset;
 
@@ -171,7 +171,7 @@ static inline int read_env(unsigned long offset, void *buffer, unsigned long siz
 void env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-	u32 offset1, offset2;
+	ulong offset1, offset2;
 	int read1_fail = 0, read2_fail = 0;
 	int crc1_ok = 0, crc2_ok = 0;
 	env_t *ep;
@@ -249,7 +249,7 @@ void env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
-	u32 offset;
+	ulong offset;
 	int ret;
 
 	if (atf_get_env_addr(0, &offset)) {
