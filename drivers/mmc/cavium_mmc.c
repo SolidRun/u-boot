@@ -5617,6 +5617,8 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 
 		if (fdtdec_get_bool(blob, slot_node, "cap-sd-highspeed"))
 			slot->cfg.host_caps |= MMC_MODE_HS;
+		if (fdtdec_get_bool(blob, slot_node, "cap-mmc-highspeed"))
+			slot->cfg.host_caps |= MMC_MODE_HS;
 		if (fdtdec_get_bool(blob, slot_node, "sd-uhs-sdr25"))
 			slot->cfg.host_caps |= MMC_MODE_HS;
 		if (fdtdec_get_bool(blob, slot_node, "sd-uhs-sdr50"))
