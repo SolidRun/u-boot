@@ -3151,10 +3151,14 @@ static int sd_set_bus_width_speed(struct mmc *mmc)
 		}
 		mmc_set_bus_width(mmc, 1);
 	}
-	if (mmc->card_caps & MMC_MODE_HS)
-		mmc_set_clock(mmc, 50000000);
-	else
-		mmc_set_clock(mmc, 25000000);
+	if (mmc->card_caps & MMC_MODE_HS) {
+		if (mmc->card_caps & MMC_MODE_DDR_52MHz)
+			mmc_set_clock(mmc, 50000000);
+		else
+			mmc_set_clock(mmc, 25000000);
+	} else {
+		mmc_set_clock(mmc, 20000000);
+	}
 	return sd_set_ios(mmc);
 }
 #endif
@@ -4018,8 +4022,8 @@ again:
  */
 void mmc_set_clock(struct mmc *mmc, uint clock)
 {
-	struct cavium_mmc_slot *slot = (struct cavium_mmc_slot *)mmc->priv;
-	struct cavium_mmc_host *host = slot->host;
+	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	struct cavium_mmc_host *host = cavium_get_host(mmc);
 	union mio_emm_switch emm_switch;
 	unsigned bus;
 
@@ -4041,13 +4045,14 @@ void mmc_set_clock(struct mmc *mmc, uint clock)
 	mmc->clock = clock;
 	slot->clk_period = (host->sclock + clock - 1) / clock;
 
+	debug("%s: Reading MIO_EMM_SWITCH\n", __func__);
 	/* Write the change to the hardware */
 	emm_switch.u = mmc_read_csr(mmc, MIO_EMM_SWITCH);
 	emm_switch.s.clk_hi = (slot->clk_period + 1) / 2;
 	emm_switch.s.clk_lo = emm_switch.s.clk_hi;
+	bus = emm_switch.s.bus_id;
 	debug("%s: clock period: %u, bus: %u\n", __func__,
 	      slot->clk_period, bus);
-	bus = emm_switch.s.bus_id;
 
 	emm_switch.s.bus_id = 0;
 	emm_switch.s.hs_timing = (mmc->clock > 20000000);
@@ -5752,6 +5757,12 @@ static int cavium_pci_mmc_probe(struct udevice *dev)
 	      dev->uclass_platdata, base_addr,
 	      dev->of_offset, dev->parent, dev->priv,
 	      dev->uclass, dev->req_seq, dev->seq);
+
+	if (!base_addr) {
+		debug("%s(%s): MMC not found on MRML bus\n",
+		      __func__, dev->name);
+		return rc;
+	}
 
 	if (dev->of_offset >= 0)
 		rc = process_node(dev, gd->fdt_blob, dev->of_offset);
