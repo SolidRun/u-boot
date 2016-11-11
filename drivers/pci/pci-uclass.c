@@ -863,6 +863,22 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 
 }
 
+int pci_sriov_get_totalvfs(struct udevice *pdev)
+{
+	u16 total_vf;
+	int pos;
+
+	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
+	if (!pos) {
+		printf("Error: SRIOV capability not found\n");
+		return -ENODEV;
+	}
+
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
+
+	return total_vf;
+}
+
 int pci_bind_bus_devices(struct udevice *bus)
 {
 	ulong vendor, device;

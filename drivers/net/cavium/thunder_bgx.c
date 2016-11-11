@@ -795,17 +795,7 @@ static void bgx_init_hw(struct bgx *bgx)
 
 		switch (lmac->qlm_mode) {
 		case QLM_MODE_SGMII:
-			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
-			   lane_to_sds for 2nd port in BGX0 to DLM1, lane0. */
-			if ((bgx->bgx_id == 0) && is_altpkg) {
-				if (lmacid >= 2)
-					continue;
-				else if (lmacid == 1)
-					lmac->lane_to_sds = lmacid + 1;
-				else
-					lmac->lane_to_sds = lmacid;
-			} else
-				lmac->lane_to_sds = lmacid;
+			lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 0;
 			lmac_count++;
 			break;
@@ -834,17 +824,7 @@ static void bgx_init_hw(struct bgx *bgx)
 				continue;
 			break;
 		case QLM_MODE_XFI:
-			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
-			   lane_to_sds for 2nd port in BGX0 to DLM1 lane0. */
-			if ((bgx->bgx_id == 0) && is_altpkg) {
-				if (lmacid >= 2)
-					continue;
-				else if (lmacid == 1)
-					lmac->lane_to_sds = lmacid + 1;
-				else
-					lmac->lane_to_sds = lmacid;
-			} else
-				lmac->lane_to_sds = lmacid;
+			lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 3;
 			lmac_count++;
 			break;

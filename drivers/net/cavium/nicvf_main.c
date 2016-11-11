@@ -322,7 +322,7 @@ int nicvf_cq_handler(struct nicvf *nic, void **ppkt, int *pkt_len)
 
 	asm volatile ("dsb sy");
 
-	return processed_sq_cqe;
+	return (processed_sq_cqe | processed_rq_cqe)  ;
 }
 
 /* Qset error interrupt handler

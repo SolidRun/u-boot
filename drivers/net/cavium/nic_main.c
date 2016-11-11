@@ -428,14 +428,6 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
 		for (; lmac < lmac_cnt + (bgx * MAX_LMAC_PER_BGX); lmac++)
 			nic_reg_write(nic,
 				NIC_PF_LMAC_0_7_CREDIT + (lmac * 8), lmac_credit);
-
-		/* On CN81XX there are only 8 VFs but max possible no of
-		 * interfaces are 9.
-		 */
-		if (nic->num_vf_en >= 8) {
-			nic->num_vf_en = 8;
-			break;
-		}
 	}
 }
 
@@ -490,7 +482,8 @@ static void nic_get_hw_info(struct nicpf *nic)
 		hw->model_id = 0x83;
 		break;
 	}
-	hw->tl4_cnt = MAX_QUEUES_PER_QSET * /*pci_sriov_get_totalvfs(nic->pdev)*/ 8;
+
+	hw->tl4_cnt = MAX_QUEUES_PER_QSET * pci_sriov_get_totalvfs(nic->udev);
 }
 
 static void nic_init_hw(struct nicpf *nic)
@@ -663,12 +656,12 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
 		if (!sq->sqs_mode) {
 			tl4 += (lmac * MAX_QUEUES_PER_QSET);
 		} else {
-			for (svf = 0; svf < MAX_SQS_PER_VF; svf++) {
+			for (svf = 0; svf < MAX_SQS_PER_VF_SINGLE_NODE; svf++) {
 				if (nic->vf_sqs[pqs_vnic][svf] == vnic)
 					break;
 			}
 			tl4 += (MAX_LMAC_PER_BGX * MAX_QUEUES_PER_QSET);
-			tl4 += (lmac * MAX_QUEUES_PER_QSET * MAX_SQS_PER_VF);
+			tl4 += (lmac * MAX_QUEUES_PER_QSET * MAX_SQS_PER_VF_SINGLE_NODE);
 			tl4 += (svf * MAX_QUEUES_PER_QSET);
 		}
 	} else {
@@ -768,7 +761,8 @@ int thunderx_nic_probe(struct udevice *dev)
 	nicpf = dev_get_priv(dev);
 
 	ret = pci_sriov_init(dev, nicpf->num_vf_en);
-	if(ret < 0) {
+
+	if (ret < 0) {
 		printf("enabling SRIOV failed for num VFs %d",nicpf->num_vf_en);
 		return ret;
 	}
