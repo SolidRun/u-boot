@@ -22,8 +22,11 @@
 #define CONFIG_SYS_VSNPRINTF
 
 #define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
+/* starting uboot and linux kernel from offset 40MB
+ * below 40MB will be used for mailboxes of pko/pki
+ * */
 
-#define MEM_BASE			0x00500000
+#define MEM_BASE			0x2800000
 
 #define CONFIG_COREID_MASK             0xffffff
 
