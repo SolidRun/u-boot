@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2016 Cavium, Inc. <support@cavium.com>
+ *
  * (C) Copyright 2011
  * eInfochips Ltd. <www.einfochips.com>
  * Written-by: Ajay Bhargav <ajay.bhargav@einfochips.com>
@@ -32,16 +34,19 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO_BIT_CFG_TX_OE(x)	((x) & 0x1)
 #define GPIO_BIT_CFG_RX_DAT(x)	((x) & 0x1)
 
+/** PCI ID on NCB bus */
+#define PCI_DEVICE_ID_CAVIUM_GPIO	0xa00a
+
 static const int DIRECTION_INPUT  = 0;
 static const int DIRECTION_OUTPUT = 1;
 
-struct thunderx_gpio {
+struct octeontx_gpio {
 	void __iomem *baseaddr;
 };
 
-static int thunderx_gpio_dir_input(struct udevice *dev, unsigned offset)
+static int octeontx_gpio_dir_input(struct udevice *dev, unsigned offset)
 {
-	struct thunderx_gpio *gpio = dev_get_priv(dev);
+	struct octeontx_gpio *gpio = dev_get_priv(dev);
 
 	clrbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
 		     (0x3ffUL << 16) | 1UL);
@@ -49,10 +54,10 @@ static int thunderx_gpio_dir_input(struct udevice *dev, unsigned offset)
 	return 0;
 }
 
-static int thunderx_gpio_dir_output(struct udevice *dev, unsigned offset,
+static int octeontx_gpio_dir_output(struct udevice *dev, unsigned offset,
 				    int value)
 {
-	struct thunderx_gpio *gpio = dev_get_priv(dev);
+	struct octeontx_gpio *gpio = dev_get_priv(dev);
 
 	if (value) {
 		setbits_le64(gpio->baseaddr + GPIO_TX_SET,
@@ -69,19 +74,19 @@ static int thunderx_gpio_dir_output(struct udevice *dev, unsigned offset,
 	return 0;
 }
 
-static int thunderx_gpio_get_value(struct udevice *dev,
+static int octeontx_gpio_get_value(struct udevice *dev,
 				   unsigned offset)
 {
-	struct thunderx_gpio *gpio = dev_get_priv(dev);
+	struct octeontx_gpio *gpio = dev_get_priv(dev);
 	u64 reg = readq(gpio->baseaddr + GPIO_RX_DAT);
 
 	return (reg & GPIO_BIT(offset)) != 0;
 }
 
-static int thunderx_gpio_set_value(struct udevice *dev,
+static int octeontx_gpio_set_value(struct udevice *dev,
 				   unsigned offset, int value)
 {
-	struct thunderx_gpio *gpio = dev_get_priv(dev);
+	struct octeontx_gpio *gpio = dev_get_priv(dev);
 
 	if (value) {
 		setbits_le64(gpio->baseaddr + GPIO_TX_SET,
@@ -95,10 +100,10 @@ static int thunderx_gpio_set_value(struct udevice *dev,
 
 }
 
-static int thunderx_gpio_get_function(struct udevice *dev,
+static int octeontx_gpio_get_function(struct udevice *dev,
 				      unsigned offset)
 {
-	struct thunderx_gpio *gpio = dev_get_priv(dev);
+	struct octeontx_gpio *gpio = dev_get_priv(dev);
 	u64 pinsel = readl(gpio->baseaddr + GPIO_BIT_CFG(offset));
 
 	if (GPIO_BIT_CFG_FN(pinsel))
@@ -109,7 +114,7 @@ static int thunderx_gpio_get_function(struct udevice *dev,
 		return GPIOF_INPUT;
 }
 
-static int thunderx_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
+static int octeontx_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 			    struct fdtdec_phandle_args *args)
 {
 	desc->offset = args->args[0];
@@ -118,27 +123,40 @@ static int thunderx_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 	return 0;
 }
 
-static const struct dm_gpio_ops thunderx_gpio_ops = {
-	.direction_input	= thunderx_gpio_dir_input,
-	.direction_output	= thunderx_gpio_dir_output,
-	.get_value		= thunderx_gpio_get_value,
-	.set_value		= thunderx_gpio_set_value,
-	.get_function		= thunderx_gpio_get_function,
-	.xlate			= thunderx_gpio_xlate,
+static const struct dm_gpio_ops octeontx_gpio_ops = {
+	.direction_input	= octeontx_gpio_dir_input,
+	.direction_output	= octeontx_gpio_dir_output,
+	.get_value		= octeontx_gpio_get_value,
+	.set_value		= octeontx_gpio_set_value,
+	.get_function		= octeontx_gpio_get_function,
+	.xlate			= octeontx_gpio_xlate,
 };
 
-static int thunderx_gpio_probe(struct udevice *dev)
+static int octeontx_gpio_probe(struct udevice *dev)
 {
+	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct thunderx_gpio *priv = dev_get_priv(dev);
+	struct octeontx_gpio *priv = dev_get_priv(dev);
 	u32    pins[2];
+	size_t size;
 	char *end;
 	int ret;
 
-	priv->baseaddr = (void *)dev_get_addr(dev);
+	dev->req_seq = PCI_FUNC(bdf);
+	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+
+	if (!priv->baseaddr) {
+		debug("%s(%s): Could not get base address\n",
+		      __func__, dev->name);
+		return -1;
+	}
 
 	ret = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset, "pins",
 				   pins, 2);
+
+	debug("%s(%s): base address: %p, ret: %d, of_offset: %d, pin base: %d, count: %d\n",
+	      __func__, dev->name, priv->baseaddr, ret, dev->of_offset,
+	      pins[0], pins[1] - pins[0]);
 
 	if (ret < 0)
 		return ret;
@@ -154,17 +172,26 @@ static int thunderx_gpio_probe(struct udevice *dev)
 }
 
 
-static const struct udevice_id thunderx_gpio_ids[] = {
+static const struct udevice_id octeontx_gpio_ids[] = {
+	{ .compatible = "cavium,thunder-8890-gpio" },
+	{ .compatible = "cavium,gpio" },
 	{ .compatible = "cavium,thunderx-gpio" },
 	{ }
 };
 
-U_BOOT_DRIVER(gpio_thunderx) = {
-	.name	= "gpio_thunderx",
+U_BOOT_DRIVER(cavium_pci_gpio) = {
+	.name	= "gpio_cavium",
 	.id	= UCLASS_GPIO,
-	.of_match = thunderx_gpio_ids,
-	.probe = thunderx_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct thunderx_gpio),
-	.ops	= &thunderx_gpio_ops,
+	.of_match = of_match_ptr(octeontx_gpio_ids),
+	.probe = octeontx_gpio_probe,
+	.priv_auto_alloc_size = sizeof(struct octeontx_gpio),
+	.ops	= &octeontx_gpio_ops,
 	.flags	= DM_FLAG_PRE_RELOC,
 };
+
+static struct pci_device_id cavium_pci_gpio_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_CAVIUM_GPIO) },
+	{ },
+};
+
+U_BOOT_PCI_DEVICE(cavium_pci_gpio, cavium_pci_gpio_supported);
