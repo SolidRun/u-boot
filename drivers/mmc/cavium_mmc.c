@@ -2572,6 +2572,7 @@ int mmc_legacy_init(int dev_num)
 	struct mmc *mmc;
 	int rc;
 
+	debug("%s(%d)\n", __func__, dev_num);
 	mmc = find_mmc_device(dev_num);
 	if (mmc == NULL) {
 		printf("Error: could not find MMC device %d\n", dev_num);
@@ -5228,6 +5229,7 @@ int __mmc_getcd(struct mmc *mmc)
 			cd = 1;
 	}
 
+	debug("%s(%s): return %d\n", __func__, mmc->cfg->name, cd);
 	return cd;
 }
 int mmc_getcd(struct mmc *mmc) __attribute__((weak, alias("__mmc_getcd")));
@@ -5309,6 +5311,7 @@ int mmc_initialize(bd_t *bis)
 
 	/* Disable all MMC slots */
 	list_for_each_entry(mmc, &mmc_devices, link) {
+		debug("%s: Disabling MMC slot %s\n", __func__, mmc->cfg->name);
 		mmc_write_csr(mmc, MIO_EMM_CFG, 0);
 	}
 
@@ -5322,7 +5325,7 @@ int mmc_initialize(bd_t *bis)
 	}
 	mdelay(POWER_ON_TIME);
 	list_for_each_entry_safe(mmc, tmp_mmc, &mmc_devices, link) {
-		slot = mmc->priv;
+		slot = cavium_get_slot(mmc);
 		host = slot->host;
 		bus_id = slot->bus_id;
 		debug("%s: mmc: %p, host: %p, bus_id: %d:%d\n",
@@ -5356,6 +5359,12 @@ int mmc_initialize(bd_t *bis)
 				mmc_go_idle(mmc);
 			}
 		}
+		if (rc) {
+			mmc_disable(mmc);
+			mmc_destroy(mmc);
+			slot->mmc = NULL;
+			slot->initialized = false;
+		}
 	}
 	init_time = 0;
 	debug("%s: done initializing, found: %s, rc: %d\n", __func__,
@@ -5368,7 +5377,7 @@ int mmc_initialize(bd_t *bis)
 		printf("not available\n");
 	}
 	debug("%s: exit(%d)\n", __func__, rc);
-	return rc;
+	return found ? 0 : rc;
 }
 
 int mmc_init(struct mmc *mmc)
@@ -5381,8 +5390,14 @@ int mmc_init(struct mmc *mmc)
 
 #ifdef __mips
 	if (!octeon_has_feature(OCTEON_FEATURE_MMC))
-		return 0;
+		return -ENODEV;
 #endif
+
+	if (!mmc_getcd(mmc)) {
+		debug("%s: No card detected for %s\n", __func__,
+		      mmc->cfg->name);
+		return -ENODEV;
+	}
 	mmc_enable(mmc);
 
 	mmc->clock = mmc->cfg->f_min;
@@ -5511,6 +5526,7 @@ void mmc_destroy(struct mmc *mmc)
 {
 	/* only freeing memory for now */
 	debug("%s(%p) ENTRY\n", __func__, mmc);
+	list_del(&mmc->link);
 	free(mmc);
 }
 
