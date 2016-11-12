@@ -266,6 +266,7 @@ U_BOOT_DRIVER(pci_thunderx_ecam) = {
 	.ofdata_to_platdata = pci_thunderx_ofdata_to_platdata,
 	.probe	= pci_thunderx_ecam_probe,
 	.priv_auto_alloc_size = sizeof(struct thunderx_pci),
+	.flags = DM_FLAG_PRE_RELOC,
 };
 
 U_BOOT_DRIVER(pci_thunderx_pcie) = {
