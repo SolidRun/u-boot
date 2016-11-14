@@ -2019,7 +2019,7 @@ void print_mmc_device_info(struct mmc *mmc)
 		       (mmc->cid[3] >> 12) & 0xf,
 		       ((mmc->cid[3] >> 8) & 0xf) + start_year);
 	}
-	printf("CRC7:                  0x%02x (%svalid)\n", mmc->cid[3] & 0xff,
+	printf("CID CRC7:              0x%02x (%svalid)\n", mmc->cid[3] & 0xff,
 	       (mmc->cid[3] & 0xff) == mmc_crc7_32(mmc->cid, 4) ? "" : "in");
 	printf("Capacity:              %llu bytes (%llu blocks)\n",
 	       mmc->capacity, mmc->capacity / mmc->read_bl_len);
