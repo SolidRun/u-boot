@@ -591,7 +591,7 @@ static void mmc_print_registers(struct mmc *mmc)
 		emm_dma_adr.u = mmc_read_csr(mmc, MIO_EMM_DMA_ADR);
 		printf("MIO_EMM_DMA_ADR:        0x%016llx\n", emm_dma_adr.u);
 		printf("    0-49:  adr:                 0x%llx\n",
-		       emm_dma_adr.s.adr);
+		       (uint64_t)emm_dma_adr.s.adr);
 
 		emm_dma_int.u = mmc_read_csr(mmc, MIO_EMM_DMA_INT);
 		printf("\nMIO_EMM_DMA_INT:              0x%016llx\n",
@@ -785,9 +785,8 @@ struct mmc *find_mmc_device(int dev_num)
 
 	list_for_each(entry, &mmc_devices) {
 		m = list_entry(entry, struct mmc, link);
-		if (!m)
-			debug("  testing MMC dev %d == %d\n",
-			      m->block_dev.dev, dev_num);
+		debug("  testing MMC dev %s %d == %d\n",
+		      m->cfg->name, m->block_dev.dev, dev_num);
 		if (m->block_dev.dev == dev_num)
 			return m;
 	}
@@ -1022,6 +1021,8 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
 	struct cavium_mmc_host *host = cavium_get_host(mmc);
 
+	debug("%s(%s): bus_id: %d, last: %d\n", __func__, mmc->cfg->name,
+	      slot->bus_id, last_bus_id[host->dev_index]);
 	if (slot->bus_id == last_bus_id[host->dev_index])
 		return;
 
@@ -1033,16 +1034,17 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	      "    bus id: %d, clock period: %d, width: %d, rca: 0x%x, high speed: %d\n",
 	      __func__, mmc->cfg->name,
 	      last_bus_id[host->dev_index], emm_switch.s.clk_lo * 2,
-	      emm_switch.s.bus_width, emm_switch.s.hs_timing,
-	      emm_rca.s.card_rca, slot->bus_id,
-	      slot->clk_period, slot->bus_width, mmc->rca,
+	      emm_switch.s.bus_width, emm_rca.s.card_rca,
+	      emm_switch.s.hs_timing,
+	      slot->bus_id, slot->clk_period, slot->bus_width, mmc->rca,
 	      !!(mmc->card_caps & MMC_MODE_HS));
 #endif
 	/* mmc_write_csr(mmc, MIO_EMM_CFG, 1 << slot->bus_id);*/
-	emm_switch.s.bus_width = mmc->bus_width;
+	emm_switch.s.bus_width = slot->bus_width;
 	emm_switch.s.hs_timing = mmc->clock > 20000000;
-	debug("%s: hs timing: %d, caps: 0x%x\n", __func__,
-	      emm_switch.s.hs_timing, mmc->card_caps);
+	debug("%s: hs timing: %d, caps: 0x%x, bus_width: %d (%d bits)\n",
+	      __func__, emm_switch.s.hs_timing, mmc->card_caps,
+	      (int)emm_switch.s.bus_width, mmc->bus_width);
 	emm_switch.s.clk_hi = (slot->clk_period + 1) / 2;
 	emm_switch.s.clk_lo = (slot->clk_period + 1) / 2;
 	emm_switch.s.bus_id = slot->bus_id;
@@ -1053,7 +1055,9 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	udelay(100);
 	emm_switch.s.bus_id = slot->bus_id;
 	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
-	debug("Switching RCA to 0x%x\n", mmc->rca);
+
+	debug("Switching RCA from 0x%llx to 0x%x\n",
+	      mmc_read_csr(mmc, MIO_EMM_RCA), mmc->rca);
 	emm_rca.u = 0;
 	emm_rca.s.card_rca = mmc->rca;
 	mmc_write_csr(mmc, MIO_EMM_RCA, emm_rca.u);
@@ -1075,6 +1079,7 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	      __func__, slot->bus_id,
 	      mmc_read_csr(mmc, MIO_EMM_MODEX(slot->bus_id)),
 	      mmc_read_csr(mmc, MIO_EMM_SWITCH));
+	mdelay(10);
 	mmc_print_registers(mmc);
 }
 
@@ -1203,12 +1208,13 @@ retry_dma:
 			       mmc_read_csr(mmc, MIO_EMM_RSP_HI));
 			printf("    MIO_EMM_MODE(%d): 0x%llx\n", slot->bus_id,
 			       mmc_read_csr(mmc, MIO_EMM_MODEX(slot->bus_id)));
-		} else {
-			if (rsp_sts.s.blk_timeout)
-				printf("Block timeout error detected\n");
-			if (rsp_sts.s.blk_crc_err)
-				printf("Block CRC error detected\n");
+			printf("    MIO_EMM_DMA_CFG: 0x%llx\n",
+			       mmc_read_csr(mmc, MIO_EMM_DMA_CFG));
 		}
+		if (rsp_sts.s.blk_timeout)
+			printf("Block timeout error detected\n");
+		if (rsp_sts.s.blk_crc_err)
+			printf("Block CRC error detected\n");
 		if (dma_retry_count++ < 3) {
 			/* DMA still pending, terminate it */
 #ifdef DEBUG
@@ -1616,8 +1622,10 @@ static unsigned long mmc_bread(block_dev_desc_t *block_dev, lbaint_t start,
 
 	debug("%s(%d, %llu, %llu, %p)\n", __func__, dev_num, (uint64_t)start,
 	      (uint64_t)blkcnt, dst);
-	if (!mmc)
+	if (!mmc) {
+		printf("%s: MMC device %d not found\n", __func__, dev_num);
 		return 0;
+	}
 
 	if (blkcnt == 0)
 		return 0;
@@ -1904,6 +1912,7 @@ void print_mmc_device_info(struct mmc *mmc)
 #ifdef CONFIG_CAVIUM_MMC_SD
 	case SD_VERSION_2:
 	case SD_VERSION_3:
+	case SD_VERSION_4:	/* Decode versions 2-4 here */
 		if (mmc->scr[0] & (1 << 16)) {
 			if (mmc->scr[0] & (1 << 10))
 				version = "SD 4.XX";
@@ -2542,15 +2551,6 @@ int mmc_hwpart_config(struct mmc *mmc,
 
 	return 0;
 }
-
-#ifdef CONFIG_SYS_MMC_SET_DEV
-int mmc_set_dev(int dev_num)
-{
-	debug("%s(%d)\n", __func__, dev_num);
-	cur_dev_num = dev_num;
-	return 0;
-}
-#endif
 
 __weak int board_mmc_getwp(struct mmc *mmc)
 {
@@ -3257,9 +3257,10 @@ int sd_send_op_cond(struct mmc *mmc)
 			cmd.cmdarg |= OCR_HCS;
 			debug("%s: SD 2.0 compliant card, voltagess: 0x%x\n",
 			      __func__, cmd.cmdarg);
-		} else if (mmc->version == SD_VERSION_3) {
+		} else if ((mmc->version == SD_VERSION_3) ||
+			   (mmc->version == SD_VERSION_4)) {
 			cmd.cmdarg |= OCR_HCS | OCR_XPC;
-			debug("%s: SD 3.0 compliant card, arg: 0x%x\n",
+			debug("%s: SD 3.0/4.0 compliant card, arg: 0x%x\n",
 			      __func__, cmd.cmdarg);
 		}
 
@@ -3279,7 +3280,8 @@ int sd_send_op_cond(struct mmc *mmc)
 		return UNUSABLE_ERR;
 	}
 
-	if ((mmc->version != SD_VERSION_2) || (mmc->version != SD_VERSION_3))
+	if ((mmc->version != SD_VERSION_2) || (mmc->version != SD_VERSION_3) ||
+	    (mmc->version != SD_VERSION_4))
 		mmc->version = SD_VERSION_1_0;
 
 	mmc->ocr = cmd.response[0];
@@ -4198,7 +4200,9 @@ retry_scr:
 		mmc->version = SD_VERSION_1_10;
 		break;
 	case 2:
-		if ((mmc->scr[0] >> 15) & 1)
+		if (((mmc->scr[0] >> 10) & 1) && ((mmc->scr[0] >> 15) & 1))
+			mmc->version = SD_VERSION_4;
+		else if ((mmc->scr[0] >> 15) & 1)
 			/* NOTE: should check SD version 4 here but
 			 * U-Boot doesn't yet define this.
 			 */
@@ -4416,6 +4420,7 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	/* We only need a very short timeout here, 5ms */
 	mmc_set_watchdog(mmc, 5000);
 
+	memset(&cmd, 0, sizeof(cmd));
 	cmd.cmdidx = SD_CMD_SEND_IF_COND;
 	/* We set the bit if the host supports voltages between 2.7 and 3.6 V */
 	cmd.cmdarg = ((mmc->cfg->voltages & OCR_VOLTAGE_MASK) != 0) << 8 | 0xaa;
@@ -4616,7 +4621,7 @@ int mmc_startup(struct mmc *mmc)
 			debug("Cannot get SD operating condition, trying MMC\n");
 			err = mmc_send_op_cond(mmc);
 			if (err) {
-				printf("Card did not respond to voltage select!\n");
+				printf("Card not present or defective.  Card did not respond to voltage select!\n");
 				return UNUSABLE_ERR;
 			}
 		}
@@ -4852,6 +4857,9 @@ int mmc_startup(struct mmc *mmc)
 	if (IS_SD(mmc)) {
 		debug("SD version: ");
 		switch (mmc->version) {
+		case SD_VERSION_4:
+			debug("4\n");
+			break;
 		case SD_VERSION_3:
 			debug("3\n");
 			break;
@@ -5166,6 +5174,8 @@ int mmc_startup(struct mmc *mmc)
 		sprintf(mmc->block_dev.revision, "%d.%d",
 			(mmc->cid[2] >> 20) & 0xf,
 		(mmc->cid[2] >> 16) & 0xf);
+	mmc_select_hwpart(mmc->block_dev.dev, 0);
+	init_part(&mmc->block_dev);
 	debug("%s: %s\n", __func__, mmc->block_dev.revision);
 
 	return 0;
@@ -5375,6 +5385,7 @@ int mmc_initialize(bd_t *bis)
 	int host_index, slot_index;
 
 	debug("%s(%p) ENTER\n", __func__, bis);
+
 	/* The first time through clear out all of the last bus ids per node
 	 * for switching between buses.
 	 */
@@ -5450,7 +5461,9 @@ int mmc_initialize(bd_t *bis)
 			/* Disable empty slots */
 			mmc_set_power(mmc, 0);
 			mmc_disable(mmc);
-			mmc->has_init = false;
+			debug("%s: Setting %s has_init = 0\n",
+			      __func__, mmc->cfg->name);
+			mmc->has_init = 0;
 			slot->initialized = false;
 			continue;
 		}
@@ -5461,6 +5474,9 @@ int mmc_initialize(bd_t *bis)
 			rc = mmc_init(mmc);
 			if (!rc) {
 				found = true;
+				debug("%s: %s: block dev: %d\n", __func__,
+				      mmc->cfg->name, mmc->block_dev.dev);
+				last_bus_id[host->dev_index] = slot->bus_id;
 				break;
 			} else {
 				debug("MMC device %d initialization failed, try %d\n",
@@ -5474,8 +5490,12 @@ int mmc_initialize(bd_t *bis)
 			      mmc->cfg->name);
 			mmc_disable(mmc);
 			slot->initialized = false;
-			mmc->has_init = false;
+			debug("%s: Setting %s has_init = 0\n", __func__,
+			      mmc->cfg->name);
+			mmc->has_init = 0;
 		}
+		debug("%s: %s: has_init = %d\n", __func__, mmc->cfg->name,
+		      mmc->has_init);
 	}
 	init_time = 0;
 	debug("%s: done initializing, found: %s, rc: %d\n", __func__,
@@ -5576,11 +5596,6 @@ int mmc_start_init(struct mmc *mmc)
 		return -ENODEV;
 	}
 
-	if (mmc->has_init) {
-		debug("%s: %s already initialized\n", __func__, mmc->cfg->name);
-		return 0;
-	}
-
 	mmc_set_power(mmc, 1);
 
 	err = mmc->cfg->ops->init(mmc);
@@ -5642,7 +5657,8 @@ static int mmc_complete_init(struct mmc *mmc)
 		mmc->has_init = 0;
 	else
 		mmc->has_init = 1;
-	debug("%s: return %d\n", __func__, err);
+	debug("%s(%s): return %d, has_init: %d\n", __func__, mmc->cfg->name,
+	      err, mmc->has_init);
 	return err;
 }
 
