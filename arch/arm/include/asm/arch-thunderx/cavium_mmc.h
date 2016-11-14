@@ -229,6 +229,7 @@ struct cavium_mmc_slot {
 	bool		have_ext_csd:1;	/** True if have extended CSD register */
 	bool		sector_mode:1;	/** Sector or byte mode */
 	bool		initialized:1;	/** True if slot is initialized */
+	bool		powered:1;	/** True if powered on */
 };
 
 struct cavium_mmc_host {
@@ -239,8 +240,8 @@ struct cavium_mmc_host {
 	int		dev_index;	/** Host controller device index */
 	int		max_width;	/** Maximum width hardware supports */
 	struct gpio_desc power_gpio;	/** Power/reset GPIO line (usually 8) */
-	int		node;		/** OCX node for Octeon (MIPS) */
 #ifdef __mips
+	int		node;		/** OCX node for Octeon (MIPS) */
 	bool		use_ndf;	/** Use MIO_NDF_DMA or MIO_EMM_DMA. */
 #endif
 	bool		initialized;
