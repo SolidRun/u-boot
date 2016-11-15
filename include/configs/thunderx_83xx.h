@@ -267,6 +267,9 @@
 /** Enable UUIDs for drives >= 3TB */
 #define CONFIG_PARTITION_UUIDS
 
+/** Enable EXT4 filesystem support */
+#define CONFIG_FS_EXT4
+
 /* PCIe */
 /** Show devices found on PCI bus */
 #define CONFIG_PCI_SCAN_SHOW
@@ -394,5 +397,12 @@
 #define PLL_REF_CLK			50000000	/* 50 MHz */
 
 #define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
+
+#define CONFIG_OCTEON_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
+#define CONFIG_SYS_MMC_SET_DEV
+
+#define CONFIG_CMD_TIME
 
 #endif /* __THUNDERX_83XX_H__ */
