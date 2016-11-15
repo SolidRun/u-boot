@@ -90,6 +90,10 @@
 
 #define CONFIG_SLT
 
+/* Enable FIT image support */
+#define CONFIG_FIT
+#define CONFIG_FIT_VERBOSE
+
 /* Link Definitions */
 
 /** Code start address */
