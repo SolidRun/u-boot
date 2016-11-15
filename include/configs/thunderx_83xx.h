@@ -99,7 +99,7 @@
 #define CONFIG_SYS_TEXT_BASE		0x00500000
 
 /** Stack starting address */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
 
 #define CONFIG_BOARD_LATE_INIT
 
@@ -112,7 +112,7 @@
 #define CONFIG_OF_BOARD_SETUP
 
 /* SMP Spin Table Definitions */
-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
 
 
 /* Generic Timer Definitions */
@@ -360,7 +360,7 @@
 #define CONFIG_ENV_IS_IN_ATF
 #define CONFIG_SYS_ENV_ATF_NOR
 /** Size of environment in bytes */
-#define CONFIG_ENV_SIZE			0x80000
+#define CONFIG_ENV_SIZE			0x8000
 /** Starting offset of the environment */
 #define CONFIG_ENV_OFFSET		0xf00000
 
