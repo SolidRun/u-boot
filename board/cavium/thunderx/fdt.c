@@ -26,7 +26,7 @@ static void thunderx_parse_phy_address(const void *fdt, int node)
 {
 	char bgxname[32];
 	int bgx_id, phy_id;
-	unsigned int phy_addr[MAX_LMAC_PER_BGX] = {0}, mdio_bus = 0;
+	unsigned int phy_addr[MAX_LMAC_PER_BGX] = {-1, -1, -1, -1}, mdio_bus = 0;
 	const char *buffer;
 	uint32_t val;
 

@@ -30,6 +30,7 @@
 #include "nic_reg.h"
 #include "nic.h"
 #include "thunder_bgx.h"
+#include "cavm-arch.h"
 
 static const phy_interface_t if_mode[] = {
 	[QLM_MODE_SGMII]  = PHY_INTERFACE_MODE_SGMII,
@@ -256,28 +257,33 @@ void bgx_lmac_internal_loopback(int node, int bgx_idx,
 /* Return the DLM used for the BGX */
 static int get_qlm_for_bgx(int node, int bgx_id, int index)
 {
-	int qlm = -1;
+	int qlm = 0;
 	uint64_t cfg;
 
-	switch(bgx_id) {
+	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX)) {
+		qlm = (bgx_id) ? 2 : 0;
+		qlm += (index >= 2) ? 1 : 0;
+	} else if (CAVIUM_IS_MODEL(CAVIUM_CN83XX)) {
+		switch (bgx_id) {
 		case 0:
 			qlm = 2;
-			cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
 			break;
-		case 1: 
+		case 1:
 			qlm = 3;
-			cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
 			break;
 		case 2:
-			qlm = 6;
-			cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
+			if (index >= 2)
+				qlm = 6;
+			else
+				qlm = 5;
 			break;
 		case 3:
 			qlm = 4;
-			cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
 			break;
+		}
 	}
 
+	cfg = readq(CSR_PA(node, GSERX_CFG(qlm))) & GSERX_CFG_BGX;
 	debug("get_qlm_for_bgx:qlm%d: cfg = %lld\n", qlm, cfg);
 
 	/* Check if DLM is configured as BGX# */
@@ -345,15 +351,17 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 	return 0;
 }
 
-static int bgx_lmac_xaui_init(struct bgx *bgx, struct lmac *lmac)
+static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 {
 	u64 cfg;
-	int lmacid = lmac->lmacid;
+	struct lmac *lmac;
+
+	lmac = &bgx->lmac[lmacid];
 
 	/* Reset SPU */
 	bgx_reg_modify(bgx, lmacid, BGX_SPUX_CONTROL1, SPU_CTL_RESET);
 	if (bgx_poll_reg(bgx, lmacid, BGX_SPUX_CONTROL1, SPU_CTL_RESET, true)) {
-		dev_err(&bgx->pdev->dev, "BGX SPU reset not completed\n");
+		printf("BGX SPU reset not completed\n");
 		return -1;
 	}
 
@@ -364,14 +372,12 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, struct lmac *lmac)
 
 	bgx_reg_modify(bgx, lmacid, BGX_SPUX_CONTROL1, SPU_CTL_LOW_POWER);
 	/* Set interleaved running disparity for RXAUI */
-	if (lmac->lmac_type == BGX_MODE_RXAUI)
+	if (lmac->qlm_mode != QLM_MODE_RXAUI)
+		bgx_reg_modify(bgx, lmacid,
+			       BGX_SPUX_MISC_CONTROL, SPU_MISC_CTL_RX_DIS);
+	else
 		bgx_reg_modify(bgx, lmacid, BGX_SPUX_MISC_CONTROL,
-			       SPU_MISC_CTL_INTLV_RDISP);
-
-	/* Clear receive packet disable */
-	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_MISC_CONTROL);
-	cfg &= ~SPU_MISC_CTL_RX_DIS;
-	bgx_reg_write(bgx, lmacid, BGX_SPUX_MISC_CONTROL, cfg);
+			       SPU_MISC_CTL_RX_DIS | SPU_MISC_CTL_INTLV_RDISP);
 
 	/* clear all interrupts */
 	cfg = bgx_reg_read(bgx, lmacid, BGX_SMUX_RX_INT);
@@ -400,13 +406,17 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, struct lmac *lmac)
 
 	/* Disable autoneg */
 	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_CONTROL);
-	cfg = cfg & ~(SPU_AN_CTL_AN_EN | SPU_AN_CTL_XNP_EN);
+	cfg = cfg & ~(SPU_AN_CTL_XNP_EN);
+	if (lmac->use_training)
+		cfg = cfg | (SPU_AN_CTL_AN_EN);
+	else
+		cfg = cfg & ~(SPU_AN_CTL_AN_EN);
 	bgx_reg_write(bgx, lmacid, BGX_SPUX_AN_CONTROL, cfg);
 
 	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_ADV);
-	if (lmac->lmac_type == BGX_MODE_10G_KR)
+	if (lmac->qlm_mode == QLM_MODE_10G_KR)
 		cfg |= (1 << 23);
-	else if (lmac->lmac_type == BGX_MODE_40G_KR)
+	else if (lmac->qlm_mode == QLM_MODE_40G_KR4)
 		cfg |= (1 << 24);
 	else
 		cfg &= ~((1 << 23) | (1 << 24));
@@ -414,7 +424,10 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, struct lmac *lmac)
 	bgx_reg_write(bgx, lmacid, BGX_SPUX_AN_ADV, cfg);
 
 	cfg = bgx_reg_read(bgx, 0, BGX_SPU_DBG_CONTROL);
-	cfg &= ~SPU_DBG_CTL_AN_ARB_LINK_CHK_EN;
+	if (lmac->use_training)
+		cfg |= SPU_DBG_CTL_AN_ARB_LINK_CHK_EN;
+	else
+		cfg &= ~SPU_DBG_CTL_AN_ARB_LINK_CHK_EN;
 	bgx_reg_write(bgx, 0, BGX_SPU_DBG_CONTROL, cfg);
 
 	/* Enable lmac */
@@ -437,7 +450,6 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, struct lmac *lmac)
 	return 0;
 }
 
-
 int __rx_equalization(int qlm, int lane)
 {
 	int max_lanes = 2;
@@ -448,12 +460,12 @@ int __rx_equalization(int qlm, int lane)
 	   This ensures the rx data is valid */
 	if (lane == -1) {
 		if (gser_poll_reg(GSER_RX_EIE_DETSTS(qlm), GSER_CDRLOCK, 0xf, (1 << max_lanes) - 1, 100)) {
-			printf("ERROR: DLM%d: CDR Lock not detected for 2 lanes\n", qlm);
+			debug("ERROR: DLM%d: CDR Lock not detected for 2 lanes\n", qlm);
 			return -1;
 		}
 	} else {
 		if (gser_poll_reg(GSER_RX_EIE_DETSTS(qlm), GSER_CDRLOCK, (0xf & (1 << lane)), (1 << lane), 100)) {
-			printf("ERROR: DLM%d: CDR Lock not detected on %d lane\n", qlm, lane);
+			debug("ERROR: DLM%d: CDR Lock not detected on %d lane\n", qlm, lane);
 			return -1;
 		}
 	}
@@ -510,11 +522,30 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 	int lmac_type = lmac->lmac_type;
 	u64 cfg;
 
+	bgx_reg_modify(bgx, lmacid, BGX_SPUX_MISC_CONTROL, SPU_MISC_CTL_RX_DIS);
+
+	/* check if auto negotiation is complete */
+	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_CONTROL);
+	if (cfg & SPU_AN_CTL_AN_EN) {
+		cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_STATUS);
+		if (!(cfg & SPU_AN_STS_AN_COMPLETE)) {
+			/* Restart autonegotiation */
+			debug("restarting auto-neg\n");
+			bgx_reg_modify(bgx, lmacid, BGX_SPUX_AN_CONTROL, SPU_AN_CTL_AN_RESTART);
+			return -1;
+		}
+	}
+
 	if (lmac->use_training) {
 		cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_INT);
 		if (!(cfg & (1ull << 13))) {
+			debug("waiting for link training\n");
+			/* Clear the training interrupts (W1C) */
 			cfg = (1ull << 13) | (1ull << 14);
 			bgx_reg_write(bgx, lmacid, BGX_SPUX_INT, cfg);
+
+			udelay(2000);
+			/* Restart training */
 			cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_BR_PMD_CRTL);
 			cfg |= (1ull << 0);
 			bgx_reg_write(bgx, lmacid, BGX_SPUX_BR_PMD_CRTL, cfg);
@@ -522,35 +553,88 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 		}
 	}
 
+	/* Perform RX Equalization. Applies to non-KR interfaces for speeds
+	   >= 6.25Gbps. */
+	if (!lmac->use_training) {
+		int qlm;
+		switch (lmac->lmac_type) {
+		default:
+		case 0: // SGMII
+		case 5: // RGMII
+		case 1: // XAUI
+			/* Nothing to do */
+			break;
+		case 4: // XLAUI
+			if (__rx_equalization(lmac->qlm, -1) ||
+				__rx_equalization(lmac->qlm+1, -1)) {
+				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d/DLM%d\n",
+					bgx->bgx_id, lmacid, lmac->qlm, lmac->qlm+1);
+				return -1;
+			}
+			break;
+		case 2: // RXAUI
+			/* RXAUI0 uses LMAC0:QLM0/QLM2 and RXAUI1 uses LMAC1:QLM1/QLM3
+			   RXAUI requires 2 lanes for each interface */
+			if (lmacid) {
+				struct lmac *l;
+				l = &bgx->lmac[2];
+				qlm = l->qlm;
+			} else {
+				qlm = lmac->qlm;
+			}
+			if (__rx_equalization(qlm, 0)) {
+				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d, Lane0\n",
+					bgx->bgx_id, lmacid, qlm);
+				return -1;
+			}
+			if (__rx_equalization(qlm, 1)) {
+				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d, Lane1\n",
+					bgx->bgx_id, lmacid, qlm);
+				return -1;
+			}
+			break;
+		case 3: // XFI
+			{
+				int lid;
+				if ((bgx->bgx_id == 0) && is_altpkg && lmacid)
+					lid = 0;
+				else if (lmacid >= 2)
+					lid = lmacid - 2;
+				else
+					lid = lmacid;
+
+				if (__rx_equalization(lmac->qlm, lid))
+					printf("BGX%d:%d: Waiting for RX Equalization on DLM%d\n",
+						bgx->bgx_id, lid, lmac->qlm);
+			}
+			break;
+		}
+	}
+
 	/* wait for PCS to come out of reset */
 	if (bgx_poll_reg(bgx, lmacid, BGX_SPUX_CONTROL1, SPU_CTL_RESET, true)) {
-		dev_err(&bgx->pdev->dev, "BGX SPU reset not completed\n");
+		printf("BGX SPU reset not completed\n");
 		return -1;
 	}
 
-	if ((lmac_type == BGX_MODE_10G_KR) || (lmac_type == BGX_MODE_XFI) ||
-	    (lmac_type == BGX_MODE_40G_KR) || (lmac_type == BGX_MODE_XLAUI)) {
+	if ((lmac_type == 3) || (lmac_type == 4)) {
 		if (bgx_poll_reg(bgx, lmacid, BGX_SPUX_BR_STATUS1,
 				 SPU_BR_STATUS_BLK_LOCK, false)) {
-			dev_err(&bgx->pdev->dev,
-				"SPU_BR_STATUS_BLK_LOCK not completed\n");
+			printf("SPU_BR_STATUS_BLK_LOCK not completed\n");
 			return -1;
 		}
 	} else {
 		if (bgx_poll_reg(bgx, lmacid, BGX_SPUX_BX_STATUS,
 				 SPU_BX_STATUS_RX_ALIGN, false)) {
-			dev_err(&bgx->pdev->dev,
-				"SPU_BX_STATUS_RX_ALIGN not completed\n");
+			printf("SPU_BX_STATUS_RX_ALIGN not completed\n");
 			return -1;
 		}
 	}
 
 	/* Clear rcvflt bit (latching high) and read it back */
-	if (bgx_reg_read(bgx, lmacid, BGX_SPUX_STATUS2) & SPU_STATUS2_RCVFLT)
-		bgx_reg_modify(bgx, lmacid,
-			       BGX_SPUX_STATUS2, SPU_STATUS2_RCVFLT);
+	bgx_reg_modify(bgx, lmacid, BGX_SPUX_STATUS2, SPU_STATUS2_RCVFLT);
 	if (bgx_reg_read(bgx, lmacid, BGX_SPUX_STATUS2) & SPU_STATUS2_RCVFLT) {
-		dev_err(&bgx->pdev->dev, "Receive fault, retry training\n");
+		printf("Receive fault, retry training\n");
 		if (lmac->use_training) {
 			cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_INT);
 			if (!(cfg & (1ull << 13))) {
@@ -576,31 +660,35 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 
 	/* Wait for BGX RX to be idle */
 	if (bgx_poll_reg(bgx, lmacid, BGX_SMUX_CTL, SMU_CTL_RX_IDLE, false)) {
-		dev_err(&bgx->pdev->dev, "SMU RX not idle\n");
+		printf("SMU RX not idle\n");
 		return -1;
 	}
 
 	/* Wait for BGX TX to be idle */
 	if (bgx_poll_reg(bgx, lmacid, BGX_SMUX_CTL, SMU_CTL_TX_IDLE, false)) {
-		dev_err(&bgx->pdev->dev, "SMU TX not idle\n");
+		printf("SMU TX not idle\n");
 		return -1;
 	}
 
-	/* Check for MAC RX faults */
-	cfg = bgx_reg_read(bgx, lmacid, BGX_SMUX_RX_CTL);
-	/* 0 - Link is okay, 1 - Local fault, 2 - Remote fault */
-	cfg &= SMU_RX_CTL_STATUS;
-	if (!cfg)
-		return 0;
+	if (bgx_reg_read(bgx, lmacid, BGX_SPUX_STATUS2) & SPU_STATUS2_RCVFLT) {
+		printf("Receive fault\n");
+		return -1;
+	}
 
-	/* Rx local/remote fault seen.
-	 * Do lmac reinit to see if condition recovers
-	 */
-	bgx_lmac_xaui_init(bgx, lmac);
+	/* Receive link is latching low. Force it high and verify it */
+	if (!(bgx_reg_read(bgx, lmacid, BGX_SPUX_STATUS1 & SPU_STATUS1_RCV_LNK)))
+		bgx_reg_modify(bgx, lmacid, BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
+	if (bgx_poll_reg(bgx, lmacid, BGX_SPUX_STATUS1,
+			 SPU_STATUS1_RCV_LNK, false)) {
+		printf("SPU receive link down\n");
+		return -1;
+	}
 
-	return -1;
+	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_MISC_CONTROL);
+	cfg &= ~SPU_MISC_CTL_RX_DIS;
+	bgx_reg_write(bgx, lmacid, BGX_SPUX_MISC_CONTROL, cfg);
+	return 0;
 }
-
 
 int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 {
@@ -613,12 +701,6 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 		       node, bgx_idx, lmacid);
 		return 0;
 	}
-
-	/* Receive link is latching low. Force it high and verify it */
-	bgx_reg_modify(lmac->bgx, lmac->lmacid,
-		       BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
-	bgx_poll_reg(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1,
-		     SPU_STATUS1_RCV_LNK, false);
 
 	debug("%s: %d, lmac: %d/%d/%d %p\n",
 	      __FILE__, __LINE__,
@@ -676,8 +758,10 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 		lmac->last_duplex = lmac->phydev->duplex;
 	} else {
 		u64 status1;
+		u64 tx_ctl;
 		u64 rx_ctl;
 		status1 = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1);
+		tx_ctl = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_TX_CTL);
 		rx_ctl = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_RX_CTL);
 
 		debug("BGX%d LMAC%d BGX_SPUX_STATUS2: %lx\n",
@@ -694,6 +778,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_TX_CTL));
 
 		if ((status1 & SPU_STATUS1_RCV_LNK) &&
+		    ((tx_ctl & SMU_TX_CTL_LNK_STATUS) == 0) &&
 		    ((rx_ctl & SMU_RX_CTL_STATUS) == 0)) {
 			lmac->link_up = 1;
 			if (lmac->lmac_type == 4)
@@ -705,13 +790,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 			lmac->link_up = 0;
 			lmac->last_speed = 0;
 			lmac->last_duplex = 0;
-		}
-
-		if (bgx_xaui_check_link(lmac)) {
-				/* Errors, clear link_up state */
-				lmac->link_up = 0;
-				lmac->last_speed = 0;
-				lmac->last_duplex = 0;
+			return bgx_xaui_check_link(lmac);
 		}
 
 		lmac->last_link = lmac->link_up;
@@ -737,7 +816,7 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 	    (lmac->qlm_mode == QLM_MODE_RGMII) ||
 	    (lmac->qlm_mode == QLM_MODE_QSGMII)) {
 		if (bgx_lmac_sgmii_init(bgx, lmacid)) {
-			printf("bgx_lmac_sgmii_init failed\n");
+			debug("bgx_lmac_sgmii_init failed\n");
 			return -1;
 		}
 		cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND);
@@ -745,7 +824,7 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 		bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND, cfg);
 		bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_MIN_PKT, 60 - 1);
 	} else {
-		if (bgx_lmac_xaui_init(bgx, lmac))
+		if (bgx_lmac_xaui_init(bgx, lmacid, lmac->lmac_type))
 			return -1;
 		cfg = bgx_reg_read(bgx, lmacid, BGX_SMUX_TX_APPEND);
 		cfg |= ((1ull << 2) | (1ull << 1)); /* FCS and PAD */
@@ -786,7 +865,7 @@ static void bgx_init_hw(struct bgx *bgx)
 	struct lmac *lmac;
 	int i, lmacid, lmac_count = 0;
 
-	for (lmacid = 0; lmacid < bgx->max_lmac; lmacid++) {
+	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
 		lmac = &bgx->lmac[lmacid];
 
 		/* If QLM is not programmed, skip */
@@ -795,7 +874,17 @@ static void bgx_init_hw(struct bgx *bgx)
 
 		switch (lmac->qlm_mode) {
 		case QLM_MODE_SGMII:
-			lmac->lane_to_sds = lmacid;
+			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
+			   lane_to_sds for 2nd port in BGX0 to DLM1, lane0. */
+			if ((bgx->bgx_id == 0) && is_altpkg) {
+				if (lmacid >= 2)
+					continue;
+				else if (lmacid == 1)
+					lmac->lane_to_sds = lmacid + 1;
+				else
+					lmac->lane_to_sds = lmacid;
+			} else
+				lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 0;
 			lmac_count++;
 			break;
@@ -824,7 +913,17 @@ static void bgx_init_hw(struct bgx *bgx)
 				continue;
 			break;
 		case QLM_MODE_XFI:
-			lmac->lane_to_sds = lmacid;
+			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
+			   lane_to_sds for 2nd port in BGX0 to DLM1 lane0. */
+			if ((bgx->bgx_id == 0) && is_altpkg) {
+				if (lmacid >= 2)
+					continue;
+				else if (lmacid == 1)
+					lmac->lane_to_sds = lmacid + 1;
+				else
+					lmac->lane_to_sds = lmacid;
+			} else
+				lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 3;
 			lmac_count++;
 			break;
@@ -912,62 +1011,6 @@ static void bgx_init_hw(struct bgx *bgx)
 		bgx_reg_write(bgx, 0, BGX_CMR_RX_STREERING + (i * 8), 0x00);
 }
 
-static void bgx_set_max_lmac(struct bgx *bgx)
-{
-	int lmac_type;
-	bgx->max_lmac = MAX_LMAC_PER_BGX;
-
-	/* Read LMACx type to figure out QLM mode
-	 * This is configured by low level firmware
-	 */
-	lmac_type = bgx_reg_read(bgx, 0, BGX_CMRX_CFG);
-	lmac_type = (lmac_type >> 8) & 0x07;
-
-	switch (lmac_type) {
-		case BGX_MODE_SGMII:
-			bgx->max_lmac = 4;
-			break;
-		case BGX_MODE_XAUI:
-			bgx->max_lmac = 1;
-			break;
-		case BGX_MODE_RXAUI:
-			bgx->max_lmac = 2;
-			break;
-		case BGX_MODE_XFI:
-			bgx->max_lmac = 4;
-			break;
-		case BGX_MODE_XLAUI:
-			bgx->max_lmac = 1;
-			break;
-		case BGX_MODE_QSGMII:
-			bgx->max_lmac = 4;
-			break;
-		default:
-			break;
-	}
-
-	/* BGX3 is connected to DLM4 */
-	if (bgx->bgx_id == 3 && bgx->max_lmac > 2)
-		bgx->max_lmac = 2;
-
-	debug("BGX:%d MAX_LMAC:%d\n",bgx->bgx_id, bgx->max_lmac);
-}
-
-/* BDK programs lmac_type for lmac0
- * let us program for others as well
- */
-static void bgx_prog_lmac_type(struct bgx *bgx)
-{
-	int lmac_type;
-	int lmacid;
-
-	lmac_type = bgx_reg_read(bgx, 0, BGX_CMRX_CFG);
-
-	for (lmacid = 1; lmacid < bgx->max_lmac && lmac_type != -1;
-			lmacid++)
-		bgx_reg_modify(bgx, lmacid, BGX_CMRX_CFG,lmac_type);
-}
-
 static void bgx_get_qlm_mode(struct bgx *bgx)
 {
 	struct lmac *lmac;
@@ -976,16 +1019,21 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 	/* Read LMACx type to figure out QLM mode
 	 * This is configured by low level firmware
 	 */
-	for (lmacid = 0; lmacid < bgx->max_lmac; lmacid++) {
+	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
 		int lmac_type;
 		int train_en;
+		int index = 0;
+
+		if (CAVIUM_IS_MODEL(CAVIUM_CN81XX)
+		    || (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx->bgx_id == 2)))
+			index = (lmacid < 2) ? 0 : 2;
 
 		lmac = &bgx->lmac[lmacid];
 
 		if (lmac->qlm == -1)
 			continue;
 
-		lmac_type = bgx_reg_read(bgx, lmacid, BGX_CMRX_CFG);
+		lmac_type = bgx_reg_read(bgx, index, BGX_CMRX_CFG);
 		lmac->lmac_type = (lmac_type >> 8) & 0x07;
 		debug("bgx_get_qlm_mode:%d:%d: lmac_type = %d\n", bgx->bgx_id,
 				lmacid, lmac->lmac_type);
@@ -993,7 +1041,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 		train_en = (readq(CSR_PA(0, GSERX_SCRATCH(lmac->qlm))) & 0xf);
 
 		switch(lmac->lmac_type) {
-		case BGX_MODE_SGMII:
+		case 0:
 			if (bgx->is_rgx) {
 				if (lmacid == 0) {
 					lmac->qlm_mode = QLM_MODE_RGMII;
@@ -1011,19 +1059,29 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 						bgx->bgx_id, lmac->qlm, lmacid);
 			}
 			break;
-		case BGX_MODE_XAUI:
+		case 1:
 			if ((bgx->bgx_id == 0) && is_altpkg)
 				continue;
 			lmac->qlm_mode = QLM_MODE_XAUI;
+			if (lmacid != 0)
+				continue;
 			printf("BGX%d QLM%d LMAC%d mode: XAUI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			break;
-		case BGX_MODE_RXAUI:
+		case 2:
 			if ((bgx->bgx_id == 0) && is_altpkg)
 				continue;
 			lmac->qlm_mode = QLM_MODE_RXAUI;
+			if (index == lmacid) {
+				printf("BGX%d QLM%d LMAC%d mode: RXAUI\n",
+					bgx->bgx_id, lmac->qlm, (index ? 1 : 0));
+			}
 			break;
-		case BGX_MODE_XFI:
+		case 3:
+			if ((bgx->bgx_id == 0) && is_altpkg) {
+				if (lmacid >= 2)
+					continue;
+			}
 			if (((lmacid < 2) && (train_en & (1 << lmacid)))
 			    || (train_en & (1 << (lmacid - 2)))) {
 				lmac->qlm_mode = QLM_MODE_10G_KR;
@@ -1035,7 +1093,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
 			break;
-		case BGX_MODE_XLAUI:
+		case 4:
 			if ((bgx->bgx_id == 0) && is_altpkg)
 				continue;
 			if (train_en) {
@@ -1052,10 +1110,12 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
 		break;
-		case BGX_MODE_QSGMII:
-			lmac->qlm_mode = QLM_MODE_QSGMII;
-			printf("BGX%d QLM%d LMAC%d mode: QSGMII\n",
+		case 6:
+			if ((lmacid == 0) || (lmacid == 2)) {
+				lmac->qlm_mode = QLM_MODE_QSGMII;
+				printf("BGX%d QLM%d LMAC%d mode: QSGMII\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
+			}
 			break;
 		default:
 			break;
@@ -1079,12 +1139,14 @@ int thunderx_bgx_probe(struct udevice *dev)
 	int err;
 	struct bgx *bgx = dev_get_priv(dev);
 	uint8_t lmac = 0;
+	int qlm[4] = {-1, -1, -1, -1};
 	int bgx_idx, node;
 	size_t size;
+	int inc = 1;
+
 
 	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 
-	debug("%s: bgx base = %llx\n", __func__, (uint64_t)bgx->reg_base);
 	is_altpkg = alternate_pkg();
 
 #ifdef CONFIG_THUNDERX_XCV
@@ -1109,15 +1171,41 @@ int thunderx_bgx_probe(struct udevice *dev)
 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 3;
 	bgx->bgx_id = (node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx;
 
-	/* MAP configuration registers */
-	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac++) {
-		bgx->lmac[lmac].qlm = get_qlm_for_bgx(node, bgx_idx, lmac);;
-		bgx->lmac[lmac].lmacid = lmac;
-		debug("qlm[%d] =%d \n", lmac, bgx->lmac[lmac].qlm);
+	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX))
+		inc = 2;
+	else if (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx_idx == 2))
+		inc = 2;
+
+printf("probe: bgx_id = %d, bgx_idx = %d, max_lmac = %d\n", bgx->bgx_id, bgx_idx, bgx->max_lmac);
+
+	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac += inc) {
+		/* BGX3 (DLM4), has only 2 lanes */
+		if (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx_idx == 3) && lmac >= 2)
+			continue;
+		if (is_altpkg && (lmac == 2) && (bgx_idx == 0)) {
+			qlm[lmac - 1] = get_qlm_for_bgx(node, bgx_idx, lmac);
+			debug("qlm[%d] = %d\n", lmac, qlm[lmac-1]);
+		} else {
+			qlm[lmac + 0] = get_qlm_for_bgx(node, bgx_idx, lmac);
+			/* Each DLM has 2 lanes, configure both lanes with
+			   same qlm configuration */
+			if (inc == 2)
+				qlm[lmac + 1] = qlm[lmac];
+			debug("qlm[%d] = %d\n", lmac, qlm[lmac]);
+		}
 	}
 
-	bgx_set_max_lmac(bgx);
-	bgx_prog_lmac_type(bgx);
+	/* A BGX can take 1 or 2 DLMs, if both the DLMs are not configured
+	   as BGX, then return, nothing to initialize */
+	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX))
+		if ((qlm[0] == -1) && (qlm[2] == -1))
+			return -ENODEV;
+
+	/* MAP configuration registers */
+	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac++) {
+		bgx->lmac[lmac].qlm = qlm[lmac];
+		bgx->lmac[lmac].lmacid = lmac;
+	}
 
 #ifdef CONFIG_THUNDERX_XCV
 skip_qlm_config:
