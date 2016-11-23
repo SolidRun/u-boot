@@ -43,7 +43,7 @@
  * implements all of the MMC support found in the generic MMC driver
  * and should be compatible with it for the most part.
  *
- * Currently both MMC and SD/SDHC are supported.
+ * Currently both MMC and SD/SDHC/SDXC are supported.
  */
 
 #include <common.h>
@@ -5842,8 +5842,6 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 		int reg = fdtdec_get_int(blob, slot_node, "reg", -1);
 		uint voltages[2];
 		uint low, high;
-
-		debug("%s: slot %d found\n", __func__, reg);
 		if (reg < 0) {
 			printf("Missing reg field for mmc slot in device tree\n");
 			return -1;
@@ -5907,13 +5905,18 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 		slot->bus_max_width = fdtdec_get_int(blob, slot_node,
 						     "cavium,bus-max-width", 8);
 		if (power_slot)
-			gpio_request_by_name_nodev(blob, of_offset,
+			gpio_request_by_name_nodev(blob, slot_node,
 						   "power-gpios", 0,
 						   &slot->power_gpio,
 						   GPIOD_IS_OUT);
 		debug("%s: power gpio number: slot: %d, host: %d\n", __func__,
 		      gpio_get_number(&slot->power_gpio),
 		      gpio_get_number(&host->power_gpio));
+
+		debug("  slot GPIO is%s valid, host GPIO is%s valid\n",
+		      dm_gpio_is_valid(&slot->power_gpio) ? "" : " not",
+		      dm_gpio_is_valid(&host->power_gpio) ? "" : " not");
+
 		gpio_request_by_name_nodev(blob, slot_node, "cd-gpios", 0,
 					   &slot->cd_gpio, GPIOD_IS_IN);
 		if (fdtdec_get_bool(blob, slot_node, "cd-inverted"))
