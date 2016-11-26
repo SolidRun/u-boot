@@ -123,7 +123,7 @@ int saveenv(void)
 		copy = 1;
 #endif
 
-	if (atf_get_env_addr(copy, &offset)) {
+	if (atf_get_env_addr(copy, (ulong *)&offset)) {
 		ret = 1;
 		goto err;
 	}

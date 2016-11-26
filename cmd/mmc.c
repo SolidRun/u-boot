@@ -17,6 +17,7 @@ extern void print_mmc_device_info(struct mmc *mmc);
 
 static int curr_device = -1;
 
+#ifndef CONFIG_CAVIUM_MMC
 static void print_mmcinfo(struct mmc *mmc)
 {
 	int i;
@@ -96,6 +97,8 @@ static void print_mmcinfo(struct mmc *mmc)
 		}
 	}
 }
+#endif
+
 static struct mmc *init_mmc_device(int dev, bool force_init)
 {
 	struct mmc *mmc;
