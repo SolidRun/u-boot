@@ -1176,8 +1176,6 @@ int thunderx_bgx_probe(struct udevice *dev)
 	else if (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx_idx == 2))
 		inc = 2;
 
-printf("probe: bgx_id = %d, bgx_idx = %d, max_lmac = %d\n", bgx->bgx_id, bgx_idx, bgx->max_lmac);
-
 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac += inc) {
 		/* BGX3 (DLM4), has only 2 lanes */
 		if (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx_idx == 3) && lmac >= 2)
