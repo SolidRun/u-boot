@@ -23,7 +23,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define GPIO_BIT(x)		(1 << x)
+#define GPIO_BIT(x)		(1 << (x))
 
 #define GPIO_RX_DAT		(0x0)
 #define GPIO_TX_SET		(0x8)
@@ -47,7 +47,7 @@ struct octeontx_gpio {
 static int octeontx_gpio_dir_input(struct udevice *dev, unsigned offset)
 {
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
-
+	debug("%s(%s, %u)\n", __func__, dev->name, offset);
 	clrbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
 		     (0x3ffUL << 16) | 1UL);
 
@@ -59,6 +59,7 @@ static int octeontx_gpio_dir_output(struct udevice *dev, unsigned offset,
 {
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 
+	debug("%s(%s, %u, %d)\n", __func__, dev->name, offset, value);
 	if (value) {
 		setbits_le64(gpio->baseaddr + GPIO_TX_SET,
 			   GPIO_BIT(offset));
@@ -80,6 +81,9 @@ static int octeontx_gpio_get_value(struct udevice *dev,
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 	u64 reg = readq(gpio->baseaddr + GPIO_RX_DAT);
 
+	debug("%s(%s, %u): value: %d\n", __func__, dev->name, offset,
+	      !!(reg & GPIO_BIT(offset)));
+
 	return (reg & GPIO_BIT(offset)) != 0;
 }
 
@@ -88,6 +92,7 @@ static int octeontx_gpio_set_value(struct udevice *dev,
 {
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 
+	debug("%s(%s, %u, %d)\n", __func__, dev->name, offset, value);
 	if (value) {
 		setbits_le64(gpio->baseaddr + GPIO_TX_SET,
 			     GPIO_BIT(offset));
@@ -117,9 +122,12 @@ static int octeontx_gpio_get_function(struct udevice *dev,
 static int octeontx_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 			    struct fdtdec_phandle_args *args)
 {
-	desc->offset = args->args[0];
-	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
-
+	desc->flags = 0;
+	if (args->args_count > 1) {
+		if (args->args[1] & GPIO_ACTIVE_LOW)
+			desc->flags |= GPIOD_ACTIVE_LOW;
+		/* In the future add tri-state flag support */
+	}
 	return 0;
 }
 
