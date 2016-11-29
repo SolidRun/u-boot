@@ -23,12 +23,25 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define GPIO_BIT(x)		(1 << (x))
+/** Returns the bit value to write or read based on the offset */
+#define GPIO_BIT(x)		(1 << ((x) & 0x3f))
 
 #define GPIO_RX_DAT		(0x0)
 #define GPIO_TX_SET		(0x8)
 #define GPIO_TX_CLR		(0x10)
+#define GPIO_RX1_DAT		(0x1400)
+#define GPIO_TX1_SET		(0x1408)
+#define GPIO_TX1_CLR		(0x1410)
 
+/** Returns the offset to the output register based on the offset and value */
+#define GPIO_TX_REG(offset, value)					\
+	((offset) >= 64 ? ((value) ? GPIO_TX1_SET : GPIO_TX1_CLR) :	\
+			  ((value) ? GPIO_TX_SET : GPIO_TX_CLR))
+
+/** Returns the offset to the input data register based on the offset */
+#define GPIO_RX_DAT_REG(offset) ((offset >= 64) ? GPIO_RX1_DAT : GPIO_RX_DAT)
+
+/** Returns the bit configuration register based on the offset */
 #define GPIO_BIT_CFG(x)		(0x400 + 8 * (x))
 #define GPIO_BIT_CFG_FN(x)	(((x) >> 16) & 0x3ff)
 #define GPIO_BIT_CFG_TX_OE(x)	((x) & 0x1)
@@ -50,6 +63,7 @@ static int octeontx_gpio_dir_input(struct udevice *dev, unsigned offset)
 	debug("%s(%s, %u)\n", __func__, dev->name, offset);
 	clrbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
 		     (0x3ffUL << 16) | 1UL);
+	__iowmb();
 
 	return 0;
 }
@@ -60,17 +74,13 @@ static int octeontx_gpio_dir_output(struct udevice *dev, unsigned offset,
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 
 	debug("%s(%s, %u, %d)\n", __func__, dev->name, offset, value);
-	if (value) {
-		setbits_le64(gpio->baseaddr + GPIO_TX_SET,
-			   GPIO_BIT(offset));
-	} else {
-		setbits_le64(gpio->baseaddr + GPIO_TX_CLR,
-			   GPIO_BIT(offset));
-	}
 
+	setbits_le64(gpio->baseaddr + GPIO_TX_REG(offset, value),
+		     GPIO_BIT(offset));
+	__iowmb();
 	clrsetbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
-		  (0x3ffUL << 16), 1UL);
-
+			(0x3ffUL << 16), 1UL);
+	__iowmb();
 
 	return 0;
 }
@@ -79,12 +89,12 @@ static int octeontx_gpio_get_value(struct udevice *dev,
 				   unsigned offset)
 {
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
-	u64 reg = readq(gpio->baseaddr + GPIO_RX_DAT);
+	u64 reg = readq(gpio->baseaddr + GPIO_RX_DAT_REG(offset));
 
 	debug("%s(%s, %u): value: %d\n", __func__, dev->name, offset,
 	      !!(reg & GPIO_BIT(offset)));
 
-	return (reg & GPIO_BIT(offset)) != 0;
+	return !!(reg & GPIO_BIT(offset));
 }
 
 static int octeontx_gpio_set_value(struct udevice *dev,
@@ -93,13 +103,9 @@ static int octeontx_gpio_set_value(struct udevice *dev,
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 
 	debug("%s(%s, %u, %d)\n", __func__, dev->name, offset, value);
-	if (value) {
-		setbits_le64(gpio->baseaddr + GPIO_TX_SET,
-			     GPIO_BIT(offset));
-	} else {
-		setbits_le64(gpio->baseaddr + GPIO_TX_CLR,
-			     GPIO_BIT(offset));
-	}
+	setbits_le64(gpio->baseaddr + GPIO_TX_REG(offset, value),
+		     GPIO_BIT(offset));
+	__iowmb();
 
 	return 0;
 
