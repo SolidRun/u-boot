@@ -24,7 +24,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /** Returns the bit value to write or read based on the offset */
-#define GPIO_BIT(x)		(1 << ((x) & 0x3f))
+#define GPIO_BIT(x)		(1ULL << ((x) & 0x3f))
 
 #define GPIO_RX_DAT		(0x0)
 #define GPIO_TX_SET		(0x8)
