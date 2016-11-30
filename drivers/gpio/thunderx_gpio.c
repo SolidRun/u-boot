@@ -62,7 +62,7 @@ static int octeontx_gpio_dir_input(struct udevice *dev, unsigned offset)
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 	debug("%s(%s, %u)\n", __func__, dev->name, offset);
 	clrbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
-		     (0x3ffUL << 16) | 1UL);
+		     (0x3ffUL << 16) | 4UL | 1UL);
 	__iowmb();
 
 	return 0;
@@ -74,10 +74,10 @@ static int octeontx_gpio_dir_output(struct udevice *dev, unsigned offset,
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 
 	debug("%s(%s, %u, %d)\n", __func__, dev->name, offset, value);
+	writeq(GPIO_BIT(offset), gpio->baseaddr + GPIO_TX_REG(offset, value));
 
-	writeq(gpio->baseaddr + GPIO_TX_REG(offset, value), GPIO_BIT(offset));
 	clrsetbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
-			(0x3ffUL << 16), 1UL);
+			((0x3ffUL << 16) | 4UL), 1UL);
 	__iowmb();
 
 	return 0;
@@ -101,7 +101,7 @@ static int octeontx_gpio_set_value(struct udevice *dev,
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 
 	debug("%s(%s, %u, %d)\n", __func__, dev->name, offset, value);
-	writeq(gpio->baseaddr + GPIO_TX_REG(offset, value), GPIO_BIT(offset));
+	writeq(GPIO_BIT(offset), gpio->baseaddr + GPIO_TX_REG(offset, value));
 
 	return 0;
 
@@ -112,7 +112,7 @@ static int octeontx_gpio_get_function(struct udevice *dev,
 {
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 	u64 pinsel = readl(gpio->baseaddr + GPIO_BIT_CFG(offset));
-	debug("%s(%s, %u): pinsel: 0x%lx\n", __func__, dev->name, offset,
+	debug("%s(%s, %u): pinsel: 0x%llx\n", __func__, dev->name, offset,
 	      pinsel);
 	if (GPIO_BIT_CFG_FN(pinsel))
 		return GPIOF_FUNC;
