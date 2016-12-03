@@ -320,7 +320,10 @@
 /** Maximum root ports for XHCI */
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
 
-
+/** Define some USB drivers for ethernet to USB dongles to work */
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_ASIX88179
 
 /* PCIe network controller drivers */
 /** Intel E1000 network card */
