@@ -457,14 +457,14 @@ int nicvf_initialize(struct udevice *pdev, int vf_num)
 	int    ret;
 	size_t size;
 
-	netdev = malloc(sizeof(struct eth_device));
+	netdev = calloc(1, sizeof(struct eth_device));
 
 	if (!netdev) {
 		ret = -ENOMEM;
 		goto fail;
 	}
 
-	nicvf = malloc(sizeof(struct nicvf));
+	nicvf = calloc(1, sizeof(struct nicvf));
 
 	if (!nicvf) {
 		ret = -ENOMEM;
@@ -510,13 +510,11 @@ int nicvf_initialize(struct udevice *pdev, int vf_num)
 
 	ret = eth_register(netdev);
 
-	if (ret) {
-		printf("Failed to register netdevice\n");
-		return ret;
-	}
+	if (!ret)
+		return 0;
 
+	printf("Failed to register netdevice\n");
 
-	return 0;
 fail:
 	if (nicvf)
 		free(nicvf);

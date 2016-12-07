@@ -45,7 +45,7 @@ static int nicvf_alloc_q_desc_mem(struct nicvf *nic, struct q_desc_mem *dmem,
 	dmem->q_len = q_len;
 	dmem->size = (desc_size * q_len) + align_bytes;
 	/* Save address, need it while freeing */
-	dmem->unalign_base = malloc(dmem->size);
+	dmem->unalign_base = calloc(1, dmem->size);
 	dmem->dma = (uintptr_t)dmem->unalign_base;
 
 	if (!dmem->unalign_base)
@@ -98,7 +98,7 @@ static int nicvf_init_rbdr(struct nicvf *nic, struct rbdr *rbdr,
 	debug("%s: %d: allocating %lld bytes for rcv buffers\n",
 	      __FUNCTION__, __LINE__,
 	      ring_len * buf_size + NICVF_RCV_BUF_ALIGN_BYTES);
-	rbdr->buf_mem = (uintptr_t)malloc(ring_len * buf_size
+	rbdr->buf_mem = (uintptr_t)calloc(1, ring_len * buf_size
 						+ NICVF_RCV_BUF_ALIGN_BYTES);
 
 	if (!rbdr->buf_mem) {
@@ -599,7 +599,7 @@ int nicvf_set_qset_resources(struct nicvf *nic)
 {
 	struct queue_set *qs;
 
-	qs = malloc(sizeof(struct queue_set));
+	qs = calloc(1, sizeof(struct queue_set));
 	if (!qs)
 		return -1;
 	nic->qs = qs;

@@ -717,7 +717,7 @@ int nic_initialize(struct udevice *dev)
 	size_t size;
 
 	nic->udev = dev;
-	nic->hw = malloc(sizeof(struct hw_info));
+	nic->hw = calloc(1, sizeof(struct hw_info));
 	if (!nic->hw) {
 		return -ENOMEM;
 	}
