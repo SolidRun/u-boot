@@ -29,6 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO_RX_DAT		(0x0)
 #define GPIO_TX_SET		(0x8)
 #define GPIO_TX_CLR		(0x10)
+#define GPIO_CONST		(0x90)
 #define GPIO_RX1_DAT		(0x1400)
 #define GPIO_TX1_SET		(0x1408)
 #define GPIO_TX1_CLR		(0x1410)
@@ -50,6 +51,15 @@ DECLARE_GLOBAL_DATA_PTR;
 /** PCI ID on NCB bus */
 #define PCI_DEVICE_ID_CAVIUM_GPIO	0xa00a
 
+union gpio_const {
+	u64 u;
+	struct {
+		u64 gpios:8;	/** Number of GPIOs implemented */
+		u64 pp:8;	/** Number of PP vectors */
+		u64:48;	/* Reserved */
+	} s;
+};
+
 static const int DIRECTION_INPUT  = 0;
 static const int DIRECTION_OUTPUT = 1;
 
@@ -63,8 +73,6 @@ static int octeontx_gpio_dir_input(struct udevice *dev, unsigned offset)
 	debug("%s(%s, %u)\n", __func__, dev->name, offset);
 	clrbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
 		     (0x3ffUL << 16) | 4UL | 1UL);
-	__iowmb();
-
 	return 0;
 }
 
@@ -78,8 +86,6 @@ static int octeontx_gpio_dir_output(struct udevice *dev, unsigned offset,
 
 	clrsetbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
 			((0x3ffUL << 16) | 4UL), 1UL);
-	__iowmb();
-
 	return 0;
 }
 
@@ -148,10 +154,9 @@ static int octeontx_gpio_probe(struct udevice *dev)
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct octeontx_gpio *priv = dev_get_priv(dev);
-	u32    pins[2];
+	union gpio_const gpio_const;
 	size_t size;
 	char *end;
-	int ret;
 
 	dev->req_seq = PCI_FUNC(bdf);
 	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
@@ -162,18 +167,13 @@ static int octeontx_gpio_probe(struct udevice *dev)
 		return -1;
 	}
 
-	ret = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset, "pins",
-				   pins, 2);
+	gpio_const.u = readq(priv->baseaddr + GPIO_CONST);
 
-	debug("%s(%s): base address: %p, ret: %d, of_offset: %d, pin base: %d, count: %d\n",
-	      __func__, dev->name, priv->baseaddr, ret, dev->of_offset,
-	      pins[0], pins[1] - pins[0]);
+	debug("%s(%s): base address: %p, of_offset: %d, pin count: %d\n",
+	      __func__, dev->name, priv->baseaddr, dev->of_offset,
+	      gpio_const.s.gpios);
 
-	if (ret < 0)
-		return ret;
-
-	uc_priv->gpio_base  = pins[0];
-	uc_priv->gpio_count = pins[1] - pins[0];
+	uc_priv->gpio_count = gpio_const.s.gpios;
 	uc_priv->bank_name  = strdup(dev->name);
 	end = strchr(uc_priv->bank_name, '@');
 	end[0] = 'A' + dev->seq;
