@@ -1549,6 +1549,11 @@ config CMD_BSP
 	  option provides a way to control this. The commands that are enabled
 	  vary depending on the board.
 
+config CMD_BOOTIMGUP
+	bool "bootimgup"
+	help
+	  bootimgup command support
+
 config CMD_BKOPS_ENABLE
 	bool "mmc bkops enable"
 	depends on CMD_MMC
