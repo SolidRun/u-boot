@@ -294,6 +294,18 @@
 
 #define CONFIG_SYS_SPD_I2C_BUS 1
 
+/***** SPI Defines *********/
+#define CONFIG_DM_SPI
+#define CONFIG_DM_SPI_FLASH
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_CAVIUM_SPI
+#define CONFIG_SF_DEFAULT_SPEED 12500000
+#define CONFIG_SF_DEFAULT_MODE	0
+#define CONFIG_SF_DEFAULT_BUS	0
+#define CONFIG_SF_DEFAULT_CS	0
+
+/**************************/
 #define CONFIG_CMD_SAVES
 
 /* BOOTP options */
