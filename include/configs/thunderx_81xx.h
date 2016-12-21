@@ -238,6 +238,9 @@
 /** Enable grepenv command */
 #define CONFIG_CMD_GREPENV
 
+/** Enable bootimgup command */
+#define CONFIG_CMD_BOOTIMGUP
+
 /**
  * Enable callback support when environment variables are set, or
  * changed
