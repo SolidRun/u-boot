@@ -285,12 +285,6 @@
 /** I2C slave address */
 #define CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR	0x77
 
-/** I2C bus real-time clock resides on */
-#define CONFIG_SYS_RTC_BUS_NUM 0
-
-/** I2C address of real-time clcok */
-#define CONFIG_SYS_I2C_RTC_ADDR 0x68
-
 /** Enable Dallas or compabile DS1337 driver */
 #define CONFIG_RTC_DS1337
 
