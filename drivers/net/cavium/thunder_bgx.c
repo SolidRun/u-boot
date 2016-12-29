@@ -863,11 +863,12 @@ void bgx_lmac_disable(struct bgx *bgx, uint8_t lmacid)
 static void bgx_init_hw(struct bgx *bgx)
 {
 	struct lmac *lmac;
-	int i, lmacid, lmac_count = 0;
+	int i, lmacid, lmac_count = 0, count = 0;
 
 	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
-		lmac = &bgx->lmac[lmacid];
+		struct lmac *tlmac;
 
+		lmac = &bgx->lmac[lmacid];
 		/* If QLM is not programmed, skip */
 		if (lmac->qlm == -1)
 			continue;
@@ -922,8 +923,19 @@ static void bgx_init_hw(struct bgx *bgx)
 					lmac->lane_to_sds = lmacid + 1;
 				else
 					lmac->lane_to_sds = lmacid;
-			} else
+			} else {
+				const char *board;
+				board = getenv("board");
+
+				/* On SFF8104 board, BGX0 has only one XFI
+				   port configured on DLM1, lane1. */
+				if (board
+				    && (strcasecmp(board, "sff8104") == 0)
+				    && (bgx->bgx_id == 0)
+				    && (lmacid == 2))
+					continue;
 				lmac->lane_to_sds = lmacid;
+			}
 			lmac->lmac_type = 3;
 			lmac_count++;
 			break;
@@ -966,7 +978,7 @@ static void bgx_init_hw(struct bgx *bgx)
 		case QLM_MODE_QSGMII:
 			if ((lmacid == 0) || (lmacid == 2)) {
 				lmac_count = 4;
-				for (i = 0; i < 4; i++) {
+				for (i = 0; i < lmac_count; i++) {
 					struct lmac *l;
 					l = &bgx->lmac[i];
 					l->lmac_type = 6;
@@ -982,9 +994,18 @@ static void bgx_init_hw(struct bgx *bgx)
 			continue;
 		}
 
+		/* Reset lmac to the unused slot */
+		tlmac = &bgx->lmac[count];
+		tlmac->lmac_type = lmac->lmac_type;
+		tlmac->lane_to_sds = lmac->lane_to_sds;
+		tlmac->qlm = lmac->qlm;
+		tlmac->qlm_mode = lmac->qlm_mode;
+		lmac->qlm = -1;
+
 		/* Initialize lmac_type and lane_to_sds */
-		bgx_reg_write(bgx, lmacid, BGX_CMRX_CFG,
+		bgx_reg_write(bgx, count, BGX_CMRX_CFG,
 				(lmac->lmac_type << 8) | lmac->lane_to_sds);
+		count += 1;
 	}
 
 	printf("BGX%d LMACs: %d\n", bgx->bgx_id, lmac_count);
@@ -1088,6 +1109,18 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				printf("BGX%d QLM%d LMAC%d mode: 10G_KR\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			} else {
+				const char *board;
+				board = getenv("board");
+
+				/* On SFF8104 board, BGX0 has only one XFI
+				   port configured on DLM1, lane1. */
+				if (board
+				    && (strcasecmp(board, "sff8104") == 0)
+				    && (bgx->bgx_id == 0)
+				    && (lmacid == 2)) {
+					lmac->qlm_mode = QLM_MODE_XFI;
+					continue;
+				}
 				lmac->qlm_mode = QLM_MODE_XFI;
 				printf("BGX%d QLM%d LMAC%d mode: XFI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
