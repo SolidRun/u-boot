@@ -5505,7 +5505,7 @@ int mmc_initialize(bd_t *bis)
 		debug("%s: Printing devices\n", __func__);
 		print_mmc_devices(',');
 	} else {
-		printf("not available\n");
+		printf("MMC not available\n");
 	}
 	debug("%s: exit(%d)\n", __func__, rc);
 	return found ? 0 : rc;
@@ -5630,7 +5630,7 @@ int mmc_start_init(struct mmc *mmc)
 		err = mmc_send_op_cond(mmc);
 
 		if (err) {
-			printf("Card did not respond to voltage select!\n");
+			debug("Card did not respond to voltage select!\n");
 
 			return UNUSABLE_ERR;
 		}
