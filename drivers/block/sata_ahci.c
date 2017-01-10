@@ -984,7 +984,7 @@ int scan_sata(int dev)
 
 	/* Totoal sectors */
 	n_sectors = ata_id_n_sectors(id);
-	pdev->lba = (u32)n_sectors;
+	pdev->lba = (lbaint_t)n_sectors;
 
 	pdev->type = DEV_TYPE_HARDDISK;
 	pdev->blksz = ATA_SECT_SIZE;
