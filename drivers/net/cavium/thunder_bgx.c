@@ -351,6 +351,84 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 	return 0;
 }
 
+static int bgx_lmac_sgmii_set_link_speed(struct lmac *lmac)
+{
+	u64 prtx_cfg;
+	u64 pcs_miscx_ctl;
+	u64 cfg;
+	struct bgx *bgx = lmac->bgx;
+	unsigned int lmacid = lmac->lmacid;
+		
+	debug("bgx_lmac_sgmii_set_link_speed(): lmacid %d\n", lmac->lmacid);
+
+	/* Disable LMAC before setting up speed */
+	cfg = bgx_reg_read(bgx, lmacid, BGX_CMRX_CFG);
+	cfg &= ~CMR_EN;
+        bgx_reg_write(bgx, lmacid, BGX_CMRX_CFG, cfg);
+
+	/* Read GMX CFG */
+	prtx_cfg = bgx_reg_read(bgx, lmacid,
+				BGX_GMP_GMI_PRTX_CFG);
+ 	/* Read PCS MISCS CTL */
+	pcs_miscx_ctl = bgx_reg_read(bgx, lmacid,
+				BGX_GMP_PCS_MISCX_CTL);
+
+	/* Use GMXENO to force the link down*/
+	if (lmac->link_up) {
+		pcs_miscx_ctl &= ~PCS_MISC_CTL_GMX_ENO;
+		/* change the duplex setting if the link is up */
+		prtx_cfg |= GMI_PORT_CFG_DUPLEX;
+	} else 
+		pcs_miscx_ctl |= PCS_MISC_CTL_GMX_ENO;
+
+	/* speed based setting for GMX */
+	switch( lmac->last_speed) {
+	case 10:
+		prtx_cfg &= ~GMI_PORT_CFG_SPEED;
+		prtx_cfg |= GMI_PORT_CFG_SPEED_MSB;
+		prtx_cfg &= ~GMI_PORT_CFG_SLOT_TIME;
+		pcs_miscx_ctl |= 50; /* sampling point */
+		bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_SLOT, 0x40);
+		bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_BURST, 0);
+		break;
+	case 100:
+		prtx_cfg &= ~GMI_PORT_CFG_SPEED;
+		prtx_cfg &= ~GMI_PORT_CFG_SPEED_MSB;
+		prtx_cfg &= ~GMI_PORT_CFG_SLOT_TIME;
+		pcs_miscx_ctl |= 0x5; /* sampling point */
+		bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_SLOT, 0x40);
+		bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_BURST, 0);
+		break;
+	case 1000:
+		prtx_cfg |= GMI_PORT_CFG_SPEED;
+		prtx_cfg &= ~GMI_PORT_CFG_SPEED_MSB;
+		prtx_cfg |= GMI_PORT_CFG_SLOT_TIME;
+		pcs_miscx_ctl |= 0x1; /* sampling point */
+		bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_SLOT, 0x200);
+		if (lmac->last_duplex)
+			bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_BURST, 0);
+		else /* half duplex */
+			bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_BURST, 0x2000);
+		break;
+	default:
+		break;
+	}
+	
+	/* write back the new PCS misc and GMX settings */
+	bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL, pcs_miscx_ctl);
+	bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_PRTX_CFG, prtx_cfg);
+
+	/* read back GMX CFG again to check config completion */
+	bgx_reg_read(bgx, lmacid, BGX_GMP_GMI_PRTX_CFG);
+		
+	/* enable BGX back */
+	cfg = bgx_reg_read(bgx, lmacid, BGX_CMRX_CFG);
+	cfg |= CMR_EN;
+       	bgx_reg_write(bgx, lmacid, BGX_CMRX_CFG, cfg);
+
+	return 0;
+}
+
 static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 {
 	u64 cfg;
@@ -756,6 +834,13 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 		lmac->link_up = lmac->phydev->link;
 		lmac->last_speed = lmac->phydev->speed;
 		lmac->last_duplex = lmac->phydev->duplex;
+
+		debug("bgx_poll_for_link(), qlm_mode %d phy link status 0x%x, \ 
+			last speed 0x%x, duplex 0x%x\n",
+			lmac->qlm_mode, lmac->link_up, lmac->last_speed, lmac->last_duplex);
+
+		bgx_lmac_sgmii_set_link_speed(lmac);
+
 	} else {
 		u64 status1;
 		u64 tx_ctl;
