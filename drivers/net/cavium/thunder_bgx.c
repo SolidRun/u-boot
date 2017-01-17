@@ -839,7 +839,8 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 			last speed 0x%x, duplex 0x%x\n",
 			lmac->qlm_mode, lmac->link_up, lmac->last_speed, lmac->last_duplex);
 
-		bgx_lmac_sgmii_set_link_speed(lmac);
+		if (lmac->qlm_mode != QLM_MODE_RGMII)
+			bgx_lmac_sgmii_set_link_speed(lmac);
 
 	} else {
 		u64 status1;
