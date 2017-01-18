@@ -234,6 +234,9 @@
 /** Enable grepenv command */
 #define CONFIG_CMD_GREPENV
 
+/** Enable bootimgup command */
+#define CONFIG_CMD_BOOTIMGUP
+
 /**
  * Enable callback support when environment variables are set, or
  * changed
@@ -296,6 +299,20 @@
 
 #define CONFIG_SYS_SPD_I2C_BUS 1
 
+/***** SPI Defines *********/
+#define CONFIG_DM_SPI
+#define CONFIG_DM_SPI_FLASH
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_CAVIUM_SPI
+#define CONFIG_SF_DEFAULT_SPEED 12500000
+#define CONFIG_SF_DEFAULT_MODE	0
+#define CONFIG_SF_DEFAULT_BUS	0
+#define CONFIG_SF_DEFAULT_CS	0
+/** Enable sf command */
+#define CONFIG_CMD_SF
+
+/**************************/
 #define CONFIG_CMD_SAVES
 
 /* BOOTP options */
