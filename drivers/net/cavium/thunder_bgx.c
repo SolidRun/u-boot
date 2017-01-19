@@ -637,12 +637,12 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 		int qlm;
 		switch (lmac->lmac_type) {
 		default:
-		case 0: // SGMII
-		case 5: // RGMII
-		case 1: // XAUI
+		case BGX_MODE_SGMII:
+		case BGX_MODE_RGMII:
+		case BGX_MODE_XAUI:
 			/* Nothing to do */
 			break;
-		case 4: // XLAUI
+		case BGX_MODE_XLAUI:
 			if (__rx_equalization(lmac->qlm, -1) ||
 				__rx_equalization(lmac->qlm+1, -1)) {
 				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d/DLM%d\n",
@@ -650,7 +650,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 				return -1;
 			}
 			break;
-		case 2: // RXAUI
+		case BGX_MODE_RXAUI:
 			/* RXAUI0 uses LMAC0:QLM0/QLM2 and RXAUI1 uses LMAC1:QLM1/QLM3
 			   RXAUI requires 2 lanes for each interface */
 			if (lmacid) {
@@ -671,7 +671,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 				return -1;
 			}
 			break;
-		case 3: // XFI
+		case BGX_MODE_XFI:
 			{
 				int lid;
 				if ((bgx->bgx_id == 0) && is_altpkg && lmacid)
@@ -835,8 +835,8 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 		lmac->last_speed = lmac->phydev->speed;
 		lmac->last_duplex = lmac->phydev->duplex;
 
-		debug("bgx_poll_for_link(), qlm_mode %d phy link status 0x%x, \ 
-			last speed 0x%x, duplex 0x%x\n",
+		debug("bgx_poll_for_link(), qlm_mode %d phy link status 0x%x,"
+			"last speed 0x%x, duplex 0x%x\n",
 			lmac->qlm_mode, lmac->link_up, lmac->last_speed, lmac->last_duplex);
 
 		if (lmac->qlm_mode != QLM_MODE_RGMII)
@@ -1148,7 +1148,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 		train_en = (readq(CSR_PA(0, GSERX_SCRATCH(lmac->qlm))) & 0xf);
 
 		switch(lmac->lmac_type) {
-		case 0:
+		case BGX_MODE_SGMII:
 			if (bgx->is_rgx) {
 				if (lmacid == 0) {
 					lmac->qlm_mode = QLM_MODE_RGMII;
@@ -1166,7 +1166,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 						bgx->bgx_id, lmac->qlm, lmacid);
 			}
 			break;
-		case 1:
+		case BGX_MODE_XAUI:
 			if ((bgx->bgx_id == 0) && is_altpkg)
 				continue;
 			lmac->qlm_mode = QLM_MODE_XAUI;
@@ -1175,7 +1175,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			printf("BGX%d QLM%d LMAC%d mode: XAUI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			break;
-		case 2:
+		case BGX_MODE_RXAUI:
 			if ((bgx->bgx_id == 0) && is_altpkg)
 				continue;
 			lmac->qlm_mode = QLM_MODE_RXAUI;
@@ -1184,7 +1184,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 					bgx->bgx_id, lmac->qlm, (index ? 1 : 0));
 			}
 			break;
-		case 3:
+		case BGX_MODE_XFI:
 			if ((bgx->bgx_id == 0) && is_altpkg) {
 				if (lmacid >= 2)
 					continue;
@@ -1212,7 +1212,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
 			break;
-		case 4:
+		case BGX_MODE_XLAUI:
 			if ((bgx->bgx_id == 0) && is_altpkg)
 				continue;
 			if (train_en) {
@@ -1229,7 +1229,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
 		break;
-		case 6:
+		case BGX_MODE_QSGMII:
 			if ((lmacid == 0) || (lmacid == 2)) {
 				lmac->qlm_mode = QLM_MODE_QSGMII;
 				printf("BGX%d QLM%d LMAC%d mode: QSGMII\n",
