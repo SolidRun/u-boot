@@ -754,7 +754,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 	}
 
 	/* Receive link is latching low. Force it high and verify it */
-	if (!(bgx_reg_read(bgx, lmacid, BGX_SPUX_STATUS1 & SPU_STATUS1_RCV_LNK)))
+	if (!(bgx_reg_read(bgx, lmacid, BGX_SPUX_STATUS1) & SPU_STATUS1_RCV_LNK))
 		bgx_reg_modify(bgx, lmacid, BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
 	if (bgx_poll_reg(bgx, lmacid, BGX_SPUX_STATUS1,
 			 SPU_STATUS1_RCV_LNK, false)) {
