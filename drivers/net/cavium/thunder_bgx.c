@@ -299,6 +299,8 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 {
 	u64 cfg;
 	struct lmac *lmac;
+	const char *board;
+	board = getenv("board");
 
 	lmac = &bgx->lmac[lmacid];
 
@@ -327,7 +329,11 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 	/* power down, reset autoneg, autoneg enable */
 	cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_PCS_MRX_CTL);
 	cfg &= ~PCS_MRX_CTL_PWR_DN;
-	cfg |= (PCS_MRX_CTL_RST_AN | PCS_MRX_CTL_AN_EN);
+	if ((lmac->qlm_mode == QLM_MODE_QSGMII)
+	    && (board && strncasecmp(board, "rbd8030", 7) == 0))
+		cfg |= (PCS_MRX_CTL_RST_AN);
+	else
+		cfg |= (PCS_MRX_CTL_RST_AN | PCS_MRX_CTL_AN_EN);
 	bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MRX_CTL, cfg);
 
 	/* Disable disparity for QSGMII mode, to prevent propogation across
@@ -787,6 +793,18 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 	if ((lmac->qlm_mode == QLM_MODE_SGMII) ||
 	    (lmac->qlm_mode == QLM_MODE_RGMII) ||
 	    (lmac->qlm_mode == QLM_MODE_QSGMII)) {
+		const char *board;
+		board = getenv("board");
+
+		if ((lmac->qlm_mode == QLM_MODE_QSGMII)
+		    && (board && strncasecmp(board, "rbd8030", 7) == 0)) {
+			lmac->link_up = 1;
+			lmac->last_speed = 1000;
+			lmac->last_duplex = 1;
+			printf("BGX%d:LMAC %u link up\n", bgx_idx, lmacid);
+
+			return lmac->link_up;
+		}
 		snprintf(mii_name, sizeof(mii_name), "txsmi%d",
 			 bgx_board_info[bgx_idx].mdio_bus);
 
