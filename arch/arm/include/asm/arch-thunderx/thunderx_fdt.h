@@ -7,5 +7,6 @@
 #define __THUNDERX_FDT_H__
 
 void thunderx_parse_bdk_config(void);
+void thunderx_parse_phy_info(void);
 
 #endif

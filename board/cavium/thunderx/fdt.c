@@ -22,31 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void thunderx_parse_phy_address(const void *fdt, int node)
-{
-	char bgxname[32];
-	int bgx_id, phy_id;
-	unsigned int phy_addr[MAX_LMAC_PER_BGX] = {-1, -1, -1, -1}, mdio_bus = 0;
-	const char *buffer;
-	uint32_t val;
-
-	for (bgx_id = 0; bgx_id < CONFIG_MAX_BGX_PER_NODE; bgx_id++) {
-		for (phy_id = 0; phy_id < MAX_LMAC_PER_BGX; phy_id++)   {
-			snprintf(bgxname, sizeof(bgxname),
-				 "PHY-ADDRESS.N0.BGX%d.P%d", bgx_id, phy_id);
-			buffer = fdt_getprop(fdt, node, bgxname, NULL);
-			if (buffer != NULL) {
-				val = simple_strtoul(buffer, NULL, 16);
-				mdio_bus = (val >> 8) & 0xF;
-				phy_addr[phy_id] = val & 0xFF;
-			} else {
-				debug("Err: cannot retrieve phy address from fdt:%d:%d\n", bgx_id, phy_id);
-			}
-		}
-		bgx_set_board_info(bgx_id, mdio_bus, &phy_addr[0]);
-	}
-}
-
 void thunderx_parse_bdk_config(void)
 {
 	char boardname[32];
@@ -91,7 +66,6 @@ void thunderx_parse_bdk_config(void)
 	}
 
 #ifdef CONFIG_THUNDERX_BGX
-	thunderx_parse_phy_address(gd->fdt_blob, node);
 	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS", &len);
 	if (!str) {
 		printf("%s: BOARD-MAC-ADDRESS missing from device tree\n",
@@ -113,6 +87,114 @@ void thunderx_parse_bdk_config(void)
 	printf("Board MAC address: %pM\n", mac_addr);
 #endif
 }
+
+static int thunderx_get_mdio_bus(const void *fdt, int phy_offset)
+{
+	int node, bus = -1;
+	const u64 *reg;
+	u64 addr;
+
+	if (phy_offset < 0)
+		return -1;
+	/* obtain mdio node and get the reg prop */
+	node = fdt_parent_offset(fdt, phy_offset);
+	if (node < 0)
+		return -1;
+
+	reg = fdt_getprop(fdt, node, "reg", NULL);
+	addr = fdt64_to_cpu(*reg);
+	bus = (addr & (1 << 7)) ? 1 : 0;
+	return bus;
+}
+
+static int thunderx_get_phy_addr(const void *fdt, int phy_offset)
+{
+	const u32 *reg;
+	int addr = -1;
+
+	if (phy_offset < 0)
+		return -1;
+	reg = fdt_getprop(fdt, phy_offset, "reg", NULL);
+	addr = fdt32_to_cpu(*reg);
+	return addr;
+}
+
+void thunderx_parse_phy_info(void)
+{
+	const void *fdt = gd->fdt_blob;
+	int offset = 0, node, bgx_id = 0, lmacid = 0;
+	const u32 *val;
+	char bgxname[16];
+	int len, rgx_id = 0;
+	int phandle, phy_offset;
+	int subnode;
+
+	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
+	if (offset > 1) {
+		for (bgx_id = 0; bgx_id < CONFIG_MAX_BGX_PER_NODE; bgx_id++) {
+			int phy_addr[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = -1};
+			int autoneg_dis[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
+			int mdio_bus[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = -1};
+			snprintf(bgxname, sizeof(bgxname),
+				 "bgx%d", bgx_id);
+			node = fdt_subnode_offset(fdt, offset, bgxname);
+			if (node < 0) {
+				/* check if it is rgx node */
+				snprintf(bgxname, sizeof(bgxname),
+					 "rgx%d", rgx_id);
+				node = fdt_subnode_offset(fdt, offset, bgxname);
+				if (node < 0) {
+					printf("bgx%d/rgx0 node not found\n",
+					       bgx_id);
+					return;
+				}
+			}
+			debug("bgx%d node found\n", bgx_id);
+
+			/* loop through each of the bgx/rgx nodes
+			to find PHY nodes */
+			fdt_for_each_subnode(fdt, subnode, node) {
+				/* check for phy-handle property */
+				val = fdt_getprop(fdt, subnode, "phy-handle",
+						  &len);
+				if (val) {
+					phandle = fdt32_to_cpu(*val);
+					if (!phandle) {
+						debug("phandle not valid %d\n",
+						      lmacid);
+					} else {
+						phy_offset =
+						fdt_node_offset_by_phandle
+							(fdt, phandle);
+						phy_addr[lmacid] =
+						thunderx_get_phy_addr
+							(fdt, phy_offset);
+
+						mdio_bus[lmacid] =
+						thunderx_get_mdio_bus
+							(fdt, phy_offset);
+					}
+				} else
+					debug("phy-handle property not found %d\n",
+					      lmacid);
+
+				/* check for autonegotiation property */
+				val = fdt_getprop(fdt, subnode,
+						  "cavium,disable-autonegotiation",
+						  &len);
+				if (val)
+					autoneg_dis[lmacid] = 1;
+
+				lmacid++;
+			}
+
+			lmacid = 0;
+			bgx_set_board_info(bgx_id, mdio_bus, phy_addr,
+					   autoneg_dis);
+		}
+	}
+}
+
 
 int arch_fixup_memory_node(void *blob)
 {

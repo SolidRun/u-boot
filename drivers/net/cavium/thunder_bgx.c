@@ -329,8 +329,8 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 	/* power down, reset autoneg, autoneg enable */
 	cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_PCS_MRX_CTL);
 	cfg &= ~PCS_MRX_CTL_PWR_DN;
-	if ((lmac->qlm_mode == QLM_MODE_QSGMII)
-	    && (board && strncasecmp(board, "rbd8030", 7) == 0))
+
+	if (bgx_board_info[bgx->bgx_id].phy_info[lmacid].autoneg_dis)
 		cfg |= (PCS_MRX_CTL_RST_AN);
 	else
 		cfg |= (PCS_MRX_CTL_RST_AN | PCS_MRX_CTL_AN_EN);
@@ -793,25 +793,22 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 	if ((lmac->qlm_mode == QLM_MODE_SGMII) ||
 	    (lmac->qlm_mode == QLM_MODE_RGMII) ||
 	    (lmac->qlm_mode == QLM_MODE_QSGMII)) {
-		const char *board;
-		board = getenv("board");
 
-		if ((lmac->qlm_mode == QLM_MODE_QSGMII)
-		    && (board && strncasecmp(board, "rbd8030", 7) == 0)) {
+		if (bgx_board_info[bgx_idx].phy_info[lmacid].phy_addr == -1) {
 			lmac->link_up = 1;
 			lmac->last_speed = 1000;
 			lmac->last_duplex = 1;
 			printf("BGX%d:LMAC %u link up\n", bgx_idx, lmacid);
-
 			return lmac->link_up;
 		}
 		snprintf(mii_name, sizeof(mii_name), "txsmi%d",
-			 bgx_board_info[bgx_idx].mdio_bus);
+			 bgx_board_info[bgx_idx].phy_info[lmacid].mdio_bus);
 
 		debug("mii_name: %s\n", mii_name);
 
 		lmac->mii_bus = miiphy_get_dev_by_name(mii_name);
-		lmac->phy_addr = bgx_board_info[bgx_idx].phy_addr[lmacid];
+		lmac->phy_addr = bgx_board_info[bgx_idx].
+				 phy_info[lmacid].phy_addr;
 
 		debug("lmac->mii_bus: %p\n",lmac->mii_bus);
 		if (!lmac->mii_bus) {
@@ -1260,16 +1257,23 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 	}
 }
 
-void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
-			unsigned int *phy_addr)
+void bgx_set_board_info(int bgx_id, int *mdio_bus,
+			int *phy_addr, int *autoneg_dis)
 {
 	unsigned int i;
 
-	bgx_board_info[bgx_id].mdio_bus = mdio_bus;
-
-	for (i = 0; i < MAX_LMAC_PER_BGX; i++)
-		bgx_board_info[bgx_id].phy_addr[i] = phy_addr[i];
+	for (i = 0; i < MAX_LMAC_PER_BGX; i++) {
+		bgx_board_info[bgx_id].phy_info[i].phy_addr = phy_addr[i];
+		bgx_board_info[bgx_id].phy_info[i].mdio_bus = mdio_bus[i];
+		bgx_board_info[bgx_id].phy_info[i].autoneg_dis = autoneg_dis[i];
+		debug("bgx_set_board_info lmac %d phy_addr 0x%x mdio bus %d "
+		      "autoneg_dis %d\n", i,
+			bgx_board_info[bgx_id].phy_info[i].phy_addr,
+			bgx_board_info[bgx_id].phy_info[i].mdio_bus,
+			bgx_board_info[bgx_id].phy_info[i].autoneg_dis);
+	}
 }
+
 
 int thunderx_bgx_probe(struct udevice *dev)
 {

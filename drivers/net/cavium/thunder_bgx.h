@@ -206,8 +206,8 @@ void bgx_add_dmac_addr(uint64_t dmac, int node, int bgx_idx, int lmac);
 void bgx_get_count(int node, int *bgx_count);
 int bgx_get_lmac_count(int node, int bgx);
 void bgx_print_stats(int bgx_idx, int lmac);
-void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
-			unsigned int *phy_addr);
+void bgx_set_board_info(int bgx_id, int *mdio_bus,
+			int *phy_addr, int *autoneg_dis);
 void xcv_init_hw(void);
 void xcv_setup_link(bool link_up, int link_speed);
 
@@ -225,9 +225,14 @@ enum qlm_mode {
 	QLM_MODE_RGMII,     /* 1 RGX */
 };
 
+struct phy_info {
+	int mdio_bus;
+	int phy_addr;
+	bool autoneg_dis;
+};
+
 struct bgx_board_info {
-	unsigned int mdio_bus;
-	unsigned int phy_addr[MAX_LMAC_PER_BGX];
+	struct phy_info phy_info[MAX_LMAC_PER_BGX];
 };
 
 enum LMAC_TYPE {

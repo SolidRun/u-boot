@@ -133,7 +133,7 @@ int board_late_init(void)
 	const char *board;
 	debug("%s()\n", __func__);
 	thunderx_parse_bdk_config();
-
+	thunderx_parse_phy_info();
 	board = getenv("board");
 	printf("Board type: %s\n", getenv("board"));
 
