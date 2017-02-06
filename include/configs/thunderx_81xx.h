@@ -11,8 +11,14 @@
 
 #define CONFIG_SPECIAL_SYNC_HANDLER
 
-/** Thunder 81xx does not support NOR flash */
-#define CONFIG_SYS_NO_FLASH
+/** Thunder 81xx support NOR flash */
+#define CONFIG_MTD
+#define CONFIG_CMD_FLASH
+#define CONFIG_CFI_FLASH
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_MTD
+#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 1
+#define CONFIG_SYS_FLASH_CFI
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
@@ -98,6 +104,7 @@
 
 /** Code start address */
 #define CONFIG_SYS_TEXT_BASE		0x00500000
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 /** Stack starting address */
 /*#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)*/
@@ -349,9 +356,6 @@
 #define CONFIG_CMD_E1000
 
 /* #define E1000_DEBUG */
-
-/** Enable driver for Real-Tec RTL8169 card */
-#define CONFIG_RTL8169
 
 /* Initial environment variables */
 #define UBOOT_IMG_HEAD_SIZE		0x40

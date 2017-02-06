@@ -351,9 +351,6 @@
 
 /* #define E1000_DEBUG */
 
-/** Enable driver for Real-Tec RTL8169 card */
-#define CONFIG_RTL8169
-
 /* Initial environment variables */
 #define UBOOT_IMG_HEAD_SIZE		0x40
 /* C80000 - 0x40 */
