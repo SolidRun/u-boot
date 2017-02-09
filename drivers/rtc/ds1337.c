@@ -210,7 +210,7 @@ static int ds133x_ofdata_to_platdata(struct udevice *dev)
 	int node = dev->of_offset;
 
 	platdata->regaddr = fdtdec_get_int(blob, node, "reg", -1);
-	platdata->rtcmodel = fdtdec_get_int(blob, node, "model", 1);
+	platdata->rtcmodel = fdtdec_get_int(blob, node, "rtcmodel", 1);
 
 	debug("RTC addr 0x%08x model %d\n", platdata->regaddr, platdata->rtcmodel);
 	return 0;
