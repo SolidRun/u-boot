@@ -1101,7 +1101,6 @@ static void bgx_init_hw(struct bgx *bgx)
 		tlmac->lane_to_sds = lmac->lane_to_sds;
 		tlmac->qlm = lmac->qlm;
 		tlmac->qlm_mode = lmac->qlm_mode;
-		lmac->qlm = -1;
 
 		/* Initialize lmac_type and lane_to_sds */
 		bgx_reg_write(bgx, count, BGX_CMRX_CFG,
