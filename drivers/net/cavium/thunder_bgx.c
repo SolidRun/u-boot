@@ -1035,6 +1035,11 @@ static void bgx_init_hw(struct bgx *bgx)
 				    && (bgx->bgx_id == 0)
 				    && (lmacid == 2))
 					continue;
+				else if (board
+					 && (strncasecmp(board, "nas", 3) == 0)
+					 && (bgx->bgx_id == 1)
+					 && (lmacid == 1))
+					continue;
 				lmac->lane_to_sds = lmacid;
 			}
 			lmac->lmac_type = 3;
@@ -1220,7 +1225,13 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				    && (lmacid == 2)) {
 					lmac->qlm_mode = QLM_MODE_XFI;
 					continue;
-				}
+				} else if (board
+					   && (strncasecmp(board, "nas", 3) == 0)
+					   && (bgx->bgx_id == 1)
+					   && (lmacid == 1)) {
+					lmac->qlm_mode = QLM_MODE_XFI;
+					continue;
+                                }
 				lmac->qlm_mode = QLM_MODE_XFI;
 				printf("BGX%d QLM%d LMAC%d mode: XFI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
