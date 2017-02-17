@@ -299,8 +299,6 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 {
 	u64 cfg;
 	struct lmac *lmac;
-	const char *board;
-	board = getenv("board");
 
 	lmac = &bgx->lmac[lmacid];
 

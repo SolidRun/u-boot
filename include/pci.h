@@ -1436,6 +1436,7 @@ int pci_generic_mmap_read_config(
 	enum pci_size_t size);
 
 int pci_sriov_init(struct udevice *pdev, int vf_en);
+int pci_sriov_get_totalvfs(struct udevice *pdev);
 
 #ifdef CONFIG_DM_PCI_COMPAT
 /* Compatibility with old naming */
