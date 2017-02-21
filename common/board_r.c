@@ -448,8 +448,15 @@ static int should_load_env(void)
 
 static int initr_env(void)
 {
+#ifdef CONFIG_SPI_ENV
+	static int first_time = 0;
+
+	/* initialize environment */
+	if (should_load_env() && first_time == 1)
+#else
 	/* initialize environment */
 	if (should_load_env())
+#endif
 		env_relocate();
 	else
 		env_set_default(NULL, 0);
@@ -457,7 +464,9 @@ static int initr_env(void)
 	env_set_hex("fdtcontroladdr",
 		    (unsigned long)map_to_sysmem(gd->fdt_blob));
 #endif
-
+#ifdef CONFIG_SPI_ENV
+	first_time = 1;
+#endif
 	/* Initialize from environment */
 	load_addr = env_get_ulong("loadaddr", 16, load_addr);
 

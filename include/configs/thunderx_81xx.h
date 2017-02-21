@@ -376,8 +376,26 @@
 #define CONFIG_BOOTDELAY		5
 
 /** Where the environment is located */
+
+/* Use ATF based calls for env variables */
+#define CONFIG_ATF
+
+/* Use uboot SPI APIs for env variables */
+//#define CONFIG_SPI_ENV
+
+#define CONFIG_ATF
+#if defined(CONFIG_ATF)
 #define CONFIG_ENV_IS_IN_ATF
 #define CONFIG_SYS_ENV_ATF_NOR
+#elif defined(CONFIG_SPI_ENV)
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
+#define CONFIG_ENV_SPI_MAX_HZ		12500000
+#define CONFIG_ENV_SPI_MODE		0
+#define CONFIG_ENV_SPI_BUS		0
+#define CONFIG_ENV_SPI_CS		0
+#endif
+
 /** Size of environment in bytes */
 #define CONFIG_ENV_SIZE			0x8000
 /** Starting offset of the environment */
