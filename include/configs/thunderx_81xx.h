@@ -383,7 +383,6 @@
 /* Use uboot SPI APIs for env variables */
 //#define CONFIG_SPI_ENV
 
-#define CONFIG_ATF
 #if defined(CONFIG_ATF)
 #define CONFIG_ENV_IS_IN_ATF
 #define CONFIG_SYS_ENV_ATF_NOR
