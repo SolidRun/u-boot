@@ -561,13 +561,13 @@ int __rx_equalization(int qlm, int lane)
 		/* Enable software control */
 		rctl = readq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)));
 		rctl |= GSER_BR_RXX_CTL_RXT_SWM;
-		writeq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)), rctl);
+		writeq(rctl, CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)));
 
 		/* Clear the completion flag and initiate a new request */
 		reer = readq(CSR_PA(0, GSER_BR_RXX_EER(qlm, l)));
 		reer &= ~GSER_BR_RXX_EER_RXT_ESV;
 		reer |= GSER_BR_RXX_EER_RXT_EER;
-		writeq(CSR_PA(0, GSER_BR_RXX_EER(qlm, l)), reer);
+		writeq(reer, CSR_PA(0, GSER_BR_RXX_EER(qlm, l)));
 	}
 
 	/* Wait for RX equalization to complete */
@@ -583,7 +583,7 @@ int __rx_equalization(int qlm, int lane)
 		/* Switch back to hardware control */
 		rctl = readq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)));
 		rctl &= ~GSER_BR_RXX_CTL_RXT_SWM;
-		writeq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)), rctl);
+		writeq(rctl, CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)));
 
 		if (reer & GSER_BR_RXX_EER_RXT_ESV) {
 			debug("Rx equalization completed on DLM%d lane%d, rxt_esm = 0x%llx\n",
