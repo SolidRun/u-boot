@@ -67,6 +67,12 @@
 		enable-active-high;
 		gpio = <&gpio_exp 4 GPIO_ACTIVE_HIGH>;
 	};
+
+	phy2 {
+		phy-type = <COMPHY_TYPE_SATA0>;
+		phy-speed = <COMPHY_SPEED_5G>;
+		phy-invert = <COMPHY_POLARITY_NO_INVERT>;
+	};
 };
 
 /* Gigabit module on CON19(V2.0)/CON21(V1.4) */
