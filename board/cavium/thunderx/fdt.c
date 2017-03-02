@@ -27,10 +27,8 @@ void thunderx_parse_bdk_config(void)
 	char boardname[32];
 	const char *str;
 #ifdef CONFIG_THUNDERX_BGX
-	uint64_t val64;
 	uint8_t ethaddr[6];
-	uint8_t mac_addr[6] = { 0, 0, 0, 0, 0, 0};
-	int i, shift;
+	int i;
 #endif
 	int node;
 	int ret = 0, len = sizeof(boardname);
@@ -66,25 +64,20 @@ void thunderx_parse_bdk_config(void)
 	}
 
 #ifdef CONFIG_THUNDERX_BGX
-	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS", &len);
-	if (!str) {
-		printf("%s: BOARD-MAC-ADDRESS missing from device tree\n",
-		       __func__);
-		return;
-	}
-	val64 = simple_strtoull(str, NULL, 16);
-	for (i = 0, shift = 40; i < 6; i++, shift -= 8)
-		mac_addr[i] = (val64 >> shift) & 0xff;
+	char envname[16];
 
-	if (!eth_getenv_enetaddr("ethaddr", ethaddr)) {
-		char addr_str[18];
-		snprintf(addr_str, sizeof(addr_str), "%pM", mac_addr);
-		debug("Setting ethaddr to \"%s\"\n", addr_str);
-		setenv_force("ethaddr", addr_str);
-	} else {
-		memcpy(mac_addr, ethaddr, sizeof(mac_addr));
+	for (i = 0; i < (CONFIG_MAX_BGX * 4); i++) {
+		if (eth_getenv_enetaddr_by_index("eth", i, ethaddr)) {
+			debug(" %s eth%daddr set NULL\n", __func__, i);
+			if (i) {
+				snprintf(envname, sizeof(envname),
+					 "eth%daddr", i);
+			} else {
+				strcpy(envname, "ethaddr");
+			}
+			setenv_force(envname, NULL);
+		}
 	}
-	printf("Board MAC address: %pM\n", mac_addr);
 #endif
 }
 
@@ -124,8 +117,11 @@ void thunderx_parse_phy_info(void)
 	const void *fdt = gd->fdt_blob;
 	int offset = 0, node, bgx_id = 0, lmacid = 0;
 	const u32 *val;
+	const char *mac_addr;
+	char eth_addr[32];
 	char bgxname[16];
-	int len, rgx_id = 0;
+	char envname[16];
+	int len, rgx_id = 0, eth_id = 0;
 	int phandle, phy_offset;
 	int subnode;
 
@@ -185,6 +181,27 @@ void thunderx_parse_phy_info(void)
 				if (val)
 					autoneg_dis[lmacid] = 1;
 
+				/* check for local-mac-address */
+				mac_addr = fdt_getprop(fdt, subnode,
+						       "local-mac-address",
+						       &len);
+				if (mac_addr) {
+					debug("\n%s %pM\n", __func__, mac_addr);
+					snprintf(eth_addr, sizeof(eth_addr),
+						 "%pM", mac_addr);
+					if (eth_id)
+						snprintf(envname,
+							 sizeof(envname),
+							 "eth%daddr", eth_id);
+					else
+						strcpy(envname, "ethaddr");
+					eth_id++;
+					setenv_force(envname, eth_addr);
+				} else {
+					printf("Warning: local-mac-address "
+					       "not found for bgx%d lmac%d\n",
+					       bgx_id, lmacid);
+				}
 				lmacid++;
 			}
 
