@@ -195,13 +195,13 @@ void thunderx_parse_phy_info(void)
 							 "eth%daddr", eth_id);
 					else
 						strcpy(envname, "ethaddr");
-					eth_id++;
 					setenv_force(envname, eth_addr);
 				} else {
 					printf("Warning: local-mac-address "
 					       "not found for bgx%d lmac%d\n",
 					       bgx_id, lmacid);
 				}
+				eth_id++;
 				lmacid++;
 			}
 
