@@ -657,13 +657,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 		case BGX_MODE_RXAUI:
 			/* RXAUI0 uses LMAC0:QLM0/QLM2 and RXAUI1 uses LMAC1:QLM1/QLM3
 			   RXAUI requires 2 lanes for each interface */
-			if (lmacid) {
-				struct lmac *l;
-				l = &bgx->lmac[2];
-				qlm = l->qlm;
-			} else {
-				qlm = lmac->qlm;
-			}
+			qlm = lmac->qlm;
 			if (__rx_equalization(qlm, 0)) {
 				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d, Lane0\n",
 					bgx->bgx_id, lmacid, qlm);
@@ -1007,8 +1001,8 @@ static void bgx_init_hw(struct bgx *bgx)
 					lmac->lmac_type = 2;
 					lmac->lane_to_sds = 0xe;
 					lmac_count++;
+					lmac->qlm = tlmac->qlm;
 				}
-				continue;
 			} else
 				continue;
 			break;
