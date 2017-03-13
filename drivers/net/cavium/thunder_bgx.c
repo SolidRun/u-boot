@@ -532,9 +532,20 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 	return 0;
 }
 
+/* Get max number of lanes present in a given QLM/DLM */
+static int get_qlm_lanes(int qlm)
+{
+	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX))
+		return 2;
+	else if (CAVIUM_IS_MODEL(CAVIUM_CN83XX))
+		return (qlm >= 5) ? 2 : 4;
+	else
+		return -1;
+}
+
 int __rx_equalization(int qlm, int lane)
 {
-	int max_lanes = 2;
+	int max_lanes = get_qlm_lanes(qlm);
 	int l;
 	int fail = 0;
 
