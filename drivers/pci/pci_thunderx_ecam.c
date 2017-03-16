@@ -244,6 +244,7 @@ static const struct dm_pci_ops pci_thunderx_ecam_ops = {
 
 static const struct udevice_id pci_thunderx_ecam_ids[] = {
 	{ .compatible = "cavium,pci-host-thunder-ecam" },
+	{ .compatible = "cavium,pci-host-octeontx-ecam" },
 	{ .compatible = "pci-host-ecam-generic" },
 	{ }
 };
