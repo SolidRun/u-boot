@@ -216,6 +216,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	debug("devnum=%d poweron: query_delay=%d connect_timeout=%d\n",
 	      dev->devnum, max(100, (int)pgood_delay),
 	      max(100, (int)pgood_delay) + HUB_DEBOUNCE_TIMEOUT);
+	mdelay(pgood_delay + 2000);
 }
 
 #if !CONFIG_IS_ENABLED(DM_USB)
