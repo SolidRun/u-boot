@@ -15,8 +15,7 @@
 #include <environment.h>
 #include <linux/ctype.h>
 
-#define PCI_DEVICE_ID_THUNDERX_SMI	0xa02b
-#define THUNDERX_SMI_DEVS		2
+DECLARE_GLOBAL_DATA_PTR;
 
 enum thunderx_smi_mode {
 	CLAUSE22 = 0,
@@ -84,18 +83,15 @@ union smi_x_en {
 	} s;
 };
 
-#define SMI_X_RD_DAT	0x3810ull
-#define SMI_X_WR_DAT	0x3808ull
-#define SMI_X_CMD	0x3800ull
-#define SMI_X_CLK	0x3818ull
-#define SMI_X_EN	0x3820ull
+#define SMI_X_RD_DAT	0x10ull
+#define SMI_X_WR_DAT	0x08ull
+#define SMI_X_CMD	0x00ull
+#define SMI_X_CLK	0x18ull
+#define SMI_X_EN	0x20ull
 
 struct thunderx_smi_priv {
 	void __iomem *baseaddr;
 	enum thunderx_smi_mode mode;
-	int sample_lo;
-	int sample_mode;
-	int sample_hi;
 };
 
 #define MDIO_TIMEOUT 10000
@@ -106,12 +102,6 @@ void thunderx_smi_setmode(struct mii_dev *bus, enum thunderx_smi_mode mode)
 	union smi_x_clk smix_clk;
 
 	smix_clk.u = readq(priv->baseaddr + SMI_X_CLK);
-
-#if 0
-	smix_clk.s.sample = priv->sample_lo;
-	smix_clk.s.sample_mode = priv->sample_mode;
-	smix_clk.s.sample_hi =  priv->sample_hi;
-#endif
 	smix_clk.s.mode = mode;
 	smix_clk.s.preamble = mode == CLAUSE45;
 	writeq(smix_clk.u, priv->baseaddr + SMI_X_CLK);
@@ -268,85 +258,59 @@ int thunderx_smi_reset(struct mii_dev *bus)
 
 int thunderx_smi_probe(struct udevice *dev)
 {
-	struct mii_dev *bus;
 	size_t size;
-	int ctlr, ret;
-
+	int ret, subnode, cnt = 0, node = dev->of_offset;
+	struct mii_dev *bus;
 	struct thunderx_smi_priv *priv;
+	pci_dev_t bdf = dm_pci_get_bdf(dev);
 
-	for (ctlr = 0; ctlr < THUNDERX_SMI_DEVS; ctlr++) {
+        debug("SMI PCI device: %x\n", bdf);
+        dev->req_seq = PCI_FUNC(bdf);
+        if ( !dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM)) {
+		printf("Failed to map PCI region for bdf %x\n", bdf);
+		return -1;
+	}
+
+	fdt_for_each_subnode(gd->fdt_blob, subnode, node) {
+		ret = fdt_node_check_compatible(gd->fdt_blob, subnode,
+						"cavium,thunder-8890-mdio");
+		if (ret)
+			continue;
+
 		bus = mdio_alloc();
 		priv = malloc(sizeof(*priv));
-
 		if (!bus || !priv) {
-			printf("Failed to allocate ThunderX MDIO bus # %u\n", dev->seq);
+			printf("Failed to allocate ThunderX MDIO bus # %u\n",
+				dev->seq);
 			return -1;
 		}
 
 		bus->read = thunderx_phy_read;
 		bus->write = thunderx_phy_write;
 		bus->reset = thunderx_smi_reset;
-
 		bus->priv = priv;
 
-		priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
-		priv->baseaddr += 0x80 * ctlr;
 		priv->mode = CLAUSE22;
-
-		priv->sample_lo = 0;
-		priv->sample_hi = 0;
-		priv->sample_mode = 0;
+		priv->baseaddr = (void __iomem *)fdtdec_get_addr(gd->fdt_blob,
+							 subnode, "reg");
+		debug("mdio base addr %p\n", priv->baseaddr);
 
 		/* use given name or generate its own unique name */
-		snprintf(bus->name, MDIO_NAME_LEN, "txsmi%d", ctlr);
+		snprintf(bus->name, MDIO_NAME_LEN, "smi%d", cnt++);
 
 		ret = mdio_register(bus);
-
-		if (ret)
+		if (ret) {
 			return ret;
+		}
 	}
-
 	return 0;
 }
-
-static int on_smimode(const char *name, const char *value, enum env_op op,
-	int flags)
-{
-	char *str;
-	int i = 0, mode;
-	struct mii_dev *bus;
-	struct thunderx_smi_priv *priv;
-
-	str = strdup(name);
-
-	while (!isdigit(str[i++]));
-	while (isdigit(str[i++]));
-	str[i - 1] = '\0';
-
-	bus = miiphy_get_dev_by_name(str);
-
-	if (!bus) {
-		free(str);
-		return 0;
-	}
-
-	priv = bus->priv;
-
-	mode = simple_strtoul(value, NULL, 16);
-	priv->sample_lo = (mode >> 0) & 0xf;
-	priv->sample_hi = (mode >> 8) & 0x1f;
-	priv->sample_mode = (mode >> 16) & 0x1;
-
-	return 0;
-}
-
-U_BOOT_ENV_CALLBACK(smimode, on_smimode);
 
 static const struct misc_ops thunderx_smi_ops = {
 };
 
 static const struct udevice_id thunderx_smi_ids[] = {
-	{ .compatible = "cavium,mdio" },
+	{ .compatible = "cavium,thunderx-smi" },
 	{}
 };
 
@@ -358,9 +322,3 @@ U_BOOT_DRIVER(thunderx_smi) = {
 	.ops	= &thunderx_smi_ops,
 };
 
-static struct pci_device_id thunderx_smi_supported[] = {
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDERX_SMI) },
-	{}
-};
-
-U_BOOT_PCI_DEVICE(thunderx_smi, thunderx_smi_supported);
