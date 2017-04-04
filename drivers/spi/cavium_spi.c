@@ -19,7 +19,6 @@
 #define THUNDERX_SPI_MAX_BYTES		9
 #define THUNDERX_SPI_MAX_CLOCK_HZ	50000000
 
-#define PCI_DEVICE_ID_THUNDER_SPI	0xa00b
 #define THUNDERX_SPI_NUM_CS		4
 
 #define THUNDERX_SPI_CS_VALID(cs)	((cs) < THUNDERX_SPI_NUM_CS)
@@ -446,9 +445,3 @@ U_BOOT_DRIVER(thunderx_pci_spi) = {
 	.ops			= &thunderx_spi_ops,
 };
 
-static const struct pci_device_id thunderx_pci_spi_supported[] = {
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_SPI) },
-	{},
-};
-
-U_BOOT_PCI_DEVICE(thunderx_pci_spi, thunderx_pci_spi_supported);
