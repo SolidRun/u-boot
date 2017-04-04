@@ -28,7 +28,6 @@
 #include <asm/arch/thunderx_vnic.h>
 
 #include "cavm-arch.h"
-#define	PCI_DEVICE_ID_THUNDER_XCV	0xA056
 
 struct lxcv {
 	void __iomem		*reg_base;
@@ -172,9 +171,3 @@ U_BOOT_DRIVER(thunderx_xcv) = {
         .priv_auto_alloc_size = sizeof(struct lxcv),
 };
 
-static struct pci_device_id thunderx_xcv_supported[] = {
-        { PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_XCV) },
-        {}
-};
-
-U_BOOT_PCI_DEVICE(thunderx_xcv, thunderx_xcv_supported);
