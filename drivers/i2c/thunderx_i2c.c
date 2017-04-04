@@ -72,8 +72,6 @@
 
 #define RST_BOOT	0x87e006001600ll
 
-#define PCI_DEVICE_ID_THUNDER_TWSI	0xa012
-
 #define TWSI_THP		24
 
 #define TWSI_SW_TWSI		0x1000
@@ -961,9 +959,3 @@ U_BOOT_DRIVER(thunderx_pci_twsi) = {
 	.ops	= &thunderx_i2c_ops,
 };
 
-static struct pci_device_id thunderx_pci_twsi_supported[] = {
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_TWSI) },
-	{},
-};
-
-U_BOOT_PCI_DEVICE(thunderx_pci_twsi, thunderx_pci_twsi_supported);
