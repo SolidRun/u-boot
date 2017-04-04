@@ -83,9 +83,6 @@
 /** Name of our driver */
 #define CAVIUM_MMC_DRIVER_NAME			"mmc_cavium"
 
-/** PCI ID on the ECAM/MRML bus */
-#define PCI_DEVICE_ID_THUNDER_MMC		0xa010
-
 #ifndef CONFIG_CAVIUM_MMC_MAX_FREQUENCY
 # define CONFIG_CAVIUM_MMC_MAX_FREQUENCY	52000000
 #endif
@@ -6058,11 +6055,3 @@ U_BOOT_DRIVER(cavium_pci_mmc) = {
 	.ops = &cavium_mmc_ops,
 };
 
-#ifndef __mips
-static struct pci_device_id cavium_pci_mmc_supported[] = {
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_MMC) },
-	{},
-};
-
-U_BOOT_PCI_DEVICE(cavium_pci_mmc, cavium_pci_mmc_supported);
-#endif
