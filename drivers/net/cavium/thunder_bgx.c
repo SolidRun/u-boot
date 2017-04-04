@@ -804,7 +804,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 			printf("BGX%d:LMAC %u link up\n", bgx_idx, lmacid);
 			return lmac->link_up;
 		}
-		snprintf(mii_name, sizeof(mii_name), "txsmi%d",
+		snprintf(mii_name, sizeof(mii_name), "smi%d",
 			 bgx_board_info[bgx_idx].phy_info[lmacid].mdio_bus);
 
 		debug("mii_name: %s\n", mii_name);
@@ -1388,7 +1388,7 @@ static const struct misc_ops thunderx_bgx_ops = {
 };
 
 static const struct udevice_id thunderx_bgx_ids[] = {
-	{ .compatible = "cavium,bgx" },
+	{ .compatible = "cavium,thunderx-bgx" },
 	{}
 };
 
@@ -1401,12 +1401,3 @@ U_BOOT_DRIVER(thunderx_bgx) = {
 	.priv_auto_alloc_size = sizeof(struct bgx),
 };
 
-static struct pci_device_id thunderx_bgx_supported[] = {
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_BGX) },
-#ifdef CONFIG_THUNDERX_XCV
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_RGX) },
-#endif
-	{}
-};
-
-U_BOOT_PCI_DEVICE(thunderx_bgx, thunderx_bgx_supported);
