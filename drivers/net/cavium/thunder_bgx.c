@@ -75,6 +75,7 @@ struct bgx_board_info bgx_board_info[CONFIG_MAX_BGX];
 
 struct bgx *bgx_vnic[CONFIG_MAX_BGX];
 bool is_altpkg = 0;
+extern int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr);
 
 /* APIs to read/write BGXX CSRs */
 static uint64_t bgx_reg_read(struct bgx *bgx, uint8_t lmac, uint64_t offset)
@@ -528,6 +529,21 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 	bgx_reg_modify(bgx, lmacid, BGX_SMUX_TX_THRESH, (0x100 - 1));
 	/* max packet size */
 	bgx_reg_modify(bgx, lmacid, BGX_SMUX_RX_JABBER, MAX_FRAME_SIZE);
+
+	debug("xaui_init: lmacid = %d, qlm = %d, qlm_mode = %d\n",
+		lmacid, lmac->qlm, lmac->qlm_mode);
+	/* RXAUI with Marvell PHY requires some tweaking */
+	if (lmac->qlm_mode == QLM_MODE_RXAUI) {
+		char mii_name[20];
+		snprintf(mii_name, sizeof(mii_name), "smi%d",
+			 bgx_board_info[bgx->bgx_id].phy_info[lmacid].mdio_bus);
+
+		debug("mii_name: %s\n", mii_name);
+		lmac->mii_bus = miiphy_get_dev_by_name(mii_name);
+		lmac->phy_addr = bgx_board_info[bgx->bgx_id].
+				 phy_info[lmacid].phy_addr;
+		__cavm_if_phy_xs_init(lmac->mii_bus, lmac->phy_addr);
+	}
 
 	return 0;
 }

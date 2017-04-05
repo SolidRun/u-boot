@@ -256,6 +256,62 @@ int thunderx_smi_reset(struct mii_dev *bus)
 	return 0;
 }
 
+/* PHY XS initialization, primarily for RXAUI
+ *
+ */
+int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr)
+{
+	int reg;
+	ulong start_time;
+	int phy_id1, phy_id2;
+	int oui, model_number;
+
+	phy_id1 = thunderx_phy_read(bus, phy_addr, 1, 0x2);
+	phy_id2 = thunderx_phy_read(bus, phy_addr, 1, 0x3);
+	model_number = (phy_id2 >> 4) & 0x3F;
+	debug("%s model %x\n", __func__,model_number);
+	oui = phy_id1;
+	oui <<= 6;
+	oui |= (phy_id2 >> 10) & 0x3F;
+	debug("%s oui %x\n", __func__,oui);
+	switch (oui)
+	{
+		case 0x5016:
+			if (model_number == 9)
+			{
+				debug("%s +\n", __func__);
+				/* Perform hardware reset in XGXS control */
+				reg = thunderx_phy_read(bus, phy_addr, 4, 0x0);
+				if ((reg & 0xffff) < 0)
+				       goto read_error;
+				reg |= 0x8000;
+				thunderx_phy_write(bus, phy_addr, 4, 0x0, reg);
+
+				start_time = get_timer(0);
+				do {
+				       reg = thunderx_phy_read(bus, phy_addr, 4, 0x0);
+				       if ((reg & 0xffff) < 0)
+					       goto read_error;
+				} while ((reg & 0x8000) && get_timer(start_time) < 500);
+				if (reg & 0x8000) {
+				       printf("Hardware reset for M88X3120 PHY failed, MII_BMCR: 0x%x\n", reg);
+				       return -1;
+				}
+				/* program 4.49155 with 0x5 */
+				thunderx_phy_write(bus, phy_addr, 4, 0xc003, 0x5);
+			}
+			break;
+			default:
+				break;
+	}
+
+	return 0;
+
+read_error:
+	debug("M88X3120 PHY config read failed\n");
+	return -1;
+}
+
 int thunderx_smi_probe(struct udevice *dev)
 {
 	size_t size;
