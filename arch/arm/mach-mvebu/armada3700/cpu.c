@@ -13,6 +13,7 @@
 #include <asm/arch/soc.h>
 #include <asm/armv8/mmu.h>
 #include <mach/fw_info.h>
+#include <mach/clock.h>
 
 /* Armada 3700 */
 #define MVEBU_GPIO_NB_REG_BASE		(MVEBU_REGISTER(0x13800))
@@ -94,3 +95,12 @@ u32 get_ref_clk(void)
 	else
 		return 40;
 }
+
+#if defined(CONFIG_DISPLAY_BOARDINFO)
+int print_cpuinfo(void)
+{
+	soc_print_clock_info();
+
+	return 0;
+}
+#endif
