@@ -1314,9 +1314,11 @@ int thunderx_bgx_probe(struct udevice *dev)
 	size_t size;
 	int inc = 1;
 
-
 	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
-
+	if (bgx->reg_base == NULL) {
+		debug("No PCI region found\n");
+		return 0;
+	}
 	is_altpkg = alternate_pkg();
 
 #ifdef CONFIG_THUNDERX_XCV
