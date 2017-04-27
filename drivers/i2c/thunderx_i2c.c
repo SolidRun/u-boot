@@ -946,7 +946,7 @@ static const struct dm_i2c_ops thunderx_i2c_ops = {
 };
 
 static const struct udevice_id thunderx_i2c_ids[] = {
-	{ .compatible = "cavium,thunderx-i2c" },
+	{ .compatible = "cavium,thunder-8890-twsi" },
 	{ }
 };
 

@@ -432,7 +432,7 @@ static const struct dm_spi_ops thunderx_spi_ops = {
 
 static const struct udevice_id thunderx_spi_ids[] = {
 	{ .compatible	= "cavium,thunder-8890-spi" },
-	{ .compatible	= "cavium,thunderx-spi" },
+	{ .compatible	= "cavium,thunder-8190-spi" },
 	{ }
 };
 

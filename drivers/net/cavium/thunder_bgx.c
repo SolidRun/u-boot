@@ -1406,7 +1406,7 @@ static const struct misc_ops thunderx_bgx_ops = {
 };
 
 static const struct udevice_id thunderx_bgx_ids[] = {
-	{ .compatible = "cavium,thunderx-bgx" },
+	{ .compatible = "cavium,thunder-8890-bgx" },
 	{}
 };
 

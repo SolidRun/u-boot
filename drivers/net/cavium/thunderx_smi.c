@@ -366,7 +366,7 @@ static const struct misc_ops thunderx_smi_ops = {
 };
 
 static const struct udevice_id thunderx_smi_ids[] = {
-	{ .compatible = "cavium,thunderx-smi" },
+	{ .compatible = "cavium,thunder-8890-mdio-nexus" },
 	{}
 };
 
