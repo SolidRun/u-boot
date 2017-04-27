@@ -1352,17 +1352,12 @@ int thunderx_bgx_probe(struct udevice *dev)
 		/* BGX3 (DLM4), has only 2 lanes */
 		if (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx_idx == 3) && lmac >= 2)
 			continue;
-		if (is_altpkg && (lmac == 2) && (bgx_idx == 0)) {
-			qlm[lmac - 1] = get_qlm_for_bgx(node, bgx_idx, lmac);
-			debug("qlm[%d] = %d\n", lmac, qlm[lmac-1]);
-		} else {
-			qlm[lmac + 0] = get_qlm_for_bgx(node, bgx_idx, lmac);
-			/* Each DLM has 2 lanes, configure both lanes with
-			   same qlm configuration */
-			if (inc == 2)
-				qlm[lmac + 1] = qlm[lmac];
-			debug("qlm[%d] = %d\n", lmac, qlm[lmac]);
-		}
+		qlm[lmac + 0] = get_qlm_for_bgx(node, bgx_idx, lmac);
+		/* Each DLM has 2 lanes, configure both lanes with
+		   same qlm configuration */
+		if (inc == 2)
+			qlm[lmac + 1] = qlm[lmac];
+		debug("qlm[%d] = %d\n", lmac, qlm[lmac]);
 	}
 
 	/* A BGX can take 1 or 2 DLMs, if both the DLMs are not configured
