@@ -9,6 +9,7 @@ ccflags-y += -Idrivers/mtd/nand/raw/
 obj-$(CONFIG_CMD_MVEBU_BUBT) += bubt.o
 obj-$(CONFIG_CMD_MVEBU_RX_TRAINING) += rx_training.o
 obj-$(CONFIG_CMD_MVEBU_AVS) += avs.o
+obj-$(CONFIG_CMD_MVEBU_EFUSE) += efuse.o
 obj-$(CONFIG_CMD_MVEBU_MAP) += map.o
 obj-$(CONFIG_CMD_MVEBU_NAND_OEM) += pxa3xx_nand_oem.o
 obj-$(CONFIG_CMD_MVEBU_TSEN) += thermal.o
