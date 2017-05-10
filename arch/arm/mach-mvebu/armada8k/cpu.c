@@ -12,6 +12,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/armv8/mmu.h>
+#include <mach/clock.h>
 #include <mach/soc.h>
 
 /* Armada 7k/8k */
@@ -155,6 +156,7 @@ int mmc_get_env_dev(void)
 int print_cpuinfo(void)
 {
 	soc_print_device_info();
+	soc_print_clock_info();
 	return 0;
 }
 #endif
