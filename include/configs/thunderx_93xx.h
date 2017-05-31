@@ -367,7 +367,7 @@
 #define CONFIG_BOOTARGS			\
 					"console=ttyAMA0,115200n8 " \
 					"earlycon=pl011,0x87e028000000 " \
-					"debug maxcpus=24 rootwait rw "\
+					"debug maxcpus=1 rootwait rw "\
 					"root=/dev/sda2 coherent_pool=16M"
 
 /** Store U-Boot version in "ver" environment variable */
