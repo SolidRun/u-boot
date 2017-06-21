@@ -379,10 +379,10 @@
 /** Where the environment is located */
 
 /* Use ATF based calls for env variables */
-#define CONFIG_ATF
+//#define CONFIG_ATF
 
 /* Use uboot SPI APIs for env variables */
-//#define CONFIG_SPI_ENV
+#define CONFIG_SPI_ENV
 
 #if defined(CONFIG_ATF)
 #define CONFIG_ENV_IS_IN_ATF
