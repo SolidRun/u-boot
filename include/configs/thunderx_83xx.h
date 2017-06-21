@@ -96,7 +96,7 @@
 /* Link Definitions */
 
 /** Code start address */
-#define CONFIG_SYS_TEXT_BASE		0x00500000
+#define CONFIG_SYS_TEXT_BASE		0x02800000
 
 /** Stack starting address */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
