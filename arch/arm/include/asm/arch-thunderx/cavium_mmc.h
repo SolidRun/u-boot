@@ -216,6 +216,7 @@ struct cavium_mmc_slot {
 	int		flags;
 	int		cmd_clk_skew;	/** Clock skew for cmd in SCLK */
 	int		dat_clk_skew;	/** Clock skew for data in SCLK */
+	int		power_gpio_of_offset;	/** Offset of power node */
 	/**
 	 * Register bus-width value where:
 	 * 0: 1-bit
@@ -233,7 +234,6 @@ struct cavium_mmc_slot {
 	bool		powered:1;	/** True if powered on */
 	/** True if power GPIO is active high */
 	bool		power_active_high:1;
-
 };
 
 struct cavium_mmc_host {

@@ -5528,10 +5528,9 @@ int __cavium_mmc_init(struct mmc *mmc)
 
 	last_bus_id[host->dev_index] = slot->bus_id;
 
-#ifdef DEBUG
 	debug("%s: Set clock period to %d clocks, sclock: %llu\n", __func__,
 	      emm_switch.s.clk_hi + emm_switch.s.clk_lo, host->sclock);
-#endif
+
 	/* Set watchdog for command timeout */
 	if (slot->bus_id == 0)
 		emm_wdog.u = 0;
@@ -5826,8 +5825,32 @@ static int get_mmc_regulator(const void *blob, int of_offset,
 	ret = gpio_request_by_name_nodev(blob, of_offset, "gpio", 0,
 					 &slot->power_gpio,
 					 GPIOD_IS_OUT);
+	/* GPIOs can only be acquired once so if we get an EBUSY error it means
+	 * it was likely claimed by another slot if it's shared.  In this case
+	 * we just duplicate the GPIO descriptor.
+	 */
+	if (ret == -EBUSY) {
+		struct list_head *entry;
+		struct mmc *mmc;
+		struct cavium_mmc_slot *sslot;
+		list_for_each(entry, &mmc_devices) {
+			mmc = list_entry(entry, struct mmc, link);
+			sslot = cavium_get_slot(mmc);
+			assert(sslot);
+			if (sslot->power_gpio_of_offset == of_offset) {
+				debug("%s: Found duplicate link to power\n",
+				      __func__);
+				memcpy(&slot->power_gpio, &sslot->power_gpio,
+				       sizeof(slot->power_gpio));
+				slot->power_gpio_of_offset = of_offset;
+				break;
+			}
+		}
+		ret = 0;
+	}
 	if (ret) {
-		debug("Invalid power GPIO control in fixed supply\n");
+		debug("%s: Error %d: Invalid power GPIO control in fixed supply\n",
+		      __func__, ret);
 		return -1;
 	}
 	power_delay = fdtdec_get_int(blob, of_offset, "startup-delay-usec",
@@ -5840,6 +5863,7 @@ static int get_mmc_regulator(const void *blob, int of_offset,
 		low <<= 1;
 	} while (low <= high);
 
+	slot->power_gpio_of_offset = of_offset;
 	slot->power_delay = power_delay;
 	slot->power_active_high = active_high;
 	slot->cfg.voltages = voltages;
