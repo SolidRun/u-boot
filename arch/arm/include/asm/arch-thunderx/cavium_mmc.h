@@ -206,6 +206,7 @@ struct cavium_mmc_slot {
 	struct gpio_desc power_gpio;	/** Power/reset GPIO line (usually 8) */
 	struct gpio_desc cd_gpio;	/** Card detect GPIO */
 	struct gpio_desc wp_gpio;	/** Write-protect GPIO */
+	int		power_delay;	/** Time in usec to wait for power */
 	int		slot_idx;	/** Slot device index (global) */
 	int		bus_id;		/** BUS ID of device */
 	int		of_offset;	/** Device tree node */
@@ -230,6 +231,9 @@ struct cavium_mmc_slot {
 	bool		sector_mode:1;	/** Sector or byte mode */
 	bool		initialized:1;	/** True if slot is initialized */
 	bool		powered:1;	/** True if powered on */
+	/** True if power GPIO is active high */
+	bool		power_active_high:1;
+
 };
 
 struct cavium_mmc_host {
@@ -239,7 +243,6 @@ struct cavium_mmc_host {
 	int		of_offset;	/** Device tree node */
 	int		dev_index;	/** Host controller device index */
 	int		max_width;	/** Maximum width hardware supports */
-	struct gpio_desc power_gpio;	/** Power/reset GPIO line (usually 8) */
 #ifdef __mips
 	int		node;		/** OCX node for Octeon (MIPS) */
 	bool		use_ndf;	/** Use MIO_NDF_DMA or MIO_EMM_DMA. */

@@ -1760,8 +1760,10 @@ ulong mmc_berase(block_dev_desc_t *block_dev, lbaint_t start, lbaint_t blkcnt)
 	int dev_num = block_dev->dev;
 	struct mmc *mmc = find_mmc_device(dev_num);
 
-	if (!mmc)
+	if (!mmc) {
+		printf("%s: MMC device not found\n", __func__);
 		return 0;
+	}
 
 	debug("%s(%d, 0x%llx, 0x%llx)\n", __func__, dev_num,
 	      (unsigned long long)start, (unsigned long long)blkcnt);
@@ -5304,44 +5306,21 @@ int mmc_getcd(struct mmc *mmc) __attribute__((weak, alias("__mmc_getcd")));
 void __mmc_set_power(struct mmc *mmc, int on)
 {
 	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
-	struct cavium_mmc_host *host = cavium_get_host(mmc);
 	int bus = slot->bus_id;
 	int val;
-	int i;
 
 	slot->powered = !!on;
 	debug("%s(%s, %d)\n", __func__, mmc->cfg->name, on);
-	if (dm_gpio_is_valid(&host->power_gpio)) {
+	if (dm_gpio_is_valid(&slot->power_gpio)) {
 		val = !!on;
-		/* When multiple slots share the same power GPIO line we need
-		 * to make sure that ALL of the other slots are also to be
-		 * powered off before powering off this slot.  If at least one
-		 * other slot is powered on then do nothing.
-		 */
-		if (!on) {
-			for (i = 0; i < CAVIUM_MAX_MMC_SLOT; i++)
-				if (&host->slots[i] != slot &&
-				    host->slots[i].powered) {
-					debug("%s: Not powering down %s because power is shared.\n",
-					      __func__, mmc->cfg->name);
-					return;
-				}
-		}
-		dm_gpio_set_dir_flags(&host->power_gpio, GPIOD_IS_OUT);
-		dm_gpio_set_value(&host->power_gpio, val);
-		debug("%s(%d, %s) set GPIO %s pin %d to %d\n", __func__, bus,
-		      on ? "on" : "off", host->power_gpio.dev->name,
-		      gpio_get_number(&host->power_gpio), val);
-		/* Give time for power to settle */
-		if (on)
-			mdelay(POWER_ON_TIME);
-	} else if (dm_gpio_is_valid(&slot->power_gpio)) {
-		val = !!on;
+		if (!slot->power_active_high)
+			val = !val;
 		dm_gpio_set_dir_flags(&slot->power_gpio, GPIOD_IS_OUT);
 		dm_gpio_set_value(&slot->power_gpio, val);
 		debug("%s(%d, %s) set GPIO %s pin %d to %d\n", __func__, bus,
 		      on ? "on" : "off", slot->power_gpio.dev->name,
-		      gpio_get_number(&host->power_gpio), val);
+		      gpio_get_number(&slot->power_gpio), val);
+		udelay(slot->power_delay);
 	}
 }
 void mmc_set_power(struct mmc *mmc, int on)
@@ -5752,9 +5731,19 @@ void mmc_destroy(struct mmc *mmc)
 	free(mmc);
 }
 
+/**
+ * Translates a voltage number to bits in MMC register
+ *
+ * @param	voltage	voltage in microvolts
+ *
+ * @return	MMC register value for voltage
+ */
 static uint32_t xlate_voltage(uint32_t voltage)
 {
 	uint32_t volt = 0;
+
+	/* Convert to millivolts */
+	voltage /= 1000;
 	if (voltage >= 1650 && voltage <= 1950)
 		volt |= MMC_VDD_165_195;
 	if (voltage >= 2000 && voltage <= 2100)
@@ -5794,6 +5783,73 @@ static uint32_t xlate_voltage(uint32_t voltage)
 }
 
 /**
+ * Parses the power control for a MMC slot or controller
+ *
+ * @param[in]		blob		pointer to flat device tree
+ * @param		of_offset	regulator node offset
+ * @param[in,out]	host		pointer to controller info
+ * @param[in,out]	slot		MMC slot for regulator (can be NULL)
+ *
+ * @return	0 for success, -1 on error or if invalid
+ */
+static int get_mmc_regulator(const void *blob, int of_offset,
+			     struct cavium_mmc_host *host,
+			     struct cavium_mmc_slot *slot)
+{
+	uint32_t min_microvolt;
+	uint32_t max_microvolt;
+	uint32_t power_delay;
+	uint32_t voltages;
+	uint32_t low, high;
+	int ret;
+	bool active_high;
+
+	if (fdt_node_check_compatible(blob, of_offset, "regulator-fixed")) {
+		printf("Unknown mmc regulator type, only \"regulator-fixed\" is supported\n");
+		return -1;
+	}
+
+	min_microvolt = fdtdec_get_int(blob, of_offset,
+				       "regulator-min-microvolt", 3300000);
+	max_microvolt = fdtdec_get_int(blob, of_offset,
+				       "regulator-max-microvolt", 3300000);
+	if (min_microvolt > max_microvolt) {
+		printf("Invalid minimum voltage %u and maximum voltage %u, min > max\n",
+		       min_microvolt, max_microvolt);
+		return -1;
+	}
+	debug("%s: min voltage: %u microvolts, max voltage: %u microvolts\n",
+	      __func__, min_microvolt, max_microvolt);
+	low = xlate_voltage(min_microvolt);
+	high = xlate_voltage(max_microvolt);
+
+	ret = gpio_request_by_name_nodev(blob, of_offset, "gpio", 0,
+					 &slot->power_gpio,
+					 GPIOD_IS_OUT);
+	if (ret) {
+		debug("Invalid power GPIO control in fixed supply\n");
+		return -1;
+	}
+	power_delay = fdtdec_get_int(blob, of_offset, "startup-delay-usec",
+				     10000);
+	active_high = fdtdec_get_bool(blob, of_offset, "enable-active-high");
+
+	voltages = 0;
+	do {
+		voltages |= low;
+		low <<= 1;
+	} while (low <= high);
+
+	slot->power_delay = power_delay;
+	slot->power_active_high = active_high;
+	slot->cfg.voltages = voltages;
+	debug("%s: power delay: %uus, active %s\n", __func__,
+	      slot->power_delay,
+	      slot->power_active_high ? "high" : "low");
+	return 0;
+}
+
+/**
  * Gets the configuration of a MMC interface and all of the slots and adds each
  * slot to the list of devices.
  *
@@ -5808,21 +5864,10 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 {
 	struct cavium_mmc_slot *slot;
 	int slot_node;
-	bool power_slot;
+	int regulator_node;
+	int ret;
 
 	debug("%s(%p, %d, %p)\n", __func__, blob, of_offset, host);
-
-	gpio_request_by_name_nodev(blob, of_offset, "power-gpios", 0,
-				   &host->power_gpio, GPIOD_IS_OUT);
-
-	if (dm_gpio_is_valid(&host->power_gpio)) {
-		power_slot = false;
-		debug("%s: Host power GPIO pin %d\n", __func__,
-		      gpio_get_number(&host->power_gpio));
-	} else {
-		power_slot = true;
-		debug("%s: No host power GPIO pin\n", __func__);
-	}
 
 #ifdef __mips
 	host->sclock = cvmx_clock_get_rate(CVMX_CLOCK_SCLK);
@@ -5835,7 +5880,7 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 	slot_node = of_offset;
 	debug("%s: Reading slots...\n", __func__);
 	while ((slot_node = fdt_node_offset_by_compatible(blob, slot_node,
-					"cavium,thunder-8890-mmc-slot")) > 0) {
+					"mmc-slot")) > 0) {
 		int reg = fdtdec_get_int(blob, slot_node, "reg", -1);
 		uint voltages[2];
 		uint low, high;
@@ -5901,18 +5946,21 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 		/* Get maximum bus width */
 		slot->bus_max_width = fdtdec_get_int(blob, slot_node,
 						     "cavium,bus-max-width", 8);
-		if (power_slot)
-			gpio_request_by_name_nodev(blob, slot_node,
-						   "power-gpios", 0,
-						   &slot->power_gpio,
-						   GPIOD_IS_OUT);
-		debug("%s: power gpio number: slot: %d, host: %d\n", __func__,
-		      gpio_get_number(&slot->power_gpio),
-		      gpio_get_number(&host->power_gpio));
 
-		debug("  slot GPIO is%s valid, host GPIO is%s valid\n",
-		      dm_gpio_is_valid(&slot->power_gpio) ? "" : " not",
-		      dm_gpio_is_valid(&host->power_gpio) ? "" : " not");
+		regulator_node = fdtdec_lookup_phandle(blob, slot_node,
+						       "vmmc-supply");
+		if (regulator_node > 0) {
+			ret = get_mmc_regulator(blob, regulator_node,
+						host, slot);
+			if (ret)
+				debug("Error getting mmc regulator\n");
+
+			debug("%s: power gpio number: slot: %d\n",
+			      __func__, gpio_get_number(&slot->power_gpio));
+		}
+
+		debug("  slot GPIO is%s valid\n",
+		      dm_gpio_is_valid(&slot->power_gpio) ? "" : " not");
 
 		gpio_request_by_name_nodev(blob, slot_node, "cd-gpios", 0,
 					   &slot->cd_gpio, GPIOD_IS_IN);
