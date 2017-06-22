@@ -764,7 +764,7 @@ static int twsi_read_data(void *baseaddr, u8 slave_addr,
 
 	while (curr < length) {
 		twsi_write_ctl(baseaddr, TWSI_CTL_ENAB |
-				(curr < length - 1) ? TWSI_CTL_AAK : 0);
+				((curr < length - 1) ? TWSI_CTL_AAK : 0));
 
 		result = twsi_wait(baseaddr);
 		if (result) {
