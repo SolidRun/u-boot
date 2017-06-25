@@ -35,4 +35,9 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
+/* RTC configuration */
+#ifdef CONFIG_MARVELL_RTC
+#define ERRATA_FE_3124064
+#endif
+
 #endif /* _CONFIG_MVEBU_ARMADA_8K_H */
