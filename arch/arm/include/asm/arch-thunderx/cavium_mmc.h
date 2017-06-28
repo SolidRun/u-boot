@@ -230,10 +230,11 @@ struct cavium_mmc_slot {
 	bool		non_removable:1;/** True if device is not removable */
 	bool		have_ext_csd:1;	/** True if have extended CSD register */
 	bool		sector_mode:1;	/** Sector or byte mode */
-	bool		initialized:1;	/** True if slot is initialized */
 	bool		powered:1;	/** True if powered on */
 	/** True if power GPIO is active high */
 	bool		power_active_high:1;
+	bool		ro_inverted:1;	/** True if write-protect is inverted */
+	bool		cd_inverted:1;	/** True if card-detect is inverted */
 };
 
 struct cavium_mmc_host {

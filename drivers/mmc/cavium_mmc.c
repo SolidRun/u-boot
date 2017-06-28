@@ -782,8 +782,8 @@ struct mmc *find_mmc_device(int dev_num)
 
 	list_for_each(entry, &mmc_devices) {
 		m = list_entry(entry, struct mmc, link);
-		debug("  testing MMC dev %s %d == %d\n",
-		      m->cfg->name, m->block_dev.dev, dev_num);
+		debug("  testing MMC dev %s %d == %d, priv: %p\n",
+		      m->cfg->name, m->block_dev.dev, dev_num, m->priv);
 		if (m->block_dev.dev == dev_num)
 			return m;
 	}
@@ -1020,9 +1020,12 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 
 	debug("%s(%s): bus_id: %d, last: %d\n", __func__, mmc->cfg->name,
 	      slot->bus_id, last_bus_id[host->dev_index]);
-	if (slot->bus_id == last_bus_id[host->dev_index])
+	if (slot->bus_id == last_bus_id[host->dev_index]) {
+		debug("%s: No change\n", __func__);
 		return;
-
+	}
+	if (!mmc->has_init)
+		debug("%s: %s is not initialized\n", __func__, mmc->cfg->name);
 	emm_switch.u = mmc_read_csr(mmc, MIO_EMM_SWITCH);
 #if defined(DEBUG)
 	emm_rca.u = mmc_read_csr(mmc, MIO_EMM_RCA);
@@ -1115,7 +1118,6 @@ int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
 	memset(dst, 0xEE, size * mmc->read_bl_len);
 #endif
 	mmc_switch_dev(mmc);
-
 	if (!IS_SD(mmc) || (IS_SD(mmc) && mmc->high_capacity)) {
 		debug("Setting block length to %d\n", mmc->read_bl_len);
 		mmc_set_blocklen(mmc, mmc->read_bl_len);
@@ -1297,7 +1299,7 @@ retry_dma:
 
 	emm_dma.u = mmc_read_csr(mmc, MIO_EMM_DMA);
 	debug("EMM_DMA: 0x%llx\n", emm_dma.u);
-#ifdef DEBUG
+#if defined(DEBUG)
 	print_buffer(0, dst, 1, 512, 0);
 #endif
 	debug("%s(%s): return %d\n", __func__, mmc->cfg->name,
@@ -1617,8 +1619,8 @@ static unsigned long mmc_bread(block_dev_desc_t *block_dev, lbaint_t start,
 	struct mmc *mmc = find_mmc_device(dev_num);
 	unsigned char bounce_buffer[4096];
 
-	debug("%s(%d, %llu, %llu, %p)\n", __func__, dev_num, (uint64_t)start,
-	      (uint64_t)blkcnt, dst);
+	debug("%s(%d, %llu, %llu, %p) mmc: %p\n", __func__, dev_num,
+	      (uint64_t)start, (uint64_t)blkcnt, dst, mmc);
 	if (!mmc) {
 		printf("%s: MMC device %d not found\n", __func__, dev_num);
 		return 0;
@@ -5173,6 +5175,7 @@ int mmc_startup(struct mmc *mmc)
 		sprintf(mmc->block_dev.revision, "%d.%d",
 			(mmc->cid[2] >> 20) & 0xf,
 		(mmc->cid[2] >> 16) & 0xf);
+	debug("%s: mmc priv (slot): %p\n", __func__, mmc->priv);
 	mmc_select_hwpart(mmc->block_dev.dev, 0);
 	init_part(&mmc->block_dev);
 	debug("%s: %s\n", __func__, mmc->block_dev.revision);
@@ -5243,11 +5246,12 @@ int __cavium_mmc_getwp(struct mmc *mmc)
 	int val = 0;
 
 	if (dm_gpio_is_valid(&slot->wp_gpio)) {
-		val = dm_gpio_get_value(&slot->wp_gpio);
+		val = !dm_gpio_get_value(&slot->wp_gpio);
 		debug("%s(%s): gpio %s pin %d returned %d\n", __func__,
 		      mmc->cfg->name,
 		      slot->wp_gpio.dev->name, gpio_get_number(&slot->wp_gpio),
 		      val);
+		val ^= slot->ro_inverted;
 	} else {
 		debug("%s(%s): No valid WP GPIO\n", __func__, mmc->cfg->name);
 	}
@@ -5261,7 +5265,8 @@ int __cavium_mmc_getcd(struct mmc *mmc)
 	int val = 1;
 
 	if (dm_gpio_is_valid(&slot->cd_gpio)) {
-		val = dm_gpio_get_value(&slot->cd_gpio);
+		val = !dm_gpio_get_value(&slot->cd_gpio);
+		val ^= slot->cd_inverted;
 		debug("%s(%s): gpio %s pin %d returned %d\n", __func__,
 		      mmc->cfg->name,
 		      slot->cd_gpio.dev->name,
@@ -5382,11 +5387,11 @@ int mmc_initialize(bd_t *bis)
 		for (slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
 		     slot_index++) {
 			slot = &host->slots[slot_index];
-			if (slot && slot->initialized) {
+			if (slot && slot->mmc && mmc->has_init) {
 				debug("%s: Slot %d initialized, clearing\n",
 				      __func__, slot_index);
 				if (slot->mmc) {
-					list_del(&mmc->link);
+					list_del(&slot->mmc->link);
 					mmc_destroy(slot->mmc);
 				}
 				memset(slot, 0, sizeof(*slot));
@@ -5440,7 +5445,6 @@ int mmc_initialize(bd_t *bis)
 			debug("%s: Setting %s has_init = 0\n",
 			      __func__, mmc->cfg->name);
 			mmc->has_init = 0;
-			slot->initialized = false;
 			continue;
 		}
 
@@ -5453,6 +5457,9 @@ int mmc_initialize(bd_t *bis)
 				debug("%s: %s: block dev: %d\n", __func__,
 				      mmc->cfg->name, mmc->block_dev.dev);
 				last_bus_id[host->dev_index] = slot->bus_id;
+				debug("%s: Setting %s slot initialized true\n",
+				      __func__, mmc->cfg->name);
+				mmc->has_init = true;
 				break;
 			} else {
 				debug("MMC device %d initialization failed, try %d\n",
@@ -5465,7 +5472,6 @@ int mmc_initialize(bd_t *bis)
 			debug("%s: Disabling %s\n", __func__,
 			      mmc->cfg->name);
 			mmc_disable(mmc);
-			slot->initialized = false;
 			debug("%s: Setting %s has_init = 0\n", __func__,
 			      mmc->cfg->name);
 			mmc->has_init = 0;
@@ -5988,12 +5994,12 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 
 		gpio_request_by_name_nodev(blob, slot_node, "cd-gpios", 0,
 					   &slot->cd_gpio, GPIOD_IS_IN);
-		if (fdtdec_get_bool(blob, slot_node, "cd-inverted"))
-			slot->cd_gpio.flags ^= GPIOD_ACTIVE_LOW;
+		slot->cd_inverted = fdtdec_get_bool(blob, slot_node,
+						    "cd-inverted");
 		gpio_request_by_name_nodev(blob, slot_node, "wp-gpios", 0,
 					   &slot->wp_gpio, GPIOD_IS_IN);
-		if (fdtdec_get_bool(blob, slot_node, "cd-inverted"))
-			slot->wp_gpio.flags ^= GPIOD_ACTIVE_LOW;
+		slot->ro_inverted = fdtdec_get_bool(blob, slot_node,
+						    "wp-inverted");
 		/* Disable 1.8v here */
 		if (fdtdec_get_bool(blob, slot_node, "no-1-8-v"))
 			slot->cfg.voltages &= ~MMC_VDD_165_195;
