@@ -60,10 +60,11 @@ DECLARE_GLOBAL_DATA_PTR;
 char thunderx_prompt[CONFIG_THUNDERX_PROMPT_SIZE] = "ThunderX> ";
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
-extern void eth_common_init(void);
+extern void eth_common_init();
 int board_early_init_r(void)
 {
 	eth_common_init();
+	pci_init();
 	return 0;
 }
 #endif
