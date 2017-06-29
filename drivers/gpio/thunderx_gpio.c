@@ -60,9 +60,6 @@ union gpio_const {
 	} s;
 };
 
-static const int DIRECTION_INPUT  = 0;
-static const int DIRECTION_OUTPUT = 1;
-
 struct octeontx_gpio {
 	void __iomem *baseaddr;
 };
