@@ -206,17 +206,6 @@ static const struct udevice_id cavium_mmc_ids[] = {
 	{ },
 };
 
-static const struct udevice_id cavium_mmc_slot_ids[] = {
-#ifndef __mips
-	{ .compatible = "cavium,thunder-8890-mmc-slot" },
-#else
-	{ .compatible = "cavium,octeon-6130-mmc-slot" },
-	{ .compatible = "cavium,octeon-7360-mmc-slot" },
-	{ .compatible = "cavium,octeon-7890-mmc-slot" },
-#endif
-	{ },
-};
-
 static const struct mmc_ops cavium_mmc_ops = {
 	.send_cmd = cavium_mmc_send_cmd,
 	.set_ios = cavium_mmc_set_ios,
