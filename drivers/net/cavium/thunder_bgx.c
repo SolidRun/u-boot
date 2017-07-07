@@ -995,6 +995,9 @@ static void bgx_init_hw(struct bgx *bgx)
 
 		switch (lmac->qlm_mode) {
 		case QLM_MODE_SGMII:
+		{
+			const char *board;
+			board = getenv("board");
 			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
 			   lane_to_sds for 2nd port in BGX0 to DLM1, lane0. */
 			if ((bgx->bgx_id == 0) && is_altpkg) {
@@ -1004,11 +1007,17 @@ static void bgx_init_hw(struct bgx *bgx)
 					lmac->lane_to_sds = lmacid + 1;
 				else
 					lmac->lane_to_sds = lmacid;
+			} else if (board
+				   && (strcasecmp(board, "xpliant-cn83xx") == 0)
+				   && (bgx->bgx_id == 2)
+				   && (lmacid == 3)) {
+				continue;
 			} else
 				lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 0;
 			lmac_count++;
 			break;
+		}
 		case QLM_MODE_XAUI:
 			if (lmacid != 0)
 				continue;
@@ -1058,6 +1067,11 @@ static void bgx_init_hw(struct bgx *bgx)
 					 && (strncasecmp(board, "nas", 3) == 0)
 					 && (bgx->bgx_id == 1)
 					 && (lmacid == 1))
+					continue;
+                                else if (board
+					   && (strcasecmp(board, "xpliant-cn83xx") == 0)
+					   && (bgx->bgx_id == 3)
+					   && (lmacid == 1))
 					continue;
 				lmac->lane_to_sds = lmacid;
 			}
@@ -1195,9 +1209,17 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				}
 				continue;
 			} else {
+				const char *board;
+				board = getenv("board");
 				if ((bgx->bgx_id == 0) && is_altpkg) {
 					if (lmacid >= 2)
 						continue;
+                                } else if (board
+					   && (strcasecmp(board, "xpliant-cn83xx") == 0)
+					   && (bgx->bgx_id == 2)
+					   && (lmacid == 3)) {
+					lmac->qlm_mode = QLM_MODE_SGMII;
+					continue;
 				}
 				lmac->qlm_mode = QLM_MODE_SGMII;
 				printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
@@ -1250,7 +1272,14 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 					   && (lmacid == 1)) {
 					lmac->qlm_mode = QLM_MODE_XFI;
 					continue;
-                                }
+				} else if (board
+					   && (strcasecmp(board, "xpliant-cn83xx") == 0)
+					   && (bgx->bgx_id == 3)
+					   && (lmacid == 1)) {
+					lmac->qlm_mode = QLM_MODE_XFI;
+					continue;
+				}
+
 				lmac->qlm_mode = QLM_MODE_XFI;
 				printf("BGX%d QLM%d LMAC%d mode: XFI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
