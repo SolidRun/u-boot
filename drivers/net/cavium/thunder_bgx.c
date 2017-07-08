@@ -497,13 +497,14 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 	bgx_reg_write(bgx, lmacid, BGX_SPUX_AN_CONTROL, cfg);
 
 	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_ADV);
+	/* Clear all KR bits, configure according to the mode */
+	cfg &= ~((0xfULL << 22) || (1ULL << 12));
 	if (lmac->qlm_mode == QLM_MODE_10G_KR)
 		cfg |= (1 << 23);
 	else if (lmac->qlm_mode == QLM_MODE_40G_KR4)
 		cfg |= (1 << 24);
 	else
 		cfg &= ~((1 << 23) | (1 << 24));
-	cfg = cfg & (~((1ULL << 25) | (1ULL << 22) | (1ULL << 12)));
 	bgx_reg_write(bgx, lmacid, BGX_SPUX_AN_ADV, cfg);
 
 	cfg = bgx_reg_read(bgx, 0, BGX_SPU_DBG_CONTROL);
