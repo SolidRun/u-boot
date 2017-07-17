@@ -46,12 +46,6 @@ PF_CPPFLAGS_ARM := $(call cc-option,-marm,) \
 		$(call cc-option,-mno-thumb-interwork,)
 endif
 
-ifdef ENCRYPT_UBOOT
-ifeq ($(ENCRYPT_UBOOT), 1)
-    PLATFORM_CPPFLAGS += -DENCRYPT_UBOOT=1
-endif
-endif
-
 # Only test once
 ifeq ($(CONFIG_$(SPL_)SYS_THUMB_BUILD),y)
 archprepare: checkthumb checkgcc6

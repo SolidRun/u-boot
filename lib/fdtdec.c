@@ -638,30 +638,6 @@ int fdtdec_check_fdt(void)
  */
 int fdtdec_prepare_fdt(void)
 {
-#if defined(ENCRYPT_UBOOT)
-	uint64_t fdt_align;
-	static int aligned = 0;
-	/*
-	 * WORKAROUND: Set fdt_blob to be aligned to 16B for secure-boot
-	 * purposes. U-Boot should be fixed to take the fdt_blob address from
-	 * x1 register that is passed to ATF. Currently U-Boot does not do this,
-	 * fdt_blob is then the same as uboot-size stored at uboot binary header
-	 */
-	if (aligned == 0) {
-		fdt_align = (uint64_t)gd->fdt_blob;
-		if (fdt_align % 16 != 0) {
-			printf("Aligning FDT base address...\n");
-			gd->fdt_blob += (fdt_align % 16);
-			aligned = 1;
-		} else if (fdt_align % 16 == 0 && aligned == 0) {
-			printf("Aligning +16 bytes...\n");
-			gd->fdt_blob += 16;
-			aligned = 1;
-		}
-		aligned = 1;
-	}
-#endif
-
 	if (!gd->fdt_blob || ((uintptr_t)gd->fdt_blob & 3) ||
 	    fdt_check_header(gd->fdt_blob)) {
 #ifdef CONFIG_SPL_BUILD
