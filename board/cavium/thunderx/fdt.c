@@ -22,6 +22,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern unsigned long fdt_base_addr;
+
 void thunderx_parse_bdk_config(void)
 {
 	char boardname[32];
@@ -347,3 +349,12 @@ U_BOOT_CMD(
 	"    - enable or disable a CPU core"
 );
 
+/**
+ * Return the FDT base address that was passed by ATF
+ *
+ * @return	FDT base address received from ATF in x1 register
+ */
+void *board_fdt_blob_setup(void)
+{
+	return (void *)fdt_base_addr;
+}
