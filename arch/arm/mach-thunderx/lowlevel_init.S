@@ -29,11 +29,6 @@ save_boot_params:
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
-	ldr	x0, =THUNDERX_FDT_GET       /* Copy the FDT to end of u-boot binary*/
-	adr	x1, _end
-	ldr	x2, =CONFIG_BDK_FDT_SIZE
-	smc	#0
-
 	ldr	x0, =THUNDERX_DRAM_SIZE
 	mov	x1, xzr
 	smc	#0			/* Get the DRAM size */
