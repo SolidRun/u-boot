@@ -5429,7 +5429,6 @@ int mmc_initialize(bd_t *bis)
 			debug("%s: Disabling empty slot %s\n",
 			      __func__, mmc->cfg->name);
 			/* Disable empty slots */
-			mmc_set_power(mmc, 0);
 			mmc_disable(mmc);
 			debug("%s: Setting %s has_init = 0\n",
 			      __func__, mmc->cfg->name);
