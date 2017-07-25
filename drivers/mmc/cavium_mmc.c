@@ -5235,7 +5235,7 @@ int __cavium_mmc_getwp(struct mmc *mmc)
 	int val = 0;
 
 	if (dm_gpio_is_valid(&slot->wp_gpio)) {
-		val = !dm_gpio_get_value(&slot->wp_gpio);
+		val = dm_gpio_get_value(&slot->wp_gpio);
 		debug("%s(%s): gpio %s pin %d returned %d\n", __func__,
 		      mmc->cfg->name,
 		      slot->wp_gpio.dev->name, gpio_get_number(&slot->wp_gpio),
@@ -5254,7 +5254,7 @@ int __cavium_mmc_getcd(struct mmc *mmc)
 	int val = 1;
 
 	if (dm_gpio_is_valid(&slot->cd_gpio)) {
-		val = !dm_gpio_get_value(&slot->cd_gpio);
+		val = dm_gpio_get_value(&slot->cd_gpio);
 		val ^= slot->cd_inverted;
 		debug("%s(%s): gpio %s pin %d returned %d\n", __func__,
 		      mmc->cfg->name,
