@@ -92,6 +92,30 @@ int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return spi_get_ops(bus)->xfer(dev, bitlen, dout, din, flags);
 }
 
+bool dm_spi_is_flash_command_supported(struct udevice *dev,
+				       const struct spi_flash_command *cmd)
+{
+	struct udevice *bus = dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
+
+	if (ops->is_flash_command_supported)
+		return ops->is_flash_command_supported(dev, cmd);
+
+	return false;
+}
+
+int dm_spi_exec_flash_command(struct udevice *dev,
+			      const struct spi_flash_command *cmd)
+{
+	struct udevice *bus = dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
+
+	if (ops->exec_flash_command)
+		return ops->exec_flash_command(dev, cmd);
+
+	return -EINVAL;
+}
+
 int spi_claim_bus(struct spi_slave *slave)
 {
 	return log_ret(dm_spi_claim_bus(slave->dev));
@@ -168,6 +192,10 @@ static int spi_post_probe(struct udevice *bus)
 		ops->set_mode += gd->reloc_off;
 	if (ops->cs_info)
 		ops->cs_info += gd->reloc_off;
+	if (ops->is_flash_command_supported)
+		ops->is_flash_command_supported += gd->reloc_off;
+	if (ops->exec_flash_command)
+		ops->exec_flash_command += gd->reloc_off;
 #endif
 
 	return 0;
