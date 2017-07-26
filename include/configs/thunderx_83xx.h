@@ -58,7 +58,6 @@
  * The board code has additional modification that it wants to make to the
  * flat device tree before handing it off to the Linux kernel.
  */
-#define CONFIG_OF_BOARD_SETUP
 
 /* SMP Spin Table Definitions */
 #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
