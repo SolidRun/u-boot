@@ -157,6 +157,12 @@ void dev_print (struct blk_desc *dev_desc)
 	case IF_TYPE_DOC:
 		puts("device type DOC\n");
 		return;
+	case IF_TYPE_NVME:
+		printf("Vendor: %s Rev: %s Prod: %s\n",
+		       dev_desc->vendor,
+		       dev_desc->revision,
+		       dev_desc->product);
+	break;
 	case IF_TYPE_UNKNOWN:
 		puts("device type unknown\n");
 		return;

@@ -1149,6 +1149,15 @@ config CMD_SATA
 	  Attachment, where AT refers to an IBM AT (Advanced Technology)
 	  computer released in 1984.
 
+config CMD_NVME
+	bool "NVMe"
+	depends on NVME
+	help
+	  NVMe support.
+	  This enables nvme commands in command line
+	  You can use comamnd "nvme" to show what commands it supports
+	  such as "nvme info" "nvme list".
+
 config CMD_SAVES
 	bool "saves - Save a file over serial in S-Record format"
 	help
