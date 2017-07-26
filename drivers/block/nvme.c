@@ -569,14 +569,14 @@ int init_nvme(struct udevice *udev)
 	struct nvme_dev *ndev = dev_get_priv(udev);
 	u32 val;
 	u64 cap;
+	size_t size;
 
-	ndev->pdev = pci_get_controller(udev);
+	ndev->pdev = udev;
 
 	ndev->instance = trailing_strtol(udev->name);
 
 	INIT_LIST_HEAD(&ndev->namespaces);
-	ndev->bar = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0,
-			PCI_REGION_MEM);
+	ndev->bar = dm_pci_map_bar(udev, 0, &size, PCI_REGION_MEM);
 	if (readl(&ndev->bar->csts) == -1) {
 		ret = -ENODEV;
 		printf("Error: %s: Out of Memory!\n", udev->name);
