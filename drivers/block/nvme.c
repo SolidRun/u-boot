@@ -759,7 +759,7 @@ int nvme_print_info(struct udevice *udev)
 	return 0;
 }
 
-static ulong nvme_write(struct udevice *udev, ulong blknr, lbaint_t blkcnt,
+static ulong nvme_write(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer)
 {
 	struct nvme_ns *ns = dev_get_priv(udev);
@@ -811,7 +811,7 @@ static ulong nvme_write(struct udevice *udev, ulong blknr, lbaint_t blkcnt,
 	return (total_len - temp_len) >> desc->log2blksz;
 }
 
-static ulong nvme_read(struct udevice *udev, ulong blknr, lbaint_t blkcnt,
+static ulong nvme_read(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
 		void *buffer)
 {
 	struct nvme_ns *ns = dev_get_priv(udev);
