@@ -1,45 +1,5 @@
 if ARCH_THUNDERX
 
-config	THUNDERX_COMMON
-	bool
-	default y
-	select DM
-	select DM_I2C
-	select DM_I2C_COMPAT
-	select DM_GPIO
-	select DM_PCI
-	select DM_PCI_COMPAT
-	select DM_SERIAL
-	select DM_USB
-	select DM_MMC
-	select OF_CONTROL
-	select OF_EMBED
-	select OF_LIBFDT
-	select ARM64
-	select PCI_THUNDERX_ECAM
-	select PL01X_SERIAL
-	select SYS_64BIT
-	select NO_RELOCATION
-	select PCI
-	select SYS_PCI_64BIT
-	select PCI_PNP
-	select PCI_AUTO
-	select CAVIUM_MMC
-	select MMC
-
-choice
-	prompt "Choose target processor"
-
-	config TARGET_THUNDERX_CN81XX
-		bool "ThunderX CN81XX family"
-		select SYS_SOC_THUNDERX_81XX
-
-	config TARGET_THUNDERX_CN88XX
-		bool "ThunderX CN88XX family"
-		select SYS_SOC_THUNDERX_88XX
-
-endchoice
-
 config PCI_AUTO
 	bool
 	default y
@@ -47,10 +7,6 @@ config PCI_AUTO
 config OF_LIBFDT
 	bool
 	default y
-
-config SYS_ARCH
-	string
-	default "thunderx"
 
 config SYS_VENDOR
 	string
@@ -98,26 +54,6 @@ config SYS_64BIT
 	bool
 	default y
 
-config SYS_VA_BITS
-	int
-	default 48
-
-config SYS_PTL2_BITS
-	int
-	default 42
-
-config SYS_BLOCK_SHIFT
-	int
-	default 29
-
-config SYS_PTL1_ENTRIES
-	int
-	default 64
-
-config SYS_PTL2_ENTRIES
-	int
-	default 8192
-
 config NO_RELOCATION
 	bool
 	default y
@@ -131,10 +67,6 @@ config SYS_PCI_64BIT
 	default y
 
 config PCI_PNP
-	bool
-	default y
-
-config SYS_PCI_ARI
 	bool
 	default y
 
@@ -158,33 +90,15 @@ config DM
 	bool
 	default y
 
-
-config MMC
-	bool
-	default y
-
 config CAVIUM_MMC
 	bool
 	default y
 	select DM_MMC
-	select MMC
 	select FS_EXT4
 
 config OF_CONTROL
 	bool
 	default y
-
-config CMD_ATF
-	bool "Enable ATF query commands"
-	default y
-	help
-	 Enable vendor specific ATF query commands such as SPI and SD/MMC
-	 devices access, low level environment query, boot device layout
-	 and node count.
-
-config SYS_CACHELINE_SIZE
-	int
-	default 128
 
 config PCI_THUNDERX_ECAM
 	bool
@@ -194,7 +108,5 @@ config PCI_THUNDERX_ECAM
 	 the ThunderX series of processors.  The PCC implements the PCI
 	 Enhanced Configuration Access Mechanism (ECAM), and PCI configuration
 	 blocks for ThunderX on-chip functions.
-
-#source "arch/arm/mach-octeontx/cn81xx/Kconfig"
 
 endif

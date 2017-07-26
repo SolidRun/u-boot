@@ -7,10 +7,6 @@
 #ifndef __THUNDERX_83XX_H__
 #define __THUNDERX_83XX_H__
 
-#define CONFIG_SYS_VENDOR	"cavium"
-
-#define CONFIG_SPECIAL_SYNC_HANDLER
-
 /** Thunder 83xx does not support NOR flash */
 #define CONFIG_SYS_NO_FLASH
 
@@ -21,7 +17,6 @@
 /** Enable vsnprintf support */
 #define CONFIG_SYS_VSNPRINTF
 
-#define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
 /* starting uboot and linux kernel from offset 40MB
  * below 40MB will be used for mailboxes of pko/pki
  * */
@@ -35,52 +30,6 @@
 
 /** Low memory base address */
 #define CONFIG_SYS_LOWMEM_BASE		MEM_BASE
-
-/**
- * Memory map for virtual memory.  See arch/arm/include/asm/armv8/mmu.h
- * base:64, size:64, attributes:64
- */
-#define CONFIG_SYS_MEM_MAP		{{0x000000000000UL, 0x40000000000UL, \
-					  PTL2_MEMTYPE(MT_NORMAL) |	     \
-					  PTL2_BLOCK_NON_SHARE},	     \
-					 {0x800000000000UL, 0x40000000000UL, \
-					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
-					  PTL2_BLOCK_NON_SHARE},	     \
-					 {0x840000000000UL, 0x40000000000UL, \
-					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
-					  PTL2_BLOCK_NON_SHARE},	     \
-					 {0x880000000000UL, 0x40000000000UL, \
-					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
-					  PTL2_BLOCK_NON_SHARE},	     \
-					 {0xffffffffffffUL, 0xfffffffffffUL, \
-					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
-					  PTL2_BLOCK_NON_SHARE},	     \
-					}
-
-/** Number of entries in CONFIG_SYS_MEM_MAP */
-#define CONFIG_SYS_MEM_MAP_SIZE		4
-
-#define CONFIG_COREID_MASK		0xffffff
-
-/** Number of virtual address bits */
-#define CONFIG_SYS_VA_BITS		48
-
-/** Number of bits addressed by second level */
-#define CONFIG_SYS_PTL2_BITS		42
-
-/** Number of bits addressed by a single block entry from L2 page tables */
-#define CONFIG_SYS_BLOCK_SHIFT		29
-
-/** Number of 1st level page table entries */
-#define CONFIG_SYS_PTL1_ENTRIES		64
-
-/** Number of 2nd level page table entries */
-#define CONFIG_SYS_PTL2_ENTRIES		8192
-
-/** Total size of page table */
-#define CONFIG_SYS_PGTABLE_SIZE		\
-	((CONFIG_SYS_PTL1_ENTRIES + \
-	  CONFIG_SYS_MEM_MAP_SIZE * CONFIG_SYS_PTL2_ENTRIES) * 8)
 
 /** IPS field of TCR_EL1 */
 #define CONFIG_SYS_TCR_EL1_IPS_BITS	(5UL << 32)
@@ -138,9 +87,6 @@
  */
 #define CONFIG_SYS_MEM_TOP_HIDE		0x1000000
 
-/** Console serial port number */
-#define CONFIG_CONS_INDEX		1
-
 /* Generic Interrupt Controller Definitions */
 
 /** Base address of Global Interrupt Controller GICD registers */
@@ -179,12 +125,6 @@
 /** Maximum total number of BGX interfaces across all nodes */
 #define CONFIG_MAX_BGX			4
 
-/** Enable 10G PHY support */
-#define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_VITESSE
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MARVELL
-
 /** Command line configuration */
 #define CONFIG_MENU
 
@@ -197,30 +137,11 @@
 /** Enable env command */
 #define CONFIG_CMD_ENV
 #undef  CONFIG_CMD_IMLS
-#define CONFIG_CMD_BOOTI
 
 #define CONFIG_CMD_MII
 
 /** Enable tftp command */
 #define CONFIG_CMD_TFTP
-
-/** Enable fatload, fatls, etc. */
-#define CONFIG_CMD_FAT
-
-/** Enable write support to FAT partitions */
-#define CONFIG_FAT_WRITE
-
-/** Enable ext2ls, ext2load, etc. commands */
-#define CONFIG_CMD_EXT2
-
-/** Enable ext4ls, ext4load, etc. commands */
-#define CONFIG_CMD_EXT4
-
-/** Enable part command */
-#define CONFIG_CMD_PART
-
-/** Enable sata command */
-#define CONFIG_CMD_SATA
 
 /** Enable pci command */
 #define CONFIG_CMD_PCI
@@ -234,17 +155,11 @@
 /** Enable grepenv command */
 #define CONFIG_CMD_GREPENV
 
-/** Enable bootimgup command */
-#define CONFIG_CMD_BOOTIMGUP
-
 /**
  * Enable callback support when environment variables are set, or
  * changed
  */
 #define CONFIG_CMD_ENV_CALLBACK
-
-/** Enable date command */
-#define CONFIG_CMD_DATE
 
 #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
 
@@ -261,17 +176,6 @@
 /** Enable 64-bit addressing */
 # define CONFIG_SYS_64BIT_LBA
 #endif
-
-/* Partition systems */
-/** Enable old DOS partitioning for drives under 3TB */
-#define CONFIG_DOS_PARTITION
-/** Enable EFI partition support */
-#define CONFIG_EFI_PARTITION
-/** Enable UUIDs for drives >= 3TB */
-#define CONFIG_PARTITION_UUIDS
-
-/** Enable EXT4 filesystem support */
-#define CONFIG_FS_EXT4
 
 /* PCIe */
 /** Show devices found on PCI bus */
@@ -300,18 +204,15 @@
 #define CONFIG_SYS_SPD_I2C_BUS 1
 
 /***** SPI Defines *********/
-#define CONFIG_DM_SPI
 #define CONFIG_DM_SPI_FLASH
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_MACRONIX
-#define CONFIG_CAVIUM_SPI
 #define CONFIG_SF_DEFAULT_SPEED 12500000
 #define CONFIG_SF_DEFAULT_MODE	0
 #define CONFIG_SF_DEFAULT_BUS	0
 #define CONFIG_SF_DEFAULT_CS	0
 /** Enable sf command */
-#define CONFIG_CMD_SF
 
 /**************************/
 #define CONFIG_CMD_SAVES
@@ -322,7 +223,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_PXE
-#define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
@@ -374,16 +274,12 @@
 /** Store U-Boot version in "ver" environment variable */
 #define CONFIG_VERSION_VARIABLE
 
-/** How long to delay before booting */
-#define CONFIG_BOOTDELAY		5
-
-/** Where the environment is located */
 
 /* Use ATF based calls for env variables */
 #define CONFIG_ATF
 
 /* Use uboot SPI APIs for env variables */
-//#define CONFIG_SPI_ENV
+/*#define CONFIG_SPI_ENV*/
 
 #if defined(CONFIG_ATF)
 #define CONFIG_ENV_IS_IN_ATF
@@ -427,7 +323,6 @@
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_FEATURE_COMMAND_EDITING
 #define CONFIG_SYS_MAXARGS		64		/** max command args */
-#define CONFIG_NO_RELOCATION		1
 
 /** System PLL reference clock */
 #define PLL_REF_CLK			50000000	/* 50 MHz */
@@ -435,7 +330,6 @@
 #define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
 
 #define CONFIG_OCTEON_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
 #define CONFIG_SYS_MMC_SET_DEV
 
