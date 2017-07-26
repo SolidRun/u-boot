@@ -3,7 +3,6 @@
  * Copyright (C) 2016 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  */
-
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
