@@ -7,6 +7,8 @@
 #ifndef __THUNDERX_83XX_H__
 #define __THUNDERX_83XX_H__
 
+#define DEBUG
+
 /** Thunder 83xx does not support NOR flash */
 #define CONFIG_SYS_NO_FLASH
 
@@ -163,11 +165,11 @@
 #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
 
 /* AHCI support Definitions */
-#ifdef CONFIG_CMD_SATA
-/** Enable AHCI SATA driver */
-# define CONFIG_SATA_AHCI
-/** Maximum number of SATA devices */
-# define CONFIG_SYS_SATA_MAX_DEVICE	6
+#define CONFIG_SCSI_AHCI
+
+#ifdef CONFIG_SCSI_AHCI
+/** Maximum number of SATA devices per controller*/
+# define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
 /** Enable 48-bit SATA addressing */
 # define CONFIG_LBA48
 /** Enable libata, required for SATA */
