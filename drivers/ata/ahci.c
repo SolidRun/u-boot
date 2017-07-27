@@ -429,8 +429,6 @@ static int ahci_init_one(struct ahci_uc_priv *uc_priv, pci_dev_t dev)
 {
 #if !defined(CONFIG_DM_SCSI)
 	u16 vendor;
-#ifdef CONFIG_DM_PCI
-	size_t size;
 #endif
 	int rc;
 
@@ -447,7 +445,7 @@ static int ahci_init_one(struct ahci_uc_priv *uc_priv, pci_dev_t dev)
 #if !defined(CONFIG_DM_SCSI)
 #ifdef CONFIG_DM_PCI
 	uc_priv->mmio_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_5,
-					    &size, PCI_REGION_MEM);
+					      PCI_REGION_MEM);
 
 	/* Take from kernel:
 	 * JMicron-specific fixup:
@@ -940,6 +938,8 @@ static int ahci_scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
 #endif
 	int ret;
 
+	debug("ahci_scsi_exec: CMD %d\n", pccb->cmd[0]);
+
 	switch (pccb->cmd[0]) {
 	case SCSI_READ16:
 	case SCSI_READ10:
@@ -1176,6 +1176,10 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 	ret = ahci_init_one(uc_priv, dev);
 	if (ret)
 		return ret;
+
+	uc_plat->max_lun = 1;
+	uc_plat->max_id = uc_priv->n_ports;
+
 	ret = ahci_start_ports(uc_priv);
 	if (ret)
 		return ret;
@@ -1195,9 +1199,17 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 int ahci_probe_scsi_pci(struct udevice *ahci_dev)
 {
 	ulong base;
+	int bar = 5;
+	size_t size;
+	u16 vendor, device;
 
-	base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5,
-				     PCI_REGION_MEM);
+	dm_pci_read_config16(ahci_dev, PCI_VENDOR_ID, &vendor);
+	dm_pci_read_config16(ahci_dev, PCI_DEVICE_ID, &device);
+
+	debug("AHCI device %04x:%04x\n", vendor, device);
+	if ((vendor == 0x177d) && (device == 0xa01c))
+		bar = 0;
+	base = (uintptr_t)dm_pci_map_bar(ahci_dev, bar, &size, PCI_REGION_MEM);
 
 	return ahci_probe_scsi(ahci_dev, base);
 }
