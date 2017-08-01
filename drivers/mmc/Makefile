@@ -3,9 +3,9 @@
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-y += mmc.o
 obj-$(CONFIG_$(SPL_)DM_MMC) += mmc-uclass.o
 obj-$(CONFIG_$(SPL_)MMC_WRITE) += mmc_write.o
+obj-$(CONFIG_MMC) += mmc.o
 
 ifndef CONFIG_$(SPL_)BLK
 obj-y += mmc_legacy.o
@@ -18,6 +18,7 @@ obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
 endif
 
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
+obj-$(CONFIG_MMC_CAVIUM)		+= cavium_mmc.o
 obj-$(CONFIG_MMC_DAVINCI)		+= davinci_mmc.o
 obj-$(CONFIG_MMC_DW)			+= dw_mmc.o
 obj-$(CONFIG_MMC_DW_EXYNOS)		+= exynos_dw_mmc.o

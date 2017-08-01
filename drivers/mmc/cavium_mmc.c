@@ -50,7 +50,9 @@
 #ifdef DEBUG
 #include <command.h>
 #endif
+#include <dm.h>
 #include <dm/device.h>
+#include <dm/device-internal.h>
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
@@ -64,21 +66,16 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/cavium_mmc.h>
-#ifdef __mips
-# include <asm/arch/cvmx.h>
-# include <asm/arch/cvmx-asm.h>
-# include <asm/arch/octeon-feature.h>
-# include <asm/arch/cvmx-access.h>
-# include <asm/arch/cvmx-mio-defs.h>
-# include <asm/arch/octeon_board_mmc.h>
-# include <asm/arch/octeon-model.h>
-#else
-# include <asm/arch/clock.h>
-#endif /* __mips */
+#include <asm/arch/clock.h>
 #include <linux/list.h>
 #include <div64.h>
 #include <watchdog.h>
 #include <console.h>	/* for ctrlc */
+
+#ifdef DEBUG
+#define DEBUG_CSR
+#define DEBUG_REGISTERS
+#endif
 
 /** Name of our driver */
 #define CAVIUM_MMC_DRIVER_NAME			"mmc_cavium"
@@ -145,27 +142,11 @@
 /** Strip the CRC from the response */
 #define MMC_CMD_FLAG_STRIP_CRC		(1 << 31)
 
-#ifndef CONFIG_CAVIUM_MMC_MAX_HOSTS
-/** Maximum number of MMC host controllers, 2 for NUMA */
-# define CONFIG_CAVIUM_MMC_MAX_HOSTS	2
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
-static LIST_HEAD(mmc_devices);
-
-static int cur_dev_num = -1;
 static int init_time = 1;
 
-/** Last MMC slot used */
-static int8_t last_bus_id[CONFIG_CAVIUM_MMC_MAX_HOSTS];
-static uint8_t num_mmc_hosts;
-static int num_mmc_slots;
-
-/** Host MMC structures */
-static struct cavium_mmc_host *hosts[CONFIG_CAVIUM_MMC_MAX_HOSTS];
-
-static int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value);
+int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value);
 static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd);
 
 static int mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
@@ -178,16 +159,14 @@ static int mmc_send_cmd_flags(struct mmc *mmc, struct mmc_cmd *cmd,
 static int mmc_send_acmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			 struct mmc_data *data, uint32_t flags);
 
-static void mmc_set_ios(struct mmc *mmc);
-
-static void cavium_mmc_set_ios(struct mmc *mmc);
+static int cavium_mmc_set_ios(struct udevice *dev);
 
 static void mmc_switch_dev(struct mmc *mmc);
 
-int cavium_mmc_getwp(struct mmc *mmc)
+int cavium_mmc_getwp(struct udevice *dev)
 	__attribute__((weak, alias("__cavium_mmc_getwp")));
 
-int cavium_mmc_getcd(struct mmc *mmc)
+int cavium_mmc_getcd(struct udevice *dev)
 	__attribute__((weak, alias("__cavium_mmc_getcd")));
 
 int cavium_mmc_init(struct mmc *mmc)
@@ -197,7 +176,7 @@ int cavium_mmc_init(struct mmc *mmc)
  * This is the external mmc_send_cmd function.  It was required that
  * the internal version support flags so this version is required.
  */
-static int cavium_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+static int cavium_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			       struct mmc_data *data);
 
 static const struct udevice_id cavium_mmc_ids[] = {
@@ -206,12 +185,11 @@ static const struct udevice_id cavium_mmc_ids[] = {
 	{ },
 };
 
-static const struct mmc_ops cavium_mmc_ops = {
+static const struct dm_mmc_ops cavium_mmc_ops = {
 	.send_cmd = cavium_mmc_send_cmd,
 	.set_ios = cavium_mmc_set_ios,
-	.init = cavium_mmc_init,
-	.getcd = cavium_mmc_getcd,
-	.getwp = cavium_mmc_getwp,
+	.get_cd = cavium_mmc_getcd,
+	.get_wp = cavium_mmc_getwp,
 };
 
 #ifdef CONFIG_CAVIUM_MMC_SD
@@ -227,8 +205,7 @@ static int sd_set_ios(struct mmc *mmc);
  *
  * @return	0 for success, -1 on error.
  */
-static int cavium_mmc_get_config(const void *blob, int node,
-				 struct cavium_mmc_host *host);
+static int cavium_mmc_get_config(struct udevice *dev);
 
 #ifdef DEBUG
 const char *mmc_reg_str(uint64_t reg)
@@ -300,16 +277,6 @@ static uint32_t get_csd_bits(const struct mmc *mmc, unsigned start,
 	return val;
 }
 
-static inline struct cavium_mmc_slot *cavium_get_slot(const struct mmc *mmc)
-{
-	return (struct cavium_mmc_slot *)mmc->priv;
-}
-
-static inline struct cavium_mmc_host *cavium_get_host(const struct mmc *mmc)
-{
-	return cavium_get_slot(mmc)->host;
-}
-
 /**
  * Writes to a CSR register
  *
@@ -320,11 +287,13 @@ static inline struct cavium_mmc_host *cavium_get_host(const struct mmc *mmc)
 static inline void mmc_write_csr(const struct mmc *mmc, uint64_t reg,
 				 uint64_t value)
 {
-	void *addr = cavium_get_host(mmc)->base_addr + reg;
+	struct cavium_mmc_slot *slot = mmc->priv;
+	struct cavium_mmc_host *host = slot->host;
+	void *addr = host->base_addr + reg;
 
 #ifdef DEBUG_CSR
-	printf("        %s: %s <= 0x%llx\n", __func__, mmc_reg_str(reg),
-	       value);
+	printf("        %s: %s(0x%p) <= 0x%llx\n", __func__, mmc_reg_str(reg),
+	       addr, value);
 #endif
 	writeq(value, addr);
 }
@@ -339,9 +308,12 @@ static inline void mmc_write_csr(const struct mmc *mmc, uint64_t reg,
  */
 static inline uint64_t mmc_read_csr(const struct mmc *mmc, uint64_t reg)
 {
-	uint64_t value = readq(cavium_get_host(mmc)->base_addr + reg);
+	struct cavium_mmc_slot *slot = mmc->priv;
+	struct cavium_mmc_host *host = slot->host;
+	uint64_t value = readq(host->base_addr + reg);
 #ifdef DEBUG_CSR
-	printf("        %s: %s => 0x%llx\n", __func__, mmc_reg_str(reg),
+	printf("        %s: %s(0x%p) => 0x%llx\n", __func__,
+	       mmc_reg_str(reg), host->base_addr + reg,
 	       value);
 #endif
 	return value;
@@ -411,37 +383,12 @@ static void mmc_print_status(uint32_t status)
 }
 #endif
 
-int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
-{
-	if (mmc->cfg->ops && mmc->cfg->ops->send_cmd)
-		return mmc->cfg->ops->send_cmd(mmc, cmd, data);
-	else
-		return -EINVAL;
-}
-
-#ifdef CONFIG_PARTITIONS
-block_dev_desc_t *mmc_get_dev(int dev)
-{
-	struct mmc *mmc = find_mmc_device(dev);
-
-	if (mmc)
-		debug("%s: Found mmc device %d (%s)\n", __func__, dev,
-		      mmc->cfg->name);
-	else
-		debug("%s: mmc device %d not found\n", __func__, dev);
-
-	if (!mmc || mmc_init(mmc))
-		return NULL;
-	return &mmc->block_dev;
-}
-#endif
-
 static void mmc_print_registers(struct mmc *mmc)
 {
 #ifdef DEBUG_REGISTERS
-	struct cavium_mmc_slot *slot;
+	struct cavium_mmc_slot *slot = mmc->priv;
 #ifdef __mips
-	struct cavium_mmc_host *host;
+	struct cavium_mmc_host *host = slot->host;
 	union mio_ndf_dma_cfg ndf_dma_cfg;
 	union mio_ndf_dma_int ndf_dma_int;
 #endif
@@ -505,10 +452,8 @@ static void mmc_print_registers(struct mmc *mmc)
 		return;
 	}
 
-	slot = cavium_get_slot(mmc);
 	printf("%s: bus id: %u\n", __func__, slot->bus_id);
 #ifdef __mips
-	host = cavium_get_host(mmc);
 	if (host->use_ndf) {
 		ndf_dma_cfg.u = mmc_read_csr(mmc, MIO_NDF_DMA_CFG);
 		printf("MIO_NDF_DMA_CFG:                0x%016llx\n",
@@ -762,28 +707,6 @@ static void mmc_print_registers(struct mmc *mmc)
 #endif /* DEBUG_REGISTERS */
 }
 
-struct mmc *find_mmc_device(int dev_num)
-{
-	struct mmc *m;
-	struct list_head *entry;
-
-	debug("%s(%d)\n", __func__, dev_num);
-
-	list_for_each(entry, &mmc_devices) {
-		m = list_entry(entry, struct mmc, link);
-		debug("  testing MMC dev %s %d == %d, priv: %p\n",
-		      m->cfg->name, m->block_dev.dev, dev_num, m->priv);
-		if (m->block_dev.dev == dev_num)
-			return m;
-	}
-
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-	printf("MMC Device %d not found\n", dev_num);
-#endif
-
-	return NULL;
-}
-
 /**
  * Enables the MMC bus, disabling NOR flash and other boot bus device access
  *
@@ -796,7 +719,7 @@ static void mmc_enable(struct mmc *mmc)
 {
 #ifdef __mips
 	union mio_emm_cfg emm_cfg;
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
 
 	debug("%s(%d)\n", __func__, slot->bus_id);
 
@@ -824,7 +747,7 @@ static void mmc_disable(struct mmc *mmc)
 {
 #ifdef __mips
 	union mio_emm_cfg emm_cfg;
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
 	debug("%s(%d):\n", __func__, slot->bus_id);
 again:
 	emm_cfg.u = mmc_read_csr(mmc, MIO_EMM_CFG);
@@ -872,7 +795,7 @@ static void mmc_set_watchdog(const struct mmc *mmc, ulong timeout)
 {
 	union mio_emm_wdog emm_wdog;
 	uint64_t val;
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
 
 	val = ((u64)timeout * mmc->clock) / 1000000;
 	if (val >= (1 << 26)) {
@@ -906,7 +829,7 @@ static void mmc_start_dma(const struct mmc *mmc, bool write, bool clear,
 			  uint32_t block, uint64_t adr, uint32_t size,
 			  int timeout)
 {
-	const struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	const struct cavium_mmc_slot *slot = mmc->priv;
 #ifdef __mips
 	union mio_ndf_dma_cfg ndf_dma_cfg;
 	union mio_ndf_dma_int ndf_dma_int;
@@ -1004,12 +927,13 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	union mio_emm_sample emm_sample;
 	union mio_emm_rca emm_rca;
 	union mio_emm_sts_mask emm_sts_mask;
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
-	struct cavium_mmc_host *host = cavium_get_host(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
+	struct cavium_mmc_host *host = slot->host;
 
 	debug("%s(%s): bus_id: %d, last: %d\n", __func__, mmc->cfg->name,
-	      slot->bus_id, last_bus_id[host->dev_index]);
-	if (slot->bus_id == last_bus_id[host->dev_index]) {
+	      host->cur_slotid, host->last_slotid);
+
+	if (host->cur_slotid == host->last_slotid) {
 		debug("%s: No change\n", __func__);
 		return;
 	}
@@ -1022,7 +946,7 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	      "    bus id: %d, clock period: %d, width: %d, rca: 0x%x, high speed: %d to\n"
 	      "    bus id: %d, clock period: %d, width: %d, rca: 0x%x, high speed: %d\n",
 	      __func__, mmc->cfg->name,
-	      last_bus_id[host->dev_index], emm_switch.s.clk_lo * 2,
+	      host->last_slotid, emm_switch.s.clk_lo * 2,
 	      emm_switch.s.bus_width, emm_rca.s.card_rca,
 	      emm_switch.s.hs_timing,
 	      slot->bus_id, slot->clk_period, slot->bus_width, mmc->rca,
@@ -1050,7 +974,7 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	emm_rca.u = 0;
 	emm_rca.s.card_rca = mmc->rca;
 	mmc_write_csr(mmc, MIO_EMM_RCA, emm_rca.u);
-	last_bus_id[host->dev_index] = slot->bus_id;
+	host->last_slotid = host->cur_slotid;
 	mdelay(100);
 	/* Update the watchdog to 100 ms */
 	mmc_set_watchdog(mmc, 100000);
@@ -1082,7 +1006,7 @@ static inline void mmc_switch_dev(struct mmc *mmc)
  *
  * @return number of sectors read
  */
-int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
+int cavium_mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
 {
 	struct mmc_cmd cmd;
 	ulong start_time;
@@ -1095,14 +1019,18 @@ int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
 #ifdef __mips
 	union mio_ndf_dma_int ndf_dma_int;
 #endif
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
-	struct cavium_mmc_host *host = cavium_get_host(mmc);
 	int timeout;
 	int dma_retry_count = 0;
 	bool timed_out = false;
+	struct cavium_mmc_slot *slot = mmc->priv;
+	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 
 	debug("%s(%s, src: 0x%llx, dst: 0x%p, size: %d)\n", __func__,
 	      mmc->cfg->name, src, dst, size);
+	if (!bdesc) {
+		printf("%s couldn't find blk desc\n", __func__);
+		return 0;
+	}
 #ifdef DEBUG
 	memset(dst, 0xEE, size * mmc->read_bl_len);
 #endif
@@ -1117,14 +1045,14 @@ int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
 	emm_sts_mask.s.sts_msk = R1_BLOCK_READ_MASK;
 	mmc_write_csr(mmc, MIO_EMM_STS_MASK, emm_sts_mask.u);
 	debug("%s: MIO_EMM_STS_MASK: 0x%llx\n", __func__, emm_sts_mask.u);
-	dma_addr = (uint64_t)dm_pci_virt_to_mem(host->dev, dst);
+	dma_addr = (uint64_t)dm_pci_virt_to_mem(mmc->dev, dst);
 	debug("%s: dma address: 0x%llx\n", __func__, dma_addr);
 
 	timeout = 1000 + size;
 	mmc_set_watchdog(mmc, timeout * 1000 - 100);
 
 	invalidate_dcache_range((ulong)src,
-				(ulong)src + size * mmc->block_dev.blksz);
+				(ulong)src + size * bdesc->blksz);
 	mmc_start_dma(mmc, false, false, src, dma_addr, size, timeout);
 
 retry_dma:
@@ -1280,7 +1208,7 @@ retry_dma:
 		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_R1b;
-		if (cavium_mmc_send_cmd(mmc, &cmd, NULL))
+		if (cavium_mmc_send_cmd(mmc->dev, &cmd, NULL))
 			printf("Error sending stop transmission cmd\n");
 		return 0;
 	}
@@ -1319,16 +1247,21 @@ mmc_write(struct mmc *mmc, ulong start, int size, const void *src)
 #ifdef __mips
 	union mio_ndf_dma_int ndf_dma_int;
 #endif
-	struct cavium_mmc_host *host = cavium_get_host(mmc);
 	struct mmc_cmd cmd;
 	int timeout;
 	int dma_retry_count = 0;
 	int rc;
 	ulong start_time;
 	bool timed_out = false;
+	struct cavium_mmc_slot *slot = mmc->priv;
+	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 
 	debug("%s(start: %lu, size: %d, src: 0x%p)\n", __func__, start,
 	      size, src);
+	if (!bdesc) {
+		printf("%s couldn't find blk desc\n", __func__);
+		return 0;
+	}
 
 	mmc_switch_dev(mmc);
 
@@ -1341,7 +1274,7 @@ mmc_write(struct mmc *mmc, ulong start, int size, const void *src)
 		cmd.cmdidx = MMC_CMD_SEND_STATUS;
 		cmd.cmdarg = mmc->rca << 16;
 		cmd.resp_type = MMC_RSP_R1;
-		rc = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+		rc = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 		if (rc) {
 			printf("%s: Error getting device status\n", __func__);
 			return 0;
@@ -1360,8 +1293,8 @@ mmc_write(struct mmc *mmc, ulong start, int size, const void *src)
 	}
 
 	flush_dcache_range((ulong)src,
-			   (ulong)src + size * mmc->block_dev.blksz);
-	dma_addr = (uint64_t)dm_pci_virt_to_mem(host->dev, (void *)src);
+			   (ulong)src + size * bdesc->blksz);
+	dma_addr = (uint64_t)dm_pci_virt_to_mem(mmc->dev, (void *)src);
 	timeout = 5000 + 5000 * size;
 
 	mmc_start_dma(mmc, true, false, start, dma_addr, size, timeout);
@@ -1441,7 +1374,7 @@ retry_dma:
 			cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 			cmd.cmdarg = 0;
 			cmd.resp_type = MMC_RSP_R1b;
-			cavium_mmc_send_cmd(mmc, &cmd, NULL);
+			cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 			mmc_write_csr(mmc, MIO_EMM_DMA, emm_dma.u);
 			debug("Retrying MMC write DMA\n");
 			goto retry_dma;
@@ -1488,7 +1421,7 @@ retry_dma:
 		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_R1b;
-		if (cavium_mmc_send_cmd(mmc, &cmd, NULL))
+		if (cavium_mmc_send_cmd(mmc->dev, &cmd, NULL))
 			printf("Error sending stop transmission cmd\n");
 		return 0;
 	}
@@ -1507,7 +1440,7 @@ retry_dma:
 			cmd.cmdidx = MMC_CMD_SEND_STATUS;
 			cmd.cmdarg = mmc->rca << 16;
 			cmd.resp_type = MMC_RSP_R1;
-			rc = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+			rc = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 			if (rc) {
 				printf("%s: Error getting post device status\n",
 				       __func__);
@@ -1562,7 +1495,7 @@ static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 	cmd.cmdarg = start;
 	cmd.resp_type = MMC_RSP_R1;
 
-	err = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		goto err_out;
 
@@ -1570,7 +1503,7 @@ static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 	cmd.cmdarg = end;
 	cmd.resp_type = MMC_RSP_R1b;
 
-	err = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		goto err_out;
 
@@ -1578,7 +1511,7 @@ static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 	cmd.cmdarg = 0;
 	cmd.resp_type = MMC_RSP_R1b;
 
-	err = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err) {
 		printf("%s err: %d\n", __func__, err);
 		goto err_out;
@@ -1600,28 +1533,37 @@ err_out:
  *
  * @return number of blocks read or 0 if error
  */
-static unsigned long mmc_bread(block_dev_desc_t *block_dev, lbaint_t start,
+unsigned long mmc_bread(struct udevice *dev, lbaint_t start,
 			       lbaint_t blkcnt, void *dst)
 {
+	debug("%s ->1 dev %p\n", __func__, dev);
+	debug("%s ->1 parent %p\n", __func__, dev->parent);
 	lbaint_t cur, blocks_todo = blkcnt;
-	int dev_num = block_dev->dev;
-	struct mmc *mmc = find_mmc_device(dev_num);
+	struct cavium_mmc_host *host = dev_get_priv(dev->parent);
+	debug("%s ->2 %p\n", __func__, host);
+	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct mmc *mmc = slot->mmc;
+	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 	unsigned char bounce_buffer[4096];
 
-	debug("%s(%d, %llu, %llu, %p) mmc: %p\n", __func__, dev_num,
+	if (!bdesc) {
+		printf("%s couldn't find blk desc\n", __func__);
+		return 0;
+	}
+	debug("%s(%d %llu, %llu, %p) mmc: %p\n", __func__, bdesc->devnum,
 	      (uint64_t)start, (uint64_t)blkcnt, dst, mmc);
 	if (!mmc) {
-		printf("%s: MMC device %d not found\n", __func__, dev_num);
+		printf("%s: MMC device %d not found\n", __func__, bdesc->devnum);
 		return 0;
 	}
 
 	if (blkcnt == 0)
 		return 0;
 
-	if ((start + blkcnt) > mmc->block_dev.lba) {
+	if ((start + blkcnt) > bdesc->lba) {
 		printf("MMC: block number 0x%llx exceeds max(0x%llx)\n",
 		       (uint64_t)(start + blkcnt),
-		       (uint64_t)mmc->block_dev.lba);
+		       (uint64_t)bdesc->lba);
 		return 0;
 	}
 
@@ -1635,7 +1577,7 @@ static unsigned long mmc_bread(block_dev_desc_t *block_dev, lbaint_t start,
 	if (((ulong)dst) & 7) {
 		debug("%s: Using bounce buffer due to alignment\n", __func__);
 		do {
-			if (mmc_read(mmc, start, bounce_buffer, 1) != 1)
+			if (cavium_mmc_read(mmc, start, bounce_buffer, 1) != 1)
 				return 0;
 			memcpy(dst, bounce_buffer, mmc->read_bl_len);
 			WATCHDOG_RESET();
@@ -1646,7 +1588,7 @@ static unsigned long mmc_bread(block_dev_desc_t *block_dev, lbaint_t start,
 	} else {
 		do {
 			cur = min(blocks_todo, (lbaint_t)(mmc->cfg->b_max));
-			if (mmc_read(mmc, start, dst, cur) != cur) {
+			if (cavium_mmc_read(mmc, start, dst, cur) != cur) {
 				blkcnt = 0;
 				break;
 			}
@@ -1670,14 +1612,22 @@ static unsigned long mmc_bread(block_dev_desc_t *block_dev, lbaint_t start,
  *
  * @return number of blocks written or 0 if error
  */
-ulong mmc_bwrite(block_dev_desc_t *block_dev, lbaint_t start, lbaint_t blkcnt,
+ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 		 const void *src)
 {
 	lbaint_t cur, blocks_todo = blkcnt;
-	int dev_num = block_dev->dev;
-	struct mmc *mmc = find_mmc_device(dev_num);
+	struct cavium_mmc_host *host = dev_get_priv(dev->parent);
+	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct mmc *mmc = slot->mmc;
+	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
+	int dev_num;
 	unsigned char bounce_buffer[4096];
 
+	if (!bdesc) {
+		printf("%s couldn't find blk desc\n", __func__);
+		return 0;
+	}
+	dev_num = bdesc->devnum;
 	debug("%s(%d, %llu, %llu, %p)\n", __func__, dev_num, (uint64_t)start,
 	      (uint64_t)blkcnt, src);
 	if (!mmc) {
@@ -1687,10 +1637,10 @@ ulong mmc_bwrite(block_dev_desc_t *block_dev, lbaint_t start, lbaint_t blkcnt,
 
 	if (blkcnt == 0)
 		return 0;
-	if ((start + blkcnt) > mmc->block_dev.lba) {
+	if ((start + blkcnt) > bdesc->lba) {
 		printf("MMC: block number 0x%llx exceeds max(0x%llx)\n",
 		       (uint64_t)(start + blkcnt),
-		       (uint64_t)mmc->block_dev.lba);
+		       (uint64_t)bdesc->lba);
 		return 0;
 	}
 	if (!mmc_getcd(mmc)) {
@@ -1745,14 +1695,21 @@ ulong mmc_bwrite(block_dev_desc_t *block_dev, lbaint_t start, lbaint_t blkcnt,
  *
  * @return	Number of sectors actually erased or 0 if error
  */
-ulong mmc_berase(block_dev_desc_t *block_dev, lbaint_t start, lbaint_t blkcnt)
+ulong mmc_berase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
 {
 	int err = 0;
-	int dev_num = block_dev->dev;
-	struct mmc *mmc = find_mmc_device(dev_num);
+	struct cavium_mmc_host *host = dev_get_priv(dev->parent);
+	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct mmc *mmc = slot->mmc;
+	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
+	int dev_num = bdesc->devnum;
 
 	if (!mmc) {
 		printf("%s: MMC device not found\n", __func__);
+		return 0;
+	}
+	if (!bdesc) {
+		printf("%s couldn't find blk desc\n", __func__);
 		return 0;
 	}
 
@@ -1822,45 +1779,13 @@ int mmc_set_dsr(struct mmc *mmc, u16 val)
 }
 
 /**
- * Print out all of the MMC devices
- *
- * @param separator	Character to use to separate entries, usually ','
- */
-void print_mmc_devices(char separator)
-{
-	struct mmc *mmc;
-	int rc;
-
-	/* If nothing is available, try and initialize */
-	if (list_empty(&mmc_devices)) {
-		debug("%s(%c): No devices found, initializing\n",
-		      __func__, separator);
-		rc = mmc_initialize(gd->bd);
-
-		debug("%s: Done initializing, rc: %d\n", __func__, rc);
-		if (rc)
-			return;
-	}
-
-	list_for_each_entry(mmc, &mmc_devices, link) {
-		printf("%s: %d", mmc->cfg->name, mmc->block_dev.dev);
-		if (mmc->link.next != &mmc_devices) {
-			printf("%c", separator);
-			if (separator != '\n')
-				puts(" ");
-		}
-	}
-	printf("\n");
-}
-
-/**
  * Prints out detailed device information
  *
  * @param	mmc	MMC data structure pointer
  */
 void print_mmc_device_info(struct mmc *mmc)
 {
-	const struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	const struct cavium_mmc_slot *slot = mmc->priv;
 	const char *type;
 	const char *version;
 	const uint8_t *ext_csd = slot->ext_csd;
@@ -1877,11 +1802,16 @@ void print_mmc_device_info(struct mmc *mmc)
 		"100", "120", "150", "180", "200", "220", "250", "300",
 		"350", "400", "450", "500", "600", "700", "800", ">800",
 	};
+	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 
 	printf("Register base address: %p\n", slot->host->base_addr);
 	debug("MIO_EMM_MODE: 0x%llx\n",
 	      mmc_read_csr(mmc, MIO_EMM_MODEX(slot->bus_id)));
 
+	if (!bdesc) {
+		printf("%s couldn't find blk desc\n", __func__);
+		return;
+	}
 	if (!mmc_getcd(mmc)) {
 		mmc->has_init = 0;
 		printf("Card not detected\n");
@@ -2000,9 +1930,9 @@ void print_mmc_device_info(struct mmc *mmc)
 		printf("OEM ID:                0x%02x\n",
 		       (mmc->cid[0] >> 8) & 0xff);
 	}
-	printf("Vendor:                %s\n", mmc->block_dev.vendor);
-	printf("Product:               %s\n", mmc->block_dev.product);
-	printf("Revision:              %s\n", mmc->block_dev.revision);
+	printf("Vendor:                %s\n", bdesc->vendor);
+	printf("Product:               %s\n", bdesc->product);
+	printf("Revision:              %s\n", bdesc->revision);
 	if (IS_SD(mmc)) {
 		printf("Manufacturing Date:    %d/%d\n",
 		       (mmc->cid[3] >> 8) & 0xf,
@@ -2268,7 +2198,7 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 	cmd.cmdarg = len;
 
 	debug("%s: Setting block length to %d\n", __func__, len);
-	err = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		printf("%s: Error setting block length to %d\n", __func__, len);
 
@@ -2277,6 +2207,13 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 
 static int mmc_set_capacity(struct mmc *mmc, int part_num)
 {
+	const struct cavium_mmc_slot *slot = mmc->priv;
+	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
+
+	if (!bdesc) {
+		printf("%s couldn't find blk desc\n", __func__);
+		return -1;
+	}
 	debug("%s(%s, %d)\n", __func__, mmc->cfg->name, part_num);
 	switch (part_num) {
 	case 0:
@@ -2300,38 +2237,25 @@ static int mmc_set_capacity(struct mmc *mmc, int part_num)
 	}
 
 	debug("%s: capacity now %llu\n", __func__, mmc->capacity);
-	mmc->block_dev.lba = lldiv(mmc->capacity, mmc->read_bl_len);
+	bdesc->lba = lldiv(mmc->capacity, mmc->read_bl_len);
 
 	return 0;
 }
 
-int mmc_select_hwpart(int dev_num, int hwpart)
+int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 {
-	struct mmc *mmc = find_mmc_device(dev_num);
-	int ret;
-
-	if (!mmc)
-		return -ENODEV;
-
-	if (mmc->block_dev.hwpart == hwpart)
-		return 0;
-
-	ret = mmc_switch_part(dev_num, hwpart);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
-int mmc_switch_part(int dev_num, unsigned int part_num)
-{
-	struct mmc *mmc = find_mmc_device(dev_num);
+	const struct cavium_mmc_slot *slot = mmc->priv;
+	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 	int ret;
 
 	if (!mmc)
 		return -1;
+	if (!bdesc) {
+		printf("%s couldn't find blk desc\n", __func__);
+		return -1;
+	}
 
-	debug("%s(%d, %u): mmc: %s\n", __func__, dev_num, part_num,
+	debug("%s(%u): mmc: %s\n", __func__, part_num,
 	      mmc->cfg->name);
 	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
 			 (mmc->part_config & ~PART_ACCESS_MASK)
@@ -2343,7 +2267,7 @@ int mmc_switch_part(int dev_num, unsigned int part_num)
 	 */
 	if ((ret == 0) || ((ret == -ENODEV) && (part_num == 0))) {
 		ret = mmc_set_capacity(mmc, part_num);
-		mmc->block_dev.hwpart = part_num;
+		bdesc->hwpart = part_num;
 	}
 
 	return ret;
@@ -2547,44 +2471,9 @@ __weak int board_mmc_getwp(struct mmc *mmc)
 	return -1;
 }
 
-int mmc_getwp(struct mmc *mmc)
-{
-	int wp;
-
-	wp = board_mmc_getwp(mmc);
-
-	if (wp < 0) {
-		if (mmc->cfg->ops->getwp)
-			wp = mmc->cfg->ops->getwp(mmc);
-		else
-			wp = 0;
-	}
-
-	return wp;
-}
-
 __weak int board_mmc_getcd(struct mmc *mmc)
 {
 	return -1;
-}
-
-
-int mmc_legacy_init(int dev_num)
-{
-	struct mmc *mmc;
-	int rc;
-
-	debug("%s(%d)\n", __func__, dev_num);
-	mmc = find_mmc_device(dev_num);
-	if (mmc == NULL) {
-		printf("Error: could not find MMC device %d\n", dev_num);
-		return -1;
-	}
-	rc = mmc_init(mmc);
-	if (rc)
-		printf("Error: could not initialize MMC device %d\n", dev_num);
-
-	return rc;
 }
 
 /**
@@ -2596,7 +2485,7 @@ int mmc_legacy_init(int dev_num)
  * @param	flags	command flags
  * @param	timeout	timeout in ms, if 0 wait forever
  *
- * @return	0 if command returned within the timeout, TIMEOUT if command
+ * @return	0 if command returned within the timeout, ETIMEDOUT if command
  *		timed out or -1 if error.
  */
 static int
@@ -2628,7 +2517,7 @@ oct_mmc_wait_cmd(struct mmc *mmc, int bus_id, int cmd_idx, int flags,
 #ifdef DEBUG
 		mmc_print_registers(mmc);
 #endif
-		return TIMEOUT;
+		return ETIMEDOUT;
 	}
 	if (bus_id >= 0 && emm_rsp_sts.s.bus_id != bus_id) {
 		debug("%s: Mismatch bus_id, expected %d for cmd idx %d, got %d\n",
@@ -2691,8 +2580,7 @@ mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
 		     struct mmc_data *data,
 		     uint32_t flags, uint timeout)
 {
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
-	struct cavium_mmc_host *host = cavium_get_host(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
 	union mio_emm_cmd emm_cmd;
 	union mio_emm_buf_idx emm_buf_idx;
 	union mio_emm_buf_dat emm_buf_dat;
@@ -2704,8 +2592,7 @@ mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
 	debug("%s(%s bus: %d, cmd: 0x%x, data: %p, flags: 0x%x, timeout: %u)\n",
 	      __func__, mmc->cfg->name, bus_id,
 	      cmd->cmdidx, data, flags, timeout);
-	if (bus_id != last_bus_id[host->dev_index])
-		mmc_switch_dev(mmc);
+	mmc_switch_dev(mmc);
 
 	/* Set the hardware timeout */
 	mmc_set_watchdog(mmc, timeout ? timeout * 1000 : (1 << 26) - 1);
@@ -2754,7 +2641,7 @@ mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
 			debug("mmc cmd: Error waiting for bus %d, command index %d to complete\n",
 			      bus_id, cmd->cmdidx);
 		}
-		return TIMEOUT;
+		return ETIMEDOUT;
 	}
 	debug("%s: Response flags: 0x%x\n", __func__, cmd->resp_type);
 	if (!cmd->resp_type & MMC_RSP_PRESENT) {
@@ -2869,7 +2756,7 @@ static int mmc_send_acmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		debug("%s: Error, not SD card\n", __func__);
 		return -1;
 	}
-	err = cavium_mmc_send_cmd(mmc, &acmd, NULL);
+	err = cavium_mmc_send_cmd(mmc->dev, &acmd, NULL);
 	if (err) {
 		printf("%s: Error sending ACMD to SD card\n", __func__);
 		return err;
@@ -2883,7 +2770,7 @@ static int mmc_send_acmd(struct mmc *mmc, struct mmc_cmd *cmd,
 /** Change the bus width */
 static void mmc_set_bus_width(struct mmc *mmc, uint width)
 {
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
 	mmc->bus_width = min(width, (uint)slot->bus_max_width);
 	debug("%s(%s, %u): seting bus_width to %u\n", __func__,
 	      mmc->cfg->name, width, mmc->bus_width);
@@ -2898,7 +2785,7 @@ static int mmc_pre_idle(struct mmc *mmc)
 	cmd.cmdarg = 0xf0f0f0f0;	/* Software Reset */
 	cmd.resp_type = MMC_RSP_NONE;
 
-	err = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		debug("%s: error %d\n", __func__, err);
 	else
@@ -2919,7 +2806,7 @@ static int mmc_go_idle(struct mmc *mmc)
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_NONE;
 
-		err = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+		err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 		if (err)
 			return err;
 	}
@@ -2972,7 +2859,7 @@ static int mmc_set_relative_addr(struct mmc *mmc)
 	cmd.cmdidx = MMC_CMD_SET_RELATIVE_ADDR;
 	cmd.cmdarg = mmc->rca << 16;
 	cmd.resp_type = MMC_RSP_R1;
-	err = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		printf("%s: Error %d, failed to set RCA to %d\n", __func__,
 		       err, mmc->rca);
@@ -2992,7 +2879,7 @@ static int mmc_select_card(struct mmc *mmc)
 	cmd.resp_type = MMC_RSP_R1b;
 	cmd.cmdarg = mmc->rca << 16;
 
-	err = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		printf("%s: Error selecting card with rca %d\n",
 		       __func__, mmc->rca);
@@ -3022,7 +2909,7 @@ static int mmc_all_send_cid(struct mmc *mmc)
 	cmd.cmdidx = MMC_CMD_ALL_SEND_CID;
 	cmd.resp_type = MMC_RSP_R2;
 	cmd.cmdarg = 0;
-	err = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err) {
 		debug("%s: Error getting all CID\n", __func__);
 		return err;
@@ -3108,7 +2995,7 @@ static int mmc_get_csd(struct mmc *mmc)
 	cmd.cmdidx = MMC_CMD_SEND_CSD;
 	cmd.resp_type = MMC_RSP_R2;
 	cmd.cmdarg = mmc->rca << 16;
-	err = cavium_mmc_send_cmd(mmc, &cmd, NULL);
+	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err) {
 		printf("%s: Error getting CSD\n", __func__);
 		return err;
@@ -3128,7 +3015,7 @@ static int sd_set_bus_width_speed(struct mmc *mmc)
 	struct mmc_cmd cmd;
 	int err;
 #ifdef DEBUG
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
 	debug("%s(%s) width: %d %d\n", __func__, mmc->cfg->name,
 	      mmc->bus_width, slot->bus_width);
 #endif
@@ -3267,7 +3154,7 @@ int sd_send_op_cond(struct mmc *mmc)
 
 	if (timeout <= 0) {
 		printf("%s: Timed out\n", __func__);
-		return UNUSABLE_ERR;
+		return ENOTRECOVERABLE;
 	}
 
 	if ((mmc->version != SD_VERSION_2) || (mmc->version != SD_VERSION_3) ||
@@ -3313,7 +3200,7 @@ int mmc_send_op_cond(struct mmc *mmc)
 
 	if (timeout <= 0) {
 		printf("%s: Timed out!", __func__);
-		return TIMEOUT;
+		return ETIMEDOUT;
 	}
 
 	mmc->version = MMC_VERSION_UNKNOWN;
@@ -3348,7 +3235,7 @@ static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 #ifdef DEBUG
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
 #endif
 	int err;
 
@@ -3364,7 +3251,7 @@ static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 	data.blocksize = MMC_MAX_BLOCK_LEN;
 	data.flags = MMC_DATA_READ;
 
-	err = cavium_mmc_send_cmd(mmc, &cmd, &data);
+	err = cavium_mmc_send_cmd(mmc->dev, &cmd, &data);
 
 	if (err) {
 		printf("%s: Error getting extended CSD\n", __func__);
@@ -3376,7 +3263,7 @@ static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 	return err;
 }
 
-static int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
+int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 {
 	struct mmc_cmd cmd;
 
@@ -3387,15 +3274,15 @@ static int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 	cmd.cmdarg = (MMC_SWITCH_MODE_WRITE_BYTE << 24) |
 				(index << 16) | (value << 8) | set;
 
-	return cavium_mmc_send_cmd(mmc, &cmd, NULL);
+	return cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
 }
 
 #ifdef CONFIG_CAVIUM_MMC_SD
 static int sd_set_ios(struct mmc *mmc)
 {
 	union mio_emm_switch emm_switch;
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
-	struct cavium_mmc_host *host = cavium_get_host(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
+	struct cavium_mmc_host *host = slot->host;
 	int clock = mmc->clock;
 
 	debug("%s(%s)\n", __func__, mmc->cfg->name);
@@ -3430,20 +3317,15 @@ static int sd_set_ios(struct mmc *mmc)
 }
 #endif
 
-static void mmc_set_ios(struct mmc *mmc)
-{
-	if (mmc->cfg->ops->set_ios)
-		mmc->cfg->ops->set_ios(mmc);
-}
-
-static void cavium_mmc_set_ios(struct mmc *mmc)
+static int cavium_mmc_set_ios(struct udevice *dev)
 {
 	union mio_emm_switch emm_switch;
 	union mio_emm_rsp_sts emm_sts;
 	union mio_emm_sample emm_sample;
 	int switch_timeout_ms = 2550;
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
-	struct cavium_mmc_host *host = cavium_get_host(mmc);
+	struct cavium_mmc_host *host = dev_get_priv(dev);
+	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct mmc *mmc = slot->mmc;
 	int timeout = 2000;
 	char cardtype;
 	int hs_timing = 0;
@@ -3463,11 +3345,11 @@ static void cavium_mmc_set_ios(struct mmc *mmc)
 
 	/* Only version 4 supports high speed */
 	if (mmc->version < MMC_VERSION_4)
-		return;
+		return -1;
 
 	if (clock == 0) {
 		puts("mmc switch: Error, clock is zero!\n");
-		return;
+		return -1;
 	}
 
 	mmc_switch_dev(mmc);
@@ -3556,7 +3438,7 @@ static void cavium_mmc_set_ios(struct mmc *mmc)
 		break;
 	default:
 		printf("%s: Unknown bus width %d\n", __func__, mmc->bus_width);
-		return;
+		return -1;
 	}
 
 	if (hs_timing) {
@@ -3692,7 +3574,7 @@ again:
 	if (timeout <= 0) {
 		printf("%s: switch command timed out, bus = %d, status=0x%llx\n",
 		       __func__, slot->bus_id, emm_sts.u);
-		return;
+		return -1;
 	}
 
 	emm_switch.u = mmc_read_csr(mmc, MIO_EMM_SWITCH);
@@ -3714,7 +3596,7 @@ again:
 		} else {
 			printf("%s: CRC errors at 400KHz, MMC device unusable\n",
 			       __func__);
-			return;
+			return -1;
 		}
 		printf("%s: CRC error communicating with MMC device at %uHz, trying %uHz.\n",
 		       __func__, mmc->clock, next_speed);
@@ -3807,7 +3689,7 @@ again:
 			goto again;
 		}
 		printf("%s: Error setting hs timing\n", __func__);
-		return;
+		return -1;
 	}
 
 	/* CMD19 and CMD14 are only supported for MMC devices and only in
@@ -3866,7 +3748,7 @@ again:
 			default:
 				printf("Unknown bus width %d\n",
 				       mmc->bus_width);
-				return;
+				return -1;
 			}
 
 #if defined(DEBUG)
@@ -3875,7 +3757,7 @@ again:
 			mmc_cmd.cmdarg = 0;
 			mmc_cmd.cmdidx = 19;	/* BUSTEST_W */
 			mmc_cmd.resp_type = MMC_RSP_R1;
-			if (cavium_mmc_send_cmd(mmc, &mmc_cmd, &mmc_data) != 0)
+			if (cavium_mmc_send_cmd(mmc->dev, &mmc_cmd, &mmc_data) != 0)
 				puts("Warning: problem sending BUSTEST_W command\n");
 
 			debug("BUSTEST_W response is 0x%x 0x%x 0x%x 0x%x\n",
@@ -3949,7 +3831,7 @@ again:
 				if ((buffer[0] & 0xc0) != 0x40) {
 					debug("DDR bus width 1 test failed, returned 0x%02x, expected 0x4x, trying bus width 1\n",
 					      buffer[0]);
-					return;
+					return -1;
 				}
 				break;
 			default:
@@ -3986,7 +3868,7 @@ again:
 			default:
 				printf("%s: Could not set bus width\n",
 				       __func__);
-				return;
+				return -1;
 			}
 		}
 	}
@@ -4004,7 +3886,7 @@ again:
 			break;
 		default:
 			puts("Error: MMC DDR mode only supported with bus widths of 4 or 8!\n");
-			return;
+			return -1;
 		}
 		emm_switch.u = 0;
 		emm_switch.s.bus_id = slot->bus_id;
@@ -4027,7 +3909,7 @@ again:
 		} while (timeout-- > 0);
 		if (timeout < 0) {
 			printf("Error: MMC timed out when converting to DDR mode\n");
-			return;
+			return -1;
 		}
 	}
 	/* Store the bus width */
@@ -4044,7 +3926,7 @@ again:
 	mmc_send_ext_csd(mmc, slot->ext_csd);
 	slot->have_ext_csd = true;
 
-	return;
+	return 0;
 }
 
 /**
@@ -4054,8 +3936,8 @@ again:
  */
 void mmc_set_clock(struct mmc *mmc, uint clock)
 {
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
-	struct cavium_mmc_host *host = cavium_get_host(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
+	struct cavium_mmc_host *host = slot->host;
 	union mio_emm_switch emm_switch;
 	unsigned bus;
 
@@ -4140,7 +4022,7 @@ static int sd_change_freq(struct mmc *mmc)
 	uint32_t switch_status[16];
 	struct mmc_data data;
 	int timeout;
-	struct cavium_mmc_slot *slot = (struct cavium_mmc_slot *)mmc->priv;
+	struct cavium_mmc_slot *slot = mmc->priv;
 	uint32_t flags;
 #ifdef DEBUG
 	int i;
@@ -4435,7 +4317,7 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	if ((cmd.response[0] & 0xff) != 0xaa) {
 		debug("%s: Unusable error, response is 0x%x\n",
 		      __func__, cmd.response[0]);
-		return UNUSABLE_ERR;
+		return ENOTRECOVERABLE;
 	} else {
 		mmc->version = SD_VERSION_2;
 		debug("%s: SD version 2 detected\n", __func__);
@@ -4502,8 +4384,8 @@ static int mmc_set_dsr_cmd(struct mmc *mmc)
 
 int mmc_startup(struct mmc *mmc)
 {
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
-	struct cavium_mmc_host *host = cavium_get_host(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
+	struct cavium_mmc_host *host = slot->host;
 	u64 cmult, csize, capacity;
 	int err;
 	uint mult, freq;
@@ -4518,9 +4400,14 @@ int mmc_startup(struct mmc *mmc)
 	uint8_t *ext_csd = slot->ext_csd;
 	bool has_parts = false;
 	bool part_completed;
+	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 
 	debug("%s(%s): bus_id: %d\n", __func__, mmc->cfg->name, slot->bus_id);
 
+	if (!bdesc) {
+		printf("%s couldn't find blk desc\n", __func__);
+		return -ENODEV;
+	}
 	mmc->rca = 0;
 
 	/* Clear interrupt status */
@@ -4552,7 +4439,7 @@ int mmc_startup(struct mmc *mmc)
 	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
 	udelay(1200);
 
-	last_bus_id[host->dev_index] = slot->bus_id;
+	host->last_slotid = host->cur_slotid;
 
 #ifdef DEBUG
 	debug("%s: Set clock period to %d clocks, sclock: %llu\n", __func__,
@@ -4607,12 +4494,12 @@ int mmc_startup(struct mmc *mmc)
 #ifdef CONFIG_CAVIUM_MMC_SD
 		debug("Getting SD card operating condition\n");
 		err = sd_send_op_cond(mmc);
-		if (err == TIMEOUT) {
+		if (err == ETIMEDOUT) {
 			debug("Cannot get SD operating condition, trying MMC\n");
 			err = mmc_send_op_cond(mmc);
 			if (err) {
 				printf("Card not present or defective.  Card did not respond to voltage select!\n");
-				return UNUSABLE_ERR;
+				return ENOTRECOVERABLE;
 			}
 		}
 
@@ -4620,7 +4507,7 @@ int mmc_startup(struct mmc *mmc)
 			err = mmc_send_op_cond(mmc);
 			if (err) {
 				puts("MMC Init: Error recovering after SD Version 2 test\n");
-				return UNUSABLE_ERR;
+				return ENOTRECOVERABLE;
 			}
 		}
 #endif
@@ -4636,7 +4523,7 @@ int mmc_startup(struct mmc *mmc)
 
 		debug("Getting MMC card operating condition\n");
 		err = mmc_send_op_cond(mmc);
-		if (err == TIMEOUT) {
+		if (err == ETIMEDOUT) {
 			debug("Trying again...\n");
 			/* Resetting MMC bus */
 			mmc_reset_bus(mmc, true);
@@ -4661,7 +4548,7 @@ int mmc_startup(struct mmc *mmc)
 			err = mmc_send_op_cond(mmc);
 			if (err) {
 				puts("MMC Init: Error recovering after SD Version 2 test\n");
-				return UNUSABLE_ERR;
+				return ENOTRECOVERABLE;
 			}
 		}
 	}
@@ -5069,7 +4956,7 @@ int mmc_startup(struct mmc *mmc)
 		mmc->wr_rel_set = ext_csd[EXT_CSD_WR_REL_SET];
 	}
 
-	err = mmc_set_capacity(mmc, mmc->block_dev.hwpart);
+	err = mmc_set_capacity(mmc, bdesc->hwpart);
 	if (err) {
 		debug("%s: Error setting capacity\n", __func__);
 		return err;
@@ -5126,48 +5013,49 @@ int mmc_startup(struct mmc *mmc)
 
 	/* Fill in device description */
 	debug("%s: Filling in block descriptor\n",  __func__);
-	mmc->block_dev.lun = 0;
-	mmc->block_dev.hwpart = 0;
-	mmc->block_dev.type = 0;
-	mmc->block_dev.blksz = mmc->read_bl_len;
-	mmc->block_dev.log2blksz = LOG2(mmc->block_dev.blksz);
-	mmc->block_dev.lba = lldiv(mmc->capacity, mmc->read_bl_len);
+	bdesc->lun = 0;
+	bdesc->hwpart = 0;
+	bdesc->type = 0;
+	bdesc->blksz = mmc->read_bl_len;
+	bdesc->log2blksz = LOG2(bdesc->blksz);
+	bdesc->lba = lldiv(mmc->capacity, mmc->read_bl_len);
 	if (IS_SD(mmc)) {
-		sprintf(mmc->block_dev.vendor, "Man %02x Snr %08x",
+		sprintf(bdesc->vendor, "Man %02x Snr %08x",
 			mmc->cid[0] >> 24,
 			(mmc->cid[2] << 8) | (mmc->cid[3] >> 24));
-		sprintf(mmc->block_dev.product, "%c%c%c%c%c",
+		sprintf(bdesc->product, "%c%c%c%c%c",
 			mmc->cid[0] & 0xff,
 			mmc->cid[1] >> 24, (mmc->cid[1] >> 16) & 0xff,
 			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff);
-		sprintf(mmc->block_dev.revision, "%d.%d",
+		sprintf(bdesc->revision, "%d.%d",
 			(mmc->cid[2] >> 24) & 0xF, (mmc->cid[2] >> 28) & 0xF);
 	} else {
-		sprintf(mmc->block_dev.vendor, "Man %06x Snr %08x",
+		sprintf(bdesc->vendor, "Man %06x Snr %08x",
 			mmc->cid[0] >> 24,
 			(mmc->cid[2] << 16) | (mmc->cid[3] >> 16));
-		sprintf(mmc->block_dev.product, "%c%c%c%c%c%c",
+		sprintf(bdesc->product, "%c%c%c%c%c%c",
 			mmc->cid[0] & 0xff,
 			mmc->cid[1] >> 24, (mmc->cid[1] >> 16) & 0xff,
 			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff,
 			(mmc->cid[2] >> 24) & 0xff);
-		sprintf(mmc->block_dev.revision, "%d.%d",
+		sprintf(bdesc->revision, "%d.%d",
 			(mmc->cid[2] >> 20) & 0xf, (mmc->cid[2] >> 16) & 0xf);
 	}
-	debug("%s: %s\n", __func__, mmc->block_dev.vendor);
-	debug("%s: %s\n", __func__, mmc->block_dev.product);
+	debug("%s: %s\n", __func__, bdesc->vendor);
+	debug("%s: %s\n", __func__, bdesc->product);
 	if (IS_SD(mmc))
-		sprintf(mmc->block_dev.revision, "%d.%d",
+		sprintf(bdesc->revision, "%d.%d",
 			(mmc->cid[2] >> 28) & 0xf,
 			(mmc->cid[2] >> 24) & 0xf);
 	else
-		sprintf(mmc->block_dev.revision, "%d.%d",
+		sprintf(bdesc->revision, "%d.%d",
 			(mmc->cid[2] >> 20) & 0xf,
 		(mmc->cid[2] >> 16) & 0xf);
 	debug("%s: mmc priv (slot): %p\n", __func__, mmc->priv);
-	mmc_select_hwpart(mmc->block_dev.dev, 0);
-	init_part(&mmc->block_dev);
-	debug("%s: %s\n", __func__, mmc->block_dev.revision);
+	debug("%s:**** mmc priv (bdesc): %p bdesc->dev %p bdesc->devnum %d\n",
+		 __func__, bdesc, bdesc->bdev, bdesc->devnum);
+	part_init(bdesc);
+	debug("%s: %s\n", __func__, bdesc->revision);
 
 	return 0;
 }
@@ -5176,12 +5064,15 @@ int mmc_startup(struct mmc *mmc)
  * This is the external mmc_send_cmd function.  It was required that
  * the internal version support flags so this version is required.
  */
-static int cavium_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+static int cavium_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			       struct mmc_data *data)
 {
 	uint32_t flags = 0;
 	int ret;
 	static bool acmd;
+	struct cavium_mmc_host *host = dev_get_priv(dev);
+	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct mmc *mmc = slot->mmc;
 
 	/* Some SD commands require some flags to be changed */
 	if (IS_SD(mmc)) {
@@ -5229,10 +5120,13 @@ static int cavium_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	return ret;
 }
 
-int __cavium_mmc_getwp(struct mmc *mmc)
+int __cavium_mmc_getwp(struct udevice *dev)
 {
-	struct cavium_mmc_slot *slot = (struct cavium_mmc_slot *)mmc->priv;
+	struct cavium_mmc_host *host = dev_get_priv(dev);
+	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct mmc *mmc = slot->mmc;
 	int val = 0;
+	debug("%s: card \n", __func__);
 
 	if (dm_gpio_is_valid(&slot->wp_gpio)) {
 		val = dm_gpio_get_value(&slot->wp_gpio);
@@ -5247,11 +5141,14 @@ int __cavium_mmc_getwp(struct mmc *mmc)
 	return val;
 }
 
-int __cavium_mmc_getcd(struct mmc *mmc)
+int __cavium_mmc_getcd(struct udevice *dev)
 {
-	struct cavium_mmc_slot *slot = (struct cavium_mmc_slot *)mmc->priv;
+	struct cavium_mmc_host *host = dev_get_priv(dev);
+	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct mmc *mmc = slot->mmc;
 	int bus = slot->bus_id;
 	int val = 1;
+	debug("%s(%d): card \n", __func__, bus );
 
 	if (dm_gpio_is_valid(&slot->cd_gpio)) {
 		val = dm_gpio_get_value(&slot->cd_gpio);
@@ -5268,30 +5165,6 @@ int __cavium_mmc_getcd(struct mmc *mmc)
 }
 
 /**
- * Returns the card detect of a MMC device
- *
- * @param mmc	pointer to mmc data structure
- * @return true if card is present, false otherwise
- */
-int __mmc_getcd(struct mmc *mmc)
-{
-	int cd;
-
-	cd = board_mmc_getcd(mmc);
-
-	if (cd < 0) {
-		if (mmc->cfg->ops->getcd)
-			cd = mmc->cfg->ops->getcd(mmc);
-		else
-			cd = 1;
-	}
-
-	debug("%s(%s): return %d\n", __func__, mmc->cfg->name, cd);
-	return cd;
-}
-int mmc_getcd(struct mmc *mmc) __attribute__((weak, alias("__mmc_getcd")));
-
-/**
  * Controls the power to a MMC device
  *
  * @param mmc	pointer to mmc data structure
@@ -5299,7 +5172,7 @@ int mmc_getcd(struct mmc *mmc) __attribute__((weak, alias("__mmc_getcd")));
  */
 void __mmc_set_power(struct mmc *mmc, int on)
 {
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
 	int bus = slot->bus_id;
 	int val;
 
@@ -5332,6 +5205,59 @@ int mmc_set_rst_n_function(struct mmc *mmc, u8 enable)
 			  enable);
 }
 
+static int mmc_probe(bd_t *bis)
+{
+        int ret, i;
+        struct uclass *uc;
+        struct udevice *dev;
+
+        ret = uclass_get(UCLASS_MMC, &uc);
+        if (ret)
+                return ret;
+
+        /*
+         * Try to add them in sequence order. Really with driver model we
+         * should allow holes, but the current MMC list does not allow that.
+         * So if we request 0, 1, 3 we will get 0, 1, 2.
+         */
+        for (i = 0; ; i++) {
+                ret = uclass_get_device_by_seq(UCLASS_MMC, i, &dev);
+                if (ret == -ENODEV)
+                        break;
+        }
+        uclass_foreach_dev(dev, uc) {
+                ret = device_probe(dev);
+                if (ret)
+                        printf("%s - probe failed: %d\n", dev->name, ret);
+        }
+
+        return 0;
+}
+
+int mmc_initialize(bd_t *bis)
+{
+        static int initialized = 0;
+        int ret;
+        if (initialized)        /* Avoid initializing mmc multiple times */
+                return 0;
+        initialized = 1;
+
+#ifndef CONFIG_BLK
+#if !CONFIG_IS_ENABLED(MMC_TINY)
+        mmc_list_init();
+#endif
+#endif
+        ret = mmc_probe(bis);
+        if (ret)
+                return ret;
+
+#ifndef CONFIG_SPL_BUILD
+        print_mmc_devices(',');
+#endif
+
+	return 0;
+}
+
 /**
  * Initialize all MMC devices on a board
  *
@@ -5341,89 +5267,91 @@ int mmc_set_rst_n_function(struct mmc *mmc, u8 enable)
  *
  * TODO: Modify this to support multiple nodes
  */
-int mmc_initialize(bd_t *bis)
+int cavium_mmc_initialize(struct udevice *dev)
 {
 	static bool not_first;
-	struct mmc *mmc = NULL;
-	struct mmc *tmp_mmc;
-	struct cavium_mmc_host *host = NULL;
+	struct cavium_mmc_host *host = dev_get_priv(dev);
 	struct cavium_mmc_slot *slot = NULL;
+	struct mmc *mmc = NULL;
 	int bus_id = 0;
 	int rc = -1;
 	int repeat;
 	int found = 0;
-	int host_index, slot_index;
+	int slot_index;
 
-	debug("%s(%p) ENTER\n", __func__, bis);
+	debug("%s ENTER\n", __func__);
 
 	/* The first time through clear out all of the last bus ids per node
 	 * for switching between buses.
 	 */
 	if (!not_first) {
 		not_first = true;
-		for (repeat = 0; repeat < CONFIG_CAVIUM_MMC_MAX_HOSTS; repeat++)
-			last_bus_id[repeat] = -1;
+		host->last_slotid = -1;
 	}
 
-	for (host_index = 0; host_index < CONFIG_CAVIUM_MMC_MAX_HOSTS;
-	     host_index++) {
-		host = hosts[host_index];
-		if (!host)
-			continue;
-
-		debug("%s: Host index %d clearing slots\n", __func__,
-		      host_index);
-		for (slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
-		     slot_index++) {
-			slot = &host->slots[slot_index];
-			if (slot && slot->mmc && mmc->has_init) {
-				debug("%s: Slot %d initialized, clearing\n",
-				      __func__, slot_index);
-				if (slot->mmc) {
-					list_del(&slot->mmc->link);
-					mmc_destroy(slot->mmc);
-				}
-				memset(slot, 0, sizeof(*slot));
+	debug("%s ENTER host %p\n", __func__,host);
+	for (slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
+	     slot_index++) {
+		slot = &host->slots[slot_index];
+	debug("%s ENTER host %p\n", __func__,host);
+	debug("%s ENTER slot %p\n", __func__,slot);
+		if (slot->mmc && slot->mmc->has_init) {
+			debug("%s: Slot %d initialized, clearing\n",
+			      __func__, slot_index);
+			if (slot->mmc) {
+				mmc_destroy(slot->mmc);
 			}
-		}
-
-		rc = cavium_mmc_get_config(gd->fdt_blob, host->of_offset, host);
-		if (rc) {
-			debug("%s: Error getting configuration for host %d\n",
-			      __func__, host_index);
-		} else {
-			found = 1;
+			memset(slot, 0, sizeof(*slot));
 		}
 	}
 
-	if (!found) {
-		debug("%s: No configuration found\n", __func__);
+	debug("%s ENTER\n", __func__);
+	rc = cavium_mmc_get_config(dev);
+	if (rc) {
+		debug("%s: Error getting configuration for host \n",
+		      __func__);
 		return -1;
 	}
 
-	/* Disable all MMC slots and power them down */
-	list_for_each_entry(mmc, &mmc_devices, link) {
+	for (slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
+	     slot_index++) {
+		slot = &host->slots[slot_index];
+		mmc = slot->mmc;
+		if (!mmc)
+			continue;
+		/* Disable all MMC slots and power them down */
 		debug("%s: Disabling MMC slot %s\n", __func__, mmc->cfg->name);
 		mmc_write_csr(mmc, MIO_EMM_CFG, 0);
 		mmc_set_power(mmc, 0);
 	}
 
 	mdelay(100);
+
 	/* Power them all up */
 	debug("Powering up all devices\n");
-	list_for_each_entry(mmc, &mmc_devices, link) {
-		slot = cavium_get_slot(mmc);
+	for (slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
+	     slot_index++) {
+		slot = &host->slots[slot_index];
+		mmc = slot->mmc;
+		if (!mmc)
+			continue;
 		debug("Powering up MMC slot %d\n", slot->bus_id);
-		mmc_set_power(mmc, 1);
+		mmc_set_power(slot->mmc, 1);
 	}
 	found = false;
 
-	list_for_each_entry_safe(mmc, tmp_mmc, &mmc_devices, link) {
-		slot = cavium_get_slot(mmc);
-		host = cavium_get_host(mmc);
+	for (slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
+	     slot_index++) {
+		slot = &host->slots[slot_index];
 		bus_id = slot->bus_id;
-		debug("%s: mmc: %p, host: %p, bus_id: %d:%d\n",
-		      __func__, mmc, host, host->dev_index, bus_id);
+		mmc = slot->mmc;
+		if (!mmc)
+			continue;
+		host->cur_slotid = slot_index;
+		if (host->last_slotid == -1)
+			host->last_slotid = host->cur_slotid;
+		debug("%s: mmc: %p, host: %p, bus_id: %d\n",
+		      __func__, mmc, host, bus_id);
 
 		if (!mmc_getcd(mmc)) {
 			debug("%s: Disabling empty slot %s\n",
@@ -5442,9 +5370,9 @@ int mmc_initialize(bd_t *bis)
 			rc = mmc_init(mmc);
 			if (!rc) {
 				found = true;
-				debug("%s: %s: block dev: %d\n", __func__,
-				      mmc->cfg->name, mmc->block_dev.dev);
-				last_bus_id[host->dev_index] = slot->bus_id;
+				debug("%s: %s: block dev: \n", __func__,
+				      mmc->cfg->name);
+				host->last_slotid = host->cur_slotid;
 				debug("%s: Setting %s slot initialized true\n",
 				      __func__, mmc->cfg->name);
 				mmc->has_init = true;
@@ -5473,7 +5401,9 @@ int mmc_initialize(bd_t *bis)
 
 	if (found) {
 		debug("%s: Printing devices\n", __func__);
+#ifdef DEBUG
 		print_mmc_devices(',');
+#endif
 	} else {
 		printf("MMC not available\n");
 	}
@@ -5483,8 +5413,8 @@ int mmc_initialize(bd_t *bis)
 
 int __cavium_mmc_init(struct mmc *mmc)
 {
-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
-	struct cavium_mmc_host *host = cavium_get_host(mmc);
+	struct cavium_mmc_slot *slot = mmc->priv;
+	struct cavium_mmc_host *host = slot->host;
 	union mio_emm_switch emm_switch;
 	union mio_emm_cfg emm_cfg;
 	union mio_emm_sts_mask emm_sts_mask;
@@ -5520,7 +5450,7 @@ int __cavium_mmc_init(struct mmc *mmc)
 	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
 	udelay(1200);
 
-	last_bus_id[host->dev_index] = slot->bus_id;
+	host->last_slotid = host->cur_slotid;
 
 	debug("%s: Set clock period to %d clocks, sclock: %llu\n", __func__,
 	      emm_switch.s.clk_hi + emm_switch.s.clk_lo, host->sclock);
@@ -5551,14 +5481,15 @@ int __cavium_mmc_init(struct mmc *mmc)
 int mmc_start_init(struct mmc *mmc)
 {
 	int err;
+	const struct cavium_mmc_slot *slot = mmc->priv;
+	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 
 	debug("%s(%s): Entry\n", __func__, mmc->cfg->name);
 
-#ifdef __mips
-	if (!octeon_has_feature(OCTEON_FEATURE_MMC))
+	if (!bdesc) {
+		printf("%s couldn't find blk desc\n", __func__);
 		return -ENODEV;
-#endif
-
+	}
 	if (!mmc_getcd(mmc)) {
 		debug("%s: No card detected for %s\n", __func__,
 		      mmc->cfg->name);
@@ -5566,13 +5497,13 @@ int mmc_start_init(struct mmc *mmc)
 	}
 
 	mmc_set_power(mmc, 1);
+        err = cavium_mmc_init(mmc);
+        if (err) {
+                printf("%s(%s): init returned %d\n", __func__,
+                       mmc->cfg->name, err);
+                return err;
+        }
 
-	err = mmc->cfg->ops->init(mmc);
-	if (err) {
-		printf("%s(%s): ops->init returned %d\n", __func__,
-		       mmc->cfg->name, err);
-		return err;
-	}
 	mmc->ddr_mode = 0;
 	mmc_set_bus_width(mmc, 1);
 	mmc_set_clock(mmc, 1);
@@ -5583,7 +5514,7 @@ int mmc_start_init(struct mmc *mmc)
 		return err;
 	}
 
-	mmc->block_dev.hwpart = 0;
+	bdesc->hwpart = 0;
 
 #ifdef CONFIG_CAVIUM_MMC_SD
 	/* Test for SD version 2 */
@@ -5592,16 +5523,16 @@ int mmc_start_init(struct mmc *mmc)
 	/* Now try to get the SD card's operating condition */
 	err = sd_send_op_cond(mmc);
 #else
-	err = TIMEOUT;
+	err = ETIMEDOUT;
 #endif
 	/* If the command timed out, we check for an MMC card */
-	if (err == TIMEOUT) {
+	if (err == ETIMEDOUT) {
 		err = mmc_send_op_cond(mmc);
 
 		if (err) {
 			debug("Card did not respond to voltage select!\n");
 
-			return UNUSABLE_ERR;
+			return ENOTRECOVERABLE;
 		}
 	}
 
@@ -5655,12 +5586,6 @@ int mmc_init(struct mmc *mmc)
 	return err;
 }
 
-int get_mmc_num(void)
-{
-	debug("%s: cur_dev_num: %d\n", __func__, cur_dev_num);
-	return cur_dev_num;
-}
-
 /**
  * Create a new MMC device and links it in
  *
@@ -5672,47 +5597,55 @@ int get_mmc_num(void)
 struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
 {
 	struct mmc *mmc;
+	struct blk_desc *bdesc;
+	struct cavium_mmc_slot *slot = priv;
+	struct udevice *dev = slot->host->dev;
+	struct udevice *bdev;
+	int ret = -1;
 
 	debug("%s(%p, %p)\n", __func__, cfg, priv);
-	if (cfg == NULL || cfg->ops == NULL || cfg->ops->send_cmd == NULL ||
-	    cfg->f_min == 0 || cfg->f_max == 0 || cfg->b_max == 0) {
+	if (cfg == NULL || cfg->f_min == 0 || cfg->f_max == 0 ||
+		cfg->b_max == 0) {
 		printf("%s: config error:\n"
 		       "  cfg: %p\n"
-		       "  cfg->ops: %p\n"
-		       "  cfg->ops->send_cmd: %p\n"
 		       "  cfg->f_min: %d\n"
 		       "  cfg->f_max: %d\n"
 		       "  cfg->b_max: %d\n",
-		       __func__, cfg, cfg->ops, cfg->ops->send_cmd,
-		       cfg->f_min, cfg->f_max, cfg->b_max);
+		       __func__, cfg, cfg->f_min, cfg->f_max,
+			 cfg->b_max);
 		return NULL;
 	}
+
+	if (!mmc_get_ops(dev))
+		return NULL;
+
+	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC,
+				slot->bus_id, 512, 0, &bdev);
+	if (ret) {
+		debug("Cannot create block device\n");
+		return NULL;
+	}
+	bdesc = dev_get_uclass_platdata(bdev);
 
 	mmc = calloc(1, sizeof(*mmc));
 	if (mmc == NULL)
 		return NULL;
 	mmc->cfg = cfg;
 	mmc->priv = priv;
-
+	mmc->dev = dev;
+	debug("%s**** bdesc %p bdev %p dev %p\n",__func__,
+		bdesc, bdev, dev);
 	/* the following chunk was mmc_register */
 
 	/* Setup dsr related values */
 	mmc->dsr_imp = 0;
 	mmc->dsr = 0xffffffff;
 	/* Setup the universal parts of the block interface just once */
-	mmc->block_dev.if_type = IF_TYPE_MMC;
-	if (cur_dev_num < 0)
-		cur_dev_num = 0;
-	mmc->block_dev.dev = cur_dev_num++;
-	mmc->block_dev.block_read = mmc_bread;
-	mmc->block_dev.block_write = mmc_bwrite;
-	mmc->block_dev.block_erase = mmc_berase;
+	bdesc->if_type = IF_TYPE_MMC;
+	bdesc->removable = 1;
 
 	/* setup initial part type */
-	mmc->block_dev.part_type = mmc->cfg->part_type;
-
-	INIT_LIST_HEAD(&mmc->link);
-	list_add_tail(&mmc->link, &mmc_devices);
+	bdesc->part_type = mmc->cfg->part_type;
 
 	return mmc;
 }
@@ -5816,7 +5749,7 @@ static int get_mmc_regulator(const void *blob, int of_offset,
 	low = xlate_voltage(min_microvolt);
 	high = xlate_voltage(max_microvolt);
 
-	ret = gpio_request_by_name_nodev(blob, of_offset, "gpio", 0,
+	ret = gpio_request_by_name_nodev(offset_to_ofnode(of_offset), "gpio", 0,
 					 &slot->power_gpio,
 					 GPIOD_IS_OUT);
 	/* GPIOs can only be acquired once so if we get an EBUSY error it means
@@ -5824,12 +5757,10 @@ static int get_mmc_regulator(const void *blob, int of_offset,
 	 * we just duplicate the GPIO descriptor.
 	 */
 	if (ret == -EBUSY) {
-		struct list_head *entry;
-		struct mmc *mmc;
 		struct cavium_mmc_slot *sslot;
-		list_for_each(entry, &mmc_devices) {
-			mmc = list_entry(entry, struct mmc, link);
-			sslot = cavium_get_slot(mmc);
+		for(int slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
+			slot_index++) {
+			sslot = &host->slots[slot_index];
 			assert(sslot);
 			if (sslot->power_gpio_of_offset == of_offset) {
 				debug("%s: Found duplicate link to power\n",
@@ -5877,25 +5808,21 @@ static int get_mmc_regulator(const void *blob, int of_offset,
  *
  * @return	0 for success, -1 on error.
  */
-static int cavium_mmc_get_config(const void *blob, int of_offset,
-				 struct cavium_mmc_host *host)
+static int cavium_mmc_get_config(struct udevice *dev)
 {
+	struct cavium_mmc_host *host = dev_get_priv(dev);
 	struct cavium_mmc_slot *slot;
+	const void *blob = gd->fdt_blob;
 	int slot_node;
 	int regulator_node;
 	int ret;
 
-	debug("%s(%p, %d, %p)\n", __func__, blob, of_offset, host);
+	debug("%s(%p, %d, %p)\n", __func__, blob, host->of_offset, host);
 
-#ifdef __mips
-	host->sclock = cvmx_clock_get_rate(CVMX_CLOCK_SCLK);
-	host->use_ndf = (OCTEON_IS_OCTEON2() || OCTEON_IS_MODEL(OCTEON_CN70XX));
-#else
 	host->sclock = thunderx_get_io_clock();
 	debug("%s: sclock: %llu\n", __func__, host->sclock);
-#endif
 
-	slot_node = of_offset;
+	slot_node = host->of_offset;
 	debug("%s: Reading slots...\n", __func__);
 	while ((slot_node = fdt_node_offset_by_compatible(blob, slot_node,
 					"mmc-slot")) > 0) {
@@ -5915,7 +5842,7 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 		slot->host = host;
 		/* Get max frequency */
 		slot->cfg.f_max = fdtdec_get_uint(blob, slot_node,
-						  "spi-max-frequency",
+						  "max-frequency",
 						  26000000);
 		/* Set min frequency */
 		slot->cfg.f_min = 400000;
@@ -5923,8 +5850,6 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 		 * in one operation.
 		 */
 		slot->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
-		/* Set ops */
-		slot->cfg.ops = &cavium_mmc_ops;
 
 		if (fdtdec_get_bool(blob, slot_node, "cap-sd-highspeed"))
 			slot->cfg.host_caps |= MMC_MODE_HS;
@@ -5980,11 +5905,13 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 		debug("  slot GPIO is%s valid\n",
 		      dm_gpio_is_valid(&slot->power_gpio) ? "" : " not");
 
-		gpio_request_by_name_nodev(blob, slot_node, "cd-gpios", 0,
+		gpio_request_by_name_nodev(offset_to_ofnode(slot_node),
+					   "cd-gpios", 0,
 					   &slot->cd_gpio, GPIOD_IS_IN);
 		slot->cd_inverted = fdtdec_get_bool(blob, slot_node,
 						    "cd-inverted");
-		gpio_request_by_name_nodev(blob, slot_node, "wp-gpios", 0,
+		gpio_request_by_name_nodev(offset_to_ofnode(slot_node),
+					   "wp-gpios", 0,
 					   &slot->wp_gpio, GPIOD_IS_IN);
 		slot->ro_inverted = fdtdec_get_bool(blob, slot_node,
 						    "wp-inverted");
@@ -6000,12 +5927,14 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 		slot->dat_clk_skew = fdtdec_get_int(blob, slot_node,
 						    "cavium,cmd-dat-skew", 0);
 		slot->bus_id = reg;
+
 		/* Initialize mmc data structure */
 		slot->mmc = mmc_create(&slot->cfg, slot);
 		if (!slot->mmc) {
 			printf("Error: could not allocate mmc data structure\n");
 			return -1;
 		}
+
 		slot->mmc->version = MMC_VERSION_UNKNOWN;
 		slot->mmc->rca = reg + 0x10;
 		slot->mmc->clock = CONFIG_CAVIUM_MMC_MIN_BUS_SPEED_HZ;
@@ -6018,45 +5947,29 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
 			slot->cfg.host_caps |= MMC_MODE_8BIT;
 
 		snprintf(slot->name, CAVIUM_MMC_NAME_LEN, "cavium_mmc%d",
-			 num_mmc_slots);
+			 slot->bus_id);
 		slot->cfg.name = slot->name;
-		slot->slot_idx = num_mmc_slots++;
 	}
-	return 0;
-}
-
-static int process_node(struct udevice *dev, const void *blob, int of_offset)
-{
-	struct cavium_mmc_host *host = dev->priv;
-
-	if (num_mmc_hosts >= CONFIG_CAVIUM_MMC_MAX_HOSTS) {
-		printf("%s: Too many hosts! Maximum of %d allowed\n",
-		       __func__, CONFIG_CAVIUM_MMC_MAX_HOSTS);
-		return -1;
-	}
-	if (!host->dev) {
-		hosts[num_mmc_hosts] = host;
-		host->dev = dev;
-		host->of_offset = of_offset;
-		host->dev_index = num_mmc_hosts;
-	}
-
-	num_mmc_hosts++;
-
 	return 0;
 }
 
 static int cavium_pci_mmc_probe(struct udevice *dev)
 {
-	debug("%s: Entry\n", __func__);
+	int rc = -1;
+	size_t size;
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	struct cavium_mmc_host *host = dev_get_priv(dev);
-	size_t size;
-	void *base_addr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
-	int rc = -1;
 
+	debug("%s: Entry\n", __func__);
 	memset(host, 0, sizeof(*host));
-	host->base_addr = base_addr;
+	host->base_addr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+	if (!host->base_addr) {
+		debug("%s(%s): MMC not found on MRML bus\n",
+		      __func__, dev->name);
+		return rc;
+	}
+	host->dev = dev;
+	host->of_offset = dev->node.of_offset;
 	dev->req_seq = PCI_FUNC(bdf);
 
 	debug("%s(%s): ", __func__, dev->name);
@@ -6066,31 +5979,18 @@ static int cavium_pci_mmc_probe(struct udevice *dev)
 	      "  parent platdata: %p\n"
 	      "  uclass platdata: %p\n"
 	      "  base address:    %p\n"
-	      "  of_offset:       %d\n"
+	      "  of_offset:       %ld\n"
 	      "  parent:          %p\n"
 	      "  priv:            %p\n"
 	      "  uclass:          %p\n"
 	      "  req_seq:         %d\n"
 	      "  seq:             %d\n",
 	      dev, dev->driver, dev->platdata, dev->parent_platdata,
-	      dev->uclass_platdata, base_addr,
-	      dev->of_offset, dev->parent, dev->priv,
+	      dev->uclass_platdata, host->base_addr,
+	      dev->node.of_offset, dev->parent, dev->priv,
 	      dev->uclass, dev->req_seq, dev->seq);
 
-	if (!base_addr) {
-		debug("%s(%s): MMC not found on MRML bus\n",
-		      __func__, dev->name);
-		return rc;
-	}
-
-	if (dev->of_offset >= 0)
-		rc = process_node(dev, gd->fdt_blob, dev->of_offset);
-	else
-		debug("%s(%s): Error: invalid offset in device tree\n",
-		      __func__, dev->name);
-
-	if (!rc)
-		rc = mmc_initialize(gd->bd);
+	rc = cavium_mmc_initialize(dev);
 
 	return rc;
 }

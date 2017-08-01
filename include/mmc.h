@@ -883,8 +883,9 @@ int mmc_get_env_dev(void);
  * mmc_get_blk_desc() - Get the block descriptor for an MMC device
  *
  * @mmc:	MMC device
+ * @devnum:	device number
  * @return block device if found, else NULL
  */
-struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
+struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum);
 
 #endif /* _MMC_H_ */

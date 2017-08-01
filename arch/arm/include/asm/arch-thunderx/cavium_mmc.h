@@ -187,7 +187,7 @@
 #define MIO_EMM_ACCESS_WDOG		0x20F0
 
 /** Maximum supported MMC slots */
-#define CAVIUM_MAX_MMC_SLOT		4
+#define CAVIUM_MAX_MMC_SLOT		2
 
 #define CAVIUM_MMC_NAME_LEN		32
 
@@ -207,7 +207,6 @@ struct cavium_mmc_slot {
 	struct gpio_desc cd_gpio;	/** Card detect GPIO */
 	struct gpio_desc wp_gpio;	/** Write-protect GPIO */
 	int		power_delay;	/** Time in usec to wait for power */
-	int		slot_idx;	/** Slot device index (global) */
 	int		bus_id;		/** BUS ID of device */
 	int		of_offset;	/** Device tree node */
 	int		clk_period;	/** Clock period */
@@ -242,14 +241,15 @@ struct cavium_mmc_host {
 	pci_dev_t	pdev;		/** PCI device */
 	uint64_t	sclock;		/** SCLK in hz */
 	int		of_offset;	/** Device tree node */
-	int		dev_index;	/** Host controller device index */
+	int		cur_slotid;	/** Current slot to use */
+	int		last_slotid;	/** last slot in use */
 	int		max_width;	/** Maximum width hardware supports */
 #ifdef __mips
 	int		node;		/** OCX node for Octeon (MIPS) */
 	bool		use_ndf;	/** Use MIO_NDF_DMA or MIO_EMM_DMA. */
 #endif
 	bool		initialized;
-	struct udevice *dev;		/** Device host is associated with */
+	struct udevice  *dev;		/** Device host is associated with */
 	/** Slots associated with host controller */
 	struct cavium_mmc_slot slots[CAVIUM_MAX_MMC_SLOT];
 };
@@ -1830,7 +1830,7 @@ union mio_emm_wdog {
  * @param mmc	pointer to mmc data structure
  * @return 1 if card is write protected, 0 otherwise
  */
-int cavium_mmc_getwp(struct mmc *mmc);
+int cavium_mmc_getwp(struct udevice *dev);
 
 /**
  * Gets the card-detect status
@@ -1839,7 +1839,7 @@ int cavium_mmc_getwp(struct mmc *mmc);
  *
  * @return	1 if card is detected, false if not detected.
  */
-int cavium_mmc_getcd(struct mmc *mmc);
+int cavium_mmc_getcd(struct udevice *dev);
 
 
 #endif /* __OCTEON_MMC_H__ */

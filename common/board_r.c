@@ -416,7 +416,7 @@ static int initr_onenand(void)
 }
 #endif
 
-#ifdef CONFIG_MMC
+#if defined(CONFIG_MMC) || defined(CONFIG_DM_MMC)
 static int initr_mmc(void)
 {
 	puts("MMC:   ");
@@ -759,7 +759,7 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CMD_ONENAND
 	initr_onenand,
 #endif
-#ifdef CONFIG_MMC
+#if defined(CONFIG_MMC) || defined(CONFIG_DM_MMC)
 	initr_mmc,
 #endif
 	initr_env,
