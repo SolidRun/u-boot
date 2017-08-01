@@ -126,8 +126,12 @@ static int octeontx_gpio_get_function(struct udevice *dev,
 }
 
 static int octeontx_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
-			    struct fdtdec_phandle_args *args)
+			    struct ofnode_phandle_args *args)
 {
+	if (args->args_count < 1)
+		return -EINVAL;
+
+	desc->offset = args->args[0];
 	desc->flags = 0;
 	if (args->args_count > 1) {
 		if (args->args[1] & GPIO_ACTIVE_LOW)
