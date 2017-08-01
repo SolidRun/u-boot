@@ -11,13 +11,11 @@
 #include <sparse_format.h>
 #include <image-sparse.h>
 
-#ifdef CONFIG_CAVIUM_MMC
-extern void print_mmc_device_info(struct mmc *mmc);
-#endif
-
 static int curr_device = -1;
 
-#ifndef CONFIG_CAVIUM_MMC
+#ifdef CONFIG_MMC_CAVIUM
+extern void print_mmc_device_info(struct mmc *mmc);
+#else
 static void print_mmcinfo(struct mmc *mmc)
 {
 	int i;
@@ -140,7 +138,7 @@ static int do_mmcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-#ifdef CONFIG_CAVIUM_MMC
+#ifdef CONFIG_MMC_CAVIUM
 	print_mmc_device_info(mmc);
 #else
 	print_mmcinfo(mmc);
@@ -322,7 +320,7 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
 	printf("\nMMC read: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 
-	n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, addr);
+	n = blk_dread(mmc_get_blk_desc(mmc, curr_device), blk, cnt, addr);
 	printf("%d blocks read: %s\n", n, (n == cnt) ? "OK" : "ERROR");
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
@@ -419,7 +417,7 @@ static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
 		printf("Error: card is write protected!\n");
 		return CMD_RET_FAILURE;
 	}
-	n = blk_dwrite(mmc_get_blk_desc(mmc), blk, cnt, addr);
+	n = blk_dwrite(mmc_get_blk_desc(mmc, curr_device), blk, cnt, addr);
 	printf("%d blocks written: %s\n", n, (n == cnt) ? "OK" : "ERROR");
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
@@ -447,7 +445,7 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
 		printf("Error: card is write protected!\n");
 		return CMD_RET_FAILURE;
 	}
-	n = blk_derase(mmc_get_blk_desc(mmc), blk, cnt);
+	n = blk_derase(mmc_get_blk_desc(mmc, curr_device), blk, cnt);
 	printf("%d blocks erased: %s\n", n, (n == cnt) ? "OK" : "ERROR");
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
@@ -521,7 +519,8 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 		printf("mmc%d is current device\n", curr_device);
 	else
 		printf("mmc%d(part %d) is current device\n",
-		       curr_device, mmc_get_blk_desc(mmc)->hwpart);
+		       curr_device,
+		       mmc_get_blk_desc(mmc, curr_device)->hwpart);
 
 	return CMD_RET_SUCCESS;
 }
