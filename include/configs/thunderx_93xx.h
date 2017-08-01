@@ -159,11 +159,11 @@
 #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
 
 /* AHCI support Definitions */
-#ifdef CONFIG_CMD_SATA
-/** Enable AHCI SATA driver */
-# define CONFIG_SATA_AHCI
-/** Maximum number of SATA devices */
-# define CONFIG_SYS_SATA_MAX_DEVICE	6
+#define CONFIG_SCSI_AHCI
+
+#ifdef CONFIG_SCSI_AHCI
+/** Maximum number of SATA devices per controller*/
+# define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
 /** Enable 48-bit SATA addressing */
 # define CONFIG_LBA48
 /** Enable libata, required for SATA */
@@ -171,6 +171,10 @@
 /** Enable 64-bit addressing */
 # define CONFIG_SYS_64BIT_LBA
 #endif
+
+#define CONFIG_SYS_SATA_MAX_DEVICE 2
+
+#define CONFIG_SYS_NVME_MAX_DEVICE 64
 
 /* PCIe */
 /** Show devices found on PCI bus */
@@ -199,11 +203,12 @@
 #define CONFIG_SYS_SPD_I2C_BUS 1
 
 /***** SPI Defines *********/
-#define CONFIG_DM_SPI_FLASH
+#ifdef CONFIG_DM_SPI_FLASH
 #define CONFIG_SF_DEFAULT_SPEED 12500000
 #define CONFIG_SF_DEFAULT_MODE	0
 #define CONFIG_SF_DEFAULT_BUS	0
 #define CONFIG_SF_DEFAULT_CS	0
+#endif
 /**************************/
 #define CONFIG_CMD_SAVES
 

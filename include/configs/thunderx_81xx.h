@@ -179,13 +179,13 @@
 
 #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
 
- /* AHCI support Definitions */
+/* AHCI support Definitions */
 #define CONFIG_SCSI_AHCI
 
 #ifdef CONFIG_SCSI_AHCI
- /** Maximum number of SATA devices per controller*/
+/** Maximum number of SATA devices per controller*/
 # define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
- /** Enable 48-bit SATA addressing */
+/** Enable 48-bit SATA addressing */
 # define CONFIG_LBA48
  /** Enable libata, required for SATA */
 # define CONFIG_LIBATA
@@ -221,14 +221,12 @@
 #define CONFIG_SYS_SPD_I2C_BUS 1
 
 /***** SPI Defines *********/
-#define CONFIG_DM_SPI_FLASH
-#define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_MACRONIX
+#ifdef CONFIG_DM_SPI_FLASH
 #define CONFIG_SF_DEFAULT_SPEED 12500000
 #define CONFIG_SF_DEFAULT_MODE	0
 #define CONFIG_SF_DEFAULT_BUS	0
 #define CONFIG_SF_DEFAULT_CS	0
+#endif
 
 /**************************/
 #define CONFIG_CMD_SAVES
@@ -294,6 +292,7 @@
 
 /* Use ATF based calls for env variables */
 #define CONFIG_ATF
+#define CONFIG_BOARD_EARLY_INIT_R
 
 /* Use uboot SPI APIs for env variables */
 /* #define CONFIG_SPI_ENV */
