@@ -41,7 +41,7 @@ static int nvme_uclass_post_probe(struct udevice *udev)
 		str = strdup(name);
 		if (!str)
 			return -ENOMEM;
-
+#ifdef CONFIG_BLK
 		/*The real blksz and size will be set by nvme_blk_probe()*/
 		ret = blk_create_device(udev, "nvme-blk", str, IF_TYPE_NVME,
 					nvme_info->ns_num++, 512, 0, &ns_udev);
@@ -51,6 +51,7 @@ static int nvme_uclass_post_probe(struct udevice *udev)
 			return ret;
 		}
 		device_set_name_alloced(ns_udev);
+#endif
 	}
 	return 0;
 }

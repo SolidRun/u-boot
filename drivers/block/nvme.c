@@ -24,6 +24,8 @@
 #define ADMIN_TIMEOUT		60
 #define MAX_PRP_POOL		512
 
+struct blk_desc nvme_dev_desc[CONFIG_SYS_NVME_MAX_DEVICE];
+
 struct nvme_info *nvme_info;
 
 /*
@@ -566,7 +568,12 @@ static int nvme_get_info_from_identify(struct nvme_dev *dev)
 int init_nvme(struct udevice *udev)
 {
 	int ret;
+#ifdef CONFIG_BLK
 	struct nvme_dev *ndev = dev_get_priv(udev);
+#else
+	struct nvme_ns *ns = dev_get_priv(udev);
+	struct nvme_dev *ndev = ns->dev;
+#endif
 	u32 val;
 	u64 cap;
 	size_t size;
@@ -758,14 +765,22 @@ int nvme_print_info(struct udevice *udev)
 	print_metadata_cap(id->mc, ns->devnum);
 	return 0;
 }
-
+#ifndef CONFIG_BLK
+static ulong nvme_write(struct blk_desc *desc, lbaint_t blknr, lbaint_t blkcnt,
+			const void *buffer)
+#else
 static ulong nvme_write(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer)
+#endif
 {
+#ifndef CONFIG_BLK
+	struct udevice *udev = desc->priv;
+#else
+	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+#endif
 	struct nvme_ns *ns = dev_get_priv(udev);
 	struct nvme_dev *dev = ns->dev;
 	struct nvme_command c;
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
 	int status;
 	u64 prp2;
 	u64 total_len = blkcnt << desc->log2blksz;
@@ -811,13 +826,22 @@ static ulong nvme_write(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
 	return (total_len - temp_len) >> desc->log2blksz;
 }
 
+#ifndef CONFIG_BLK
+static ulong nvme_read(struct blk_desc *desc, lbaint_t blknr, lbaint_t blkcnt,
+		       void *buffer)
+#else
 static ulong nvme_read(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
-		void *buffer)
+		       void *buffer)
+#endif
 {
+#ifndef CONFIG_BLK
+	struct udevice *udev = desc->priv;
+#else
+	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+#endif
 	struct nvme_ns *ns = dev_get_priv(udev);
 	struct nvme_dev *dev = ns->dev;
 	struct nvme_command c;
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
 	int status;
 	u64 prp2;
 	u64 total_len = blkcnt << desc->log2blksz;
@@ -872,13 +896,15 @@ int __nvme_initialize(void)
 {
 	int i, ret = 0;
 	struct udevice *pdev;
-	struct udevice *ndev;
 	struct udevice *nsdev;
+#ifdef CONFIG_BLK
+	struct udevice *ndev;
 
 	for (i = 0; ; i++) {
 		ret = pci_find_device_id(nvme_supported, i, &pdev);
 		if (ret)
 			break;
+
 		for (uclass_first_device(UCLASS_NVME, &ndev);
 		     ndev;
 		     uclass_next_device(&ndev)) {
@@ -890,12 +916,81 @@ int __nvme_initialize(void)
 		}
 	}
 	printf("\n");
+#else
 
+	struct nvme_info *info = malloc(sizeof(*info));
+	info->ns_num = 0;
+	info->ndev_num = 0;
+	INIT_LIST_HEAD(&info->dev_list);
+	nvme_info = info;
+
+	for (i = 0; i < CONFIG_SYS_NVME_MAX_DEVICE; i++) {
+		memset(&nvme_dev_desc[i], 0, sizeof(struct blk_desc));
+		nvme_dev_desc[i].if_type = IF_TYPE_NVME;
+		nvme_dev_desc[i].devnum = i;
+		nvme_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
+		nvme_dev_desc[i].type = DEV_TYPE_UNKNOWN;
+		nvme_dev_desc[i].lba = 0;
+		nvme_dev_desc[i].blksz = 512;
+		nvme_dev_desc[i].log2blksz = LOG2(nvme_dev_desc[i].blksz);
+		nvme_dev_desc[i].block_read = nvme_read;
+		nvme_dev_desc[i].block_write = nvme_write;
+
+		ret = pci_find_device_id(nvme_supported, i, &pdev);
+
+		if (!ret) {
+			struct nvme_id_ns buf, *id = &buf;
+			struct nvme_ns *ns = malloc(sizeof(*ns));
+			struct nvme_dev *ndev = malloc(sizeof(*ndev));
+			u8 flbas;
+			u16 vendor;
+			char name[20];
+
+			memset(ns, 0, sizeof(*ns));
+
+			sprintf(name, "nvme#%d", nvme_info->ndev_num++);
+			pdev->priv = ns;
+			ns->dev = ndev;
+			device_set_name(pdev, name);
+
+			ret = init_nvme(pdev);
+			if (ret)
+				return ret;
+
+			ns->ns_id = i + 1;
+			info->ns_num++;
+
+			if (nvme_identify(ndev, ns->ns_id, 0, (dma_addr_t)id))
+				return -EIO;
+
+			flbas = id->flbas & NVME_NS_FLBAS_LBA_MASK;
+			ns->flbas = flbas;
+			ns->lba_shift = id->lbaf[flbas].ds;
+			ns->mode_select_num_blocks = le64_to_cpu(id->nuse);
+			ns->mode_select_block_len = 1 << ns->lba_shift;
+			list_add(&ns->list, &ndev->namespaces);
+
+			nvme_dev_desc[i].lba = ns->mode_select_num_blocks;
+			nvme_dev_desc[i].log2blksz = ns->lba_shift;
+			nvme_dev_desc[i].blksz = 1 << ns->lba_shift;
+
+			nvme_dev_desc[i].priv = pdev;
+			nvme_dev_desc[i].type = DEV_TYPE_HARDDISK;
+
+			dm_pci_read_config16(ndev->pdev, PCI_VENDOR_ID, &vendor);
+			memcpy(nvme_dev_desc[i].product, ndev->serial, sizeof(ndev->serial));
+			sprintf(nvme_dev_desc[i].vendor, "0x%.4x", vendor);
+			memcpy(nvme_dev_desc[i].revision, ndev->firmware_rev, sizeof(ndev->firmware_rev));
+			part_init(&nvme_dev_desc[i]);
+		}
+	}
+#endif
 	return ret;
 }
 
 int nvme_initialize(void) __attribute__((weak, alias("__nvme_initialize")));
 
+#ifdef CONFIG_BLK
 static int nvme_blk_probe(struct udevice *udev)
 {
 	struct nvme_dev *ndev = dev_get_priv(udev->parent);
@@ -935,6 +1030,15 @@ static const struct blk_ops nvme_blk_ops = {
 	.write	= nvme_write,
 };
 
+U_BOOT_DRIVER(nvme_blk) = {
+	.name = "nvme-blk",
+	.id = UCLASS_BLK,
+	.ops = &nvme_blk_ops,
+	.probe = nvme_blk_probe,
+	.priv_auto_alloc_size = sizeof(struct nvme_ns),
+};
+
+
 static int nvme_bind(struct udevice *udev)
 {
 	char name[20];
@@ -947,14 +1051,6 @@ int nvme_probe(struct udevice *udev)
 	return init_nvme(udev);
 }
 
-U_BOOT_DRIVER(nvme_blk) = {
-	.name			= "nvme-blk",
-	.id			= UCLASS_BLK,
-	.ops			= &nvme_blk_ops,
-	.probe			= nvme_blk_probe,
-	.priv_auto_alloc_size	= sizeof(struct nvme_ns),
-};
-
 U_BOOT_DRIVER(nvme) = {
 	.name		= "nvme",
 	.id		= UCLASS_NVME,
@@ -964,3 +1060,12 @@ U_BOOT_DRIVER(nvme) = {
 };
 
 U_BOOT_PCI_DEVICE(nvme, nvme_supported);
+#else
+
+U_BOOT_LEGACY_BLK(nvme) = {
+	.if_typename = "nvme",
+	.if_type = IF_TYPE_NVME,
+	.max_devs = CONFIG_SYS_NVME_MAX_DEVICE,
+	.desc = nvme_dev_desc,
+};
+#endif

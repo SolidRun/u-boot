@@ -20,7 +20,6 @@ static int do_nvme(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			ret = nvme_scan_namespace();
 			if (ret)
 				return CMD_RET_FAILURE;
-
 			return ret;
 		}
 		if (strncmp(argv[1], "deta", 4) == 0) {
