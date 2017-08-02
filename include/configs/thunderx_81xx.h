@@ -179,18 +179,23 @@
 
 #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
 
-/* AHCI support Definitions */
-#ifdef CONFIG_CMD_SATA
-/** Enable AHCI SATA driver */
-/** Maximum number of SATA devices */
-# define CONFIG_SYS_SATA_MAX_DEVICE	2
-/** Enable 48-bit SATA addressing */
+ /* AHCI support Definitions */
+#define CONFIG_SCSI_AHCI
+
+#ifdef CONFIG_SCSI_AHCI
+ /** Maximum number of SATA devices per controller*/
+# define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
+ /** Enable 48-bit SATA addressing */
 # define CONFIG_LBA48
-/** Enable libata, required for SATA */
+ /** Enable libata, required for SATA */
 # define CONFIG_LIBATA
-/** Enable 64-bit addressing */
+ /** Enable 64-bit addressing */
 # define CONFIG_SYS_64BIT_LBA
 #endif
+
+#define CONFIG_SYS_SATA_MAX_DEVICE 2
+
+#define CONFIG_SYS_NVME_MAX_DEVICE 64
 
 /** Enable EXT4 filesystem support */
 #define CONFIG_FS_EXT4
