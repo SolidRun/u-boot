@@ -178,6 +178,8 @@
 # define CONFIG_SYS_64BIT_LBA
 #endif
 
+#define CONFIG_SYS_NVME_MAX_DEVICE 64
+
 /* PCIe */
 /** Show devices found on PCI bus */
 #define CONFIG_PCI_SCAN_SHOW
