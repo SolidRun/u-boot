@@ -29,9 +29,7 @@ save_boot_params:
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
-	ldr	x0, =THUNDERX_DRAM_SIZE
-	mov	x1, xzr
-	smc	#0			/* Get the DRAM size */
+	/* any lowlevel init should go here */
 
 	mov	lr, x29			/* Restore LR */
 	ret
