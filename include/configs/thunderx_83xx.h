@@ -259,8 +259,6 @@
 /** Extra environment settings */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 					"kernel_addr=0x40080000\0"	\
-					"fdt_addr=0x54C00000\0"		\
-					"fdt_high=0x5fffffff\0"		\
 					"smi0mode=0.0.0\0"		\
 					"smi1mode=0.0.0\0"		\
 					"autoload=0\0"

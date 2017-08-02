@@ -47,14 +47,6 @@
 
 #define CONFIG_BOARD_LATE_INIT
 
-/* Flat Device Tree Definitions */
-
-/**
- * The board code has additional modification that it wants to make to the
- * flat device tree before handing it off to the Linux kernel.
- */
-#define CONFIG_OF_BOARD_SETUP
-
 /* SMP Spin Table Definitions */
 #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
 
@@ -254,8 +246,6 @@
 /** Extra environment settings */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 					"kernel_addr=0x40080000\0"	\
-					"fdt_addr=0x54C00000\0"		\
-					"fdt_high=0x5fffffff\0"		\
 					"smi0mode=0.0.0\0"		\
 					"smi1mode=0.0.0\0"		\
 					"autoload=0\0"
