@@ -88,21 +88,19 @@ int dram_init(void)
 	ssize_t dram_size;
 	int node;
 
-	printf("Initializing\nNodes in system: %zd\n", node_count);
+	debug("Initializing\nNodes in system: %zd\n", node_count);
 
 	gd->ram_size = 0;
 
 	for (node = 0; node < node_count; node++) {
 		dram_size = atf_dram_size(node);
-		printf("Node %d: %zd MBytes of DRAM\n", node, dram_size >> 20);
+		debug("Node %d: %zd MBytes of DRAM\n", node, dram_size >> 20);
 		gd->ram_size += dram_size;
 	}
 
 	gd->ram_size -= MEM_BASE;
 
 	*(unsigned long *)CPU_RELEASE_ADDR = 0;
-
-	puts("DRAM size:");
 
 	return 0;
 }
