@@ -54,17 +54,6 @@
 
 #define CONFIG_BOARD_LATE_INIT
 
-/* Flat Device Tree Definitions */
-
-/**
- * The board code has additional modification that it wants to make to the
- * flat device tree before handing it off to the Linux kernel.
- */
-
-/* SMP Spin Table Definitions */
-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
-
-
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
 

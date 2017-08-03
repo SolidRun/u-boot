@@ -100,8 +100,6 @@ int dram_init(void)
 
 	gd->ram_size -= MEM_BASE;
 
-	*(unsigned long *)CPU_RELEASE_ADDR = 0;
-
 	return 0;
 }
 

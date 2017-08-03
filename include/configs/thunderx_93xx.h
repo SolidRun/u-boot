@@ -47,10 +47,6 @@
 
 #define CONFIG_BOARD_LATE_INIT
 
-/* SMP Spin Table Definitions */
-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
-
-
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
 
