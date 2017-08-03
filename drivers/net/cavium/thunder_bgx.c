@@ -137,6 +137,17 @@ static int gser_poll_reg(uint64_t reg, int bit, uint64_t mask, uint64_t expected
 	return 1;
 }
 
+static bool is_bgx_port_valid(int bgx, int lmac)
+{
+	debug("is_bgx_port_valid bgx %d lmac %d valid %d\n",
+	      bgx, lmac, bgx_board_info[bgx].lmac_reg[lmac]);
+
+	if (bgx_board_info[bgx].lmac_reg[lmac])
+		return 1;
+	else
+		return 0;
+}
+
 struct lmac *bgx_get_lmac(int node, int bgx_idx, int lmacid)
 {
 	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
@@ -984,7 +995,7 @@ void bgx_lmac_disable(struct bgx *bgx, uint8_t lmacid)
 static void bgx_init_hw(struct bgx *bgx)
 {
 	struct lmac *lmac;
-	int i, lmacid, lmac_count = 0, count = 0;
+	int i, lmacid, count = 0;
 
 	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
 		struct lmac *tlmac;
@@ -997,8 +1008,6 @@ static void bgx_init_hw(struct bgx *bgx)
 		switch (lmac->qlm_mode) {
 		case QLM_MODE_SGMII:
 		{
-			const char *board;
-			board = getenv("board");
 			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
 			   lane_to_sds for 2nd port in BGX0 to DLM1, lane0. */
 			if ((bgx->bgx_id == 0) && is_altpkg) {
@@ -1008,15 +1017,9 @@ static void bgx_init_hw(struct bgx *bgx)
 					lmac->lane_to_sds = lmacid + 1;
 				else
 					lmac->lane_to_sds = lmacid;
-			} else if (board
-				   && (strcasecmp(board, "xpliant-cn83xx") == 0)
-				   && (bgx->bgx_id == 2)
-				   && (lmacid == 3)) {
-				continue;
 			} else
 				lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 0;
-			lmac_count++;
 			break;
 		}
 		case QLM_MODE_XAUI:
@@ -1024,20 +1027,17 @@ static void bgx_init_hw(struct bgx *bgx)
 				continue;
 			lmac->lmac_type = 1;
 			lmac->lane_to_sds = 0xE4;
-			lmac_count = 1;
 			break;
 		case QLM_MODE_RXAUI:
 			if (lmacid == 0) {
 				lmac->lmac_type = 2;
 				lmac->lane_to_sds = 0x4;
-				lmac_count++;
 			} else if (lmacid == 1) {
 				struct lmac *tlmac;
 				tlmac = &bgx->lmac[2];
 				if (tlmac->qlm_mode == QLM_MODE_RXAUI) {
 					lmac->lmac_type = 2;
 					lmac->lane_to_sds = 0xe;
-					lmac_count++;
 					lmac->qlm = tlmac->qlm;
 				}
 			} else
@@ -1053,38 +1053,15 @@ static void bgx_init_hw(struct bgx *bgx)
 					lmac->lane_to_sds = lmacid + 1;
 				else
 					lmac->lane_to_sds = lmacid;
-			} else {
-				const char *board;
-				board = getenv("board");
-
-				/* On SFF8104 board, BGX0 has only one XFI
-				   port configured on DLM1, lane1. */
-				if (board
-				    && (strcasecmp(board, "sff8104") == 0)
-				    && (bgx->bgx_id == 0)
-				    && (lmacid == 2))
-					continue;
-				else if (board
-					 && (strncasecmp(board, "nas", 3) == 0)
-					 && (bgx->bgx_id == 1)
-					 && (lmacid == 1))
-					continue;
-                                else if (board
-					   && (strcasecmp(board, "xpliant-cn83xx") == 0)
-					   && (bgx->bgx_id == 3)
-					   && (lmacid == 1))
-					continue;
+			} else
 				lmac->lane_to_sds = lmacid;
-			}
 			lmac->lmac_type = 3;
-			lmac_count++;
 			break;
 		case QLM_MODE_XLAUI:
 			if (lmacid != 0)
 				continue;
 			lmac->lmac_type = 4;
 			lmac->lane_to_sds = 0xE4;
-			lmac_count = 1;
 			break;
 		case QLM_MODE_10G_KR:
 			if ((bgx->bgx_id == 0) && is_altpkg) {
@@ -1098,7 +1075,6 @@ static void bgx_init_hw(struct bgx *bgx)
 				lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 3;
 			lmac->use_training = 1;
-			lmac_count++;
 			break;
 		case QLM_MODE_40G_KR4:
 			if (lmacid != 0)
@@ -1106,51 +1082,55 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac->lmac_type = 4;
 			lmac->lane_to_sds = 0xE4;
 			lmac->use_training = 1;
-			lmac_count = 1;
 			break;
 		case QLM_MODE_RGMII:
 			if (lmacid != 0)
 				continue;
 			lmac->lmac_type = 5;
 			lmac->lane_to_sds = 0xE4;
-			lmac_count = 1;
 			break;
 		case QLM_MODE_QSGMII:
 			if ((lmacid == 0) || (lmacid == 2)) {
-				lmac_count = 4;
-				for (i = 0; i < lmac_count; i++) {
+				count = 4;
+				for (i = 0; i < count; i++) {
 					struct lmac *l;
 					l = &bgx->lmac[i];
 					l->lmac_type = 6;
 					l->qlm_mode = QLM_MODE_QSGMII;
 					l->lane_to_sds = lmacid + i;
-					bgx_reg_write(bgx, i, BGX_CMRX_CFG,
-						(l->lmac_type << 8) | l->lane_to_sds);
+					if (is_bgx_port_valid(bgx->bgx_id, i))
+						bgx_reg_write(bgx, i, BGX_CMRX_CFG,
+							      (l->lmac_type << 8) |
+							      l->lane_to_sds);
 				}
 			}
 			continue;
 		default:
-			lmac_count++;
 			continue;
 		}
 
-		/* Reset lmac to the unused slot */
-		tlmac = &bgx->lmac[count];
-		tlmac->lmac_type = lmac->lmac_type;
-		tlmac->lane_to_sds = lmac->lane_to_sds;
-		tlmac->qlm = lmac->qlm;
-		tlmac->qlm_mode = lmac->qlm_mode;
 
-		/* Initialize lmac_type and lane_to_sds */
-		bgx_reg_write(bgx, count, BGX_CMRX_CFG,
-				(lmac->lmac_type << 8) | lmac->lane_to_sds);
-		count += 1;
+		/* Reset lmac to the unused slot */
+		if (is_bgx_port_valid(bgx->bgx_id, count) &&
+		    (lmac->qlm_mode != QLM_MODE_QSGMII)) {
+			tlmac = &bgx->lmac[count];
+			tlmac->lmac_type = lmac->lmac_type;
+			tlmac->lane_to_sds = lmac->lane_to_sds;
+			tlmac->qlm = lmac->qlm;
+			tlmac->qlm_mode = lmac->qlm_mode;
+
+			/* Initialize lmac_type and lane_to_sds */
+			bgx_reg_write(bgx, count, BGX_CMRX_CFG,
+				      (lmac->lmac_type << 8) |
+				      lmac->lane_to_sds);
+			count += 1;
+		}
 	}
 
-	printf("BGX%d LMACs: %d\n", bgx->bgx_id, lmac_count);
-	bgx->lmac_count = lmac_count;
-	bgx_reg_write(bgx, 0, BGX_CMR_RX_LMACS, lmac_count);
-	bgx_reg_write(bgx, 0, BGX_CMR_TX_LMACS, lmac_count);
+	printf("BGX%d LMACs: %d\n", bgx->bgx_id, count);
+	bgx->lmac_count = count;
+	bgx_reg_write(bgx, 0, BGX_CMR_RX_LMACS, count);
+	bgx_reg_write(bgx, 0, BGX_CMR_TX_LMACS, count);
 
 	bgx_reg_modify(bgx, 0, BGX_CMR_GLOBAL_CFG, CMR_GLOBAL_CFG_FCS_STRIP);
 	if (bgx_reg_read(bgx, 0, BGX_CMR_BIST_STATUS))
@@ -1190,6 +1170,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 
 		lmac = &bgx->lmac[lmacid];
 
+		/* check if QLM is programmed, if not, skip */
 		if (lmac->qlm == -1)
 			continue;
 
@@ -1209,18 +1190,10 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 							bgx->bgx_id, lmacid);
 				}
 				continue;
-			} else {
-				const char *board;
-				board = getenv("board");
+				} else {
 				if ((bgx->bgx_id == 0) && is_altpkg) {
 					if (lmacid >= 2)
 						continue;
-                                } else if (board
-					   && (strcasecmp(board, "xpliant-cn83xx") == 0)
-					   && (bgx->bgx_id == 2)
-					   && (lmacid == 3)) {
-					lmac->qlm_mode = QLM_MODE_SGMII;
-					continue;
 				}
 				lmac->qlm_mode = QLM_MODE_SGMII;
 				printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
@@ -1256,31 +1229,6 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				printf("BGX%d QLM%d LMAC%d mode: 10G_KR\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			} else {
-				const char *board;
-				board = getenv("board");
-
-				/* On SFF8104 board, BGX0 has only one XFI
-				   port configured on DLM1, lane1. */
-				if (board
-				    && (strcasecmp(board, "sff8104") == 0)
-				    && (bgx->bgx_id == 0)
-				    && (lmacid == 2)) {
-					lmac->qlm_mode = QLM_MODE_XFI;
-					continue;
-				} else if (board
-					   && (strncasecmp(board, "nas", 3) == 0)
-					   && (bgx->bgx_id == 1)
-					   && (lmacid == 1)) {
-					lmac->qlm_mode = QLM_MODE_XFI;
-					continue;
-				} else if (board
-					   && (strcasecmp(board, "xpliant-cn83xx") == 0)
-					   && (bgx->bgx_id == 3)
-					   && (lmacid == 1)) {
-					lmac->qlm_mode = QLM_MODE_XFI;
-					continue;
-				}
-
 				lmac->qlm_mode = QLM_MODE_XFI;
 				printf("BGX%d QLM%d LMAC%d mode: XFI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
@@ -1317,7 +1265,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 }
 
 void bgx_set_board_info(int bgx_id, int *mdio_bus,
-			int *phy_addr, int *autoneg_dis)
+			int *phy_addr, bool *autoneg_dis, bool *lmac_reg)
 {
 	unsigned int i;
 
@@ -1325,11 +1273,13 @@ void bgx_set_board_info(int bgx_id, int *mdio_bus,
 		bgx_board_info[bgx_id].phy_info[i].phy_addr = phy_addr[i];
 		bgx_board_info[bgx_id].phy_info[i].mdio_bus = mdio_bus[i];
 		bgx_board_info[bgx_id].phy_info[i].autoneg_dis = autoneg_dis[i];
-		debug("bgx_set_board_info lmac %d phy_addr 0x%x mdio bus %d "
-		      "autoneg_dis %d\n", i,
+		bgx_board_info[bgx_id].lmac_reg[i] = lmac_reg[i];
+		debug("bgx_set_board_info bgx_id %d lmac %d phy_addr 0x%x mdio bus %d\n"
+		      "autoneg_dis %d lmac_reg %d\n", bgx_id, i,
 			bgx_board_info[bgx_id].phy_info[i].phy_addr,
 			bgx_board_info[bgx_id].phy_info[i].mdio_bus,
-			bgx_board_info[bgx_id].phy_info[i].autoneg_dis);
+			bgx_board_info[bgx_id].phy_info[i].autoneg_dis,
+			bgx_board_info[bgx_id].lmac_reg[i]);
 	}
 }
 

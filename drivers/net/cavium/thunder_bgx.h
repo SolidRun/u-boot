@@ -206,8 +206,6 @@ void bgx_add_dmac_addr(uint64_t dmac, int node, int bgx_idx, int lmac);
 void bgx_get_count(int node, int *bgx_count);
 int bgx_get_lmac_count(int node, int bgx);
 void bgx_print_stats(int bgx_idx, int lmac);
-void bgx_set_board_info(int bgx_id, int *mdio_bus,
-			int *phy_addr, int *autoneg_dis);
 void xcv_init_hw(void);
 void xcv_setup_link(bool link_up, int link_speed);
 
@@ -233,6 +231,7 @@ struct phy_info {
 
 struct bgx_board_info {
 	struct phy_info phy_info[MAX_LMAC_PER_BGX];
+	bool lmac_reg[MAX_LMAC_PER_BGX];
 };
 
 enum LMAC_TYPE {

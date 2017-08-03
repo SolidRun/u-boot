@@ -131,8 +131,9 @@ void thunderx_parse_phy_info(void)
 	if (offset > 1) {
 		for (bgx_id = 0; bgx_id < CONFIG_MAX_BGX_PER_NODE; bgx_id++) {
 			int phy_addr[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = -1};
-			int autoneg_dis[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
+			bool autoneg_dis[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
 			int mdio_bus[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = -1};
+			bool lmac_reg[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
 			snprintf(bgxname, sizeof(bgxname),
 				 "bgx%d", bgx_id);
 			node = fdt_subnode_offset(fdt, offset, bgxname);
@@ -152,6 +153,14 @@ void thunderx_parse_phy_info(void)
 			/* loop through each of the bgx/rgx nodes
 			to find PHY nodes */
 			fdt_for_each_subnode(fdt, subnode, node) {
+				/* Check for reg property */
+				val = fdt_getprop(fdt, subnode, "reg",
+						  &len);
+
+				if (val) {
+					debug("lmacid = %d\n", lmacid);
+					lmac_reg[lmacid] = 1;
+				}
 				/* check for phy-handle property */
 				val = fdt_getprop(fdt, subnode, "phy-handle",
 						  &len);
@@ -209,7 +218,7 @@ void thunderx_parse_phy_info(void)
 
 			lmacid = 0;
 			bgx_set_board_info(bgx_id, mdio_bus, phy_addr,
-					   autoneg_dis);
+					   autoneg_dis, lmac_reg);
 		}
 	}
 }
