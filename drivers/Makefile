@@ -105,6 +105,7 @@ obj-y += memory/
 obj-y += pwm/
 obj-y += reset/
 obj-y += input/
+obj-y += fuse/
 # SOC specific infrastructure drivers.
 obj-y += smem/
 obj-y += soc/
