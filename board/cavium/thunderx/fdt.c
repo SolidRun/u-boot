@@ -152,7 +152,7 @@ void thunderx_parse_phy_info(void)
 
 			/* loop through each of the bgx/rgx nodes
 			to find PHY nodes */
-			fdt_for_each_subnode(fdt, subnode, node) {
+			fdt_for_each_subnode(subnode, fdt, node) {
 				/* Check for reg property */
 				val = fdt_getprop(fdt, subnode, "reg",
 						  &len);
