@@ -263,16 +263,16 @@
 
 
 /* Use ATF based calls for env variables */
-#define CONFIG_ATF
+/* #define CONFIG_ATF */
+#define CONFIG_BOARD_EARLY_INIT_R
 
 /* Use uboot SPI APIs for env variables */
-/*#define CONFIG_SPI_ENV*/
+#define CONFIG_SPI_ENV
 
 #if defined(CONFIG_ATF)
 #define CONFIG_ENV_IS_IN_ATF
 #define CONFIG_SYS_ENV_ATF_NOR
 #elif defined(CONFIG_SPI_ENV)
-#define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 #define CONFIG_ENV_SPI_MAX_HZ		12500000

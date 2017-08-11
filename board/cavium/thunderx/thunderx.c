@@ -58,6 +58,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BOARD_TYPE "BOARD="
 
 char thunderx_prompt[CONFIG_THUNDERX_PROMPT_SIZE] = "ThunderX> ";
+extern unsigned long fdt_base_addr;
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
 extern void eth_common_init();
@@ -71,8 +72,10 @@ int board_early_init_r(void)
 
 int board_init(void)
 {
-	ulong fdt_addr = (ulong)gd->fdt_blob;
+	ulong fdt_addr = (ulong)fdt_base_addr;
 	set_working_fdt_addr(fdt_addr);
+	thunderx_parse_bdk_config();
+	thunderx_parse_phy_info();
 
 	return 0;
 }
@@ -138,8 +141,6 @@ int board_late_init(void)
 {
 	const char *board;
 	debug("%s()\n", __func__);
-	thunderx_parse_bdk_config();
-	thunderx_parse_phy_info();
 	board = getenv("board");
 	printf("Board type: %s\n", getenv("board"));
 
