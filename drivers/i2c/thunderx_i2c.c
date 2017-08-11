@@ -82,44 +82,44 @@
 union rst_boot {
 	u64 u;
 	struct {
-		int rboot_pin:1;
-		int rboot:1;
-		int lboot:10;
-		int lboot_ext23:6;
-		int lboot_ext45:6;
-		int reserved_24_29:6;
-		int lboot_oci:3;
-		int pnr_mul:6;
-		int reserved_39_39:1;
-		int c_mul:7;
-		int reserved_47_54:8;
-		int dis_scan:1;
-		int dis_huk:1;
-		int vrm_err:1;
-		int jt_tstmode:1;
-		int ckill_ppdis:1;
-		int trusted_mode:1;
-		int ejtagdis:1;
-		int jtcsrdis:1;
-		int chipkill:1;
+		u64 rboot_pin:1;
+		u64 rboot:1;
+		u64 lboot:10;
+		u64 lboot_ext23:6;
+		u64 lboot_ext45:6;
+		u64 reserved_24_29:6;
+		u64 lboot_oci:3;
+		u64 pnr_mul:6;
+		u64 reserved_39_39:1;
+		u64 c_mul:7;
+		u64 reserved_47_54:8;
+		u64 dis_scan:1;
+		u64 dis_huk:1;
+		u64 vrm_err:1;
+		u64 jt_tstmode:1;
+		u64 ckill_ppdis:1;
+		u64 trusted_mode:1;
+		u64 ejtagdis:1;
+		u64 jtcsrdis:1;
+		u64 chipkill:1;
 	} s;
 };
 
 union twsx_sw_twsi {
 	u64 u;
 	struct {
-		int data:32;
-		int eop_ia:3;
-		int ia:5;
-		int addr:10;
-		int scr:2;
-		int size:3;
-		int sovr:1;
-		int r:1;
-		int op:4;
-		int eia:1;
-		int slonly:1;
-		int v:1;
+		u64 data:32;
+		u64 eop_ia:3;
+		u64 ia:5;
+		u64 addr:10;
+		u64 scr:2;
+		u64 size:3;
+		u64 sovr:1;
+		u64 r:1;
+		u64 op:4;
+		u64 eia:1;
+		u64 slonly:1;
+		u64 v:1;
 	} s;
 };
 
@@ -638,6 +638,12 @@ static int twsi_write_data(void *baseaddr, u8  slave_addr,
 		return -1;
 	}
 
+	result = twsi_wait(baseaddr);
+	if (result) {
+		debug("%s: wait failed\n", __func__);
+		return result;
+	}
+
 	twsi_sw.u	 = 0;
 	twsi_sw.s.op	 = TWSI_SW_EOP_IA;
 	twsi_sw.s.eop_ia = TWSI_DATA;
@@ -653,9 +659,13 @@ static int twsi_write_data(void *baseaddr, u8  slave_addr,
 		      __func__, slave_addr);
 		return result;
 	}
+	result = twsi_read_status(baseaddr);
+	debug("%s: status: (%d) %s\n", __func__, result,
+	      twsi_i2c_status_str(result));
 	if ((result = twsi_read_status(baseaddr)) != TWSI_STAT_TXADDR_ACK) {
 		debug("%s: status: (%d) %s\n", __func__, result,
 		      twsi_i2c_status_str(result));
+		twsi_stop(baseaddr);
 		return twsi_i2c_lost_arb(result, 0);
 	}
 
@@ -730,9 +740,6 @@ static int twsi_read_data(void *baseaddr, u8 slave_addr,
 	unsigned int curr = 0;
 	int result;
 
-	if (length < 1)
-		return -EINVAL;
-
 	debug("%s(%p, 0x%x, %p, %u)\n", __func__, baseaddr, slave_addr,
 	      buffer, length);
 	result = twsi_start(baseaddr);
@@ -760,6 +767,16 @@ static int twsi_read_data(void *baseaddr, u8 slave_addr,
 	if (result) {
 		debug("%s: waiting for sending addr failed\n", __func__);
 		return result;
+	}
+
+	result = twsi_read_status(baseaddr);
+	debug("%s: status: (%d) %s\n", __func__, result,
+	      twsi_i2c_status_str(result));
+	if (result != TWSI_STAT_RXADDR_ACK) {
+		debug("%s: status: (%d) %s\n", __func__, result,
+		      twsi_i2c_status_str(result));
+		twsi_stop(baseaddr);
+		return twsi_i2c_lost_arb(result, 0);
 	}
 
 	while (curr < length) {
@@ -806,6 +823,8 @@ static int twsi_init(void *baseaddr, unsigned int speed, int slaveaddr)
 		if (m_div < 16)
 			break;
 	}
+	if (m_div >= 16)
+		return -1;
 
 	sw_twsi.u = 0;
 	sw_twsi.s.v = 1;	/* Clear valid bit */
