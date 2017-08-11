@@ -61,7 +61,7 @@ char thunderx_prompt[CONFIG_THUNDERX_PROMPT_SIZE] = "ThunderX> ";
 extern unsigned long fdt_base_addr;
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
-extern void eth_common_init();
+extern void eth_common_init(void);
 int board_early_init_r(void)
 {
 	eth_common_init();
@@ -139,10 +139,27 @@ bool alternate_pkg(void)
  */
 int board_late_init(void)
 {
-	const char *board;
+	char boardname[32];
+	const char *board, *str;
+	int len, node;
+
 	debug("%s()\n", __func__);
 	board = getenv("board");
-	printf("Board type: %s\n", getenv("board"));
+
+	/* some times simulator fails to load environment
+	 * from flash, try to read it from devicetree
+	 * until it is fixed
+	 */
+	if (board == NULL) {
+		node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
+		str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
+		debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
+		if (str) {
+			strncpy(boardname, str, sizeof(boardname));
+			setenv("board", boardname);
+		}
+		board = getenv("board");
+	}
 
 	if (board != NULL && !getenv("prompt")) {
 		snprintf(thunderx_prompt, sizeof(thunderx_prompt), "%s> ",
@@ -156,6 +173,7 @@ int board_late_init(void)
 		printf("%s: board is NULL\n", __func__);
 	}
 
+	printf("Board type: %s\n", getenv("board"));
 #ifdef DEBUG
 	dm_dump_all();
 #endif
