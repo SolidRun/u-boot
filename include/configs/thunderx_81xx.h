@@ -142,6 +142,9 @@
 /** Enable tftp command */
 #define CONFIG_CMD_TFTP
 
+/** Reduce hashes printed out */
+#define CONFIG_TFTP_TSIZE
+
 /** Enable sata command */
 
 /** Enable pci command */
