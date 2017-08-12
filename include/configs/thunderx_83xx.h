@@ -7,8 +7,6 @@
 #ifndef __THUNDERX_83XX_H__
 #define __THUNDERX_83XX_H__
 
-#define DEBUG
-
 /** Thunder 83xx does not support NOR flash */
 #define CONFIG_SYS_NO_FLASH
 
@@ -170,6 +168,13 @@
 #define CONFIG_SYS_NVME_MAX_DEVICE 64
 
 /* PCIe */
+
+/**
+ * Perform early PCIe initialization before SPI and eMMC are used for the
+ * environment.
+ */
+#define CONFIG_SYS_EARLY_PCI_INIT
+
 /** Show devices found on PCI bus */
 #define CONFIG_PCI_SCAN_SHOW
 #undef CONFIG_PCI_ENUM_ONLY
