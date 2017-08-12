@@ -274,10 +274,18 @@
 /* Use uboot SPI APIs for env variables */
 #define CONFIG_SPI_ENV
 
-#if defined(CONFIG_ATF)
+#if 0	/* Enable this to put the environment in MMC */
+/** Specifies that the environment is stored in MMC */
+# define CONFIG_ENV_IS_IN_MMC
+
+/** MMC device to store the environment into */
+# define CONFIG_SYS_MMC_ENV_DEV		0
+#endif
+
+#if defined(CONFIG_ATF) && !defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_ENV_IS_IN_ATF
 #define CONFIG_SYS_ENV_ATF_NOR
-#elif defined(CONFIG_SPI_ENV)
+#elif defined(CONFIG_SPI_ENV) && !defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 #define CONFIG_ENV_SPI_MAX_HZ		12500000
