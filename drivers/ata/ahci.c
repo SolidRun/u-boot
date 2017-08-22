@@ -386,38 +386,38 @@ static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 	else
 		scc_s = "unknown";
 #endif
-	printf("AHCI %02x%02x.%02x%02x "
-	       "%u slots %u ports %s Gbps 0x%x impl %s mode\n",
-	       (vers >> 24) & 0xff,
-	       (vers >> 16) & 0xff,
-	       (vers >> 8) & 0xff,
-	       vers & 0xff,
-	       ((cap >> 8) & 0x1f) + 1, (cap & 0x1f) + 1, speed_s, impl, scc_s);
+	debug("AHCI %02x%02x.%02x%02x "
+	      "%u slots %u ports %s Gbps 0x%x impl %s mode\n",
+	      (vers >> 24) & 0xff,
+	      (vers >> 16) & 0xff,
+	      (vers >> 8) & 0xff,
+	      vers & 0xff,
+	      ((cap >> 8) & 0x1f) + 1, (cap & 0x1f) + 1, speed_s, impl, scc_s);
 
-	printf("flags: "
-	       "%s%s%s%s%s%s%s"
-	       "%s%s%s%s%s%s%s"
-	       "%s%s%s%s%s%s\n",
-	       cap & (1 << 31) ? "64bit " : "",
-	       cap & (1 << 30) ? "ncq " : "",
-	       cap & (1 << 28) ? "ilck " : "",
-	       cap & (1 << 27) ? "stag " : "",
-	       cap & (1 << 26) ? "pm " : "",
-	       cap & (1 << 25) ? "led " : "",
-	       cap & (1 << 24) ? "clo " : "",
-	       cap & (1 << 19) ? "nz " : "",
-	       cap & (1 << 18) ? "only " : "",
-	       cap & (1 << 17) ? "pmp " : "",
-	       cap & (1 << 16) ? "fbss " : "",
-	       cap & (1 << 15) ? "pio " : "",
-	       cap & (1 << 14) ? "slum " : "",
-	       cap & (1 << 13) ? "part " : "",
-	       cap & (1 << 7) ? "ccc " : "",
-	       cap & (1 << 6) ? "ems " : "",
-	       cap & (1 << 5) ? "sxs " : "",
-	       cap2 & (1 << 2) ? "apst " : "",
-	       cap2 & (1 << 1) ? "nvmp " : "",
-	       cap2 & (1 << 0) ? "boh " : "");
+	debug("flags: "
+	      "%s%s%s%s%s%s%s"
+	      "%s%s%s%s%s%s%s"
+	      "%s%s%s%s%s%s\n",
+	      cap & (1 << 31) ? "64bit " : "",
+	      cap & (1 << 30) ? "ncq " : "",
+	      cap & (1 << 28) ? "ilck " : "",
+	      cap & (1 << 27) ? "stag " : "",
+	      cap & (1 << 26) ? "pm " : "",
+	      cap & (1 << 25) ? "led " : "",
+	      cap & (1 << 24) ? "clo " : "",
+	      cap & (1 << 19) ? "nz " : "",
+	      cap & (1 << 18) ? "only " : "",
+	      cap & (1 << 17) ? "pmp " : "",
+	      cap & (1 << 16) ? "fbss " : "",
+	      cap & (1 << 15) ? "pio " : "",
+	      cap & (1 << 14) ? "slum " : "",
+	      cap & (1 << 13) ? "part " : "",
+	      cap & (1 << 7) ? "ccc " : "",
+	      cap & (1 << 6) ? "ems " : "",
+	      cap & (1 << 5) ? "sxs " : "",
+	      cap2 & (1 << 2) ? "apst " : "",
+	      cap2 & (1 << 1) ? "nvmp " : "",
+	      cap2 & (1 << 0) ? "boh " : "");
 }
 
 #if defined(CONFIG_DM_SCSI) || !defined(CONFIG_SCSI_AHCI_PLAT)
