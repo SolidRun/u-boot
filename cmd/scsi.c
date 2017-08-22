@@ -70,7 +70,7 @@ U_BOOT_CMD(
 	"SATA sub-system",
 	"reset - reset SATA controller\n"
 	"sata info  - show available SATA devices\n"
-	"sata scan  - (re-)scan SATA bus\n"
+	"sata init  - (re-)scan SATA bus\n"
 	"sata device [dev] - show or set current device\n"
 	"sata part [dev] - print partition table of one or all SATA devices\n"
 	"sata read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
