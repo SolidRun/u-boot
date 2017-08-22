@@ -259,7 +259,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 		/* Bring up SATA link. */
 		ret = ahci_link_up(uc_priv, i);
 		if (ret) {
-			printf("SATA link %d timeout.\n", i);
+			debug("SATA link %d timeout.\n", i);
 			continue;
 		} else {
 			debug("SATA link ok.\n");
@@ -292,7 +292,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 			continue;
 		}
 
-		printf("Target spinup took %d ms.\n", j);
+		debug("Target spinup took %d ms.\n", j);
 		if (j == WAIT_MS_SPINUP)
 			debug("timeout.\n");
 		else
