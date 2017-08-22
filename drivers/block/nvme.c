@@ -905,6 +905,8 @@ int __nvme_initialize(void)
 		if (ret)
 			break;
 
+		puts("NVMe:  ");
+
 		for (uclass_first_device(UCLASS_NVME, &ndev);
 		     ndev;
 		     uclass_next_device(&ndev)) {

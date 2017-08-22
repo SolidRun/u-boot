@@ -428,7 +428,6 @@ static int initr_mmc(void)
 #ifdef CONFIG_NVME
 static int initr_nvme(void)
 {
-	puts("NVMe:  ");
 	nvme_initialize();
 	return 0;
 }
