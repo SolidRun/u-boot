@@ -74,7 +74,6 @@ int board_init(void)
 {
 	ulong fdt_addr = (ulong)fdt_base_addr;
 	set_working_fdt_addr(fdt_addr);
-	thunderx_parse_bdk_config();
 	thunderx_parse_phy_info();
 
 	return 0;
@@ -144,6 +143,14 @@ int board_late_init(void)
 	int len, node;
 
 	debug("%s()\n", __func__);
+
+	/*
+	 * Now that pci_init initializes env device.
+	 * Try to set environment variables
+	 */
+	thunderx_parse_bdk_config();
+	thunderx_parse_mac_addr();
+
 	board = getenv("board");
 
 	/* some times simulator fails to load environment

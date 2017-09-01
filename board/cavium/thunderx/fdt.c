@@ -28,7 +28,7 @@ void thunderx_parse_bdk_config(void)
 {
 	char boardname[32];
 	const char *str;
-#ifdef CONFIG_THUNDERX_BGX
+#if 0
 	uint8_t ethaddr[6];
 	int i;
 #endif
@@ -65,7 +65,7 @@ void thunderx_parse_bdk_config(void)
 		printf("Error: cannot retrieve board type from fdt\n");
 	}
 
-#ifdef CONFIG_THUNDERX_BGX
+#if 0
 	char envname[16];
 
 	for (i = 0; i < (CONFIG_MAX_BGX * 4); i++) {
@@ -223,6 +223,70 @@ void thunderx_parse_phy_info(void)
 	}
 }
 
+void thunderx_parse_mac_addr(void)
+{
+	const void *fdt = gd->fdt_blob;
+	int offset = 0, node, bgx_id = 0, lmacid = 0;
+	const u32 *val;
+	const char *mac_addr;
+	char eth_addr[32];
+	char bgxname[16];
+	char envname[16];
+	int len, rgx_id = 0, eth_id = 0;
+	int subnode;
+
+	debug("%s: ENTER\n", __func__);
+	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
+	if (offset > 1) {
+	debug("%s: ENTER\n", __func__);
+		for (bgx_id = 0; bgx_id < CONFIG_MAX_BGX_PER_NODE; bgx_id++) {
+	debug("%s: ENTER\n", __func__);
+			snprintf(bgxname, sizeof(bgxname),
+				 "bgx%d", bgx_id);
+			node = fdt_subnode_offset(fdt, offset, bgxname);
+			if (node < 0) {
+				/* check if it is rgx node */
+				snprintf(bgxname, sizeof(bgxname),
+					 "rgx%d", rgx_id);
+				node = fdt_subnode_offset(fdt, offset, bgxname);
+				if (node < 0) {
+					printf("bgx%d/rgx0 node not found\n",
+					       bgx_id);
+					continue;
+				}
+			}
+			debug("bgx%d node found\n", bgx_id);
+
+			/* loop through each of the bgx/rgx nodes
+			to find PHY nodes */
+			fdt_for_each_subnode(subnode, fdt, node) {
+
+				/* check for local-mac-address */
+				mac_addr = fdt_getprop(fdt, subnode,
+						       "local-mac-address",
+						       &len);
+				if (mac_addr) {
+					debug("\n%s %pM\n", __func__, mac_addr);
+					snprintf(eth_addr, sizeof(eth_addr),
+						 "%pM", mac_addr);
+					if (eth_id)
+						snprintf(envname,
+							 sizeof(envname),
+							 "eth%daddr", eth_id);
+					else
+						strcpy(envname, "ethaddr");
+					setenv_force(envname, eth_addr);
+				} else {
+					printf("Warning: local-mac-address "
+					       "not found for bgx%d lmac%d\n",
+					       bgx_id, lmacid);
+				}
+				eth_id++;
+				lmacid++;
+			}
+		}
+	}
+}
 
 int arch_fixup_memory_node(void *blob)
 {
