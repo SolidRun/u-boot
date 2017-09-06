@@ -16,10 +16,6 @@ config ARMADA_32BIT
 	select SUPPORT_SPL
 	select TRANSLATION_OFFSET
 
-config ARMADA_64BIT
-	bool
-	select ARM64
-
 # ARMv7 SoCs...
 config ARMADA_375
 	bool
