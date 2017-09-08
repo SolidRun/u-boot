@@ -406,10 +406,19 @@ int mmc_unbind(struct udevice *dev)
 static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 {
 	struct udevice *mmc_dev = dev_get_parent(bdev);
-	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
+#ifdef CONFIG_MMC_CAVIUM
+	struct cavium_mmc_host *host = dev_get_priv(mmc_dev);
 	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
-	int ret;
+	struct mmc *mmc = host->slots[desc->devnum].mmc;
 
+	/* As cavium mmc have two slots, switch the slot if it
+	 * is not current.
+	 */
+	if (host->cur_slotid != desc->devnum)
+		host->cur_slotid = desc->devnum;
+#else
+	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
+#endif
 	if (desc->hwpart == hwpart)
 		return 0;
 
