@@ -28,10 +28,6 @@ void thunderx_parse_bdk_config(void)
 {
 	char boardname[32];
 	const char *str;
-#if 0
-	uint8_t ethaddr[6];
-	int i;
-#endif
 	int node;
 	int ret = 0, len = sizeof(boardname);
 
@@ -64,23 +60,6 @@ void thunderx_parse_bdk_config(void)
 	} else {
 		printf("Error: cannot retrieve board type from fdt\n");
 	}
-
-#if 0
-	char envname[16];
-
-	for (i = 0; i < (CONFIG_MAX_BGX * 4); i++) {
-		if (eth_getenv_enetaddr_by_index("eth", i, ethaddr)) {
-			debug(" %s eth%daddr set NULL\n", __func__, i);
-			if (i) {
-				snprintf(envname, sizeof(envname),
-					 "eth%daddr", i);
-			} else {
-				strcpy(envname, "ethaddr");
-			}
-			setenv_force(envname, NULL);
-		}
-	}
-#endif
 }
 
 static int thunderx_get_mdio_bus(const void *fdt, int phy_offset)
@@ -192,26 +171,6 @@ void thunderx_parse_phy_info(void)
 				if (val)
 					autoneg_dis[lmacid] = 1;
 
-				/* check for local-mac-address */
-				mac_addr = fdt_getprop(fdt, subnode,
-						       "local-mac-address",
-						       &len);
-				if (mac_addr) {
-					debug("\n%s %pM\n", __func__, mac_addr);
-					snprintf(eth_addr, sizeof(eth_addr),
-						 "%pM", mac_addr);
-					if (eth_id)
-						snprintf(envname,
-							 sizeof(envname),
-							 "eth%daddr", eth_id);
-					else
-						strcpy(envname, "ethaddr");
-					setenv_force(envname, eth_addr);
-				} else {
-					printf("Warning: local-mac-address "
-					       "not found for bgx%d lmac%d\n",
-					       bgx_id, lmacid);
-				}
 				eth_id++;
 				lmacid++;
 			}
@@ -284,6 +243,7 @@ void thunderx_parse_mac_addr(void)
 				eth_id++;
 				lmacid++;
 			}
+			lmacid = 0;
 		}
 	}
 }
