@@ -983,7 +983,7 @@ static int ahci_start_ports(struct ahci_uc_priv *uc_priv)
 	for (i = 0; i < uc_priv->n_ports; i++) {
 		if (((linkmap >> i) & 0x01)) {
 			if (ahci_port_start(uc_priv, (u8) i)) {
-				printf("Can not start port %d\n", i);
+				debug("AHCI Can not start port %d\n", i);
 				continue;
 			}
 		}
