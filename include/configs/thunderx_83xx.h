@@ -12,8 +12,6 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
-#define CONFIG_SYS_BOOTM_LEN (16 << 20)
-
 /** Enable vsnprintf support */
 #define CONFIG_SYS_VSNPRINTF
 
