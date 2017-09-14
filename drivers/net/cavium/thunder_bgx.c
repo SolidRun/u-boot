@@ -1283,6 +1283,31 @@ void bgx_set_board_info(int bgx_id, int *mdio_bus,
 }
 
 
+int thunderx_bgx_remove(struct udevice *dev)
+{
+	int lmac;
+	u64 cfg;
+	int count = MAX_LMAC_PER_BGX;
+	struct bgx *bgx = dev_get_priv(dev);
+
+	if (bgx->reg_base == NULL)
+		return 0;
+
+	if (bgx->is_rgx)
+		count = 1;
+
+	for (lmac = 0; lmac < count; lmac++) {
+		cfg = bgx_reg_read(bgx, lmac, BGX_CMRX_CFG);
+		cfg &= ~(CMR_PKT_RX_EN | CMR_PKT_TX_EN);
+		bgx_reg_write(bgx, lmac, BGX_CMRX_CFG, cfg);
+
+		debug("%s disabling bgx%d lmac%d\n",
+			__func__, bgx->bgx_id, lmac);
+		bgx_lmac_disable(bgx, lmac);
+	}
+	return 0;
+}
+
 int thunderx_bgx_probe(struct udevice *dev)
 {
 	int err;
@@ -1388,8 +1413,10 @@ U_BOOT_DRIVER(thunderx_bgx) = {
 	.name	= "thunderx_bgx",
 	.id	= UCLASS_MISC,
 	.probe	= thunderx_bgx_probe,
+	.remove	= thunderx_bgx_remove,
 	.of_match = thunderx_bgx_ids,
 	.ops	= &thunderx_bgx_ops,
 	.priv_auto_alloc_size = sizeof(struct bgx),
+	.flags  = DM_FLAG_OS_PREPARE,
 };
 
