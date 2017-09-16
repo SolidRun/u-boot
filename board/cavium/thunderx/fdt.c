@@ -7,6 +7,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <errno.h>
+#include <environment.h>
 #include <linux/compiler.h>
 
 #include <libfdt.h>
@@ -98,10 +99,7 @@ void thunderx_parse_phy_info(void)
 	const void *fdt = gd->fdt_blob;
 	int offset = 0, node, bgx_id = 0, lmacid = 0;
 	const u32 *val;
-	const char *mac_addr;
-	char eth_addr[32];
 	char bgxname[16];
-	char envname[16];
 	int len, rgx_id = 0, eth_id = 0;
 	int phandle, phy_offset;
 	int subnode;
@@ -182,69 +180,132 @@ void thunderx_parse_phy_info(void)
 	}
 }
 
+int ethaddr_delete(const char *name)
+{
+	int flag = H_INTERACTIVE | H_FORCE;
+
+	return hdelete_r(name, &env_htab, flag);
+}
+
+int ethaddr_exists(const char *name)
+{
+	ENTRY e, *ep;
+
+	e.key = name;
+	e.data = NULL;
+	hsearch_r(e, FIND, &ep, &env_htab, 0);
+
+	return (ep == NULL) ? 1 : 0;
+}
+
 void thunderx_parse_mac_addr(void)
 {
-	const void *fdt = gd->fdt_blob;
-	int offset = 0, node, bgx_id = 0, lmacid = 0;
-	const u32 *val;
 	const char *mac_addr;
-	char eth_addr[32];
-	char bgxname[16];
-	char envname[16];
+	const void *fdt = gd->fdt_blob;
+	int subnode, mismatch = 0;
 	int len, rgx_id = 0, eth_id = 0;
-	int subnode;
+	int offset = 0, node, bgx_id = 0, lmacid = 0;
+	unsigned char eth_addr[ARP_HLEN], env_addr[ARP_HLEN];
+	char eaddr[32], bgxname[16], envname[16];
+	struct eth_device *ethdev;
 
 	debug("%s: ENTER\n", __func__);
 	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
-	if (offset > 1) {
-	debug("%s: ENTER\n", __func__);
-		for (bgx_id = 0; bgx_id < CONFIG_MAX_BGX_PER_NODE; bgx_id++) {
-	debug("%s: ENTER\n", __func__);
+	if (offset < 0)
+		return;
+
+	for (bgx_id = 0; bgx_id < CONFIG_MAX_BGX_PER_NODE; bgx_id++) {
+		snprintf(bgxname, sizeof(bgxname), "bgx%d", bgx_id);
+		node = fdt_subnode_offset(fdt, offset, bgxname);
+		if (node < 0) {
+			/* check if it is rgx node */
 			snprintf(bgxname, sizeof(bgxname),
-				 "bgx%d", bgx_id);
+				 "rgx%d", rgx_id);
 			node = fdt_subnode_offset(fdt, offset, bgxname);
 			if (node < 0) {
-				/* check if it is rgx node */
-				snprintf(bgxname, sizeof(bgxname),
-					 "rgx%d", rgx_id);
-				node = fdt_subnode_offset(fdt, offset, bgxname);
-				if (node < 0) {
-					printf("bgx%d/rgx0 node not found\n",
-					       bgx_id);
-					continue;
-				}
+				printf("bgx%d/rgx0 node not found\n", bgx_id);
+				continue;
 			}
-			debug("bgx%d node found\n", bgx_id);
-
-			/* loop through each of the bgx/rgx nodes
-			to find PHY nodes */
-			fdt_for_each_subnode(subnode, fdt, node) {
-
-				/* check for local-mac-address */
-				mac_addr = fdt_getprop(fdt, subnode,
-						       "local-mac-address",
-						       &len);
-				if (mac_addr) {
-					debug("\n%s %pM\n", __func__, mac_addr);
-					snprintf(eth_addr, sizeof(eth_addr),
-						 "%pM", mac_addr);
-					if (eth_id)
-						snprintf(envname,
-							 sizeof(envname),
-							 "eth%daddr", eth_id);
-					else
-						strcpy(envname, "ethaddr");
-					setenv_force(envname, eth_addr);
-				} else {
-					printf("Warning: local-mac-address "
-					       "not found for bgx%d lmac%d\n",
-					       bgx_id, lmacid);
-				}
-				eth_id++;
-				lmacid++;
-			}
-			lmacid = 0;
 		}
+		debug("bgx%d node found\n", bgx_id);
+
+		/* loop through each of the bgx/rgx nodes to find PHY nodes */
+		fdt_for_each_subnode(subnode, fdt, node) {
+			sprintf(envname, eth_id ? "eth%daddr" : "ethaddr",
+				eth_id);
+			/* check for local-mac-address */
+			mac_addr = fdt_getprop(fdt, subnode,
+					       "local-mac-address", &len);
+			if (mac_addr) {
+				debug("%s mac %pM\n", __func__, mac_addr);
+				snprintf(eaddr, sizeof(eaddr), "%pM",
+					 mac_addr);
+				debug("%s eaddr %pM\n", __func__, eaddr);
+				memcpy(eth_addr, mac_addr, ARP_HLEN);
+				debug("%s eth %pM\n", __func__, eth_addr);
+				if (getenv(envname) == NULL)
+					mismatch = 1;
+				else {
+					eth_getenv_enetaddr(envname, env_addr);
+					debug("\n env %pM\n", env_addr);
+					if (memcmp(env_addr, eth_addr,
+						   ARP_HLEN))
+						mismatch = 1;
+				}
+				setenv_force(envname, eaddr);
+				ethdev = eth_get_dev_by_index(eth_id);
+				if (ethdev &&
+					memcmp(ethdev->enetaddr, eth_addr,
+						ARP_HLEN))
+					memcpy(ethdev->enetaddr, eth_addr,
+						ARP_HLEN);
+			} else {
+				printf("Warning: local-mac-address "
+				       "not found for bgx%d lmac%d\n",
+				       bgx_id, lmacid);
+				if (!ethaddr_exists(envname)) {
+					memset(eth_addr, 0, ARP_HLEN);
+					eth_addr[5] = eth_id;
+					eth_getenv_enetaddr(envname, env_addr);
+					if (memcmp(env_addr, eth_addr,
+						ARP_HLEN)) {
+						mismatch = 1;
+						snprintf(eaddr, sizeof(eaddr),
+							 "%pM", eth_addr);
+						setenv_force(envname, eaddr);
+						ethdev = eth_get_dev_by_index(
+								eth_id);
+						if (ethdev &&
+						    memcmp(ethdev->enetaddr,
+							eth_addr, ARP_HLEN))
+							memcpy(
+							ethdev->enetaddr,
+							eth_addr, ARP_HLEN);
+					}
+				}
+			}
+			eth_id++;
+			lmacid++;
+		}
+		lmacid = 0;
+	}
+
+	debug("\n %s eth_id %d ",__func__, eth_id);
+
+	/*
+	 * After parsing bgx nodes, remove extra ethaddr env variables
+	 * maybe configuration or mac addr count might have changed
+	 * use eth_id as base
+	 */
+	for ( ;eth_id < 20; eth_id++) {
+		sprintf(envname, eth_id ? "eth%daddr" : "ethaddr", eth_id);
+		if ((!ethaddr_exists(envname)) && (!ethaddr_delete(envname)))
+			printf("\n delete env %s failed", envname);
+	}
+	if (mismatch) {
+		printf("Interface configuration or mac addr count"
+			" changed, saving env...\n");
+		saveenv();
 	}
 }
 
