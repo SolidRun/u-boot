@@ -320,4 +320,7 @@
 
 #define CONFIG_CMD_TIME
 
+/** Maximum size of image supported for bootm (and bootable FIT images) */
+#define CONFIG_SYS_BOOTM_LEN		0x10000000	/* 256MiB */
+
 #endif /* __THUNDERX_93XX_H__ */
