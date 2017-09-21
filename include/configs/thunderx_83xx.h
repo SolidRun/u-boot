@@ -12,6 +12,9 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
+/** Maximum size of image supported for bootm (and bootable FIT images) */
+#define CONFIG_SYS_BOOTM_LEN (256 << 20)
+
 /** Enable vsnprintf support */
 #define CONFIG_SYS_VSNPRINTF
 
@@ -218,6 +221,7 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_PXE
+#define CONFIG_BOOTP_TFTP_SERVERIP
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
@@ -336,8 +340,5 @@
 #define CONFIG_SYS_MMC_SET_DEV
 
 #define CONFIG_CMD_TIME
-
-/** Maximum size of image supported for bootm (and bootable FIT images) */
-#define CONFIG_SYS_BOOTM_LEN		0x10000000	/* 256MiB */
 
 #endif /* __THUNDERX_83XX_H__ */

@@ -16,7 +16,8 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
-#define CONFIG_SYS_BOOTM_LEN (16 << 20)
+/** Maximum size of image supported for bootm (and bootable FIT images) */
+#define CONFIG_SYS_BOOTM_LEN (256 << 20)
 
 #define CONFIG_SYS_VSNPRINTF
 
@@ -222,6 +223,11 @@
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_PXE
+#define CONFIG_BOOTP_TFTP_SERVERIP
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
