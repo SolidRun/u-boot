@@ -1007,6 +1007,7 @@ static void bgx_init_hw(struct bgx *bgx)
 {
 	struct lmac *lmac;
 	int i, lmacid, count = 0;
+	char buf[40];
 
 	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
 		struct lmac *tlmac;
@@ -1031,6 +1032,9 @@ static void bgx_init_hw(struct bgx *bgx)
 			} else
 				lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 0;
+			snprintf(buf, sizeof(buf),
+				 "BGX%d QLM%d LMAC%d mode: SGMII\n",
+				 bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		}
 		case QLM_MODE_XAUI:
@@ -1038,6 +1042,9 @@ static void bgx_init_hw(struct bgx *bgx)
 				continue;
 			lmac->lmac_type = 1;
 			lmac->lane_to_sds = 0xE4;
+			snprintf(buf, sizeof(buf),
+				 "BGX%d QLM%d LMAC%d mode: XAUI\n",
+				 bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case QLM_MODE_RXAUI:
 			if (lmacid == 0) {
@@ -1053,6 +1060,9 @@ static void bgx_init_hw(struct bgx *bgx)
 				}
 			} else
 				continue;
+			snprintf(buf, sizeof(buf),
+				 "BGX%d QLM%d LMAC%d mode: RXAUI\n",
+				 bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case QLM_MODE_XFI:
 			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
@@ -1067,6 +1077,9 @@ static void bgx_init_hw(struct bgx *bgx)
 			} else
 				lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 3;
+			snprintf(buf, sizeof(buf),
+				 "BGX%d QLM%d LMAC%d mode: XFI\n",
+				 bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case QLM_MODE_XLAUI:
 			if (lmacid != 0)
@@ -1074,6 +1087,9 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac->lmac_type = 4;
 			lmac->lane_to_sds = 0xE4;
 			break;
+			snprintf(buf, sizeof(buf),
+				 "BGX%d QLM%d LMAC%d mode: XLAUI\n",
+				 bgx->bgx_id, lmac->qlm, lmacid);
 		case QLM_MODE_10G_KR:
 			if ((bgx->bgx_id == 0) && is_altpkg) {
 				if (lmacid >= 2)
@@ -1086,6 +1102,9 @@ static void bgx_init_hw(struct bgx *bgx)
 				lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 3;
 			lmac->use_training = 1;
+			snprintf(buf, sizeof(buf),
+				 "BGX%d QLM%d LMAC%d mode: 10G-KR\n",
+				 bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case QLM_MODE_40G_KR4:
 			if (lmacid != 0)
@@ -1093,16 +1112,24 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac->lmac_type = 4;
 			lmac->lane_to_sds = 0xE4;
 			lmac->use_training = 1;
+			snprintf(buf, sizeof(buf),
+				 "BGX%d QLM%d LMAC%d mode: 40G-KR4\n",
+				 bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case QLM_MODE_RGMII:
 			if (lmacid != 0)
 				continue;
 			lmac->lmac_type = 5;
 			lmac->lane_to_sds = 0xE4;
+			snprintf(buf, sizeof(buf),
+				 "BGX%d LMAC%d mode: RGMII\n",
+				 bgx->bgx_id, lmacid);
 			break;
 		case QLM_MODE_QSGMII:
 			if ((lmacid == 0) || (lmacid == 2)) {
 				count = 4;
+				printf("BGX%d QLM%d LMAC%d mode: QSGMII\n",
+					bgx->bgx_id, lmac->qlm, lmacid);
 				for (i = 0; i < count; i++) {
 					struct lmac *l;
 					l = &bgx->lmac[i];
@@ -1130,6 +1157,7 @@ static void bgx_init_hw(struct bgx *bgx)
 			tlmac->qlm = lmac->qlm;
 			tlmac->qlm_mode = lmac->qlm_mode;
 
+			printf("%s", buf);
 			/* Initialize lmac_type and lane_to_sds */
 			bgx_reg_write(bgx, count, BGX_CMRX_CFG,
 				      (lmac->lmac_type << 8) |
@@ -1197,7 +1225,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			if (bgx->is_rgx) {
 				if (lmacid == 0) {
 					lmac->qlm_mode = QLM_MODE_RGMII;
-					printf("BGX%d LMAC%d mode: RGMII\n",
+					debug("BGX%d LMAC%d mode: RGMII\n",
 							bgx->bgx_id, lmacid);
 				}
 				continue;
@@ -1207,7 +1235,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 						continue;
 				}
 				lmac->qlm_mode = QLM_MODE_SGMII;
-				printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
+				debug("BGX%d QLM%d LMAC%d mode: SGMII\n",
 						bgx->bgx_id, lmac->qlm, lmacid);
 			}
 			break;
@@ -1217,7 +1245,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			lmac->qlm_mode = QLM_MODE_XAUI;
 			if (lmacid != 0)
 				continue;
-			printf("BGX%d QLM%d LMAC%d mode: XAUI\n",
+			debug("BGX%d QLM%d LMAC%d mode: XAUI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case BGX_MODE_RXAUI:
@@ -1225,7 +1253,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				continue;
 			lmac->qlm_mode = QLM_MODE_RXAUI;
 			if (index == lmacid) {
-				printf("BGX%d QLM%d LMAC%d mode: RXAUI\n",
+				debug("BGX%d QLM%d LMAC%d mode: RXAUI\n",
 					bgx->bgx_id, lmac->qlm, (index ? 1 : 0));
 			}
 			break;
@@ -1237,11 +1265,11 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			if (((lmacid < 2) && (train_en & (1 << lmacid)))
 			    || (train_en & (1 << (lmacid - 2)))) {
 				lmac->qlm_mode = QLM_MODE_10G_KR;
-				printf("BGX%d QLM%d LMAC%d mode: 10G_KR\n",
+				debug("BGX%d QLM%d LMAC%d mode: 10G_KR\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			} else {
 				lmac->qlm_mode = QLM_MODE_XFI;
-				printf("BGX%d QLM%d LMAC%d mode: XFI\n",
+				debug("BGX%d QLM%d LMAC%d mode: XFI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
 			break;
@@ -1252,20 +1280,20 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				lmac->qlm_mode = QLM_MODE_40G_KR4;
 				if (lmacid != 0)
 					break;
-				printf("BGX%d QLM%d LMAC%d mode: 40G_KR4\n",
+				debug("BGX%d QLM%d LMAC%d mode: 40G_KR4\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			} else {
 				lmac->qlm_mode = QLM_MODE_XLAUI;
 				if (lmacid != 0)
 					break;
-				printf("BGX%d QLM%d LMAC%d mode: XLAUI\n",
+				debug("BGX%d QLM%d LMAC%d mode: XLAUI\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
 		break;
 		case BGX_MODE_QSGMII:
 			if ((lmacid == 0) || (lmacid == 2)) {
 				lmac->qlm_mode = QLM_MODE_QSGMII;
-				printf("BGX%d QLM%d LMAC%d mode: QSGMII\n",
+				debug("BGX%d QLM%d LMAC%d mode: QSGMII\n",
 					bgx->bgx_id, lmac->qlm, lmacid);
 			}
 			break;
