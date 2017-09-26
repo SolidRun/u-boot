@@ -677,6 +677,10 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 	   >= 6.25Gbps. */
 	if (!lmac->use_training) {
 		int qlm;
+		bool use_dlm = 0;
+		if (CAVIUM_IS_MODEL(CAVIUM_CN81XX)
+		    || (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx->bgx_id == 2)))
+			use_dlm = 1;
 		switch (lmac->lmac_type) {
 		default:
 		case BGX_MODE_SGMII:
@@ -685,11 +689,19 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 			/* Nothing to do */
 			break;
 		case BGX_MODE_XLAUI:
-			if (__rx_equalization(lmac->qlm, -1) ||
-				__rx_equalization(lmac->qlm+1, -1)) {
-				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d/DLM%d\n",
-					bgx->bgx_id, lmacid, lmac->qlm, lmac->qlm+1);
-				return -1;
+			if (use_dlm) {
+				if (__rx_equalization(lmac->qlm, -1) ||
+					__rx_equalization(lmac->qlm+1, -1)) {
+					printf("BGX%d:%d: Waiting for RX Equalization on DLM%d/DLM%d\n",
+						bgx->bgx_id, lmacid, lmac->qlm, lmac->qlm+1);
+					return -1;
+				}
+			} else {
+				if (__rx_equalization(lmac->qlm, -1)) {
+					printf("BGX%d:%d: Waiting for RX Equalization on QLM%d:\n",
+						bgx->bgx_id, lmacid, lmac->qlm);
+					return -1;
+				}
 			}
 			break;
 		case BGX_MODE_RXAUI:
@@ -697,12 +709,12 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 			   RXAUI requires 2 lanes for each interface */
 			qlm = lmac->qlm;
 			if (__rx_equalization(qlm, 0)) {
-				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d, Lane0\n",
+				printf("BGX%d:%d: Waiting for RX Equalization on QLM%d, Lane0\n",
 					bgx->bgx_id, lmacid, qlm);
 				return -1;
 			}
 			if (__rx_equalization(qlm, 1)) {
-				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d, Lane1\n",
+				printf("BGX%d:%d: Waiting for RX Equalization on QLM%d, Lane1\n",
 					bgx->bgx_id, lmacid, qlm);
 				return -1;
 			}
@@ -712,13 +724,13 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 				int lid;
 				if ((bgx->bgx_id == 0) && is_altpkg && lmacid)
 					lid = 0;
-				else if (lmacid >= 2)
+				else if ((lmacid >= 2) && use_dlm)
 					lid = lmacid - 2;
 				else
 					lid = lmacid;
 
 				if (__rx_equalization(lmac->qlm, lid))
-					printf("BGX%d:%d: Waiting for RX Equalization on DLM%d\n",
+					printf("BGX%d:%d: Waiting for RX Equalization on QLM%d\n",
 						bgx->bgx_id, lid, lmac->qlm);
 			}
 			break;
