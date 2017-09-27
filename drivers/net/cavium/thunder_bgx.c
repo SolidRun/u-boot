@@ -1086,10 +1086,10 @@ static void bgx_init_hw(struct bgx *bgx)
 				continue;
 			lmac->lmac_type = 4;
 			lmac->lane_to_sds = 0xE4;
-			break;
 			snprintf(buf, sizeof(buf),
 				 "BGX%d QLM%d LMAC%d mode: XLAUI\n",
 				 bgx->bgx_id, lmac->qlm, lmacid);
+			break;
 		case QLM_MODE_10G_KR:
 			if ((bgx->bgx_id == 0) && is_altpkg) {
 				if (lmacid >= 2)
