@@ -1325,7 +1325,7 @@ void bgx_set_board_info(int bgx_id, int *mdio_bus,
 
 int thunderx_bgx_remove(struct udevice *dev)
 {
-	int lmac;
+	int lmacid;
 	u64 cfg;
 	int count = MAX_LMAC_PER_BGX;
 	struct bgx *bgx = dev_get_priv(dev);
@@ -1336,14 +1336,23 @@ int thunderx_bgx_remove(struct udevice *dev)
 	if (bgx->is_rgx)
 		count = 1;
 
-	for (lmac = 0; lmac < count; lmac++) {
-		cfg = bgx_reg_read(bgx, lmac, BGX_CMRX_CFG);
+	for (lmacid = 0; lmacid < count; lmacid++) {
+		struct lmac *lmac;	
+		lmac = &bgx->lmac[lmacid];
+		cfg = bgx_reg_read(bgx, lmacid, BGX_CMRX_CFG);
 		cfg &= ~(CMR_PKT_RX_EN | CMR_PKT_TX_EN);
-		bgx_reg_write(bgx, lmac, BGX_CMRX_CFG, cfg);
+		bgx_reg_write(bgx, lmacid, BGX_CMRX_CFG, cfg);
 
-		debug("%s disabling bgx%d lmac%d\n",
-			__func__, bgx->bgx_id, lmac);
-		bgx_lmac_disable(bgx, lmac);
+		/* Disable PCS for 1G interface */
+		if ((lmac->lmac_type == BGX_MODE_SGMII)
+		    || (lmac->lmac_type == BGX_MODE_QSGMII)) {
+			cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_PCS_MRX_CTL);
+			cfg |= PCS_MRX_CTL_PWR_DN;
+			bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MRX_CTL, cfg);
+		}
+
+		debug("%s disabling bgx%d lmacid%d\n", __func__, bgx->bgx_id, lmacid);
+		bgx_lmac_disable(bgx, lmacid);
 	}
 	return 0;
 }
