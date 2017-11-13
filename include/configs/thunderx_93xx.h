@@ -16,11 +16,12 @@
 /** Maximum size of image supported for bootm (and bootable FIT images) */
 #define CONFIG_SYS_BOOTM_LEN (256 << 20)
 
-/* starting uboot and linux kernel from offset 40MB
- * below 40MB will be used for mailboxes of pko/pki
- * */
-
-#define MEM_BASE			0x2800000
+/*
+ * Starting uboot and linux kernel from offset 64MB.
+ * Below addresses are used for secure ARM-TF memory
+ * and RVU mailboxes/MSI-Xes.
+ */
+#define MEM_BASE			0x04000000
 
 #define CONFIG_COREID_MASK             0xffffff
 
@@ -41,7 +42,7 @@
 /* Link Definitions */
 
 /** Code start address */
-#define CONFIG_SYS_TEXT_BASE		0x02000000
+#define CONFIG_SYS_TEXT_BASE		0x04000000
 
 /** Stack starting address */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
