@@ -87,7 +87,6 @@ enum uclass_id {
 	UCLASS_SAR,		/* Reset Sample Configuration */
 	UCLASS_RTC,		/* Real time clock device */
 	UCLASS_SCSI,		/* SCSI device */
-	UCLASS_NVME,		/* NVME device */
 	UCLASS_SERIAL,		/* Serial UART */
 	UCLASS_SIMPLE_BUS,	/* Bus with child devices */
 	UCLASS_SMEM,		/* Shared memory interface */
