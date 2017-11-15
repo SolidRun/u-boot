@@ -1177,7 +1177,6 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 	if (ret)
 		return ret;
 
-	uc_plat->max_lun = 1;
 	uc_plat->max_id = uc_priv->n_ports;
 
 	ret = ahci_start_ports(uc_priv);
