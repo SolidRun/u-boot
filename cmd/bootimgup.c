@@ -203,8 +203,8 @@ static int do_bootu_spi(int argc, char * const argv[])
 	debug("%s argv0 %s argv1 %s\n", __func__, argv[0], argv[1]);
 
 	if (argc == 1) {
-		env1 = getenv("kernel_addr");
-		env2 = getenv("filesize");
+		env1 = env_get("kernel_addr");
+		env2 = env_get("filesize");
 	} else {
 		if (!argv[1] || !argv[2])
 			return -1;
@@ -327,8 +327,8 @@ static int do_bootu_mmc(int argc, char * const argv[])
 
 	blk = 0;
 	if (argc == 1) {
-		env1 = getenv("kernel_addr");
-		env2 = getenv("filesize");
+		env1 = env_get("kernel_addr");
+		env2 = env_get("filesize");
 	} else {
 		if (!argv[1] || !argv[2])
 			return -1;

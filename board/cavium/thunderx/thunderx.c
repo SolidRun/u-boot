@@ -151,7 +151,7 @@ int board_late_init(void)
 	thunderx_parse_bdk_config();
 	thunderx_parse_mac_addr();
 
-	board = getenv("board");
+	board = env_get("board");
 
 	/* some times simulator fails to load environment
 	 * from flash, try to read it from devicetree
@@ -163,24 +163,24 @@ int board_late_init(void)
 		debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
 		if (str) {
 			strncpy(boardname, str, sizeof(boardname));
-			setenv("board", boardname);
+			env_set("board", boardname);
 		}
-		board = getenv("board");
+		board = env_get("board");
 	}
 
-	if (board != NULL && !getenv("prompt")) {
+	if (board != NULL && !env_get("prompt")) {
 		snprintf(thunderx_prompt, sizeof(thunderx_prompt), "%s> ",
 			 board);
-		printf("Set prompt to \"%s\"\n", thunderx_prompt);
-		setenv("prompt", thunderx_prompt);
-	} else if (getenv("prompt")) {
-		printf("%s: prompt already set to \"%s\"\n",
-		       __func__, getenv("prompt"));
+		debug("Set prompt to \"%s\"\n", thunderx_prompt);
+		env_set("prompt", thunderx_prompt);
+	} else if (env_get("prompt")) {
+		debug("%s: prompt already set to \"%s\"\n",
+		       __func__, env_get("prompt"));
 	} else {
 		printf("%s: board is NULL\n", __func__);
 	}
 
-	printf("Board type: %s\n", getenv("board"));
+	printf("Board type: %s\n", env_get("board"));
 #ifdef DEBUG
 	dm_dump_all();
 #endif
@@ -199,10 +199,10 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_RANDOM_MACADDR
 	unsigned char ethaddr[6];
 
-	if (!eth_getenv_enetaddr("ethaddr", ethaddr)) {
+	if (!eth_env_get_enetaddr("ethaddr", ethaddr)) {
 		net_random_ethaddr(ethaddr);
 		printf("Generating random MAC address: %pM\n", ethaddr);
-		eth_setenv_enetaddr("ethaddr", ethaddr);
+		eth_env_set_enetaddr("ethaddr", ethaddr);
 	}
 #endif
 

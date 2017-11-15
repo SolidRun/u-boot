@@ -503,8 +503,8 @@ int nicvf_initialize(struct udevice *pdev, int vf_num)
 	netdev->send = nicvf_xmit;
 	netdev->recv = nicvf_recv;
 
-	if (!eth_getenv_enetaddr_by_index("eth", nicvf->vf_id, netdev->enetaddr)) {
-		eth_getenv_enetaddr("ethaddr", netdev->enetaddr);
+	if (!eth_env_get_enetaddr_by_index("eth", nicvf->vf_id, netdev->enetaddr)) {
+		eth_env_get_enetaddr("ethaddr", netdev->enetaddr);
 		netdev->enetaddr[5] += nicvf->vf_id;
 	}
 

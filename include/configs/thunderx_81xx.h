@@ -336,7 +336,7 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		getenv("prompt")
+#define CONFIG_SYS_PROMPT		env_get("prompt")
 
 /** Enable long help support */
 #define CONFIG_SYS_LONGHELP

@@ -313,7 +313,7 @@ int env_set(const char *varname, const char *varvalue)
 		return _do_env_set(0, 3, (char * const *)argv, H_PROGRAMMATIC);
 }
 
-int setenv_force(const char *varname, const char *varvalue)
+int env_set_force(const char *varname, const char *varvalue)
 {
 	const char * const argv[5] = { "setenv", "-f", varname, varvalue, NULL };
 

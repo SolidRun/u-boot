@@ -57,7 +57,7 @@ void thunderx_parse_bdk_config(void)
 	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
 	if (str) {
 		strncpy(boardname, str, sizeof(boardname));
-		setenv("board", boardname);
+		env_set("board", boardname);
 	} else {
 		printf("Error: cannot retrieve board type from fdt\n");
 	}
@@ -246,16 +246,16 @@ void thunderx_parse_mac_addr(void)
 				debug("%s eaddr %pM\n", __func__, eaddr);
 				memcpy(eth_addr, mac_addr, ARP_HLEN);
 				debug("%s eth %pM\n", __func__, eth_addr);
-				if (getenv(envname) == NULL)
+				if (env_get(envname) == NULL)
 					mismatch = 1;
 				else {
-					eth_getenv_enetaddr(envname, env_addr);
+					eth_env_get_enetaddr(envname, env_addr);
 					debug("\n env %pM\n", env_addr);
 					if (memcmp(env_addr, eth_addr,
 						   ARP_HLEN))
 						mismatch = 1;
 				}
-				setenv_force(envname, eaddr);
+				env_set_force(envname, eaddr);
 				ethdev = eth_get_dev_by_index(eth_id);
 				if (ethdev &&
 					memcmp(ethdev->enetaddr, eth_addr,
@@ -269,13 +269,13 @@ void thunderx_parse_mac_addr(void)
 				if (!ethaddr_exists(envname)) {
 					memset(eth_addr, 0, ARP_HLEN);
 					eth_addr[5] = eth_id;
-					eth_getenv_enetaddr(envname, env_addr);
+					eth_env_get_enetaddr(envname, env_addr);
 					if (memcmp(env_addr, eth_addr,
 						ARP_HLEN)) {
 						mismatch = 1;
 						snprintf(eaddr, sizeof(eaddr),
 							 "%pM", eth_addr);
-						setenv_force(envname, eaddr);
+						env_set_force(envname, eaddr);
 						ethdev = eth_get_dev_by_index(
 								eth_id);
 						if (ethdev &&
@@ -308,7 +308,7 @@ void thunderx_parse_mac_addr(void)
 	if (mismatch) {
 		printf("Interface configuration or mac addr count"
 			" changed, saving env...\n");
-		saveenv();
+		env_save();
 	}
 #endif
 }

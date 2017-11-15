@@ -3391,7 +3391,7 @@ static int cavium_mmc_set_ios(struct udevice *dev)
 		debug("        High-Speed DDR eMMC 52MHz at 1.8V or 3V I/O\n");
 		hs_timing = true;
 		if ((mmc->cfg->voltages & MMC_VDD_165_195) ||
-		    getenv("cavium_mmc_ddr"))
+		    env_get("cavium_mmc_ddr"))
 			ddr = true;
 	}
 	if (cardtype & EXT_CSD_CARD_TYPE_DDR_1_2V) {
