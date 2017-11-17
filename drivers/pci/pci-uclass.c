@@ -1503,9 +1503,11 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, size_t *size, int flags)
 
 		if ((bar_response & PCI_BASE_ADDRESS_MEM_TYPE_MASK) ==
 				PCI_BASE_ADDRESS_MEM_TYPE_64) {
+			bar_response = 0;
 			dm_pci_read_config32(dev, bar + 4, &bar_response);
 		}
-		pci_bus_start |= (pci_addr_t)bar_response << 32;
+		if (!bar_response)
+			pci_bus_start |= (pci_addr_t)bar_response << 32;
 	}
 
 	if (!pdata->is_phys) {
