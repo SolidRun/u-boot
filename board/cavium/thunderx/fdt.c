@@ -96,6 +96,7 @@ static int thunderx_get_phy_addr(const void *fdt, int phy_offset)
 
 void thunderx_parse_phy_info(void)
 {
+#ifdef CONFIG_THUNDERX_BGX
 	const void *fdt = gd->fdt_blob;
 	int offset = 0, node, bgx_id = 0, lmacid = 0;
 	const u32 *val;
@@ -120,7 +121,7 @@ void thunderx_parse_phy_info(void)
 					 "rgx%d", rgx_id);
 				node = fdt_subnode_offset(fdt, offset, bgxname);
 				if (node < 0) {
-					printf("bgx%d/rgx0 node not found\n",
+					debug("bgx%d/rgx0 node not found\n",
 					       bgx_id);
 					return;
 				}
@@ -178,6 +179,7 @@ void thunderx_parse_phy_info(void)
 					   autoneg_dis, lmac_reg);
 		}
 	}
+#endif
 }
 
 int ethaddr_delete(const char *name)
@@ -200,6 +202,7 @@ int ethaddr_exists(const char *name)
 
 void thunderx_parse_mac_addr(void)
 {
+#ifdef CONFIG_THUNDERX_BGX
 	const char *mac_addr;
 	const void *fdt = gd->fdt_blob;
 	int subnode, mismatch = 0;
@@ -223,7 +226,7 @@ void thunderx_parse_mac_addr(void)
 				 "rgx%d", rgx_id);
 			node = fdt_subnode_offset(fdt, offset, bgxname);
 			if (node < 0) {
-				printf("bgx%d/rgx0 node not found\n", bgx_id);
+				debug("bgx%d/rgx0 node not found\n", bgx_id);
 				continue;
 			}
 		}
@@ -307,6 +310,7 @@ void thunderx_parse_mac_addr(void)
 			" changed, saving env...\n");
 		saveenv();
 	}
+#endif
 }
 
 int arch_fixup_memory_node(void *blob)

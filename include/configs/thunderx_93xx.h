@@ -81,9 +81,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Net */
-/** Enable ThunderX BGX networking support */
-#define CONFIG_THUNDERX_BGX
-
 /** Enable ThunderX SMI MDIO driver */
 #define CONFIG_THUNDERX_SMI
 
@@ -103,12 +100,6 @@
  * overwritten once.
  */
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
-
-/** Maximum number of BGX interfaces per CPU node */
-#define CONFIG_MAX_BGX_PER_NODE		4
-
-/** Maximum total number of BGX interfaces across all nodes */
-#define CONFIG_MAX_BGX			4
 
 /** Command line configuration */
 #define CONFIG_MENU
