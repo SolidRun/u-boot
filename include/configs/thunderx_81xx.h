@@ -209,8 +209,11 @@
 /** I2C slave address */
 #define CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR	0x77
 
-/** Enable Dallas or compabile DS1337 driver */
+/** Enable Dallas or compatible DS1337 driver */
 #define CONFIG_RTC_DS1337
+
+/** Enable Dallas or compatible DS1307 driver */
+#define CONFIG_RTC_DS1307
 
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_ADDR_LIST 	\
