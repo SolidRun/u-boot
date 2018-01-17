@@ -120,6 +120,13 @@ config RTC_MV
 	  Enable Marvell RTC driver. This driver supports the rtc that is present
 	  on some Marvell SoCs.
 
+config RTC_DS1337
+	bool "Enable DS1337 driver"
+	depends on DM_RTC
+	help
+	  Support for Dallas Semiconductor (now Maxim) DS1337 and
+	  compatible Real Time Clock devices.
+
 config RTC_S35392A
 	bool "Enable S35392A driver"
 	select BITREVERSE

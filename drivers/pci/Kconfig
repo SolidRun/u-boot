@@ -106,6 +106,14 @@ config PCI_TEGRA
 	  with a total of 5 lanes. Some boards require this for Ethernet
 	  support to work (e.g. beaver, jetson-tk1).
 
+config PCI_THUNDERX_ECAM
+	bool "ThunderX ECAM support"
+	depends on ARCH_THUNDERX
+	help
+	  Enable support for the Cavium ThunderX SoC family ECAM controllers.
+	  These controllers provide PCI configuration access to all on-board
+	  peripherals so it should only be disabled for testing purposes
+
 config PCI_XILINX
 	bool "Xilinx AXI Bridge for PCI Express"
 	depends on DM_PCI

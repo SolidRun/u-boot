@@ -614,4 +614,6 @@ config MVMDIO
 
 	  This driver is used by the MVPP2 and MVNETA drivers.
 
+source drivers/net/cavium/Kconfig
+
 endif # NETDEVICES
