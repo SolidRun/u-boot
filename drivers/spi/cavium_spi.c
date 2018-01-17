@@ -218,8 +218,8 @@ static union mpi_cfg thunderx_spi_set_mpicfg(struct udevice *dev)
 	if (max_speed > THUNDERX_SPI_MAX_CLOCK_HZ)
 		max_speed = THUNDERX_SPI_MAX_CLOCK_HZ;
 
-	debug ("\n slave params %d %d %d %d \n", slave->cs,
-		slave->max_hz, slave->mode, slave->mode_rx);
+	debug ("\n slave params %d %d %d \n", slave->cs,
+		slave->max_hz, slave->mode);
 	cpha = !!(slave->mode & SPI_CPHA);
 	cpol = !!(slave->mode & SPI_CPOL);
 

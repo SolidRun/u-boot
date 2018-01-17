@@ -170,8 +170,8 @@ static int octeontx_gpio_probe(struct udevice *dev)
 
 	gpio_const.u = readq(priv->baseaddr + GPIO_CONST);
 
-	debug("%s(%s): base address: %p, of_offset: %d, pin count: %d\n",
-	      __func__, dev->name, priv->baseaddr, dev->of_offset,
+	debug("%s(%s): base address: %p, of_offset: %ld, pin count: %d\n",
+	      __func__, dev->name, priv->baseaddr, dev->node.of_offset,
 	      gpio_const.s.gpios);
 
 	uc_priv->gpio_count = gpio_const.s.gpios;

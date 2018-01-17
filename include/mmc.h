@@ -266,8 +266,6 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define EXT_CSD_CARD_TYPE_52	(1 << 1)	/* Card can run at 52MHz */
 #define EXT_CSD_CARD_TYPE_DDR_1_8V	(1 << 2)
 #define EXT_CSD_CARD_TYPE_DDR_1_2V	(1 << 3)
-#define EXT_CSD_CARD_TYPE_HS200_1_8V	(1 << 4)	/* HS200 SDR, 1.8v */
-#define EXT_CSD_CARD_TYPE_HS200_1_2V	(1 << 5)	/* HS200 SDR, 1.2V */
 #define EXT_CSD_CARD_TYPE_HS400_1_8V	(1 << 6)	/* HS400 DDR, 1.8V */
 #define EXT_CSD_CARD_TYPE_HS400_1_2V	(1 << 7)	/* HS400 DDR, 1.2V */
 #define EXT_CSD_CARD_TYPE_DDR_52	(EXT_CSD_CARD_TYPE_DDR_1_8V \
@@ -755,11 +753,15 @@ int mmc_voltage_to_mv(enum mmc_voltage voltage);
  * @disable:	flag indicating if the clock must on or off
  * @return 0 if OK, -ve on error
  */
+#if !CONFIG_IS_ENABLED(MMC_CAVIUM)
 int mmc_set_clock(struct mmc *mmc, uint clock, bool disable);
 
 #define MMC_CLK_ENABLE		false
 #define MMC_CLK_DISABLE		true
 
+#else
+void mmc_set_clock(struct mmc *mmc, uint clock);
+#endif
 struct mmc *find_mmc_device(int dev_num);
 int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);

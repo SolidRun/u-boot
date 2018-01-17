@@ -218,7 +218,7 @@ static int pci_thunderx_ecam_probe(struct udevice *dev)
 	struct thunderx_pci *pcie = (void *)dev_get_priv(dev);
 	int err;
 
-	err = fdt_get_resource(gd->fdt_blob, dev->of_offset, "reg", 0,
+	err = fdt_get_resource(gd->fdt_blob, dev->node.of_offset, "reg", 0,
 			       &pcie->cfg);
 
 	if (err) {
@@ -226,7 +226,7 @@ static int pci_thunderx_ecam_probe(struct udevice *dev)
 		return err;
 	}
 
-	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->of_offset,
+	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->node.of_offset,
 				       &pcie->bus);
 
 	if (err) {

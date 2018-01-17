@@ -315,7 +315,7 @@ read_error:
 int thunderx_smi_probe(struct udevice *dev)
 {
 	size_t size;
-	int ret, subnode, cnt = 0, node = dev->of_offset;
+	int ret, subnode, cnt = 0, node = dev->node.of_offset;
 	struct mii_dev *bus;
 	struct thunderx_smi_priv *priv;
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
@@ -327,7 +327,7 @@ int thunderx_smi_probe(struct udevice *dev)
 		return -1;
 	}
 
-	fdt_for_each_subnode(gd->fdt_blob, subnode, node) {
+	fdt_for_each_subnode(subnode, gd->fdt_blob, node) {
 		ret = fdt_node_check_compatible(gd->fdt_blob, subnode,
 						"cavium,thunder-8890-mdio");
 		if (ret)

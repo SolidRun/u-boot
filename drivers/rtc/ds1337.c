@@ -211,7 +211,7 @@ static int ds133x_ofdata_to_platdata(struct udevice *dev)
 {
 	struct thunderx_rtc *platdata = dev->priv;
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev->node.of_offset;
 
 	platdata->regaddr = fdtdec_get_int(blob, node, "reg", -1);
 	platdata->rtcmodel = fdtdec_get_int(blob, node, "rtcmodel", 1);

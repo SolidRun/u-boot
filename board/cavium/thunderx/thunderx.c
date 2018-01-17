@@ -55,9 +55,6 @@ U_BOOT_DEVICE(thunderx_serial1) = {
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define BOARD_TYPE "BOARD="
-
-char thunderx_prompt[CONFIG_THUNDERX_PROMPT_SIZE] = "ThunderX> ";
 extern unsigned long fdt_base_addr;
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
@@ -100,7 +97,7 @@ int dram_init(void)
 		gd->ram_size += dram_size;
 	}
 
-	gd->ram_size -= MEM_BASE;
+	gd->ram_size -= CONFIG_SYS_SDRAM_BASE;
 
 	return 0;
 }
@@ -167,19 +164,16 @@ int board_late_init(void)
 		}
 		board = env_get("board");
 	}
-
-	if (board != NULL && !env_get("prompt")) {
-		snprintf(thunderx_prompt, sizeof(thunderx_prompt), "%s> ",
-			 board);
-		debug("Set prompt to \"%s\"\n", thunderx_prompt);
-		env_set("prompt", thunderx_prompt);
-	} else if (env_get("prompt")) {
-		debug("%s: prompt already set to \"%s\"\n",
-		       __func__, env_get("prompt"));
-	} else {
-		printf("%s: board is NULL\n", __func__);
-	}
-
+#if 0
+	strncpy(boardname, board, sizeof(boardname));
+	strcat(boardname,"> ");
+	debug("boardname: %s\n", boardname);
+	env_set("PS1", boardname);
+	debug("PS1: %s\n", env_get("PS1"));
+#else
+	snprintf(boardname, sizeof(boardname), "%s> ", board);
+	env_set("prompt", boardname);
+#endif
 	printf("Board type: %s\n", env_get("board"));
 #ifdef DEBUG
 	dm_dump_all();
@@ -195,8 +189,6 @@ int board_late_init(void)
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
-
-#ifdef CONFIG_RANDOM_MACADDR
 	unsigned char ethaddr[6];
 
 	if (!eth_env_get_enetaddr("ethaddr", ethaddr)) {
@@ -204,7 +196,6 @@ int board_eth_init(bd_t *bis)
 		printf("Generating random MAC address: %pM\n", ethaddr);
 		eth_env_set_enetaddr("ethaddr", ethaddr);
 	}
-#endif
 
 	rc = pci_eth_init(bis);
 
@@ -217,8 +208,8 @@ void hw_watchdog_reset(void)
 	ssize_t node, core;
 
 	for (node = 0; node < atf_node_count(); node++)
-		for (core = 0; core < thunderx_core_count(); core++)
-			writeq(~0ULL, CSR_PA(node, CAVM_GTI_CWD_POKE(core)));
+		for (core = 0; core < 1; core++)
+			writeq(~0ULL, CSR_PA(node, CAVM_GTI_CWD_POKEX(core)));
 }
 
 void hw_watchdog_disable(void)
@@ -226,7 +217,7 @@ void hw_watchdog_disable(void)
 	ssize_t node, core;
 
 	for (node = 0; node < atf_node_count(); node++)
-		for (core = 0; core < thunderx_core_count(); core++)
-			writeq(0ULL, CSR_PA(node, CAVM_GTI_CWD_WDOG(core)));
+		for (core = 0; core < 1; core++)
+			writeq(0ULL, CSR_PA(node, CAVM_GTI_CWD_WDOGX(core)));
 }
 #endif

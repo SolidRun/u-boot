@@ -5775,8 +5775,6 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
 #if !defined(CONFIG_DM_ETH) || defined(CONFIG_E1000_SPI)
 	struct e1000_hw *hw;
 #endif
-	struct e1000_hw *hw;
-
 	int cardnum;
 
 	if (argc < 3) {

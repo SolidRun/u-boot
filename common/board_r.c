@@ -36,7 +36,6 @@
 #include <of_live.h>
 #include <onenand_uboot.h>
 #include <scsi.h>
-#include <nvme.h>
 #include <serial.h>
 #include <stdio_dev.h>
 #include <timer.h>
@@ -421,14 +420,6 @@ static int initr_mmc(void)
 {
 	puts("MMC:   ");
 	mmc_initialize(gd->bd);
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_NVME
-static int initr_nvme(void)
-{
-	nvme_initialize();
 	return 0;
 }
 #endif
