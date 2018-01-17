@@ -9,6 +9,7 @@
 #include <i2c.h>
 #include <dm.h>
 #include <asm/io.h>
+#include <asm/arch/clock.h>
 
 /**
  * Slave address to use for Thunder when accessed by another master

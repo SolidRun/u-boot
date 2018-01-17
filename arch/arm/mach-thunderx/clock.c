@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/clock.h>
 
 /** Address of RST_BOOT register */
 #define RST_BOOT	0x87e006001600ll
