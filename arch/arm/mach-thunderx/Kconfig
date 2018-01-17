@@ -1,13 +1,5 @@
 if ARCH_THUNDERX
 
-config PCI_AUTO
-	bool
-	default y
-
-config OF_LIBFDT
-	bool
-	default y
-
 config SYS_VENDOR
 	string
 	default	"cavium"
@@ -16,93 +8,12 @@ config SYS_SOC
 	string
 	default "thunderx"
 
-config SYS_CPU
+config SYS_BOARD
 	string
-	default "armv8"
-
-config PL01X_SERIAL
-	bool
-	default y
-
-config PL011_CLOCK
-	int
-	default 24000000
-	help
-	 Default clock for the built-in serial port.
-
-config SYS_SERIAL0
-	hex
-	default 0x87e028000000
-
-config SYS_SERIAL1
-	hex
-	default 0x87e029000000
-
-config AP_STACK_ALIGN
-	int
-	default 16
-	help
-	 Stack alignment for PSCI calls
-
-config AP_STACK_SIZE
-	hex
-	default 10000
-	help
-	 Stack size for PSCI calls
-
-config SYS_64BIT
-	bool
-	default y
-
-config NO_RELOCATION
-	bool
-	default y
-
-config PCI
-	bool
-	default y
+	default "thunderx"
 
 config SYS_PCI_64BIT
 	bool
 	default y
-
-config PCI_PNP
-	bool
-	default y
-
-config DM_I2C
-	bool
-	default y
-
-config DM_I2C_COMPAT
-	bool
-	default y
-
-config DM_GPIO
-	bool
-	default y
-
-config DM
-	bool
-	default y
-
-config CAVIUM_MMC
-	bool
-	default y
-	select DM_MMC
-	select FS_EXT4
-
-config OF_CONTROL
-	bool
-	default y
-
-config PCI_THUNDERX_ECAM
-	bool
-	default y
-	help
-	 This enables support for the PCI Common Configuration Unit (PCC) in
-	 the ThunderX series of processors.  The PCC implements the PCI
-	 Enhanced Configuration Access Mechanism (ECAM), and PCI configuration
-	 blocks for ThunderX on-chip functions.
 
 endif

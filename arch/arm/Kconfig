@@ -1600,15 +1600,11 @@ config ARCH_ROCKCHIP
 
 config ARCH_THUNDERX
 	bool "Support Cavium ThunderX SoCs"
-	select ARM64
-	select SYS_CACHE_SHIFT_7
-	select OF_CONTROL
-	select OF_SEPARATE
-	select OF_LIBFDT
 	select DM
-	select DM_SERIAL
-	select DM_PCI
-	select DM_PCI_COMPAT
+	select ARM64
+	select OF_CONTROL
+	select BOARD_LATE_INIT
+	select SYS_CACHE_SHIFT_7
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
