@@ -1020,17 +1020,13 @@ static void bgx_init_hw(struct bgx *bgx)
 		switch (lmac->qlm_mode) {
 		case QLM_MODE_SGMII:
 		{
-			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
-			   lane_to_sds for 2nd port in BGX0 to DLM1, lane0. */
+			/* EBB8000 (alternative pkg) has only lane0 present on
+			   DLM0 and DLM1, skip configuring other lanes */
 			if ((bgx->bgx_id == 0) && is_altpkg) {
-				if (lmacid >= 2)
+				if (lmacid % 2)
 					continue;
-				else if (lmacid == 1)
-					lmac->lane_to_sds = lmacid + 1;
-				else
-					lmac->lane_to_sds = lmacid;
-			} else
-				lmac->lane_to_sds = lmacid;
+			}
+			lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 0;
 			snprintf(buf, sizeof(buf),
 				 "BGX%d QLM%d LMAC%d mode: SGMII\n",
@@ -1065,17 +1061,13 @@ static void bgx_init_hw(struct bgx *bgx)
 				 bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case QLM_MODE_XFI:
-			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
-			   lane_to_sds for 2nd port in BGX0 to DLM1 lane0. */
+			/* EBB8000 (alternative pkg) has only lane0 present on
+			   DLM0 and DLM1, skip configuring other lanes */
 			if ((bgx->bgx_id == 0) && is_altpkg) {
-				if (lmacid >= 2)
+				if (lmacid % 2)
 					continue;
-				else if (lmacid == 1)
-					lmac->lane_to_sds = lmacid + 1;
-				else
-					lmac->lane_to_sds = lmacid;
-			} else
-				lmac->lane_to_sds = lmacid;
+			}
+			lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 3;
 			snprintf(buf, sizeof(buf),
 				 "BGX%d QLM%d LMAC%d mode: XFI\n",
@@ -1091,15 +1083,13 @@ static void bgx_init_hw(struct bgx *bgx)
 				 bgx->bgx_id, lmac->qlm, lmacid);
 			break;
 		case QLM_MODE_10G_KR:
+			/* EBB8000 (alternative pkg) has only lane0 present on
+			   DLM0 and DLM1, skip configuring other lanes */
 			if ((bgx->bgx_id == 0) && is_altpkg) {
-				if (lmacid >= 2)
+				if (lmacid % 2)
 					continue;
-				else if (lmacid == 1)
-					lmac->lane_to_sds = lmacid + 1;
-				else
-					lmac->lane_to_sds = lmacid;
-			} else
-				lmac->lane_to_sds = lmacid;
+			}
+			lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 3;
 			lmac->use_training = 1;
 			snprintf(buf, sizeof(buf),
@@ -1215,8 +1205,8 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 
 		lmac_type = bgx_reg_read(bgx, index, BGX_CMRX_CFG);
 		lmac->lmac_type = (lmac_type >> 8) & 0x07;
-		debug("bgx_get_qlm_mode:%d:%d: lmac_type = %d\n", bgx->bgx_id,
-				lmacid, lmac->lmac_type);
+		debug("bgx_get_qlm_mode:%d:%d: lmac_type = %d, altpkg = %d\n", bgx->bgx_id,
+				lmacid, lmac->lmac_type, is_altpkg);
 
 		train_en = (readq(CSR_PA(0, GSERX_SCRATCH(lmac->qlm))) & 0xf);
 
@@ -1229,9 +1219,9 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 							bgx->bgx_id, lmacid);
 				}
 				continue;
-				} else {
+			} else {
 				if ((bgx->bgx_id == 0) && is_altpkg) {
-					if (lmacid >= 2)
+					if (lmacid % 2)
 						continue;
 				}
 				lmac->qlm_mode = QLM_MODE_SGMII;
@@ -1259,7 +1249,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			break;
 		case BGX_MODE_XFI:
 			if ((bgx->bgx_id == 0) && is_altpkg) {
-				if (lmacid >= 2)
+				if (lmacid % 2)
 					continue;
 			}
 			if (((lmacid < 2) && (train_en & (1 << lmacid)))
