@@ -12,6 +12,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/armv8/mmu.h>
+#include <mach/soc.h>
 
 /* Armada 7k/8k */
 #define MVEBU_RFU_BASE			(MVEBU_REGISTER(0x6f0000))
@@ -149,3 +150,11 @@ int mmc_get_env_dev(void)
 
 	return CONFIG_SYS_MMC_ENV_DEV;
 }
+
+#if defined(CONFIG_DISPLAY_BOARDINFO)
+int print_cpuinfo(void)
+{
+	soc_print_device_info();
+	return 0;
+}
+#endif
