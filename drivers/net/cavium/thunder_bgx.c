@@ -1008,6 +1008,7 @@ static void bgx_init_hw(struct bgx *bgx)
 	struct lmac *lmac;
 	int i, lmacid, count = 0;
 	char buf[40];
+	static qsgmii_configured = 0;
 
 	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
 		struct lmac *tlmac;
@@ -1116,6 +1117,8 @@ static void bgx_init_hw(struct bgx *bgx)
 				 bgx->bgx_id, lmacid);
 			break;
 		case QLM_MODE_QSGMII:
+			if (qsgmii_configured)
+				continue;
 			if ((lmacid == 0) || (lmacid == 2)) {
 				count = 4;
 				printf("BGX%d QLM%d LMAC%d mode: QSGMII\n",
@@ -1131,6 +1134,7 @@ static void bgx_init_hw(struct bgx *bgx)
 							      (l->lmac_type << 8) |
 							      l->lane_to_sds);
 				}
+				qsgmii_configured = 1;
 			}
 			continue;
 		default:
@@ -1281,6 +1285,14 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			}
 		break;
 		case BGX_MODE_QSGMII:
+			/* If QLM is configured as QSGMII, use lmac0 */
+			if (CAVIUM_IS_MODEL(CAVIUM_CN83XX)
+			    && (lmacid == 2)
+			    && (bgx->bgx_id != 3)) {
+				//lmac->qlm_mode = QLM_MODE_DISABLED;
+				continue;
+			}
+
 			if ((lmacid == 0) || (lmacid == 2)) {
 				lmac->qlm_mode = QLM_MODE_QSGMII;
 				debug("BGX%d QLM%d LMAC%d mode: QSGMII\n",
