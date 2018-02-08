@@ -1961,8 +1961,51 @@ void print_mmc_device_info(struct mmc *mmc)
 	if (!mmc->card_caps & MMC_MODE_HS)
 		printf("Transfer frequency:    %u\n", mmc->tran_speed);
 	printf("Bus DDR:               %s\n", mmc->ddr_mode ? "yes" : "no");
-	if (!IS_SD(mmc))
+	if (!IS_SD(mmc)) {
 		printf("Erase group size:      %u\n", mmc->erase_grp_size);
+		if (mmc->version >= MMC_VERSION_4_41) {
+			bool has_enh =
+				(mmc->part_support & ENHNCD_SUPPORT) != 0;
+			bool usr_enh =
+				has_enh && (mmc->part_attr & EXT_CSD_ENH_USR);
+			puts("HC WP Group Size:      ");
+			print_size(((u64)mmc->hc_wp_grp_size) << 9, "\n");
+
+			puts("User Capacity:         ");
+			print_size(mmc->capacity_user, usr_enh ? " ENH" : "");
+			if (mmc->wr_rel_set & EXT_CSD_WR_DATA_REL_USR)
+				puts(" WRREL\n");
+			else
+				putc('\n');
+			if (usr_enh) {
+				puts("User Enhanced Start:   ");
+				print_size(mmc->enh_user_start, "\n");
+				puts("User Enhanced Size:    ");
+				print_size(mmc->enh_user_size, "\n");
+			}
+			puts("Boot Capacity:         ");
+			print_size(mmc->capacity_boot,
+				   has_enh ? " ENH\n" : "\n");
+			puts("RPBM Capacity:         ");
+			print_size(mmc->capacity_rpmb,
+				   has_enh ? " ENH\n" : "\n");
+			for (i = 0; i < ARRAY_SIZE(mmc->capacity_gp); i++) {
+				bool is_enh = has_enh &&
+					(mmc->part_attr & EXT_CSD_ENH_GP(i));
+				if (mmc->capacity_gp[i]) {
+					printf("GP%i Capacity:          ",
+					       i + 1);
+					print_size(mmc->capacity_gp[i],
+						   is_enh ? " ENH" : "");
+					if (mmc->wr_rel_set &
+					    EXT_CSD_WR_DATA_REL_GP(i))
+						puts(" WRREL\n");
+					else
+						putc('\n');
+				}
+			}
+		}
+	}
 	printf("Relative Card Address: 0x%x\n", mmc->rca);
 	printf("Device is %sremovable\n", slot->non_removable ? "non-" : "");
 	if (IS_SD(mmc)) {
@@ -5193,6 +5236,7 @@ void __mmc_set_power(struct mmc *mmc, int on)
 void mmc_set_power(struct mmc *mmc, int on)
 	__attribute__((weak, alias("__mmc_set_power")));
 
+#ifndef CONFIG_SUPPORT_EMMC_BOOT
 /*
  * Modify EXT_CSD[162] which is RST_n_FUNCTION based on the given value
  * for enable.  Note that this is a write-once field for non-zero values.
@@ -5204,6 +5248,7 @@ int mmc_set_rst_n_function(struct mmc *mmc, u8 enable)
 	return mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_RST_N_FUNCTION,
 			  enable);
 }
+#endif
 
 static int mmc_probe(bd_t *bis)
 {
@@ -5952,6 +5997,40 @@ static int cavium_mmc_get_config(struct udevice *dev)
 	}
 	return 0;
 }
+
+#ifdef CONFIG_CMD_BKOPS_ENABLE
+int mmc_set_bkops_enable(struct mmc *mmc)
+{
+	int err;
+	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
+
+	err = mmc_send_ext_csd(mmc, ext_csd);
+	if (err) {
+		puts("Could not get ext_csd register values\n");
+		return err;
+	}
+
+	if (!(ext_csd[EXT_CSD_BKOPS_SUPPORT] & 0x1)) {
+		puts("Background operations not supported on device\n");
+		return -EMEDIUMTYPE;
+	}
+
+	if (ext_csd[EXT_CSD_BKOPS_EN] & 0x1) {
+		puts("Background operations already enabled\n");
+		return 0;
+	}
+
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BKOPS_EN, 1);
+	if (err) {
+		puts("Failed to enable manual background operations\n");
+		return err;
+	}
+
+	puts("Enabled manual background operations\n");
+
+	return 0;
+}
+#endif
 
 static int cavium_pci_mmc_probe(struct udevice *dev)
 {
