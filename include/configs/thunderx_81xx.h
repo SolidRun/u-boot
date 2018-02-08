@@ -119,4 +119,9 @@
 
 #define CONFIG_HW_WATCHDOG
 
+/** EMMC specific defines */
+#define CONFIG_SUPPORT_EMMC_BOOT
+#define CONFIG_SUPPORT_EMMC_RPMB
+#define CONFIG_CMD_BKOPS_ENABLE
+
 #endif /* __THUNDERX_81XX_H__ */
