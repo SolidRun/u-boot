@@ -1006,7 +1006,7 @@ void bgx_lmac_disable(struct bgx *bgx, uint8_t lmacid)
 static void bgx_init_hw(struct bgx *bgx)
 {
 	struct lmac *lmac;
-	int i, lmacid, count = 0;
+	int i, lmacid, count = 0, inc = 0;
 	char buf[40];
 	static qsgmii_configured = 0;
 
@@ -1141,21 +1141,31 @@ static void bgx_init_hw(struct bgx *bgx)
 			continue;
 		}
 
-
 		/* Reset lmac to the unused slot */
 		if (is_bgx_port_valid(bgx->bgx_id, count) &&
 		    (lmac->qlm_mode != QLM_MODE_QSGMII)) {
+			int lmac_enable = 0;
 			tlmac = &bgx->lmac[count];
 			tlmac->lmac_type = lmac->lmac_type;
-			tlmac->lane_to_sds = lmac->lane_to_sds;
+			/* Adjust lane_to_sds based on BGX-ENABLE */
+			for (; (inc + count) < MAX_LMAC_PER_BGX; inc++) {
+				lmac_enable = bgx_board_info[bgx->bgx_id].lmac_enable[count + inc];
+				if (lmac_enable)
+					break;
+			}
+
+			if ((inc != 0) && (inc < MAX_LMAC_PER_BGX) && lmac_enable && (inc != count))
+				tlmac->lane_to_sds = lmac->lane_to_sds + abs(inc - count);
+			else
+				tlmac->lane_to_sds = lmac->lane_to_sds;
 			tlmac->qlm = lmac->qlm;
 			tlmac->qlm_mode = lmac->qlm_mode;
 
 			printf("%s", buf);
 			/* Initialize lmac_type and lane_to_sds */
 			bgx_reg_write(bgx, count, BGX_CMRX_CFG,
-				      (lmac->lmac_type << 8) |
-				      lmac->lane_to_sds);
+				      (tlmac->lmac_type << 8) |
+				      tlmac->lane_to_sds);
 			count += 1;
 		}
 	}
@@ -1306,7 +1316,8 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 }
 
 void bgx_set_board_info(int bgx_id, int *mdio_bus,
-			int *phy_addr, bool *autoneg_dis, bool *lmac_reg)
+			int *phy_addr, bool *autoneg_dis, bool *lmac_reg,
+			bool *lmac_enable)
 {
 	unsigned int i;
 
@@ -1315,12 +1326,14 @@ void bgx_set_board_info(int bgx_id, int *mdio_bus,
 		bgx_board_info[bgx_id].phy_info[i].mdio_bus = mdio_bus[i];
 		bgx_board_info[bgx_id].phy_info[i].autoneg_dis = autoneg_dis[i];
 		bgx_board_info[bgx_id].lmac_reg[i] = lmac_reg[i];
+		bgx_board_info[bgx_id].lmac_enable[i] = lmac_enable[i];
 		debug("bgx_set_board_info bgx_id %d lmac %d phy_addr 0x%x mdio bus %d\n"
-		      "autoneg_dis %d lmac_reg %d\n", bgx_id, i,
+		      "autoneg_dis %d lmac_reg %d, lmac_enable = %d\n", bgx_id, i,
 			bgx_board_info[bgx_id].phy_info[i].phy_addr,
 			bgx_board_info[bgx_id].phy_info[i].mdio_bus,
 			bgx_board_info[bgx_id].phy_info[i].autoneg_dis,
-			bgx_board_info[bgx_id].lmac_reg[i]);
+			bgx_board_info[bgx_id].lmac_reg[i],
+			bgx_board_info[bgx_id].lmac_enable[i]);
 	}
 }
 

@@ -232,6 +232,7 @@ struct phy_info {
 struct bgx_board_info {
 	struct phy_info phy_info[MAX_LMAC_PER_BGX];
 	bool lmac_reg[MAX_LMAC_PER_BGX];
+	bool lmac_enable[MAX_LMAC_PER_BGX];
 };
 
 enum LMAC_TYPE {

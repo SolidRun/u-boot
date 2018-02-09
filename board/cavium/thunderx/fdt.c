@@ -31,6 +31,7 @@ void thunderx_parse_bdk_config(void)
 	const char *str;
 	int node;
 	int ret = 0, len = sizeof(boardname);
+	int bgx_id;
 
 	debug("%s: ENTER\n", __func__);
 	if (!gd->fdt_blob) {
@@ -100,10 +101,17 @@ void thunderx_parse_phy_info(void)
 	const void *fdt = gd->fdt_blob;
 	int offset = 0, node, bgx_id = 0, lmacid = 0;
 	const u32 *val;
-	char bgxname[16];
+	char bgxname[24];
 	int len, rgx_id = 0, eth_id = 0;
 	int phandle, phy_offset;
-	int subnode;
+	int subnode, i;
+
+				int bgxnode;
+				bgxnode = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
+				if (bgxnode < 0) {
+					printf("%s: /cavium,bdk is missing from device tree: %s\n",
+		       			__func__, fdt_strerror(bgxnode));
+				}
 
 	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
 	if (offset > 1) {
@@ -112,6 +120,7 @@ void thunderx_parse_phy_info(void)
 			bool autoneg_dis[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
 			int mdio_bus[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = -1};
 			bool lmac_reg[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
+			bool lmac_enable[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
 			snprintf(bgxname, sizeof(bgxname),
 				 "bgx%d", bgx_id);
 			node = fdt_subnode_offset(fdt, offset, bgxname);
@@ -174,9 +183,19 @@ void thunderx_parse_phy_info(void)
 				lmacid++;
 			}
 
+			for (i = 0; i < MAX_LMAC_PER_BGX; i++) {
+				const char *str;
+				snprintf(bgxname, sizeof(bgxname), "BGX-ENABLE.N0.BGX%d.P%d", bgx_id, i);
+				if (bgxnode >= 0) {
+					str = fdt_getprop(gd->fdt_blob, bgxnode, bgxname, &len);
+					if (str)
+						lmac_enable[i] = simple_strtol(str, NULL, 10);
+				}
+			}
+
 			lmacid = 0;
 			bgx_set_board_info(bgx_id, mdio_bus, phy_addr,
-					   autoneg_dis, lmac_reg);
+					   autoneg_dis, lmac_reg, lmac_enable);
 		}
 	}
 #endif
