@@ -39,15 +39,6 @@
 #define CONFIG_NR_DRAM_BANKS		1
 
 /**
- * This is defined in the board config header.  This specified memory area
- * will get subtracted from the top (end) of memory and won't get
- * "touched" at all by U-Boot.  By fixing up gd->ram_size the Linux kernel
- * should get passed the now "corrected" memory size and won't touch it
- * either.
- */
-#define CONFIG_SYS_MEM_TOP_HIDE		0x1000000
-
-/**
  * Only allow the Ethernet MAC address environment variable to be
  * overwritten once.
  */
