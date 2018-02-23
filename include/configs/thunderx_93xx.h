@@ -75,7 +75,7 @@
 
 /** Extra environment settings */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-					"kernel_addr=040080000\0"	\
+					"loadaddr=040080000\0"	\
 					"autoload=0\0"
 
 /** Environment defines */
