@@ -55,6 +55,7 @@ U_BOOT_DEVICE(thunderx_serial1) = {
 
 DECLARE_GLOBAL_DATA_PTR;
 
+char boardtype[32];
 extern unsigned long fdt_base_addr;
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
@@ -69,10 +70,17 @@ int board_early_init_r(void)
 
 int board_init(void)
 {
+	const char *str;
+	int len, node;
 	ulong fdt_addr = (ulong)fdt_base_addr;
+
 	set_working_fdt_addr(fdt_addr);
 	thunderx_parse_phy_info();
+	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
+	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
+	strncpy(boardtype, str, len);
 
+	printf("Board type: %s\n", boardtype);
 	return 0;
 }
 
@@ -159,22 +167,13 @@ int board_late_init(void)
 		str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
 		debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
 		if (str) {
-			strncpy(boardname, str, sizeof(boardname));
+			strncpy(boardname, str, len);
 			env_set("board", boardname);
 		}
 		board = env_get("board");
 	}
-#if 0
-	strncpy(boardname, board, sizeof(boardname));
-	strcat(boardname,"> ");
-	debug("boardname: %s\n", boardname);
-	env_set("PS1", boardname);
-	debug("PS1: %s\n", env_get("PS1"));
-#else
 	snprintf(boardname, sizeof(boardname), "%s> ", board);
 	env_set("prompt", boardname);
-#endif
-	printf("Board type: %s\n", env_get("board"));
 #ifdef DEBUG
 	dm_dump_all();
 #endif

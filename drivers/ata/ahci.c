@@ -50,6 +50,8 @@ struct ahci_uc_priv *probe_ent = NULL;
 #define WAIT_MS_FLUSH	5000
 #define WAIT_MS_LINKUP	200
 
+extern char boardtype[32];
+
 __weak void __iomem *ahci_port_base(void __iomem *base, u32 port)
 {
 	return base + 0x100 + (port * 0x80);
@@ -608,6 +610,15 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 
 	debug("Exit start port %d\n", port);
 
+	/*
+	 * Skip interface busy check based on error and status
+	 * information from task file data register as these boards
+	 * have port multiplier and device is always present
+	 * U-boot lacks port multiplier support hence this ugly hack.
+	 */
+	if ((strcmp(boardtype, "sff8104") == 0) ||
+		(strcmp(boardtype, "nas8104") == 0))
+		return 0;
 	/*
 	 * Make sure interface is not busy based on error and status
 	 * information from task file data register before proceeding
