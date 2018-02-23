@@ -61,7 +61,7 @@ union smi_x_cmd {
 union smi_x_wr_dat {
 	u64 u;
 	struct smi_x_wr_dat_s {
-		int dat:16;
+		unsigned int dat:16;
 		int val:1;
 		int pending:1;
 	} s;
@@ -70,7 +70,7 @@ union smi_x_wr_dat {
 union smi_x_rd_dat {
 	u64 u;
 	struct smi_x_rd_dat_s {
-		int dat:16;
+		unsigned int dat:16;
 		int val:1;
 		int pending:1;
 	} s;
