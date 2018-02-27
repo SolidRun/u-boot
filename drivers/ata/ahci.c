@@ -616,8 +616,8 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	 * have port multiplier and device is always present
 	 * U-boot lacks port multiplier support hence this ugly hack.
 	 */
-	if ((strcmp(boardtype, "sff8104") == 0) ||
-		(strcmp(boardtype, "nas8104") == 0))
+	if ((strcasecmp(boardtype, "sff8104") == 0) ||
+		(strcasecmp(boardtype, "nas8104") == 0))
 		return 0;
 	/*
 	 * Make sure interface is not busy based on error and status
