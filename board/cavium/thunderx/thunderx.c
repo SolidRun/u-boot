@@ -9,53 +9,14 @@
 #include <errno.h>
 #include <netdev.h>
 #include <asm/io.h>
-
 #include <linux/compiler.h>
-
-#include <asm/arch/atf.h>
-
 #include <libfdt.h>
 #include <fdt_support.h>
-#include <cavium/thunderx_fdt.h>
-#include <cavium/atf.h>
-#include <asm/armv8/mmu.h>
-
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
-#include <dm/platform_data/serial_pl01x.h>
-
-static const struct pl01x_serial_platdata serial0 = {
-	.base = CONFIG_SYS_SERIAL0,
-	.type = TYPE_PL011,
-	.clock = 0,
-	.skip_init = true,
-};
-
-U_BOOT_DEVICE(thunderx_serial0) = {
-	.name = "serial_pl01x",
-	.platdata = &serial0,
-};
-
-static const struct pl01x_serial_platdata serial1 = {
-	.base = CONFIG_SYS_SERIAL1,
-	.type = TYPE_PL011,
-	.clock = 0,
-	.skip_init = true,
-};
-
-U_BOOT_DEVICE(thunderx_serial1) = {
-	.name = "serial_pl01x",
-	.platdata = &serial1,
-};
-#endif
-#include <asm/arch/thunderx_fdt.h>
+#include <asm/arch/thunderx.h>
 #include <asm/arch/atf.h>
 #include <dm/util.h>
 
-#include "cavm-arch.h"
-
 DECLARE_GLOBAL_DATA_PTR;
-
-char boardtype[32];
 extern unsigned long fdt_base_addr;
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
@@ -70,17 +31,9 @@ int board_early_init_r(void)
 
 int board_init(void)
 {
-	const char *str;
-	int len, node;
-	ulong fdt_addr = (ulong)fdt_base_addr;
-
-	set_working_fdt_addr(fdt_addr);
+	thunderx_parse_board_info();
 	thunderx_parse_phy_info();
-	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
-	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
-	strncpy(boardtype, str, len);
-
-	printf("Board type: %s\n", boardtype);
+	printf("Board: %s\n", p_cavm_bdt->type);
 	return 0;
 }
 
@@ -120,64 +73,24 @@ void reset_cpu(ulong addr)
 	writeq(val, CAVM_RST_SOFT_RST);
 }
 
-/*
- * Return board alternative package
- */
-bool alternate_pkg(void)
-{
-	u64 val = readq(CAVM_MIO_FUS_DAT2);
-	int altpkg;
-
-	altpkg = (val >> 22) & 0x3;
-
-	/* Figure out alternative pkg by reading chip_id
-	   or lmc_mode32 on 81xx */
-	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX)
-	    && (altpkg || ((val >> 30) & 0x1)))
-		return 2;
-	return altpkg;
-}
-
 /**
  * Board late initialization routine.
  */
 int board_late_init(void)
 {
-	char boardname[32];
-	const char *board, *str;
-	int len, node;
+	char boardname[20];
 
 	debug("%s()\n", __func__);
-
 	/*
 	 * Now that pci_init initializes env device.
-	 * Try to set environment variables
+	 * Try to validate ethaddr env variables
 	 */
-	thunderx_parse_bdk_config();
 	thunderx_parse_mac_addr();
 
-	board = env_get("board");
-
-	/* some times simulator fails to load environment
-	 * from flash, try to read it from devicetree
-	 * until it is fixed
-	 */
-	if (board == NULL) {
-		node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
-		str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
-		debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
-		if (str) {
-			strncpy(boardname, str, len);
-			env_set("board", boardname);
-		}
-		board = env_get("board");
-	}
-	snprintf(boardname, sizeof(boardname), "%s> ", board);
+	debug("bdt.type %s\n", p_cavm_bdt->type);
+	snprintf(boardname, sizeof(boardname), "%s> ", p_cavm_bdt->type);
 	env_set("prompt", boardname);
-#ifdef DEBUG
-	dm_dump_all();
-#endif
-
+	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
 	return 0;
 }
 
@@ -204,19 +117,11 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_HW_WATCHDOG
 void hw_watchdog_reset(void)
 {
-	ssize_t node, core;
-
-	for (node = 0; node < atf_node_count(); node++)
-		for (core = 0; core < 1; core++)
-			writeq(~0ULL, CSR_PA(node, CAVM_GTI_CWD_POKEX(core)));
+	writeq(~0ULL, CAVM_GTI_CWD_POKEX);
 }
 
 void hw_watchdog_disable(void)
 {
-	ssize_t node, core;
-
-	for (node = 0; node < atf_node_count(); node++)
-		for (core = 0; core < 1; core++)
-			writeq(0ULL, CSR_PA(node, CAVM_GTI_CWD_WDOGX(core)));
+	writeq(0ULL, CAVM_GTI_CWD_WDOGX);
 }
 #endif

@@ -25,6 +25,9 @@
 #include <ahci.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#if CONFIG_ARCH_THUNDERX
+#include <asm/arch/thunderx.h>
+#endif
 
 static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port);
 
@@ -589,7 +592,7 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	 * and its scatter-gather table
 	 */
 	pp->cmd_tbl = virt_to_phys((void *)mem);
-	debug("cmd_tbl_dma = %lx\n", pp->cmd_tbl);
+	debug("cmd_tbl_dma = %llx\n", pp->cmd_tbl);
 
 	mem += AHCI_CMD_TBL_HDR;
 	pp->cmd_tbl_sg =
@@ -616,8 +619,8 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	 * have port multiplier and device is always present
 	 * U-boot lacks port multiplier support hence this ugly hack.
 	 */
-	if ((strcasecmp(boardtype, "sff8104") == 0) ||
-		(strcasecmp(boardtype, "nas8104") == 0))
+	if ((strcasecmp(p_cavm_bdt->type, "sff8104") == 0) ||
+		(strcasecmp(p_cavm_bdt->type, "nas8104") == 0))
 		return 0;
 	/*
 	 * Make sure interface is not busy based on error and status

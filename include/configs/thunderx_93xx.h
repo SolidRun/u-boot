@@ -102,6 +102,4 @@
 #undef CONFIG_SYS_PROMPT
 #define CONFIG_SYS_PROMPT		env_get("prompt")
 
-#define CONFIG_HW_WATCHDOG
-
 #endif /* __THUNDERX_93XX_H__ */

@@ -8,32 +8,56 @@
 #include <malloc.h>
 #include <errno.h>
 #include <environment.h>
+#include <asm/io.h>
 #include <linux/compiler.h>
-
 #include <libfdt.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <asm/arch/atf.h>
+#include <asm/arch/thunderx.h>
 
 #ifdef CONFIG_THUNDERX_VNIC
 # include <asm/arch/thunderx_vnic.h>
 #endif
 
-#define MAX_LMAC_PER_BGX 4
-
 DECLARE_GLOBAL_DATA_PTR;
+
+struct cavm_bdt g_cavm_bdt;
+struct cavm_bdt *p_cavm_bdt;
 
 extern unsigned long fdt_base_addr;
 
-void thunderx_parse_bdk_config(void)
+static inline uint64_t cavm_get_model(void) __attribute__ ((pure, always_inline));
+static inline uint64_t cavm_get_model(void)
 {
-	char boardname[32];
+#ifdef CAVM_BUILD_HOST
+    extern uint32_t thunder_remote_get_model(void) __attribute__ ((pure));
+    return thunder_remote_get_model();
+#else
+    uint64_t result;
+    asm ("mrs %[rd],MIDR_EL1" : [rd] "=r" (result));
+    return result;
+#endif
+}
+
+void thunderx_parse_board_info(void)
+{
 	const char *str;
 	int node;
-	int ret = 0, len = sizeof(boardname);
-	int bgx_id;
+	int ret = 0, len = 16;
+	u64 midr, val;
 
 	debug("%s: ENTER\n", __func__);
+
+	midr = cavm_get_model();
+	g_cavm_bdt.prod_id = (midr >> 4) & 0xff;
+
+	val = readq(CAVM_MIO_FUS_DAT2);
+	g_cavm_bdt.alt_pkg = (val >> 22) & 0x3;
+	if ((g_cavm_bdt.prod_id == CN81XX) &&
+		(g_cavm_bdt.alt_pkg || ((val >> 30) & 0x1)))
+		g_cavm_bdt.alt_pkg = 2;
+
 	if (!gd->fdt_blob) {
 		printf("ERROR: %s: no valid device tree found\n", __func__);
 		return;
@@ -57,13 +81,15 @@ void thunderx_parse_bdk_config(void)
 	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
 	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
 	if (str) {
-		strncpy(boardname, str, sizeof(boardname));
-		env_set("board", boardname);
+		strncpy(g_cavm_bdt.type, str, sizeof(g_cavm_bdt.type));
+		debug("fdt: BOARD-MODEL bdt.type %s \n", g_cavm_bdt.type);
 	} else {
 		printf("Error: cannot retrieve board type from fdt\n");
 	}
+	p_cavm_bdt = &g_cavm_bdt;
 }
 
+#ifdef CONFIG_THUNDERX_BGX
 static int thunderx_get_mdio_bus(const void *fdt, int phy_offset)
 {
 	int node, bus = -1;
@@ -94,6 +120,7 @@ static int thunderx_get_phy_addr(const void *fdt, int phy_offset)
 	addr = fdt32_to_cpu(*reg);
 	return addr;
 }
+#endif
 
 void thunderx_parse_phy_info(void)
 {
@@ -367,104 +394,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
-
-
-#define NODENAME_BUFLEN 32
-
-int ft_getcore(void *blob, char *id)
-{
-	int nodeoffset;
-	char nodename[NODENAME_BUFLEN];
-
-	snprintf(nodename, sizeof(nodename), "/cpus/cpu@%s", id);
-
-	nodeoffset = fdt_path_offset(blob, nodename);
-
-	if (nodeoffset < 0) {
-		printf("WARNING: could not find %s: %s.\n", nodename,
-		       fdt_strerror(nodeoffset));
-	}
-
-	return nodeoffset;
-}
-
-void ft_coreenable(bd_t *bd, char *id, int enable)
-{
-	int err;
-	void *blob = working_fdt;
-
-	int nodeoffset = ft_getcore(blob, id);
-
-	if (nodeoffset < 0)
-		return;
-
-	err = fdt_setprop_u32(blob, nodeoffset, "enabled", enable);
-
-	if (err < 0) {
-		printf("WARNING: could not set %s: %s.\n", "enabled",
-		       fdt_strerror(err));
-		return;
-	}
-}
-
-int ft_corestatus(bd_t *bd, char *id)
-{
-	const u32 *enabled;
-	void *blob = working_fdt;
-
-	int nodeoffset = ft_getcore(blob, id);
-
-	if (nodeoffset < 0)
-		return -1;
-
-	enabled = fdt_getprop(blob, nodeoffset, "enabled", NULL);
-
-	if (enabled == NULL)
-		return 1;
-	else
-		return *enabled;
-}
-
-static int parse_argv(const char *s)
-{
-	if (strncmp(s, "en", 2) == 0)
-		return 1;
-	else if (strncmp(s, "di", 2) == 0)
-		return 0;
-
-	return -1;
-}
-
-int do_cpucore(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	int enable;
-
-	switch (argc) {
-	case 3:			/* enable / disable	*/
-		enable = parse_argv(argv[2]);
-
-		if (enable < 0)
-			return CMD_RET_USAGE;
-		else
-			ft_coreenable(NULL, argv[1], enable);
-
-		break;
-	case 2:			/* get status */
-		printf("CPU Core %s is %s\n", argv[1],
-		       ft_corestatus(NULL, argv[1]) ? "ENABLED" : "DISABLED");
-		return 0;
-	default:
-		return CMD_RET_USAGE;
-	}
-	return 0;
-}
-
-U_BOOT_CMD(
-	cpucore,   3,   1,     do_cpucore,
-	"enable or disable a CPU core",
-	"id [enable, disable]\n"
-	"    - enable or disable a CPU core"
-);
 
 /**
  * Return the FDT base address that was passed by ATF

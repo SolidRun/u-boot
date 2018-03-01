@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <pci.h>
+#include <dm/device-internal.h>
 
 /* the user can define CONFIG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */
 #ifndef CONFIG_SYS_PCI_CACHE_LINE_SIZE

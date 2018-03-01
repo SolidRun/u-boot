@@ -24,13 +24,12 @@
  #include <fdt_support.h>
 #endif
 
-#include <asm/arch/thunderx_smi.h>
+#include <asm/arch/thunderx.h>
 #include <asm/arch/thunderx_vnic.h>
 
 #include "nic_reg.h"
 #include "nic.h"
 #include "thunder_bgx.h"
-#include "cavm-arch.h"
 
 static const phy_interface_t if_mode[] = {
 	[QLM_MODE_SGMII]  = PHY_INTERFACE_MODE_SGMII,
@@ -272,10 +271,10 @@ static int get_qlm_for_bgx(int node, int bgx_id, int index)
 	int qlm = 0;
 	uint64_t cfg;
 
-	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX)) {
+	if (CAVIUM_IS_MODEL(CN81XX)) {
 		qlm = (bgx_id) ? 2 : 0;
 		qlm += (index >= 2) ? 1 : 0;
-	} else if (CAVIUM_IS_MODEL(CAVIUM_CN83XX)) {
+	} else if (CAVIUM_IS_MODEL(CN83XX)) {
 		switch (bgx_id) {
 		case 0:
 			qlm = 2;
@@ -561,9 +560,9 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 /* Get max number of lanes present in a given QLM/DLM */
 static int get_qlm_lanes(int qlm)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX))
+	if (CAVIUM_IS_MODEL(CN81XX))
 		return 2;
-	else if (CAVIUM_IS_MODEL(CAVIUM_CN83XX))
+	else if (CAVIUM_IS_MODEL(CN83XX))
 		return (qlm >= 5) ? 2 : 4;
 	else
 		return -1;
@@ -678,8 +677,8 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 	if (!lmac->use_training) {
 		int qlm;
 		bool use_dlm = 0;
-		if (CAVIUM_IS_MODEL(CAVIUM_CN81XX)
-		    || (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx->bgx_id == 2)))
+		if (CAVIUM_IS_MODEL(CN81XX)
+		    || (CAVIUM_IS_MODEL(CN83XX) && (bgx->bgx_id == 2)))
 			use_dlm = 1;
 		switch (lmac->lmac_type) {
 		default:
@@ -1008,7 +1007,7 @@ static void bgx_init_hw(struct bgx *bgx)
 	struct lmac *lmac;
 	int i, lmacid, count = 0, inc = 0;
 	char buf[40];
-	static qsgmii_configured = 0;
+	static int qsgmii_configured = 0;
 
 	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
 		struct lmac *tlmac;
@@ -1207,8 +1206,8 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 		int train_en;
 		int index = 0;
 
-		if (CAVIUM_IS_MODEL(CAVIUM_CN81XX)
-		    || (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx->bgx_id == 2)))
+		if (CAVIUM_IS_MODEL(CN81XX)
+		    || (CAVIUM_IS_MODEL(CN83XX) && (bgx->bgx_id == 2)))
 			index = (lmacid < 2) ? 0 : 2;
 
 		lmac = &bgx->lmac[lmacid];
@@ -1296,7 +1295,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 		break;
 		case BGX_MODE_QSGMII:
 			/* If QLM is configured as QSGMII, use lmac0 */
-			if (CAVIUM_IS_MODEL(CAVIUM_CN83XX)
+			if (CAVIUM_IS_MODEL(CN83XX)
 			    && (lmacid == 2)
 			    && (bgx->bgx_id != 3)) {
 				//lmac->qlm_mode = QLM_MODE_DISABLED;
@@ -1387,7 +1386,7 @@ int thunderx_bgx_probe(struct udevice *dev)
 		debug("No PCI region found\n");
 		return 0;
 	}
-	is_altpkg = alternate_pkg();
+	is_altpkg = p_cavm_bdt->alt_pkg;
 
 #ifdef CONFIG_THUNDERX_XCV
 	/* Use FAKE BGX2 for RGX interface */
@@ -1411,14 +1410,14 @@ int thunderx_bgx_probe(struct udevice *dev)
 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 3;
 	bgx->bgx_id = (node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx;
 
-	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX))
+	if (CAVIUM_IS_MODEL(CN81XX))
 		inc = 2;
-	else if (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx_idx == 2))
+	else if (CAVIUM_IS_MODEL(CN83XX) && (bgx_idx == 2))
 		inc = 2;
 
 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac += inc) {
 		/* BGX3 (DLM4), has only 2 lanes */
-		if (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx_idx == 3) && lmac >= 2)
+		if (CAVIUM_IS_MODEL(CN83XX) && (bgx_idx == 3) && lmac >= 2)
 			continue;
 		qlm[lmac + 0] = get_qlm_for_bgx(node, bgx_idx, lmac);
 		/* Each DLM has 2 lanes, configure both lanes with
@@ -1430,7 +1429,7 @@ int thunderx_bgx_probe(struct udevice *dev)
 
 	/* A BGX can take 1 or 2 DLMs, if both the DLMs are not configured
 	   as BGX, then return, nothing to initialize */
-	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX))
+	if (CAVIUM_IS_MODEL(CN81XX))
 		if ((qlm[0] == -1) && (qlm[2] == -1))
 			return -ENODEV;
 

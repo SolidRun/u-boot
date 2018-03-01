@@ -449,7 +449,7 @@ void invalidate_dcache_all(void)
  */
 inline void flush_dcache_all(void)
 {
-	int ret;
+	int __maybe_unused ret;
 
 	__asm_flush_dcache_all();
 	ret = __asm_flush_l3_dcache();
