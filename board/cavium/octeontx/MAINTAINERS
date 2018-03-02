@@ -1,0 +1,6 @@
+OCTEONTX BOARD
+M:	Sergey Temerkhanov <s.temerkhanov@gmail.com>
+S:	Maintained
+F:	board/cavium/octeontx/
+F:	include/configs/octeontx_88xx.h
+F:	configs/octeontx_88xx_defconfig

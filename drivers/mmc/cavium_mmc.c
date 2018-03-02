@@ -5864,7 +5864,7 @@ static int cavium_mmc_get_config(struct udevice *dev)
 
 	debug("%s(%p, %d, %p)\n", __func__, blob, host->of_offset, host);
 
-	host->sclock = thunderx_get_io_clock();
+	host->sclock = octeontx_get_io_clock();
 	debug("%s: sclock: %llu\n", __func__, host->sclock);
 
 	slot_node = host->of_offset;

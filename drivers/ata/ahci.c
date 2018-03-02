@@ -25,8 +25,8 @@
 #include <ahci.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
-#if CONFIG_ARCH_THUNDERX
-#include <asm/arch/thunderx.h>
+#if CONFIG_ARCH_OCTEONTX
+#include <asm/arch/octeontx.h>
 #endif
 
 static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port);

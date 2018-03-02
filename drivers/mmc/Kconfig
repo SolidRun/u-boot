@@ -40,12 +40,12 @@ config SPL_DM_MMC
 	  as EXT4 and FAT.
 
 config MMC_CAVIUM
-	bool "Cavium ThunderX Multimedia Card Interface support"
-	depends on ARCH_THUNDERX
+	bool "Cavium OcteonTX Multimedia Card Interface support"
+	depends on ARCH_OCTEONTX
 	depends on DM_MMC
 	help
-	  This selects the Cavium ThunderX Multimedia card Interface.
-	  If you have an ThunderX board with a Multimedia Card slot,
+	  This selects the Cavium OcteonTX Multimedia card Interface.
+	  If you have an OcteonTX board with a Multimedia Card slot,
 	  say Y here.  If unsure, say N.
 
 if MMC

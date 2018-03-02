@@ -276,6 +276,13 @@ config PIC32_GPIO
 	help
 	  Say yes here to support Microchip PIC32 GPIOs.
 
+config OCTEONTX_GPIO
+	bool "Cavium OcteonTX GPIO driver"
+	depends on DM_GPIO
+	default y
+	help
+	  Say yes here to support Cavium OcteonTX GPIOs.
+
 config STM32_GPIO
 	bool "ST STM32 GPIO driver"
 	depends on DM_GPIO && (STM32 || ARCH_STM32MP)

@@ -18,12 +18,12 @@
 #include <pci.h>
 #include <asm/io.h>
 
-#include <asm/arch/thunderx_vnic.h>
+#include <asm/arch/octeontx_vnic.h>
 
 #include "nic_reg.h"
 #include "nic.h"
 #include "q_struct.h"
-#include "thunder_bgx.h"
+#include "octeontx_bgx.h"
 
 #define ETH_HLEN 6
 
@@ -751,7 +751,7 @@ exit:
 	return -ENODEV;
 }
 
-int thunderx_nic_probe(struct udevice *dev)
+int octeontx_nic_probe(struct udevice *dev)
 {
 	int vf;
 	int ret;
@@ -774,27 +774,27 @@ int thunderx_nic_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct misc_ops thunderx_nic_ops = {
+static const struct misc_ops octeontx_nic_ops = {
 };
 
-static const struct udevice_id thunderx_nic_ids[] = {
+static const struct udevice_id octeontx_nic_ids[] = {
 	{ .compatible = "cavium,nic" },
 	{}
 };
 
-U_BOOT_DRIVER(thunderx_nic) = {
-	.name	= "thunderx_nic",
+U_BOOT_DRIVER(octeontx_nic) = {
+	.name	= "octeontx_nic",
 	.id	= UCLASS_MISC,
-	.probe	= thunderx_nic_probe,
-	.of_match = thunderx_nic_ids,
-	.ops	= &thunderx_nic_ops,
+	.probe	= octeontx_nic_probe,
+	.of_match = octeontx_nic_ids,
+	.ops	= &octeontx_nic_ops,
 	.priv_auto_alloc_size = sizeof(struct nicpf),
 };
 
-static struct pci_device_id thunderx_nic_supported[] = {
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_NIC_PF) },
+static struct pci_device_id octeontx_nic_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_NIC_PF) },
 	{}
 };
 
-U_BOOT_PCI_DEVICE(thunderx_nic, thunderx_nic_supported);
+U_BOOT_PCI_DEVICE(octeontx_nic, octeontx_nic_supported);
 

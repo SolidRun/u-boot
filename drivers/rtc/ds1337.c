@@ -73,7 +73,7 @@ enum model{
 	ISL12057
 };
 
-struct thunderx_rtc {
+struct ds1337_rtc {
 	unsigned int regaddr;
 	enum model rtcmodel;
 };
@@ -91,7 +91,7 @@ static void dm_rtc_write (struct udevice *dev, uchar reg, uchar val)
 	dm_i2c_reg_write (dev, reg, val);
 }
 
-static int ds133x_rtc_get(struct udevice *dev, struct rtc_time *tmp)
+static int ds1337_rtc_get(struct udevice *dev, struct rtc_time *tmp)
 {
 	int rel = 0;
 	uchar sec, min, hour, mday, wday, mon_cent, year, control, status;
@@ -140,7 +140,7 @@ static int ds133x_rtc_get(struct udevice *dev, struct rtc_time *tmp)
 	return rel;
 }
 
-static int ds133x_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
+static int ds1337_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
 {
 	uchar century;
 
@@ -174,9 +174,9 @@ static int ds133x_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
  * 600 nA to 2uA. Define CONFIG_SYS_RTC_DS1337_NOOSC if you wish to turn
  * off the OSC output.
  */
-static int ds133x_rtc_reset(struct udevice *dev)
+static int ds1337_rtc_reset(struct udevice *dev)
 {
-	struct thunderx_rtc *rtcpriv = dev->priv;
+	struct ds1337_rtc *rtcpriv = dev->priv;
 	uchar resetval = RTC_CTL_BIT_RS1 | RTC_CTL_BIT_RS2; /* Default DS1337 */
 
 	if(rtcpriv->rtcmodel == DS1337_NOOSC)
@@ -195,21 +195,21 @@ static int ds133x_rtc_reset(struct udevice *dev)
 	return 0;
 }
 
-static int ds133x_rtc_read8(struct udevice *dev, unsigned int reg)
+static int ds1337_rtc_read8(struct udevice *dev, unsigned int reg)
 {
 	return dm_rtc_read(dev, reg);
 }
 
-static int ds133x_rtc_write8(struct udevice *dev, unsigned int reg, int val)
+static int ds1337_rtc_write8(struct udevice *dev, unsigned int reg, int val)
 {
 	dm_rtc_write(dev, reg, val);
 
 	return 0;
 }
 
-static int ds133x_ofdata_to_platdata(struct udevice *dev)
+static int ds1337_ofdata_to_platdata(struct udevice *dev)
 {
-	struct thunderx_rtc *platdata = dev->priv;
+	struct ds1337_rtc *platdata = dev->priv;
 	const void *blob = gd->fdt_blob;
 	int node = dev->node.of_offset;
 
@@ -220,35 +220,35 @@ static int ds133x_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-static int ds133x_rtc_probe(struct udevice *dev)
+static int ds1337_rtc_probe(struct udevice *dev)
 {
-	ds133x_rtc_reset(dev);
+	ds1337_rtc_reset(dev);
 
 	return 0;
 }
 
-static const struct rtc_ops ds133x_rtc_ops = {
-	.get = ds133x_rtc_get,
-	.set = ds133x_rtc_set,
-	.reset = ds133x_rtc_reset,
-	.read8 = ds133x_rtc_read8,
-	.write8 = ds133x_rtc_write8,
+static const struct rtc_ops ds1337_rtc_ops = {
+	.get = ds1337_rtc_get,
+	.set = ds1337_rtc_set,
+	.reset = ds1337_rtc_reset,
+	.read8 = ds1337_rtc_read8,
+	.write8 = ds1337_rtc_write8,
 };
 
-static const struct udevice_id ds133x_rtc_ids[] = {
+static const struct udevice_id ds1337_rtc_ids[] = {
 	{ .compatible = "dallas,ds1337" },
 	{ .compatible = "isil,isl12057" },
 	{ }
 };
 
-U_BOOT_DRIVER(ds133x_rtc) = {
-	.name = "ds133x_rtc",
+U_BOOT_DRIVER(ds1337_rtc) = {
+	.name = "ds1337_rtc",
 	.id = UCLASS_RTC,
-	.of_match = ds133x_rtc_ids,
-	.ofdata_to_platdata = ds133x_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof (struct thunderx_rtc),
-	.probe = ds133x_rtc_probe,
-	.ops = &ds133x_rtc_ops,
+	.of_match = ds1337_rtc_ids,
+	.ofdata_to_platdata = ds1337_ofdata_to_platdata,
+	.priv_auto_alloc_size = sizeof (struct ds1337_rtc),
+	.probe = ds1337_rtc_probe,
+	.ops = &ds1337_rtc_ops,
 };
 
 #else /* !CONFIG_DM_RTC */

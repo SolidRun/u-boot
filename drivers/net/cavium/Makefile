@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
-obj-$(CONFIG_THUNDERX_BGX) += thunder_bgx.o
-obj-$(CONFIG_THUNDERX_VNIC) += nic_main.o nicvf_queues.o nicvf_main.o
-obj-$(CONFIG_THUNDERX_SMI) += thunderx_smi.o
-obj-$(CONFIG_THUNDERX_XCV) += thunder_xcv.o
+obj-$(CONFIG_OCTEONTX_BGX) += octeontx_bgx.o
+obj-$(CONFIG_OCTEONTX_VNIC) += nic_main.o nicvf_queues.o nicvf_main.o
+obj-$(CONFIG_OCTEONTX_SMI) += octeontx_smi.o
+obj-$(CONFIG_OCTEONTX_XCV) += octeontx_xcv.o
 

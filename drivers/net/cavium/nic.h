@@ -11,7 +11,7 @@
 #define	NIC_H
 
 #include <linux/netdevice.h>
-#include "thunder_bgx.h"
+#include "octeontx_bgx.h"
 
 /**
  * Macro to get the physical address of a CSR on a node
@@ -19,9 +19,9 @@
 #define CSR_PA(node, csr) ((csr) | ((uint64_t)(node) << 44))
 
 /* PCI device IDs */
-#define	PCI_DEVICE_ID_THUNDER_NIC_PF	0xA01E
-#define	PCI_DEVICE_ID_THUNDER_NIC_VF_1	0x0011
-#define PCI_DEVICE_ID_THUNDER_NIC_VF_2	0xA034
+#define	PCI_DEVICE_ID_OCTEONTX_NIC_PF	0xA01E
+#define	PCI_DEVICE_ID_OCTEONTX_NIC_VF_1	0x0011
+#define PCI_DEVICE_ID_OCTEONTX_NIC_VF_2	0xA034
 
 /* Subsystem device IDs */
 #define PCI_SUBSYS_DEVID_88XX_NIC_PF		0xA11E

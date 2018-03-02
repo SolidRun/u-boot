@@ -22,7 +22,7 @@
 
 #include <asm/arch/atf.h>
 #include <asm/arch/atf_part.h>
-#include <asm/arch/thunderx_svc.h>
+#include <asm/arch/octeontx_svc.h>
 
 #include <search.h>
 #include <errno.h>

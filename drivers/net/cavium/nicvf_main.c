@@ -17,12 +17,12 @@
 #include <malloc.h>
 #include <asm/io.h>
 
-#include <asm/arch/thunderx_vnic.h>
+#include <asm/arch/octeontx_vnic.h>
 
 #include "nic_reg.h"
 #include "nic.h"
 #include "nicvf_queues.h"
-#include "thunder_bgx.h"
+#include "octeontx_bgx.h"
 
 #define ETH_ALEN 6
 
@@ -523,7 +523,7 @@ fail:
 	return ret;
 }
 
-int thunderx_vnic_probe(struct udevice *dev)
+int octeontx_vnic_probe(struct udevice *dev)
 {
 	void *regs;
 	size_t size;
@@ -535,27 +535,27 @@ int thunderx_vnic_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct misc_ops thunderx_vnic_ops = {
+static const struct misc_ops octeontx_vnic_ops = {
 };
 
-static const struct udevice_id thunderx_vnic_ids[] = {
+static const struct udevice_id octeontx_vnic_ids[] = {
 	{ .compatible = "cavium,vnic" },
 	{}
 };
 
-U_BOOT_DRIVER(thunderx_vnic) = {
-	.name	= "thunderx_vnic",
+U_BOOT_DRIVER(octeontx_vnic) = {
+	.name	= "octeontx_vnic",
 	.id	= UCLASS_MISC,
-	.probe	= thunderx_vnic_probe,
-	.of_match = thunderx_vnic_ids,
-	.ops	= &thunderx_vnic_ops,
+	.probe	= octeontx_vnic_probe,
+	.of_match = octeontx_vnic_ids,
+	.ops	= &octeontx_vnic_ops,
 	.priv_auto_alloc_size = sizeof(struct nicvf),
 };
 
-static struct pci_device_id thunderx_vnic_supported[] = {
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_NIC_VF_1) },
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_NIC_VF_2) },
+static struct pci_device_id octeontx_vnic_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_NIC_VF_1) },
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_NIC_VF_2) },
 	{}
 };
 
-U_BOOT_PCI_DEVICE(thunderx_vnic, thunderx_vnic_supported);
+U_BOOT_PCI_DEVICE(octeontx_vnic, octeontx_vnic_supported);

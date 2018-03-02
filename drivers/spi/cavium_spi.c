@@ -1,11 +1,11 @@
 /**
- * ThunderX SPI U_BOOT_DRIVER
+ * OcteonTX SPI U_BOOT_DRIVER
  *
  * Copyright (C) 2016 Cavium, Inc.
  *
  * SPDX-LICENSE-IDENTIFIER:	GPL-2.0+
  *
- * SPI/MPI driver for Cavium ThunderX series of SoCs
+ * SPI/MPI driver for Cavium OcteonTX series of SoCs
  */
 #include <common.h>
 #include <spi.h>
@@ -16,12 +16,12 @@
 #include <asm/unaligned.h>
 #include <watchdog.h>
 
-#define THUNDERX_SPI_MAX_BYTES		9
-#define THUNDERX_SPI_MAX_CLOCK_HZ	50000000
+#define OCTEONTX_SPI_MAX_BYTES		9
+#define OCTEONTX_SPI_MAX_CLOCK_HZ	50000000
 
-#define THUNDERX_SPI_NUM_CS		4
+#define OCTEONTX_SPI_NUM_CS		4
 
-#define THUNDERX_SPI_CS_VALID(cs)	((cs) < THUNDERX_SPI_NUM_CS)
+#define OCTEONTX_SPI_CS_VALID(cs)	((cs) < OCTEONTX_SPI_NUM_CS)
 
 #define MPI_CFG				0x1000
 #define MPI_STS				0x1008
@@ -191,32 +191,32 @@ union mpi_tx {
 };
 
 /** Local driver data structure */
-struct thunderx_spi {
+struct octeontx_spi {
 	void *baseaddr;		/** Register base address */
 	u32 clkdiv;		/** Clock divisor for device speed */
 };
 
-void *thunderx_spi_get_baseaddr(struct udevice *dev)
+void *octeontx_spi_get_baseaddr(struct udevice *dev)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct thunderx_spi *priv = dev_get_priv(bus);
+	struct octeontx_spi *priv = dev_get_priv(bus);
 
 	return priv->baseaddr;
 }
 
-static union mpi_cfg thunderx_spi_set_mpicfg(struct udevice *dev)
+static union mpi_cfg octeontx_spi_set_mpicfg(struct udevice *dev)
 {
 	struct dm_spi_slave_platdata *slave = dev_get_parent_platdata(dev);
 	struct udevice *bus = dev_get_parent(dev);
-	struct thunderx_spi *priv = dev_get_priv(bus);
+	struct octeontx_spi *priv = dev_get_priv(bus);
 	union mpi_cfg mpi_cfg;
 	uint max_speed = slave->max_hz;
 	bool cpha, cpol;
 
 	if (!max_speed)
 		max_speed = 12500000;
-	if (max_speed > THUNDERX_SPI_MAX_CLOCK_HZ)
-		max_speed = THUNDERX_SPI_MAX_CLOCK_HZ;
+	if (max_speed > OCTEONTX_SPI_MAX_CLOCK_HZ)
+		max_speed = OCTEONTX_SPI_MAX_CLOCK_HZ;
 
 	debug ("\n slave params %d %d %d \n", slave->cs,
 		slave->max_hz, slave->mode);
@@ -244,9 +244,9 @@ static union mpi_cfg thunderx_spi_set_mpicfg(struct udevice *dev)
  *
  * @param	dev	SPI device to wait for
  */
-static void thunderx_spi_wait_ready(struct udevice *dev)
+static void octeontx_spi_wait_ready(struct udevice *dev)
 {
-	void *baseaddr = thunderx_spi_get_baseaddr(dev);
+	void *baseaddr = octeontx_spi_get_baseaddr(dev);
 	union mpi_sts mpi_sts;
 
 	do {
@@ -262,13 +262,13 @@ static void thunderx_spi_wait_ready(struct udevice *dev)
  *
  * @return	0 for success, -EINVAL if chip select is invalid
  */
-static int thunderx_spi_claim_bus(struct udevice *dev)
+static int octeontx_spi_claim_bus(struct udevice *dev)
 {
-	void *baseaddr = thunderx_spi_get_baseaddr(dev);
+	void *baseaddr = octeontx_spi_get_baseaddr(dev);
 	union mpi_cfg mpi_cfg;
 
 	debug("%s(%s)\n", __func__, dev->name);
-	if (!THUNDERX_SPI_CS_VALID(spi_chip_select(dev)))
+	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
 		return -EINVAL;
 
 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
@@ -286,13 +286,13 @@ static int thunderx_spi_claim_bus(struct udevice *dev)
  *
  * @return	0 for success, -EINVAL if chip select is invalid
  */
-static int thunderx_spi_release_bus(struct udevice *dev)
+static int octeontx_spi_release_bus(struct udevice *dev)
 {
-	void *baseaddr = thunderx_spi_get_baseaddr(dev);
+	void *baseaddr = octeontx_spi_get_baseaddr(dev);
 	union mpi_cfg mpi_cfg;
 
 	debug("%s(%s)\n", __func__, dev->name);
-	if (!THUNDERX_SPI_CS_VALID(spi_chip_select(dev)))
+	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
 		return -EINVAL;
 
 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
@@ -302,10 +302,10 @@ static int thunderx_spi_release_bus(struct udevice *dev)
 	return 0;
 }
 
-static int thunderx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			     const void *dout, void *din, unsigned long flags)
 {
-	void *baseaddr = thunderx_spi_get_baseaddr(dev);
+	void *baseaddr = octeontx_spi_get_baseaddr(dev);
 	union mpi_tx mpi_tx;
 	union mpi_cfg mpi_cfg;
 	uint64_t wide_dat = 0;
@@ -315,13 +315,13 @@ static int thunderx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	uint8_t *rx_data = din;
 	int cs = spi_chip_select(dev);
 
-	if (!THUNDERX_SPI_CS_VALID(cs))
+	if (!OCTEONTX_SPI_CS_VALID(cs))
 		return -EINVAL;
 
 	debug("%s(%s, %u, %p, %p, 0x%lx), cs: %d\n",
 	      __func__, dev->name, bitlen, dout, din, flags, cs);
 
-	mpi_cfg = thunderx_spi_set_mpicfg(dev);
+	mpi_cfg = octeontx_spi_set_mpicfg(dev);
 
 	if (mpi_cfg.u != readq(baseaddr + MPI_CFG))
 		writeq(mpi_cfg.u, baseaddr + MPI_CFG);
@@ -343,7 +343,7 @@ static int thunderx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		mpi_tx.s.totnum = 8;
 		writeq(mpi_tx.u, baseaddr + MPI_TX);
 
-		thunderx_spi_wait_ready(dev);
+		octeontx_spi_wait_ready(dev);
 
 		if (rx_data) {
 			wide_dat = readq(baseaddr + MPI_WIDE_DAT);
@@ -369,7 +369,7 @@ static int thunderx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	writeq(mpi_tx.u, baseaddr + MPI_TX);
 
-	thunderx_spi_wait_ready(dev);
+	octeontx_spi_wait_ready(dev);
 
 	if (rx_data) {
 		for (i = 0; i < len; i++) {
@@ -388,28 +388,28 @@ static int thunderx_spi_xfer(struct udevice *dev, unsigned int bitlen,
  * @param	bus	bus to set
  * @param	max_hz	maximum speed supported
  */
-static int thunderx_spi_set_speed(struct udevice *bus, uint max_hz)
+static int octeontx_spi_set_speed(struct udevice *bus, uint max_hz)
 {
-	struct thunderx_spi *priv = dev_get_priv(bus);
+	struct octeontx_spi *priv = dev_get_priv(bus);
 
-	debug("%s(%s, %u, %llu)\n", __func__, bus->name, max_hz, thunderx_get_io_clock());
-	if (max_hz > THUNDERX_SPI_MAX_CLOCK_HZ)
-		max_hz = THUNDERX_SPI_MAX_CLOCK_HZ;
-	priv->clkdiv = (thunderx_get_io_clock()) / (2 * max_hz);
+	debug("%s(%s, %u, %llu)\n", __func__, bus->name, max_hz, octeontx_get_io_clock());
+	if (max_hz > OCTEONTX_SPI_MAX_CLOCK_HZ)
+		max_hz = OCTEONTX_SPI_MAX_CLOCK_HZ;
+	priv->clkdiv = (octeontx_get_io_clock()) / (2 * max_hz);
 	debug("%s %d\n", __func__, priv->clkdiv);
 
 	return 0;
 }
 
-static int thunderx_spi_set_mode(struct udevice *bus, uint mode)
+static int octeontx_spi_set_mode(struct udevice *bus, uint mode)
 {
 	/* We don't set it here */
 	return 0;
 }
 
-static int thunderx_pci_spi_probe(struct udevice *dev)
+static int octeontx_pci_spi_probe(struct udevice *dev)
 {
-	struct thunderx_spi *priv = dev_get_priv(dev);
+	struct octeontx_spi *priv = dev_get_priv(dev);
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	size_t size;
 
@@ -422,26 +422,26 @@ static int thunderx_pci_spi_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct dm_spi_ops thunderx_spi_ops = {
-	.claim_bus	= thunderx_spi_claim_bus,
-	.release_bus	= thunderx_spi_release_bus,
-	.xfer		= thunderx_spi_xfer,
-	.set_speed	= thunderx_spi_set_speed,
-	.set_mode	= thunderx_spi_set_mode,
+static const struct dm_spi_ops octeontx_spi_ops = {
+	.claim_bus	= octeontx_spi_claim_bus,
+	.release_bus	= octeontx_spi_release_bus,
+	.xfer		= octeontx_spi_xfer,
+	.set_speed	= octeontx_spi_set_speed,
+	.set_mode	= octeontx_spi_set_mode,
 };
 
-static const struct udevice_id thunderx_spi_ids[] = {
+static const struct udevice_id octeontx_spi_ids[] = {
 	{ .compatible	= "cavium,thunder-8890-spi" },
 	{ .compatible	= "cavium,thunder-8190-spi" },
 	{ }
 };
 
-U_BOOT_DRIVER(thunderx_pci_spi) = {
-	.name			= "spi_thunderx",
+U_BOOT_DRIVER(octeontx_pci_spi) = {
+	.name			= "spi_octeontx",
 	.id			= UCLASS_SPI,
-	.of_match 		= thunderx_spi_ids,
-	.probe			= thunderx_pci_spi_probe,
-	.priv_auto_alloc_size 	= sizeof(struct thunderx_spi),
-	.ops			= &thunderx_spi_ops,
+	.of_match 		= octeontx_spi_ids,
+	.probe			= octeontx_pci_spi_probe,
+	.priv_auto_alloc_size 	= sizeof(struct octeontx_spi),
+	.ops			= &octeontx_spi_ops,
 };
 
