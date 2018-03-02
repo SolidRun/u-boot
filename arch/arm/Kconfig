@@ -1606,6 +1606,14 @@ config ARCH_OCTEONTX
 	select BOARD_LATE_INIT
 	select SYS_CACHE_SHIFT_7
 
+config ARCH_OCTEONTX2
+	bool "Support Cavium OcteonTX2 SoCs"
+	select DM
+	select ARM64
+	select OF_CONTROL
+	select BOARD_LATE_INIT
+	select SYS_CACHE_SHIFT_7
+
 config TARGET_OCTEONTX_88XX
 	bool "Support OcteonTX 88xx"
 	select ARM64
@@ -1695,6 +1703,8 @@ source "arch/arm/cpu/arm926ejs/lpc32xx/Kconfig"
 source "arch/arm/mach-mvebu/Kconfig"
 
 source "arch/arm/mach-octeontx/Kconfig"
+
+source "arch/arm/mach-octeontx2/Kconfig"
 
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
@@ -1786,6 +1796,7 @@ source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
 source "board/broadcom/bcmns2/Kconfig"
 source "board/cavium/octeontx/Kconfig"
+source "board/cavium/octeontx2/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/eets/pdu001/Kconfig"
 source "board/emulation/qemu-arm/Kconfig"

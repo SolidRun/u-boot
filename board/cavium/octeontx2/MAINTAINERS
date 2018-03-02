@@ -1,0 +1,6 @@
+OCTEONTX2 BOARD
+M:	Suneel Garapati <sgarapati@caviumnetworks.com>
+S:	Maintained
+F:	board/cavium/octeontx2/
+F:	include/configs/octeontx2_93xx.h
+F:	configs/octeontx2_93xx_defconfig

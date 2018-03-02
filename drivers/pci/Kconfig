@@ -108,7 +108,7 @@ config PCI_TEGRA
 
 config PCI_OCTEONTX_ECAM
 	bool "OcteonTX ECAM support"
-	depends on ARCH_OCTEONTX
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	help
 	  Enable support for the Cavium OcteonTX SoC family ECAM controllers.
 	  These controllers provide PCI configuration access to all on-board

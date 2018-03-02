@@ -1,0 +1,19 @@
+if ARCH_OCTEONTX2
+
+config SYS_VENDOR
+	string
+	default	"cavium"
+
+config SYS_SOC
+	string
+	default "octeontx2"
+
+config SYS_BOARD
+	string
+	default "octeontx2"
+
+config SYS_PCI_64BIT
+	bool
+	default y
+
+endif

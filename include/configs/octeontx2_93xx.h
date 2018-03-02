@@ -4,8 +4,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
 **/
 
-#ifndef __OCTEONTX_93XX_H__
-#define __OCTEONTX_93XX_H__
+#ifndef __OCTEONTX2_93XX_H__
+#define __OCTEONTX2_93XX_H__
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			(0x801000000000)
@@ -102,4 +102,4 @@
 #undef CONFIG_SYS_PROMPT
 #define CONFIG_SYS_PROMPT		env_get("prompt")
 
-#endif /* __OCTEONTX_93XX_H__ */
+#endif /* __OCTEONTX2_93XX_H__ */

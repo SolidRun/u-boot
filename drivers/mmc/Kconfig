@@ -41,7 +41,7 @@ config SPL_DM_MMC
 
 config MMC_CAVIUM
 	bool "Cavium OcteonTX Multimedia Card Interface support"
-	depends on ARCH_OCTEONTX
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	depends on DM_MMC
 	help
 	  This selects the Cavium OcteonTX Multimedia card Interface.

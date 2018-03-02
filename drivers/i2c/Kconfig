@@ -368,7 +368,7 @@ config SYS_I2C_SANDBOX
 
 config SYS_I2C_OCTEONTX
 	bool "OcteonTX i2c driver"
-	depends on ARCH_OCTEONTX && DM_I2C
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2) && DM_I2C
 	default y
 	help
 	 Enable I2C support for Cavium OcteonTX line of processors.
