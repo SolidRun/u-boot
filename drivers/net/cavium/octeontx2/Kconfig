@@ -10,12 +10,8 @@ if CAVIUM_NET_OCTEONTX2
 
 config OCTEONTX2_CGX
 	bool "Enable CGX device support"
+	depends on CAVIUM_NET_OCTEONTX2
 	help
 	  Enables support for LMAC layer
-
-config OCTEONTX2_RVU
-	bool "Enable RVU support"
-	help
-	  Enables support for Resource Virtualization Co-processor Unit
 
 endif
