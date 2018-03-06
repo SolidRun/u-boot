@@ -5970,7 +5970,7 @@ static int cavium_mmc_get_config(struct udevice *dev)
 		slot->cmd_clk_skew = fdtdec_get_int(blob, slot_node,
 						    "cavium,cmd-clk-skew", 0);
 		slot->dat_clk_skew = fdtdec_get_int(blob, slot_node,
-						    "cavium,cmd-dat-skew", 0);
+						    "cavium,dat-clk-skew", 0);
 		slot->bus_id = reg;
 
 		/* Initialize mmc data structure */
