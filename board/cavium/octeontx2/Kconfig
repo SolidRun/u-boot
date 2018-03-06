@@ -1,10 +1,14 @@
+if ARCH_OCTEONTX2
+
 choice
 	prompt "Target board"
 
 config	TARGET_OCTEONTX2_93XX
-	bool "OcteonTX CN93XX"
+	bool "OcteonTX2 CN93XX"
 
 endchoice
 
 config SYS_CONFIG_NAME
 	default "octeontx2_93xx" if TARGET_OCTEONTX2_93XX
+
+endif
