@@ -13,9 +13,6 @@
 static const char *if_typename_str[IF_TYPE_COUNT] = {
 	[IF_TYPE_IDE]		= "ide",
 	[IF_TYPE_SCSI]		= "scsi",
-#if !defined(CONFIG_CMD_SATA) && defined(CONFIG_SCSI_AHCI)
-	[IF_TYPE_SCSI]		= "sata",
-#endif
 	[IF_TYPE_ATAPI]		= "atapi",
 	[IF_TYPE_USB]		= "usb",
 	[IF_TYPE_DOC]		= "doc",
