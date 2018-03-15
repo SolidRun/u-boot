@@ -144,12 +144,12 @@
 union cavm_npc_af_pkindx_action0 {
 	u64 u;
 	struct cavm_npc_af_pkindx_action0_s {
-		u64 var_len_shift         : 3;  /**< [  2:  0](R/W) Variable length shift size in bits. See [VAR_LEN_OFFSET]. */
-		u64 var_len_right         : 1;  /**< [  3:  3](R/W) Variable length shift direction.
+		u64 var_len_shift:3;		/**< [  2:  0](R/W) Variable length shift size in bits. See [VAR_LEN_OFFSET]. */
+		u64 var_len_right:1;		/**< [  3:  3](R/W) Variable length shift direction.
                                                                  0 = Left shift.
                                                                  1 = Right shift. */
-		u64 var_len_mask          : 8;  /**< [ 11:  4](R/W) Variable length mask. See [VAR_LEN_OFFSET]. */
-		u64 var_len_offset        : 8;  /**< [ 19: 12](R/W) Variable length byte offset. When [VAR_LEN_MASK] is nonzero, byte offset
+		u64 var_len_mask:8;		/**< [ 11:  4](R/W) Variable length mask. See [VAR_LEN_OFFSET]. */
+		u64 var_len_offset:8;		/**< [ 19: 12](R/W) Variable length byte offset. When [VAR_LEN_MASK] is nonzero, byte offset
                                                                  from current header pointer of the packet byte that supplies a variable
                                                                  pointer advance value.
 
@@ -170,33 +170,33 @@ union cavm_npc_af_pkindx_action0 {
                                                                  NPC_RESULT_S[EOH_PTR] must always be even. Therefore,
                                                                  [VAR_LEN_SHIFT], [VAR_LEN_RIGHT] and [VAR_LEN_MASK] must produce an
                                                                  even var_len_advance value. */
-		u64 ptr_advance           : 8;  /**< [ 27: 20](R/W) Pointer advance. Fixed value added to NPC_RESULT_S[EOH_PTR]. Must be
+		u64 ptr_advance:8;		/**< [ 27: 20](R/W) Pointer advance. Fixed value added to NPC_RESULT_S[EOH_PTR]. Must be
                                                                  even. See also [VAR_LEN_OFFSET]. */
-		u64 capture_flags         : 8;  /**< [ 35: 28](R/W) Capture flags. When nonzero, specifies which NPC_LAYER_INFO_S[FLAGS] bits
+		u64 capture_flags:8;		/**< [ 35: 28](R/W) Capture flags. When nonzero, specifies which NPC_LAYER_INFO_S[FLAGS] bits
                                                                  to set in the approprate layer within
                                                                  NPC_RESULT_S, as follows:
                                                                  _ NPC_LAYER_INFO_S[FLAGS] |= [CAPTURE_FLAGS]
 
                                                                  Note that flags are captured irrespective of the [CAPTURE_ENA] value. */
-		u64 capture_ltype         : 4;  /**< [ 39: 36](R/W) Capture layer type. When [CAPTURE_ENA] is set, specifies
+		u64 capture_ltype:4;		/**< [ 39: 36](R/W) Capture layer type. When [CAPTURE_ENA] is set, specifies
                                                                  NPC_LAYER_INFO_S[LTYPE] value captured in the approprate layer within
                                                                  NPC_RESULT_S. */
-		u64 capture_lid           : 3;  /**< [ 42: 40](R/W) Capture layer ID. Specifies the layer for which information is captured in
+		u64 capture_lid:3;		/**< [ 42: 40](R/W) Capture layer ID. Specifies the layer for which information is captured in
                                                                  NPC_RESULT_S. Enumerated by NPC_LID_E. */
-		u64 reserved_43           : 1;
-		u64 next_state            : 8;  /**< [ 51: 44](R/W) Search value for ternary comparison with the next KPU's
+		u64 reserved_43:1;
+		u64 next_state:8;		/**< [ 51: 44](R/W) Search value for ternary comparison with the next KPU's
                                                                  NPC_AF_KPU()_ENTRY()_CAM()[STATE]. */
-		u64 parse_done            : 1;  /**< [ 52: 52](R/W) Parse done. When set, terminate parse after this KPU and bypass subsequent KPUs. */
-		u64 capture_ena           : 1;  /**< [ 53: 53](R/W) Layer capture enable. When set, layer information is captured in
+		u64 parse_done:1;		/**< [ 52: 52](R/W) Parse done. When set, terminate parse after this KPU and bypass subsequent KPUs. */
+		u64 capture_ena:1;		/**< [ 53: 53](R/W) Layer capture enable. When set, layer information is captured in
                                                                  NPC_RESULT_S. When clear, layer information is not captured by the KPU. */
-		u64 byp_count             : 3;  /**< [ 56: 54](R/W) Bypass count. When nonzero, specifies the number of enabled KPUs to be
+		u64 byp_count:3;		/**< [ 56: 54](R/W) Bypass count. When nonzero, specifies the number of enabled KPUs to be
                                                                  bypassed. For example, if the bypass count is two in the matching entry for
                                                                  KPU 3, NPC_AF_KPU(4,6,7)_CFG[ENA] = 1 and NPC_AF_KPU(5)_CFG[ENA] = 0, then:
                                                                  * KPUs 4 and 6 are bypassed.
                                                                  * The matching entry's [NEXT_STATE] and
                                                                  NPC_AF_KPU()_ENTRY()_ACTION1[DP*_OFFSET] in KPU 3 are used for the lookup in
                                                                  KPU 7. */
-		u64 reserved_57_63        : 7;
+		u64 reserved_57_63:7;
 	} s;
 	/* struct cavm_npc_af_pkindx_action0_s cn; */
 };
@@ -212,7 +212,7 @@ union cavm_npc_af_pkindx_action0 {
 union cavm_npc_af_intfx_miss_act {
 	u64 u;
 	struct cavm_npc_af_intfx_miss_act_s {
-		u64 action                : 64; /**< [ 63:  0](R/W) Match action. Format is NIX_RX_ACTION_S for RX packet, NIX_TX_ACTION_S for
+		u64 action:64;			/**< [ 63:  0](R/W) Match action. Format is NIX_RX_ACTION_S for RX packet, NIX_TX_ACTION_S for
                                                                  TX packet. */
 	} s;
 	/* struct cavm_npc_af_intfx_miss_act_s cn; */
@@ -288,8 +288,8 @@ union cavm_npc_af_intfx_miss_act {
 union cavm_npc_af_mcamex_bankx_camx_intf {
 	u64 u;
 	struct cavm_npc_af_mcamex_bankx_camx_intf_s {
-		u64 intf                  : 2;  /**< [  1:  0](R/W) NPC interface. Enumerated by NPC_INTF_E. */
-		u64 reserved_2_63         : 62;
+		u64 intf:2;			/**< [  1:  0](R/W) NPC interface. Enumerated by NPC_INTF_E. */
+		u64 reserved_2_63:62;
 	} s;
 	/* struct cavm_npc_af_mcamex_bankx_camx_intf_s cn; */
 };
@@ -303,7 +303,7 @@ union cavm_npc_af_mcamex_bankx_camx_intf {
 union cavm_npc_af_mcamex_bankx_camx_w0 {
 	u64 u;
 	struct cavm_npc_af_mcamex_bankx_camx_w0_s {
-		u64 md                    : 64; /**< [ 63:  0](R/W) Match data. */
+		u64 md:64;			/**< [ 63:  0](R/W) Match data. */
 	} s;
 	/* struct cavm_npc_af_mcamex_bankx_camx_w0_s cn; */
 };
@@ -317,8 +317,8 @@ union cavm_npc_af_mcamex_bankx_camx_w0 {
 union cavm_npc_af_mcamex_bankx_camx_w1 {
 	u64 u;
 	struct cavm_npc_af_mcamex_bankx_camx_w1_s {
-		u64 md                    : 48; /**< [ 47:  0](R/W) Match data. */
-		u64 reserved_48_63        : 16;
+		u64 md:48;			/**< [ 47:  0](R/W) Match data. */
+		u64 reserved_48_63:16;
 	} s;
 	/* struct cavm_npc_af_mcamex_bankx_camx_w1_s cn; */
 };
@@ -331,9 +331,9 @@ union cavm_npc_af_mcamex_bankx_camx_w1 {
 union cavm_npc_af_mcamex_bankx_cfg {
 	u64 u;
 	struct cavm_npc_af_mcamex_bankx_cfg_s {
-		u64 ena                   : 1;  /**< [  0:  0](R/W) Enable entry. When clear, the entry is disabled and may be safely modified
+		u64 ena:1;			/**< [  0:  0](R/W) Enable entry. When clear, the entry is disabled and may be safely modified
                                                                  by software. */
-		u64 reserved_1_63         : 63;
+		u64 reserved_1_63:63;
 	} s;
 	/* struct cavm_npc_af_mcamex_bankx_cfg_s cn; */
 };
@@ -346,15 +346,15 @@ union cavm_npc_af_mcamex_bankx_cfg {
 union cavm_npc_af_intfx_kex_cfg {
 	u64 u;
 	struct cavm_npc_af_intfx_kex_cfg_s {
-		u64 parse_nibble_ena      : 31; /**< [ 30:  0](R/W) Parse key extract nibble enable. Enable bit for each nibble in
+		u64 parse_nibble_ena:31;	/**< [ 30:  0](R/W) Parse key extract nibble enable. Enable bit for each nibble in
                                                                  NPC_PARSE_KEX_S to be included in the MCAM search key: bit 0 for
-                                                                 NPC_PARSE_KEX_S[CHAN\<3:0\>], bit 1 for NPC_PARSE_KEX_S[CHAN\<7:4\>], ..., bit
-                                                                 30 for NPC_PARSE_KEX_S[LH\<11..8\>]. The extracted nibbles are concatenated
+                                                                 NPC_PARSE_KEX_S[CHAN]\<3:0\>, bit 1 for NPC_PARSE_KEX_S[CHAN]\<7:4\>, ..., bit
+                                                                 30 for NPC_PARSE_KEX_S[LH]\<11..8\>. The extracted nibbles are concatenated
                                                                  and and written to NPC_MCAM_KEY_X*_S, with the first extracted nibble
-                                                                 written to the least significant nibble of the key (NPC_MCAM_KEY_X*_S[KW0\<3:0\>]). */
-		u64 reserved_31           : 1;
-		u64 keyw                  : 3;  /**< [ 34: 32](R/W) MCAM search key width selection for the interface. Enumerated by NPC_MCAMKEYW_E. */
-		u64 reserved_35_63        : 29;
+                                                                 written to the least significant nibble of the key (NPC_MCAM_KEY_X*_S[KW0]\<3:0\>). */
+		u64 reserved_31:1;
+		u64 keyw:3;			/**< [ 34: 32](R/W) MCAM search key width selection for the interface. Enumerated by NPC_MCAMKEYW_E. */
+		u64 reserved_35_63:29;
 	} s;
 	/* struct cavm_npc_af_intfx_kex_cfg_s cn; */
 };
