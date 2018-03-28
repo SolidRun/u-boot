@@ -41,7 +41,6 @@
  * PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
  ***********************license end**************************************/
 
-
 /**
  * @file
  *
@@ -291,10 +290,9 @@ union cavm_npc_af_active_pc {
 	/* struct cavm_npc_af_active_pc_s cn; */
 };
 
-#define CAVM_NPC_AF_ACTIVE_PC_RVU_BAR0 CAVM_NPC_AF_ACTIVE_PC_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_ACTIVE_PC_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_ACTIVE_PC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_ACTIVE_PC_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_ACTIVE_PC(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x10;
@@ -316,10 +314,9 @@ union cavm_npc_af_blk_rst {
 	/* struct cavm_npc_af_blk_rst_s cn; */
 };
 
-#define CAVM_NPC_AF_BLK_RST_RVU_BAR0 CAVM_NPC_AF_BLK_RST_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_BLK_RST_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_BLK_RST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_BLK_RST_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_BLK_RST(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x40;
@@ -342,10 +339,9 @@ union cavm_npc_af_cfg {
 	/* struct cavm_npc_af_cfg_s cn; */
 };
 
-#define CAVM_NPC_AF_CFG_RVU_BAR0 CAVM_NPC_AF_CFG_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_CFG_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_CFG_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_CFG(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0;
@@ -374,10 +370,9 @@ union cavm_npc_af_const {
 	/* struct cavm_npc_af_const_s cn; */
 };
 
-#define CAVM_NPC_AF_CONST_RVU_BAR0 CAVM_NPC_AF_CONST_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_CONST_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_CONST_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_CONST(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x20;
@@ -401,10 +396,9 @@ union cavm_npc_af_const1 {
 	/* struct cavm_npc_af_const1_s cn; */
 };
 
-#define CAVM_NPC_AF_CONST1_RVU_BAR0 CAVM_NPC_AF_CONST1_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_CONST1_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_CONST1(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_CONST1_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_CONST1(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x30;
@@ -425,9 +419,9 @@ union cavm_npc_af_cpix_cfg {
 	/* struct cavm_npc_af_cpix_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_CPIX_CFG_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_CPIX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_CPIX_CFG_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_CPIX_CFG(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1023))
 		return 0x200000 + 8 * ((a) & 0x3ff);
@@ -452,10 +446,9 @@ union cavm_npc_af_dbg_ctl {
 	/* struct cavm_npc_af_dbg_ctl_s cn; */
 };
 
-#define CAVM_NPC_AF_DBG_CTL_RVU_BAR0 CAVM_NPC_AF_DBG_CTL_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_DBG_CTL_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_DBG_CTL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_DBG_CTL_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_DBG_CTL(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x3000000;
@@ -477,9 +470,9 @@ union cavm_npc_af_dbg_datax {
 	/* struct cavm_npc_af_dbg_datax_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_DBG_DATAX_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_DBG_DATAX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_DBG_DATAX_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_DBG_DATAX(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 31))
 		return 0x3001400 + 0x10 * ((a) & 0x1f);
@@ -502,9 +495,9 @@ union cavm_npc_af_dbg_resultx {
 	/* struct cavm_npc_af_dbg_resultx_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_DBG_RESULTX_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_DBG_RESULTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_DBG_RESULTX_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_DBG_RESULTX(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 5))
 		return 0x3001800 + 0x10 * ((a) & 0x7);
@@ -527,10 +520,9 @@ union cavm_npc_af_dbg_status {
 	/* struct cavm_npc_af_dbg_status_s cn; */
 };
 
-#define CAVM_NPC_AF_DBG_STATUS_RVU_BAR0 CAVM_NPC_AF_DBG_STATUS_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_DBG_STATUS_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_DBG_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_DBG_STATUS_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_DBG_STATUS(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x3000010;
@@ -553,10 +545,9 @@ union cavm_npc_af_dv_fc_scratch {
 	/* struct cavm_npc_af_dv_fc_scratch_s cn; */
 };
 
-#define CAVM_NPC_AF_DV_FC_SCRATCH_RVU_BAR0 CAVM_NPC_AF_DV_FC_SCRATCH_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_DV_FC_SCRATCH_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_DV_FC_SCRATCH(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_DV_FC_SCRATCH_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_DV_FC_SCRATCH(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x60;
@@ -577,10 +568,9 @@ union cavm_npc_af_eco0 {
 	/* struct cavm_npc_af_eco0_s cn; */
 };
 
-#define CAVM_NPC_AF_ECO0_RVU_BAR0 CAVM_NPC_AF_ECO0_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_ECO0_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_ECO0(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_ECO0_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_ECO0(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x200;
@@ -608,10 +598,9 @@ union cavm_npc_af_ikpu_err_ctl {
 	/* struct cavm_npc_af_ikpu_err_ctl_s cn; */
 };
 
-#define CAVM_NPC_AF_IKPU_ERR_CTL_RVU_BAR0 CAVM_NPC_AF_IKPU_ERR_CTL_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_IKPU_ERR_CTL_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_IKPU_ERR_CTL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_IKPU_ERR_CTL_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_IKPU_ERR_CTL(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x3000080;
@@ -634,9 +623,9 @@ union cavm_npc_af_intfx_kex_cfg {
 	/* struct cavm_npc_af_intfx_kex_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_INTFX_KEX_CFG_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_INTFX_KEX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_INTFX_KEX_CFG_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_INTFX_KEX_CFG(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
 		return 0x1010 + 0x100 * ((a) & 0x1);
@@ -663,9 +652,9 @@ union cavm_npc_af_intfx_ldatax_flagsx_cfg {
 	/* struct cavm_npc_af_intfx_ldatax_flagsx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_INTFX_LDATAX_FLAGSX_CFG_RVU_BAR0(u64 a, u64 b, u64 c)
+static inline u64 CAVM_NPC_AF_INTFX_LDATAX_FLAGSX_CFG(u64 a, u64 b, u64 c)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_INTFX_LDATAX_FLAGSX_CFG_RVU_BAR0(u64 a, u64 b, u64 c)
+static inline u64 CAVM_NPC_AF_INTFX_LDATAX_FLAGSX_CFG(u64 a, u64 b, u64 c)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1) && (b <= 1) && (c <= 15)))
 		return 0x980000 + 0x10000 * ((a) & 0x1) + 0x1000 * ((b) & 0x1) + 8 * ((c) & 0xf);
@@ -699,9 +688,9 @@ union cavm_npc_af_intfx_lidx_ltx_ldx_cfg {
 	/* struct cavm_npc_af_intfx_lidx_ltx_ldx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_INTFX_LIDX_LTX_LDX_CFG_RVU_BAR0(u64 a, u64 b, u64 c, u64 d)
+static inline u64 CAVM_NPC_AF_INTFX_LIDX_LTX_LDX_CFG(u64 a, u64 b, u64 c, u64 d)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_INTFX_LIDX_LTX_LDX_CFG_RVU_BAR0(u64 a, u64 b, u64 c, u64 d)
+static inline u64 CAVM_NPC_AF_INTFX_LIDX_LTX_LDX_CFG(u64 a, u64 b, u64 c, u64 d)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1) && (b <= 7) && (c <= 15) && (d <= 1)))
 		return 0x900000 + 0x10000 * ((a) & 0x1) + 0x1000 * ((b) & 0x7) + 0x20 * ((c) & 0xf) + 8 * ((d) & 0x1);
@@ -724,9 +713,9 @@ union cavm_npc_af_intfx_miss_act {
 	/* struct cavm_npc_af_intfx_miss_act_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_INTFX_MISS_ACT_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_INTFX_MISS_ACT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_INTFX_MISS_ACT_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_INTFX_MISS_ACT(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
 		return 0x1a00000 + 0x10 * ((a) & 0x1);
@@ -750,9 +739,9 @@ union cavm_npc_af_intfx_miss_stat_act {
 	/* struct cavm_npc_af_intfx_miss_stat_act_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_INTFX_MISS_STAT_ACT_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_INTFX_MISS_STAT_ACT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_INTFX_MISS_STAT_ACT_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_INTFX_MISS_STAT_ACT(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
 		return 0x1880040 + 8 * ((a) & 0x1);
@@ -776,9 +765,9 @@ union cavm_npc_af_intfx_miss_tag_act {
 	/* struct cavm_npc_af_intfx_miss_tag_act_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_INTFX_MISS_TAG_ACT_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_INTFX_MISS_TAG_ACT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_INTFX_MISS_TAG_ACT_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_INTFX_MISS_TAG_ACT(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
 		return 0x1b00008 + 0x10 * ((a) & 0x1);
@@ -800,9 +789,9 @@ union cavm_npc_af_intfx_stat {
 	/* struct cavm_npc_af_intfx_stat_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_INTFX_STAT_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_INTFX_STAT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_INTFX_STAT_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_INTFX_STAT(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
 		return 0x2000800 + 0x10 * ((a) & 0x1);
@@ -827,10 +816,9 @@ union cavm_npc_af_kcam_scrub_ctl {
 	/* struct cavm_npc_af_kcam_scrub_ctl_s cn; */
 };
 
-#define CAVM_NPC_AF_KCAM_SCRUB_CTL_RVU_BAR0 CAVM_NPC_AF_KCAM_SCRUB_CTL_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_KCAM_SCRUB_CTL_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_KCAM_SCRUB_CTL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_KCAM_SCRUB_CTL_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_KCAM_SCRUB_CTL(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0xb0;
@@ -851,9 +839,9 @@ union cavm_npc_af_kex_ldatax_flags_cfg {
 	/* struct cavm_npc_af_kex_ldatax_flags_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_KEX_LDATAX_FLAGS_CFG_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_KEX_LDATAX_FLAGS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_KEX_LDATAX_FLAGS_CFG_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_KEX_LDATAX_FLAGS_CFG(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
 		return 0x800 + 8 * ((a) & 0x1);
@@ -874,9 +862,9 @@ union cavm_npc_af_kpux_cfg {
 	/* struct cavm_npc_af_kpux_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_KPUX_CFG_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_KPUX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_KPUX_CFG_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_KPUX_CFG(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
 		return 0x500 + 8 * ((a) & 0xf);
@@ -900,9 +888,9 @@ union cavm_npc_af_kpux_dbg {
 	/* struct cavm_npc_af_kpux_dbg_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_KPUX_DBG_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_KPUX_DBG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_KPUX_DBG_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_KPUX_DBG(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
 		return 0x3000020 + 0x100 * ((a) & 0xf);
@@ -939,9 +927,9 @@ union cavm_npc_af_kpux_entryx_action0 {
 	/* struct cavm_npc_af_kpux_entryx_action0_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION0_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION0(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION0_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION0(u64 a, u64 b)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b <= 127)))
 		return 0x100020 + 0x4000 * ((a) & 0xf) + 0x40 * ((b) & 0x7f);
@@ -967,9 +955,9 @@ union cavm_npc_af_kpux_entryx_action1 {
 	/* struct cavm_npc_af_kpux_entryx_action1_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION1_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION1(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION1_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION1(u64 a, u64 b)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b <= 127)))
 		return 0x100028 + 0x4000 * ((a) & 0xf) + 0x40 * ((b) & 0x7f);
@@ -1007,9 +995,9 @@ union cavm_npc_af_kpux_entryx_camx {
 	/* struct cavm_npc_af_kpux_entryx_camx_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_CAMX_RVU_BAR0(u64 a, u64 b, u64 c)
+static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_CAMX(u64 a, u64 b, u64 c)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_CAMX_RVU_BAR0(u64 a, u64 b, u64 c)
+static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_CAMX(u64 a, u64 b, u64 c)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b <= 127) && (c <= 1)))
 		return 0x100000 + 0x4000 * ((a) & 0xf) + 0x40 * ((b) & 0x7f) + 8 * ((c) & 0x1);
@@ -1030,9 +1018,9 @@ union cavm_npc_af_kpux_entry_disx {
 	/* struct cavm_npc_af_kpux_entry_disx_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_KPUX_ENTRY_DISX_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_KPUX_ENTRY_DISX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_KPUX_ENTRY_DISX_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_KPUX_ENTRY_DISX(u64 a, u64 b)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b <= 1)))
 		return 0x180000 + 0x40 * ((a) & 0xf) + 8 * ((b) & 0x1);
@@ -1058,9 +1046,9 @@ union cavm_npc_af_kpux_err_ctl {
 	/* struct cavm_npc_af_kpux_err_ctl_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_KPUX_ERR_CTL_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_KPUX_ERR_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_KPUX_ERR_CTL_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_KPUX_ERR_CTL(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
 		return 0x30000a0 + 0x100 * ((a) & 0xf);
@@ -1086,10 +1074,9 @@ union cavm_npc_af_lkup_ctl {
 	/* struct cavm_npc_af_lkup_ctl_s cn; */
 };
 
-#define CAVM_NPC_AF_LKUP_CTL_RVU_BAR0 CAVM_NPC_AF_LKUP_CTL_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_LKUP_CTL_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_LKUP_CTL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_LKUP_CTL_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_LKUP_CTL(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x2000000;
@@ -1109,9 +1096,9 @@ union cavm_npc_af_lkup_datax {
 	/* struct cavm_npc_af_lkup_datax_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_LKUP_DATAX_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_LKUP_DATAX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_LKUP_DATAX_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_LKUP_DATAX(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 31))
 		return 0x2000200 + 0x10 * ((a) & 0x1f);
@@ -1131,9 +1118,9 @@ union cavm_npc_af_lkup_resultx {
 	/* struct cavm_npc_af_lkup_resultx_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_LKUP_RESULTX_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_LKUP_RESULTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_LKUP_RESULTX_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_LKUP_RESULTX(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 5))
 		return 0x2000400 + 0x10 * ((a) & 0x7);
@@ -1154,9 +1141,9 @@ union cavm_npc_af_match_statx {
 	/* struct cavm_npc_af_match_statx_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_MATCH_STATX_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_MATCH_STATX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MATCH_STATX_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_MATCH_STATX(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
 		return 0x1880008 + 0x100 * ((a) & 0x1ff);
@@ -1176,9 +1163,9 @@ union cavm_npc_af_mcam_bankx_hitx {
 	/* struct cavm_npc_af_mcam_bankx_hitx_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_MCAM_BANKX_HITX_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_MCAM_BANKX_HITX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MCAM_BANKX_HITX_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_MCAM_BANKX_HITX(u64 a, u64 b)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 3) && (b <= 15)))
 		return 0x1c80000 + 0x100 * ((a) & 0x3) + 0x10 * ((b) & 0xf);
@@ -1205,10 +1192,9 @@ union cavm_npc_af_mcam_dbg {
 	/* struct cavm_npc_af_mcam_dbg_s cn; */
 };
 
-#define CAVM_NPC_AF_MCAM_DBG_RVU_BAR0 CAVM_NPC_AF_MCAM_DBG_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_MCAM_DBG_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_MCAM_DBG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MCAM_DBG_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_MCAM_DBG(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x3001000;
@@ -1233,10 +1219,9 @@ union cavm_npc_af_mcam_scrub_ctl {
 	/* struct cavm_npc_af_mcam_scrub_ctl_s cn; */
 };
 
-#define CAVM_NPC_AF_MCAM_SCRUB_CTL_RVU_BAR0 CAVM_NPC_AF_MCAM_SCRUB_CTL_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_MCAM_SCRUB_CTL_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_MCAM_SCRUB_CTL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MCAM_SCRUB_CTL_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_MCAM_SCRUB_CTL(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0xa0;
@@ -1271,9 +1256,9 @@ union cavm_npc_af_mcamex_bankx_action {
 	/* struct cavm_npc_af_mcamex_bankx_action_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_ACTION_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_ACTION(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_ACTION_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_ACTION(u64 a, u64 b)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3)))
 		return 0x1900000 + 0x100 * ((a) & 0x3ff) + 0x10 * ((b) & 0x3);
@@ -1356,9 +1341,9 @@ union cavm_npc_af_mcamex_bankx_camx_intf {
 	/* struct cavm_npc_af_mcamex_bankx_camx_intf_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_INTF_RVU_BAR0(u64 a, u64 b, u64 c)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_INTF(u64 a, u64 b, u64 c)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_INTF_RVU_BAR0(u64 a, u64 b, u64 c)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_INTF(u64 a, u64 b, u64 c)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3) && (c <= 1)))
 		return 0x1000000 + 0x400 * ((a) & 0x3ff) + 0x40 * ((b) & 0x3) + 8 * ((c) & 0x1);
@@ -1379,9 +1364,9 @@ union cavm_npc_af_mcamex_bankx_camx_w0 {
 	/* struct cavm_npc_af_mcamex_bankx_camx_w0_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W0_RVU_BAR0(u64 a, u64 b, u64 c)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W0(u64 a, u64 b, u64 c)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W0_RVU_BAR0(u64 a, u64 b, u64 c)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W0(u64 a, u64 b, u64 c)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3) && (c <= 1)))
 		return 0x1000010 + 0x400 * ((a) & 0x3ff) + 0x40 * ((b) & 0x3) + 8 * ((c) & 0x1);
@@ -1403,9 +1388,9 @@ union cavm_npc_af_mcamex_bankx_camx_w1 {
 	/* struct cavm_npc_af_mcamex_bankx_camx_w1_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W1_RVU_BAR0(u64 a, u64 b, u64 c)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W1(u64 a, u64 b, u64 c)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W1_RVU_BAR0(u64 a, u64 b, u64 c)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W1(u64 a, u64 b, u64 c)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3) && (c <= 1)))
 		return 0x1000020 + 0x400 * ((a) & 0x3ff) + 0x40 * ((b) & 0x3) + 8 * ((c) & 0x1);
@@ -1426,9 +1411,9 @@ union cavm_npc_af_mcamex_bankx_cfg {
 	/* struct cavm_npc_af_mcamex_bankx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CFG_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CFG(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CFG_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CFG(u64 a, u64 b)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3)))
 		return 0x1800000 + 0x100 * ((a) & 0x3ff) + 0x10 * ((b) & 0x3);
@@ -1452,9 +1437,9 @@ union cavm_npc_af_mcamex_bankx_stat_act {
 	/* struct cavm_npc_af_mcamex_bankx_stat_act_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_STAT_ACT_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_STAT_ACT(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_STAT_ACT_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_STAT_ACT(u64 a, u64 b)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3)))
 		return 0x1880000 + 0x100 * ((a) & 0x3ff) + 0x10 * ((b) & 0x3);
@@ -1476,9 +1461,9 @@ union cavm_npc_af_mcamex_bankx_tag_act {
 	/* struct cavm_npc_af_mcamex_bankx_tag_act_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_TAG_ACT_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_TAG_ACT(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_TAG_ACT_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_TAG_ACT(u64 a, u64 b)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3)))
 		return 0x1900008 + 0x100 * ((a) & 0x3ff) + 0x10 * ((b) & 0x3);
@@ -1509,10 +1494,9 @@ union cavm_npc_af_pck_cfg {
 	/* struct cavm_npc_af_pck_cfg_s cn; */
 };
 
-#define CAVM_NPC_AF_PCK_CFG_RVU_BAR0 CAVM_NPC_AF_PCK_CFG_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_PCK_CFG_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_PCK_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_PCK_CFG_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_PCK_CFG(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x600;
@@ -1536,10 +1520,9 @@ union cavm_npc_af_pck_def_iip4 {
 	/* struct cavm_npc_af_pck_def_iip4_s cn; */
 };
 
-#define CAVM_NPC_AF_PCK_DEF_IIP4_RVU_BAR0 CAVM_NPC_AF_PCK_DEF_IIP4_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_PCK_DEF_IIP4_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_PCK_DEF_IIP4(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_PCK_DEF_IIP4_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_PCK_DEF_IIP4(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x640;
@@ -1563,10 +1546,9 @@ union cavm_npc_af_pck_def_oip4 {
 	/* struct cavm_npc_af_pck_def_oip4_s cn; */
 };
 
-#define CAVM_NPC_AF_PCK_DEF_OIP4_RVU_BAR0 CAVM_NPC_AF_PCK_DEF_OIP4_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_PCK_DEF_OIP4_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_PCK_DEF_OIP4(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_PCK_DEF_OIP4_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_PCK_DEF_OIP4(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x620;
@@ -1591,10 +1573,9 @@ union cavm_npc_af_pck_def_oip6 {
 	/* struct cavm_npc_af_pck_def_oip6_s cn; */
 };
 
-#define CAVM_NPC_AF_PCK_DEF_OIP6_RVU_BAR0 CAVM_NPC_AF_PCK_DEF_OIP6_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_PCK_DEF_OIP6_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_PCK_DEF_OIP6(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_PCK_DEF_OIP6_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_PCK_DEF_OIP6(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x630;
@@ -1618,10 +1599,9 @@ union cavm_npc_af_pck_def_ol2 {
 	/* struct cavm_npc_af_pck_def_ol2_s cn; */
 };
 
-#define CAVM_NPC_AF_PCK_DEF_OL2_RVU_BAR0 CAVM_NPC_AF_PCK_DEF_OL2_RVU_BAR0_FUNC()
-static inline u64 CAVM_NPC_AF_PCK_DEF_OL2_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_PCK_DEF_OL2(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_PCK_DEF_OL2_RVU_BAR0_FUNC(void)
+static inline u64 CAVM_NPC_AF_PCK_DEF_OL2(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x610;
@@ -1656,9 +1636,9 @@ union cavm_npc_af_pkindx_action0 {
 	/* struct cavm_npc_af_pkindx_action0_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_PKINDX_ACTION0_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_PKINDX_ACTION0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_PKINDX_ACTION0_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_PKINDX_ACTION0(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
 		return 0x80000 + 0x40 * ((a) & 0x3f);
@@ -1685,9 +1665,9 @@ union cavm_npc_af_pkindx_action1 {
 	/* struct cavm_npc_af_pkindx_action1_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_PKINDX_ACTION1_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_PKINDX_ACTION1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_PKINDX_ACTION1_RVU_BAR0(u64 a)
+static inline u64 CAVM_NPC_AF_PKINDX_ACTION1(u64 a)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
 		return 0x80008 + 0x40 * ((a) & 0x3f);
@@ -1749,9 +1729,9 @@ union cavm_npc_af_pkindx_cpi_defx {
 	/* struct cavm_npc_af_pkindx_cpi_defx_s cn; */
 };
 
-static inline u64 CAVM_NPC_AF_PKINDX_CPI_DEFX_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_PKINDX_CPI_DEFX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPC_AF_PKINDX_CPI_DEFX_RVU_BAR0(u64 a, u64 b)
+static inline u64 CAVM_NPC_AF_PKINDX_CPI_DEFX(u64 a, u64 b)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 63) && (b <= 1)))
 		return 0x80020 + 0x40 * ((a) & 0x3f) + 8 * ((b) & 0x1);

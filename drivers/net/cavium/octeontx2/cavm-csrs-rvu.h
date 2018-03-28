@@ -353,9 +353,9 @@ union cavm_rvu_af_bar2_sel {
 	/* struct cavm_rvu_af_bar2_sel_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_BAR2_SEL
+static inline u64 CAVM_RVU_AF_BAR2_SEL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_BAR2_SEL
+static inline u64 CAVM_RVU_AF_BAR2_SEL(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x9000000;
@@ -377,9 +377,9 @@ union cavm_rvu_af_blk_rst {
 	/* struct cavm_rvu_af_blk_rst_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_BLK_RST
+static inline u64 CAVM_RVU_AF_BLK_RST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_BLK_RST
+static inline u64 CAVM_RVU_AF_BLK_RST(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x30;
@@ -400,9 +400,9 @@ union cavm_rvu_af_eco {
 	/* struct cavm_rvu_af_eco_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_ECO
+static inline u64 CAVM_RVU_AF_ECO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_ECO
+static inline u64 CAVM_RVU_AF_ECO(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x20;
@@ -425,9 +425,9 @@ union cavm_rvu_af_gen_int {
 	/* struct cavm_rvu_af_gen_int_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_GEN_INT
+static inline u64 CAVM_RVU_AF_GEN_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_GEN_INT
+static inline u64 CAVM_RVU_AF_GEN_INT(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x120;
@@ -450,9 +450,9 @@ union cavm_rvu_af_gen_int_ena_w1c {
 	/* struct cavm_rvu_af_gen_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1C
+static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1C
+static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1C(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x138;
@@ -475,9 +475,9 @@ union cavm_rvu_af_gen_int_ena_w1s {
 	/* struct cavm_rvu_af_gen_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1S
+static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1S
+static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x130;
@@ -500,9 +500,9 @@ union cavm_rvu_af_gen_int_w1s {
 	/* struct cavm_rvu_af_gen_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_GEN_INT_W1S
+static inline u64 CAVM_RVU_AF_GEN_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_GEN_INT_W1S
+static inline u64 CAVM_RVU_AF_GEN_INT_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x128;
@@ -525,9 +525,9 @@ union cavm_rvu_af_hwvf_rst {
 	/* struct cavm_rvu_af_hwvf_rst_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_HWVF_RST
+static inline u64 CAVM_RVU_AF_HWVF_RST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_HWVF_RST
+static inline u64 CAVM_RVU_AF_HWVF_RST(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x2850;
@@ -549,9 +549,9 @@ union cavm_rvu_af_msixtr_base {
 	/* struct cavm_rvu_af_msixtr_base_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_MSIXTR_BASE
+static inline u64 CAVM_RVU_AF_MSIXTR_BASE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_MSIXTR_BASE
+static inline u64 CAVM_RVU_AF_MSIXTR_BASE(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x10;
@@ -572,9 +572,9 @@ union cavm_rvu_af_pf_bar4_addr {
 	/* struct cavm_rvu_af_pf_bar4_addr_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PF_BAR4_ADDR
+static inline u64 CAVM_RVU_AF_PF_BAR4_ADDR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PF_BAR4_ADDR
+static inline u64 CAVM_RVU_AF_PF_BAR4_ADDR(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x40;
@@ -597,9 +597,9 @@ union cavm_rvu_af_pf_rst {
 	/* struct cavm_rvu_af_pf_rst_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PF_RST
+static inline u64 CAVM_RVU_AF_PF_RST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PF_RST
+static inline u64 CAVM_RVU_AF_PF_RST(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x2840;
@@ -620,9 +620,9 @@ union cavm_rvu_af_pfaf_mbox_int {
 	/* struct cavm_rvu_af_pfaf_mbox_int_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT
+static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT
+static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x2880;
@@ -644,9 +644,9 @@ union cavm_rvu_af_pfaf_mbox_int_ena_w1c {
 	/* struct cavm_rvu_af_pfaf_mbox_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1C
+static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1C
+static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1C(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x2898;
@@ -668,9 +668,9 @@ union cavm_rvu_af_pfaf_mbox_int_ena_w1s {
 	/* struct cavm_rvu_af_pfaf_mbox_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1S
+static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1S
+static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x2890;
@@ -692,9 +692,9 @@ union cavm_rvu_af_pfaf_mbox_int_w1s {
 	/* struct cavm_rvu_af_pfaf_mbox_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_W1S
+static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_W1S
+static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x2888;
@@ -715,9 +715,9 @@ union cavm_rvu_af_pfflr_int {
 	/* struct cavm_rvu_af_pfflr_int_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFFLR_INT
+static inline u64 CAVM_RVU_AF_PFFLR_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFFLR_INT
+static inline u64 CAVM_RVU_AF_PFFLR_INT(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x28a0;
@@ -739,9 +739,9 @@ union cavm_rvu_af_pfflr_int_ena_w1c {
 	/* struct cavm_rvu_af_pfflr_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1C
+static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1C
+static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1C(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x28b8;
@@ -763,9 +763,9 @@ union cavm_rvu_af_pfflr_int_ena_w1s {
 	/* struct cavm_rvu_af_pfflr_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1S
+static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1S
+static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x28b0;
@@ -787,9 +787,9 @@ union cavm_rvu_af_pfflr_int_w1s {
 	/* struct cavm_rvu_af_pfflr_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFFLR_INT_W1S
+static inline u64 CAVM_RVU_AF_PFFLR_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFFLR_INT_W1S
+static inline u64 CAVM_RVU_AF_PFFLR_INT_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x28a8;
@@ -810,9 +810,9 @@ union cavm_rvu_af_pfme_int {
 	/* struct cavm_rvu_af_pfme_int_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFME_INT
+static inline u64 CAVM_RVU_AF_PFME_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFME_INT
+static inline u64 CAVM_RVU_AF_PFME_INT(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x28c0;
@@ -834,9 +834,9 @@ union cavm_rvu_af_pfme_int_ena_w1c {
 	/* struct cavm_rvu_af_pfme_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1C
+static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1C
+static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1C(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x28d8;
@@ -858,9 +858,9 @@ union cavm_rvu_af_pfme_int_ena_w1s {
 	/* struct cavm_rvu_af_pfme_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1S
+static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1S
+static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x28d0;
@@ -882,9 +882,9 @@ union cavm_rvu_af_pfme_int_w1s {
 	/* struct cavm_rvu_af_pfme_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFME_INT_W1S
+static inline u64 CAVM_RVU_AF_PFME_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFME_INT_W1S
+static inline u64 CAVM_RVU_AF_PFME_INT_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x28c8;
@@ -905,9 +905,9 @@ union cavm_rvu_af_pfme_status {
 	/* struct cavm_rvu_af_pfme_status_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFME_STATUS
+static inline u64 CAVM_RVU_AF_PFME_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFME_STATUS
+static inline u64 CAVM_RVU_AF_PFME_STATUS(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x2800;
@@ -928,9 +928,9 @@ union cavm_rvu_af_pftrpend {
 	/* struct cavm_rvu_af_pftrpend_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFTRPEND
+static inline u64 CAVM_RVU_AF_PFTRPEND(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFTRPEND
+static inline u64 CAVM_RVU_AF_PFTRPEND(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x2810;
@@ -952,9 +952,9 @@ union cavm_rvu_af_pftrpend_w1s {
 	/* struct cavm_rvu_af_pftrpend_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_PFTRPEND_W1S
+static inline u64 CAVM_RVU_AF_PFTRPEND_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_PFTRPEND_W1S
+static inline u64 CAVM_RVU_AF_PFTRPEND_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x2820;
@@ -977,9 +977,9 @@ union cavm_rvu_af_ras {
 	/* struct cavm_rvu_af_ras_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_RAS
+static inline u64 CAVM_RVU_AF_RAS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_RAS
+static inline u64 CAVM_RVU_AF_RAS(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x100;
@@ -1001,9 +1001,9 @@ union cavm_rvu_af_ras_ena_w1c {
 	/* struct cavm_rvu_af_ras_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_RAS_ENA_W1C
+static inline u64 CAVM_RVU_AF_RAS_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_RAS_ENA_W1C
+static inline u64 CAVM_RVU_AF_RAS_ENA_W1C(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x118;
@@ -1025,9 +1025,9 @@ union cavm_rvu_af_ras_ena_w1s {
 	/* struct cavm_rvu_af_ras_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_RAS_ENA_W1S
+static inline u64 CAVM_RVU_AF_RAS_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_RAS_ENA_W1S
+static inline u64 CAVM_RVU_AF_RAS_ENA_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x110;
@@ -1049,9 +1049,9 @@ union cavm_rvu_af_ras_w1s {
 	/* struct cavm_rvu_af_ras_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_AF_RAS_W1S
+static inline u64 CAVM_RVU_AF_RAS_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_AF_RAS_W1S
+static inline u64 CAVM_RVU_AF_RAS_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x108;
@@ -1102,9 +1102,9 @@ union cavm_rvu_pf_int {
 	/* struct cavm_rvu_pf_int_s cn; */
 };
 
-static inline u64 CAVM_RVU_PF_INT
+static inline u64 CAVM_RVU_PF_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_PF_INT
+static inline u64 CAVM_RVU_PF_INT(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0xc20;
@@ -1126,9 +1126,9 @@ union cavm_rvu_pf_int_ena_w1c {
 	/* struct cavm_rvu_pf_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_RVU_PF_INT_ENA_W1C
+static inline u64 CAVM_RVU_PF_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_PF_INT_ENA_W1C
+static inline u64 CAVM_RVU_PF_INT_ENA_W1C(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0xc38;
@@ -1150,9 +1150,9 @@ union cavm_rvu_pf_int_ena_w1s {
 	/* struct cavm_rvu_pf_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_PF_INT_ENA_W1S
+static inline u64 CAVM_RVU_PF_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_PF_INT_ENA_W1S
+static inline u64 CAVM_RVU_PF_INT_ENA_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0xc30;
@@ -1174,9 +1174,9 @@ union cavm_rvu_pf_int_w1s {
 	/* struct cavm_rvu_pf_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_PF_INT_W1S
+static inline u64 CAVM_RVU_PF_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_PF_INT_W1S
+static inline u64 CAVM_RVU_PF_INT_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0xc28;
@@ -1322,9 +1322,9 @@ union cavm_rvu_pf_vf_bar4_addr {
 	/* struct cavm_rvu_pf_vf_bar4_addr_s cn; */
 };
 
-static inline u64 CAVM_RVU_PF_VF_BAR4_ADDR
+static inline u64 CAVM_RVU_PF_VF_BAR4_ADDR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_PF_VF_BAR4_ADDR
+static inline u64 CAVM_RVU_PF_VF_BAR4_ADDR(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x10;
@@ -1684,9 +1684,9 @@ union cavm_rvu_priv_active_pc {
 	/* struct cavm_rvu_priv_active_pc_s cn; */
 };
 
-static inline u64 CAVM_RVU_PRIV_ACTIVE_PC
+static inline u64 CAVM_RVU_PRIV_ACTIVE_PC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_PRIV_ACTIVE_PC
+static inline u64 CAVM_RVU_PRIV_ACTIVE_PC(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x8000030;
@@ -1734,9 +1734,9 @@ union cavm_rvu_priv_clk_cfg {
 	/* struct cavm_rvu_priv_clk_cfg_s cn; */
 };
 
-static inline u64 CAVM_RVU_PRIV_CLK_CFG
+static inline u64 CAVM_RVU_PRIV_CLK_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_PRIV_CLK_CFG
+static inline u64 CAVM_RVU_PRIV_CLK_CFG(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x8000020;
@@ -1761,9 +1761,9 @@ union cavm_rvu_priv_const {
 	/* struct cavm_rvu_priv_const_s cn; */
 };
 
-static inline u64 CAVM_RVU_PRIV_CONST
+static inline u64 CAVM_RVU_PRIV_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_PRIV_CONST
+static inline u64 CAVM_RVU_PRIV_CONST(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x8000000;
@@ -1784,9 +1784,9 @@ union cavm_rvu_priv_gen_cfg {
 	/* struct cavm_rvu_priv_gen_cfg_s cn; */
 };
 
-static inline u64 CAVM_RVU_PRIV_GEN_CFG
+static inline u64 CAVM_RVU_PRIV_GEN_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_PRIV_GEN_CFG
+static inline u64 CAVM_RVU_PRIV_GEN_CFG(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x8000010;
@@ -2279,9 +2279,9 @@ union cavm_rvu_vf_int {
 	/* struct cavm_rvu_vf_int_s cn; */
 };
 
-static inline u64 CAVM_RVU_VF_INT
+static inline u64 CAVM_RVU_VF_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_VF_INT
+static inline u64 CAVM_RVU_VF_INT(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x20;
@@ -2303,9 +2303,9 @@ union cavm_rvu_vf_int_ena_w1c {
 	/* struct cavm_rvu_vf_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_RVU_VF_INT_ENA_W1C
+static inline u64 CAVM_RVU_VF_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_VF_INT_ENA_W1C
+static inline u64 CAVM_RVU_VF_INT_ENA_W1C(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x38;
@@ -2327,9 +2327,9 @@ union cavm_rvu_vf_int_ena_w1s {
 	/* struct cavm_rvu_vf_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_VF_INT_ENA_W1S
+static inline u64 CAVM_RVU_VF_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_VF_INT_ENA_W1S
+static inline u64 CAVM_RVU_VF_INT_ENA_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x30;
@@ -2351,9 +2351,9 @@ union cavm_rvu_vf_int_w1s {
 	/* struct cavm_rvu_vf_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_RVU_VF_INT_W1S
+static inline u64 CAVM_RVU_VF_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_RVU_VF_INT_W1S
+static inline u64 CAVM_RVU_VF_INT_W1S(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x28;

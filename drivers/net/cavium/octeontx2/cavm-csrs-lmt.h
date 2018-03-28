@@ -64,9 +64,9 @@ union cavm_lmt_lf_lmtcancel {
 	/* struct cavm_lmt_lf_lmtcancel_s cn; */
 };
 
-static inline u64 CAVM_LMT_LF_LMTCANCEL
+static inline u64 CAVM_LMT_LF_LMTCANCEL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_LMT_LF_LMTCANCEL
+static inline u64 CAVM_LMT_LF_LMTCANCEL(void)
 {
 	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
 		return 0x400;
