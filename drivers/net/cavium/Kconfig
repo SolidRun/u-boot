@@ -34,3 +34,4 @@ config OCTEONTX_SMI
 
 endif
 
+source drivers/net/cavium/octeontx2/Kconfig
