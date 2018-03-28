@@ -157,7 +157,6 @@ int cgx_intf_get_ver(u8 cgx, u8 lmac, u8 *ver)
 
 	scr0.u >>= 9;
 	*ver = scr0.u & 0xFFFF;
-	return 0;
 }
 
 int cgx_intf_get_link_sts(u8 cgx, u8 lmac, u8 *lnk_sts)
@@ -204,7 +203,10 @@ void cgx_intf_shutdown(void)
 {
 	union cgx_scratchx0 scr0;
 
-	cgx_intf_req(0, 0, CGX_CMD_INTF_SHUTDOWN, &scr0.u);
+	int ret;
+
+	ret = cgx_intf_req(0, 0,
+				CGX_CMD_INTF_SHUTDOWN, &scr0.u);
 }
 
 

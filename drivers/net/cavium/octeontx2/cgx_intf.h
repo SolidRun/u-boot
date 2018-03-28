@@ -43,8 +43,11 @@ struct cgx {
 	struct cgx_priv cgx;
 };
 
+<<<<<<< HEAD
 void cgx_intf_shutdown(void);
 
+=======
+>>>>>>> drivers: net: octeontx2: add initial code for rvu af/pf, cgx
 /* CGX error types. set for cmd response status as CGX_STAT_FAIL */
 enum cgx_error_type {
 	CGX_ERR_NONE,
