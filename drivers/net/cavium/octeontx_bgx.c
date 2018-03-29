@@ -1169,6 +1169,9 @@ static void bgx_init_hw(struct bgx *bgx)
 		}
 	}
 
+	/* Done probing all 4 lmacs, now clear qsgmii_configured */
+	qsgmii_configured = 0;
+
 	printf("BGX%d LMACs: %d\n", bgx->bgx_id, count);
 	bgx->lmac_count = count;
 	bgx_reg_write(bgx, 0, BGX_CMR_RX_LMACS, count);
