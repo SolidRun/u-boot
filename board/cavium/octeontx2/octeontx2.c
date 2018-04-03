@@ -19,6 +19,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 extern unsigned long fdt_base_addr;
+extern void cgx_intf_shutdown(void);
+
+void board_quiesce_devices(void)
+{
+	cgx_intf_shutdown();
+}
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
 extern void eth_common_init(void);

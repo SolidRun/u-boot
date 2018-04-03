@@ -42,23 +42,15 @@ int cgx_probe(struct udevice *dev)
 
 int cgx_remove(struct udevice *dev)
 {
-	cgx_intf_shutdown();
 	return 0;
 }
-
-static const struct udevice_id cgx_ids[] = {
-        { .compatible = "cavium,cgx" },
-        {}
-};
 
 U_BOOT_DRIVER(cgx) = {
         .name   = "cgx",
         .id     = UCLASS_MISC,
         .probe  = cgx_probe,
 	.remove	= cgx_remove,
-        .of_match = cgx_ids,
         .priv_auto_alloc_size = sizeof(struct cgx),
-	.flags  = DM_FLAG_OS_PREPARE,
 };
 
 static struct pci_device_id cgx_supported[] = {
