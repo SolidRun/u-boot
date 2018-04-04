@@ -7,7 +7,6 @@
 #include <asm/io.h>
 
 #include "comphy_core.h"
-#include "comphy_hpipe.h"
 
 /*
  * comphy_mux_check_config()
