@@ -296,6 +296,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 {
 	struct udevice *bus, *dev;
 	struct dm_spi_slave_platdata *plat;
+	struct dm_spi_bus *spi;
 	bool created = false;
 	int ret;
 
@@ -309,6 +310,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		return ret;
 	}
 	ret = spi_find_chip_select(bus, cs, &dev);
+	spi = dev_get_uclass_priv(bus);
 
 	/*
 	 * If there is no such device, create one automatically. This means
@@ -358,6 +360,9 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		speed = plat->max_hz;
 		mode = plat->mode;
 	}
+	if (spi->max_hz)
+		speed = min(speed, (int)spi->max_hz);
+
 	ret = spi_set_speed_mode(bus, speed, mode);
 	if (ret)
 		goto err;
