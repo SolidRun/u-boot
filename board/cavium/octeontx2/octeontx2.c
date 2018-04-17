@@ -74,9 +74,9 @@ int dram_init(void)
  */
 void reset_cpu(ulong addr)
 {
-	u64 val = readq(CAVM_RST_SOFT_RST) | 1;
+	u64 val = readq(CAVM_RST_CHIP_DOM_W1S) | 1;
 
-	writeq(val, CAVM_RST_SOFT_RST);
+	writeq(val, CAVM_RST_CHIP_DOM_W1S);
 }
 
 /**
