@@ -10,13 +10,6 @@
 #ifndef __OCTEONTX2_CGX_INTF_H__
 #define __OCTEONTX2_CGX_INTF_H__
 
-#define PCI_DEVICE_ID_OCTEONTX2_CGX	0xA059
-
-#define CGX_FIRWARE_MAJOR_VER		1
-#define CGX_FIRWARE_MINOR_VER		0
-#define LMAC_PER_CGX 4
-#define CGX_PER_NODE 3 
-
 /* Register offsets */
 #define CGX_CMR_SCRATCH0	0x87e0e0001050
 #define CGX_CMR_SCRATCH1	0x87e0e0001058
@@ -24,24 +17,8 @@
 #define CGX_SHIFT(x)		(0x1000000 * (x & 0x3))
 #define CMR_SHIFT(x)		(0x40000 * (x & 0x3))
 
-struct lmac_priv {
-	u8 enable:1;
-	u8 full_duplex:1;
-	u8 speed:4;
-	u8 mode:1;
-	u8 rsvd:1;
-	u8 mac_addr[6];
-};
-
-struct cgx_priv {
-	u8 enable;
-	struct lmac_priv lmac[LMAC_PER_CGX];
-};
-
-struct cgx {
-	void *__iomem base;
-	struct cgx_priv cgx;
-};
+#define CGX_FIRWARE_MAJOR_VER		1
+#define CGX_FIRWARE_MINOR_VER		0
 
 <<<<<<< HEAD
 void cgx_intf_shutdown(void);

@@ -76,8 +76,10 @@ int wait_for_ownership(u8 cgx, u8 lmac)
 	
 	while (scr1.s.own_status == CGX_OWN_FIRMWARE &&
 		scr0.s.evt_sts.ack) {
-		if (timeout-- < 0)
+		if (timeout-- < 0) {
+			debug("timeout waiting for ownership\n");
 			return -ETIMEDOUT;
+		}
 		mdelay(1);
 		scr1.u = cgx_rd_scr1(cgx, lmac);
 		scr0.u = cgx_rd_scr0(cgx, lmac);
@@ -107,9 +109,11 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, uint64_t *rsp)
 	do {
 		scr0.u = cgx_rd_scr0(cgx, lmac);
 		mdelay(10);
-	} while (timeout-- && (scr0.s.evt_sts.ack != CGX_EVT_CMD_RESP));
-	if (timeout < 0)
-		return -1;	
+	} while (timeout-- && ( !scr0.s.evt_sts.ack));
+	if (timeout < 0) {
+		debug("%s timeout waiting for ack\n",__func__);
+		return -1;
+	}
 	/* wait for release */
 	do {
 		scr1.u = cgx_rd_scr1(cgx, lmac);

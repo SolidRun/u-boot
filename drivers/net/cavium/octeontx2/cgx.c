@@ -18,7 +18,7 @@
 #include <asm/io.h>
 #include <errno.h>
 
-#include "cgx_intf.h"
+#include "cgx.h"
 
 
 void enumerate_lmacs(void)
@@ -45,17 +45,11 @@ int cgx_remove(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id cgx_ids[] = {
-        { .compatible = "cavium,cgx" },
-        {}
-};
-
 U_BOOT_DRIVER(cgx) = {
         .name   = "cgx",
         .id     = UCLASS_MISC,
         .probe  = cgx_probe,
 	.remove	= cgx_remove,
-        .of_match = cgx_ids,
         .priv_auto_alloc_size = sizeof(struct cgx),
 };
 
