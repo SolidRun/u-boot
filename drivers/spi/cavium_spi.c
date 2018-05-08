@@ -27,14 +27,25 @@
 #define MPI_STS				0x1008
 #define MPI_TX				0x1010
 #define MPI_WIDE_DAT			0x1040
+#define MPI_IO_CTL			0x1048
 #define MPI_DAT(X)			(0x1080 + ((X) << 3))
+#define MPI_WIDE_BUF(X)			(0x1800 + ((X) << 3))
+#define MPI_CYA_CFG			0x2000
+#define MPI_CLKEN			0x2080
 
 union mpi_cfg {
 	uint64_t u;
 	struct mpi_cfg_s {
 #if __BYTE_ORDER == __BIG_ENDIAN /* Word 0 - Big Endian */
-		uint64_t		:35;
-
+		uint64_t		:14;
+		uint64_t tb100_en	:1;
+		uint64_t		:1;
+		uint64_t cs_espi_en	:4;
+		uint64_t		:8;
+		uint64_t iomode		:2;
+		uint64_t		:2;
+		uint64_t legacy_dis	:1;
+		uint64_t		:2;
 		uint64_t clkdiv		:13;	/** clock divisor */
 		uint64_t csena3		:1;	/** cs enable 3. */
 		uint64_t csena2		:1;	/** cs enable 2 */
@@ -108,7 +119,15 @@ union mpi_cfg {
 		uint64_t csena2		:1;
 		uint64_t csena3		:1;
 		uint64_t clkdiv		:13;
-		uint64_t 		:35;	/** Reserved */
+		uint64_t		:2;
+		uint64_t legacy_dis	:1;
+		uint64_t		:2;
+		uint64_t iomode		:2;
+		uint64_t		:8;
+		uint64_t cs_espi_en	:4;
+		uint64_t		:1;
+		uint64_t tb100_en	:1;
+		uint64_t		:14;
 #endif /* Word 0 - End */
 	} s;
 	/* struct mpi_cfg_s cn; */
@@ -143,7 +162,11 @@ union mpi_sts {
 	uint64_t u;
 	struct mpi_sts_s {
 #if __BYTE_ORDER == __BIG_ENDIAN /* Word 0 - Big Endian */
-		uint64_t reserved_13_63	:51;
+		uint64_t reserved_40_63	:24;
+		uint64_t crc		:8;
+		uint64_t		:5;
+		uint64_t crc_err	:1;
+		uint64_t		:6;
 		uint64_t rxnum		:5;	/** Number of bytes */
 		uint64_t reserved_2_7	:6;
 		uint64_t mpi_intr	:1;	/** Transaction done int */
@@ -153,7 +176,11 @@ union mpi_sts {
 		uint64_t mpi_intr	:1;
 		uint64_t reserved_2_7	:6;
 		uint64_t rxnum		:5;
-		uint64_t reserved_13_63	:51;
+		uint64_t		:6;
+		uint64_t crc_err	:1;
+		uint64_t		:5;
+		uint64_t crc		:8;
+		uint64_t reserved_40_63	:24;
 #endif /* Word 0 - End */
 	} s;
 	/* struct mpi_sts_s cn; */

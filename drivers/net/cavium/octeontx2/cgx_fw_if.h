@@ -1,30 +1,20 @@
 /*
- * Copyright (C) 2018 Cavium, Inc.
+ * Copyright (C) 2017 Cavium, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License
+ * as published by the Free Software Foundation.
  */
 
-#ifndef __OCTEONTX2_CGX_INTF_H__
-#define __OCTEONTX2_CGX_INTF_H__
+#ifndef __CGX_FW_INTF_H__
+#define __CGX_FW_INTF_H__
 
-#define PCI_DEVICE_ID_OCTEONTX2_CGX	0xA059
+#define CGX_FIRMWARE_MAJOR_VER		1
+#define CGX_FIRMWARE_MINOR_VER		0
 
-#define CGX_FIRWARE_MAJOR_VER		1
-#define CGX_FIRWARE_MINOR_VER		0
-#define MAX_LMAC_PER_CGX		4
-#define CGX_PER_NODE 			3
+#define CGX_EVENT_ACK                   1UL
 
-/* Register offsets */
-#define CGX_CMR_SCRATCH0	0x87e0e0001050
-#define CGX_CMR_SCRATCH1	0x87e0e0001058
-
-#define CGX_SHIFT(x)		(0x1000000 * (x & 0x3))
-#define CMR_SHIFT(x)		(0x40000 * (x & 0x3))
-
-/* CGX error types. set for cmd response status as CGX_STAT_FAIL */
+/** CGX error types. set for cmd response status as CGX_STAT_FAIL */
 enum cgx_error_type {
 	CGX_ERR_NONE,
 	CGX_ERR_LMAC_NOT_ENABLED,
@@ -73,9 +63,11 @@ enum cgx_cmd_id {
 	CGX_CMD_INTERNAL_LBK,
 	CGX_CMD_EXTERNAL_LBK,
 	CGX_CMD_HIGIG,
-	CGX_CMD_LINK_STAT_CHANGE,
+	CGX_CMD_LINK_STATE_CHANGE,
 	CGX_CMD_MODE_CHANGE,		/* hot plug support */
-	CGX_CMD_INTF_SHUTDOWN
+	CGX_CMD_INTF_SHUTDOWN,
+	CGX_CMD_IRQ_ENABLE,
+	CGX_CMD_IRQ_DISABLE,
 };
 
 /* async event ids */
@@ -95,13 +87,11 @@ enum cgx_stat {
 	CGX_STAT_FAIL
 };
 
-enum cgx_csr_own {
-	/* ownership is free, no SW component is writing to CSRs */
-	CGX_OWN_NONE,
+enum cgx_cmd_own {
 	/* set by kernel/uefi/u-boot after posting a new request to ATF */
-	CGX_OWN_FIRMWARE,
-	/* set by kernel/uefi/u-boot when preparing for the request */
-	CGX_OWN_NON_SECURE_FW,
+	/* set by firmware */
+	CGX_CMD_OWN_NS,
+	CGX_CMD_OWN_FIRMWARE,
 };
 
 /* scratchx(0) CSR used for ATF->non-secure SW communication.
@@ -112,7 +102,7 @@ enum cgx_csr_own {
 /* CAUTION : below structures are placed in order based on the bit positions
  * For any updates/new bitfields, corresponding structures needs to be updated
  */
-struct cgx_evt_sts_s {			/* start from bit 0 */
+struct cgx_evt_sts {			/* start from bit 0 */
 	uint64_t ack:1;
 	uint64_t evt_type:1;		/* cgx_evt_type */
 	uint64_t stat:1;		/* cgx_stat */
@@ -125,9 +115,10 @@ struct cgx_evt_sts_s {			/* start from bit 0 */
  */
 
 /* Resp to command IDs with command status as CGX_STAT_FAIL
+ *
  * Not applicable for commands :
- *	CGX_CMD_LINK_BRING_UP/DOWN/CGX_EVT_LINK_CHANGE
- *	check struct cgx_lnk_sts_s comments
+ * CGX_CMD_LINK_BRING_UP/DOWN/CGX_EVT_LINK_CHANGE
+ * check struct cgx_lnk_sts comments
  */
 struct cgx_err_sts_s {			/* start from bit 9 */
 	uint64_t reserved1:9;
@@ -143,29 +134,22 @@ struct cgx_ver_s {			/* start from bit 9 */
 	uint64_t reserved2:47;
 };
 
-/* Resp to cmd ID as CGX_CMD_GET_MAC_ADDR with cmd status as CGX_STAT_SUCCESS
- * Returns each byte of MAC address in a seperate bit field
- */
+/* Resp to cmd ID as CGX_CMD_GET_MAC_ADDR with cmd status as CGX_STAT_SUCCESS */
 struct cgx_mac_addr_s {			/* start from bit 9 */
 	uint64_t reserved1:9;
-	uint64_t addr_0:8;
-	uint64_t addr_1:8;
-	uint64_t addr_2:8;
-	uint64_t addr_3:8;
-	uint64_t addr_4:8;
-	uint64_t addr_5:8;
+	uint64_t local_mac_addr:48;
 	uint64_t reserved2:7;
 };
 
 /* Resp to cmd ID - CGX_CMD_LINK_BRING_UP/DOWN, event ID CGX_EVT_LINK_CHANGE
  * status can be either CGX_STAT_FAIL or CGX_STAT_SUCCESS
- * In case of CGX_STAT_FAIL, it indicates CGX configuration failed when
- * processing link up/down/change command. Both err_type and current link status
- * will be updated
+ * In case of CGX_STAT_FAIL, it indicates CGX configuration failed
+ * when processing link up/down/change command.
+ * Both err_type and current link status will be updated
  * In case of CGX_STAT_SUCCESS, err_type will be CGX_ERR_NONE and current
  * link status will be updated
  */
-struct cgx_lnk_sts_s {
+struct cgx_lnk_sts {
 	uint64_t reserved1:9;
 	uint64_t link_up:1;
 	uint64_t full_duplex:1;
@@ -174,35 +158,26 @@ struct cgx_lnk_sts_s {
 	uint64_t reserved2:39;
 };
 
-union cgx_rsp_sts {
-	/* Fixed, applicable for all commands/events */
-	struct cgx_evt_sts_s evt_sts;
-	/* response to CGX_CMD_LINK_BRINGUP/DOWN/LINK_CHANGE */
-	struct cgx_lnk_sts_s link_sts;
-	/* response to CGX_CMD_GET_FW_VER */
-	struct cgx_ver_s ver;
-	/* response to CGX_CMD_GET_MAC_ADDR */
-	struct cgx_mac_addr_s mac_s;
-	/* response if evt_status = CMD_FAIL */
-	struct cgx_err_sts_s err;
-};
-
-union cgx_scratchx0 {
-	uint64_t u;
-	union cgx_rsp_sts s;
+union cgx_evtreg {
+	u64 val;
+	struct cgx_evt_sts evt_sts; /* common for all commands/events */
+	struct cgx_lnk_sts link_sts; /* response to LINK_BRINGUP/DOWN/CHANGE */
+	struct cgx_ver_s ver;		/* response to CGX_CMD_GET_FW_VER */
+	struct cgx_mac_addr_s mac_addr;	/* response to CGX_CMD_GET_MAC_ADDR */
+	struct cgx_err_sts_s err;	/* response if evt_status = CMD_FAIL */
 };
 
 /* scratchx(1) CSR used for non-secure SW->ATF communication
  * This CSR acts as a command register
  */
 struct cgx_cmd {			/* start from bit 2 */
-	uint64_t reserved1:2;
+	uint64_t own:2;			/* cgx_csr_own */
 	uint64_t id:6;			/* cgx_request_id */
 	uint64_t reserved2:56;
 };
 
 /* all the below structures are in the same memory location of SCRATCHX(1)
- * corresponding arguements for command Id needs to be updated
+ * corresponding arguments for command Id needs to be updated
  */
 
 /* Any command using enable/disable as an argument need
@@ -231,18 +206,20 @@ struct cgx_link_change_args {		/* start from bit 8 */
 	uint64_t reserved2:50;
 };
 
-union cgx_cmd_s {
-	uint64_t own_status:2;			/* cgx_csr_own */
+struct cgx_irq_cfg {
+	uint64_t reserved1:8;
+	uint64_t irq_phys:32;
+	uint64_t reserved2:24;
+};
+
+union cgx_cmdreg {
+	u64 val;
 	struct cgx_cmd cmd;
 	struct cgx_ctl_args cmd_args;
 	struct cgx_mtu_args mtu_size;
-	struct cgx_link_change_args lnk_args;	/* Input to CGX_CMD_LINK_CHANGE */
+	struct cgx_irq_cfg irq_cfg; /* Input to CGX_CMD_IRQ_ENABLE */
+	struct cgx_link_change_args lnk_args;/* Input to CGX_CMD_LINK_CHANGE */
 	/* any other arg for command id * like : mtu, dmac filtering control */
 };
 
-union cgx_scratchx1 {
-	uint64_t u;
-	union cgx_cmd_s s;
-};
-
-#endif
+#endif /* __CGX_FW_INTF_H__ */

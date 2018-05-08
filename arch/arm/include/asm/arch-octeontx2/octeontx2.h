@@ -7,7 +7,8 @@
 #define __OCTEONTX2_H__
 
 #define CN93XX	0xB2
-#define CAVIUM_IS_MODEL(model)	(p_cavm_bdt->prod_id == model)
+#define CAVIUM_CN9XXX	CN93XX	/* TODO: Fix this! */
+#define CAVIUM_IS_MODEL(model)	(p_cavm_bdt->prod_id == (model))
 
 /** Reg offsets */
 #define CAVM_RST_BOOT		0x87E006001600ULL
