@@ -333,4 +333,14 @@ int env_get_char(int index);
  */
 void env_reloc(void);
 
+/*  */
+/**
+ * cmd_hw_info_load() - load HW information to environment
+ *
+ * This is updates environment with HW info.
+ */
+#ifdef CONFIG_CMD_MVEBU_HW_INFO
+int cmd_hw_info_load(char *name, int silence);
+#endif
+
 #endif
