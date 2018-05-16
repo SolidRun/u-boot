@@ -23,6 +23,11 @@ extern void cgx_intf_shutdown(void);
 
 void board_quiesce_devices(void)
 {
+	ssize_t node_count = atf_node_count();
+	int node;
+	for (node = 0; node < node_count; node++) {
+		atf_disable_rvu_lfs(node);
+	}
 	cgx_intf_shutdown();
 }
 
