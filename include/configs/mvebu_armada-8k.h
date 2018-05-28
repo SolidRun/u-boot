@@ -25,13 +25,6 @@
 
 #define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
 
-/*
- * PCI configuration
- */
-#ifdef CONFIG_PCIE_DW_MVEBU
-#define CONFIG_E1000
-#endif
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
