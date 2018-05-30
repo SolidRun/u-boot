@@ -21,6 +21,12 @@
 		gpio0 = &ap_gpio0;
 		gpio1 = &cp0_gpio0;
 		gpio2 = &cp0_gpio1;
+		fuse1 = &ap_ld_efuse0;
+		fuse2 = &ap_ld_efuse1;
+		fuse3 = &cp0_ld_efuse0;
+		fuse4 = &cp0_ld_efuse1;
+		fuse5 = &cp1_ld_efuse0;
+		fuse6 = &cp1_ld_efuse1;
 	};
 
 	memory@00000000 {
@@ -49,6 +55,18 @@
 
 /* Accessible over the mini-USB CON9 connector on the main board */
 &uart0 {
+	status = "okay";
+};
+
+&ap_hd_efuse0 {
+	status = "okay";
+};
+
+&ap_ld_efuse0 {
+	status = "okay";
+};
+
+&ap_ld_efuse1 {
 	status = "okay";
 };
 
@@ -157,6 +175,14 @@
 	ge_phy: ethernet-phy@0 {
 		reg = <0>;
 	};
+};
+
+&cp0_ld_efuse0 {
+	status = "okay";
+};
+
+&cp0_ld_efuse1 {
+	status = "okay";
 };
 
 &cp0_comphy {
@@ -315,6 +341,14 @@
 			};
 		};
 	};
+};
+
+&cp1_ld_efuse0 {
+	status = "okay";
+};
+
+&cp1_ld_efuse1 {
+	status = "okay";
 };
 
 &cp1_comphy {
