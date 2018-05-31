@@ -3,12 +3,12 @@ if ARCH_OCTEONTX2
 choice
 	prompt "Target board"
 
-config	TARGET_OCTEONTX2_93XX
-	bool "OcteonTX2 CN93XX"
+config	TARGET_OCTEONTX2_96XX
+	bool "OcteonTX2 CN96XX"
 
 endchoice
 
 config SYS_CONFIG_NAME
-	default "octeontx2_93xx" if TARGET_OCTEONTX2_93XX
+	default "octeontx2_96xx" if TARGET_OCTEONTX2_96XX
 
 endif
