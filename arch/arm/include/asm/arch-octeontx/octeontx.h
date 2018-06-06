@@ -8,7 +8,6 @@
 
 #define CN81XX	0xA2
 #define CN83XX	0xA3
-#define CN93XX	0xB2
 #define CAVIUM_IS_MODEL(model)	(p_cavm_bdt->prod_id == model)
 
 #define MAX_LMAC_PER_BGX 4

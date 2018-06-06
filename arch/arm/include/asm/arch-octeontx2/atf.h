@@ -8,4 +8,5 @@
 
 ssize_t atf_dram_size(unsigned int node);
 ssize_t atf_node_count(void);
+ssize_t atf_disable_rvu_lfs(unsigned int node);
 #endif

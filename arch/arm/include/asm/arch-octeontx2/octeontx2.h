@@ -6,7 +6,6 @@
 #ifndef __OCTEONTX2_H__
 #define __OCTEONTX2_H__
 
-#define CN81XX	0xA2
 #define CN93XX	0xB2
 #define CAVIUM_IS_MODEL(model)	(p_cavm_bdt->prod_id == model)
 

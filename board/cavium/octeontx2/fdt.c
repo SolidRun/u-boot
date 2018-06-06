@@ -49,12 +49,6 @@ void octeontx2_parse_board_info(void)
 	midr = cavm_get_model();
 	g_cavm_bdt.prod_id = (midr >> 4) & 0xff;
 
-	val = readq(CAVM_MIO_FUS_DAT2);
-	g_cavm_bdt.alt_pkg = (val >> 22) & 0x3;
-	if ((g_cavm_bdt.prod_id == CN81XX) &&
-		(g_cavm_bdt.alt_pkg || ((val >> 30) & 0x1)))
-		g_cavm_bdt.alt_pkg = 2;
-
 	if (!gd->fdt_blob) {
 		printf("ERROR: %s: no valid device tree found\n", __func__);
 		return;
