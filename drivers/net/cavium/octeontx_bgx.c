@@ -1013,6 +1013,7 @@ static void bgx_init_hw(struct bgx *bgx)
 		struct lmac *tlmac;
 
 		lmac = &bgx->lmac[lmacid];
+		debug("bgx_init_hw: lmacid = %d, qlm = %d, mode = %d\n", lmacid, lmac->qlm, lmac->qlm_mode);
 		/* If QLM is not programmed, skip */
 		if (lmac->qlm == -1)
 			continue;
@@ -1300,7 +1301,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 			/* If QLM is configured as QSGMII, use lmac0 */
 			if (CAVIUM_IS_MODEL(CN83XX)
 			    && (lmacid == 2)
-			    && (bgx->bgx_id != 3)) {
+			    && (bgx->bgx_id != 2)) {
 				//lmac->qlm_mode = QLM_MODE_DISABLED;
 				continue;
 			}
