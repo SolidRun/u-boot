@@ -380,25 +380,20 @@ union cavm_npa_pool_s {
  *
  * NPA Queue Interrupt Context Hardware Structure
  * This structure contains context state maintained by hardware for each queue
- * interrupt (QINT) in in NDC/LLC/DRAM. Software accesses this structure with the
+ * interrupt (QINT) in NDC/LLC/DRAM. Software accesses this structure with the
  * NPA_LF_QINT()_* registers.
  * Hardware maintains a table of NPA_AF_CONST[QINTS] contiguous NPA_QINT_HW_S
  * structures per LF starting at IOVA NPA_AF_LF()_QINTS_BASE.
  * Always stored in byte invariant little-endian format (LE8).
  */
 union cavm_npa_qint_hw_s {
-	u64 u;
+	u32 u;
 	struct cavm_npa_qint_hw_s_s {
-		u64 count                            : 22;
-		u64 reserved_22_30                   : 9;
-		u64 ena                              : 1;
-		u64 reserved_32_63                   : 32;
+		u32 count                            : 22;
+		u32 reserved_22_30                   : 9;
+		u32 ena                              : 1;
 	} s;
-	struct cavm_npa_qint_hw_s_cn {
-		u64 count                            : 22;
-		u64 reserved_22_30                   : 9;
-		u64 ena                              : 1;
-	} cn;
+	/* struct cavm_npa_qint_hw_s_s cn; */
 };
 
 /**
@@ -418,9 +413,7 @@ static inline u64 CAVM_NPA_AF_ACTIVE_CYCLES_PC(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_ACTIVE_CYCLES_PC(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xf0;
-	return -1;
+	return 0xf0;
 }
 
 /**
@@ -442,9 +435,7 @@ static inline u64 CAVM_NPA_AF_AQ_BASE(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_BASE(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x610;
-	return -1;
+	return 0x610;
 }
 
 /**
@@ -465,9 +456,7 @@ static inline u64 CAVM_NPA_AF_AQ_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x600;
-	return -1;
+	return 0x600;
 }
 
 /**
@@ -488,9 +477,7 @@ static inline u64 CAVM_NPA_AF_AQ_DONE(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_DONE(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x650;
-	return -1;
+	return 0x650;
 }
 
 /**
@@ -512,9 +499,7 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_ACK(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_DONE_ACK(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x660;
-	return -1;
+	return 0x660;
 }
 
 /**
@@ -536,9 +521,7 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x698;
-	return -1;
+	return 0x698;
 }
 
 /**
@@ -560,9 +543,7 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x690;
-	return -1;
+	return 0x690;
 }
 
 /**
@@ -583,9 +564,7 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_DONE_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x680;
-	return -1;
+	return 0x680;
 }
 
 /**
@@ -606,9 +585,7 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_DONE_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x688;
-	return -1;
+	return 0x688;
 }
 
 /**
@@ -630,9 +607,7 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_TIMER(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_DONE_TIMER(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x670;
-	return -1;
+	return 0x670;
 }
 
 /**
@@ -656,9 +631,7 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_WAIT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_DONE_WAIT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x640;
-	return -1;
+	return 0x640;
 }
 
 /**
@@ -680,9 +653,7 @@ static inline u64 CAVM_NPA_AF_AQ_DOOR(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_DOOR(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x630;
-	return -1;
+	return 0x630;
 }
 
 /**
@@ -717,9 +688,7 @@ static inline u64 CAVM_NPA_AF_AQ_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AQ_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x620;
-	return -1;
+	return 0x620;
 }
 
 /**
@@ -743,9 +712,7 @@ static inline u64 CAVM_NPA_AF_AVG_DELAY(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_AVG_DELAY(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x100;
-	return -1;
+	return 0x100;
 }
 
 /**
@@ -771,9 +738,7 @@ static inline u64 CAVM_NPA_AF_BAR2_ALIASX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_BAR2_ALIASX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 131071))
-		return 0x9100000 + 8 * ((a) & 0x1ffff);
-	return -1;
+	return 0x9100000 + 8 * a;
 }
 
 /**
@@ -799,9 +764,7 @@ static inline u64 CAVM_NPA_AF_BAR2_SEL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_BAR2_SEL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x9000000;
-	return -1;
+	return 0x9000000;
 }
 
 /**
@@ -823,9 +786,7 @@ static inline u64 CAVM_NPA_AF_BLK_RST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_BLK_RST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0;
-	return -1;
+	return 0;
 }
 
 /**
@@ -848,9 +809,7 @@ static inline u64 CAVM_NPA_AF_BP_TEST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_BP_TEST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x200;
-	return -1;
+	return 0x200;
 }
 
 /**
@@ -876,9 +835,7 @@ static inline u64 CAVM_NPA_AF_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x10;
-	return -1;
+	return 0x10;
 }
 
 /**
@@ -902,9 +859,7 @@ static inline u64 CAVM_NPA_AF_CONST1(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_CONST1(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x18;
-	return -1;
+	return 0x18;
 }
 
 /**
@@ -927,9 +882,7 @@ static inline u64 CAVM_NPA_AF_DTX_FILTER_CTL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_DTX_FILTER_CTL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x10040;
-	return -1;
+	return 0x10040;
 }
 
 /**
@@ -950,9 +903,7 @@ static inline u64 CAVM_NPA_AF_ECO(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_ECO(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x300;
-	return -1;
+	return 0x300;
 }
 
 /**
@@ -976,9 +927,7 @@ static inline u64 CAVM_NPA_AF_ERR_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_ERR_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x180;
-	return -1;
+	return 0x180;
 }
 
 /**
@@ -1003,9 +952,7 @@ static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x198;
-	return -1;
+	return 0x198;
 }
 
 /**
@@ -1030,9 +977,7 @@ static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x190;
-	return -1;
+	return 0x190;
 }
 
 /**
@@ -1057,9 +1002,7 @@ static inline u64 CAVM_NPA_AF_ERR_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_ERR_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x188;
-	return -1;
+	return 0x188;
 }
 
 /**
@@ -1089,9 +1032,7 @@ static inline u64 CAVM_NPA_AF_GEN_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_GEN_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x30;
-	return -1;
+	return 0x30;
 }
 
 /**
@@ -1115,9 +1056,7 @@ static inline u64 CAVM_NPA_AF_GEN_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_GEN_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x140;
-	return -1;
+	return 0x140;
 }
 
 /**
@@ -1141,9 +1080,7 @@ static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x158;
-	return -1;
+	return 0x158;
 }
 
 /**
@@ -1167,9 +1104,7 @@ static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x150;
-	return -1;
+	return 0x150;
 }
 
 /**
@@ -1193,9 +1128,7 @@ static inline u64 CAVM_NPA_AF_GEN_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_GEN_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x148;
-	return -1;
+	return 0x148;
 }
 
 /**
@@ -1217,9 +1150,7 @@ static inline u64 CAVM_NPA_AF_INP_CTL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_INP_CTL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xd0;
-	return -1;
+	return 0xd0;
 }
 
 /**
@@ -1247,9 +1178,7 @@ static inline u64 CAVM_NPA_AF_LFX_AURAS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_LFX_AURAS_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4000 + 0x40000 * ((a) & 0x7f);
-	return -1;
+	return 0x4000 + 0x40000 * a;
 }
 
 /**
@@ -1271,9 +1200,7 @@ static inline u64 CAVM_NPA_AF_LFX_LOC_AURAS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_LFX_LOC_AURAS_BASE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4010 + 0x40000 * ((a) & 0x7f);
-	return -1;
+	return 0x4010 + 0x40000 * a;
 }
 
 /**
@@ -1295,9 +1222,7 @@ static inline u64 CAVM_NPA_AF_LFX_QINTS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_LFX_QINTS_BASE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4110 + 0x40000 * ((a) & 0x7f);
-	return -1;
+	return 0x4110 + 0x40000 * a;
 }
 
 /**
@@ -1324,9 +1249,7 @@ static inline u64 CAVM_NPA_AF_LFX_QINTS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_LFX_QINTS_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4100 + 0x40000 * ((a) & 0x7f);
-	return -1;
+	return 0x4100 + 0x40000 * a;
 }
 
 /**
@@ -1349,9 +1272,7 @@ static inline u64 CAVM_NPA_AF_LF_RST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_LF_RST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x20;
-	return -1;
+	return 0x20;
 }
 
 /**
@@ -1378,9 +1299,7 @@ static inline u64 CAVM_NPA_AF_NDC_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_NDC_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x40;
-	return -1;
+	return 0x40;
 }
 
 /**
@@ -1404,9 +1323,7 @@ static inline u64 CAVM_NPA_AF_NDC_SYNC(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_NDC_SYNC(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x50;
-	return -1;
+	return 0x50;
 }
 
 /**
@@ -1432,9 +1349,7 @@ static inline u64 CAVM_NPA_AF_RAS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_RAS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1a0;
-	return -1;
+	return 0x1a0;
 }
 
 /**
@@ -1459,9 +1374,7 @@ static inline u64 CAVM_NPA_AF_RAS_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_RAS_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1b8;
-	return -1;
+	return 0x1b8;
 }
 
 /**
@@ -1486,9 +1399,7 @@ static inline u64 CAVM_NPA_AF_RAS_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_RAS_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1b0;
-	return -1;
+	return 0x1b0;
 }
 
 /**
@@ -1513,9 +1424,7 @@ static inline u64 CAVM_NPA_AF_RAS_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_RAS_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1a8;
-	return -1;
+	return 0x1a8;
 }
 
 /**
@@ -1537,9 +1446,7 @@ static inline u64 CAVM_NPA_AF_RVU_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_RVU_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x160;
-	return -1;
+	return 0x160;
 }
 
 /**
@@ -1561,9 +1468,7 @@ static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x178;
-	return -1;
+	return 0x178;
 }
 
 /**
@@ -1585,9 +1490,7 @@ static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x170;
-	return -1;
+	return 0x170;
 }
 
 /**
@@ -1609,9 +1512,7 @@ static inline u64 CAVM_NPA_AF_RVU_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_RVU_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x168;
-	return -1;
+	return 0x168;
 }
 
 /**
@@ -1639,9 +1540,7 @@ static inline u64 CAVM_NPA_AF_RVU_LF_CFG_DEBUG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_AF_RVU_LF_CFG_DEBUG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x10030;
-	return -1;
+	return 0x10030;
 }
 
 /**
@@ -1671,9 +1570,7 @@ static inline u64 CAVM_NPA_LF_AURA_OP_ALLOCX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_AURA_OP_ALLOCX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x10 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x10 + 8 * a;
 }
 
 /**
@@ -1701,17 +1598,15 @@ static inline u64 CAVM_NPA_LF_AURA_OP_CNT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_AURA_OP_CNT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x30;
-	return -1;
+	return 0x30;
 }
 
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_free0
  *
  * NPA LF Aura Free Operation Register 0
- * A 128-bit write to the NPA_LF_AURA_OP_FREE0 and NPA_LF_AURA_OP_FREE1
- * registers frees a pointer into a given aura's pool.
+ * A 128-bit write to NPA_LF_AURA_OP_FREE0 and NPA_LF_AURA_OP_FREE1
+ * frees a pointer into a given aura's pool.
  * All other accesses to these registers (e.g. reads and 64-bit writes) are
  * RAZ/WI.
  *
@@ -1729,9 +1624,7 @@ static inline u64 CAVM_NPA_LF_AURA_OP_FREE0(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_AURA_OP_FREE0(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x20;
-	return -1;
+	return 0x20;
 }
 
 /**
@@ -1756,9 +1649,7 @@ static inline u64 CAVM_NPA_LF_AURA_OP_FREE1(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_AURA_OP_FREE1(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28;
-	return -1;
+	return 0x28;
 }
 
 /**
@@ -1790,9 +1681,7 @@ static inline u64 CAVM_NPA_LF_AURA_OP_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_AURA_OP_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x60;
-	return -1;
+	return 0x60;
 }
 
 /**
@@ -1820,9 +1709,7 @@ static inline u64 CAVM_NPA_LF_AURA_OP_LIMIT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_AURA_OP_LIMIT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x50;
-	return -1;
+	return 0x50;
 }
 
 /**
@@ -1852,9 +1739,7 @@ static inline u64 CAVM_NPA_LF_AURA_OP_THRESH(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_AURA_OP_THRESH(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x70;
-	return -1;
+	return 0x70;
 }
 
 /**
@@ -1883,9 +1768,7 @@ static inline u64 CAVM_NPA_LF_ERR_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_ERR_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x200;
-	return -1;
+	return 0x200;
 }
 
 /**
@@ -1915,9 +1798,7 @@ static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x210;
-	return -1;
+	return 0x210;
 }
 
 /**
@@ -1947,9 +1828,7 @@ static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x218;
-	return -1;
+	return 0x218;
 }
 
 /**
@@ -1979,9 +1858,7 @@ static inline u64 CAVM_NPA_LF_ERR_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_ERR_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x208;
-	return -1;
+	return 0x208;
 }
 
 /**
@@ -2009,9 +1886,7 @@ static inline u64 CAVM_NPA_LF_POOL_OP_AVAILABLE(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_POOL_OP_AVAILABLE(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x110;
-	return -1;
+	return 0x110;
 }
 
 /**
@@ -2043,9 +1918,7 @@ static inline u64 CAVM_NPA_LF_POOL_OP_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_POOL_OP_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x160;
-	return -1;
+	return 0x160;
 }
 
 /**
@@ -2053,7 +1926,7 @@ static inline u64 CAVM_NPA_LF_POOL_OP_INT(void)
  *
  * NPA LF Pool Performance Count Register
  * A 64-bit atomic load-and-add to this register reads NPA_POOL_S[OP_PC] from a
- * given aura's pool. The aura is slected by the atomic write data, whose format
+ * given aura's pool. The aura is selected by the atomic write data, whose format
  * is NPA_AURA_OP_WDATA_S. Reads and writes are RAZ/WI.
  *
  * RSL accesses to this register are RAZ/WI.
@@ -2072,9 +1945,7 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PC(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_POOL_OP_PC(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x100;
-	return -1;
+	return 0x100;
 }
 
 /**
@@ -2100,9 +1971,7 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END0(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END0(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x130;
-	return -1;
+	return 0x130;
 }
 
 /**
@@ -2126,9 +1995,7 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END1(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END1(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x138;
-	return -1;
+	return 0x138;
 }
 
 /**
@@ -2154,9 +2021,7 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START0(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START0(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x120;
-	return -1;
+	return 0x120;
 }
 
 /**
@@ -2180,9 +2045,7 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START1(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START1(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x128;
-	return -1;
+	return 0x128;
 }
 
 /**
@@ -2211,9 +2074,7 @@ static inline u64 CAVM_NPA_LF_POOL_OP_THRESH(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_POOL_OP_THRESH(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x170;
-	return -1;
+	return 0x170;
 }
 
 /**
@@ -2234,9 +2095,7 @@ static inline u64 CAVM_NPA_LF_QINTX_CNT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_QINTX_CNT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0x300 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0x300 + 0x1000 * a;
 }
 
 /**
@@ -2258,9 +2117,7 @@ static inline u64 CAVM_NPA_LF_QINTX_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_QINTX_ENA_W1C(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0x330 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0x330 + 0x1000 * a;
 }
 
 /**
@@ -2282,9 +2139,7 @@ static inline u64 CAVM_NPA_LF_QINTX_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_QINTX_ENA_W1S(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0x320 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0x320 + 0x1000 * a;
 }
 
 /**
@@ -2305,9 +2160,7 @@ static inline u64 CAVM_NPA_LF_QINTX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_QINTX_INT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0x310 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0x310 + 0x1000 * a;
 }
 
 /**
@@ -2328,9 +2181,7 @@ static inline u64 CAVM_NPA_LF_QINTX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_QINTX_INT_W1S(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0x318 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0x318 + 0x1000 * a;
 }
 
 /**
@@ -2354,9 +2205,7 @@ static inline u64 CAVM_NPA_LF_RAS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_RAS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x220;
-	return -1;
+	return 0x220;
 }
 
 /**
@@ -2381,9 +2230,7 @@ static inline u64 CAVM_NPA_LF_RAS_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_RAS_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x230;
-	return -1;
+	return 0x230;
 }
 
 /**
@@ -2408,9 +2255,7 @@ static inline u64 CAVM_NPA_LF_RAS_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_RAS_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x238;
-	return -1;
+	return 0x238;
 }
 
 /**
@@ -2435,9 +2280,7 @@ static inline u64 CAVM_NPA_LF_RAS_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_LF_RAS_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x228;
-	return -1;
+	return 0x228;
 }
 
 /**
@@ -2460,9 +2303,7 @@ static inline u64 CAVM_NPA_PRIV_AF_INT_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_PRIV_AF_INT_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x10000;
-	return -1;
+	return 0x10000;
 }
 
 /**
@@ -2495,9 +2336,7 @@ static inline u64 CAVM_NPA_PRIV_LFX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_PRIV_LFX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x10010 + 0x100 * ((a) & 0x7f);
-	return -1;
+	return 0x10010 + 0x100 * a;
 }
 
 /**
@@ -2520,9 +2359,7 @@ static inline u64 CAVM_NPA_PRIV_LFX_INT_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPA_PRIV_LFX_INT_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x10020 + 0x100 * ((a) & 0x7f);
-	return -1;
+	return 0x10020 + 0x100 * a;
 }
 
 #endif /* __CAVM_CSRS_NPA_H__ */

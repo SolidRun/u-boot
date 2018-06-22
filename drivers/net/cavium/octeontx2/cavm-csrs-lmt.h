@@ -68,9 +68,7 @@ static inline u64 CAVM_LMT_LF_LMTCANCEL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_LMT_LF_LMTCANCEL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x400;
-	return -1;
+	return 0x400;
 }
 
 /**
@@ -90,9 +88,7 @@ static inline u64 CAVM_LMT_LF_LMTLINEX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_LMT_LF_LMTLINEX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0 + 8 * ((a) & 0xf);
-	return -1;
+	return 0 + 8 * a;
 }
 
 #endif /* __CAVM_CSRS_LMT_H__ */

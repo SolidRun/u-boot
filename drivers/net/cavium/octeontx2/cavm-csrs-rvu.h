@@ -301,9 +301,7 @@ static inline u64 CAVM_RVU_AF_AFPFX_MBOXX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_AFPFX_MBOXX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b <= 1)))
-		return 0x2000 + 0x10 * ((a) & 0xf) + 8 * ((b) & 0x1);
-	return -1;
+	return 0x2000 + 0x10 * a + 8 * b;
 }
 
 /**
@@ -329,9 +327,7 @@ static inline u64 CAVM_RVU_AF_BAR2_ALIASX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_BAR2_ALIASX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 131071))
-		return 0x9100000 + 8 * ((a) & 0x1ffff);
-	return -1;
+	return 0x9100000 + 8 * a;
 }
 
 /**
@@ -357,9 +353,7 @@ static inline u64 CAVM_RVU_AF_BAR2_SEL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_BAR2_SEL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x9000000;
-	return -1;
+	return 0x9000000;
 }
 
 /**
@@ -381,9 +375,31 @@ static inline u64 CAVM_RVU_AF_BLK_RST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_BLK_RST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x30;
-	return -1;
+	return 0x30;
+}
+
+/**
+ * Register (RVU_PF_BAR0) rvu_af_bp_test
+ *
+ * INTERNAL: RVUM Backpressure Test Registers
+ */
+union cavm_rvu_af_bp_test {
+	u64 u;
+	struct cavm_rvu_af_bp_test_s {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 16;
+		u64 enable                           : 8;
+		u64 reserved_40_63                   : 24;
+	} s;
+	/* struct cavm_rvu_af_bp_test_s cn; */
+};
+
+static inline u64 CAVM_RVU_AF_BP_TEST(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 CAVM_RVU_AF_BP_TEST(void)
+{
+	return 0x4000;
 }
 
 /**
@@ -404,9 +420,7 @@ static inline u64 CAVM_RVU_AF_ECO(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_ECO(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x20;
-	return -1;
+	return 0x20;
 }
 
 /**
@@ -429,9 +443,7 @@ static inline u64 CAVM_RVU_AF_GEN_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_GEN_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x120;
-	return -1;
+	return 0x120;
 }
 
 /**
@@ -454,9 +466,7 @@ static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x138;
-	return -1;
+	return 0x138;
 }
 
 /**
@@ -479,9 +489,7 @@ static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x130;
-	return -1;
+	return 0x130;
 }
 
 /**
@@ -504,9 +512,7 @@ static inline u64 CAVM_RVU_AF_GEN_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_GEN_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x128;
-	return -1;
+	return 0x128;
 }
 
 /**
@@ -529,9 +535,7 @@ static inline u64 CAVM_RVU_AF_HWVF_RST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_HWVF_RST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2850;
-	return -1;
+	return 0x2850;
 }
 
 /**
@@ -553,9 +557,7 @@ static inline u64 CAVM_RVU_AF_MSIXTR_BASE(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_MSIXTR_BASE(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x10;
-	return -1;
+	return 0x10;
 }
 
 /**
@@ -576,9 +578,7 @@ static inline u64 CAVM_RVU_AF_PF_BAR4_ADDR(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PF_BAR4_ADDR(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x40;
-	return -1;
+	return 0x40;
 }
 
 /**
@@ -601,9 +601,7 @@ static inline u64 CAVM_RVU_AF_PF_RST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PF_RST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2840;
-	return -1;
+	return 0x2840;
 }
 
 /**
@@ -624,9 +622,7 @@ static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2880;
-	return -1;
+	return 0x2880;
 }
 
 /**
@@ -648,9 +644,7 @@ static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2898;
-	return -1;
+	return 0x2898;
 }
 
 /**
@@ -672,9 +666,7 @@ static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2890;
-	return -1;
+	return 0x2890;
 }
 
 /**
@@ -696,9 +688,7 @@ static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2888;
-	return -1;
+	return 0x2888;
 }
 
 /**
@@ -719,9 +709,7 @@ static inline u64 CAVM_RVU_AF_PFFLR_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFFLR_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28a0;
-	return -1;
+	return 0x28a0;
 }
 
 /**
@@ -743,9 +731,7 @@ static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28b8;
-	return -1;
+	return 0x28b8;
 }
 
 /**
@@ -767,9 +753,7 @@ static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28b0;
-	return -1;
+	return 0x28b0;
 }
 
 /**
@@ -791,9 +775,7 @@ static inline u64 CAVM_RVU_AF_PFFLR_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFFLR_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28a8;
-	return -1;
+	return 0x28a8;
 }
 
 /**
@@ -814,9 +796,7 @@ static inline u64 CAVM_RVU_AF_PFME_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFME_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28c0;
-	return -1;
+	return 0x28c0;
 }
 
 /**
@@ -838,9 +818,7 @@ static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28d8;
-	return -1;
+	return 0x28d8;
 }
 
 /**
@@ -862,9 +840,7 @@ static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28d0;
-	return -1;
+	return 0x28d0;
 }
 
 /**
@@ -886,9 +862,7 @@ static inline u64 CAVM_RVU_AF_PFME_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFME_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28c8;
-	return -1;
+	return 0x28c8;
 }
 
 /**
@@ -909,9 +883,7 @@ static inline u64 CAVM_RVU_AF_PFME_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFME_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2800;
-	return -1;
+	return 0x2800;
 }
 
 /**
@@ -932,9 +904,7 @@ static inline u64 CAVM_RVU_AF_PFTRPEND(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFTRPEND(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2810;
-	return -1;
+	return 0x2810;
 }
 
 /**
@@ -956,9 +926,7 @@ static inline u64 CAVM_RVU_AF_PFTRPEND_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_PFTRPEND_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2820;
-	return -1;
+	return 0x2820;
 }
 
 /**
@@ -981,9 +949,7 @@ static inline u64 CAVM_RVU_AF_RAS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_RAS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x100;
-	return -1;
+	return 0x100;
 }
 
 /**
@@ -1005,9 +971,7 @@ static inline u64 CAVM_RVU_AF_RAS_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_RAS_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x118;
-	return -1;
+	return 0x118;
 }
 
 /**
@@ -1029,9 +993,7 @@ static inline u64 CAVM_RVU_AF_RAS_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_RAS_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x110;
-	return -1;
+	return 0x110;
 }
 
 /**
@@ -1053,9 +1015,7 @@ static inline u64 CAVM_RVU_AF_RAS_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_AF_RAS_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x108;
-	return -1;
+	return 0x108;
 }
 
 /**
@@ -1083,9 +1043,7 @@ static inline u64 CAVM_RVU_PF_BLOCK_ADDRX_DISC(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_BLOCK_ADDRX_DISC(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 31))
-		return 0x200 + 8 * ((a) & 0x1f);
-	return -1;
+	return 0x200 + 8 * a;
 }
 
 /**
@@ -1106,9 +1064,7 @@ static inline u64 CAVM_RVU_PF_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xc20;
-	return -1;
+	return 0xc20;
 }
 
 /**
@@ -1130,9 +1086,7 @@ static inline u64 CAVM_RVU_PF_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xc38;
-	return -1;
+	return 0xc38;
 }
 
 /**
@@ -1154,9 +1108,7 @@ static inline u64 CAVM_RVU_PF_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xc30;
-	return -1;
+	return 0xc30;
 }
 
 /**
@@ -1178,9 +1130,7 @@ static inline u64 CAVM_RVU_PF_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xc28;
-	return -1;
+	return 0xc28;
 }
 
 /**
@@ -1201,9 +1151,7 @@ static inline u64 CAVM_RVU_PF_MSIX_PBAX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_MSIX_PBAX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a == 0))
-		return 0xf0000 + 8 * ((a) & 0x0);
-	return -1;
+	return 0xf0000 + 8 * a;
 }
 
 /**
@@ -1234,9 +1182,7 @@ static inline u64 CAVM_RVU_PF_MSIX_VECX_ADDR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_MSIX_VECX_ADDR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a == 0))
-		return 0x80000 + 0x10 * ((a) & 0x0);
-	return -1;
+	return 0x80000 + 0x10 * a;
 }
 
 /**
@@ -1259,9 +1205,7 @@ static inline u64 CAVM_RVU_PF_MSIX_VECX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_MSIX_VECX_CTL(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a == 0))
-		return 0x80008 + 0x10 * ((a) & 0x0);
-	return -1;
+	return 0x80008 + 0x10 * a;
 }
 
 /**
@@ -1281,9 +1225,7 @@ static inline u64 CAVM_RVU_PF_PFAF_MBOXX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_PFAF_MBOXX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0xc00 + 8 * ((a) & 0x1);
-	return -1;
+	return 0xc00 + 8 * a;
 }
 
 /**
@@ -1303,9 +1245,7 @@ static inline u64 CAVM_RVU_PF_VFX_PFVF_MBOXX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFX_PFVF_MBOXX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 127) && (b <= 1)))
-		return 0 + 0x1000 * ((a) & 0x7f) + 8 * ((b) & 0x1);
-	return -1;
+	return 0 + 0x1000 * a + 8 * b;
 }
 
 /**
@@ -1326,9 +1266,7 @@ static inline u64 CAVM_RVU_PF_VF_BAR4_ADDR(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VF_BAR4_ADDR(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x10;
-	return -1;
+	return 0x10;
 }
 
 /**
@@ -1348,9 +1286,7 @@ static inline u64 CAVM_RVU_PF_VFFLR_INTX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFFLR_INTX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x900 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x900 + 8 * a;
 }
 
 /**
@@ -1371,9 +1307,7 @@ static inline u64 CAVM_RVU_PF_VFFLR_INT_ENA_W1CX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFFLR_INT_ENA_W1CX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x960 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x960 + 8 * a;
 }
 
 /**
@@ -1394,9 +1328,7 @@ static inline u64 CAVM_RVU_PF_VFFLR_INT_ENA_W1SX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFFLR_INT_ENA_W1SX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x940 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x940 + 8 * a;
 }
 
 /**
@@ -1417,9 +1349,7 @@ static inline u64 CAVM_RVU_PF_VFFLR_INT_W1SX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFFLR_INT_W1SX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x920 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x920 + 8 * a;
 }
 
 /**
@@ -1439,9 +1369,7 @@ static inline u64 CAVM_RVU_PF_VFME_INTX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFME_INTX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x980 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x980 + 8 * a;
 }
 
 /**
@@ -1462,9 +1390,7 @@ static inline u64 CAVM_RVU_PF_VFME_INT_ENA_W1CX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFME_INT_ENA_W1CX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x9e0 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x9e0 + 8 * a;
 }
 
 /**
@@ -1485,9 +1411,7 @@ static inline u64 CAVM_RVU_PF_VFME_INT_ENA_W1SX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFME_INT_ENA_W1SX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x9c0 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x9c0 + 8 * a;
 }
 
 /**
@@ -1508,9 +1432,7 @@ static inline u64 CAVM_RVU_PF_VFME_INT_W1SX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFME_INT_W1SX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x9a0 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x9a0 + 8 * a;
 }
 
 /**
@@ -1530,9 +1452,7 @@ static inline u64 CAVM_RVU_PF_VFME_STATUSX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFME_STATUSX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x800 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x800 + 8 * a;
 }
 
 /**
@@ -1552,9 +1472,7 @@ static inline u64 CAVM_RVU_PF_VFPF_MBOX_INTX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFPF_MBOX_INTX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x880 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x880 + 8 * a;
 }
 
 /**
@@ -1575,9 +1493,7 @@ static inline u64 CAVM_RVU_PF_VFPF_MBOX_INT_ENA_W1CX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFPF_MBOX_INT_ENA_W1CX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x8e0 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x8e0 + 8 * a;
 }
 
 /**
@@ -1598,9 +1514,7 @@ static inline u64 CAVM_RVU_PF_VFPF_MBOX_INT_ENA_W1SX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFPF_MBOX_INT_ENA_W1SX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x8c0 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x8c0 + 8 * a;
 }
 
 /**
@@ -1621,9 +1535,7 @@ static inline u64 CAVM_RVU_PF_VFPF_MBOX_INT_W1SX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFPF_MBOX_INT_W1SX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x8a0 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x8a0 + 8 * a;
 }
 
 /**
@@ -1643,9 +1555,7 @@ static inline u64 CAVM_RVU_PF_VFTRPENDX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFTRPENDX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x820 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x820 + 8 * a;
 }
 
 /**
@@ -1666,9 +1576,7 @@ static inline u64 CAVM_RVU_PF_VFTRPEND_W1SX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PF_VFTRPEND_W1SX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x840 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x840 + 8 * a;
 }
 
 /**
@@ -1688,9 +1596,7 @@ static inline u64 CAVM_RVU_PRIV_ACTIVE_PC(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_ACTIVE_PC(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x8000030;
-	return -1;
+	return 0x8000030;
 }
 
 /**
@@ -1714,9 +1620,7 @@ static inline u64 CAVM_RVU_PRIV_BLOCK_TYPEX_REV(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_BLOCK_TYPEX_REV(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x8000400 + 8 * ((a) & 0xf);
-	return -1;
+	return 0x8000400 + 8 * a;
 }
 
 /**
@@ -1738,9 +1642,7 @@ static inline u64 CAVM_RVU_PRIV_CLK_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_CLK_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x8000020;
-	return -1;
+	return 0x8000020;
 }
 
 /**
@@ -1765,9 +1667,7 @@ static inline u64 CAVM_RVU_PRIV_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x8000000;
-	return -1;
+	return 0x8000000;
 }
 
 /**
@@ -1788,9 +1688,7 @@ static inline u64 CAVM_RVU_PRIV_GEN_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_GEN_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x8000010;
-	return -1;
+	return 0x8000010;
 }
 
 /**
@@ -1812,9 +1710,7 @@ static inline u64 CAVM_RVU_PRIV_HWVFX_CPTX_CFG(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_HWVFX_CPTX_CFG(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 255) && (b == 0)))
-		return 0x8001350 + 0x10000 * ((a) & 0xff) + 8 * ((b) & 0x0);
-	return -1;
+	return 0x8001350 + 0x10000 * a + 8 * b;
 }
 
 /**
@@ -1837,9 +1733,7 @@ static inline u64 CAVM_RVU_PRIV_HWVFX_INT_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_HWVFX_INT_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x8001280 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x8001280 + 0x10000 * a;
 }
 
 /**
@@ -1864,9 +1758,7 @@ static inline u64 CAVM_RVU_PRIV_HWVFX_NIXX_CFG(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_HWVFX_NIXX_CFG(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 255) && (b == 0)))
-		return 0x8001300 + 0x10000 * ((a) & 0xff) + 8 * ((b) & 0x0);
-	return -1;
+	return 0x8001300 + 0x10000 * a + 8 * b;
 }
 
 /**
@@ -1888,9 +1780,7 @@ static inline u64 CAVM_RVU_PRIV_HWVFX_NPA_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_HWVFX_NPA_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x8001310 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x8001310 + 0x10000 * a;
 }
 
 /**
@@ -1912,9 +1802,7 @@ static inline u64 CAVM_RVU_PRIV_HWVFX_SSO_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_HWVFX_SSO_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x8001320 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x8001320 + 0x10000 * a;
 }
 
 /**
@@ -1936,9 +1824,7 @@ static inline u64 CAVM_RVU_PRIV_HWVFX_SSOW_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_HWVFX_SSOW_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x8001330 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x8001330 + 0x10000 * a;
 }
 
 /**
@@ -1960,9 +1846,7 @@ static inline u64 CAVM_RVU_PRIV_HWVFX_TIM_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_HWVFX_TIM_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x8001340 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x8001340 + 0x10000 * a;
 }
 
 /**
@@ -1987,9 +1871,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_PFX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x8000100 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0x8000100 + 0x10000 * a;
 }
 
 /**
@@ -2011,9 +1893,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_CPTX_CFG(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_PFX_CPTX_CFG(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b == 0)))
-		return 0x8000350 + 0x10000 * ((a) & 0xf) + 8 * ((b) & 0x0);
-	return -1;
+	return 0x8000350 + 0x10000 * a + 8 * b;
 }
 
 /**
@@ -2036,9 +1916,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_ID_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_PFX_ID_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x8000120 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0x8000120 + 0x10000 * a;
 }
 
 /**
@@ -2061,9 +1939,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_INT_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_PFX_INT_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x8000200 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0x8000200 + 0x10000 * a;
 }
 
 /**
@@ -2107,9 +1983,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_MSIX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_PFX_MSIX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x8000110 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0x8000110 + 0x10000 * a;
 }
 
 /**
@@ -2134,9 +2008,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_NIXX_CFG(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_PFX_NIXX_CFG(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b == 0)))
-		return 0x8000300 + 0x10000 * ((a) & 0xf) + 8 * ((b) & 0x0);
-	return -1;
+	return 0x8000300 + 0x10000 * a + 8 * b;
 }
 
 /**
@@ -2158,9 +2030,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_NPA_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_PFX_NPA_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x8000310 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0x8000310 + 0x10000 * a;
 }
 
 /**
@@ -2182,9 +2052,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_SSO_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_PFX_SSO_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x8000320 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0x8000320 + 0x10000 * a;
 }
 
 /**
@@ -2206,9 +2074,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_SSOW_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_PFX_SSOW_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x8000330 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0x8000330 + 0x10000 * a;
 }
 
 /**
@@ -2230,9 +2096,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_TIM_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_PRIV_PFX_TIM_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x8000340 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0x8000340 + 0x10000 * a;
 }
 
 /**
@@ -2260,9 +2124,7 @@ static inline u64 CAVM_RVU_VF_BLOCK_ADDRX_DISC(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_VF_BLOCK_ADDRX_DISC(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 31))
-		return 0x200 + 8 * ((a) & 0x1f);
-	return -1;
+	return 0x200 + 8 * a;
 }
 
 /**
@@ -2283,9 +2145,7 @@ static inline u64 CAVM_RVU_VF_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_VF_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x20;
-	return -1;
+	return 0x20;
 }
 
 /**
@@ -2307,9 +2167,7 @@ static inline u64 CAVM_RVU_VF_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_VF_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x38;
-	return -1;
+	return 0x38;
 }
 
 /**
@@ -2331,9 +2189,7 @@ static inline u64 CAVM_RVU_VF_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_VF_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x30;
-	return -1;
+	return 0x30;
 }
 
 /**
@@ -2355,9 +2211,7 @@ static inline u64 CAVM_RVU_VF_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_VF_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28;
-	return -1;
+	return 0x28;
 }
 
 /**
@@ -2378,9 +2232,7 @@ static inline u64 CAVM_RVU_VF_MSIX_PBAX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_VF_MSIX_PBAX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a == 0))
-		return 0xf0000 + 8 * ((a) & 0x0);
-	return -1;
+	return 0xf0000 + 8 * a;
 }
 
 /**
@@ -2410,9 +2262,7 @@ static inline u64 CAVM_RVU_VF_MSIX_VECX_ADDR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_VF_MSIX_VECX_ADDR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a == 0))
-		return 0x80000 + 0x10 * ((a) & 0x0);
-	return -1;
+	return 0x80000 + 0x10 * a;
 }
 
 /**
@@ -2435,9 +2285,7 @@ static inline u64 CAVM_RVU_VF_MSIX_VECX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_VF_MSIX_VECX_CTL(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a == 0))
-		return 0x80008 + 0x10 * ((a) & 0x0);
-	return -1;
+	return 0x80008 + 0x10 * a;
 }
 
 /**
@@ -2457,9 +2305,7 @@ static inline u64 CAVM_RVU_VF_VFPF_MBOXX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_RVU_VF_VFPF_MBOXX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0 + 8 * ((a) & 0x1);
-	return -1;
+	return 0 + 8 * a;
 }
 
 #endif /* __CAVM_CSRS_RVU_H__ */

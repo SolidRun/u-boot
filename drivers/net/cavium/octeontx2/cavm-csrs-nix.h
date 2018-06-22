@@ -224,6 +224,7 @@
 #define CAVM_NIX_MNQERR_E_MAX_SQE_SIZE_ERR (7)
 #define CAVM_NIX_MNQERR_E_SQB_FAULT (2)
 #define CAVM_NIX_MNQERR_E_SQB_POISON (3)
+#define CAVM_NIX_MNQERR_E_SQE_SIZEM1_ZERO (9)
 #define CAVM_NIX_MNQERR_E_SQ_CTX_FAULT (0)
 #define CAVM_NIX_MNQERR_E_SQ_CTX_POISON (1)
 #define CAVM_NIX_MNQERR_E_TOTAL_ERR (4)
@@ -349,8 +350,6 @@
  *
  * NIX Send Completion Status Enumeration
  * Enumerates values of NIX_SEND_COMP_S[STATUS] and NIX_LF_SEND_ERR_DBG[ERRCODE].
- * Internal:
- * TODO.
  */
 #define CAVM_NIX_SEND_STATUS_E_DATA_FAULT (0x16)
 #define CAVM_NIX_SEND_STATUS_E_DATA_POISON (0x17)
@@ -493,6 +492,7 @@
 #define CAVM_NIX_SQOPERR_E_SQB_FAULT (7)
 #define CAVM_NIX_SQOPERR_E_SQB_NULL (6)
 #define CAVM_NIX_SQOPERR_E_SQE_OFLOW (5)
+#define CAVM_NIX_SQOPERR_E_SQE_SIZEM1_ZERO (8)
 #define CAVM_NIX_SQOPERR_E_SQ_CTX_FAULT (1)
 #define CAVM_NIX_SQOPERR_E_SQ_CTX_POISON (2)
 #define CAVM_NIX_SQOPERR_E_SQ_DISABLED (3)
@@ -1555,34 +1555,41 @@ union cavm_nix_send_work_s {
 union cavm_nix_sq_ctx_hw_s {
 	u64 u[16];
 	struct cavm_nix_sq_ctx_hw_s_s {
-		u64 gbl_ena                          : 1;
-		u64 gbl_substream                    : 20;
-		u64 gbl_max_sqe_size                 : 2;
-		u64 gbl_sqe_way_mask                 : 16;
-		u64 gbl_sqb_aura                     : 20;
+		u64 ena                              : 1;
+		u64 substream                        : 20;
+		u64 max_sqe_size                     : 2;
+		u64 sqe_way_mask                     : 16;
+		u64 sqb_aura                         : 20;
 		u64 gbl_rsvd1                        : 5;
-		u64 gbl_cq_id                        : 20;
-		u64 gbl_cq_ena                       : 1;
-		u64 qint_idx                         : 7;
+		u64 cq_id                            : 20;
+		u64 cq_ena                           : 1;
+		u64 qint_idx                         : 6;
+		u64 gbl_rsvd2                        : 1;
 		u64 sq_int                           : 8;
 		u64 sq_int_ena                       : 8;
 		u64 xoff                             : 1;
-		u64 send_lso_segnum                  : 8;
-		u64 gbl_rsvd                         : 11;
-		u64 sqb_enqueue_count                : 16;
 		u64 sqe_stype                        : 2;
+		u64 gbl_rsvd                         : 17;
+		u64 head_sqb                         : 64;
+		u64 head_offset                      : 6;
+		u64 sqb_dequeue_count                : 16;
+		u64 default_chan                     : 12;
+		u64 sdp_mcast                        : 1;
+		u64 sso_ena                          : 1;
+		u64 dse_rsvd1                        : 28;
+		u64 sqb_enqueue_count                : 16;
 		u64 tail_offset                      : 6;
 		u64 lmt_dis                          : 1;
 		u64 smq_rr_quantum                   : 24;
-		u64 dnq_rsvd1                        : 15;
+		u64 dnq_rsvd1                        : 17;
 		u64 tail_sqb                         : 64;
 		u64 next_sqb                         : 64;
 		u64 mnq_dis                          : 1;
-		u64 smq                              : 10;
+		u64 smq                              : 9;
 		u64 smq_pend                         : 1;
 		u64 smq_next_sq                      : 20;
 		u64 smq_next_sq_vld                  : 1;
-		u64 scm1_rsvd2                       : 31;
+		u64 scm1_rsvd2                       : 32;
 		u64 smenq_sqb                        : 64;
 		u64 smenq_offset                     : 6;
 		u64 cq_limit                         : 8;
@@ -1600,13 +1607,6 @@ union cavm_nix_sq_ctx_hw_s {
 		u64 smenq_next_sqb_vld               : 1;
 		u64 scm_dq_rsvd1                     : 9;
 		u64 smenq_next_sqb                   : 64;
-		u64 head_sqb                         : 64;
-		u64 head_offset                      : 6;
-		u64 sqb_dequeue_count                : 16;
-		u64 default_chan                     : 12;
-		u64 sdp_mcast                        : 1;
-		u64 sso_ena                          : 1;
-		u64 dse_rsvd1                        : 28;
 		u64 seb_rsvd1                        : 64;
 		u64 drop_pkts                        : 48;
 		u64 drop_octs_lsw                    : 16;
@@ -1633,113 +1633,64 @@ union cavm_nix_sq_ctx_s {
 	u64 u[16];
 	struct cavm_nix_sq_ctx_s_s {
 		u64 ena                              : 1;
-		u64 cq_ena                           : 1;
-		u64 max_sqe_size                     : 2;
+		u64 qint_idx                         : 6;
 		u64 substream                        : 20;
 		u64 sdp_mcast                        : 1;
-		u64 lmt_dis                          : 1;
-		u64 mnq_dis                          : 1;
-		u64 reserved_27_35                   : 9;
 		u64 cq                               : 20;
-		u64 cq_limit                         : 8;
-		u64 smq                              : 10;
+		u64 sqe_way_mask                     : 16;
+		u64 smq                              : 9;
+		u64 cq_ena                           : 1;
 		u64 xoff                             : 1;
 		u64 sso_ena                          : 1;
 		u64 smq_rr_quantum                   : 24;
 		u64 default_chan                     : 12;
 		u64 sqb_count                        : 16;
-		u64 sqe_way_mask                     : 16;
-		u64 reserved_144_171                 : 28;
+		u64 smq_rr_count                     : 25;
+		u64 sqb_aura                         : 20;
 		u64 sq_int                           : 8;
 		u64 sq_int_ena                       : 8;
 		u64 sqe_stype                        : 2;
-		u64 smq_pend                         : 1;
 		u64 reserved_191                     : 1;
-		u64 reserved_192_223                 : 32;
-		u64 send_lso_segnum                  : 8;
+		u64 max_sqe_size                     : 2;
+		u64 cq_limit                         : 8;
+		u64 lmt_dis                          : 1;
+		u64 mnq_dis                          : 1;
+		u64 smq_next_sq                      : 20;
 		u64 smq_lso_segnum                   : 8;
-		u64 qint_idx                         : 7;
-		u64 reserved_247_255                 : 9;
-		u64 next_sqb                         : 64;
-		u64 tail_sqb                         : 64;
-		u64 smenq_sqb                        : 64;
-		u64 head_sqb                         : 64;
 		u64 tail_offset                      : 6;
 		u64 smenq_offset                     : 6;
 		u64 head_offset                      : 6;
-		u64 reserved_530_539                 : 10;
-		u64 sqb_aura                         : 20;
-		u64 reserved_560_575                 : 16;
-		u64 smq_rr_count                     : 25;
 		u64 smenq_next_sqb_vld               : 1;
-		u64 smq_next_sq                      : 20;
-		u64 reserved_622_639                 : 18;
-		u64 octs                             : 48;
-		u64 reserved_688_703                 : 16;
-		u64 pkts                             : 48;
-		u64 reserved_752_767                 : 16;
-		u64 reserved_768_831                 : 64;
+		u64 smq_pend                         : 1;
+		u64 smq_next_sq_vld                  : 1;
+		u64 reserved_253_255                 : 3;
+		u64 next_sqb                         : 64;
+		u64 tail_sqb                         : 64;
+		u64 smenq_sqb                        : 64;
 		u64 smenq_next_sqb                   : 64;
+		u64 head_sqb                         : 64;
+		u64 reserved_576_583                 : 8;
+		u64 vfi_lso_total                    : 18;
+		u64 vfi_lso_sizem1                   : 3;
+		u64 vfi_lso_sb                       : 8;
+		u64 vfi_lso_mps                      : 14;
+		u64 vfi_lso_vlan0_ins_ena            : 1;
+		u64 vfi_lso_vlan1_ins_ena            : 1;
+		u64 vfi_lso_vld                      : 1;
+		u64 reserved_630_639                 : 10;
+		u64 scm_lso_rem                      : 18;
+		u64 reserved_658_703                 : 46;
+		u64 octs                             : 48;
+		u64 reserved_752_767                 : 16;
+		u64 pkts                             : 48;
+		u64 reserved_816_831                 : 16;
+		u64 reserved_832_895                 : 64;
 		u64 drop_octs                        : 48;
 		u64 reserved_944_959                 : 16;
 		u64 drop_pkts                        : 48;
 		u64 reserved_1008_1023               : 16;
 	} s;
-	struct cavm_nix_sq_ctx_s_cn {
-		u64 ena                              : 1;
-		u64 cq_ena                           : 1;
-		u64 max_sqe_size                     : 2;
-		u64 substream                        : 20;
-		u64 sdp_mcast                        : 1;
-		u64 lmt_dis                          : 1;
-		u64 mnq_dis                          : 1;
-		u64 reserved_27                      : 1;
-		u64 reserved_28_35                   : 8;
-		u64 cq                               : 20;
-		u64 cq_limit                         : 8;
-		u64 smq                              : 10;
-		u64 xoff                             : 1;
-		u64 sso_ena                          : 1;
-		u64 smq_rr_quantum                   : 24;
-		u64 default_chan                     : 12;
-		u64 sqb_count                        : 16;
-		u64 sqe_way_mask                     : 16;
-		u64 reserved_144_171                 : 28;
-		u64 sq_int                           : 8;
-		u64 sq_int_ena                       : 8;
-		u64 sqe_stype                        : 2;
-		u64 smq_pend                         : 1;
-		u64 reserved_191                     : 1;
-		u64 reserved_192_223                 : 32;
-		u64 send_lso_segnum                  : 8;
-		u64 smq_lso_segnum                   : 8;
-		u64 qint_idx                         : 7;
-		u64 reserved_247_255                 : 9;
-		u64 next_sqb                         : 64;
-		u64 tail_sqb                         : 64;
-		u64 smenq_sqb                        : 64;
-		u64 head_sqb                         : 64;
-		u64 tail_offset                      : 6;
-		u64 smenq_offset                     : 6;
-		u64 head_offset                      : 6;
-		u64 reserved_530_539                 : 10;
-		u64 sqb_aura                         : 20;
-		u64 reserved_560_575                 : 16;
-		u64 smq_rr_count                     : 25;
-		u64 smenq_next_sqb_vld               : 1;
-		u64 smq_next_sq                      : 20;
-		u64 reserved_622_639                 : 18;
-		u64 octs                             : 48;
-		u64 reserved_688_703                 : 16;
-		u64 pkts                             : 48;
-		u64 reserved_752_767                 : 16;
-		u64 reserved_768_831                 : 64;
-		u64 smenq_next_sqb                   : 64;
-		u64 drop_octs                        : 48;
-		u64 reserved_944_959                 : 16;
-		u64 drop_pkts                        : 48;
-		u64 reserved_1008_1023               : 16;
-	} cn;
+	/* struct cavm_nix_sq_ctx_s_s cn; */
 };
 
 /**
@@ -1840,9 +1791,7 @@ static inline u64 CAVM_NIXX_AF_AQ_BASE(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_BASE(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x410;
-	return -1;
+	return 0x410;
 }
 
 /**
@@ -1863,9 +1812,7 @@ static inline u64 CAVM_NIXX_AF_AQ_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x400;
-	return -1;
+	return 0x400;
 }
 
 /**
@@ -1886,9 +1833,7 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_DONE(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x450;
-	return -1;
+	return 0x450;
 }
 
 /**
@@ -1910,9 +1855,7 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_ACK(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_DONE_ACK(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x460;
-	return -1;
+	return 0x460;
 }
 
 /**
@@ -1934,9 +1877,7 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x498;
-	return -1;
+	return 0x498;
 }
 
 /**
@@ -1958,9 +1899,7 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x490;
-	return -1;
+	return 0x490;
 }
 
 /**
@@ -1981,9 +1920,7 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_DONE_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x480;
-	return -1;
+	return 0x480;
 }
 
 /**
@@ -2004,9 +1941,7 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_DONE_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x488;
-	return -1;
+	return 0x488;
 }
 
 /**
@@ -2027,9 +1962,7 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_TIMER(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_DONE_TIMER(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x470;
-	return -1;
+	return 0x470;
 }
 
 /**
@@ -2053,9 +1986,7 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_WAIT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_DONE_WAIT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x440;
-	return -1;
+	return 0x440;
 }
 
 /**
@@ -2077,9 +2008,7 @@ static inline u64 CAVM_NIXX_AF_AQ_DOOR(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_DOOR(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x430;
-	return -1;
+	return 0x430;
 }
 
 /**
@@ -2114,9 +2043,7 @@ static inline u64 CAVM_NIXX_AF_AQ_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AQ_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x420;
-	return -1;
+	return 0x420;
 }
 
 /**
@@ -2139,9 +2066,7 @@ static inline u64 CAVM_NIXX_AF_AVG_DELAY(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_AVG_DELAY(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xe0;
-	return -1;
+	return 0xe0;
 }
 
 /**
@@ -2167,9 +2092,7 @@ static inline u64 CAVM_NIXX_AF_BAR2_ALIASX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_BAR2_ALIASX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 131071))
-		return 0x9100000 + 8 * ((a) & 0x1ffff);
-	return -1;
+	return 0x9100000 + 8 * a;
 }
 
 /**
@@ -2195,9 +2118,7 @@ static inline u64 CAVM_NIXX_AF_BAR2_SEL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_BAR2_SEL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x9000000;
-	return -1;
+	return 0x9000000;
 }
 
 /**
@@ -2219,9 +2140,7 @@ static inline u64 CAVM_NIXX_AF_BLK_RST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_BLK_RST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xb0;
-	return -1;
+	return 0xb0;
 }
 
 /**
@@ -2233,10 +2152,17 @@ union cavm_nixx_af_cfg {
 	u64 u;
 	struct cavm_nixx_af_cfg_s {
 		u64 force_cond_clk_en                : 1;
+		u64 force_rx_gbl_clk_en              : 1;
+		u64 force_rx_strm_clk_en             : 1;
+		u64 force_cqm_clk_en                 : 1;
+		u64 force_seb_clk_en                 : 1;
+		u64 force_sqm_clk_en                 : 1;
+		u64 force_pse_clk_en                 : 1;
+		u64 reserved_7                       : 1;
 		u64 af_be                            : 1;
 		u64 calibrate_x2p                    : 1;
 		u64 force_intf_clk_en                : 1;
-		u64 reserved_4_63                    : 60;
+		u64 reserved_11_63                   : 53;
 	} s;
 	/* struct cavm_nixx_af_cfg_s cn; */
 };
@@ -2245,9 +2171,7 @@ static inline u64 CAVM_NIXX_AF_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0;
-	return -1;
+	return 0;
 }
 
 /**
@@ -2270,9 +2194,7 @@ static inline u64 CAVM_NIXX_AF_CINT_DELAY(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_CINT_DELAY(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xf0;
-	return -1;
+	return 0xf0;
 }
 
 /**
@@ -2297,9 +2219,7 @@ static inline u64 CAVM_NIXX_AF_CINT_TIMERX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_CINT_TIMERX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1a40 + 0x40000 * ((a) & 0xff);
-	return -1;
+	return 0x1a40 + 0x40000 * a;
 }
 
 /**
@@ -2330,9 +2250,7 @@ static inline u64 CAVM_NIXX_AF_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x20;
-	return -1;
+	return 0x20;
 }
 
 /**
@@ -2359,9 +2277,7 @@ static inline u64 CAVM_NIXX_AF_CONST1(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_CONST1(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x28;
-	return -1;
+	return 0x28;
 }
 
 /**
@@ -2385,9 +2301,7 @@ static inline u64 CAVM_NIXX_AF_CONST2(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_CONST2(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x30;
-	return -1;
+	return 0x30;
 }
 
 /**
@@ -2416,9 +2330,7 @@ static inline u64 CAVM_NIXX_AF_CONST3(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_CONST3(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x38;
-	return -1;
+	return 0x38;
 }
 
 /**
@@ -2440,9 +2352,71 @@ static inline u64 CAVM_NIXX_AF_CQ_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_CQ_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x48;
-	return -1;
+	return 0x48;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_cqm_bp_test
+ *
+ * INTERNAL: NIX AF CQM Backpressure Test Registers
+ */
+union cavm_nixx_af_cqm_bp_test {
+	u64 u;
+	struct cavm_nixx_af_cqm_bp_test_s {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 24;
+		u64 enable                           : 12;
+		u64 reserved_52_63                   : 12;
+	} s;
+	/* struct cavm_nixx_af_cqm_bp_test_s cn; */
+};
+
+static inline u64 CAVM_NIXX_AF_CQM_BP_TEST(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 CAVM_NIXX_AF_CQM_BP_TEST(void)
+{
+	return 0x48c0;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_cqm_eco
+ *
+ * INTERNAL: AF CQM ECO Register
+ */
+union cavm_nixx_af_cqm_eco {
+	u64 u;
+	struct cavm_nixx_af_cqm_eco_s {
+		u64 eco_rw                           : 64;
+	} s;
+	/* struct cavm_nixx_af_cqm_eco_s cn; */
+};
+
+static inline u64 CAVM_NIXX_AF_CQM_ECO(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 CAVM_NIXX_AF_CQM_ECO(void)
+{
+	return 0x590;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_csi_eco
+ *
+ * INTERNAL: AF CSI ECO Register
+ */
+union cavm_nixx_af_csi_eco {
+	u64 u;
+	struct cavm_nixx_af_csi_eco_s {
+		u64 eco_rw                           : 64;
+	} s;
+	/* struct cavm_nixx_af_csi_eco_s cn; */
+};
+
+static inline u64 CAVM_NIXX_AF_CSI_ECO(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 CAVM_NIXX_AF_CSI_ECO(void)
+{
+	return 0x580;
 }
 
 /**
@@ -2459,7 +2433,8 @@ union cavm_nixx_af_err_int {
 		u64 rx_mirror_wqe_fault              : 1;
 		u64 rx_mce_fault                     : 1;
 		u64 rx_mce_list_err                  : 1;
-		u64 reserved_6_11                    : 6;
+		u64 rx_unmapped_pf_func              : 1;
+		u64 reserved_7_11                    : 5;
 		u64 aq_door_err                      : 1;
 		u64 aq_res_fault                     : 1;
 		u64 aq_inst_fault                    : 1;
@@ -2472,9 +2447,7 @@ static inline u64 CAVM_NIXX_AF_ERR_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_ERR_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x180;
-	return -1;
+	return 0x180;
 }
 
 /**
@@ -2492,7 +2465,8 @@ union cavm_nixx_af_err_int_ena_w1c {
 		u64 rx_mirror_wqe_fault              : 1;
 		u64 rx_mce_fault                     : 1;
 		u64 rx_mce_list_err                  : 1;
-		u64 reserved_6_11                    : 6;
+		u64 rx_unmapped_pf_func              : 1;
+		u64 reserved_7_11                    : 5;
 		u64 aq_door_err                      : 1;
 		u64 aq_res_fault                     : 1;
 		u64 aq_inst_fault                    : 1;
@@ -2505,9 +2479,7 @@ static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x198;
-	return -1;
+	return 0x198;
 }
 
 /**
@@ -2525,7 +2497,8 @@ union cavm_nixx_af_err_int_ena_w1s {
 		u64 rx_mirror_wqe_fault              : 1;
 		u64 rx_mce_fault                     : 1;
 		u64 rx_mce_list_err                  : 1;
-		u64 reserved_6_11                    : 6;
+		u64 rx_unmapped_pf_func              : 1;
+		u64 reserved_7_11                    : 5;
 		u64 aq_door_err                      : 1;
 		u64 aq_res_fault                     : 1;
 		u64 aq_inst_fault                    : 1;
@@ -2538,9 +2511,7 @@ static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x190;
-	return -1;
+	return 0x190;
 }
 
 /**
@@ -2558,7 +2529,8 @@ union cavm_nixx_af_err_int_w1s {
 		u64 rx_mirror_wqe_fault              : 1;
 		u64 rx_mce_fault                     : 1;
 		u64 rx_mce_list_err                  : 1;
-		u64 reserved_6_11                    : 6;
+		u64 rx_unmapped_pf_func              : 1;
+		u64 reserved_7_11                    : 5;
 		u64 aq_door_err                      : 1;
 		u64 aq_res_fault                     : 1;
 		u64 aq_inst_fault                    : 1;
@@ -2571,9 +2543,7 @@ static inline u64 CAVM_NIXX_AF_ERR_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_ERR_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x188;
-	return -1;
+	return 0x188;
 }
 
 /**
@@ -2595,9 +2565,7 @@ static inline u64 CAVM_NIXX_AF_EXPR_TX_FIFO_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_EXPR_TX_FIFO_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x640;
-	return -1;
+	return 0x640;
 }
 
 /**
@@ -2622,9 +2590,7 @@ static inline u64 CAVM_NIXX_AF_GEN_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_GEN_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x160;
-	return -1;
+	return 0x160;
 }
 
 /**
@@ -2650,9 +2616,7 @@ static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x178;
-	return -1;
+	return 0x178;
 }
 
 /**
@@ -2678,9 +2642,7 @@ static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x170;
-	return -1;
+	return 0x170;
 }
 
 /**
@@ -2706,9 +2668,7 @@ static inline u64 CAVM_NIXX_AF_GEN_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_GEN_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x168;
-	return -1;
+	return 0x168;
 }
 
 /**
@@ -2732,9 +2692,7 @@ static inline u64 CAVM_NIXX_AF_LFX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4000 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4000 + 0x20000 * a;
 }
 
 /**
@@ -2759,9 +2717,7 @@ static inline u64 CAVM_NIXX_AF_LFX_CINTS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_CINTS_BASE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4130 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4130 + 0x20000 * a;
 }
 
 /**
@@ -2787,9 +2743,7 @@ static inline u64 CAVM_NIXX_AF_LFX_CINTS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_CINTS_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4120 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4120 + 0x20000 * a;
 }
 
 /**
@@ -2814,9 +2768,7 @@ static inline u64 CAVM_NIXX_AF_LFX_CQS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_CQS_BASE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4070 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4070 + 0x20000 * a;
 }
 
 /**
@@ -2840,9 +2792,7 @@ static inline u64 CAVM_NIXX_AF_LFX_CQS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_CQS_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4060 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4060 + 0x20000 * a;
 }
 
 /**
@@ -2867,9 +2817,7 @@ static inline u64 CAVM_NIXX_AF_LFX_LOCKX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_LOCKX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 127) && (b <= 7)))
-		return 0x4300 + 0x20000 * ((a) & 0x7f) + 8 * ((b) & 0x7);
-	return -1;
+	return 0x4300 + 0x20000 * a + 8 * b;
 }
 
 /**
@@ -2894,9 +2842,7 @@ static inline u64 CAVM_NIXX_AF_LFX_QINTS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_QINTS_BASE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4110 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4110 + 0x20000 * a;
 }
 
 /**
@@ -2922,9 +2868,7 @@ static inline u64 CAVM_NIXX_AF_LFX_QINTS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_QINTS_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4100 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4100 + 0x20000 * a;
 }
 
 /**
@@ -2949,9 +2893,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RQS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RQS_BASE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4050 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4050 + 0x20000 * a;
 }
 
 /**
@@ -2975,9 +2917,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RQS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RQS_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4040 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4040 + 0x20000 * a;
 }
 
 /**
@@ -3004,9 +2944,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RSS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RSS_BASE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x40d0 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x40d0 + 0x20000 * a;
 }
 
 /**
@@ -3032,9 +2970,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RSS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RSS_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x40c0 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x40c0 + 0x20000 * a;
 }
 
 /**
@@ -3066,9 +3002,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RSS_GRPX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RSS_GRPX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 127) && (b <= 7)))
-		return 0x4600 + 0x20000 * ((a) & 0x7f) + 8 * ((b) & 0x7);
-	return -1;
+	return 0x4600 + 0x20000 * a + 8 * b;
 }
 
 /**
@@ -3098,9 +3032,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x40a0 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x40a0 + 0x20000 * a;
 }
 
 /**
@@ -3127,9 +3059,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG0(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG0(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4140 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4140 + 0x20000 * a;
 }
 
 /**
@@ -3151,9 +3081,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG1(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG1(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4148 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4148 + 0x20000 * a;
 }
 
 /**
@@ -3179,9 +3107,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_BASE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4158 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4158 + 0x20000 * a;
 }
 
 /**
@@ -3206,9 +3132,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4150 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4150 + 0x20000 * a;
 }
 
 /**
@@ -3231,9 +3155,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_SA_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_SA_BASE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4170 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4170 + 0x20000 * a;
 }
 
 /**
@@ -3255,9 +3177,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_STATX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RX_STATX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 127) && (b <= 11)))
-		return 0x4500 + 0x20000 * ((a) & 0x7f) + 8 * ((b) & 0xf);
-	return -1;
+	return 0x4500 + 0x20000 * a + 8 * b;
 }
 
 /**
@@ -3270,8 +3190,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_STATX(u64 a, u64 b)
 union cavm_nixx_af_lfx_rx_vtag_typex {
 	u64 u;
 	struct cavm_nixx_af_lfx_rx_vtag_typex_s {
-		u64 size                             : 3;
-		u64 reserved_3                       : 1;
+		u64 size                             : 1;
+		u64 reserved_1_3                     : 3;
 		u64 strip                            : 1;
 		u64 capture                          : 1;
 		u64 reserved_6_63                    : 58;
@@ -3283,9 +3203,7 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_VTAG_TYPEX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_RX_VTAG_TYPEX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 127) && (b <= 7)))
-		return 0x4200 + 0x20000 * ((a) & 0x7f) + 8 * ((b) & 0x7);
-	return -1;
+	return 0x4200 + 0x20000 * a + 8 * b;
 }
 
 /**
@@ -3310,9 +3228,7 @@ static inline u64 CAVM_NIXX_AF_LFX_SQS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_SQS_BASE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4030 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4030 + 0x20000 * a;
 }
 
 /**
@@ -3336,9 +3252,7 @@ static inline u64 CAVM_NIXX_AF_LFX_SQS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_SQS_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4020 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4020 + 0x20000 * a;
 }
 
 /**
@@ -3363,9 +3277,7 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_TX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4080 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4080 + 0x20000 * a;
 }
 
 /**
@@ -3386,9 +3298,7 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_CFG2(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_TX_CFG2(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4028 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4028 + 0x20000 * a;
 }
 
 /**
@@ -3409,9 +3319,7 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_PARSE_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_TX_PARSE_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4090 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4090 + 0x20000 * a;
 }
 
 /**
@@ -3433,9 +3341,7 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_STATX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_TX_STATX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 127) && (b <= 4)))
-		return 0x4400 + 0x20000 * ((a) & 0x7f) + 8 * ((b) & 0x7);
-	return -1;
+	return 0x4400 + 0x20000 * a + 8 * b;
 }
 
 /**
@@ -3456,9 +3362,7 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LFX_TX_STATUS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x4180 + 0x20000 * ((a) & 0x7f);
-	return -1;
+	return 0x4180 + 0x20000 * a;
 }
 
 /**
@@ -3481,9 +3385,7 @@ static inline u64 CAVM_NIXX_AF_LF_RST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LF_RST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x150;
-	return -1;
+	return 0x150;
 }
 
 /**
@@ -3507,9 +3409,7 @@ static inline u64 CAVM_NIXX_AF_LSO_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LSO_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xa8;
-	return -1;
+	return 0xa8;
 }
 
 /**
@@ -3545,9 +3445,7 @@ static inline u64 CAVM_NIXX_AF_LSO_FORMATX_FIELDX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_LSO_FORMATX_FIELDX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 31) && (b <= 7)))
-		return 0x1b00 + 0x10000 * ((a) & 0x1f) + 8 * ((b) & 0x7);
-	return -1;
+	return 0x1b00 + 0x10000 * a + 8 * b;
 }
 
 /**
@@ -3593,9 +3491,7 @@ static inline u64 CAVM_NIXX_AF_MARK_FORMATX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MARK_FORMATX_CTL(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x900 + 0x40000 * ((a) & 0x7f);
-	return -1;
+	return 0x900 + 0x40000 * a;
 }
 
 /**
@@ -3617,9 +3513,7 @@ static inline u64 CAVM_NIXX_AF_MC_MIRROR_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MC_MIRROR_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x98;
-	return -1;
+	return 0x98;
 }
 
 /**
@@ -3647,9 +3541,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_CIR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_CIR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1420 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1420 + 0x10000 * a;
 }
 
 /**
@@ -3680,9 +3572,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_MD_DEBUG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_MD_DEBUG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x14c0 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x14c0 + 0x10000 * a;
 }
 
 /**
@@ -3704,9 +3594,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_PARENT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_PARENT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1480 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1480 + 0x10000 * a;
 }
 
 /**
@@ -3734,9 +3622,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_PIR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_PIR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1430 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1430 + 0x10000 * a;
 }
 
 /**
@@ -3761,9 +3647,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_POINTERS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_POINTERS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1460 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1460 + 0x10000 * a;
 }
 
 /**
@@ -3786,9 +3670,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_PTR_FIFO(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_PTR_FIFO(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x14d0 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x14d0 + 0x10000 * a;
 }
 
 /**
@@ -3810,9 +3692,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_SCHED_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_SCHED_STATE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1440 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1440 + 0x10000 * a;
 }
 
 /**
@@ -3835,9 +3715,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_SCHEDULE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_SCHEDULE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1400 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1400 + 0x10000 * a;
 }
 
 /**
@@ -3865,9 +3743,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_SHAPE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_SHAPE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1410 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1410 + 0x10000 * a;
 }
 
 /**
@@ -3892,9 +3768,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_SHAPE_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_SHAPE_STATE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1450 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1450 + 0x10000 * a;
 }
 
 /**
@@ -3919,9 +3793,7 @@ static inline u64 CAVM_NIXX_AF_MDQX_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQX_SW_XOFF(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1470 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1470 + 0x10000 * a;
 }
 
 /**
@@ -3943,9 +3815,7 @@ static inline u64 CAVM_NIXX_AF_MDQ_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_MDQ_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x90;
-	return -1;
+	return 0x90;
 }
 
 /**
@@ -3979,9 +3849,7 @@ static inline u64 CAVM_NIXX_AF_NDC_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_NDC_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x18;
-	return -1;
+	return 0x18;
 }
 
 /**
@@ -4005,9 +3873,7 @@ static inline u64 CAVM_NIXX_AF_NDC_RX_SYNC(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_NDC_RX_SYNC(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x3e0;
-	return -1;
+	return 0x3e0;
 }
 
 /**
@@ -4031,9 +3897,7 @@ static inline u64 CAVM_NIXX_AF_NDC_TX_SYNC(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_NDC_TX_SYNC(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x3f0;
-	return -1;
+	return 0x3f0;
 }
 
 /**
@@ -4055,9 +3919,28 @@ static inline u64 CAVM_NIXX_AF_NORM_TX_FIFO_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_NORM_TX_FIFO_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x648;
-	return -1;
+	return 0x648;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pse_400_rate_divider
+ *
+ * INTERNAL: NIX AF PSE 400 Rate Divider Register
+ */
+union cavm_nixx_af_pse_400_rate_divider {
+	u64 u;
+	struct cavm_nixx_af_pse_400_rate_divider_s {
+		u64 rate_div_cfg                     : 9;
+		u64 reserved_9_63                    : 55;
+	} s;
+	/* struct cavm_nixx_af_pse_400_rate_divider_s cn; */
+};
+
+static inline u64 CAVM_NIXX_AF_PSE_400_RATE_DIVIDER(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 CAVM_NIXX_AF_PSE_400_RATE_DIVIDER(void)
+{
+	return 0x830;
 }
 
 /**
@@ -4078,9 +3961,7 @@ static inline u64 CAVM_NIXX_AF_PSE_ACTIVE_CYCLES_PC(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_PSE_ACTIVE_CYCLES_PC(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x8c0;
-	return -1;
+	return 0x8c0;
 }
 
 /**
@@ -4104,9 +3985,7 @@ static inline u64 CAVM_NIXX_AF_PSE_BP_TEST0(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_PSE_BP_TEST0(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x840;
-	return -1;
+	return 0x840;
 }
 
 /**
@@ -4130,9 +4009,7 @@ static inline u64 CAVM_NIXX_AF_PSE_BP_TEST1(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_PSE_BP_TEST1(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x850;
-	return -1;
+	return 0x850;
 }
 
 /**
@@ -4156,9 +4033,7 @@ static inline u64 CAVM_NIXX_AF_PSE_BP_TEST2(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_PSE_BP_TEST2(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x860;
-	return -1;
+	return 0x860;
 }
 
 /**
@@ -4182,9 +4057,7 @@ static inline u64 CAVM_NIXX_AF_PSE_BP_TEST3(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_PSE_BP_TEST3(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x870;
-	return -1;
+	return 0x870;
 }
 
 /**
@@ -4205,9 +4078,7 @@ static inline u64 CAVM_NIXX_AF_PSE_CHANNEL_LEVEL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_PSE_CHANNEL_LEVEL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x800;
-	return -1;
+	return 0x800;
 }
 
 /**
@@ -4231,9 +4102,27 @@ static inline u64 CAVM_NIXX_AF_PSE_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_PSE_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x60;
-	return -1;
+	return 0x60;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pse_eco
+ *
+ * INTERNAL: AF PSE ECO Register
+ */
+union cavm_nixx_af_pse_eco {
+	u64 u;
+	struct cavm_nixx_af_pse_eco_s {
+		u64 eco_rw                           : 64;
+	} s;
+	/* struct cavm_nixx_af_pse_eco_s cn; */
+};
+
+static inline u64 CAVM_NIXX_AF_PSE_ECO(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 CAVM_NIXX_AF_PSE_ECO(void)
+{
+	return 0x5d0;
 }
 
 /**
@@ -4256,9 +4145,7 @@ static inline u64 CAVM_NIXX_AF_PSE_EXPR_BP_TEST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_PSE_EXPR_BP_TEST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x890;
-	return -1;
+	return 0x890;
 }
 
 /**
@@ -4281,9 +4168,7 @@ static inline u64 CAVM_NIXX_AF_PSE_NORM_BP_TEST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_PSE_NORM_BP_TEST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x880;
-	return -1;
+	return 0x880;
 }
 
 /**
@@ -4305,9 +4190,7 @@ static inline u64 CAVM_NIXX_AF_PSE_SHAPER_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_PSE_SHAPER_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x810;
-	return -1;
+	return 0x810;
 }
 
 /**
@@ -4338,9 +4221,7 @@ static inline u64 CAVM_NIXX_AF_RAS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RAS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1a0;
-	return -1;
+	return 0x1a0;
 }
 
 /**
@@ -4370,9 +4251,7 @@ static inline u64 CAVM_NIXX_AF_RAS_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RAS_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1b8;
-	return -1;
+	return 0x1b8;
 }
 
 /**
@@ -4402,9 +4281,7 @@ static inline u64 CAVM_NIXX_AF_RAS_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RAS_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1b0;
-	return -1;
+	return 0x1b0;
 }
 
 /**
@@ -4434,9 +4311,7 @@ static inline u64 CAVM_NIXX_AF_RAS_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RAS_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1a8;
-	return -1;
+	return 0x1a8;
 }
 
 /**
@@ -4461,9 +4336,7 @@ static inline u64 CAVM_NIXX_AF_REB_BP_TESTX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_REB_BP_TESTX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 28))
-		return 0x4840 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0x4840 + 0x10000 * a;
 }
 
 /**
@@ -4485,9 +4358,7 @@ static inline u64 CAVM_NIXX_AF_RQ_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RQ_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x50;
-	return -1;
+	return 0x50;
 }
 
 /**
@@ -4512,9 +4383,27 @@ static inline u64 CAVM_NIXX_AF_RQM_BP_TEST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RQM_BP_TEST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x4880;
-	return -1;
+	return 0x4880;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_rqm_eco
+ *
+ * INTERNAL: AF RQM ECO Register
+ */
+union cavm_nixx_af_rqm_eco {
+	u64 u;
+	struct cavm_nixx_af_rqm_eco_s {
+		u64 eco_rw                           : 64;
+	} s;
+	/* struct cavm_nixx_af_rqm_eco_s cn; */
+};
+
+static inline u64 CAVM_NIXX_AF_RQM_ECO(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 CAVM_NIXX_AF_RQM_ECO(void)
+{
+	return 0x5a0;
 }
 
 /**
@@ -4536,9 +4425,7 @@ static inline u64 CAVM_NIXX_AF_RVU_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RVU_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1c0;
-	return -1;
+	return 0x1c0;
 }
 
 /**
@@ -4560,9 +4447,7 @@ static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1d8;
-	return -1;
+	return 0x1d8;
 }
 
 /**
@@ -4584,9 +4469,7 @@ static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1d0;
-	return -1;
+	return 0x1d0;
 }
 
 /**
@@ -4608,9 +4491,7 @@ static inline u64 CAVM_NIXX_AF_RVU_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RVU_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1c8;
-	return -1;
+	return 0x1c8;
 }
 
 /**
@@ -4638,9 +4519,7 @@ static inline u64 CAVM_NIXX_AF_RVU_LF_CFG_DEBUG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RVU_LF_CFG_DEBUG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x8000030;
-	return -1;
+	return 0x8000030;
 }
 
 /**
@@ -4661,9 +4540,7 @@ static inline u64 CAVM_NIXX_AF_RX_ACTIVE_CYCLES_PCX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_ACTIVE_CYCLES_PCX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 30))
-		return 0x4800 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0x4800 + 0x10000 * a;
 }
 
 /**
@@ -4684,9 +4561,7 @@ static inline u64 CAVM_NIXX_AF_RX_BPIDX_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_BPIDX_STATUS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1a20 + 0x20000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1a20 + 0x20000 * a;
 }
 
 /**
@@ -4707,9 +4582,7 @@ static inline u64 CAVM_NIXX_AF_RX_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xd0;
-	return -1;
+	return 0xd0;
 }
 
 /**
@@ -4734,9 +4607,7 @@ static inline u64 CAVM_NIXX_AF_RX_CHANX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_CHANX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 4095))
-		return 0x1a30 + 0x8000 * ((a) & 0xfff);
-	return -1;
+	return 0x1a30 + 0x8000 * a;
 }
 
 /**
@@ -4757,9 +4628,7 @@ static inline u64 CAVM_NIXX_AF_RX_CPTX_CREDIT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_CPTX_CREDIT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a == 0))
-		return 0x360 + 8 * ((a) & 0x0);
-	return -1;
+	return 0x360 + 8 * a;
 }
 
 /**
@@ -4796,9 +4665,7 @@ static inline u64 CAVM_NIXX_AF_RX_CPTX_INST_QSEL(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_CPTX_INST_QSEL(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a == 0))
-		return 0x320 + 8 * ((a) & 0x0);
-	return -1;
+	return 0x320 + 8 * a;
 }
 
 /**
@@ -4823,9 +4690,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IIP4(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_IIP4(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x220;
-	return -1;
+	return 0x220;
 }
 
 /**
@@ -4849,9 +4714,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IIP6(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_IIP6(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x240;
-	return -1;
+	return 0x240;
 }
 
 /**
@@ -4880,9 +4743,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IPSECX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_IPSECX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x2b0 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x2b0 + 8 * a;
 }
 
 /**
@@ -4906,9 +4767,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_ISCTP(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_ISCTP(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2a0;
-	return -1;
+	return 0x2a0;
 }
 
 /**
@@ -4932,9 +4791,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_ITCP(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_ITCP(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x260;
-	return -1;
+	return 0x260;
 }
 
 /**
@@ -4958,9 +4815,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IUDP(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_IUDP(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x280;
-	return -1;
+	return 0x280;
 }
 
 /**
@@ -4985,9 +4840,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OIP4(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_OIP4(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x210;
-	return -1;
+	return 0x210;
 }
 
 /**
@@ -5012,9 +4865,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OIP6(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_OIP6(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x230;
-	return -1;
+	return 0x230;
 }
 
 /**
@@ -5039,9 +4890,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OL2(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_OL2(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x200;
-	return -1;
+	return 0x200;
 }
 
 /**
@@ -5065,9 +4914,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OSCTP(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_OSCTP(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x290;
-	return -1;
+	return 0x290;
 }
 
 /**
@@ -5091,9 +4938,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OTCP(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_OTCP(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x250;
-	return -1;
+	return 0x250;
 }
 
 /**
@@ -5117,9 +4962,7 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OUDP(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_DEF_OUDP(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x270;
-	return -1;
+	return 0x270;
 }
 
 /**
@@ -5166,16 +5009,14 @@ static inline u64 CAVM_NIXX_AF_RX_FLOW_KEY_ALGX_FIELDX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_FLOW_KEY_ALGX_FIELDX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 31) && (b <= 4)))
-		return 0x1800 + 0x40000 * ((a) & 0x1f) + 8 * ((b) & 0x7);
-	return -1;
+	return 0x1800 + 0x40000 * a + 8 * b;
 }
 
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_ipsec_gen_cfg
  *
  * NIX AF Receive IPSEC General Configuration Register
- * This register specifie the values of certain fields in CPT instructions
+ * This register specifies the values of certain fields in CPT instructions
  * (CPT_INST_S) generated by NIX for IPSEC hardware fast-path packets.
  */
 union cavm_nixx_af_rx_ipsec_gen_cfg {
@@ -5194,9 +5035,7 @@ static inline u64 CAVM_NIXX_AF_RX_IPSEC_GEN_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_IPSEC_GEN_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x300;
-	return -1;
+	return 0x300;
 }
 
 /**
@@ -5219,9 +5058,7 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_LINKX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 13))
-		return 0x540 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0x540 + 0x10000 * a;
 }
 
 /**
@@ -5249,9 +5086,7 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_SLX_SPKT_CNT(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_LINKX_SLX_SPKT_CNT(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 14) && (b <= 1)))
-		return 0x500 + 0x10000 * ((a) & 0xf) + 8 * ((b) & 0x1);
-	return -1;
+	return 0x500 + 0x10000 * a + 8 * b;
 }
 
 /**
@@ -5273,9 +5108,7 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_WRR_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_LINKX_WRR_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 14))
-		return 0x560 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0x560 + 0x10000 * a;
 }
 
 /**
@@ -5322,9 +5155,7 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_BASE(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_MCAST_BASE(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x100;
-	return -1;
+	return 0x100;
 }
 
 /**
@@ -5357,9 +5188,7 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_BASE(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_BASE(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x120;
-	return -1;
+	return 0x120;
 }
 
 /**
@@ -5388,9 +5217,7 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x130;
-	return -1;
+	return 0x130;
 }
 
 /**
@@ -5416,9 +5243,7 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_MCAST_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x110;
-	return -1;
+	return 0x110;
 }
 
 /**
@@ -5450,9 +5275,7 @@ static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_BASE(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_BASE(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x140;
-	return -1;
+	return 0x140;
 }
 
 /**
@@ -5481,9 +5304,7 @@ static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x148;
-	return -1;
+	return 0x148;
 }
 
 /**
@@ -5505,16 +5326,14 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MC_DROP(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_NPC_MC_DROP(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x4710;
-	return -1;
+	return 0x4710;
 }
 
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_npc_mc_rcv
  *
  * NIX AF Multicast Receive Statistics Register
- * The counter increments for every recieved MC packet marked by the NPC.
+ * The counter increments for every received MC packet marked by the NPC.
  */
 union cavm_nixx_af_rx_npc_mc_rcv {
 	u64 u;
@@ -5529,9 +5348,7 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MC_RCV(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_NPC_MC_RCV(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x4700;
-	return -1;
+	return 0x4700;
 }
 
 /**
@@ -5553,16 +5370,14 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_DROP(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_DROP(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x4730;
-	return -1;
+	return 0x4730;
 }
 
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_npc_mirror_rcv
  *
  * NIX AF Mirror Receive Statistics Register
- * The counter increments for every recieved MIRROR packet marked by the NPC.
+ * The counter increments for every received MIRROR packet marked by the NPC.
  */
 union cavm_nixx_af_rx_npc_mirror_rcv {
 	u64 u;
@@ -5577,9 +5392,7 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_RCV(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_RCV(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x4720;
-	return -1;
+	return 0x4720;
 }
 
 /**
@@ -5600,9 +5413,7 @@ static inline u64 CAVM_NIXX_AF_RX_SW_SYNC(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_RX_SW_SYNC(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x550;
-	return -1;
+	return 0x550;
 }
 
 /**
@@ -5623,9 +5434,7 @@ static inline u64 CAVM_NIXX_AF_SDP_HW_XOFFX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SDP_HW_XOFFX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 3))
-		return 0xac0 + 8 * ((a) & 0x3);
-	return -1;
+	return 0xac0 + 8 * a;
 }
 
 /**
@@ -5650,9 +5459,7 @@ static inline u64 CAVM_NIXX_AF_SDP_LINK_CREDIT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SDP_LINK_CREDIT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xa40;
-	return -1;
+	return 0xa40;
 }
 
 /**
@@ -5672,9 +5479,7 @@ static inline u64 CAVM_NIXX_AF_SDP_SW_XOFFX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SDP_SW_XOFFX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 3))
-		return 0xa60 + 8 * ((a) & 0x3);
-	return -1;
+	return 0xa60 + 8 * a;
 }
 
 /**
@@ -5696,9 +5501,7 @@ static inline u64 CAVM_NIXX_AF_SDP_TX_FIFO_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SDP_TX_FIFO_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x650;
-	return -1;
+	return 0x650;
 }
 
 /**
@@ -5719,24 +5522,43 @@ static inline u64 CAVM_NIXX_AF_SEB_ACTIVE_CYCLES_PCX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SEB_ACTIVE_CYCLES_PCX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 2))
-		return 0x6c0 + 8 * ((a) & 0x3);
-	return -1;
+	return 0x6c0 + 8 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_seb_bp_test
+ *
+ * INTERNAL: NIX AF SEB Backpressure Test Register
+ */
+union cavm_nixx_af_seb_bp_test {
+	u64 u;
+	struct cavm_nixx_af_seb_bp_test_s {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 14;
+		u64 reserved_30_47                   : 18;
+		u64 enable                           : 7;
+		u64 reserved_55_63                   : 9;
+	} s;
+	/* struct cavm_nixx_af_seb_bp_test_s cn; */
+};
+
+static inline u64 CAVM_NIXX_AF_SEB_BP_TEST(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 CAVM_NIXX_AF_SEB_BP_TEST(void)
+{
+	return 0x630;
 }
 
 /**
  * Register (RVU_PF_BAR0) nix#_af_seb_eco
  *
- * INTERNAL: SEB AF ECO Register
- *
- * Internal:
- * TODO - When CSI ECO register is added, switch this one to inherit from it.
+ * INTERNAL: AF SEB ECO Register
  */
 union cavm_nixx_af_seb_eco {
 	u64 u;
 	struct cavm_nixx_af_seb_eco_s {
-		u64 eco_rw                           : 32;
-		u64 reserved_32_63                   : 32;
+		u64 eco_rw                           : 64;
 	} s;
 	/* struct cavm_nixx_af_seb_eco_s cn; */
 };
@@ -5745,79 +5567,78 @@ static inline u64 CAVM_NIXX_AF_SEB_ECO(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SEB_ECO(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x600;
-	return -1;
+	return 0x5c0;
 }
 
 /**
- * Register (RVU_PF_BAR0) nix#_af_seb_test_bp
+ * Register (RVU_PF_BAR0) nix#_af_seb_pipe_bp_test#
  *
- * NIX AF SEB Backpressure Test Register
+ * INTERNAL: NIX AF SEB Pipe Backpressure Test Registers
  */
-union cavm_nixx_af_seb_test_bp {
+union cavm_nixx_af_seb_pipe_bp_testx {
 	u64 u;
-	struct cavm_nixx_af_seb_test_bp_s {
-		u64 introp                           : 1;
-		u64 ndx                              : 1;
-		u64 npx                              : 1;
-		u64 sso_lwa                          : 1;
-		u64 sqm_lf_err_dbg                   : 1;
-		u64 reserved_5_63                    : 59;
+	struct cavm_nixx_af_seb_pipe_bp_testx_s {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 24;
+		u64 reserved_40_47                   : 8;
+		u64 enable                           : 12;
+		u64 reserved_60_63                   : 4;
 	} s;
-	/* struct cavm_nixx_af_seb_test_bp_s cn; */
+	/* struct cavm_nixx_af_seb_pipe_bp_testx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SEB_TEST_BP(void)
+static inline u64 CAVM_NIXX_AF_SEB_PIPE_BP_TESTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SEB_TEST_BP(void)
+static inline u64 CAVM_NIXX_AF_SEB_PIPE_BP_TESTX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x610;
-	return -1;
+	return 0x600 + 0x10 * a;
 }
 
 /**
- * Register (RVU_PF_BAR0) nix#_af_seb_test_bp_pipe#
+ * Register (RVU_PF_BAR0) nix#_af_seb_pipeb_bp_test#
  *
- * NIX AF SEB Pipe Backpressure Test Registers
+ * INTERNAL: NIX AF SEB Pipe Backpressure Test Registers
  */
-union cavm_nixx_af_seb_test_bp_pipex {
+union cavm_nixx_af_seb_pipeb_bp_testx {
 	u64 u;
-	struct cavm_nixx_af_seb_test_bp_pipex_s {
-		u64 jump                             : 1;
-		u64 jump_ndx_req                     : 1;
-		u64 jump_npx_rtn                     : 1;
-		u64 sg_cp                            : 1;
-		u64 sg_dp                            : 1;
-		u64 sg_ndx_req                       : 1;
-		u64 sg_npx_rtn                       : 1;
-		u64 mod1_cp                          : 1;
-		u64 mod1_dp                          : 1;
-		u64 query_cp                         : 1;
-		u64 query_dp                         : 1;
-		u64 query_npc_hdr                    : 1;
-		u64 mod2_cp                          : 1;
-		u64 mod2_dp                          : 1;
-		u64 check_cp                         : 1;
-		u64 check_dp                         : 1;
-		u64 tail_introp                      : 1;
-		u64 tail_lf_err_dbg                  : 1;
-		u64 tail_linkcdt                     : 1;
-		u64 tail_ndx_wr                      : 1;
-		u64 tail_ssoif                       : 1;
-		u64 reserved_21_63                   : 43;
+	struct cavm_nixx_af_seb_pipeb_bp_testx_s {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 18;
+		u64 reserved_34_47                   : 14;
+		u64 enable                           : 9;
+		u64 reserved_57_63                   : 7;
 	} s;
-	/* struct cavm_nixx_af_seb_test_bp_pipex_s cn; */
+	/* struct cavm_nixx_af_seb_pipeb_bp_testx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SEB_TEST_BP_PIPEX(u64 a)
+static inline u64 CAVM_NIXX_AF_SEB_PIPEB_BP_TESTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SEB_TEST_BP_PIPEX(u64 a)
+static inline u64 CAVM_NIXX_AF_SEB_PIPEB_BP_TESTX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 2))
-		return 0x620 + 8 * ((a) & 0x3);
-	return -1;
+	return 0x608 + 0x10 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_seb_wd_tick_divider
+ *
+ * INTERNAL: NIX AF SEB TSTMP Watchdog Tick Divider Register
+ */
+union cavm_nixx_af_seb_wd_tick_divider {
+	u64 u;
+	struct cavm_nixx_af_seb_wd_tick_divider_s {
+		u64 tick_div_cfg                     : 7;
+		u64 reserved_7_63                    : 57;
+	} s;
+	/* struct cavm_nixx_af_seb_wd_tick_divider_s cn; */
+};
+
+static inline u64 CAVM_NIXX_AF_SEB_WD_TICK_DIVIDER(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 CAVM_NIXX_AF_SEB_WD_TICK_DIVIDER(void)
+{
+	return 0x6f0;
 }
 
 /**
@@ -5848,9 +5669,7 @@ static inline u64 CAVM_NIXX_AF_SMQX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SMQX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x700 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x700 + 0x10000 * a;
 }
 
 /**
@@ -5873,9 +5692,7 @@ static inline u64 CAVM_NIXX_AF_SMQX_HEAD(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SMQX_HEAD(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x710 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x710 + 0x10000 * a;
 }
 
 /**
@@ -5898,16 +5715,14 @@ static inline u64 CAVM_NIXX_AF_SMQX_NXT_HEAD(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SMQX_NXT_HEAD(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x740 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x740 + 0x10000 * a;
 }
 
 /**
  * Register (RVU_PF_BAR0) nix#_af_smq#_status
  *
  * NIX AF SQM SMQ Status Register
- * These registers track the status of the SMQ fifo.
+ * These registers track the status of the SMQ FIFO.
  */
 union cavm_nixx_af_smqx_status {
 	u64 u;
@@ -5922,9 +5737,7 @@ static inline u64 CAVM_NIXX_AF_SMQX_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SMQX_STATUS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x730 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x730 + 0x10000 * a;
 }
 
 /**
@@ -5947,9 +5760,7 @@ static inline u64 CAVM_NIXX_AF_SMQX_TAIL(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SMQX_TAIL(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x720 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x720 + 0x10000 * a;
 }
 
 /**
@@ -5973,9 +5784,7 @@ static inline u64 CAVM_NIXX_AF_SQ_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SQ_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x40;
-	return -1;
+	return 0x40;
 }
 
 /**
@@ -5996,35 +5805,31 @@ static inline u64 CAVM_NIXX_AF_SQM_ACTIVE_CYCLES_PC(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SQM_ACTIVE_CYCLES_PC(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x770;
-	return -1;
+	return 0x770;
 }
 
 /**
- * Register (RVU_PF_BAR0) nix#_af_sqm_bp_test0
+ * Register (RVU_PF_BAR0) nix#_af_sqm_bp_test#
  *
  * INTERNAL: NIX AF SQM Backpressure Test Register
  */
-union cavm_nixx_af_sqm_bp_test0 {
+union cavm_nixx_af_sqm_bp_testx {
 	u64 u;
-	struct cavm_nixx_af_sqm_bp_test0_s {
+	struct cavm_nixx_af_sqm_bp_testx_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 8;
 		u64 reserved_24_59                   : 36;
 		u64 enable                           : 4;
 	} s;
-	/* struct cavm_nixx_af_sqm_bp_test0_s cn; */
+	/* struct cavm_nixx_af_sqm_bp_testx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SQM_BP_TEST0(void)
+static inline u64 CAVM_NIXX_AF_SQM_BP_TESTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SQM_BP_TEST0(void)
+static inline u64 CAVM_NIXX_AF_SQM_BP_TESTX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x760;
-	return -1;
+	return 0x760 + 0x10000 * a;
 }
 
 /**
@@ -6041,7 +5846,12 @@ union cavm_nixx_af_sqm_dbg_ctl_status {
 		u64 tm2                              : 1;
 		u64 tm3                              : 4;
 		u64 tm4                              : 1;
-		u64 reserved_14_63                   : 50;
+		u64 tm5                              : 1;
+		u64 tm6                              : 1;
+		u64 tm7                              : 4;
+		u64 tm8                              : 1;
+		u64 tm9                              : 1;
+		u64 reserved_22_63                   : 42;
 	} s;
 	/* struct cavm_nixx_af_sqm_dbg_ctl_status_s cn; */
 };
@@ -6050,9 +5860,27 @@ static inline u64 CAVM_NIXX_AF_SQM_DBG_CTL_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_SQM_DBG_CTL_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x750;
-	return -1;
+	return 0x750;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_sqm_eco
+ *
+ * INTERNAL: AF SQM ECO Register
+ */
+union cavm_nixx_af_sqm_eco {
+	u64 u;
+	struct cavm_nixx_af_sqm_eco_s {
+		u64 eco_rw                           : 64;
+	} s;
+	/* struct cavm_nixx_af_sqm_eco_s cn; */
+};
+
+static inline u64 CAVM_NIXX_AF_SQM_ECO(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 CAVM_NIXX_AF_SQM_ECO(void)
+{
+	return 0x5b0;
 }
 
 /**
@@ -6076,9 +5904,7 @@ static inline u64 CAVM_NIXX_AF_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x10;
-	return -1;
+	return 0x10;
 }
 
 /**
@@ -6103,9 +5929,7 @@ static inline u64 CAVM_NIXX_AF_TCP_TIMER(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TCP_TIMER(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x1e0;
-	return -1;
+	return 0x1e0;
 }
 
 /**
@@ -6132,9 +5956,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_CIR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_CIR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xc20 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xc20 + 0x10000 * a;
 }
 
 /**
@@ -6156,9 +5978,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_BYTES(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_BYTES(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xd30 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xd30 + 0x10000 * a;
 }
 
 /**
@@ -6180,9 +6000,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_PACKETS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_PACKETS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xd20 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xd20 + 0x10000 * a;
 }
 
 /**
@@ -6208,9 +6026,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_GREEN(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_GREEN(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xc90 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xc90 + 0x10000 * a;
 }
 
 /**
@@ -6231,9 +6047,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_GREEN_BYTES(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_GREEN_BYTES(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xd90 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xd90 + 0x10000 * a;
 }
 
 /**
@@ -6254,9 +6068,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_GREEN_PACKETS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_GREEN_PACKETS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xd80 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xd80 + 0x10000 * a;
 }
 
 /**
@@ -6295,9 +6107,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG0(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG0(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xcc0 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xcc0 + 0x10000 * a;
 }
 
 /**
@@ -6333,9 +6143,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG1(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG1(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xcc8 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xcc8 + 0x10000 * a;
 }
 
 /**
@@ -6371,9 +6179,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG2(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG2(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xcd0 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xcd0 + 0x10000 * a;
 }
 
 /**
@@ -6399,9 +6205,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG3(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG3(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xcd8 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xcd8 + 0x10000 * a;
 }
 
 /**
@@ -6426,9 +6230,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_RED(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_RED(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xcb0 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xcb0 + 0x10000 * a;
 }
 
 /**
@@ -6450,9 +6252,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_RED_BYTES(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_RED_BYTES(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xd50 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xd50 + 0x10000 * a;
 }
 
 /**
@@ -6474,9 +6274,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_RED_PACKETS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_RED_PACKETS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xd40 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xd40 + 0x10000 * a;
 }
 
 /**
@@ -6497,9 +6295,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_SCHEDULE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_SCHEDULE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xc00 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xc00 + 0x10000 * a;
 }
 
 /**
@@ -6528,9 +6324,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_SHAPE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_SHAPE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xc10 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xc10 + 0x10000 * a;
 }
 
 /**
@@ -6554,9 +6348,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_SHAPE_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_SHAPE_STATE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xc50 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xc50 + 0x10000 * a;
 }
 
 /**
@@ -6580,9 +6372,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_SW_XOFF(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xc70 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xc70 + 0x10000 * a;
 }
 
 /**
@@ -6606,9 +6396,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_TOPOLOGY(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_TOPOLOGY(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xc80 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xc80 + 0x10000 * a;
 }
 
 /**
@@ -6631,9 +6419,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_YELLOW(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_YELLOW(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xca0 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xca0 + 0x10000 * a;
 }
 
 /**
@@ -6655,9 +6441,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_BYTES(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_BYTES(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xd70 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xd70 + 0x10000 * a;
 }
 
 /**
@@ -6679,9 +6463,7 @@ static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_PACKETS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_PACKETS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 27))
-		return 0xd60 + 0x10000 * ((a) & 0x1f);
-	return -1;
+	return 0xd60 + 0x10000 * a;
 }
 
 /**
@@ -6703,9 +6485,7 @@ static inline u64 CAVM_NIXX_AF_TL1_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL1_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x70;
-	return -1;
+	return 0x70;
 }
 
 /**
@@ -6733,9 +6513,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_CIR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_CIR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe20 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe20 + 0x10000 * a;
 }
 
 /**
@@ -6763,9 +6541,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_GREEN(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_GREEN(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe90 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe90 + 0x10000 * a;
 }
 
 /**
@@ -6798,9 +6574,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG0(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG0(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xec0 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xec0 + 0x10000 * a;
 }
 
 /**
@@ -6836,9 +6610,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG1(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG1(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xec8 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xec8 + 0x10000 * a;
 }
 
 /**
@@ -6874,9 +6646,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG2(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG2(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xed0 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xed0 + 0x10000 * a;
 }
 
 /**
@@ -6902,9 +6672,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG3(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG3(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xed8 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xed8 + 0x10000 * a;
 }
 
 /**
@@ -6926,9 +6694,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_PARENT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_PARENT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe88 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe88 + 0x10000 * a;
 }
 
 /**
@@ -6956,9 +6722,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_PIR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_PIR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe30 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe30 + 0x10000 * a;
 }
 
 /**
@@ -6981,9 +6745,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_POINTERS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_POINTERS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe60 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe60 + 0x10000 * a;
 }
 
 /**
@@ -7008,9 +6770,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_RED(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_RED(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xeb0 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xeb0 + 0x10000 * a;
 }
 
 /**
@@ -7031,9 +6791,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_SCHED_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_SCHED_STATE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe40 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe40 + 0x10000 * a;
 }
 
 /**
@@ -7055,9 +6813,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_SCHEDULE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_SCHEDULE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe00 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe00 + 0x10000 * a;
 }
 
 /**
@@ -7084,9 +6840,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_SHAPE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_SHAPE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe10 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe10 + 0x10000 * a;
 }
 
 /**
@@ -7110,9 +6864,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_SHAPE_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_SHAPE_STATE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe50 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe50 + 0x10000 * a;
 }
 
 /**
@@ -7137,9 +6889,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_SW_XOFF(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe70 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe70 + 0x10000 * a;
 }
 
 /**
@@ -7163,9 +6913,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_TOPOLOGY(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_TOPOLOGY(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xe80 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xe80 + 0x10000 * a;
 }
 
 /**
@@ -7190,9 +6938,7 @@ static inline u64 CAVM_NIXX_AF_TL2X_YELLOW(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2X_YELLOW(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0xea0 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0xea0 + 0x10000 * a;
 }
 
 /**
@@ -7214,9 +6960,7 @@ static inline u64 CAVM_NIXX_AF_TL2_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL2_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x78;
-	return -1;
+	return 0x78;
 }
 
 /**
@@ -7244,9 +6988,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_CIR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_CIR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1020 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1020 + 0x10000 * a;
 }
 
 /**
@@ -7272,9 +7014,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_GREEN(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_GREEN(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1090 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1090 + 0x10000 * a;
 }
 
 /**
@@ -7307,9 +7047,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG0(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG0(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x10c0 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x10c0 + 0x10000 * a;
 }
 
 /**
@@ -7345,9 +7083,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG1(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG1(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x10c8 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x10c8 + 0x10000 * a;
 }
 
 /**
@@ -7383,9 +7119,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG2(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG2(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x10d0 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x10d0 + 0x10000 * a;
 }
 
 /**
@@ -7411,9 +7145,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG3(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG3(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x10d8 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x10d8 + 0x10000 * a;
 }
 
 /**
@@ -7435,9 +7167,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_PARENT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_PARENT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1088 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1088 + 0x10000 * a;
 }
 
 /**
@@ -7465,9 +7195,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_PIR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_PIR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1030 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1030 + 0x10000 * a;
 }
 
 /**
@@ -7492,9 +7220,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_POINTERS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_POINTERS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1060 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1060 + 0x10000 * a;
 }
 
 /**
@@ -7519,9 +7245,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_RED(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_RED(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x10b0 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x10b0 + 0x10000 * a;
 }
 
 /**
@@ -7543,9 +7267,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_SCHED_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_SCHED_STATE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1040 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1040 + 0x10000 * a;
 }
 
 /**
@@ -7568,9 +7290,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_SCHEDULE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_SCHEDULE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1000 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1000 + 0x10000 * a;
 }
 
 /**
@@ -7597,9 +7317,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_SHAPE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_SHAPE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1010 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1010 + 0x10000 * a;
 }
 
 /**
@@ -7624,9 +7342,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_SHAPE_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_SHAPE_STATE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1050 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1050 + 0x10000 * a;
 }
 
 /**
@@ -7651,9 +7367,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_SW_XOFF(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1070 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1070 + 0x10000 * a;
 }
 
 /**
@@ -7677,9 +7391,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_TOPOLOGY(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_TOPOLOGY(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1080 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1080 + 0x10000 * a;
 }
 
 /**
@@ -7702,9 +7414,7 @@ static inline u64 CAVM_NIXX_AF_TL3X_YELLOW(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3X_YELLOW(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x10a0 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x10a0 + 0x10000 * a;
 }
 
 /**
@@ -7726,9 +7436,7 @@ static inline u64 CAVM_NIXX_AF_TL3_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x80;
-	return -1;
+	return 0x80;
 }
 
 /**
@@ -7749,9 +7457,7 @@ static inline u64 CAVM_NIXX_AF_TL3_TL2X_BP_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3_TL2X_BP_STATUS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1610 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1610 + 0x10000 * a;
 }
 
 /**
@@ -7772,9 +7478,7 @@ static inline u64 CAVM_NIXX_AF_TL3_TL2X_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3_TL2X_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 255))
-		return 0x1600 + 0x10000 * ((a) & 0xff);
-	return -1;
+	return 0x1600 + 0x10000 * a;
 }
 
 /**
@@ -7784,7 +7488,8 @@ static inline u64 CAVM_NIXX_AF_TL3_TL2X_CFG(u64 a)
  * These registers specify the links and associated channels that a given TL3 or
  * TL2 queue (depending on NIX_AF_PSE_CHANNEL_LEVEL[BP_LEVEL]) can transmit on.
  * Each TL3/TL2 queue can be enabled to transmit on and be backpressured by one or
- * more links and associated channels.
+ * more links and associated channels. The last index (LINK) is enumerated by
+ * NIX_LINK_E.
  */
 union cavm_nixx_af_tl3_tl2x_linkx_cfg {
 	u64 u;
@@ -7802,9 +7507,7 @@ static inline u64 CAVM_NIXX_AF_TL3_TL2X_LINKX_CFG(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL3_TL2X_LINKX_CFG(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 255) && (b <= 12)))
-		return 0x1700 + 0x10000 * ((a) & 0xff) + 8 * ((b) & 0xf);
-	return -1;
+	return 0x1700 + 0x10000 * a + 8 * b;
 }
 
 /**
@@ -7825,9 +7528,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_BP_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_BP_STATUS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0xb00 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0xb00 + 0x10000 * a;
 }
 
 /**
@@ -7855,9 +7556,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_CIR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_CIR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1220 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1220 + 0x10000 * a;
 }
 
 /**
@@ -7885,9 +7584,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_GREEN(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_GREEN(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1290 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1290 + 0x10000 * a;
 }
 
 /**
@@ -7920,9 +7617,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG0(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG0(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x12c0 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x12c0 + 0x10000 * a;
 }
 
 /**
@@ -7958,9 +7653,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG1(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG1(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x12c8 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x12c8 + 0x10000 * a;
 }
 
 /**
@@ -7996,9 +7689,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG2(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG2(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x12d0 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x12d0 + 0x10000 * a;
 }
 
 /**
@@ -8024,9 +7715,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG3(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG3(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x12d8 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x12d8 + 0x10000 * a;
 }
 
 /**
@@ -8048,9 +7737,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_PARENT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_PARENT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1288 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1288 + 0x10000 * a;
 }
 
 /**
@@ -8078,9 +7765,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_PIR(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_PIR(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1230 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1230 + 0x10000 * a;
 }
 
 /**
@@ -8105,9 +7790,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_POINTERS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_POINTERS(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1260 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1260 + 0x10000 * a;
 }
 
 /**
@@ -8132,9 +7815,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_RED(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_RED(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x12b0 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x12b0 + 0x10000 * a;
 }
 
 /**
@@ -8156,9 +7837,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_SCHED_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_SCHED_STATE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1240 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1240 + 0x10000 * a;
 }
 
 /**
@@ -8181,9 +7860,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_SCHEDULE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_SCHEDULE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1200 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1200 + 0x10000 * a;
 }
 
 /**
@@ -8209,9 +7886,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_SDP_LINK_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_SDP_LINK_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0xb10 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0xb10 + 0x10000 * a;
 }
 
 /**
@@ -8239,9 +7914,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_SHAPE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_SHAPE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1210 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1210 + 0x10000 * a;
 }
 
 /**
@@ -8266,9 +7939,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_SHAPE_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_SHAPE_STATE(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1250 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1250 + 0x10000 * a;
 }
 
 /**
@@ -8293,9 +7964,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_SW_XOFF(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1270 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1270 + 0x10000 * a;
 }
 
 /**
@@ -8319,9 +7988,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_TOPOLOGY(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_TOPOLOGY(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1280 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x1280 + 0x10000 * a;
 }
 
 /**
@@ -8346,9 +8013,7 @@ static inline u64 CAVM_NIXX_AF_TL4X_YELLOW(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4X_YELLOW(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x12a0 + 0x10000 * ((a) & 0x1ff);
-	return -1;
+	return 0x12a0 + 0x10000 * a;
 }
 
 /**
@@ -8370,9 +8035,7 @@ static inline u64 CAVM_NIXX_AF_TL4_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TL4_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x88;
-	return -1;
+	return 0x88;
 }
 
 /**
@@ -8398,9 +8061,7 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_EXPR_CREDIT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_LINKX_EXPR_CREDIT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 12))
-		return 0xa10 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0xa10 + 0x10000 * a;
 }
 
 /**
@@ -8421,9 +8082,7 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_HW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_LINKX_HW_XOFF(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 12))
-		return 0xa30 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0xa30 + 0x10000 * a;
 }
 
 /**
@@ -8449,9 +8108,7 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_NORM_CREDIT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_LINKX_NORM_CREDIT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 12))
-		return 0xa00 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0xa00 + 0x10000 * a;
 }
 
 /**
@@ -8472,9 +8129,7 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_LINKX_SW_XOFF(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 12))
-		return 0xa20 + 0x10000 * ((a) & 0xf);
-	return -1;
+	return 0xa20 + 0x10000 * a;
 }
 
 /**
@@ -8504,9 +8159,7 @@ static inline u64 CAVM_NIXX_AF_TX_MCASTX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_MCASTX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 2047))
-		return 0x1900 + 0x8000 * ((a) & 0x7ff);
-	return -1;
+	return 0x1900 + 0x8000 * a;
 }
 
 /**
@@ -8539,9 +8192,7 @@ static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_CONFIG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_CONFIG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x660;
-	return -1;
+	return 0x660;
 }
 
 /**
@@ -8568,9 +8219,7 @@ static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_INFO(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_INFO(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x668;
-	return -1;
+	return 0x668;
 }
 
 /**
@@ -8592,9 +8241,7 @@ static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_RESPX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_RESPX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 7))
-		return 0x680 + 8 * ((a) & 0x7);
-	return -1;
+	return 0x680 + 8 * a;
 }
 
 /**
@@ -8617,9 +8264,7 @@ static inline u64 CAVM_NIXX_AF_TX_TSTMP_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_TSTMP_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xc0;
-	return -1;
+	return 0xc0;
 }
 
 /**
@@ -8633,8 +8278,8 @@ static inline u64 CAVM_NIXX_AF_TX_TSTMP_CFG(void)
 union cavm_nixx_af_tx_vtag_defx_ctl {
 	u64 u;
 	struct cavm_nixx_af_tx_vtag_defx_ctl_s {
-		u64 size                             : 3;
-		u64 reserved_3_63                    : 61;
+		u64 size                             : 1;
+		u64 reserved_1_63                    : 63;
 	} s;
 	/* struct cavm_nixx_af_tx_vtag_defx_ctl_s cn; */
 };
@@ -8643,9 +8288,7 @@ static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_CTL(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1023))
-		return 0x1a00 + 0x10000 * ((a) & 0x3ff);
-	return -1;
+	return 0x1a00 + 0x10000 * a;
 }
 
 /**
@@ -8666,9 +8309,7 @@ static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_DATA(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_DATA(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1023))
-		return 0x1a10 + 0x10000 * ((a) & 0x3ff);
-	return -1;
+	return 0x1a10 + 0x10000 * a;
 }
 
 /**
@@ -8689,9 +8330,7 @@ static inline u64 CAVM_NIXX_LF_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x100;
-	return -1;
+	return 0x100;
 }
 
 /**
@@ -8713,9 +8352,7 @@ static inline u64 CAVM_NIXX_LF_CINTX_CNT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_CINTX_CNT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xd00 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xd00 + 0x1000 * a;
 }
 
 /**
@@ -8737,9 +8374,7 @@ static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1C(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xd50 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xd50 + 0x1000 * a;
 }
 
 /**
@@ -8761,9 +8396,7 @@ static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1S(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xd40 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xd40 + 0x1000 * a;
 }
 
 /**
@@ -8784,9 +8417,7 @@ static inline u64 CAVM_NIXX_LF_CINTX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_CINTX_INT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xd20 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xd20 + 0x1000 * a;
 }
 
 /**
@@ -8808,9 +8439,7 @@ static inline u64 CAVM_NIXX_LF_CINTX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_CINTX_INT_W1S(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xd30 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xd30 + 0x1000 * a;
 }
 
 /**
@@ -8833,9 +8462,7 @@ static inline u64 CAVM_NIXX_LF_CINTX_WAIT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_CINTX_WAIT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xd10 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xd10 + 0x1000 * a;
 }
 
 /**
@@ -8862,9 +8489,7 @@ static inline u64 CAVM_NIXX_LF_CQ_OP_DOOR(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_CQ_OP_DOOR(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xb30;
-	return -1;
+	return 0xb30;
 }
 
 /**
@@ -8895,9 +8520,7 @@ static inline u64 CAVM_NIXX_LF_CQ_OP_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_CQ_OP_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xb00;
-	return -1;
+	return 0xb00;
 }
 
 /**
@@ -8928,9 +8551,7 @@ static inline u64 CAVM_NIXX_LF_CQ_OP_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_CQ_OP_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xb40;
-	return -1;
+	return 0xb40;
 }
 
 /**
@@ -8973,9 +8594,7 @@ static inline u64 CAVM_NIXX_LF_ERR_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_ERR_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x220;
-	return -1;
+	return 0x220;
 }
 
 /**
@@ -9019,9 +8638,7 @@ static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x230;
-	return -1;
+	return 0x230;
 }
 
 /**
@@ -9065,9 +8682,7 @@ static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x238;
-	return -1;
+	return 0x238;
 }
 
 /**
@@ -9111,9 +8726,7 @@ static inline u64 CAVM_NIXX_LF_ERR_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_ERR_INT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x228;
-	return -1;
+	return 0x228;
 }
 
 /**
@@ -9135,9 +8748,7 @@ static inline u64 CAVM_NIXX_LF_GINT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_GINT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x200;
-	return -1;
+	return 0x200;
 }
 
 /**
@@ -9160,9 +8771,7 @@ static inline u64 CAVM_NIXX_LF_GINT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_GINT_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x210;
-	return -1;
+	return 0x210;
 }
 
 /**
@@ -9185,9 +8794,7 @@ static inline u64 CAVM_NIXX_LF_GINT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_GINT_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x218;
-	return -1;
+	return 0x218;
 }
 
 /**
@@ -9210,9 +8817,7 @@ static inline u64 CAVM_NIXX_LF_GINT_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_GINT_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x208;
-	return -1;
+	return 0x208;
 }
 
 /**
@@ -9240,9 +8845,7 @@ static inline u64 CAVM_NIXX_LF_MNQ_ERR_DBG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_MNQ_ERR_DBG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x270;
-	return -1;
+	return 0x270;
 }
 
 /**
@@ -9271,9 +8874,7 @@ static inline u64 CAVM_NIXX_LF_OP_IPSEC_DYNO_CNT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_OP_IPSEC_DYNO_CNT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x980;
-	return -1;
+	return 0x980;
 }
 
 /**
@@ -9302,9 +8903,7 @@ static inline u64 CAVM_NIXX_LF_OP_IPSEC_DYNO_CNT(void)
  * processing this descriptor, including all packet data and post-jump subdescriptors
  * contain the latest updates before issuing the LMTST. A DMB instruction may be required prior
  * to the LMTST to ensure this. A DMB following the LMTST may be useful if SQ descriptor ordering
- * matters and more than one CPU core is simultaneously enqueueing to the same SQ. For more
- * information on ordering, refer to the HRM "Core Memory Reference Ordering" section in the CPU
- * cores chapter.
+ * matters and more than one CPU core is simultaneously enqueueing to the same SQ.
  */
 union cavm_nixx_lf_op_sendx {
 	u64 u;
@@ -9318,9 +8917,7 @@ static inline u64 CAVM_NIXX_LF_OP_SENDX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_OP_SENDX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x800 + 8 * ((a) & 0xf);
-	return -1;
+	return 0x800 + 8 * a;
 }
 
 /**
@@ -9341,9 +8938,7 @@ static inline u64 CAVM_NIXX_LF_QINTX_CNT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_QINTX_CNT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xc00 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xc00 + 0x1000 * a;
 }
 
 /**
@@ -9365,9 +8960,7 @@ static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1C(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xc30 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xc30 + 0x1000 * a;
 }
 
 /**
@@ -9389,9 +8982,7 @@ static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1S(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xc20 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xc20 + 0x1000 * a;
 }
 
 /**
@@ -9412,9 +9003,7 @@ static inline u64 CAVM_NIXX_LF_QINTX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_QINTX_INT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xc10 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xc10 + 0x1000 * a;
 }
 
 /**
@@ -9435,9 +9024,7 @@ static inline u64 CAVM_NIXX_LF_QINTX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_QINTX_INT_W1S(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0xc18 + 0x1000 * ((a) & 0x3f);
-	return -1;
+	return 0xc18 + 0x1000 * a;
 }
 
 /**
@@ -9468,9 +9055,7 @@ static inline u64 CAVM_NIXX_LF_RAS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RAS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x240;
-	return -1;
+	return 0x240;
 }
 
 /**
@@ -9502,9 +9087,7 @@ static inline u64 CAVM_NIXX_LF_RAS_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RAS_ENA_W1C(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x250;
-	return -1;
+	return 0x250;
 }
 
 /**
@@ -9536,9 +9119,7 @@ static inline u64 CAVM_NIXX_LF_RAS_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RAS_ENA_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x258;
-	return -1;
+	return 0x258;
 }
 
 /**
@@ -9570,9 +9151,7 @@ static inline u64 CAVM_NIXX_LF_RAS_W1S(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RAS_W1S(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x248;
-	return -1;
+	return 0x248;
 }
 
 /**
@@ -9600,9 +9179,7 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_OCTS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_OCTS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x930;
-	return -1;
+	return 0x930;
 }
 
 /**
@@ -9630,9 +9207,7 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_PKTS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_PKTS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x940;
-	return -1;
+	return 0x940;
 }
 
 /**
@@ -9664,9 +9239,7 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RQ_OP_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x900;
-	return -1;
+	return 0x900;
 }
 
 /**
@@ -9694,9 +9267,7 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_OCTS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RQ_OP_OCTS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x910;
-	return -1;
+	return 0x910;
 }
 
 /**
@@ -9724,9 +9295,7 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_PKTS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RQ_OP_PKTS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x920;
-	return -1;
+	return 0x920;
 }
 
 /**
@@ -9754,9 +9323,7 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_RE_PKTS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RQ_OP_RE_PKTS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x950;
-	return -1;
+	return 0x950;
 }
 
 /**
@@ -9776,9 +9343,7 @@ static inline u64 CAVM_NIXX_LF_RX_SECRETX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RX_SECRETX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 5))
-		return 0 + 8 * ((a) & 0x7);
-	return -1;
+	return 0 + 8 * a;
 }
 
 /**
@@ -9800,9 +9365,7 @@ static inline u64 CAVM_NIXX_LF_RX_STATX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_RX_STATX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 11))
-		return 0x400 + 8 * ((a) & 0xf);
-	return -1;
+	return 0x400 + 8 * a;
 }
 
 /**
@@ -9830,9 +9393,7 @@ static inline u64 CAVM_NIXX_LF_SEND_ERR_DBG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_SEND_ERR_DBG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x280;
-	return -1;
+	return 0x280;
 }
 
 /**
@@ -9860,9 +9421,7 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_OCTS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_OCTS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xa40;
-	return -1;
+	return 0xa40;
 }
 
 /**
@@ -9890,9 +9449,7 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_PKTS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_PKTS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xa50;
-	return -1;
+	return 0xa50;
 }
 
 /**
@@ -9920,9 +9477,7 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_ERR_DBG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_SQ_OP_ERR_DBG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x260;
-	return -1;
+	return 0x260;
 }
 
 /**
@@ -9954,9 +9509,7 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_INT(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_SQ_OP_INT(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xa00;
-	return -1;
+	return 0xa00;
 }
 
 /**
@@ -9984,9 +9537,7 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_OCTS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_SQ_OP_OCTS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xa10;
-	return -1;
+	return 0xa10;
 }
 
 /**
@@ -10014,9 +9565,7 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_PKTS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_SQ_OP_PKTS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xa20;
-	return -1;
+	return 0xa20;
 }
 
 /**
@@ -10060,9 +9609,7 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_SQ_OP_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xa30;
-	return -1;
+	return 0xa30;
 }
 
 /**
@@ -10084,9 +9631,7 @@ static inline u64 CAVM_NIXX_LF_TX_STATX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_LF_TX_STATX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 4))
-		return 0x300 + 8 * ((a) & 0x7);
-	return -1;
+	return 0x300 + 8 * a;
 }
 
 /**
@@ -10109,9 +9654,7 @@ static inline u64 CAVM_NIXX_PRIV_AF_INT_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_PRIV_AF_INT_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x8000000;
-	return -1;
+	return 0x8000000;
 }
 
 /**
@@ -10144,9 +9687,7 @@ static inline u64 CAVM_NIXX_PRIV_LFX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_PRIV_LFX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x8000010 + 0x100 * ((a) & 0x7f);
-	return -1;
+	return 0x8000010 + 0x100 * a;
 }
 
 /**
@@ -10169,9 +9710,7 @@ static inline u64 CAVM_NIXX_PRIV_LFX_INT_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NIXX_PRIV_LFX_INT_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 127))
-		return 0x8000020 + 0x100 * ((a) & 0x7f);
-	return -1;
+	return 0x8000020 + 0x100 * a;
 }
 
 #endif /* __CAVM_CSRS_NIX_H__ */

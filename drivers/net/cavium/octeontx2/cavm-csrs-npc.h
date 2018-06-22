@@ -294,9 +294,7 @@ static inline u64 CAVM_NPC_AF_ACTIVE_PC(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_ACTIVE_PC(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x10;
-	return -1;
+	return 0x10;
 }
 
 /**
@@ -318,9 +316,7 @@ static inline u64 CAVM_NPC_AF_BLK_RST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_BLK_RST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x40;
-	return -1;
+	return 0x40;
 }
 
 /**
@@ -343,9 +339,7 @@ static inline u64 CAVM_NPC_AF_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0;
-	return -1;
+	return 0;
 }
 
 /**
@@ -374,9 +368,7 @@ static inline u64 CAVM_NPC_AF_CONST(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_CONST(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x20;
-	return -1;
+	return 0x20;
 }
 
 /**
@@ -400,9 +392,7 @@ static inline u64 CAVM_NPC_AF_CONST1(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_CONST1(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x30;
-	return -1;
+	return 0x30;
 }
 
 /**
@@ -423,9 +413,7 @@ static inline u64 CAVM_NPC_AF_CPIX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_CPIX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1023))
-		return 0x200000 + 8 * ((a) & 0x3ff);
-	return -1;
+	return 0x200000 + 8 * a;
 }
 
 /**
@@ -450,16 +438,14 @@ static inline u64 CAVM_NPC_AF_DBG_CTL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_DBG_CTL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x3000000;
-	return -1;
+	return 0x3000000;
 }
 
 /**
  * Register (RVU_PF_BAR0) npc_af_dbg_data#
  *
  * NPC AF Debug Data Registers
- * This register contains packet header data for the last packet/lookup  for which
+ * This register contains packet header data for the last packet/lookup whose
  * debug information is captured by NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
  */
 union cavm_npc_af_dbg_datax {
@@ -474,9 +460,7 @@ static inline u64 CAVM_NPC_AF_DBG_DATAX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_DBG_DATAX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 31))
-		return 0x3001400 + 0x10 * ((a) & 0x1f);
-	return -1;
+	return 0x3001400 + 0x10 * a;
 }
 
 /**
@@ -499,17 +483,13 @@ static inline u64 CAVM_NPC_AF_DBG_RESULTX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_DBG_RESULTX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 5))
-		return 0x3001800 + 0x10 * ((a) & 0x7);
-	return -1;
+	return 0x3001800 + 0x10 * a;
 }
 
 /**
  * Register (RVU_PF_BAR0) npc_af_dbg_status
  *
  * NPC AF Debug Status Register
- * This register controls the capture of debug information in NPC_AF_KPU()_DBG,
- * NPC_AF_MCAM_DBG, NPC_AF_LKUP_DATA() and NPC_AF_LKUP_RESULT().
  */
 union cavm_npc_af_dbg_status {
 	u64 u;
@@ -524,9 +504,7 @@ static inline u64 CAVM_NPC_AF_DBG_STATUS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_DBG_STATUS(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x3000010;
-	return -1;
+	return 0x3000010;
 }
 
 /**
@@ -549,9 +527,7 @@ static inline u64 CAVM_NPC_AF_DV_FC_SCRATCH(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_DV_FC_SCRATCH(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x60;
-	return -1;
+	return 0x60;
 }
 
 /**
@@ -572,9 +548,7 @@ static inline u64 CAVM_NPC_AF_ECO0(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_ECO0(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x200;
-	return -1;
+	return 0x200;
 }
 
 /**
@@ -602,9 +576,7 @@ static inline u64 CAVM_NPC_AF_IKPU_ERR_CTL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_IKPU_ERR_CTL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x3000080;
-	return -1;
+	return 0x3000080;
 }
 
 /**
@@ -627,9 +599,7 @@ static inline u64 CAVM_NPC_AF_INTFX_KEX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_INTFX_KEX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x1010 + 0x100 * ((a) & 0x1);
-	return -1;
+	return 0x1010 + 0x100 * a;
 }
 
 /**
@@ -656,9 +626,7 @@ static inline u64 CAVM_NPC_AF_INTFX_LDATAX_FLAGSX_CFG(u64 a, u64 b, u64 c)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_INTFX_LDATAX_FLAGSX_CFG(u64 a, u64 b, u64 c)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1) && (b <= 1) && (c <= 15)))
-		return 0x980000 + 0x10000 * ((a) & 0x1) + 0x1000 * ((b) & 0x1) + 8 * ((c) & 0xf);
-	return -1;
+	return 0x980000 + 0x10000 * a + 0x1000 * b + 8 * c;
 }
 
 /**
@@ -692,9 +660,7 @@ static inline u64 CAVM_NPC_AF_INTFX_LIDX_LTX_LDX_CFG(u64 a, u64 b, u64 c, u64 d)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_INTFX_LIDX_LTX_LDX_CFG(u64 a, u64 b, u64 c, u64 d)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1) && (b <= 7) && (c <= 15) && (d <= 1)))
-		return 0x900000 + 0x10000 * ((a) & 0x1) + 0x1000 * ((b) & 0x7) + 0x20 * ((c) & 0xf) + 8 * ((d) & 0x1);
-	return -1;
+	return 0x900000 + 0x10000 * a + 0x1000 * b + 0x20 * c + 8 * d;
 }
 
 /**
@@ -717,9 +683,7 @@ static inline u64 CAVM_NPC_AF_INTFX_MISS_ACT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_INTFX_MISS_ACT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x1a00000 + 0x10 * ((a) & 0x1);
-	return -1;
+	return 0x1a00000 + 0x10 * a;
 }
 
 /**
@@ -743,9 +707,7 @@ static inline u64 CAVM_NPC_AF_INTFX_MISS_STAT_ACT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_INTFX_MISS_STAT_ACT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x1880040 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x1880040 + 8 * a;
 }
 
 /**
@@ -769,9 +731,7 @@ static inline u64 CAVM_NPC_AF_INTFX_MISS_TAG_ACT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_INTFX_MISS_TAG_ACT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x1b00008 + 0x10 * ((a) & 0x1);
-	return -1;
+	return 0x1b00008 + 0x10 * a;
 }
 
 /**
@@ -793,9 +753,7 @@ static inline u64 CAVM_NPC_AF_INTFX_STAT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_INTFX_STAT(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x2000800 + 0x10 * ((a) & 0x1);
-	return -1;
+	return 0x2000800 + 0x10 * a;
 }
 
 /**
@@ -820,9 +778,7 @@ static inline u64 CAVM_NPC_AF_KCAM_SCRUB_CTL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_KCAM_SCRUB_CTL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xb0;
-	return -1;
+	return 0xb0;
 }
 
 /**
@@ -843,9 +799,7 @@ static inline u64 CAVM_NPC_AF_KEX_LDATAX_FLAGS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_KEX_LDATAX_FLAGS_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 1))
-		return 0x800 + 8 * ((a) & 0x1);
-	return -1;
+	return 0x800 + 8 * a;
 }
 
 /**
@@ -866,9 +820,7 @@ static inline u64 CAVM_NPC_AF_KPUX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_KPUX_CFG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x500 + 8 * ((a) & 0xf);
-	return -1;
+	return 0x500 + 8 * a;
 }
 
 /**
@@ -892,9 +844,7 @@ static inline u64 CAVM_NPC_AF_KPUX_DBG(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_KPUX_DBG(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x3000020 + 0x100 * ((a) & 0xf);
-	return -1;
+	return 0x3000020 + 0x100 * a;
 }
 
 /**
@@ -931,9 +881,7 @@ static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION0(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION0(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b <= 127)))
-		return 0x100020 + 0x4000 * ((a) & 0xf) + 0x40 * ((b) & 0x7f);
-	return -1;
+	return 0x100020 + 0x4000 * a + 0x40 * b;
 }
 
 /**
@@ -959,9 +907,7 @@ static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION1(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION1(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b <= 127)))
-		return 0x100028 + 0x4000 * ((a) & 0xf) + 0x40 * ((b) & 0x7f);
-	return -1;
+	return 0x100028 + 0x4000 * a + 0x40 * b;
 }
 
 /**
@@ -999,9 +945,7 @@ static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_CAMX(u64 a, u64 b, u64 c)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_CAMX(u64 a, u64 b, u64 c)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b <= 127) && (c <= 1)))
-		return 0x100000 + 0x4000 * ((a) & 0xf) + 0x40 * ((b) & 0x7f) + 8 * ((c) & 0x1);
-	return -1;
+	return 0x100000 + 0x4000 * a + 0x40 * b + 8 * c;
 }
 
 /**
@@ -1022,9 +966,7 @@ static inline u64 CAVM_NPC_AF_KPUX_ENTRY_DISX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_KPUX_ENTRY_DISX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 15) && (b <= 1)))
-		return 0x180000 + 0x40 * ((a) & 0xf) + 8 * ((b) & 0x1);
-	return -1;
+	return 0x180000 + 0x40 * a + 8 * b;
 }
 
 /**
@@ -1050,9 +992,7 @@ static inline u64 CAVM_NPC_AF_KPUX_ERR_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_KPUX_ERR_CTL(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 15))
-		return 0x30000a0 + 0x100 * ((a) & 0xf);
-	return -1;
+	return 0x30000a0 + 0x100 * a;
 }
 
 /**
@@ -1078,9 +1018,7 @@ static inline u64 CAVM_NPC_AF_LKUP_CTL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_LKUP_CTL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x2000000;
-	return -1;
+	return 0x2000000;
 }
 
 /**
@@ -1100,9 +1038,7 @@ static inline u64 CAVM_NPC_AF_LKUP_DATAX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_LKUP_DATAX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 31))
-		return 0x2000200 + 0x10 * ((a) & 0x1f);
-	return -1;
+	return 0x2000200 + 0x10 * a;
 }
 
 /**
@@ -1122,9 +1058,7 @@ static inline u64 CAVM_NPC_AF_LKUP_RESULTX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_LKUP_RESULTX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 5))
-		return 0x2000400 + 0x10 * ((a) & 0x7);
-	return -1;
+	return 0x2000400 + 0x10 * a;
 }
 
 /**
@@ -1145,9 +1079,7 @@ static inline u64 CAVM_NPC_AF_MATCH_STATX(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MATCH_STATX(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 511))
-		return 0x1880008 + 0x100 * ((a) & 0x1ff);
-	return -1;
+	return 0x1880008 + 0x100 * a;
 }
 
 /**
@@ -1167,9 +1099,7 @@ static inline u64 CAVM_NPC_AF_MCAM_BANKX_HITX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MCAM_BANKX_HITX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 3) && (b <= 15)))
-		return 0x1c80000 + 0x100 * ((a) & 0x3) + 0x10 * ((b) & 0xf);
-	return -1;
+	return 0x1c80000 + 0x100 * a + 0x10 * b;
 }
 
 /**
@@ -1196,9 +1126,7 @@ static inline u64 CAVM_NPC_AF_MCAM_DBG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MCAM_DBG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x3001000;
-	return -1;
+	return 0x3001000;
 }
 
 /**
@@ -1223,9 +1151,7 @@ static inline u64 CAVM_NPC_AF_MCAM_SCRUB_CTL(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MCAM_SCRUB_CTL(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0xa0;
-	return -1;
+	return 0xa0;
 }
 
 /**
@@ -1260,9 +1186,7 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_ACTION(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_ACTION(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3)))
-		return 0x1900000 + 0x100 * ((a) & 0x3ff) + 0x10 * ((b) & 0x3);
-	return -1;
+	return 0x1900000 + 0x100 * a + 0x10 * b;
 }
 
 /**
@@ -1345,9 +1269,7 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_INTF(u64 a, u64 b, u64 c)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_INTF(u64 a, u64 b, u64 c)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3) && (c <= 1)))
-		return 0x1000000 + 0x400 * ((a) & 0x3ff) + 0x40 * ((b) & 0x3) + 8 * ((c) & 0x1);
-	return -1;
+	return 0x1000000 + 0x400 * a + 0x40 * b + 8 * c;
 }
 
 /**
@@ -1368,9 +1290,7 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W0(u64 a, u64 b, u64 c)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W0(u64 a, u64 b, u64 c)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3) && (c <= 1)))
-		return 0x1000010 + 0x400 * ((a) & 0x3ff) + 0x40 * ((b) & 0x3) + 8 * ((c) & 0x1);
-	return -1;
+	return 0x1000010 + 0x400 * a + 0x40 * b + 8 * c;
 }
 
 /**
@@ -1392,9 +1312,7 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W1(u64 a, u64 b, u64 c)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W1(u64 a, u64 b, u64 c)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3) && (c <= 1)))
-		return 0x1000020 + 0x400 * ((a) & 0x3ff) + 0x40 * ((b) & 0x3) + 8 * ((c) & 0x1);
-	return -1;
+	return 0x1000020 + 0x400 * a + 0x40 * b + 8 * c;
 }
 
 /**
@@ -1415,9 +1333,7 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CFG(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CFG(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3)))
-		return 0x1800000 + 0x100 * ((a) & 0x3ff) + 0x10 * ((b) & 0x3);
-	return -1;
+	return 0x1800000 + 0x100 * a + 0x10 * b;
 }
 
 /**
@@ -1441,9 +1357,7 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_STAT_ACT(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_STAT_ACT(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3)))
-		return 0x1880000 + 0x100 * ((a) & 0x3ff) + 0x10 * ((b) & 0x3);
-	return -1;
+	return 0x1880000 + 0x100 * a + 0x10 * b;
 }
 
 /**
@@ -1465,9 +1379,7 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_TAG_ACT(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_TAG_ACT(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 1023) && (b <= 3)))
-		return 0x1900008 + 0x100 * ((a) & 0x3ff) + 0x10 * ((b) & 0x3);
-	return -1;
+	return 0x1900008 + 0x100 * a + 0x10 * b;
 }
 
 /**
@@ -1498,9 +1410,7 @@ static inline u64 CAVM_NPC_AF_PCK_CFG(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_PCK_CFG(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x600;
-	return -1;
+	return 0x600;
 }
 
 /**
@@ -1524,9 +1434,7 @@ static inline u64 CAVM_NPC_AF_PCK_DEF_IIP4(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_PCK_DEF_IIP4(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x640;
-	return -1;
+	return 0x640;
 }
 
 /**
@@ -1550,9 +1458,7 @@ static inline u64 CAVM_NPC_AF_PCK_DEF_OIP4(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_PCK_DEF_OIP4(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x620;
-	return -1;
+	return 0x620;
 }
 
 /**
@@ -1577,9 +1483,7 @@ static inline u64 CAVM_NPC_AF_PCK_DEF_OIP6(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_PCK_DEF_OIP6(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x630;
-	return -1;
+	return 0x630;
 }
 
 /**
@@ -1603,9 +1507,7 @@ static inline u64 CAVM_NPC_AF_PCK_DEF_OL2(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_PCK_DEF_OL2(void)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
-		return 0x610;
-	return -1;
+	return 0x610;
 }
 
 /**
@@ -1640,9 +1542,7 @@ static inline u64 CAVM_NPC_AF_PKINDX_ACTION0(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_PKINDX_ACTION0(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0x80000 + 0x40 * ((a) & 0x3f);
-	return -1;
+	return 0x80000 + 0x40 * a;
 }
 
 /**
@@ -1669,9 +1569,7 @@ static inline u64 CAVM_NPC_AF_PKINDX_ACTION1(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_PKINDX_ACTION1(u64 a)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && (a <= 63))
-		return 0x80008 + 0x40 * ((a) & 0x3f);
-	return -1;
+	return 0x80008 + 0x40 * a;
 }
 
 /**
@@ -1733,9 +1631,7 @@ static inline u64 CAVM_NPC_AF_PKINDX_CPI_DEFX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 CAVM_NPC_AF_PKINDX_CPI_DEFX(u64 a, u64 b)
 {
-	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX) && ((a <= 63) && (b <= 1)))
-		return 0x80020 + 0x40 * ((a) & 0x3f) + 8 * ((b) & 0x1);
-	return -1;
+	return 0x80020 + 0x40 * a + 8 * b;
 }
 
 #endif /* __CAVM_CSRS_NPC_H__ */
