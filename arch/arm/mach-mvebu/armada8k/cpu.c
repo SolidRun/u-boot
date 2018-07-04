@@ -25,6 +25,10 @@
 #define BOOT_MODE_MASK			0x3f
 #define BOOT_MODE_OFFSET		4
 
+#define NF_CLOCK_SEL_MASK		0x1
+#define SOC_MUX_NAND_EN_MASK		0x1
+#define CLOCK_1Mhz			1000000
+
 static struct mm_region mvebu_mem_map[] = {
 	/* Armada 80x0 memory regions include the CP1 (slave) units */
 	{
@@ -75,23 +79,31 @@ void reset_cpu(ulong ignored)
 	writel(reg, RFU_GLOBAL_SW_RST);
 }
 
-/*
- * TODO - implement this functionality using platform
- *        clock driver once it gets available
- * Return NAND clock in Hz
- */
-u32 mvebu_get_nand_clock(void)
+#if CONFIG_IS_ENABLED(NAND_PXA3XX)
+/* Return NAND clock in Hz */
+u32 mvebu_get_nand_clock(void __iomem *nand_flash_clk_ctrl_reg)
 {
-	unsigned long NAND_FLASH_CLK_CTRL = 0xF2440700UL;
-	unsigned long NF_CLOCK_SEL_MASK = 0x1;
 	u32 reg;
 
-	reg = readl(NAND_FLASH_CLK_CTRL);
+	if (!nand_flash_clk_ctrl_reg)
+		return 0;
+
+	reg = readl(nand_flash_clk_ctrl_reg);
 	if (reg & NF_CLOCK_SEL_MASK)
-		return 400 * 1000000;
+		return 400 * CLOCK_1Mhz;
 	else
-		return 250 * 1000000;
+		return 250 * CLOCK_1Mhz;
 }
+
+/* Select NAND in the device bus multiplexer */
+void mvebu_nand_select(void __iomem *soc_dev_multiplex_reg)
+{
+	if (!soc_dev_multiplex_reg)
+		return;
+
+	setbits_le32(soc_dev_multiplex_reg, SOC_MUX_NAND_EN_MASK);
+}
+#endif
 
 int mmc_get_env_dev(void)
 {
