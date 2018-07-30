@@ -32,12 +32,12 @@ static inline s64 cavm_atomic_fetch_and_add64_nosync(s64 *ptr, s64 incr)
 	return result;
 }
 
-static inline void cavm_lmt_cancel(const struct nix_handle *nix)
+static inline void cavm_lmt_cancel(const struct nix *nix)
 {
 	writeq(0, nix->lmt_base + CAVM_LMT_LF_LMTCANCEL());
 }
 
-static inline volatile u64 *cavm_lmt_store_ptr(struct nix_handle *nix)
+static inline volatile u64 *cavm_lmt_store_ptr(struct nix *nix)
 {
 	return (volatile u64 *)((u8 *)(nix->lmt_base) +
 				       CAVM_LMT_LF_LMTLINEX(0));

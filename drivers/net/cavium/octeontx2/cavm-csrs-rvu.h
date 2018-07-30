@@ -1162,10 +1162,9 @@ static inline u64 CAVM_RVU_PF_MSIX_PBAX(u64 a)
  * The number of MSI-X vectors for a given PF is specified by
  * RVU_PRIV_PF()_MSIX_CFG[PF_MSIXT_SIZEM1] (plus 1).
  *
- * Internal:
- * PF vector count of 256 is sized to allow up to 120 for AF, 4 for PF/VF
- * mailboxes, and 128 for LF resources from various blocks that are directly
- * provisioned to the PF.
+ * Software must do a read after any writes to the MSI-X vector table to ensure
+ * that the writes have completed before interrupts are generated to the modified
+ * vectors.
  */
 union cavm_rvu_pf_msix_vecx_addr {
 	u64 u;
@@ -2243,9 +2242,9 @@ static inline u64 CAVM_RVU_VF_MSIX_PBAX(u64 a)
  * The number of MSI-X vectors for a given VF is specified by
  * RVU_PRIV_PF()_MSIX_CFG[VF_MSIXT_SIZEM1] (plus 1).
  *
- * Internal:
- * VF vector count of 128 allows up to that number to be provisioned to the VF
- * from LF resources of various blocks.
+ * Software must do a read after any writes to the MSI-X vector table to ensure
+ * that the writes have completed before interrupts are generated to the modified
+ * vectors.
  */
 union cavm_rvu_vf_msix_vecx_addr {
 	u64 u;

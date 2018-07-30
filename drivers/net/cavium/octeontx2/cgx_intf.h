@@ -7,15 +7,11 @@
  * the License, or (at your option) any later version.
  */
 
-#ifndef __OCTEONTX2_CGX_INTF_H__
-#define __OCTEONTX2_CGX_INTF_H__
-
-#define PCI_DEVICE_ID_OCTEONTX2_CGX	0xA059
+#ifndef __CGX_INTF_H__
+#define __CGX_INTF_H__
 
 #define CGX_FIRWARE_MAJOR_VER		1
 #define CGX_FIRWARE_MINOR_VER		0
-#define MAX_LMAC_PER_CGX		4
-#define CGX_PER_NODE 			3
 
 /* Register offsets */
 #define CGX_CMR_SCRATCH0	0x87e0e0001050
@@ -41,10 +37,14 @@ enum cgx_error_type {
 	CGX_ERR_SPUX_TX_FAULT,
 	CGX_ERR_SPUX_RX_FAULT,
 	CGX_ERR_SPUX_RESET_FAIL,
+	CGX_ERR_SPUX_AN_RESET_FAIL,
+	CGX_ERR_SPUX_USX_AN_RESET_FAIL,
 	CGX_ERR_SMUX_RX_LINK_NOT_OK,
 	CGX_ERR_PCS_RECV_LINK_FAIL,
 	CGX_ERR_TRAINING_FAIL,
-	CGX_ERR_RX_EQU_FAIL,		/* = 18 */
+	CGX_ERR_RX_EQU_FAIL,
+	CGX_ERR_SPUX_BER_FAIL,
+	CGX_ERR_SPUX_RSFEC_ALGN_FAIL,	/* = 22 */
 	/* FIXME : add more error types when adding support for new modes */
 };
 
@@ -54,11 +54,15 @@ enum cgx_link_speed {
 	CGX_LINK_10M,
 	CGX_LINK_100M,
 	CGX_LINK_1G,
+	CGX_LINK_2HG,	/* 2.5 Gbps */
+	CGX_LINK_5G,
 	CGX_LINK_10G,
+	CGX_LINK_20G,
 	CGX_LINK_25G,
 	CGX_LINK_40G,
 	CGX_LINK_50G,
 	CGX_LINK_100G,
+	CGX_LINK_MAX,
 };
 
 /* REQUEST ID types. Input to firmware */
@@ -144,7 +148,7 @@ struct cgx_ver_s {			/* start from bit 9 */
 };
 
 /* Resp to cmd ID as CGX_CMD_GET_MAC_ADDR with cmd status as CGX_STAT_SUCCESS
- * Returns each byte of MAC address in a seperate bit field
+ * Returns each byte of MAC address in a separate bit field
  */
 struct cgx_mac_addr_s {			/* start from bit 9 */
 	uint64_t reserved1:9;
@@ -202,7 +206,7 @@ struct cgx_cmd {			/* start from bit 2 */
 };
 
 /* all the below structures are in the same memory location of SCRATCHX(1)
- * corresponding arguements for command Id needs to be updated
+ * corresponding arguments for command Id needs to be updated
  */
 
 /* Any command using enable/disable as an argument need
@@ -245,4 +249,4 @@ union cgx_scratchx1 {
 	union cgx_cmd_s s;
 };
 
-#endif
+#endif /* __CGX_INTF_H__ */

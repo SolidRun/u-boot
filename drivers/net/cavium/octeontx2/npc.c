@@ -30,7 +30,7 @@
 
 #define RSVD_MCAM_ENTRIES_PER_PF	2 /** Ucast & Bcast */
 #define RSVD_MCAM_ENTRIES_PER_NIXLF	1 /** Ucast for VFs */
-
+#if 0
 static u64 npc_af_reg_read(struct npc_af *npc, u64 offset)
 {
 	return readq(npc->npc_af_base + offset);
@@ -40,7 +40,7 @@ static void npc_af_reg_write(struct npc_af *npc, u64 offset, u64 val)
 {
 	writeq(va, npc->npc_af_base + offset);
 }
-
+#endif
 static inline u64 enable_mask(int count)
 {
 	return ((count < 64) ? ~(BIT_ULL(count) - 1) : (0x00ULL));

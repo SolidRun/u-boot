@@ -7,10 +7,8 @@
  * the License, or (at your option) any later version.
  *
  */
-#define DEBUG
 #include <common.h>
 #include <net.h>
-#include <netdev.h>
 #include <malloc.h>
 #include <dm.h>
 #include <misc.h>
@@ -18,116 +16,142 @@
 #include <linux/list.h>
 #include <asm/io.h>
 #include <asm/arch/octeontx2.h>
-#include "cavm-csrs-rvu.h"
-#include "rvu.h"
-#include "rvu_common.h"
+#include "cavm-csrs-npa.h"
 #include "nix.h"
 
-static LIST_HEAD(nix_af_list);
+struct udevice *rvu_af_dev=NULL;
 
-/**
- * Given the PF base address, return the NIX AF
- *
- * @param nix_pf_base		NIX PF base address
- *
- * @return	nix_af handle or NULL if not found.
- */
-struct nix_af_handle *nix_get_af(u64 nix_pf_base)
+inline struct rvu_af *get_af(void)
 {
-	struct nix_af_handle *nix_af;
-	static const u64 mask = ~(0xffffffffff);
-	nix_pf_base &= mask;
+	return rvu_af_dev ? dev_get_priv(rvu_af_dev) : NULL;
+}
 
-	list_for_each_entry(nix_af, &nix_af_list, nix_af_list) {
-		if (((u64)(nix_af->nix_af_base) & mask) == (nix_pf_base & mask))
-			return nix_af;
+void rvu_get_lfid_for_pf(int pf, int *nixid, int *npaid)
+{
+	union cavm_nixx_af_rvu_lf_cfg_debug nix_lf_dbg;
+	union cavm_npa_af_rvu_lf_cfg_debug npa_lf_dbg;
+	union cavm_rvu_pf_func_s pf_func;
+	struct rvu_af *af = dev_get_priv(rvu_af_dev);
+	struct nix_af *nix_af = af->nix_af;
+
+	pf_func.u = 0;
+	pf_func.s.pf = pf;
+
+	nix_lf_dbg.u = 0;
+	nix_lf_dbg.s.pf_func = pf_func.u & 0xFFFF;
+	nix_lf_dbg.s.exec = 1;
+	nix_af_reg_write(nix_af, CAVM_NIXX_AF_RVU_LF_CFG_DEBUG(),
+			 nix_lf_dbg.u);
+	do {
+		nix_lf_dbg.u = nix_af_reg_read(nix_af,
+				CAVM_NIXX_AF_RVU_LF_CFG_DEBUG());
+	} while (nix_lf_dbg.s.exec);
+
+	if (nix_lf_dbg.s.lf_valid)
+		*nixid = nix_lf_dbg.s.lf; 
+
+	debug("%s: nix lf_valid %d lf %d nixid %d\n", __func__,
+		nix_lf_dbg.s.lf_valid,nix_lf_dbg.s.lf,*nixid);
+
+	npa_lf_dbg.u = 0;
+	npa_lf_dbg.s.pf_func = pf_func.u & 0xFFFF;
+	npa_lf_dbg.s.exec = 1;
+	npa_af_reg_write(nix_af->npa_af, CAVM_NPA_AF_RVU_LF_CFG_DEBUG(),
+			 npa_lf_dbg.u);
+	do {
+		npa_lf_dbg.u = npa_af_reg_read(nix_af->npa_af,
+				CAVM_NPA_AF_RVU_LF_CFG_DEBUG());
+	} while (npa_lf_dbg.s.exec);
+
+	if (npa_lf_dbg.s.lf_valid)
+		*npaid = npa_lf_dbg.s.lf; 
+	debug("%s: npa lf_valid %d lf %d npaid %d\n", __func__,
+		npa_lf_dbg.s.lf_valid,npa_lf_dbg.s.lf,*npaid);
+
+}
+
+struct nix_af *rvu_af_init(struct rvu_af *rvu_af)
+{
+	struct nix_af *nix_af;
+	union cavm_rvu_af_addr_s block_addr;
+	int err;
+
+	nix_af = (struct nix_af *)calloc(1, sizeof(struct nix_af));
+	if (!nix_af) {
+		printf("%s: out of memory\n", __func__);
+		goto error;
 	}
-	debug("%s: No NIX AF found for address 0x%llx\n", __func__,
-	      nix_pf_base);
+
+	nix_af->dev = rvu_af->dev;
+
+	block_addr.u = 0;
+	block_addr.s.block = CAVM_RVU_BLOCK_ADDR_E_NIXX(0);
+	nix_af->nix_af_base = rvu_af->af_base + block_addr.u;
+
+	nix_af->npa_af = (struct npa_af *)calloc(1, sizeof(struct npa_af));
+	if (!nix_af->npa_af) {
+		printf("%s: out of memory\n", __func__);
+		goto error;
+	}
+
+	block_addr.u = 0;
+	block_addr.s.block = CAVM_RVU_BLOCK_ADDR_E_NPA;
+	nix_af->npa_af->npa_af_base = rvu_af->af_base + block_addr.u;
+
+	block_addr.u = 0;
+	block_addr.s.block = CAVM_RVU_BLOCK_ADDR_E_NPC;
+	nix_af->npc_af_base = rvu_af->af_base + block_addr.u;
+
+	debug("%s: Setting up npa admin\n", __func__);
+	err = npa_af_setup(nix_af->npa_af);
+	if (err) {
+		printf("%s: Error %d setting up NPA admin\n", __func__, err);
+		goto error;
+	}
+	debug("%s: Setting up nix af\n", __func__);
+	err = nix_af_setup(nix_af);
+	if (err) {
+		printf("%s: Error %d setting up NIX admin\n", __func__, err);
+		goto error;
+	}
+	debug("%s: nix_af: %p\n", __func__, nix_af);
+	return nix_af;
+
+error:
+	if (nix_af->npa_af) {
+		free(nix_af->npa_af);
+		memset(nix_af, 0, sizeof(*nix_af));
+	}
+	if (nix_af) {
+		free(nix_af);
+	}
 	return NULL;
 }
 
-/**
- * Allocates an admin queue for instructions and results
- *
- * @param	aq	admin queue to allocate for
- * @param	qsize	Number of entries in the queue
- * @param	inst_size	Size of each instruction
- * @param	res_size	Size of each result
- *
- * @return	-ENOMEM on error, 0 on success
- */
-int cavm_rvu_aq_alloc(struct admin_queue *aq, unsigned qsize,
-		      size_t inst_size, size_t res_size)
-{
-	int err;
-
-	err = qmem_alloc(&aq->inst, qsize, inst_size);
-	if (err)
-		return err;
-	err = qmem_alloc(&aq->res, qsize, res_size);
-	if (err)
-		qmem_free(&aq->inst);
-
-	return err;
-}
-
-/**
- * Frees an admin queue
- *
- * @param	aq	Admin queue to free
- */
-void cavm_rvu_aq_free(struct admin_queue *aq)
-{
-	qmem_free(&aq->inst);
-	qmem_free(&aq->res);
-	memset(aq, 0, sizeof(*aq));
-}
-
-int cavm_rvu_af_probe(struct udevice *dev)
+int rvu_af_probe(struct udevice *dev)
 {
 	struct rvu_af *af_ptr = dev_get_priv(dev);
-	struct nix_af_handle *nix_af;
 	size_t size;
-	union cavm_rvu_af_addr_s func_addr;
-	static int instance = 0;
 
-	debug("%s(%s) instance: %d\n", __func__, dev->name, instance);
-	af_ptr->base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
-	debug("RVU AF BAR0 %p\n", af_ptr->base);
-	af_ptr->bar2 = dm_pci_map_bar(dev, 2, &size, PCI_REGION_MEM);
-	debug("RVU AF BAR2 %p\n", af_ptr->bar2);
+	af_ptr->af_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+	debug("%s RVU AF BAR %p \n", __func__, af_ptr->af_base);
+	af_ptr->dev = rvu_af_dev = dev;
 
-	func_addr.u = 0;
-	func_addr.s.block = CAVM_RVU_BLOCK_ADDR_E_NIXX(0);
-	af_ptr->nix_af_base = af_ptr->base + func_addr.u;
-	debug("RVU AF BAR0 NIX BASE %p\n", af_ptr->nix_af_base);
-	af_ptr->nix_af_bar2 = af_ptr->bar2 + func_addr.u;
-	debug("RVU AF BAR2 NIX BASE %p\n", af_ptr->nix_af_bar2);
-	//nix_af_init(af_ptr->nix_af_base);
-
-	func_addr.u = 0;
-	func_addr.s.block = CAVM_RVU_BLOCK_ADDR_E_NPA;
-	af_ptr->npa_af_base = af_ptr->base + func_addr.u;
-	debug("RVU AF BAR0 NPA BASE %p\n", af_ptr->npa_af_base);
-	func_addr.u = 0;
-	func_addr.s.block = CAVM_RVU_BLOCK_ADDR_E_NPC;
-	af_ptr->npc_af_base = af_ptr->base + func_addr.u;
-	debug("RVU AF BAR0 NPC BASE %p\n", af_ptr->npc_af_base);
-
-	debug("%s: Initializing nix instance %d\n", __func__, instance);
-	nix_af = nix_af_initialize(instance++, dev,
-				   af_ptr->nix_af_base, 0,
-				   af_ptr->npa_af_base);
-	if (!nix_af) {
+	af_ptr->nix_af = rvu_af_init(af_ptr);
+	if ( !af_ptr->nix_af) {
 		printf("%s: Error: could not initialize NIX AF\n", __func__);
 		return -1;
 	}
-	debug("%s: Adding list, nix_af: %p\n", __func__, nix_af);
-	list_add(&nix_af->nix_af_list, &nix_af_list);
-	af_ptr->nix_af = nix_af;
 	debug("%s: Done\n", __func__);
 
+	return 0;
+}
+
+int rvu_af_remove(struct udevice *dev)
+{
+	struct nix_af *nix_af = dev_get_priv(dev);
+
+	nix_af_shutdown(nix_af);
 	return 0;
 }
 
@@ -139,13 +163,14 @@ static const struct udevice_id rvu_af_ids[] = {
 U_BOOT_DRIVER(rvu_af) = {
         .name   = "rvu_af",
         .id     = UCLASS_MISC,
-        .probe  = cavm_rvu_af_probe,
+        .probe  = rvu_af_probe,
+        .remove = rvu_af_remove,
         .of_match = rvu_af_ids,
         .priv_auto_alloc_size = sizeof(struct rvu_af),
 };
 
 static struct pci_device_id rvu_af_supported[] = {
-        { PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX2_RVU_AF) },
+        { PCI_VDEVICE(CAVIUM, PCI_DEVID_OCTEONTX2_RVU_AF) },
         {}
 };
 

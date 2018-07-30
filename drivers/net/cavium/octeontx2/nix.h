@@ -10,22 +10,12 @@
 #ifndef __NIX_H__
 #define	__NIX_H__
 
-#include "rvu_common.h"
+#include "cavm-csrs-npa.h"
 #include "cavm-csrs-nix.h"
+#include "rvu.h"
 
 /** Maximum number of LMACs supported */
-#define MAX_LMAC				12
-
-#define PCI_DEVICE_ID_OCTEONTX2_RVU		0xa063
-#define PCI_DEVICE_ID_OCTEONTX2_RVU_SSO_TIM_PF	0xa0f9
-#define PCI_DEVICE_ID_OCTEONTX2_RVU_SSO_TIM_VF	0xa0fa
-#define PCI_DEVICE_ID_OCTEONTX2_RVU_NPA_PF	0xa0fb
-#define PCI_DEVICE_ID_OCTEONTX2_RVU_NPA_VF	0xa0fc
-#define PCI_DEVICE_ID_OCTEONTX2_RVU_CPT_PF	0xa0fd
-#define PCI_DEVICE_ID_OCTEONTX2_RVU_CPT_VF	0xa0fe
-
-#define NIX_PCI_NPC_FN
-#define NIX_PCI_FN
+#define MAX_LMAC			12
 
 /* NIX RX action operation*/
 #define NIX_RX_ACTIONOP_DROP		(0x0ull)
@@ -47,14 +37,15 @@
 #define NIX_INTF_TYPE_CGX		0
 #define NIX_INTF_TYPE_LBK		1
 #define NIX_MAX_HW_MTU			9212
-#define NIX_MIN_HW_MTU			64
+#define NIX_MIN_HW_MTU			60
+#define MAX_MTU				1536
 
 #define NPA_POOL_COUNT			2
 #define NPA_AURA_COUNT(x)		(1ULL << ((x) + 6))
 #define NPA_POOL_RX			0ULL
 #define NPA_POOL_TX			1ULL
-#define RQ_QLEN				1024
-#define SQ_QLEN				128
+#define RQ_QLEN				Q_COUNT(Q_SIZE_1K)
+#define SQ_QLEN				Q_COUNT(Q_SIZE_16)
 
 #define NIX_CQ_RX			0ULL
 #define NIX_CQ_TX			1ULL
@@ -74,6 +65,18 @@
 #define NIX_LINK_LBK(a)			(12 + (a))
 #define NIX_CHAN_LBK_CHX(a, b)		(0 + 0x100 * (a) + (b))
 #define MAX_LMAC_PKIND			12
+
+/** Number of Admin queue entries */
+#define AQ_RING_SIZE 			Q_COUNT(Q_SIZE_16)
+
+/** Each completion queue contains 256 entries, see NIC_CQ_CTX_S[qsize] */
+#define CQS_QSIZE			Q_SIZE_256
+#define CQ_ENTRIES			Q_COUNT(CQS_QSIZE)
+/**
+ * Each completion queue entry contains 128 bytes, see
+ * NIXX_AF_LFX_CFG[xqe_size]
+ */
+#define CQ_ENTRY_SIZE			NIX_CQE_SIZE_W16
 
 enum npa_aura_size {
 	NPA_AURA_SZ_0,
@@ -107,33 +110,23 @@ enum nix_scheduler {
 };
 
 struct cgx;
-struct rvu_pf;
 
 struct nix_stats {
 	u64	num_packets;
 	u64	num_bytes;
 };
 
-struct nix_af_handle;
-
-struct nix_txsch {
-	struct rsrc_bmap rsrc;
-	u8	lvl;
-	u16	*pfvf_map;
-};
-
-struct nix_handle;
-struct cgx;
+struct nix;
 struct lmac;
 
-struct npa_af_handle {
-	void __iomem		*npa_base;
+struct npa_af {
+	void __iomem		*npa_af_base;
 	struct admin_queue	aq;
 	u32			aura;
 };
 
-struct npa_handle {
-	struct npa_af_handle	*npa_af;
+struct npa {
+	struct npa_af		*npa_af;
 	void __iomem		*npa_base;
 	void __iomem		*npc_base;
 	void __iomem		*lmt_base;
@@ -152,38 +145,47 @@ struct npa_handle {
 	u32			stack_pages[NPA_POOL_COUNT];
 };
 
-struct nix_af_handle {
+struct nix_af {
 	struct udevice			*dev;
-	struct list_head		nix_af_list;
-	struct nix_handle		*lmacs[MAX_LMAC];
-	struct npa_af_handle		*npa_af;
+	struct nix			*lmacs[MAX_LMAC];
+	struct npa_af			*npa_af;
 	void __iomem			*nix_af_base;
 	void __iomem			*npc_af_base;
 	struct admin_queue		aq;
 	u8				num_lmacs;
 	s8				index;
 	u8				xqe_size;
+	u32				sqb_size;
+	u32				qints;
+	u32				cints;
+	u32				sq_ctx_sz;
+	u32				rq_ctx_sz;
+	u32				cq_ctx_sz;
+	u32				rsse_ctx_sz;
+	u32				cint_ctx_sz;
+	u32				qint_ctx_sz;
 };
 
-struct nix_tx_descr {
+struct nix_tx_dr {
 	union cavm_nix_send_hdr_s	hdr;
-	union cavm_nix_send_sg_s	segments;
-	dma_addr_t			dev_addr;
-	void				*host_addr;
+	union cavm_nix_send_sg_s	tx_sg;
+	dma_addr_t			sg1_addr;
+	dma_addr_t			sg2_addr;
+	dma_addr_t			sg3_addr;
+	u64				in_use;
 };
 
-struct nix_rx_descr {
+struct nix_rx_dr {
 	union cavm_nix_cqe_hdr_s hdr;
 	union cavm_nix_rx_parse_s rx_parse;
 	union cavm_nix_rx_sg_s rx_sg;
 };
 
-struct nix_handle {
+struct nix {
 	struct udevice			*dev;
 	struct eth_device		*netdev;
-	struct list_head		nix_list;
-	struct nix_af_handle		*nix_af;
-	struct npa_handle		*npa;
+	struct nix_af			*nix_af;
+	struct npa			*npa;
 	struct lmac			*lmac;
 	union cavm_nix_cint_hw_s	*cint_base;
 	union cavm_nix_cq_ctx_s		*cq_ctx_base;
@@ -202,130 +204,124 @@ struct nix_handle {
 	void __iomem			*nix_base;	/** PF reg base */
 	void __iomem			*npc_base;
 	void __iomem			*lmt_base;
-	struct nix_tx_descr		send_descriptors[SQ_QLEN];
-	struct nix_tx_descr		*free_send_descriptors[SQ_QLEN];
-	u32				current_free_send_descriptor;
+	struct nix_tx_dr		tx_desc[SQ_QLEN*2];
 	struct nix_stats		tx_stats;
 	struct nix_stats		rx_stats;
 	u32				aura;
 	int				pknd;
-	u16				pki_channel;
-	u16				pki_dstat;
-	u16				pko_queue;
-	u16				nic_id;
 	int				lf;
 	int				pf;
-	int				rq_idx;
-	int				sq_idx;
-	int				cq_idx;
+	u16				pf_func;
+	u32				rq_cnt;		/** Number of receive queues */
+	u32				sq_cnt;		/** Number of send squeues */
+	u32				cq_cnt;		/** Number of completion queues */
+	u16				rss_sz;
+	u16				sqb_size;
+	u8				rss_grps;
+	u8				xqe_sz;
 };
 
-struct nix_lf_alloc_req {
-	u32	rq_cnt;		/** Number of receive queues */
-	u32	sq_cnt;		/** Number of send squeues */
-	u32	cq_cnt;		/** Number of completion queues */
-	u16	rss_sz;
-	u8	rss_grps;
-	u8	xqe_sz;
-	u16	npa_func;
+struct nix_aq_cq_request {
+	union cavm_nix_aq_res_s	resp	ALIGNED;
+	union cavm_nix_cq_ctx_s	cq	ALIGNED;
 };
 
-struct nix_lf_alloc_rsp {
-	u16	sqb_size;
-	u16	chan_base;
-	u8	chan_cnt;
-#if 0
-	u8	lso_tsov4_idx;
-	u8	lso_tsov6_idx;
-#endif
-	u8	mac_addr[6];
+struct nix_aq_rq_request {
+	union cavm_nix_aq_res_s	resp	ALIGNED;
+	union cavm_nix_rq_ctx_s	rq	ALIGNED;
 };
 
-static inline u64 nix_af_reg_read(struct nix_af_handle *nix_af, u64 offset)
+struct nix_aq_sq_request {
+	union cavm_nix_aq_res_s	resp	ALIGNED;
+	union cavm_nix_sq_ctx_s	sq	ALIGNED;
+};
+
+static inline u64 nix_af_reg_read(struct nix_af *nix_af, u64 offset)
 {
+	debug("%s reg %p val %llx\n", __func__, nix_af->nix_af_base + offset,
+		readq(nix_af->nix_af_base + offset));
 	return readq(nix_af->nix_af_base + offset);
 }
 
-static inline void nix_af_reg_write(struct nix_af_handle *nix_af, u64 offset,
+static inline void nix_af_reg_write(struct nix_af *nix_af, u64 offset,
 				    u64 val)
 {
+	debug("%s reg %p val %llx\n", __func__, nix_af->nix_af_base + offset,
+		val);
 	writeq(val, nix_af->nix_af_base + offset);
 }
 
-static inline u64 nix_pf_reg_read(struct nix_handle *nix, u64 offset)
+static inline u64 nix_pf_reg_read(struct nix *nix, u64 offset)
 {
+	debug("%s reg %p val %llx\n", __func__, nix->nix_base + offset,
+		readq(nix->nix_base + offset));
 	return readq(nix->nix_base + offset);
 }
 
-static inline void nix_pf_reg_write(struct nix_handle *nix, u64 offset,
+static inline void nix_pf_reg_write(struct nix *nix, u64 offset,
 				    u64 val)
 {
+	debug("%s reg %p val %llx\n", __func__, nix->nix_base + offset,
+		val);
 	writeq(val, nix->nix_base + offset);
 }
 
-static inline u64 npa_af_reg_read(struct npa_af_handle *npa_af, u64 offset)
+static inline u64 npa_af_reg_read(struct npa_af *npa_af, u64 offset)
 {
-	return readq(npa_af->npa_base + offset);
+	debug("%s reg %p val %llx\n", __func__, npa_af->npa_af_base + offset,
+		readq(npa_af->npa_af_base + offset));
+	return readq(npa_af->npa_af_base + offset);
 }
 
-static inline void npa_af_reg_write(struct npa_af_handle *npa_af, u64 offset,
+static inline void npa_af_reg_write(struct npa_af *npa_af, u64 offset,
 				    u64 val)
 {
-	writeq(val, npa_af->npa_base + offset);
+	debug("%s reg %p val %llx\n", __func__, npa_af->npa_af_base + offset,
+		val);
+	writeq(val, npa_af->npa_af_base + offset);
 }
 
-static inline u64 npc_af_reg_read(struct nix_af_handle *nix_af, u64 offset)
+static inline u64 npc_af_reg_read(struct nix_af *nix_af, u64 offset)
 {
+	debug("%s reg %p val %llx\n", __func__, nix_af->npc_af_base + offset,
+		readq(nix_af->npc_af_base + offset));
 	return readq(nix_af->npc_af_base + offset);
 }
 
-static inline void npc_af_reg_write(struct nix_af_handle *nix_af, u64 offset,
+static inline void npc_af_reg_write(struct nix_af *nix_af, u64 offset,
 				    u64 val)
 {
+	debug("%s reg %p val %llx\n", __func__, nix_af->npc_af_base + offset,
+		val);
 	writeq(val, nix_af->npc_af_base + offset);
 }
 
-struct nix_af_handle *nix_af_initialize(int instance, struct udevice *dev,
-					void *bar0_ptr, void *bar2_ptr,
-					void *npa_bar0_ptr);
-int npa_lf_admin_setup(struct nix_af_handle *nix_af, int lf,
-		       u32 aura_size,
-		       const union cavm_npa_aura_s *aura_ctx,
-		       dma_addr_t auras_dev_addr,
-		       const union cavm_npa_pool_s *pool_ctx,
-		       u32 pool_cnt);
+int npa_attach_aura(struct nix_af *nix_af, int lf,
+			const union cavm_npa_aura_s *desc, u32 aura_id);
+int npa_attach_pool(struct nix_af *nix_af, int lf,
+			const union cavm_npa_pool_s *desc, u32 pool_id);
+int npa_af_setup(struct npa_af *npa_af);
+int npa_lf_setup(struct nix *nix);
+int npa_lf_admin_setup(struct npa *npa, int lf, dma_addr_t aura_base);
+int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count);
 
-int npa_lf_admin_shutdown(struct nix_af_handle *nix_af, int lf, u32 pool_count);
+int npc_lf_admin_setup(struct nix *nix);
 
-int npc_lf_admin_setup(struct nix_af_handle *nix_af, struct cgx *cgx,
-		       u64 link_num);
-
-int nix_lf_admin_setup(struct nix_af_handle *nix_af, int lf, int pf,
-		       union cavm_nix_cq_ctx_s *cq_descriptors,
-		       dma_addr_t cq_dev_addr,
-		       u32 cq_count,
-		       union cavm_nix_rq_ctx_s *rq_descriptors,
-		       dma_addr_t rq_dev_addr,
-		       u32 rq_count,
-		       union cavm_nix_sq_ctx_s *sq_descriptors,
-		       dma_addr_t sq_dev_addr,
-		       u32 sq_count);
-int nix_lf_admin_shutdown(struct nix_af_handle *nix_af, int lf,
+int nix_af_setup(struct nix_af *nix_af);
+int nix_af_shutdown(struct nix_af *nix_af);
+int nix_lf_setup(struct nix *nix);
+struct nix *nix_lf_alloc(struct udevice *dev);
+int nix_lf_admin_setup(struct nix *nix);
+int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
 			  u32 cq_count, u32 rq_count, u32 sq_count);
-struct nix_handle *nix_get_pdata(int nic_id);
-int nix_get_nix_cnt(void);
-int nix_get_pf_num(const struct nix_handle *nix);
-int nix_linear_link_number(const struct nix_handle *nix);
-struct nix_af_handle *nix_get_af(u64 nix_pf_base);
-struct nix_handle *cavm_nix_lf_alloc(struct nix_af_handle *nix_af,
-				     struct udevice *dev,
-				     u16 pcifunc,
-				     u16 nix_lf,
-				     void __iomem *nix_base,
-				     void __iomem *npc_base,
-				     void __iomem *lmt_base,
-				     int cgx_id, int lmac_id,
-				     struct nix_lf_alloc_req *req,
-				     struct nix_lf_alloc_rsp *rsp);
+struct rvu_af *get_af(void);
+
+int nix_lf_setup_mac(struct udevice *dev);
+int nix_lf_read_rom_mac(struct udevice *dev);
+void nix_lf_halt(struct udevice *dev);
+int nix_lf_free_pkt(struct udevice *dev, uchar *pkt, int pkt_len);
+int nix_lf_recv(struct udevice *dev, int flags, uchar **packetp);
+int nix_lf_init(struct udevice *dev);
+int nix_lf_xmit(struct udevice *dev, void *pkt, int pkt_len);
 
 #endif /* __NIX_H__ */

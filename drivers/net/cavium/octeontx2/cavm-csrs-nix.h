@@ -1862,7 +1862,6 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_ACK(void)
  * Register (RVU_PF_BAR0) nix#_af_aq_done_ena_w1c
  *
  * NIX AF Admin Queue Done Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
  */
 union cavm_nixx_af_aq_done_ena_w1c {
 	u64 u;
@@ -1884,7 +1883,6 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1C(void)
  * Register (RVU_PF_BAR0) nix#_af_aq_done_ena_w1s
  *
  * NIX AF Admin Queue Done Interrupt Enable Set Register
- * This register sets interrupt enable bits.
  */
 union cavm_nixx_af_aq_done_ena_w1s {
 	u64 u;

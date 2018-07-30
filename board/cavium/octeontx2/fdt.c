@@ -42,7 +42,7 @@ void octeontx2_parse_board_info(void)
 	const char *str;
 	int node;
 	int ret = 0, len = 16;
-	u64 midr, val;
+	u64 midr;
 
 	debug("%s: ENTER\n", __func__);
 

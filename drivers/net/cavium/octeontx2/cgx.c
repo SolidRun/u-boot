@@ -7,10 +7,8 @@
  * the License, or (at your option) any later version.
  *
  */
-#define DEBUG
 #include <common.h>
 #include <net.h>
-#include <netdev.h>
 #include <malloc.h>
 #include <dm.h>
 #include <misc.h>
@@ -18,160 +16,140 @@
 #include <errno.h>
 #include <linux/list.h>
 #include <asm/arch/octeontx2.h>
-
 #include "cavm-csrs-cgx.h"
-#include "cgx_intf.h"
 #include "cgx.h"
 
-static LIST_HEAD(cgx_list);
-
-static inline struct lmac *lmac_pdata(u8 lmac_id, struct cgx *cgx)
-{
-	if (!cgx || lmac_id > MAX_LMAC_PER_CGX)
-		return NULL;
-
-	return cgx->lmac_idmap[lmac_id];
-}
-
-int cgx_get_cgx_cnt(void)
-{
-	struct cgx *cgx_dev;
-	int count = 0;
-
-	list_for_each_entry(cgx_dev, &cgx_list, cgx_list)
-		count++;
-
-	return count;
-}
-
-int cgx_get_lmac_cnt(void *cgxd)
-{
-	struct cgx *cgx = cgxd;
-
-	if (!cgx)
-		return -ENODEV;
-
-	return cgx->lmac_count;
-}
-
-void *cgx_get_pdata(int cgx_id)
-{
-	struct cgx *cgx_dev;
-
-	list_for_each_entry(cgx_dev, &cgx_list, cgx_list) {
-		if (cgx_dev->cgx_id == cgx_id)
-			return cgx_dev;
-	}
-	return NULL;
-}
+char lmac_type_to_str [][8] = {
+	"SGMII",
+	"XAUI",
+	"RXAUI",
+	"10G_R",
+	"40G_R",
+	"RGMII",
+	"QSGMII",
+	"25G_R",
+	"50G_R",
+	"100G_R",
+	"USXGMII",
+};
 
 /**
- * Given an LMAC instance number, return the lmac
+ * Given an LMAC/PF instance number, return the lmac
+ * Per design, each PF has only one LMAC mapped.
  *
  * @param instance	instance to find
  *
  * @return	pointer to lmac data structure or NULL if not found
  */
-struct lmac *cgx_get_lmac(int instance)
+struct lmac *nix_get_cgx_lmac(int lmac_instance)
 {
 	struct cgx *cgx;
-	int i;
+	struct udevice *dev;
+	int i, idx, err;
 
-	list_for_each_entry(cgx, &cgx_list, cgx_list) {
-		for (i = 0; i < MAX_LMAC_PER_CGX; i++) {
-			if (cgx->lmac_idmap[i] &&
-			    cgx->lmac_idmap[i]->instance == instance)
-				return cgx->lmac_idmap[i];
+	for (i = 0; i < CGX_PER_NODE; i++) {
+		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
+					 PCI_DEVICE_ID_OCTEONTX2_CGX, i,
+					 &dev);
+		if (err)
+			continue;
+
+		cgx = dev_get_priv(dev);
+		debug("%s udev %p cgx %p instance %d\n", __func__, dev, cgx,
+			lmac_instance);
+		for (idx = 0; idx < cgx->lmac_count; idx++) {
+			if (cgx->lmac[idx]->instance == lmac_instance)
+				return cgx->lmac[idx];
 		}
 	}
 	return NULL;
 }
 
-static void cgx_write(struct cgx *cgx, u64 lmac, u64 offset, u64 val)
+void cgx_lmac_mac_filter_setup(struct lmac *lmac)
 {
-	writeq(val, cgx->reg_base + (lmac << 18) + offset);
+	union cavm_cgxx_cmrx_rx_dmac_ctl0 dmac_ctl0;
+	union cavm_cgxx_cmr_rx_dmacx_cam0 dmac_cam0;
+#if 0
+	union cavm_cgxx_cmr_rx_steering0x steering0;
+	union cavm_cgxx_cmr_rx_steering_default0 steering_default0;
+	static int str_idx = 1;
+#endif
+	u64 mac, tmp;
+	void *reg_addr;
+
+	memcpy((void *)&tmp, lmac->mac_addr, 6);
+	debug("%s: tmp %llx\n", __func__, tmp);
+	debug("%s: swab tmp %llx\n", __func__, swab64(tmp));
+	mac = swab64(tmp) >> 16;
+	debug("%s: mac %llx\n", __func__, mac);
+	dmac_cam0.u = 0x0;
+	dmac_cam0.s.id = lmac->lmac_id;
+	dmac_cam0.s.adr = mac;
+	dmac_cam0.s.en = 1;
+	reg_addr = lmac->cgx->reg_base + 
+			CAVM_CGXX_CMR_RX_DMACX_CAM0(lmac->lmac_id * 8);
+	writeq(dmac_cam0.u, reg_addr);
+	debug("%s: reg %p dmac_cam0 %llx\n", __func__, reg_addr, dmac_cam0.u);
+	dmac_ctl0.u = 0x0;
+	dmac_ctl0.s.bcst_accept = 0;
+	dmac_ctl0.s.mcst_mode = 0;
+	dmac_ctl0.s.cam_accept = 1;
+	reg_addr = lmac->cgx->reg_base +
+			CAVM_CGXX_CMRX_RX_DMAC_CTL0(lmac->lmac_id);
+	writeq(dmac_ctl0.u, reg_addr);
+	debug("%s: reg %p dmac_ctl0 %llx\n", __func__, reg_addr, dmac_ctl0.u);
+
+#if 0
+	steering_default0.u = 0x0;
+	steering_default0.s.pass = 0;
+	reg_addr = lmac->cgx->reg_base + CAVM_CGXX_CMR_RX_STEERING_DEFAULT0();
+	writeq(steering_default0.u, reg_addr);
+	debug("%s: reg %p str_def0 %llx\n", __func__, reg_addr,
+			 steering_default0.u);
+
+	steering0.u = 0x0;
+	steering0.s.pass = 1;
+	steering0.s.mcst_en = 0;
+	steering0.s.dmac_en = 1;
+	steering0.s.dmac = mac;
+	reg_addr = lmac->cgx->reg_base + CAVM_CGXX_CMR_RX_STEERING0X(0);
+	writeq(steering0.u, reg_addr);
+	debug("%s: reg %p steering00 %llx\n", __func__, reg_addr,
+			 steering0.u);
+
+	mac = 0x0000FFFFFFFFFFFF;	/* broadcast addr */
+	steering0.u = 0x0;
+	steering0.s.pass = 1;
+	steering0.s.mcst_en = 0;
+	steering0.s.dmac_en = 1;
+	steering0.s.dmac = mac;
+	reg_addr = lmac->cgx->reg_base + CAVM_CGXX_CMR_RX_STEERING0X(1);
+	writeq(steering0.u, reg_addr);
+	debug("%s: reg %p steering01 %llx\n", __func__, reg_addr,
+			 steering0.u);
+#endif
 }
 
-static u64 cgx_read(struct cgx *cgx, u64 lmac, u64 offset)
+
+int cgx_lmac_set_pkind(struct lmac *lmac, u8 lmac_id, int pkind)
 {
-	return readq(cgx->reg_base + (lmac << 18) + offset);
-}
-
-int cgx_set_pkind(void *cgxd, u8 lmac_id, int pkind)
-{
-	struct cgx *cgx = cgxd;
-
-	if (!cgx || lmac_id >= cgx->lmac_count)
-		return -ENODEV;
-
-	cgx_write(cgx, lmac_id, CAVM_CGXX_CMRX_RX_ID_MAP(0), (pkind & 0x3f));
+	cgx_write(lmac->cgx, lmac_id, CAVM_CGXX_CMRX_RX_ID_MAP(0),
+		  (pkind & 0x3f));
 	return 0;
 }
 
-/**
- * Given a linear link number, get the cgx and lmac
- *
- * @param	linear_link_number	Linear link number
- * @param[out]	cgx_id			cgx_id number
- * @parma[out]	lmac_id			lmac_id number
- *
- * @return 0 for success or -1 if not found
- */
-int cgx_get_identifiers(int linear_link_number, int *cgx_id, int *lmac_id)
-{
-	int index = 0;
-	struct cgx *cgx;
 
-	for (cgx = cgx_get_pdata(index); cgx; index++) {
-		if (linear_link_number < cgx->lmac_count) {
-			*cgx_id = cgx->cgx_id;
-			*lmac_id = linear_link_number;
-			return 0;
-		} else {
-			linear_link_number -= cgx->lmac_count;
-		}
-	}
-	return -1;
+int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable)
+{
+	u64 link;
+
+	return cgx_intf_link_up_dwn(lmac->cgx->cgx_id,
+					lmac_id, enable, &link);
 }
 
-int cgx_channel_number(int linear_link_number)
+int cgx_lmac_internal_loopback(struct lmac *lmac, int lmac_id, bool enable)
 {
-	int cgx_id, lmac_id, err;
-
-	err = cgx_get_identifiers(linear_link_number, &cgx_id, &lmac_id);
-	if (err)
-		return -1;
-	else
-		return (0x800 + 0x100 * cgx_id + 0x10 * lmac_id + 0);
-}
-
-int cgx_link_number(int linear_link_number)
-{
-	int cgx_id, lmac_id, err;
-
-	err = cgx_get_identifiers(linear_link_number, &cgx_id, &lmac_id);
-	if (err)
-		return -1;
-	else
-		return (4 * cgx_id + lmac_id);
-}
-
-u64 cgx_get_channel_number(struct cgx *cgx, int linear_link_number)
-{
-	int lmac_id;
-	if (!cgx->lmac_idmap[linear_link_number]) {
-		printf("%s: Invalid link number %d for cgx %d\n", __func__,
-		       linear_link_number, cgx->cgx_id);
-		return 0;
-	}
-
-	lmac_id = cgx->lmac_idmap[linear_link_number]->lmac_id;
-	return (0x800 + 0x100 * cgx->cgx_id + 0x10 * lmac_id + 0);
-}
-
-int cgx_lmac_internal_loopback(void *cgxd, int lmac_id, bool enable)
-{
-	struct cgx *cgx = cgxd;
+	struct cgx *cgx = lmac->cgx;
 	union cavm_cgxx_cmrx_config cmrx_cfg;
 	union cavm_cgxx_gmp_pcs_mrx_control mrx_control;
 	union cavm_cgxx_spux_control1 spux_control1;
@@ -198,18 +176,17 @@ int cgx_lmac_internal_loopback(void *cgxd, int lmac_id, bool enable)
 	return 0;
 }
 
-int cgx_lmac_rx_tx_enable(void *cgxd, int lmac_id, bool enable)
+int cgx_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable)
 {
-	struct cgx *cgx = cgxd;
+	struct cgx *cgx = lmac->cgx;
 	union cavm_cgxx_cmrx_config cmrx_config;
 
 	if (!cgx || lmac_id >= cgx->lmac_count)
 		return -ENODEV;
 
 	cmrx_config.u = cgx_read(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0));
-	cmrx_config.s.enable =
-		cmrx_config.s.data_pkt_rx_en =
-		cmrx_config.s.data_pkt_tx_en = enable ? 1 : 0;
+	cmrx_config.s.data_pkt_rx_en =
+	cmrx_config.s.data_pkt_tx_en = enable ? 1 : 0;
 	cgx_write(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0), cmrx_config.u);
 	return 0;
 }
@@ -217,15 +194,13 @@ int cgx_lmac_rx_tx_enable(void *cgxd, int lmac_id, bool enable)
 static int cgx_lmac_init(struct cgx *cgx)
 {
 	struct lmac *lmac;
-	int i;
 	union cavm_cgxx_cmrx_config cmrx_cfg;
-	static int instance = 0;
+	static int instance = 1;
+	int i;
 
 	cgx->lmac_count = cgx_read(cgx, 0, CAVM_CGXX_CMR_RX_LMACS());
 	debug("%s: Found %d lmacs for cgx %d@%p\n", __func__, cgx->lmac_count,
 	      cgx->cgx_id, cgx->reg_base);
-	if (cgx->lmac_count > MAX_LMAC_PER_CGX)
-		cgx->lmac_count = MAX_LMAC_PER_CGX;
 
 	for (i = 0; i < cgx->lmac_count; i++) {
 		lmac = calloc(1, sizeof(*lmac));
@@ -240,16 +215,23 @@ static int cgx_lmac_init(struct cgx *cgx)
 
 		lmac->lmac_id = i;
 		lmac->cgx = cgx;
-		cgx->lmac_idmap[i] = lmac;
-		debug("%s: mapping id %d to lmac %p (%s), lmac type: %d\n",
-		      __func__, i, lmac, lmac->name, lmac->lmac_type);
+		cgx->lmac[i] = lmac;
+		debug("%s: mapping id %d to lmac %p (%s), lmac type: %d"
+			" lmac instance %d\n", __func__, i, lmac, lmac->name,
+			 lmac->lmac_type, lmac->instance);
+		cgx_intf_get_mac_addr(cgx->cgx_id, i, lmac->mac_addr);
+		debug("%s: cgx%d lmac%d mac_addr\n",__func__,cgx->cgx_id, i);
+		debug("%s: MAC %pM\n", __func__, lmac->mac_addr);
+		eth_env_set_enetaddr_by_index("eth", lmac->instance-1,
+						 lmac->mac_addr);
+		printf("CGX%d LMAC%d %s \n", cgx->cgx_id, lmac->lmac_id,
+					lmac_type_to_str[lmac->lmac_type]);
+
+		cgx_lmac_mac_filter_setup(lmac);
+		cgx_lmac_link_enable(lmac, lmac->lmac_id, true);
+		cgx_lmac_rx_tx_enable(lmac, lmac->lmac_id, false);
 	}
 	return 0;
-}
-
-void enumerate_lmacs(void)
-{
-
 }
 
 int cgx_probe(struct udevice *dev)
@@ -257,21 +239,16 @@ int cgx_probe(struct udevice *dev)
 	struct cgx *cgx = dev_get_priv(dev);
 	size_t size;
 	int err;
-	static int instance = 0;
 
 	cgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 	cgx->dev = dev;
 	cgx->cgx_id = ((u64)(cgx->reg_base) >> 24) & 0x7;
-	cgx->instance = instance++;
 
-	debug("CGX BAR %p, id: %d, instance: %d\n",
-	      cgx->reg_base, cgx->cgx_id, cgx->instance);
-
-	/*enumerate_lmacs();*/
+	debug("%s CGX BAR %p, id: %d\n", __func__,
+		 cgx->reg_base, cgx->cgx_id);
+	debug("%s CGX %p, udev: %p\n", __func__, cgx, dev);
 
 	err = cgx_lmac_init(cgx);
-	if (!err)
-		list_add(&cgx->cgx_list, &cgx_list);
 
 	return err;
 }

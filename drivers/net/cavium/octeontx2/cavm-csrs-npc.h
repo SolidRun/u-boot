@@ -445,7 +445,7 @@ static inline u64 CAVM_NPC_AF_DBG_CTL(void)
  * Register (RVU_PF_BAR0) npc_af_dbg_data#
  *
  * NPC AF Debug Data Registers
- * This register contains packet header data for the last packet/lookup whose
+ * These registers contain the packet header data of the last packet/lookup whose
  * debug information is captured by NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
  */
 union cavm_npc_af_dbg_datax {
@@ -467,9 +467,8 @@ static inline u64 CAVM_NPC_AF_DBG_DATAX(u64 a)
  * Register (RVU_PF_BAR0) npc_af_dbg_result#
  *
  * NPC AF Debug Result Registers
- * This register contains packet result data with format NPC_RESULT_S, for the
- * last packet/lookup for which debug information is captured by
- * NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
+ * These registers contain the result data of the last packet/lookup whose debug
+ * information is captured by NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
  */
 union cavm_npc_af_dbg_resultx {
 	u64 u;
@@ -1416,7 +1415,7 @@ static inline u64 CAVM_NPC_AF_PCK_CFG(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_pck_def_iip4
  *
- * NPC AF Protocol Check Outer IPv4 Definition Register
+ * NPC AF Protocol Check Inner IPv4 Definition Register
  * Provides layer information used by the protocol checker to identify an inner IPv4 header.
  */
 union cavm_npc_af_pck_def_iip4 {
@@ -1464,7 +1463,7 @@ static inline u64 CAVM_NPC_AF_PCK_DEF_OIP4(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_pck_def_oip6
  *
- * NPC AF Protocol Check Outer IPv4 Definition Register
+ * NPC AF Protocol Check Outer IPv6 Definition Register
  * Provides layer information used by the protocol checker to identify an outer
  * IPv6 header. [LID] must have the same value as NPC_AF_PCK_DEF_OIP4[LID].
  */

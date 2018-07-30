@@ -8,7 +8,6 @@
 #include <dm.h>
 #include <malloc.h>
 #include <errno.h>
-#include <netdev.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <libfdt.h>
@@ -32,10 +31,8 @@ void board_quiesce_devices(void)
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
-extern void eth_common_init(void);
 int board_early_init_r(void)
 {
-	eth_common_init();
 	pci_init();
 	return 0;
 }
@@ -85,6 +82,25 @@ void reset_cpu(ulong addr)
 }
 
 /**
+ * Board misc devices initialization routine.
+ */
+void board_misc_init(void)
+{
+	struct udevice *bus;
+
+	/*
+	 * Enumerate all known miscellaneous devices.
+	 * Enumeration has the side-effect of probing them,
+	 * so CGX and RVU AF devices will get enumerated.
+	 */
+	for (uclass_first_device(UCLASS_MISC, &bus);
+	     bus;
+	     uclass_next_device(&bus)) {
+		;
+	}
+}
+
+/**
  * Board late initialization routine.
  */
 int board_late_init(void)
@@ -101,27 +117,10 @@ int board_late_init(void)
 	snprintf(boardname, sizeof(boardname), "%s> ", p_cavm_bdt->type);
 	env_set("prompt", boardname);
 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
+
+	board_misc_init();
+
 	return 0;
-}
-
-/*
- * Board specific ethernet initialization routine.
- */
-
-int board_eth_init(bd_t *bis)
-{
-	int rc = 0;
-	unsigned char ethaddr[6];
-
-	if (!eth_env_get_enetaddr("ethaddr", ethaddr)) {
-		net_random_ethaddr(ethaddr);
-		printf("Generating random MAC address: %pM\n", ethaddr);
-		eth_env_set_enetaddr("ethaddr", ethaddr);
-	}
-
-	rc = pci_eth_init(bis);
-
-	return rc;
 }
 
 #ifdef CONFIG_HW_WATCHDOG

@@ -11,19 +11,12 @@
 #ifndef __CGX_H__
 #define __CGX_H__
 
+#include "cgx_intf.h"
+
 #define PCI_DEVICE_ID_OCTEONTX2_CGX	0xA059
 
-#define CGX_FIRWARE_MAJOR_VER		1
-#define CGX_FIRWARE_MINOR_VER		0
 #define MAX_LMAC_PER_CGX		4
 #define CGX_PER_NODE 			3
-
-/* Register offsets */
-#define CGX_CMR_SCRATCH0	0x87e0e0001050
-#define CGX_CMR_SCRATCH1	0x87e0e0001058
-
-#define CGX_SHIFT(x)		(0x1000000 * (x & 0x3))
-#define CMR_SHIFT(x)		(0x40000 * (x & 0x3))
 
 enum lmac_type {
 	LMAC_MODE_SGMII		= 0,
@@ -48,53 +41,59 @@ struct lmac_priv {
 };
 
 struct cgx;
-struct nix_handle;
-struct nix_af_handle;
+struct nix;
+struct nix_af;
 
 struct lmac {
 	struct cgx	*cgx;
-	struct nix_handle *nix;
+	struct nix	*nix;
 	char		name[16];
 	enum lmac_type	lmac_type;
 	bool		cmd_pend;
 	u8		instance;
 	u8		lmac_id;
-	u32		linear_link_number;
+	u8		pknd;
+	u8		link_num;
+	u32		chan_num;
+	u8		mac_addr[6];
 };
 
 struct cgx {
-	struct nix_af_handle	*nix_af;
+	struct nix_af		*nix_af;
 	void __iomem		*reg_base;
 	struct udevice		*dev;
-	struct lmac		*lmac_idmap[MAX_LMAC_PER_CGX];
-	struct list_head	cgx_list;
-	u8			instance;
+	struct lmac		*lmac[MAX_LMAC_PER_CGX];
 	u8			cgx_id;
 	u8			lmac_count;
 };
 
-int cgx_get_cgx_cnt(void);
-int cgx_get_lmac_cnt(void *cgxd);
+static inline void cgx_write(struct cgx *cgx, u8 lmac, u64 offset, u64 val)
+{
+	writeq(val, cgx->reg_base + CMR_SHIFT(lmac) + offset);
+}
+
+static inline u64 cgx_read(struct cgx *cgx, u8 lmac, u64 offset)
+{
+	return readq(cgx->reg_base + CMR_SHIFT(lmac) + offset);
+}
+
 /**
- * Given an LMAC instance number, return the lmac
+ * Given an LMAC/PF instance number, return the lmac
+ * Per design, each PF has only one LMAC mapped.
  *
  * @param instance	instance to find
  *
  * @return	pointer to lmac data structure or NULL if not found
  */
-struct lmac *cgx_get_lmac(int instance);
-void *cgx_get_pdata(int cgx_id);
-int cgx_set_pkind(void *cgxd, u8 lmac_id, int pkind);
-u64 cgx_get_channel_number(struct cgx *cgx, int linear_link_number);
-/**
- * Given a linear link number, get the cgx and lmac
- *
- * @param	linear_link_number	Linear link number
- * @param[out]	cgx_id			cgx_id number
- * @parma[out]	lmac_id			lmac_id number
- *
- * @return 0 for success or -1 if not found
- */
-int cgx_get_identifiers(int linear_link_number, int *cgx_id, int *lmac_id);
+struct lmac *nix_get_cgx_lmac(int lmac_instance);
+
+int cgx_lmac_set_pkind(struct lmac *lmac, u8 lmac_id, int pkind);
+int cgx_lmac_internal_loopback(struct lmac *lmac, int lmac_id, bool enable);
+int cgx_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable);
+int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable);
+void cgx_lmac_mac_filter_setup(struct lmac *lmac);
+
+int cgx_intf_link_up_dwn(u8 cgx, u8 lmac, u8 up_dwn, u64 *lnk_sts);
+int cgx_intf_get_mac_addr(u8 cgx, u8 lmac, u8 *mac);
 
 #endif /* __CGX_H__ */
