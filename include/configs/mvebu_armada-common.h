@@ -122,6 +122,11 @@
 #define CONFIG_ENV_OFFSET		(0x400000 - CONFIG_ENV_SIZE)
 #endif
 
+#ifdef CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_PART		0 /* 0-DATA, 1-BOOT0, 2-BOOT1 */
+#endif
+
 /*
  * SATA/SCSI/AHCI configuration
  */
