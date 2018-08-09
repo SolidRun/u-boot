@@ -91,8 +91,10 @@ int cgx_lmac_set_pkind(struct lmac *lmac, u8 lmac_id, int pkind);
 int cgx_lmac_internal_loopback(struct lmac *lmac, int lmac_id, bool enable);
 int cgx_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable);
 int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable);
+int cgx_lmac_link_status(struct lmac *lmac, int lmac_id, u64 *status);
 void cgx_lmac_mac_filter_setup(struct lmac *lmac);
 
+int cgx_intf_get_link_sts(u8 cgx, u8 lmac, u64 *lnk_sts);
 int cgx_intf_link_up_dwn(u8 cgx, u8 lmac, u8 up_dwn, u64 *lnk_sts);
 int cgx_intf_get_mac_addr(u8 cgx, u8 lmac, u8 *mac);
 

@@ -774,12 +774,29 @@ int nix_lf_init(struct udevice *dev)
 {
 	struct rvu_pf *rvu = dev_get_priv(dev);
 	struct nix *nix = rvu->nix;
+	int ret;
+	u64 link_sts;
+
 #if 0
 	cgx_lmac_mac_filter_setup(nix->lmac);
 	/* Bring up LMAC */
 	cgx_lmac_link_enable(nix->lmac, nix->lmac->lmac_id, true);
 	cgx_lmac_mac_filter_setup(nix->lmac);
 #endif
+	ret = cgx_lmac_link_status(nix->lmac, nix->lmac->lmac_id, &link_sts);
+	if (ret) {
+		printf("%s failed to get link_sts for cgx%d lmac%d\n",
+			__func__, nix->lmac->cgx->cgx_id,
+			nix->lmac->lmac_id);
+		return -1;
+	}
+
+	if (!(link_sts & 0x1)) {
+		printf("%s cgx%d lmac%d link is down\n", __func__,
+			nix->lmac->cgx->cgx_id, nix->lmac->lmac_id);
+		return -1;
+	}
+
 	cgx_lmac_rx_tx_enable(nix->lmac, nix->lmac->lmac_id, true);
 
 	return 0;

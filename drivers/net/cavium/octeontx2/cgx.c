@@ -139,12 +139,40 @@ int cgx_lmac_set_pkind(struct lmac *lmac, u8 lmac_id, int pkind)
 }
 
 
+int cgx_lmac_link_status(struct lmac *lmac, int lmac_id, u64 *status)
+{
+	int ret = 0;
+
+	ret = cgx_intf_get_link_sts(lmac->cgx->cgx_id,
+					lmac_id, status);
+	if (ret) {
+		printf("%s interface request failed for cgx%d lmac%d\n",
+			__func__, lmac->cgx->cgx_id, lmac->lmac_id);
+		ret = -1;
+	}
+	return ret;
+}
+
 int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable)
 {
-	u64 link;
+	int ret = 0;
+	u64 status;
 
-	return cgx_intf_link_up_dwn(lmac->cgx->cgx_id,
-					lmac_id, enable, &link);
+	ret = cgx_intf_link_up_dwn(lmac->cgx->cgx_id,
+					lmac_id, enable, &status);
+	if (ret) {
+		printf("%s interface request failed for cgx%d lmac%d\n",
+			__func__, lmac->cgx->cgx_id, lmac->lmac_id);
+		ret = -1;
+	}
+	status &= 0x1;
+	if (status != enable) {
+		printf("%s couldn't bring %s link cgx%d lmac%d\n",
+			__func__, enable ? "up" : "down",
+			lmac->cgx->cgx_id, lmac->lmac_id);
+		ret = -1;
+	}
+	return ret;
 }
 
 int cgx_lmac_internal_loopback(struct lmac *lmac, int lmac_id, bool enable)
@@ -196,7 +224,7 @@ static int cgx_lmac_init(struct cgx *cgx)
 	struct lmac *lmac;
 	union cavm_cgxx_cmrx_config cmrx_cfg;
 	static int instance = 1;
-	int i;
+	int i, ret;
 
 	cgx->lmac_count = cgx_read(cgx, 0, CAVM_CGXX_CMR_RX_LMACS());
 	debug("%s: Found %d lmacs for cgx %d@%p\n", __func__, cgx->lmac_count,
@@ -228,8 +256,12 @@ static int cgx_lmac_init(struct cgx *cgx)
 					lmac_type_to_str[lmac->lmac_type]);
 
 		cgx_lmac_mac_filter_setup(lmac);
-		cgx_lmac_link_enable(lmac, lmac->lmac_id, true);
-		cgx_lmac_rx_tx_enable(lmac, lmac->lmac_id, false);
+		ret = cgx_lmac_link_enable(lmac, lmac->lmac_id, true);
+		if (ret)
+			printf("%s could not bring up cgx%d lmac%d\n",
+				__func__, lmac->cgx->cgx_id, lmac->lmac_id);
+		else
+			cgx_lmac_rx_tx_enable(lmac, lmac->lmac_id, false);
 	}
 	return 0;
 }
