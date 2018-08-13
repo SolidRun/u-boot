@@ -535,7 +535,7 @@ static int nix_attach_send_queue(struct nix *nix)
 	sq_req.sq.s.sdp_mcast = 0;
 	sq_req.sq.s.cq = NIX_CQ_TX;
 	sq_req.sq.s.cq_limit = 0;
-	sq_req.sq.s.smq = nix->lf;
+	sq_req.sq.s.smq = nix->lmac->link_num; // scheduling index
 	sq_req.sq.s.sso_ena = 0;
 	sq_req.sq.s.smq_rr_quantum = MAX_MTU / 4;
 	sq_req.sq.s.default_chan = nix->lmac->chan_num;
