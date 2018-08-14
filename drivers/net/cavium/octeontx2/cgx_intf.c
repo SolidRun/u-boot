@@ -123,6 +123,9 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
 
 	set_ownership(cgx, lmac, CGX_OWN_NON_SECURE_FW);
 
+	if (cmd == CGX_CMD_INTF_SHUTDOWN)
+		goto error;
+
 	if (scr0.s.evt_sts.evt_type != CGX_EVT_CMD_RESP) {
 		printf("%s received async event instead of cmd resp event\n",
 			__func__);
@@ -141,17 +144,14 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
 		err = -1;
 		goto error;
 	}
-	
+
+error:
 	/* clear ownership and ack */
 	scr0.s.evt_sts.ack = 0;
 	cgx_wr_scr0(cgx, lmac, scr0.u);
 	set_ownership(cgx, lmac, CGX_OWN_NONE);
 
-	*rsp = scr0.u;
-
-error:
-	if (err)
-		*rsp = 0;
+	*rsp = err ? 0 : scr0.u;
 
 	return err;
 }
