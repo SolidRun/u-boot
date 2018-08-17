@@ -160,8 +160,16 @@ int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
 	u32 head;
 	union cavm_npa_aq_inst_s *inst;
 	volatile union cavm_npa_aq_res_s *res;
-	union cavm_npa_aura_s *aura_ctx;
-	union cavm_npa_pool_s *pool_ctx;
+	struct npa_aq_pool_request {
+		union cavm_npa_aq_res_s	resp	ALIGNED;
+		union cavm_npa_pool_s	p0	ALIGNED;
+		union cavm_npa_pool_s	p1	ALIGNED;
+	} pool_req ALIGNED;
+	struct npa_aq_aura_request {
+		union cavm_npa_aq_res_s	resp	ALIGNED;
+		union cavm_npa_aura_s	a0	ALIGNED;
+		union cavm_npa_aura_s	a1	ALIGNED;
+	} aura_req ALIGNED;
 	union cavm_npa_af_aq_status aq_stat;
 	union cavm_npa_af_lf_rst lf_rst;
 	struct npa_af *npa = nix_af->npa_af;
@@ -171,7 +179,7 @@ int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
 		aq_stat.u = npa_af_reg_read(npa, CAVM_NPA_AF_AQ_STATUS());
 		head = aq_stat.s.head_ptr;
 		inst = (union cavm_npa_aq_inst_s *)(npa->aq.inst.base) + head;
-		res = npa->aq.res.base;
+		res = &pool_req.resp;
 
 		memset(inst, 0, sizeof(*inst));
 		inst->s.cindex = pool_id;
@@ -179,14 +187,11 @@ int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
 		inst->s.doneint = 0;
 		inst->s.ctype = CAVM_NPA_AQ_CTYPE_E_POOL;
 		inst->s.op = CAVM_NPA_AQ_INSTOP_E_WRITE;
-		inst->s.res_addr = npa->aq.res.iova;
+		inst->s.res_addr = (u64)&pool_req.resp;
 
-		/* Context base address */
-		pool_ctx = (union cavm_npa_pool_s *)
-				(npa->aq.res.base + CONFIG_SYS_CACHELINE_SIZE);
-		memset(npa->aq.res.base, 0, npa->aq.res.entry_sz);
-		pool_ctx[0].s.ena = 0;
-		pool_ctx[1].s.ena = 1;	/* Write mask */
+		memset((void *)&pool_req, 0, sizeof(pool_req));
+		pool_req.p0.s.ena = 0;
+		pool_req.p1.s.ena = 1;	/* Write mask */
 		__iowmb();
 
 		npa_af_reg_write(npa, CAVM_NPA_AF_AQ_DOOR(), 1);
@@ -197,17 +202,20 @@ int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
 			WATCHDOG_RESET();
 
 		if (res->s.compcode != CAVM_NPA_AQ_COMP_E_GOOD) {
-			printf("%s: Error: result 0x%x not good\n",
-			       __func__, res->s.compcode);
+			printf("%s: Error: result 0x%x not good for lf %d \n"
+			       " aura id %d", __func__, res->s.compcode, lf,
+				pool_id);
 			return -1;
 		}
+		debug("%s(LF %d, pool id %d) disabled\n", __func__, lf,
+			 pool_id);
 	}
 
 	for (pool_id = 0; pool_id < pool_count; pool_id++) {
 		aq_stat.u = npa_af_reg_read(npa, CAVM_NPA_AF_AQ_STATUS());
 		head = aq_stat.s.head_ptr;
 		inst = (union cavm_npa_aq_inst_s *)(npa->aq.inst.base) + head;
-		res = npa->aq.res.base;
+		res = &aura_req.resp;
 
 		memset(inst, 0, sizeof(*inst));
 		inst->s.cindex = pool_id;
@@ -215,14 +223,11 @@ int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
 		inst->s.doneint = 0;
 		inst->s.ctype = CAVM_NPA_AQ_CTYPE_E_AURA;
 		inst->s.op = CAVM_NPA_AQ_INSTOP_E_WRITE;
-		inst->s.res_addr = npa->aq.res.iova;
+		inst->s.res_addr = (u64)&aura_req.resp;
 
-		/* Context base address */
-		aura_ctx = (union cavm_npa_aura_s *)
-				(npa->aq.res.base + CONFIG_SYS_CACHELINE_SIZE);
-		memset(npa->aq.res.base, 0, npa->aq.res.entry_sz);
-		aura_ctx[0].s.ena = 0;
-		aura_ctx[1].s.ena = 1;	/* Write mask */
+		memset((void *)&aura_req, 0, sizeof(aura_req));
+		aura_req.a0.s.ena = 0;
+		aura_req.a1.s.ena = 1;	/* Write mask */
 		__iowmb();
 
 		npa_af_reg_write(npa, CAVM_NPA_AF_AQ_DOOR(), 1);
@@ -233,10 +238,13 @@ int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
 			WATCHDOG_RESET();
 
 		if (res->s.compcode != CAVM_NPA_AQ_COMP_E_GOOD) {
-			printf("%s: Error: result 0x%x not good\n",
-			       __func__, res->s.compcode);
+			printf("%s: Error: result 0x%x not good for lf %d \n"
+			       " aura id %d", __func__, res->s.compcode, lf,
+				pool_id);
 			return -1;
 		}
+		debug("%s(LF %d, aura id %d) disabled\n", __func__, lf,
+			 pool_id);
 	}
 
 	/* Reset the LF */
@@ -299,6 +307,29 @@ int npa_af_setup(struct npa_af *npa_af)
 	return 0;
 }
 
+int npa_af_shutdown(struct npa_af *npa_af)
+{
+	union cavm_npa_af_blk_rst blk_rst;
+
+	blk_rst.u = 0;
+	blk_rst.s.rst = 1;
+	npa_af_reg_write(npa_af, CAVM_NPA_AF_BLK_RST(), blk_rst.u);
+
+	/* Wait for reset to complete */
+	do {
+		blk_rst.u = npa_af_reg_read(npa_af, CAVM_NPA_AF_BLK_RST());
+		WATCHDOG_RESET();
+	} while (blk_rst.s.busy);
+
+	blk_rst.u = 0;
+	npa_af_reg_write(npa_af, CAVM_NPA_AF_BLK_RST(), blk_rst.u);
+
+	rvu_aq_free(&npa_af->aq);
+
+	debug("%s: npa af reset -- \n", __func__);
+
+	return 0;
+}
 
 /***************
  * NIX API 
@@ -714,15 +745,23 @@ int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
 			  u32 cq_count, u32 rq_count, u32 sq_count)
 {
 	union cavm_nixx_af_rx_sw_sync sw_sync;
-	union cavm_nix_aq_inst_s *inst;
-	volatile union cavm_nix_aq_res_s *res;
-	union cavm_nix_cq_ctx_s *cq_context;
-	union cavm_nix_rq_ctx_s *rq_context;
-	union cavm_nix_sq_ctx_s *sq_context;
-	union cavm_nixx_af_aq_status aq_status;
+	struct nix_aq_cq_request {
+		union cavm_nix_aq_res_s	resp	ALIGNED;
+		union cavm_nix_cq_ctx_s	cq0	ALIGNED;
+		union cavm_nix_cq_ctx_s	cq1	ALIGNED;
+	} cq_req ALIGNED;
+	struct nix_aq_rq_request {
+		union cavm_nix_aq_res_s	resp	ALIGNED;
+		union cavm_nix_rq_ctx_s	rq0	ALIGNED;
+		union cavm_nix_rq_ctx_s	rq1	ALIGNED;
+	} rq_req ALIGNED;
+	struct nix_aq_sq_request {
+		union cavm_nix_aq_res_s	resp	ALIGNED;
+		union cavm_nix_sq_ctx_s	sq0	ALIGNED;
+		union cavm_nix_sq_ctx_s	sq1	ALIGNED;
+	} sq_req ALIGNED;
 	union cavm_nixx_af_lf_rst lf_rst;
-	ulong start;
-	int index;
+	int index, err;
 
 	/* Flush all tx packets */
 	sw_sync.u = 0;
@@ -735,99 +774,57 @@ int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
 	} while (sw_sync.s.ena);
 
 	for (index = 0; index < rq_count; index++) {
-		aq_status.u = nix_af_reg_read(nix_af, CAVM_NIXX_AF_AQ_STATUS());
-		inst = (union cavm_nix_aq_inst_s *)(nix_af->aq.inst.base) +
-							aq_status.s.head_ptr;
-		inst->s.cindex = index;
-		inst->s.lf = lf;
-		inst->s.doneint = 0;
-		inst->s.ctype = CAVM_NIX_AQ_CTYPE_E_RQ;
-		inst->s.op = CAVM_NPA_AQ_INSTOP_E_WRITE;
-		inst->s.res_addr = nix_af->aq.res.iova;
-
-		res = (union cavm_nix_aq_res_s *)(nix_af->aq.res.base);
-		rq_context = nix_af->aq.res.base + CONFIG_SYS_CACHELINE_SIZE;
-
-		memset((void *)res, 0, sizeof(*res));
-
-		rq_context[0].s.ena = 0;	/* Context */
-		rq_context[1].s.ena = 1;	/* Mask */
+		memset((void *)&rq_req, 0, sizeof(rq_req));
+		rq_req.rq0.s.ena = 0;	/* Context */
+		rq_req.rq1.s.ena = 1;	/* Mask */
 		__iowmb();
 
-		nix_af_reg_write(nix_af, CAVM_NIXX_AF_AQ_DOOR(), 1);
-		start = get_timer(0);
-		while ((res->s.compcode == CAVM_NIX_AQ_COMP_E_NOTDONE) &&
-		       (get_timer(start) < 1000))
-			WATCHDOG_RESET();
-		if (res->s.compcode != CAVM_NIX_AQ_COMP_E_GOOD) {
-			printf("%s: Bad result code 0x%x\n",
-			       __func__, res->s.compcode);
-			return -1;
+		err = nix_aq_issue_command(nix_af, lf,
+					   CAVM_NIX_AQ_INSTOP_E_WRITE,
+					   CAVM_NIX_AQ_CTYPE_E_RQ,
+					   index, &rq_req.resp);
+		if (err) {
+			printf("%s: Error disabling LF %d RQ(%d)\n",
+				 __func__, lf, index);
+			return err;
 		}
+		debug("%s: LF %d RQ(%d) disabled\n", __func__, lf, index);
 	}
 
-	for (index = 0; index < rq_count; index++) {
-		aq_status.u = nix_af_reg_read(nix_af, CAVM_NIXX_AF_AQ_STATUS());
-		inst = (union cavm_nix_aq_inst_s *)(nix_af->aq.inst.base) +
-							aq_status.s.head_ptr;
-		inst->s.cindex = index;
-		inst->s.lf = lf;
-		inst->s.doneint = 0;
-		inst->s.ctype = CAVM_NIX_AQ_CTYPE_E_SQ;
-		inst->s.op = CAVM_NPA_AQ_INSTOP_E_WRITE;
-		inst->s.res_addr = nix_af->aq.res.iova;
-
-		res = nix_af->aq.res.base;
-		sq_context = nix_af->aq.res.base + CONFIG_SYS_CACHELINE_SIZE;
-
-		memset((void *)res, 0, sizeof(*res));
-
-		sq_context[0].s.ena = 0;	/* Context */
-		sq_context[1].s.ena = 1;	/* Mask */
+	for (index = 0; index < sq_count; index++) {
+		memset((void *)&sq_req, 0, sizeof(sq_req));
+		sq_req.sq0.s.ena = 0;	/* Context */
+		sq_req.sq1.s.ena = 1;	/* Mask */
 		__iowmb();
 
-		nix_af_reg_write(nix_af, CAVM_NIXX_AF_AQ_DOOR(), 1);
-		start = get_timer(0);
-		while ((res->s.compcode == CAVM_NIX_AQ_COMP_E_NOTDONE) &&
-		       (get_timer(start) < 1000))
-			WATCHDOG_RESET();
-		if (res->s.compcode != CAVM_NIX_AQ_COMP_E_GOOD) {
-			printf("%s: Bad result code 0x%x\n",
-			       __func__, res->s.compcode);
-			return -1;
+		err = nix_aq_issue_command(nix_af, lf,
+					   CAVM_NIX_AQ_INSTOP_E_WRITE,
+					   CAVM_NIX_AQ_CTYPE_E_SQ,
+					   index, &sq_req.resp);
+		if (err) {
+			printf("%s: Error disabling LF %d SQ(%d)\n",
+				 __func__, lf, index);
+			return err;
 		}
+		debug("%s: LF %d SQ(%d) disabled\n", __func__, lf, index);
 	}
 
-	for (index = 0; index < rq_count; index++) {
-		aq_status.u = nix_af_reg_read(nix_af, CAVM_NIXX_AF_AQ_STATUS());
-		inst = (union cavm_nix_aq_inst_s *)(nix_af->aq.inst.base) +
-							aq_status.s.head_ptr;
-		inst->s.cindex = index;
-		inst->s.lf = lf;
-		inst->s.doneint = 0;
-		inst->s.ctype = CAVM_NIX_AQ_CTYPE_E_CQ;
-		inst->s.op = CAVM_NPA_AQ_INSTOP_E_WRITE;
-		inst->s.res_addr = nix_af->aq.res.iova;
-
-		res = nix_af->aq.res.base;
-		cq_context = nix_af->aq.res.base + CONFIG_SYS_CACHELINE_SIZE;
-
-		memset((void *)res, 0, sizeof(*res));
-
-		cq_context[0].s.ena = 0;	/* Context */
-		cq_context[1].s.ena = 1;	/* Mask */
+	for (index = 0; index < cq_count; index++) {
+		memset((void *)&cq_req, 0, sizeof(cq_req));
+		cq_req.cq0.s.ena = 0;	/* Context */
+		cq_req.cq1.s.ena = 1;	/* Mask */
 		__iowmb();
 
-		nix_af_reg_write(nix_af, CAVM_NIXX_AF_AQ_DOOR(), 1);
-		start = get_timer(0);
-		while ((res->s.compcode == CAVM_NIX_AQ_COMP_E_NOTDONE) &&
-		       (get_timer(start) < 1000))
-			WATCHDOG_RESET();
-		if (res->s.compcode != CAVM_NIX_AQ_COMP_E_GOOD) {
-			printf("%s: Bad result code 0x%x\n",
-			       __func__, res->s.compcode);
-			return -1;
+		err = nix_aq_issue_command(nix_af, lf,
+					   CAVM_NIX_AQ_INSTOP_E_WRITE,
+					   CAVM_NIX_AQ_CTYPE_E_CQ,
+					   index, &cq_req.resp);
+		if (err) {
+			printf("%s: Error disabling LF %d CQ(%d)\n",
+				 __func__, lf, index);
+			return err;
 		}
+		debug("%s: LF %d CQ(%d) disabled\n", __func__, lf, index);
 	}
 
 	/* Reset the LF */
@@ -936,6 +933,28 @@ int npc_lf_admin_setup(struct nix *nix)
 	return 0;
 }
 
+int npc_af_shutdown(struct nix_af *nix_af)
+{
+	union cavm_npc_af_blk_rst blk_rst;
+
+	blk_rst.u = 0;
+	blk_rst.s.rst = 1;
+	npc_af_reg_write(nix_af, CAVM_NPC_AF_BLK_RST(), blk_rst.u);
+
+	/* Wait for reset to complete */
+	do {
+		blk_rst.u = npc_af_reg_read(nix_af, CAVM_NPC_AF_BLK_RST());
+		WATCHDOG_RESET();
+	} while (blk_rst.s.busy);
+
+	blk_rst.u = 0;
+	npc_af_reg_write(nix_af, CAVM_NPC_AF_BLK_RST(), blk_rst.u);
+
+	debug("%s: npc af reset -- \n", __func__);
+
+	return 0;
+}
+
 int nix_af_setup(struct nix_af *nix_af)
 {
 	int err;
@@ -1035,8 +1054,10 @@ int nix_af_shutdown(struct nix_af *nix_af)
 
 	blk_rst.u = 0;
 	nix_af_reg_write(nix_af, CAVM_NIXX_AF_BLK_RST(), blk_rst.u);
-	rvu_aq_free(&nix_af->npa_af->aq);
+
 	rvu_aq_free(&nix_af->aq);
+
+	debug("%s: nix af reset -- \n", __func__);
 
 	return 0;
 }

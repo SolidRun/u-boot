@@ -92,6 +92,13 @@ int rvu_pf_probe(struct udevice *dev)
 
 int rvu_pf_remove(struct udevice *dev)
 {
+	struct rvu_pf *rvu = dev_get_priv(dev);
+
+	nix_lf_shutdown(rvu->nix);
+	npa_lf_shutdown(rvu->nix);
+
+	debug("%s: rvu pf%d down -- \n", __func__,  rvu->pfid);
+
 	return 0;
 }
 

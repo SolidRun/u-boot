@@ -354,7 +354,8 @@ int nix_lf_shutdown(struct nix *nix)
 	int index;
 	int err;
 
-	err = nix_lf_admin_shutdown(nix_af, nix->lf, NIX_CQ_COUNT, 1, 1);
+	err = nix_lf_admin_shutdown(nix_af, nix->lf, nix->cq_cnt,
+					nix->rq_cnt, nix->sq_cnt);
 	if (err) {
 		printf("%s: Error shutting down LF admin\n", __func__);
 		return err;
@@ -376,6 +377,7 @@ int nix_lf_shutdown(struct nix *nix)
 	for (index = 0; index < NIX_CQ_COUNT; index++)
 		qmem_free(&nix->cq[index]);
 
+	debug("%s: nix lf %d reset -- \n", __func__, nix->lf);
 	return 0;
 }
 

@@ -149,9 +149,13 @@ int rvu_af_probe(struct udevice *dev)
 
 int rvu_af_remove(struct udevice *dev)
 {
-	struct nix_af *nix_af = dev_get_priv(dev);
+	struct rvu_af *rvu_af = dev_get_priv(dev);
 
-	nix_af_shutdown(nix_af);
+	nix_af_shutdown(rvu_af->nix_af);
+	npa_af_shutdown(rvu_af->nix_af->npa_af);
+	npc_af_shutdown(rvu_af->nix_af);
+
+	debug("%s: rvu af down -- \n", __func__);
 	return 0;
 }
 
