@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/uclass-internal.h>
 #include <malloc.h>
 #include <errno.h>
 #include <asm/io.h>
@@ -24,10 +25,30 @@ void board_quiesce_devices(void)
 {
 	ssize_t node_count = atf_node_count();
 	int node;
+	struct uclass *uc_dev;
+	int ret;
+
+	/* Removes all RVU PF devices */
+	ret = uclass_get(UCLASS_ETH, &uc_dev);
+	if (uc_dev)
+		ret = uclass_destroy(uc_dev);
+	if (ret)
+		printf("couldn't remove rvu pf devices\n");
+
+	/* Bring down all cgx lmac links */
+	cgx_intf_shutdown();
+
+	/* Removes all CGX and RVU AF devices */
+	ret = uclass_get(UCLASS_MISC, &uc_dev);
+	if (uc_dev)
+		ret = uclass_destroy(uc_dev);
+	if (ret)
+		printf("couldn't remove misc (cgx/rvu_af) devices\n");
+
+	/* SMC call - removes all LF<->PF mappings */
 	for (node = 0; node < node_count; node++) {
 		atf_disable_rvu_lfs(node);
 	}
-	cgx_intf_shutdown();
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
