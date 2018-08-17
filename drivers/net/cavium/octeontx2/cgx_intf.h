@@ -14,6 +14,7 @@
 #define CGX_FIRWARE_MINOR_VER		0
 
 /* Register offsets */
+#define CGX_CMR_INT		0x87e0e0000040
 #define CGX_CMR_SCRATCH0	0x87e0e0001050
 #define CGX_CMR_SCRATCH1	0x87e0e0001058
 

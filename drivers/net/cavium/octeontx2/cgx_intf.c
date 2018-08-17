@@ -91,6 +91,7 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
 {
 	union cgx_scratchx1 scr1;
 	union cgx_scratchx0 scr0;
+	u64 cmrx_int;
 	int timeout = 500;
 	int err = 0;
 
@@ -146,6 +147,11 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
 	}
 
 error:
+	/* clear interrupt */
+	cmrx_int = readq(CGX_CMR_INT + CGX_SHIFT(cgx) + CMR_SHIFT(lmac));
+	cmrx_int |= 0x2; // Overflw bit
+	writeq(cmrx_int, CGX_CMR_INT + CGX_SHIFT(cgx) + CMR_SHIFT(lmac));
+
 	/* clear ownership and ack */
 	scr0.s.evt_sts.ack = 0;
 	cgx_wr_scr0(cgx, lmac, scr0.u);
