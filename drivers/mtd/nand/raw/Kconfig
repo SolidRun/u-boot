@@ -123,6 +123,12 @@ config NAND_LPC32XX_SLC
 	help
 	  Enable the LPC32XX SLC NAND controller.
 
+config NAND_OCTEONTX
+	bool "Support for OcteonTX NAND controller"
+	imply CMD_NAND
+	help
+	  This enables Nand flash controller found on the OcteonTX processors.
+
 config NAND_OMAP_GPMC
 	bool "Support OMAP GPMC NAND controller"
 	depends on ARCH_OMAP2PLUS
