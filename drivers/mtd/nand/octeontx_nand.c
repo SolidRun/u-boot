@@ -2024,7 +2024,7 @@ static int octeontx_nfc_chips_init(struct octeontx_nfc *tn)
 	}
 
 	if (!nr_chips) {
-		dev_err(dev, "no DT NAND chips found\n");
+		debug("no DT NAND chips found\n");
 		return -ENODEV;
 	}
 
@@ -2142,7 +2142,8 @@ static int octeontx_pci_nand_probe(struct udevice *dev)
 	ret = octeontx_nfc_chips_init(tn);
 	debug("%s: init chips ret: %d\n", __func__, ret);
 	if (ret) {
-		dev_err(dev, "failed to init nand chips\n");
+		if (ret != -ENODEV)
+			dev_err(dev, "failed to init nand chips\n");
 		goto unclk;
 	}
 	dev_info(dev, "probed\n");
@@ -2173,7 +2174,7 @@ int octeontx_pci_nand_deferred_probe(void)
 		debug("%s: Probing %s\n", __func__, pdev->dev->name);
 		pdev->dev->flags &= ~DM_FLAG_ACTIVATED;
 		rc = device_probe(pdev->dev);
-		if (rc) {
+		if (rc && rc != -ENODEV) {
 			printf("%s: Error %d with deferred probe of %s\n",
 			       __func__, rc, pdev->dev->name);
 			break;
