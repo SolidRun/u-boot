@@ -160,4 +160,15 @@ static inline void octeontx_bch_write_doorbell(u64 num_commands,
 	writeq(num_words, vf->reg_base + BCH_VQX_DOORBELL(0));
 }
 
+/**
+ * Since it's possible (and even likely) that the NAND device will be probed
+ * before the BCH device has been probed, we may need to defer the probing.
+ *
+ * In this case, the initial probe returns success but the actual probing
+ * is deferred until the BCH VF has been probed.
+ *
+ * @return	0 for success, otherwise error
+ */
+int octeontx_pci_nand_deferred_probe(void);
+
 #endif /* __OCTEONTX_BCH_H__ */
