@@ -108,7 +108,6 @@
 #define CONFIG_ENV_SPI_CS		0
 
 /* SPI NOR flash default params, used by sf commands */
-#define CONFIG_SF_DEFAULT_SPEED		1000000
 #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
 
 /*
