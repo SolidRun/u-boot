@@ -24,6 +24,12 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /*
+ * SPI Flash configuration for the environemnt access
+ */
+#define CONFIG_ENV_SPI_BUS		0
+#define CONFIG_ENV_SPI_CS		0
+
+/*
  * SDIO/MMC Card Configuration
  */
 #define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
