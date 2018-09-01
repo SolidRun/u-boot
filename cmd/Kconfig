@@ -1531,7 +1531,7 @@ endif
 menu "Misc commands"
 
 config CMD_BOOTIMGUP
-	depends on MMC_CAVIUM
+	depends on MMC_OCTEONTX
 	bool "bootimgup"
 	help
 	  bootimgup command support

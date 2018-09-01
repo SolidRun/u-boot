@@ -11,6 +11,13 @@
 #include <dm/lists.h>
 #include "mmc_private.h"
 
+#ifdef CONFIG_MMC_OCTEONTX
+# include <asm/gpio.h>
+# include <asm/arch/octeontx_mmc.h>
+#endif
+
+DECLARE_GLOBAL_DATA_PTR;
+
 int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		    struct mmc_data *data)
 {
@@ -196,8 +203,8 @@ struct mmc *mmc_get_mmc_dev(struct udevice *dev)
 {
 	if (!device_active(dev))
 		return NULL;
-#ifdef CONFIG_MMC_CAVIUM
-	struct cavium_mmc_host *host = dev_get_priv(dev);
+#ifdef CONFIG_MMC_OCTEONTX
+	struct octeontx_mmc_host *host = dev_get_priv(dev);
 	if (!host)
 		return NULL;
 	struct mmc *mmc = host->slots[host->cur_slotid].mmc;
@@ -226,10 +233,12 @@ struct mmc *find_mmc_device(int dev_num)
 
 	mmc_dev = dev_get_parent(dev);
 
-#ifdef CONFIG_MMC_CAVIUM
-	struct cavium_mmc_host *host = dev_get_priv(mmc_dev);
-	if (dev_num > CAVIUM_MAX_MMC_SLOT && !host)
+#ifdef CONFIG_MMC_OCTEONTX
+	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
+
+	if (dev_num > OCTEONTX_MAX_MMC_SLOT && !host)
 		return NULL;
+
 	host->cur_slotid = dev_num;
 #endif
 	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
@@ -295,14 +304,18 @@ void print_mmc_devices(char separator)
 	for (uclass_first_device(UCLASS_MMC, &dev);
 	     dev;
 	     uclass_next_device(&dev), first = false) {
-#ifdef CONFIG_MMC_CAVIUM
-		struct cavium_mmc_host *host = dev_get_priv(dev);
+#ifdef CONFIG_MMC_OCTEONTX
+		/* The OcteonTX has multiple slots connected to a single
+		 * PCI device so each slot must be processed inside the
+		 * device.
+		 */
+		struct octeontx_mmc_host *host = dev_get_priv(dev);
 		struct mmc *m = NULL;
 
 		if (!host)
 			continue;
 
-		for (int devnum = 0; devnum < CAVIUM_MAX_MMC_SLOT;
+		for (int devnum = 0; devnum < OCTEONTX_MAX_MMC_SLOT;
 			devnum++, m=NULL) {
 			if (!first) {
 				printf("%c", separator);
@@ -406,12 +419,12 @@ int mmc_unbind(struct udevice *dev)
 static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 {
 	struct udevice *mmc_dev = dev_get_parent(bdev);
-#ifdef CONFIG_MMC_CAVIUM
-	struct cavium_mmc_host *host = dev_get_priv(mmc_dev);
+#ifdef CONFIG_MMC_OCTEONTX
 	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
+	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
 	struct mmc *mmc = host->slots[desc->devnum].mmc;
 
-	/* As cavium mmc have two slots, switch the slot if it
+	/* As octeontx mmc have multiple slots, switch the slot if it
 	 * is not current.
 	 */
 	if (host->cur_slotid != desc->devnum)
@@ -435,8 +448,8 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 static int mmc_blk_probe(struct udevice *dev)
 {
 	struct udevice *mmc_dev = dev_get_parent(dev);
-#ifdef CONFIG_MMC_CAVIUM
-	struct cavium_mmc_host *host = dev_get_priv(mmc_dev);
+#ifdef CONFIG_MMC_OCTEONTX
+	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
 	struct blk_desc *desc = dev_get_uclass_platdata(dev);
 	struct mmc *mmc = host->slots[desc->devnum].mmc;
 #else

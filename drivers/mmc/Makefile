@@ -18,7 +18,6 @@ obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
 endif
 
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
-obj-$(CONFIG_MMC_CAVIUM)		+= cavium_mmc.o
 obj-$(CONFIG_MMC_DAVINCI)		+= davinci_mmc.o
 obj-$(CONFIG_MMC_DW)			+= dw_mmc.o
 obj-$(CONFIG_MMC_DW_EXYNOS)		+= exynos_dw_mmc.o
@@ -37,6 +36,7 @@ obj-$(CONFIG_MVEBU_MMC) += mvebu_mmc.o
 obj-$(CONFIG_MMC_OMAP_HS)		+= omap_hsmmc.o
 obj-$(CONFIG_MMC_MXC)			+= mxcmmc.o
 obj-$(CONFIG_MMC_MXS)			+= mxsmmc.o
+obj-$(CONFIG_MMC_OCTEONTX)		+= octeontx_mmc.o
 obj-$(CONFIG_MMC_PCI)			+= pci_mmc.o
 obj-$(CONFIG_PXA_MMC_GENERIC) += pxa_mmc_gen.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += rpmb.o

@@ -1,49 +1,29 @@
-/***********************license start************************************
- * Copyright (c) 2012 - 2016 Cavium Inc. (support@cavium.com).  All rights
- * reserved.
+/*
+ * Copyright (c) 2012 - 2018 Marvell Inc.
  *
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of Cavium Inc. nor the names of
- *       its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written
- *       permission.
- *
- * TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS"
- * AND WITH ALL FAULTS AND CAVIUM INC. MAKES NO PROMISES, REPRESENTATIONS
- * OR WARRANTIES, EITHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, WITH
- * RESPECT TO THE SOFTWARE, INCLUDING ITS CONDITION, ITS CONFORMITY TO ANY
- * REPRESENTATION OR DESCRIPTION, OR THE EXISTENCE OF ANY LATENT OR PATENT
- * DEFECTS, AND CAVIUM SPECIFICALLY DISCLAIMS ALL IMPLIED (IF ANY) WARRANTIES
- * OF TITLE, MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR A PARTICULAR
- * PURPOSE, LACK OF VIRUSES, ACCURACY OR COMPLETENESS, QUIET ENJOYMENT, QUIET
- * POSSESSION OR CORRESPONDENCE TO DESCRIPTION.  THE ENTIRE RISK ARISING OUT
- * OF USE OR PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
- *
- *
- * For any questions regarding licensing please contact
- * support@cavium.com
- *
- ***********************license end**************************************/
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
 
 /*
  * Due to how MMC is implemented in the OCTEON processor it is not
  * possible to use the generic MMC support.  However, this code
  * implements all of the MMC support found in the generic MMC driver
- * and should be compatible with it for the most part.
+ * and should be compatible with it.  A few things have been enhanced,
+ * such as the code that displays information about the devices.
+ *
+ * For example, one important field for SD devices is whether or not they
+ * support CMD23.  Without CMD23 support, data transfers will be very slow
+ * on OcteonTX since only single block transfers are possible.
+ *
+ * It is planned to update the generic MMC code to simplify this driver in
+ * the future.  The changes should be fairly minimal.
  *
  * Currently both MMC and SD/SDHC/SDXC are supported.
+ *
+ * This code also contains compatibility with the Octeon MIPS driver, though
+ * the MIPS U-Boot has not been ported to the current U-Boot.
+ *
+ * TODO: Add support for OcteonTX2 and simplify after MMC core changes.
  */
 
 #include <common.h>
@@ -65,7 +45,8 @@
 #include <asm/arch/fdt-helper.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
-#include <asm/arch/cavium_mmc.h>
+#include <asm/arch/cavm-csrs-mio_emm.h>
+#include <asm/arch/octeontx_mmc.h>
 #include <asm/arch/clock.h>
 #include <linux/list.h>
 #include <div64.h>
@@ -78,14 +59,14 @@
 #endif
 
 /** Name of our driver */
-#define CAVIUM_MMC_DRIVER_NAME			"mmc_cavium"
+#define OCTEONTX_MMC_DRIVER_NAME		"mmc_octeontx"
 
-#ifndef CONFIG_CAVIUM_MMC_MAX_FREQUENCY
-# define CONFIG_CAVIUM_MMC_MAX_FREQUENCY	52000000
+#ifndef CONFIG_OCTEONTX_MMC_MAX_FREQUENCY
+# define CONFIG_OCTEONTX_MMC_MAX_FREQUENCY	52000000
 #endif
 
 /* Enable support for SD as well as MMC */
-#define CONFIG_CAVIUM_MMC_SD
+#define CONFIG_OCTEONTX_MMC_SD
 
 #define POWER_ON_TIME		40	/** See SD 4.1 spec figure 6-5 */
 
@@ -110,15 +91,15 @@
  */
 #define MMC_TIMEOUT_SHORT	20
 
-#ifndef CONFIG_CAVIUM_MAX_MMC_SLOT
-# define CONFIG_CAVIUM_MAX_MMC_SLOT		4
+#ifndef CONFIG_OCTEONTX_MAX_MMC_SLOT
+# define CONFIG_OCTEONTX_MAX_MMC_SLOT		4
 #endif
 
-#ifndef CONFIG_CAVIUM_MMC_MIN_BUS_SPEED_HZ
-# define CONFIG_CAVIUM_MMC_MIN_BUS_SPEED_HZ		400000
+#ifndef CONFIG_OCTEONTX_MMC_MIN_BUS_SPEED_HZ
+# define CONFIG_OCTEONTX_MMC_MIN_BUS_SPEED_HZ		400000
 #endif
 
-#ifndef CONFIG_CAVIUM_MMC_SD
+#ifndef CONFIG_OCTEONTX_MMC_SD
 # undef IS_SD
 # define IS_SD(x) (0)
 #endif
@@ -150,49 +131,50 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value);
 static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd);
 
 static int mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
-				struct mmc_data *data, uint32_t flags,
+				struct mmc_data *data, u32 flags,
 				uint timeout);
 
 static int mmc_send_cmd_flags(struct mmc *mmc, struct mmc_cmd *cmd,
-			      struct mmc_data *data, uint32_t flags);
+			      struct mmc_data *data, u32 flags);
 
 static int mmc_send_acmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			 struct mmc_data *data, uint32_t flags);
+			 struct mmc_data *data, u32 flags);
 
-static int cavium_mmc_set_ios(struct udevice *dev);
+static int octeontx_mmc_set_ios(struct udevice *dev);
 
 static void mmc_switch_dev(struct mmc *mmc);
 
-int cavium_mmc_getwp(struct udevice *dev)
-	__attribute__((weak, alias("__cavium_mmc_getwp")));
+int octeontx_mmc_getwp(struct udevice *dev)
+	__attribute__((weak, alias("__octeontx_mmc_getwp")));
 
-int cavium_mmc_getcd(struct udevice *dev)
-	__attribute__((weak, alias("__cavium_mmc_getcd")));
+int octeontx_mmc_getcd(struct udevice *dev)
+	__attribute__((weak, alias("__octeontx_mmc_getcd")));
 
-int cavium_mmc_init(struct mmc *mmc)
-	__attribute__((weak, alias("__cavium_mmc_init")));
+int octeontx_mmc_init(struct mmc *mmc)
+	__attribute__((weak, alias("__octeontx_mmc_init")));
 
 /**
  * This is the external mmc_send_cmd function.  It was required that
  * the internal version support flags so this version is required.
  */
-static int cavium_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
-			       struct mmc_data *data);
+static int octeontx_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+				 struct mmc_data *data);
 
-static const struct udevice_id cavium_mmc_ids[] = {
+static const struct udevice_id octeontx_mmc_ids[] = {
 	{ .compatible = "cavium,thunder-8890-mmc" },
 	{ .compatible = "cavium,mmc" },
+	{ .compatible = "octeontx,mmc" },
 	{ },
 };
 
-static const struct dm_mmc_ops cavium_mmc_ops = {
-	.send_cmd = cavium_mmc_send_cmd,
-	.set_ios = cavium_mmc_set_ios,
-	.get_cd = cavium_mmc_getcd,
-	.get_wp = cavium_mmc_getwp,
+static const struct dm_mmc_ops octeontx_mmc_ops = {
+	.send_cmd = octeontx_mmc_send_cmd,
+	.set_ios = octeontx_mmc_set_ios,
+	.get_cd = octeontx_mmc_getcd,
+	.get_wp = octeontx_mmc_getwp,
 };
 
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 static int sd_set_ios(struct mmc *mmc);
 #endif
 
@@ -205,43 +187,66 @@ static int sd_set_ios(struct mmc *mmc);
  *
  * @return	0 for success, -1 on error.
  */
-static int cavium_mmc_get_config(struct udevice *dev);
+static int octeontx_mmc_get_config(struct udevice *dev);
 
 #ifdef DEBUG
-const char *mmc_reg_str(uint64_t reg)
+const char *mmc_reg_str(u64 reg)
 {
-	switch (reg) {
 #ifdef __mips
-	case MIO_NDF_DMA_CFG:		return "MIO_NDF_DMA_CFG";
-	case MIO_NDF_DMA_INT:		return "MIO_NDF_DMA_INT";
-	case MIO_NDF_DMA_INT_EN:	return "MIO_NDF_DMA_INT_EN";
+	if (reg == CAVM_MIO_NDF_DMA_CFG())
+		return "MIO_NDF_DMA_CFG";
+	if (reg == CAVM_MIO_NDF_DMA_INT())
+		return "MIO_NDF_DMA_INT";
+	if (reg == CAVM_MIO_NDF_DMA_INT_EN())
+		return "MIO_NDF_DMA_INT_EN";
 #endif
-	case MIO_EMM_DMA_CFG:		return "MIO_EMM_DMA_CFG";
-	case MIO_EMM_DMA_ADR:		return "MIO_EMM_DMA_ADR";
-	case MIO_EMM_DMA_INT:		return "MIO_EMM_DMA_INT";
-	case MIO_EMM_CFG:		return "MIO_EMM_CFG";
-	case MIO_EMM_MODEX(0):		return "MIO_EMM_MODE0";
-	case MIO_EMM_MODEX(1):		return "MIO_EMM_MODE1";
-	case MIO_EMM_MODEX(2):		return "MIO_EMM_MODE2";
-	case MIO_EMM_MODEX(3):		return "MIO_EMM_MODE3";
-	case MIO_EMM_SWITCH:		return "MIO_EMM_SWITCH";
-	case MIO_EMM_DMA:		return "MIO_EMM_DMA";
-	case MIO_EMM_CMD:		return "MIO_EMM_CMD";
-	case MIO_EMM_RSP_STS:		return "MIO_EMM_RSP_STS";
-	case MIO_EMM_RSP_LO:		return "MIO_EMM_RSP_LO";
-	case MIO_EMM_RSP_HI:		return "MIO_EMM_RSP_HI";
-	case MIO_EMM_INT:		return "MIO_EMM_INT";
+	if (reg == CAVM_MIO_EMM_DMA_CFG())
+		return "MIO_EMM_DMA_CFG";
+	if (reg == CAVM_MIO_EMM_DMA_ADR())
+		return "MIO_EMM_DMA_ADR";
+	if (reg == CAVM_MIO_EMM_DMA_INT())
+		return "MIO_EMM_DMA_INT";
+	if (reg == CAVM_MIO_EMM_CFG())
+		return "MIO_EMM_CFG";
+	if (reg == CAVM_MIO_EMM_MODEX(0))
+		return "MIO_EMM_MODE0";
+	if (reg == CAVM_MIO_EMM_MODEX(1))
+		return "MIO_EMM_MODE1";
+	if (reg == CAVM_MIO_EMM_MODEX(2))
+		return "MIO_EMM_MODE2";
+	if (reg == CAVM_MIO_EMM_MODEX(3))
+		return "MIO_EMM_MODE3";
+	if (reg == CAVM_MIO_EMM_SWITCH())
+		return "MIO_EMM_SWITCH";
+	if (reg == CAVM_MIO_EMM_DMA())
+		return "MIO_EMM_DMA";
+	if (reg == CAVM_MIO_EMM_CMD())
+		return "MIO_EMM_CMD";
+	if (reg == CAVM_MIO_EMM_RSP_STS())
+		return "MIO_EMM_RSP_STS";
+	if (reg == CAVM_MIO_EMM_RSP_LO())
+		return "MIO_EMM_RSP_LO";
+	if (reg == CAVM_MIO_EMM_RSP_HI())
+		return "MIO_EMM_RSP_HI";
+	if (reg == CAVM_MIO_EMM_INT())
+		return "MIO_EMM_INT";
 #ifdef __mips
-	case MIO_EMM_INT_EN:		return "MIO_EMM_INT_EN";
+	if (reg == CAVM_MIO_EMM_INT_EN())
+		return "MIO_EMM_INT_EN";
 #endif
-	case MIO_EMM_WDOG:		return "MIO_EMM_WDOG";
-	case MIO_EMM_SAMPLE:		return "MIO_EMM_SAMPLE";
-	case MIO_EMM_STS_MASK:		return "MIO_EMM_STS_MASK";
-	case MIO_EMM_RCA:		return "MIO_EMM_RCA";
-	case MIO_EMM_BUF_IDX:		return "MIO_EMM_BUF_IDX";
-	case MIO_EMM_BUF_DAT:		return "MIO_EMM_BUF_DAT";
-	default:			return "UNKNOWN";
-	}
+	if (reg == CAVM_MIO_EMM_WDOG())
+		return "MIO_EMM_WDOG";
+	if (reg == CAVM_MIO_EMM_SAMPLE())
+		return "MIO_EMM_SAMPLE";
+	if (reg == CAVM_MIO_EMM_STS_MASK())
+		return "MIO_EMM_STS_MASK";
+	if (reg == CAVM_MIO_EMM_RCA())
+		return "MIO_EMM_RCA";
+	if (reg == CAVM_MIO_EMM_BUF_IDX())
+		return "MIO_EMM_BUF_IDX";
+	if (reg == CAVM_MIO_EMM_BUF_DAT())
+		return "MIO_EMM_BUF_DAT";
+	return "UNKNOWN";
 }
 #endif
 
@@ -254,16 +259,16 @@ const char *mmc_reg_str(uint64_t reg)
  *
  * @return	field extracted from the CSD register
  */
-static uint32_t get_csd_bits(const struct mmc *mmc, unsigned start,
-			     unsigned end)
+static u32 get_csd_bits(const struct mmc *mmc,
+			unsigned int start, unsigned int end)
 {
-	const uint32_t *csd = mmc->csd;
+	const u32 *csd = mmc->csd;
 	int start_off = 3 - start / 32;
 	int end_off = 3 - end / 32;
 	int start_bit = start & 0x1f;
 	int end_bit = end & 0x1f;
-	uint32_t val;
-	uint32_t mask;
+	u32 val;
+	u32 mask;
 	if (start_off == end_off) {
 		val = csd[start_off] >> start_bit;
 		mask = (1 << (end - start + 1)) - 1;
@@ -284,11 +289,11 @@ static uint32_t get_csd_bits(const struct mmc *mmc, unsigned start,
  * @param	reg	register offset
  * @param	value	value to write to register
  */
-static inline void mmc_write_csr(const struct mmc *mmc, uint64_t reg,
-				 uint64_t value)
+static inline void mmc_write_csr(const struct mmc *mmc, u64 reg,
+				 u64 value)
 {
-	struct cavium_mmc_slot *slot = mmc->priv;
-	struct cavium_mmc_host *host = slot->host;
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_host *host = slot->host;
 	void *addr = host->base_addr + reg;
 
 #ifdef DEBUG_CSR
@@ -306,11 +311,11 @@ static inline void mmc_write_csr(const struct mmc *mmc, uint64_t reg,
  *
  * @return	value of the register
  */
-static inline uint64_t mmc_read_csr(const struct mmc *mmc, uint64_t reg)
+static inline u64 mmc_read_csr(const struct mmc *mmc, u64 reg)
 {
-	struct cavium_mmc_slot *slot = mmc->priv;
-	struct cavium_mmc_host *host = slot->host;
-	uint64_t value = readq(host->base_addr + reg);
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_host *host = slot->host;
+	u64 value = readq(host->base_addr + reg);
 #ifdef DEBUG_CSR
 	printf("        %s: %s(0x%p) => 0x%llx\n", __func__,
 	       mmc_reg_str(reg), host->base_addr + reg,
@@ -320,7 +325,7 @@ static inline uint64_t mmc_read_csr(const struct mmc *mmc, uint64_t reg)
 }
 
 #ifdef DEBUG
-static void mmc_print_status(uint32_t status)
+static void mmc_print_status(u32 status)
 {
 #ifdef DEBUG_STATUS
 	static const char * const state[] = {
@@ -383,31 +388,36 @@ static void mmc_print_status(uint32_t status)
 }
 #endif
 
+/**
+ * Print out all of the register values
+ *
+ * @param mmc	MMC device
+ */
 static void mmc_print_registers(struct mmc *mmc)
 {
 #ifdef DEBUG_REGISTERS
-	struct cavium_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_slot *slot = mmc->priv;
 #ifdef __mips
-	struct cavium_mmc_host *host = slot->host;
-	union mio_ndf_dma_cfg ndf_dma_cfg;
-	union mio_ndf_dma_int ndf_dma_int;
+	struct octeontx_mmc_host *host = slot->host;
+	union cavm_mio_ndf_dma_cfg ndf_dma_cfg;
+	union cavm_mio_ndf_dma_int ndf_dma_int;
 #endif
-	union mio_emm_dma_cfg emm_dma_cfg;
-	union mio_emm_dma_adr emm_dma_adr;
-	union mio_emm_dma_int emm_dma_int;
-	union mio_emm_cfg emm_cfg;
-	union mio_emm_modex emm_mode;
-	union mio_emm_switch emm_switch;
-	union mio_emm_dma emm_dma;
-	union mio_emm_cmd emm_cmd;
-	union mio_emm_rsp_sts emm_rsp_sts;
-	union mio_emm_rsp_lo emm_rsp_lo;
-	union mio_emm_rsp_hi emm_rsp_hi;
-	union mio_emm_int emm_int;
-	union mio_emm_wdog emm_wdog;
-	union mio_emm_sample emm_sample;
-	union mio_emm_sts_mask emm_sts_mask;
-	union mio_emm_rca emm_rca;
+	union cavm_mio_emm_dma_cfg emm_dma_cfg;
+	union cavm_mio_emm_dma_adr emm_dma_adr;
+	union cavm_mio_emm_dma_int emm_dma_int;
+	union cavm_mio_emm_cfg emm_cfg;
+	union cavm_mio_emm_modex emm_mode;
+	union cavm_mio_emm_switch emm_switch;
+	union cavm_mio_emm_dma emm_dma;
+	union cavm_mio_emm_cmd emm_cmd;
+	union cavm_mio_emm_rsp_sts emm_rsp_sts;
+	union cavm_mio_emm_rsp_lo emm_rsp_lo;
+	union cavm_mio_emm_rsp_hi emm_rsp_hi;
+	union cavm_mio_emm_int emm_int;
+	union cavm_mio_emm_wdog emm_wdog;
+	union cavm_mio_emm_sample emm_sample;
+	union cavm_mio_emm_sts_mask emm_sts_mask;
+	union cavm_mio_emm_rca emm_rca;
 	int bus;
 
 	static const char * const bus_width_str[] = {
@@ -475,15 +485,15 @@ static void mmc_print_registers(struct mmc *mmc)
 		printf("    36-55: size:                %u\n",
 		       ndf_dma_cfg.s.size);
 		printf("    0-35:  adr:                 0x%llx\n",
-		       (uint64_t)ndf_dma_cfg.s.adr);
+		       (u64)ndf_dma_cfg.s.adr);
 
-		ndf_dma_int.u = mmc_read_csr(mmc, MIO_NDF_DMA_INT);
+		ndf_dma_int.u = mmc_read_csr(mmc, CAVM_MIO_NDF_DMA_INT());
 		printf("\nMIO_NDF_DMA_INT:              0x%016llx\n",
 		       ndf_dma_int.u);
 		printf("    0:     Done:    %s\n",
 		       ndf_dma_int.s.done ? "yes" : "no");
 
-		emm_cfg.u = mmc_read_csr(mmc, MIO_EMM_CFG);
+		emm_cfg.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CFG());
 		printf("\nMIO_EMM_CFG:                  0x%016llx\n",
 		       emm_cfg.u);
 		printf("    16:    boot_fail:           %s\n",
@@ -499,7 +509,7 @@ static void mmc_print_registers(struct mmc *mmc)
 	} else
 #endif
 	{
-		emm_dma_cfg.u = mmc_read_csr(mmc, MIO_EMM_DMA_CFG);
+		emm_dma_cfg.u = mmc_read_csr(mmc, CAVM_MIO_EMM_DMA_CFG());
 		printf("MIO_EMM_DMA_CFG:                0x%016llx\n",
 		       emm_dma_cfg.u);
 		printf("    63:    en:                  %s\n",
@@ -519,12 +529,12 @@ static void mmc_print_registers(struct mmc *mmc)
 		printf("    36-55: size:                %u\n",
 		       emm_dma_cfg.s.size);
 
-		emm_dma_adr.u = mmc_read_csr(mmc, MIO_EMM_DMA_ADR);
+		emm_dma_adr.u = mmc_read_csr(mmc, CAVM_MIO_EMM_DMA_ADR());
 		printf("MIO_EMM_DMA_ADR:        0x%016llx\n", emm_dma_adr.u);
 		printf("    0-49:  adr:                 0x%llx\n",
-		       (uint64_t)emm_dma_adr.s.adr);
+		       (u64)emm_dma_adr.s.adr);
 
-		emm_dma_int.u = mmc_read_csr(mmc, MIO_EMM_DMA_INT);
+		emm_dma_int.u = mmc_read_csr(mmc, CAVM_MIO_EMM_DMA_INT());
 		printf("\nMIO_EMM_DMA_INT:              0x%016llx\n",
 		       emm_dma_int.u);
 		printf("    1:     FIFO:                %s\n",
@@ -532,7 +542,7 @@ static void mmc_print_registers(struct mmc *mmc)
 		printf("    0:     Done:                %s\n",
 		       emm_dma_int.s.done ? "yes" : "no");
 
-		emm_cfg.u = mmc_read_csr(mmc, MIO_EMM_CFG);
+		emm_cfg.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CFG());
 		printf("\nMIO_EMM_CFG:                  0x%016llx\n",
 		       emm_cfg.u);
 #ifdef __mips
@@ -549,7 +559,7 @@ static void mmc_print_registers(struct mmc *mmc)
 		       emm_cfg.s.bus_ena & 0x01 ? "yes" : "no");
 	}
 	for (bus = 0; bus < 4; bus++) {
-		emm_mode.u = mmc_read_csr(mmc, MIO_EMM_MODEX(bus));
+		emm_mode.u = mmc_read_csr(mmc, CAVM_MIO_EMM_MODEX(bus));
 		printf("\nMIO_EMM_MODE%u:               0x%016llx\n",
 		       bus, emm_mode.u);
 		printf("    48:    hs_timing:           %s\n",
@@ -564,7 +574,7 @@ static void mmc_print_registers(struct mmc *mmc)
 		       emm_mode.s.clk_lo);
 	}
 
-	emm_switch.u = mmc_read_csr(mmc, MIO_EMM_SWITCH);
+	emm_switch.u = mmc_read_csr(mmc, CAVM_MIO_EMM_SWITCH());
 	printf("\nMIO_EMM_SWITCH:               0x%016llx\n", emm_switch.u);
 	printf("    60-61: tbus_id:             %u\n", emm_switch.s.bus_id);
 	printf("    59:    switch_exe:          %s\n",
@@ -585,7 +595,7 @@ static void mmc_print_registers(struct mmc *mmc)
 	       emm_switch.s.clk_hi);
 	printf("    0-15:  clk_lo:              %u\n", emm_switch.s.clk_lo);
 
-	emm_dma.u = mmc_read_csr(mmc, MIO_EMM_DMA);
+	emm_dma.u = mmc_read_csr(mmc, CAVM_MIO_EMM_DMA());
 	printf("\nMIO_EMM_DMA:                  0x%016llx\n", emm_dma.u);
 	printf("    60-61: bus_id:              %u\n", emm_dma.s.bus_id);
 	printf("    59:    dma_val:             %s\n",
@@ -606,7 +616,7 @@ static void mmc_print_registers(struct mmc *mmc)
 	printf("    0-31:  card_addr:           0x%x\n",
 	       emm_dma.s.card_addr);
 
-	emm_cmd.u = mmc_read_csr(mmc, MIO_EMM_CMD);
+	emm_cmd.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CMD());
 	printf("\nMIO_EMM_CMD:                  0x%016llx\n", emm_cmd.u);
 	printf("    60-61: bus_id:              %u\n", emm_cmd.s.bus_id);
 	printf("    59:    cmd_val:             %s\n",
@@ -620,7 +630,7 @@ static void mmc_print_registers(struct mmc *mmc)
 	printf("    32-37: cmd_idx:             %u\n", emm_cmd.s.cmd_idx);
 	printf("    0-31:  arg:                 0x%x\n", emm_cmd.s.arg);
 
-	emm_rsp_sts.u = mmc_read_csr(mmc, MIO_EMM_RSP_STS);
+	emm_rsp_sts.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
 	printf("\nMIO_EMM_RSP_STS:              0x%016llx\n", emm_rsp_sts.u);
 	printf("    60-61: bus_id:              %u\n", emm_rsp_sts.s.bus_id);
 	printf("    59:    cmd_val:             %s\n",
@@ -665,13 +675,13 @@ static void mmc_print_registers(struct mmc *mmc)
 	printf("    0:     cmd_done:            %s\n",
 	       emm_rsp_sts.s.cmd_done ? "yes" : "no");
 
-	emm_rsp_lo.u = mmc_read_csr(mmc, MIO_EMM_RSP_LO);
+	emm_rsp_lo.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_LO());
 	printf("\nMIO_EMM_RSP_STS_LO:           0x%016llx\n", emm_rsp_lo.u);
 
-	emm_rsp_hi.u = mmc_read_csr(mmc, MIO_EMM_RSP_HI);
+	emm_rsp_hi.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_HI());
 	printf("\nMIO_EMM_RSP_STS_HI:           0x%016llx\n", emm_rsp_hi.u);
 
-	emm_int.u = mmc_read_csr(mmc, MIO_EMM_INT);
+	emm_int.u = mmc_read_csr(mmc, CAVM_MIO_EMM_INT());
 	printf("\nMIO_EMM_INT:                  0x%016llx\n", emm_int.u);
 	printf("    6:    switch_err:           %s\n",
 	       emm_int.s.switch_err ? "yes" : "no");
@@ -688,19 +698,19 @@ static void mmc_print_registers(struct mmc *mmc)
 	printf("    0:    buf_done:             %s\n",
 	       emm_int.s.buf_done ? "yes" : "no");
 
-	emm_wdog.u = mmc_read_csr(mmc, MIO_EMM_WDOG);
+	emm_wdog.u = mmc_read_csr(mmc, CAVM_MIO_EMM_WDOG());
 	printf("\nMIO_EMM_WDOG:                 0x%016llx (%u)\n",
 	       emm_wdog.u, emm_wdog.s.clk_cnt);
 
-	emm_sample.u = mmc_read_csr(mmc, MIO_EMM_SAMPLE);
+	emm_sample.u = mmc_read_csr(mmc, CAVM_MIO_EMM_SAMPLE());
 	printf("\nMIO_EMM_SAMPLE:               0x%016llx\n", emm_sample.u);
 	printf("    16-25: cmd_cnt:             %u\n", emm_sample.s.cmd_cnt);
 	printf("    0-9:   dat_cnt:             %u\n", emm_sample.s.dat_cnt);
 
-	emm_sts_mask.u = mmc_read_csr(mmc, MIO_EMM_STS_MASK);
+	emm_sts_mask.u = mmc_read_csr(mmc, CAVM_MIO_EMM_STS_MASK());
 	printf("\nMIO_EMM_STS_MASK:             0x%016llx\n", emm_sts_mask.u);
 
-	emm_rca.u = mmc_read_csr(mmc, MIO_EMM_RCA);
+	emm_rca.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RCA());
 	printf("\nMIO_EMM_RCA:                  0x%016llx\n", emm_rca.u);
 	printf("    0-15:  card_rca:            %u\n", emm_rca.s.card_rca);
 	puts("\n");
@@ -718,20 +728,20 @@ static void mmc_print_registers(struct mmc *mmc)
 static void mmc_enable(struct mmc *mmc)
 {
 #ifdef __mips
-	union mio_emm_cfg emm_cfg;
-	struct cavium_mmc_slot *slot = mmc->priv;
+	union cavm_mio_emm_cfg emm_cfg;
+	struct octeontx_mmc_slot *slot = mmc->priv;
 
 	debug("%s(%d)\n", __func__, slot->bus_id);
 
-	emm_cfg.u = mmc_read_csr(mmc, MIO_EMM_CFG);
+	emm_cfg.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CFG());
 	emm_cfg.s.bus_ena |= 1 << slot->bus_id;
-	mmc_write_csr(mmc, MIO_EMM_CFG, emm_cfg.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
 
 	debug("%s: Wrote 0x%llx to MIO_EMM_CFG\n", __func__, emm_cfg.u);
 	debug("%s: MIO_EMM_MODE: 0x%llx\n", __func__,
-	      mmc_read_csr(mmc, MIO_EMM_MODEX(slot->bus_id)));
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_MODEX(slot->bus_id)));
 	debug("%s: MIO_EMM_SWITCH: 0x%llx\n", __func__,
-	      mmc_read_csr(mmc, MIO_EMM_SWITCH));
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_SWITCH()));
 #endif
 }
 
@@ -746,15 +756,15 @@ static void mmc_enable(struct mmc *mmc)
 static void mmc_disable(struct mmc *mmc)
 {
 #ifdef __mips
-	union mio_emm_cfg emm_cfg;
-	struct cavium_mmc_slot *slot = mmc->priv;
+	union cavm_mio_emm_cfg emm_cfg;
+	struct octeontx_mmc_slot *slot = mmc->priv;
 	debug("%s(%d):\n", __func__, slot->bus_id);
 again:
-	emm_cfg.u = mmc_read_csr(mmc, MIO_EMM_CFG);
+	emm_cfg.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CFG());
 	emm_cfg.s.bus_ena &= ~(1 << slot->bus_id);
 	debug("before:\n");
 	mmc_print_registers(mmc);
-	mmc_write_csr(mmc, MIO_EMM_CFG, emm_cfg.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
 	debug("after:\n");
 	mmc_print_registers(mmc);
 
@@ -769,14 +779,15 @@ again:
 		 *    repeat steps 1-3, otherwise exit.
 		 */
 		if (emm_cfg.s.bus_ena == 0) {
-			union mio_emm_modex emm_mode;
+			union cavm_mio_emm_modex emm_mode;
 
-			emm_mode.u = mmc_read_csr(mmc, MIO_EMM_MODEX(0));
+			emm_mode.u = mmc_read_csr(mmc, CAVM_MIO_EMM_MODEX(0));
 			if (emm_mode.s.clk_hi != 2500) {
 				debug("%s: reset failed, clk_hi: %d, try again\n",
 				      __func__, (int)emm_mode.s.clk_hi);
 				emm_cfg.s.bus_ena |= (1 << slot->bus_id);
-				mmc_write_csr(mmc, MIO_EMM_CFG, emm_cfg.u);
+				mmc_write_csr(mmc, CAVM_MIO_EMM_CFG(),
+					      emm_cfg.u);
 				mdelay(1);
 				goto again;
 			}
@@ -793,15 +804,15 @@ again:
  */
 static void mmc_set_watchdog(const struct mmc *mmc, ulong timeout)
 {
-	union mio_emm_wdog emm_wdog;
-	uint64_t val;
-	struct cavium_mmc_slot *slot = mmc->priv;
+	union cavm_mio_emm_wdog emm_wdog;
+	u64 val;
+	struct octeontx_mmc_slot *slot = mmc->priv;
 
 	val = ((u64)timeout * mmc->clock) / 1000000;
 	if (val >= (1 << 26)) {
 		debug("%s: warning: timeout %lu exceeds max value %llu, truncating\n",
 		      __func__, timeout,
-		     (uint64_t)(((1ULL << 26) - 1) * 1000000ULL) / mmc->clock);
+		     (u64)(((1ULL << 26) - 1) * 1000000ULL) / mmc->clock);
 		val = (1 << 26) - 1;
 	}
 	emm_wdog.u = 0;
@@ -810,7 +821,7 @@ static void mmc_set_watchdog(const struct mmc *mmc, ulong timeout)
 	debug("%s(%p(%s), %lu) clock: %u, period: %u, clk_cnt: %llu)\n",
 	      __func__, mmc, mmc->cfg->name, timeout,
 	      mmc->clock, slot->clk_period, emm_wdog.u);
-	mmc_write_csr(mmc, MIO_EMM_WDOG, emm_wdog.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_WDOG(), emm_wdog.u);
 }
 
 /**
@@ -826,19 +837,19 @@ static void mmc_set_watchdog(const struct mmc *mmc, ulong timeout)
  * @param timeout	timeout to set watchdog less than.
  */
 static void mmc_start_dma(const struct mmc *mmc, bool write, bool clear,
-			  uint32_t block, uint64_t adr, uint32_t size,
+			  u32 block, u64 adr, u32 size,
 			  int timeout)
 {
-	const struct cavium_mmc_slot *slot = mmc->priv;
+	const struct octeontx_mmc_slot *slot = mmc->priv;
 #ifdef __mips
-	union mio_ndf_dma_cfg ndf_dma_cfg;
-	union mio_ndf_dma_int ndf_dma_int;
+	union cavm_mio_ndf_dma_cfg ndf_dma_cfg;
+	union cavm_mio_ndf_dma_int ndf_dma_int;
 #endif
-	union mio_emm_dma_cfg emm_dma_cfg;
-	union mio_emm_dma_adr emm_dma_adr;
-	union mio_emm_dma_int emm_dma_int;
-	union mio_emm_dma emm_dma;
-	union mio_emm_int emm_int;
+	union cavm_mio_emm_dma_cfg emm_dma_cfg;
+	union cavm_mio_emm_dma_adr emm_dma_adr;
+	union cavm_mio_emm_dma_int emm_dma_int;
+	union cavm_mio_emm_dma emm_dma;
+	union cavm_mio_emm_int emm_int;
 
 	debug("%s(%p(%d), %s, %s, 0x%x, 0x%llx, 0x%x, %d)\n", __func__, mmc,
 	      slot->bus_id, write ? "true" : "false", clear ? "true" : "false",
@@ -854,7 +865,7 @@ static void mmc_start_dma(const struct mmc *mmc, bool write, bool clear,
 		ndf_dma_cfg.s.rw = !!write;
 		ndf_dma_cfg.s.clr = !!clear;
 		ndf_dma_cfg.s.size =
-				((uint64_t)(size * mmc->read_bl_len) / 8) - 1;
+				((u64)(size * mmc->read_bl_len) / 8) - 1;
 		ndf_dma_cfg.s.adr = adr;
 		debug("%s: Writing 0x%llx to mio_ndf_dma_cfg\n",
 		      __func__, ndf_dma_cfg.u);
@@ -865,14 +876,14 @@ static void mmc_start_dma(const struct mmc *mmc, bool write, bool clear,
 		emm_dma_int.u = 0;
 		emm_dma_int.s.done = 1;
 		emm_dma_int.s.fifo = 1;
-		mmc_write_csr(mmc, MIO_EMM_DMA_INT, emm_dma_int.u);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_DMA_INT(), emm_dma_int.u);
 
 		emm_dma_cfg.u = 0;
 		emm_dma_cfg.s.en = 1;
 		emm_dma_cfg.s.rw = !!write;
 		emm_dma_cfg.s.clr = !!clear;
 		emm_dma_cfg.s.size =
-				((uint64_t)(size * mmc->read_bl_len) / 8) - 1;
+				((u64)(size * mmc->read_bl_len) / 8) - 1;
 #if __BYTE_ORDER != __BIG_ENDIAN
 		emm_dma_cfg.s.endian = 1;
 #endif
@@ -881,8 +892,8 @@ static void mmc_start_dma(const struct mmc *mmc, bool write, bool clear,
 		emm_dma_adr.s.adr = adr;
 		debug("%s: Writing 0x%llx to mio_emm_dma_cfg and 0x%llx to mio_emm_dma_adr\n",
 		      __func__, emm_dma_cfg.u, emm_dma_adr.u);
-		mmc_write_csr(mmc, MIO_EMM_DMA_ADR, emm_dma_adr.u);
-		mmc_write_csr(mmc, MIO_EMM_DMA_CFG, emm_dma_cfg.u);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_DMA_ADR(), emm_dma_adr.u);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_DMA_CFG(), emm_dma_cfg.u);
 	}
 	emm_dma.u = 0;
 	emm_dma.s.bus_id = slot->bus_id;
@@ -907,13 +918,13 @@ static void mmc_start_dma(const struct mmc *mmc, bool write, bool clear,
 	debug("%s: card address: 0x%x, size: %d, multi: %d\n",
 	      __func__, block, size, emm_dma.s.multi);
 	/* Clear interrupt */
-	emm_int.u = mmc_read_csr(mmc, MIO_EMM_INT);
-	mmc_write_csr(mmc, MIO_EMM_INT, emm_int.u);
+	emm_int.u = mmc_read_csr(mmc, CAVM_MIO_EMM_INT());
+	mmc_write_csr(mmc, CAVM_MIO_EMM_INT(), emm_int.u);
 
 	mmc_set_watchdog(mmc, timeout * 1000 - 1000);
 
 	debug("%s: Writing 0x%llx to mio_emm_dma\n", __func__, emm_dma.u);
-	mmc_write_csr(mmc, MIO_EMM_DMA, emm_dma.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_DMA(), emm_dma.u);
 }
 
 /**
@@ -923,12 +934,12 @@ static void mmc_start_dma(const struct mmc *mmc, bool write, bool clear,
  */
 static inline void mmc_switch_dev(struct mmc *mmc)
 {
-	union mio_emm_switch emm_switch;
-	union mio_emm_sample emm_sample;
-	union mio_emm_rca emm_rca;
-	union mio_emm_sts_mask emm_sts_mask;
-	struct cavium_mmc_slot *slot = mmc->priv;
-	struct cavium_mmc_host *host = slot->host;
+	union cavm_mio_emm_switch emm_switch;
+	union cavm_mio_emm_sample emm_sample;
+	union cavm_mio_emm_rca emm_rca;
+	union cavm_mio_emm_sts_mask emm_sts_mask;
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_host *host = slot->host;
 
 	debug("%s(%s): bus_id: %d, last: %d\n", __func__, mmc->cfg->name,
 	      host->cur_slotid, host->last_slotid);
@@ -939,9 +950,9 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	}
 	if (!mmc->has_init)
 		debug("%s: %s is not initialized\n", __func__, mmc->cfg->name);
-	emm_switch.u = mmc_read_csr(mmc, MIO_EMM_SWITCH);
+	emm_switch.u = mmc_read_csr(mmc, CAVM_MIO_EMM_SWITCH());
 #if defined(DEBUG)
-	emm_rca.u = mmc_read_csr(mmc, MIO_EMM_RCA);
+	emm_rca.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RCA());
 	debug("%s(%s): Switching from:\n"
 	      "    bus id: %d, clock period: %d, width: %d, rca: 0x%x, high speed: %d to\n"
 	      "    bus id: %d, clock period: %d, width: %d, rca: 0x%x, high speed: %d\n",
@@ -952,7 +963,7 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	      slot->bus_id, slot->clk_period, slot->bus_width, mmc->rca,
 	      !!(mmc->card_caps & MMC_MODE_HS));
 #endif
-	/* mmc_write_csr(mmc, MIO_EMM_CFG, 1 << slot->bus_id);*/
+	/* mmc_write_csr(mmc, CAVM_MIO_EMM_CFG(), 1 << slot->bus_id);*/
 	emm_switch.s.bus_width = slot->bus_width;
 	emm_switch.s.hs_timing = mmc->clock > 20000000;
 	debug("%s: hs timing: %d, caps: 0x%x, bus_width: %d (%d bits)\n",
@@ -964,16 +975,16 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	emm_switch.s.power_class = slot->power_class;
 	debug("%s: Setting MIO_EMM_SWITCH to 0x%llx\n", __func__, emm_switch.u);
 	emm_switch.s.bus_id = 0;
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	udelay(100);
 	emm_switch.s.bus_id = slot->bus_id;
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 
 	debug("Switching RCA from 0x%llx to 0x%x\n",
-	      mmc_read_csr(mmc, MIO_EMM_RCA), mmc->rca);
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_RCA()), mmc->rca);
 	emm_rca.u = 0;
 	emm_rca.s.card_rca = mmc->rca;
-	mmc_write_csr(mmc, MIO_EMM_RCA, emm_rca.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_RCA(), emm_rca.u);
 	host->last_slotid = host->cur_slotid;
 	mdelay(100);
 	/* Update the watchdog to 100 ms */
@@ -982,18 +993,68 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	emm_sample.u = 0;
 	emm_sample.s.cmd_cnt = slot->cmd_clk_skew;
 	emm_sample.s.dat_cnt = slot->dat_clk_skew;
-	mmc_write_csr(mmc, MIO_EMM_SAMPLE, emm_sample.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SAMPLE(), emm_sample.u);
 	/* Set status mask */
 	emm_sts_mask.u = 0;
 	emm_sts_mask.s.sts_msk = 1 << 7 | 1 << 22 | 1 << 23 | 1 << 19;
-	mmc_write_csr(mmc, MIO_EMM_STS_MASK, emm_sts_mask.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_STS_MASK(), emm_sts_mask.u);
 
 	debug("%s: MIO_EMM_MODE(%d): 0x%llx, MIO_EMM_SWITCH: 0x%llx\n",
 	      __func__, slot->bus_id,
-	      mmc_read_csr(mmc, MIO_EMM_MODEX(slot->bus_id)),
-	      mmc_read_csr(mmc, MIO_EMM_SWITCH));
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_MODEX(slot->bus_id)),
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_SWITCH()));
 	mdelay(10);
 	mmc_print_registers(mmc);
+}
+
+/**
+ * Waits for a DMA operation to complete
+ *
+ * @param mmc		mmc data structure
+ * @param timeout	timeout in microseconds to wait
+ *
+ * @return	0 if completed normally, -1 if timed out
+ */
+static int octeontx_mmc_wait_dma(struct mmc *mmc, ulong timeout)
+{
+	ulong start_time = get_timer(0);
+#ifdef __mips
+	struct octeontx_mmc_slot = mmc->priv;
+	const struct octeontx_mmc_host *host = slot->host,
+#endif
+	bool timed_out = false;
+#ifdef __mips
+	if (host->use_ndf) {
+		union cavm_mio_ndf_dma_int ndf_dma_int;
+
+		do {
+			ndf_dma_int.u = mmc_read_csr(mmc,
+						     CAVM_MIO_NDF_DMA_INT());
+			if (ndf_dma_int.s.done)
+				break;
+			udelay(1);
+			WATCHDOG_RESET();
+			timed_out = get_timer(start_time) > timeout;
+		} while (!timed_out);
+	} else {
+#endif
+		union cavm_mio_emm_dma_int emm_dma_int;
+
+		do {
+			emm_dma_int.u = mmc_read_csr(mmc,
+						     CAVM_MIO_EMM_DMA_INT());
+			if (emm_dma_int.s.done)
+				break;
+			udelay(1);
+			WATCHDOG_RESET();
+			timed_out = get_timer(start_time) > timeout;
+		} while (!timed_out);
+#ifdef __mips
+	}
+#endif
+	if (timed_out)
+		puts("Error: MMC read DMA failed to terminate\n");
+	return timed_out ? -1 : 0;
 }
 
 /**
@@ -1006,23 +1067,22 @@ static inline void mmc_switch_dev(struct mmc *mmc)
  *
  * @return number of sectors read
  */
-int cavium_mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
+int octeontx_mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
 {
 	struct mmc_cmd cmd;
 	ulong start_time;
-	uint64_t dma_addr;
-	union mio_emm_dma emm_dma;
-	union mio_emm_dma_int emm_dma_int;
-	union mio_emm_rsp_sts rsp_sts;
-	union mio_emm_int emm_int;
-	union mio_emm_sts_mask emm_sts_mask;
+	u64 dma_addr;
+	union cavm_mio_emm_dma emm_dma;
+	union cavm_mio_emm_rsp_sts rsp_sts;
+	union cavm_mio_emm_int emm_int;
+	union cavm_mio_emm_sts_mask emm_sts_mask;
 #ifdef __mips
-	union mio_ndf_dma_int ndf_dma_int;
+	union cavm_mio_ndf_dma_int ndf_dma_int;
 #endif
 	int timeout;
 	int dma_retry_count = 0;
 	bool timed_out = false;
-	struct cavium_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_slot *slot = mmc->priv;
 	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 
 	debug("%s(%s, src: 0x%llx, dst: 0x%p, size: %d)\n", __func__,
@@ -1043,9 +1103,9 @@ int cavium_mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
 	/* Enable appropriate errors */
 	emm_sts_mask.u = 0;
 	emm_sts_mask.s.sts_msk = R1_BLOCK_READ_MASK;
-	mmc_write_csr(mmc, MIO_EMM_STS_MASK, emm_sts_mask.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_STS_MASK(), emm_sts_mask.u);
 	debug("%s: MIO_EMM_STS_MASK: 0x%llx\n", __func__, emm_sts_mask.u);
-	dma_addr = (uint64_t)dm_pci_virt_to_mem(mmc->dev, dst);
+	dma_addr = (u64)dm_pci_virt_to_mem(mmc->dev, dst);
 	debug("%s: dma address: 0x%llx\n", __func__, dma_addr);
 
 	timeout = 1000 + size;
@@ -1057,60 +1117,11 @@ int cavium_mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
 
 retry_dma:
 	debug("%s: timeout: %d\n", __func__, timeout);
-	start_time = get_timer(0);
-#ifdef __mips
-	if (host->use_ndf) {
-		do {
-			ndf_dma_int.u = mmc_read_csr(mmc, MIO_NDF_DMA_INT);
-#ifdef DEBUG
-			debug("%s: ndf_dma_int: 0x%llx, ndf_dma_cfg: 0x%llx, mio_emm_dma: 0x%llx, rsp sts: 0x%llx, time: %lu\n",
-			      __func__, ndf_dma_int.u,
-			      mmc_read_csr(mmc, MIO_NDF_DMA_CFG),
-			      mmc_read_csr(mmc, MIO_EMM_DMA),
-			      mmc_read_csr(mmc, MIO_EMM_RSP_STS),
-			      get_timer(start_time));
-#endif
-			if (ndf_dma_int.s.done) {
-				mmc_write_csr(mmc, MIO_NDF_DMA_INT,
-					      ndf_dma_int.u);
-				debug("%s: DMA completed normally\n", __func__);
-				break;
-			}
-
-			WATCHDOG_RESET();
-			timed_out = get_timer(start_time) > timeout;
-			rsp_sts.u = mmc_read_csr(mmc, MIO_EMM_RSP_STS);
-
-			if (rsp_sts.s.dma_pend) {
-				printf("%s: DMA error, rsp status: 0x%llx\n",
-				       __func__, rsp_sts.u);
-				break;
-			}
-		} while (!timed_out);
-		timed_out |= !ndf_dma_int.s.done;
-	} else
-#endif
-	{
-		do {
-			emm_dma_int.u = mmc_read_csr(mmc,
-						       MIO_EMM_DMA_INT);
-			debug("%s: mio_emm_dma_int: 0x%llx\n", __func__,
-			      emm_dma_int.u);
-
-			if (emm_dma_int.s.done) {
-				mmc_write_csr(mmc, MIO_EMM_DMA_INT,
-					      emm_dma_int.u);
-				break;
-			}
-
-			WATCHDOG_RESET();
-		} while (get_timer(start_time) < timeout);
-		timed_out = !emm_dma_int.s.done;
-	}
-	rsp_sts.u = mmc_read_csr(mmc, MIO_EMM_RSP_STS);
+	timed_out = !!octeontx_mmc_wait_dma(mmc, timeout);
+	rsp_sts.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
 	debug("%s: rsp_sts: 0x%llx\n", __func__, rsp_sts.u);
 	if (timed_out || rsp_sts.s.dma_val || rsp_sts.s.dma_pend) {
-		emm_int.u = mmc_read_csr(mmc, MIO_EMM_INT);
+		emm_int.u = mmc_read_csr(mmc, CAVM_MIO_EMM_INT());
 		mmc_print_registers(mmc);
 		if (timed_out) {
 			printf("%s(%s, 0x%llx, %p, %d)\n",
@@ -1120,12 +1131,13 @@ retry_dma:
 			printf("    MIO_EMM_DMA: 0x%llx, last command: %d\n",
 			       emm_dma.u, rsp_sts.s.cmd_idx);
 			printf("    MIO_EMM_RSP_LO: 0x%llx, HI: 0x%llx\n",
-			       mmc_read_csr(mmc, MIO_EMM_RSP_LO),
-			       mmc_read_csr(mmc, MIO_EMM_RSP_HI));
+			       mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_LO()),
+			       mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_HI()));
 			printf("    MIO_EMM_MODE(%d): 0x%llx\n", slot->bus_id,
-			       mmc_read_csr(mmc, MIO_EMM_MODEX(slot->bus_id)));
+			       mmc_read_csr(mmc,
+					    CAVM_MIO_EMM_MODEX(slot->bus_id)));
 			printf("    MIO_EMM_DMA_CFG: 0x%llx\n",
-			       mmc_read_csr(mmc, MIO_EMM_DMA_CFG));
+			       mmc_read_csr(mmc, CAVM_MIO_EMM_DMA_CFG()));
 		}
 		if (rsp_sts.s.blk_timeout)
 			printf("Block timeout error detected\n");
@@ -1136,16 +1148,16 @@ retry_dma:
 #ifdef DEBUG
 			if (rsp_sts.s.dma_pend)
 				debug("%s: rsp_sts_low: 0x%llx\n", __func__,
-				      mmc_read_csr(mmc, MIO_EMM_RSP_LO));
+				      mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
 #endif
-			emm_dma.u = mmc_read_csr(mmc, MIO_EMM_DMA);
+			emm_dma.u = mmc_read_csr(mmc, CAVM_MIO_EMM_DMA());
 			emm_dma.s.dma_val = 1;
 			emm_dma.s.dat_null = 1;
-			mmc_write_csr(mmc, MIO_EMM_DMA, emm_dma.u);
+			mmc_write_csr(mmc, CAVM_MIO_EMM_DMA(), emm_dma.u);
 			start_time = get_timer(0);
 			do {
 				rsp_sts.u = mmc_read_csr(mmc,
-							   MIO_EMM_RSP_STS);
+						CAVM_MIO_EMM_RSP_STS());
 				if (rsp_sts.s.dma_val == 0)
 					break;
 				udelay(1);
@@ -1161,37 +1173,8 @@ retry_dma:
 			       src, size);
 			emm_dma.s.dma_val = 1;
 			emm_dma.s.dat_null = 1;
-			mmc_write_csr(mmc, MIO_EMM_DMA, emm_dma.u);
+			mmc_write_csr(mmc, CAVM_MIO_EMM_DMA(), emm_dma.u);
 			timeout = 1000 + size;
-			start_time = get_timer(0);
-#ifdef __mips
-			if (host->use_ndf)
-				do {
-					ndf_dma_int.u =
-						mmc_read_csr(mmc,
-							     MIO_NDF_DMA_INT);
-					if (ndf_dma_int.s.done)
-						break;
-					udelay(1);
-					WATCHDOG_RESET();
-					timed_out =
-					    (get_timer(start_time) > timeout);
-				} while (!timed_out);
-			else
-#endif
-				do {
-					emm_dma_int.u =
-						mmc_read_csr(mmc, MIO_EMM_DMA_INT);
-					if (emm_dma_int.s.done)
-						break;
-					udelay(1);
-					WATCHDOG_RESET();
-					timed_out =
-					    (get_timer(start_time) > timeout);
-				} while (!timed_out);
-			if (timed_out)
-				puts("Error: MMC read DMA failed to terminate!\n");
-
 			return 0;
 		}
 	}
@@ -1202,19 +1185,19 @@ retry_dma:
 	if (timed_out) {
 		printf("MMC read block %llu timed out\n", src);
 		debug("Read status 0x%llx\n", rsp_sts.u);
-		emm_dma.u = mmc_read_csr(mmc, MIO_EMM_DMA);
+		emm_dma.u = mmc_read_csr(mmc, CAVM_MIO_EMM_DMA());
 		debug("EMM_DMA: 0x%llx\n", emm_dma.u);
 
 		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_R1b;
-		if (cavium_mmc_send_cmd(mmc->dev, &cmd, NULL))
+		if (octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL))
 			printf("Error sending stop transmission cmd\n");
 		return 0;
 	}
 	debug("Read status 0x%llx\n", rsp_sts.u);
 
-	emm_dma.u = mmc_read_csr(mmc, MIO_EMM_DMA);
+	emm_dma.u = mmc_read_csr(mmc, CAVM_MIO_EMM_DMA());
 	debug("EMM_DMA: 0x%llx\n", emm_dma.u);
 #if defined(DEBUG)
 	print_buffer(0, dst, 1, 512, 0);
@@ -1239,13 +1222,12 @@ retry_dma:
 static ulong
 mmc_write(struct mmc *mmc, ulong start, int size, const void *src)
 {
-	uint64_t dma_addr;
-	union mio_emm_dma emm_dma;
-	union mio_emm_dma_int emm_dma_int;
-	union mio_emm_rsp_sts rsp_sts;
-	union mio_emm_int emm_int;
+	u64 dma_addr;
+	union cavm_mio_emm_dma emm_dma;
+	union cavm_mio_emm_rsp_sts rsp_sts;
+	union cavm_mio_emm_int emm_int;
 #ifdef __mips
-	union mio_ndf_dma_int ndf_dma_int;
+	union cavm_mio_ndf_dma_int ndf_dma_int;
 #endif
 	struct mmc_cmd cmd;
 	int timeout;
@@ -1253,7 +1235,7 @@ mmc_write(struct mmc *mmc, ulong start, int size, const void *src)
 	int rc;
 	ulong start_time;
 	bool timed_out = false;
-	struct cavium_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_slot *slot = mmc->priv;
 	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 
 	debug("%s(start: %lu, size: %d, src: 0x%p)\n", __func__, start,
@@ -1274,7 +1256,7 @@ mmc_write(struct mmc *mmc, ulong start, int size, const void *src)
 		cmd.cmdidx = MMC_CMD_SEND_STATUS;
 		cmd.cmdarg = mmc->rca << 16;
 		cmd.resp_type = MMC_RSP_R1;
-		rc = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+		rc = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 		if (rc) {
 			printf("%s: Error getting device status\n", __func__);
 			return 0;
@@ -1294,7 +1276,7 @@ mmc_write(struct mmc *mmc, ulong start, int size, const void *src)
 
 	flush_dcache_range((ulong)src,
 			   (ulong)src + size * bdesc->blksz);
-	dma_addr = (uint64_t)dm_pci_virt_to_mem(mmc->dev, (void *)src);
+	dma_addr = (u64)dm_pci_virt_to_mem(mmc->dev, (void *)src);
 	timeout = 5000 + 5000 * size;
 
 	mmc_start_dma(mmc, true, false, start, dma_addr, size, timeout);
@@ -1309,7 +1291,7 @@ retry_dma:
 		}
 #endif
 
-		rsp_sts.u = mmc_read_csr(mmc, MIO_EMM_RSP_STS);
+		rsp_sts.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
 		if (((rsp_sts.s.dma_val == 0) || (rsp_sts.s.dma_pend == 1)) &&
 		    rsp_sts.s.cmd_done)
 			break;
@@ -1323,34 +1305,35 @@ retry_dma:
 		printf("%s: write command completion timeout for cmd %d\n",
 		       __func__, rsp_sts.s.cmd_idx);
 	}
-	/*rsp_sts.u = mmc_read_csr(mmc, MIO_EMM_RSP_STS);*/
+	/*rsp_sts.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_STS());*/
 	debug("emm_rsp_sts: 0x%llx, cmd: %d, response: 0x%llx\n",
 	      rsp_sts.u, rsp_sts.s.cmd_idx,
-	      mmc_read_csr(mmc, MIO_EMM_RSP_LO));
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
 	if (rsp_sts.s.cmd_val || timed_out || rsp_sts.s.dma_val ||
 	    rsp_sts.s.dma_pend) {
-		emm_dma.u = mmc_read_csr(mmc, MIO_EMM_DMA);
-		emm_int.u = mmc_read_csr(mmc, MIO_EMM_INT);
+		emm_dma.u = mmc_read_csr(mmc, CAVM_MIO_EMM_DMA());
+		emm_int.u = mmc_read_csr(mmc, CAVM_MIO_EMM_INT());
 #ifdef __mips
 		printf("%s: Error detected: MIO_EMM_RSP_STS: 0x%llx, MIO_EMM_DMA: 0x%llx,\n"
 		       "    %s: 0x%llx, timeout: %d\n",
 		       __func__, rsp_sts.u, emm_dma.u,
 		       host->use_ndf ? "MIO_NDF_DMA_CFG" : "MIO_EMM_DMA_CFG",
 		       host->use_ndf ? mmc_read_csr(mmc, MIO_NDF_DMA_CFG) :
-		       mmc_read_csr(mmc, MIO_EMM_DMA_CFG), timeout);
+		       mmc_read_csr(mmc, CAVM_MIO_EMM_DMA_CFG()), timeout);
 #else
 		printf("%s: Error detected: MIO_EMM_RSP_STS: 0x%llx, MIO_EMM_DMA: 0x%llx,\n"
 		       "    MIO_EMM_DMA_CFG: 0x%llx, timeout: %d\n",
 		       __func__, rsp_sts.u, emm_dma.u,
-		       mmc_read_csr(mmc, MIO_EMM_DMA_CFG), timeout);
+		       mmc_read_csr(mmc, CAVM_MIO_EMM_DMA_CFG()), timeout);
 #endif
 		printf("Last command index: %d\n", rsp_sts.s.cmd_idx);
 		printf("emm_int: 0x%llx\n", emm_int.u);
 		mdelay(10);
-		rsp_sts.u = mmc_read_csr(mmc, MIO_EMM_RSP_STS);
+		rsp_sts.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
 		printf("Re-read rsp_sts: 0x%llx, cmd_idx: %d\n", rsp_sts.u,
 		       rsp_sts.s.cmd_idx);
-		printf("  RSP_LO: 0x%llx\n", mmc_read_csr(mmc, MIO_EMM_RSP_LO));
+		printf("  RSP_LO: 0x%llx\n",
+		       mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
 		if (timed_out) {
 			printf("%s(mmc, 0x%lx, %d, 0x%p)\n",
 			       __func__, start, size, src);
@@ -1374,37 +1357,15 @@ retry_dma:
 			cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 			cmd.cmdarg = 0;
 			cmd.resp_type = MMC_RSP_R1b;
-			cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
-			mmc_write_csr(mmc, MIO_EMM_DMA, emm_dma.u);
+			octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
+			mmc_write_csr(mmc, CAVM_MIO_EMM_DMA(), emm_dma.u);
 			debug("Retrying MMC write DMA\n");
 			goto retry_dma;
 		} else {
 			emm_dma.s.dma_val = 1;
 			emm_dma.s.dat_null = 1;
-			mmc_write_csr(mmc, MIO_EMM_DMA, emm_dma.u);
-			start_time = get_timer(0);
-#ifdef __mips
-			if (host->use_ndf)
-				do {
-					ndf_dma_int.u =
-						mmc_read_csr(mmc,
-							     MIO_NDF_DMA_INT);
-					if (ndf_dma_int.s.done)
-						break;
-					udelay(1);
-				} while (get_timer(start_time) < timeout);
-			else
-#endif
-				do {
-					emm_dma_int.u =
-						mmc_read_csr(mmc,
-							     MIO_EMM_DMA_INT);
-					if (emm_dma_int.s.done)
-						break;
-					udelay(1);
-				} while (get_timer(start_time) < timeout);
-			if (timeout <= 0)
-				puts("Error: MMC write DMA failed to terminate!\n");
+			mmc_write_csr(mmc, CAVM_MIO_EMM_DMA(), emm_dma.u);
+			octeontx_mmc_wait_dma(mmc, timeout);
 			return 0;
 		}
 	}
@@ -1415,13 +1376,13 @@ retry_dma:
 	if (timed_out) {
 		printf("MMC write block %lu timed out\n", start);
 		debug("Write status 0x%llx\n", rsp_sts.u);
-		emm_dma.u = mmc_read_csr(mmc, MIO_EMM_DMA);
+		emm_dma.u = mmc_read_csr(mmc, CAVM_MIO_EMM_DMA());
 		debug("EMM_DMA: 0x%llx\n", emm_dma.u);
 
 		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_R1b;
-		if (cavium_mmc_send_cmd(mmc->dev, &cmd, NULL))
+		if (octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL))
 			printf("Error sending stop transmission cmd\n");
 		return 0;
 	}
@@ -1430,7 +1391,7 @@ retry_dma:
 	/* Poll status if we can't send data right away */
 	if (!((rsp_sts.s.cmd_idx == MMC_CMD_SEND_STATUS) &&
 	      rsp_sts.s.cmd_done &&
-	      ((mmc_read_csr(mmc, MIO_EMM_RSP_LO) >> 8) &
+	      ((mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_LO()) >> 8) &
 	       R1_READY_FOR_DATA))) {
 		/* Poll for ready status */
 		timeout = 10000;	/* 10 seconds */
@@ -1440,7 +1401,7 @@ retry_dma:
 			cmd.cmdidx = MMC_CMD_SEND_STATUS;
 			cmd.cmdarg = mmc->rca << 16;
 			cmd.resp_type = MMC_RSP_R1;
-			rc = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+			rc = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 			if (rc) {
 				printf("%s: Error getting post device status\n",
 				       __func__);
@@ -1458,7 +1419,7 @@ retry_dma:
 		}
 	}
 
-	emm_dma.u = mmc_read_csr(mmc, MIO_EMM_DMA);
+	emm_dma.u = mmc_read_csr(mmc, CAVM_MIO_EMM_DMA());
 	debug("EMM_DMA: 0x%llx\n", emm_dma.u);
 
 	return size - emm_dma.s.block_cnt;
@@ -1495,7 +1456,7 @@ static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 	cmd.cmdarg = start;
 	cmd.resp_type = MMC_RSP_R1;
 
-	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		goto err_out;
 
@@ -1503,7 +1464,7 @@ static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 	cmd.cmdarg = end;
 	cmd.resp_type = MMC_RSP_R1b;
 
-	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		goto err_out;
 
@@ -1511,7 +1472,7 @@ static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 	cmd.cmdarg = 0;
 	cmd.resp_type = MMC_RSP_R1b;
 
-	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err) {
 		printf("%s err: %d\n", __func__, err);
 		goto err_out;
@@ -1539,9 +1500,9 @@ unsigned long mmc_bread(struct udevice *dev, lbaint_t start,
 	debug("%s ->1 dev %p\n", __func__, dev);
 	debug("%s ->1 parent %p\n", __func__, dev->parent);
 	lbaint_t cur, blocks_todo = blkcnt;
-	struct cavium_mmc_host *host = dev_get_priv(dev->parent);
+	struct octeontx_mmc_host *host = dev_get_priv(dev->parent);
 	debug("%s ->2 %p\n", __func__, host);
-	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct octeontx_mmc_slot *slot = &host->slots[host->cur_slotid];
 	struct mmc *mmc = slot->mmc;
 	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 	unsigned char bounce_buffer[4096];
@@ -1551,9 +1512,10 @@ unsigned long mmc_bread(struct udevice *dev, lbaint_t start,
 		return 0;
 	}
 	debug("%s(%d %llu, %llu, %p) mmc: %p\n", __func__, bdesc->devnum,
-	      (uint64_t)start, (uint64_t)blkcnt, dst, mmc);
+	      (u64)start, (u64)blkcnt, dst, mmc);
 	if (!mmc) {
-		printf("%s: MMC device %d not found\n", __func__, bdesc->devnum);
+		printf("%s: MMC device %d not found\n", __func__,
+		       bdesc->devnum);
 		return 0;
 	}
 
@@ -1562,8 +1524,8 @@ unsigned long mmc_bread(struct udevice *dev, lbaint_t start,
 
 	if ((start + blkcnt) > bdesc->lba) {
 		printf("MMC: block number 0x%llx exceeds max(0x%llx)\n",
-		       (uint64_t)(start + blkcnt),
-		       (uint64_t)bdesc->lba);
+		       (u64)(start + blkcnt),
+		       (u64)bdesc->lba);
 		return 0;
 	}
 
@@ -1577,7 +1539,8 @@ unsigned long mmc_bread(struct udevice *dev, lbaint_t start,
 	if (((ulong)dst) & 7) {
 		debug("%s: Using bounce buffer due to alignment\n", __func__);
 		do {
-			if (cavium_mmc_read(mmc, start, bounce_buffer, 1) != 1)
+			if (octeontx_mmc_read(mmc, start,
+					      bounce_buffer, 1) != 1)
 				return 0;
 			memcpy(dst, bounce_buffer, mmc->read_bl_len);
 			WATCHDOG_RESET();
@@ -1588,7 +1551,7 @@ unsigned long mmc_bread(struct udevice *dev, lbaint_t start,
 	} else {
 		do {
 			cur = min(blocks_todo, (lbaint_t)(mmc->cfg->b_max));
-			if (cavium_mmc_read(mmc, start, dst, cur) != cur) {
+			if (octeontx_mmc_read(mmc, start, dst, cur) != cur) {
 				blkcnt = 0;
 				break;
 			}
@@ -1616,8 +1579,8 @@ ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 		 const void *src)
 {
 	lbaint_t cur, blocks_todo = blkcnt;
-	struct cavium_mmc_host *host = dev_get_priv(dev->parent);
-	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct octeontx_mmc_host *host = dev_get_priv(dev->parent);
+	struct octeontx_mmc_slot *slot = &host->slots[host->cur_slotid];
 	struct mmc *mmc = slot->mmc;
 	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 	int dev_num;
@@ -1628,8 +1591,8 @@ ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 		return 0;
 	}
 	dev_num = bdesc->devnum;
-	debug("%s(%d, %llu, %llu, %p)\n", __func__, dev_num, (uint64_t)start,
-	      (uint64_t)blkcnt, src);
+	debug("%s(%d, %llu, %llu, %p)\n", __func__, dev_num, (u64)start,
+	      (u64)blkcnt, src);
 	if (!mmc) {
 		printf("MMC Write: device %d not found\n", dev_num);
 		return 0;
@@ -1639,8 +1602,8 @@ ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 		return 0;
 	if ((start + blkcnt) > bdesc->lba) {
 		printf("MMC: block number 0x%llx exceeds max(0x%llx)\n",
-		       (uint64_t)(start + blkcnt),
-		       (uint64_t)bdesc->lba);
+		       (u64)(start + blkcnt),
+		       (u64)bdesc->lba);
 		return 0;
 	}
 	if (!mmc_getcd(mmc)) {
@@ -1698,8 +1661,8 @@ ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 ulong mmc_berase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
 {
 	int err = 0;
-	struct cavium_mmc_host *host = dev_get_priv(dev->parent);
-	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct octeontx_mmc_host *host = dev_get_priv(dev->parent);
+	struct octeontx_mmc_slot *slot = &host->slots[host->cur_slotid];
 	struct mmc *mmc = slot->mmc;
 	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 	int dev_num = bdesc->devnum;
@@ -1719,8 +1682,8 @@ ulong mmc_berase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
 		printf("\n\nCaution!  Your device's erase group is 0x%x\n"
 		       "The erase range would be changed to 0x%llx~0x%llx\n\n",
 		       mmc->erase_grp_size,
-		       (uint64_t)(start & ~(mmc->erase_grp_size - 1)),
-		       (uint64_t)((start + blkcnt + mmc->erase_grp_size)
+		       (u64)(start & ~(mmc->erase_grp_size - 1)),
+		       (u64)((start + blkcnt + mmc->erase_grp_size)
 				  & ~(mmc->erase_grp_size - 1)) - 1);
 
 	mmc_enable(mmc);
@@ -1739,18 +1702,18 @@ ulong mmc_berase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
  *
  * @return	crc7 value left shifted by 1 with LSB set to 1.
  */
-static uint8_t mmc_crc7_32(const uint32_t *data, int count)
+static u8 mmc_crc7_32(const u32 *data, int count)
 {
-	uint8_t crc = 0;
+	u8 crc = 0;
 	int index;
-	uint8_t d;
+	u8 d;
 	int shift = 24;
 	int i;
 
-	count = count * sizeof(uint32_t) - 1;
+	count = count * sizeof(u32) - 1;
 
 	for (index = 0; index < count; index++) {
-		d = (data[index / sizeof(uint32_t)] >> shift) & 0xff;
+		d = (data[index / sizeof(u32)] >> shift) & 0xff;
 		shift = shift >= 8 ? shift - 8 : 24;
 		for (i = 0; i < 8; i++) {
 			crc <<= 1;
@@ -1785,11 +1748,11 @@ int mmc_set_dsr(struct mmc *mmc, u16 val)
  */
 void print_mmc_device_info(struct mmc *mmc)
 {
-	const struct cavium_mmc_slot *slot = mmc->priv;
+	const struct octeontx_mmc_slot *slot = mmc->priv;
 	const char *type;
 	const char *version;
-	const uint8_t *ext_csd = slot->ext_csd;
-	uint32_t card_type;
+	const u8 *ext_csd = slot->ext_csd;
+	u32 card_type;
 	int prev = 0;
 	int i;
 	static const char *cbx_str[4] = {
@@ -1806,7 +1769,7 @@ void print_mmc_device_info(struct mmc *mmc)
 
 	printf("Register base address: %p\n", slot->host->base_addr);
 	debug("MIO_EMM_MODE: 0x%llx\n",
-	      mmc_read_csr(mmc, MIO_EMM_MODEX(slot->bus_id)));
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_MODEX(slot->bus_id)));
 
 	if (!bdesc) {
 		printf("%s couldn't find blk desc\n", __func__);
@@ -1829,7 +1792,7 @@ void print_mmc_device_info(struct mmc *mmc)
 	}
 
 	switch (mmc->version) {
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 	case SD_VERSION_2:
 	case SD_VERSION_3:
 	case SD_VERSION_4:	/* Decode versions 2-4 here */
@@ -2010,7 +1973,7 @@ void print_mmc_device_info(struct mmc *mmc)
 	printf("Device is %sremovable\n", slot->non_removable ? "non-" : "");
 	if (IS_SD(mmc)) {
 		const char *sd_security;
-		uint8_t sd_spec, sd_spec3, sd_spec4;
+		u8 sd_spec, sd_spec3, sd_spec4;
 		const char *spec_ver;
 		const char *bus_widths;
 
@@ -2209,7 +2172,7 @@ void print_mmc_device_info(struct mmc *mmc)
 				printf("\n%3u: ", i);
 			if (i % 16 == 8)
 				puts("- ");
-			printf("%02x ", (uint32_t)ext_csd[i]);
+			printf("%02x ", (u32)ext_csd[i]);
 		}
 		puts("\n");
 	}
@@ -2241,7 +2204,7 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 	cmd.cmdarg = len;
 
 	debug("%s: Setting block length to %d\n", __func__, len);
-	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		printf("%s: Error setting block length to %d\n", __func__, len);
 
@@ -2250,7 +2213,7 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 
 static int mmc_set_capacity(struct mmc *mmc, int part_num)
 {
-	const struct cavium_mmc_slot *slot = mmc->priv;
+	const struct octeontx_mmc_slot *slot = mmc->priv;
 	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 
 	if (!bdesc) {
@@ -2285,9 +2248,17 @@ static int mmc_set_capacity(struct mmc *mmc, int part_num)
 	return 0;
 }
 
+/**
+ * Switch MMC partition number
+ *
+ * @param mmc		mmc device
+ * @param part_num	partition to switch to
+ *
+ * @return 0 for success, otherwise error
+ */
 int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 {
-	const struct cavium_mmc_slot *slot = mmc->priv;
+	const struct octeontx_mmc_slot *slot = mmc->priv;
 	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 	int ret;
 
@@ -2535,7 +2506,7 @@ static int
 oct_mmc_wait_cmd(struct mmc *mmc, int bus_id, int cmd_idx, int flags,
 		 uint timeout)
 {
-	union mio_emm_rsp_sts emm_rsp_sts;
+	union cavm_mio_emm_rsp_sts emm_rsp_sts;
 	unsigned long base_time;
 	ulong time = 0;
 
@@ -2544,7 +2515,7 @@ oct_mmc_wait_cmd(struct mmc *mmc, int bus_id, int cmd_idx, int flags,
 	base_time = get_timer(0);
 
 	do {
-		emm_rsp_sts.u = mmc_read_csr(mmc, MIO_EMM_RSP_STS);
+		emm_rsp_sts.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
 		if (emm_rsp_sts.s.cmd_done || emm_rsp_sts.s.rsp_timeout)
 			break;
 		WATCHDOG_RESET();
@@ -2574,7 +2545,7 @@ oct_mmc_wait_cmd(struct mmc *mmc, int bus_id, int cmd_idx, int flags,
 	    (emm_rsp_sts.s.rsp_crc_err &&
 		!(flags & MMC_CMD_FLAG_IGNORE_CRC_ERR)) ||
 	    emm_rsp_sts.s.rsp_bad_sts) {
-		uint64_t status = mmc_read_csr(mmc, MIO_EMM_RSP_LO) >> 8;
+		u64 status = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_LO()) >> 8;
 		debug("%s: Bad response for bus id %d, cmd id %d:\n"
 		      "    rsp_timeout: %d\n"
 		      "    rsp_bad_sts: %d\n"
@@ -2621,14 +2592,14 @@ oct_mmc_wait_cmd(struct mmc *mmc, int bus_id, int cmd_idx, int flags,
 static int
 mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
 		     struct mmc_data *data,
-		     uint32_t flags, uint timeout)
+		     u32 flags, uint timeout)
 {
-	struct cavium_mmc_slot *slot = mmc->priv;
-	union mio_emm_cmd emm_cmd;
-	union mio_emm_buf_idx emm_buf_idx;
-	union mio_emm_buf_dat emm_buf_dat;
-	uint64_t resp_lo;
-	uint64_t resp_hi;
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	union cavm_mio_emm_cmd emm_cmd;
+	union cavm_mio_emm_buf_idx emm_buf_idx;
+	union cavm_mio_emm_buf_dat emm_buf_dat;
+	u64 resp_lo;
+	u64 resp_hi;
 	int i;
 	int bus_id = slot->bus_id;
 
@@ -2641,7 +2612,8 @@ mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
 	mmc_set_watchdog(mmc, timeout ? timeout * 1000 : (1 << 26) - 1);
 
 	/* Clear any interrupts */
-	mmc_write_csr(mmc, MIO_EMM_INT, mmc_read_csr(mmc, MIO_EMM_INT));
+	mmc_write_csr(mmc, CAVM_MIO_EMM_INT(),
+		      mmc_read_csr(mmc, CAVM_MIO_EMM_INT()));
 	emm_cmd.u = 0;
 	emm_cmd.s.cmd_val = 1;
 	emm_cmd.s.bus_id = bus_id;
@@ -2666,18 +2638,19 @@ mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 		emm_buf_idx.u = 0;
 		emm_buf_idx.s.inc = 1;
-		mmc_write_csr(mmc, MIO_EMM_BUF_IDX, emm_buf_idx.u);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_BUF_IDX(), emm_buf_idx.u);
 		for (i = 0; i < (data->blocksize + 7) / 8; i++) {
 			memcpy(&emm_buf_dat.u, src, sizeof(emm_buf_dat));
 			emm_buf_dat.u = cpu_to_be64(emm_buf_dat.u);
-			mmc_write_csr(mmc, MIO_EMM_BUF_DAT, emm_buf_dat.u);
+			mmc_write_csr(mmc, CAVM_MIO_EMM_BUF_DAT(),
+				      emm_buf_dat.u);
 			debug("mmc cmd: buffer 0x%x: 0x%llx\n",
 			      i*8, emm_buf_dat.u);
 			src += sizeof(emm_buf_dat);
 		}
 		debug("mmc cmd: wrote %d 8-byte blocks to buffer\n", i);
 	}
-	mmc_write_csr(mmc, MIO_EMM_CMD, emm_cmd.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_CMD(), emm_cmd.u);
 
 	if (oct_mmc_wait_cmd(mmc, bus_id, cmd->cmdidx, flags, timeout)) {
 		if (!init_time) {
@@ -2693,9 +2666,9 @@ mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
 		return 0;
 	}
 
-	resp_lo = mmc_read_csr(mmc, MIO_EMM_RSP_LO);
+	resp_lo = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_LO());
 	if (cmd->resp_type & MMC_RSP_136) {
-		resp_hi = mmc_read_csr(mmc, MIO_EMM_RSP_HI);
+		resp_hi = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_HI());
 		debug("mmc cmd: response hi: 0x%016llx\n", resp_hi);
 		cmd->response[0] = resp_hi >> 32;
 		cmd->response[1] = resp_hi & 0xffffffff;
@@ -2722,9 +2695,10 @@ mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 		emm_buf_idx.u = 0;
 		emm_buf_idx.s.inc = 1;
-		mmc_write_csr(mmc, MIO_EMM_BUF_IDX, emm_buf_idx.u);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_BUF_IDX(), emm_buf_idx.u);
 		for (i = 0; i < (data->blocksize + 7) / 8; i++) {
-			emm_buf_dat.u = mmc_read_csr(mmc, MIO_EMM_BUF_DAT);
+			emm_buf_dat.u = mmc_read_csr(mmc,
+						     CAVM_MIO_EMM_BUF_DAT());
 			emm_buf_dat.u = be64_to_cpu(emm_buf_dat.u);
 			memcpy(dest, &emm_buf_dat.u, sizeof(emm_buf_dat));
 			       dest += sizeof(emm_buf_dat);
@@ -2744,7 +2718,7 @@ mmc_send_cmd_timeout(struct mmc *mmc, struct mmc_cmd *cmd,
  * @return		0 for success, error otherwise
  */
 static int mmc_send_cmd_flags(struct mmc *mmc, struct mmc_cmd *cmd,
-			      struct mmc_data *data, uint32_t flags)
+			      struct mmc_data *data, u32 flags)
 {
 	uint timeout;
 	/**
@@ -2754,7 +2728,7 @@ static int mmc_send_cmd_flags(struct mmc *mmc, struct mmc_cmd *cmd,
 	 *   CMD6, CMD17, CMD18, CMD24, CMD25, CMD32, CMD33, CMD35, CMD36 and
 	 *   CMD38.
 	 */
-	static const uint64_t timeout_short = 0xFFFFFFA4FCF9FFDFULL;
+	static const u64 timeout_short = 0xFFFFFFA4FCF9FFDFULL;
 
 	debug("%s(%s, cmd: %u, arg: 0x%x flags: 0x%x)\n", __func__,
 	      mmc->cfg->name, cmd->cmdidx, cmd->cmdarg, flags);
@@ -2786,7 +2760,7 @@ static int mmc_send_cmd_flags(struct mmc *mmc, struct mmc_cmd *cmd,
  * @return		0 for success, error otherwise
  */
 static int mmc_send_acmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			 struct mmc_data *data, uint32_t flags)
+			 struct mmc_data *data, u32 flags)
 {
 	struct mmc_cmd acmd;
 	int err;
@@ -2799,7 +2773,7 @@ static int mmc_send_acmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		debug("%s: Error, not SD card\n", __func__);
 		return -1;
 	}
-	err = cavium_mmc_send_cmd(mmc->dev, &acmd, NULL);
+	err = octeontx_mmc_send_cmd(mmc->dev, &acmd, NULL);
 	if (err) {
 		printf("%s: Error sending ACMD to SD card\n", __func__);
 		return err;
@@ -2813,7 +2787,7 @@ static int mmc_send_acmd(struct mmc *mmc, struct mmc_cmd *cmd,
 /** Change the bus width */
 static void mmc_set_bus_width(struct mmc *mmc, uint width)
 {
-	struct cavium_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_slot *slot = mmc->priv;
 	mmc->bus_width = min(width, (uint)slot->bus_max_width);
 	debug("%s(%s, %u): seting bus_width to %u\n", __func__,
 	      mmc->cfg->name, width, mmc->bus_width);
@@ -2828,7 +2802,7 @@ static int mmc_pre_idle(struct mmc *mmc)
 	cmd.cmdarg = 0xf0f0f0f0;	/* Software Reset */
 	cmd.resp_type = MMC_RSP_NONE;
 
-	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		debug("%s: error %d\n", __func__, err);
 	else
@@ -2849,7 +2823,7 @@ static int mmc_go_idle(struct mmc *mmc)
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_NONE;
 
-		err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+		err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 		if (err)
 			return err;
 	}
@@ -2857,7 +2831,7 @@ static int mmc_go_idle(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 static int sd_send_relative_addr(struct mmc *mmc)
 {
 	int err;
@@ -2876,10 +2850,10 @@ static int sd_send_relative_addr(struct mmc *mmc)
 		return err;
 	}
 	mmc->rca = cmd.response[0] >> 16;
-	mmc_write_csr(mmc, MIO_EMM_RCA, mmc->rca);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_RCA(), mmc->rca);
 	debug("%s: SD RCA is %d (0x%x)\n", __func__, mmc->rca, mmc->rca);
 	debug("%s: MIO_EMM_RCA: 0x%llx\n", __func__,
-	      mmc_read_csr(mmc, MIO_EMM_RCA));
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_RCA()));
 	return 0;
 }
 #endif
@@ -2902,7 +2876,7 @@ static int mmc_set_relative_addr(struct mmc *mmc)
 	cmd.cmdidx = MMC_CMD_SET_RELATIVE_ADDR;
 	cmd.cmdarg = mmc->rca << 16;
 	cmd.resp_type = MMC_RSP_R1;
-	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		printf("%s: Error %d, failed to set RCA to %d\n", __func__,
 		       err, mmc->rca);
@@ -2922,12 +2896,12 @@ static int mmc_select_card(struct mmc *mmc)
 	cmd.resp_type = MMC_RSP_R1b;
 	cmd.cmdarg = mmc->rca << 16;
 
-	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err)
 		printf("%s: Error selecting card with rca %d\n",
 		       __func__, mmc->rca);
 	else
-		mmc_write_csr(mmc, MIO_EMM_RCA, mmc->rca);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_RCA(), mmc->rca);
 	return err;
 }
 
@@ -2943,7 +2917,7 @@ static int mmc_all_send_cid(struct mmc *mmc)
 	struct mmc_cmd cmd;
 	int err;
 #ifdef DEBUG
-	uint8_t crc7;
+	u8 crc7;
 #endif
 
 	memset(&cmd, 0, sizeof(cmd));
@@ -2952,7 +2926,7 @@ static int mmc_all_send_cid(struct mmc *mmc)
 	cmd.cmdidx = MMC_CMD_ALL_SEND_CID;
 	cmd.resp_type = MMC_RSP_R2;
 	cmd.cmdarg = 0;
-	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err) {
 		debug("%s: Error getting all CID\n", __func__);
 		return err;
@@ -3038,7 +3012,7 @@ static int mmc_get_csd(struct mmc *mmc)
 	cmd.cmdidx = MMC_CMD_SEND_CSD;
 	cmd.resp_type = MMC_RSP_R2;
 	cmd.cmdarg = mmc->rca << 16;
-	err = cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 	if (err) {
 		printf("%s: Error getting CSD\n", __func__);
 		return err;
@@ -3052,13 +3026,13 @@ static int mmc_get_csd(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 static int sd_set_bus_width_speed(struct mmc *mmc)
 {
 	struct mmc_cmd cmd;
 	int err;
 #ifdef DEBUG
-	struct cavium_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_slot *slot = mmc->priv;
 	debug("%s(%s) width: %d %d\n", __func__, mmc->cfg->name,
 	      mmc->bus_width, slot->bus_width);
 #endif
@@ -3133,13 +3107,13 @@ static int mmc_set_bus_width_speed(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 int sd_send_op_cond(struct mmc *mmc)
 {
 	int timeout = 1000;
 	int err;
 	struct mmc_cmd cmd;
-	uint32_t flags = MMC_CMD_FLAG_RTYPE_XOR(3) | MMC_CMD_FLAG_STRIP_CRC;
+	u32 flags = MMC_CMD_FLAG_RTYPE_XOR(3) | MMC_CMD_FLAG_STRIP_CRC;
 
 	debug("%s(%s)\n", __func__, mmc->cfg->name);
 	mmc->rca = 0;
@@ -3278,7 +3252,7 @@ static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 #ifdef DEBUG
-	struct cavium_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_slot *slot = mmc->priv;
 #endif
 	int err;
 
@@ -3294,7 +3268,7 @@ static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 	data.blocksize = MMC_MAX_BLOCK_LEN;
 	data.flags = MMC_DATA_READ;
 
-	err = cavium_mmc_send_cmd(mmc->dev, &cmd, &data);
+	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, &data);
 
 	if (err) {
 		printf("%s: Error getting extended CSD\n", __func__);
@@ -3317,15 +3291,15 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 	cmd.cmdarg = (MMC_SWITCH_MODE_WRITE_BYTE << 24) |
 				(index << 16) | (value << 8) | set;
 
-	return cavium_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	return octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
 }
 
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 static int sd_set_ios(struct mmc *mmc)
 {
-	union mio_emm_switch emm_switch;
-	struct cavium_mmc_slot *slot = mmc->priv;
-	struct cavium_mmc_host *host = slot->host;
+	union cavm_mio_emm_switch emm_switch;
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_host *host = slot->host;
 	int clock = mmc->clock;
 
 	debug("%s(%s)\n", __func__, mmc->cfg->name);
@@ -3348,10 +3322,10 @@ static int sd_set_ios(struct mmc *mmc)
 	emm_switch.s.power_class = slot->power_class;
 	debug("%s: Writing emm_switch value 0x%llx\n",
 	      __func__, emm_switch.u);
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	emm_switch.s.bus_id = slot->bus_id;
 	udelay(100);
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	mdelay(20);
 #ifdef DEBUG
 	mmc_print_registers(mmc);
@@ -3360,14 +3334,14 @@ static int sd_set_ios(struct mmc *mmc)
 }
 #endif
 
-static int cavium_mmc_set_ios(struct udevice *dev)
+static int octeontx_mmc_set_ios(struct udevice *dev)
 {
-	union mio_emm_switch emm_switch;
-	union mio_emm_rsp_sts emm_sts;
-	union mio_emm_sample emm_sample;
+	union cavm_mio_emm_switch emm_switch;
+	union cavm_mio_emm_rsp_sts emm_sts;
+	union cavm_mio_emm_sample emm_sample;
 	int switch_timeout_ms = 2550;
-	struct cavium_mmc_host *host = dev_get_priv(dev);
-	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct octeontx_mmc_host *host = dev_get_priv(dev);
+	struct octeontx_mmc_slot *slot = &host->slots[host->cur_slotid];
 	struct mmc *mmc = slot->mmc;
 	int timeout = 2000;
 	char cardtype;
@@ -3376,10 +3350,10 @@ static int cavium_mmc_set_ios(struct udevice *dev)
 	int bus_width;
 	int power_class;
 	int clock = mmc->clock;
-	uint32_t flags = 0;
+	u32 flags = 0;
 	int index;
 #ifdef DEBUG
-	union mio_emm_rsp_lo emm_rsp_lo;
+	union cavm_mio_emm_rsp_lo emm_rsp_lo;
 #endif
 
 	debug("%s(%s)\n", __func__, mmc->cfg->name);
@@ -3434,7 +3408,7 @@ static int cavium_mmc_set_ios(struct udevice *dev)
 		debug("        High-Speed DDR eMMC 52MHz at 1.8V or 3V I/O\n");
 		hs_timing = true;
 		if ((mmc->cfg->voltages & MMC_VDD_165_195) ||
-		    env_get("cavium_mmc_ddr"))
+		    env_get("octeontx_mmc_ddr"))
 			ddr = true;
 	}
 	if (cardtype & EXT_CSD_CARD_TYPE_DDR_1_2V) {
@@ -3561,7 +3535,7 @@ static int cavium_mmc_set_ios(struct udevice *dev)
 	emm_sample.u = 0;
 	emm_sample.s.cmd_cnt = slot->cmd_clk_skew;
 	emm_sample.s.dat_cnt = slot->dat_clk_skew;
-	mmc_write_csr(mmc, MIO_EMM_SAMPLE, emm_sample.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SAMPLE(), emm_sample.u);
 	debug("%s: Setting command clock skew to %d, data to %d sclock cycles\n",
 	      __func__, slot->cmd_clk_skew, slot->dat_clk_skew);
 
@@ -3604,12 +3578,12 @@ again:
 	debug("%s: clock period: %u\n", __func__, slot->clk_period);
 	debug("%s: Writing 0x%llx to mio_emm_switch\n",
 	      __func__, emm_switch.u);
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	udelay(100);
 
 	timeout = (switch_timeout_ms + 10) * 10;
 	do {
-		emm_sts.u = mmc_read_csr(mmc, MIO_EMM_RSP_STS);
+		emm_sts.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
 		if (!emm_sts.s.switch_val)
 			break;
 		udelay(100);
@@ -3620,16 +3594,16 @@ again:
 		return -1;
 	}
 
-	emm_switch.u = mmc_read_csr(mmc, MIO_EMM_SWITCH);
+	emm_switch.u = mmc_read_csr(mmc, CAVM_MIO_EMM_SWITCH());
 	debug("Switch command response: 0x%llx, switch: 0x%llx\n",
 	      emm_sts.u, emm_switch.u);
 #if defined(DEBUG)
-	emm_rsp_lo.u = mmc_read_csr(mmc, MIO_EMM_RSP_LO);
+	emm_rsp_lo.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_LO());
 	debug("Switch response lo: 0x%llx\n", emm_rsp_lo.u);
 #endif
 
 	if (emm_sts.s.rsp_crc_err && mmc->clock <= 20000000) {
-		uint32_t next_speed;
+		u32 next_speed;
 		if (mmc->clock >= 4000000) {
 			next_speed = mmc->clock - 2000000;
 		} else if (mmc->clock > 1400000) {
@@ -3664,10 +3638,10 @@ again:
 		emm_switch.s.clk_hi = (slot->clk_period + 1) / 2;
 		emm_switch.s.clk_lo = (slot->clk_period + 1) / 2;
 		debug("%s: clock period: %u\n", __func__, slot->clk_period);
-		mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 		mdelay(1);
 		emm_switch.s.bus_id = slot->bus_id;
-		mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 		mdelay(1);
 	}
 	if ((emm_switch.s.switch_err1 | emm_switch.s.switch_err2) &&
@@ -3748,7 +3722,7 @@ again:
 			/* Width succeeded, test the bus */
 			struct mmc_cmd mmc_cmd;
 			struct mmc_data mmc_data;
-			uint8_t buffer[16];
+			u8 buffer[16];
 
 			debug("Testing bus width %d (%d)\n",
 			      mmc->bus_width, bus_width);
@@ -3800,7 +3774,8 @@ again:
 			mmc_cmd.cmdarg = 0;
 			mmc_cmd.cmdidx = 19;	/* BUSTEST_W */
 			mmc_cmd.resp_type = MMC_RSP_R1;
-			if (cavium_mmc_send_cmd(mmc->dev, &mmc_cmd, &mmc_data) != 0)
+			if (octeontx_mmc_send_cmd(mmc->dev, &mmc_cmd,
+						  &mmc_data) != 0)
 				puts("Warning: problem sending BUSTEST_W command\n");
 
 			debug("BUSTEST_W response is 0x%x 0x%x 0x%x 0x%x\n",
@@ -3940,12 +3915,12 @@ again:
 		emm_switch.s.clk_hi = (slot->clk_period + 1) / 2;
 		emm_switch.s.clk_lo = (slot->clk_period + 1) / 2;
 		debug("%s: clock period: %u\n", __func__, slot->clk_period);
-		mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 		udelay(100);
 
 		timeout = switch_timeout_ms + 10;
 		do {
-			emm_sts.u = mmc_read_csr(mmc, MIO_EMM_RSP_STS);
+			emm_sts.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
 			if (!emm_sts.s.switch_val)
 				break;
 			mdelay(1);
@@ -3979,9 +3954,9 @@ again:
  */
 void mmc_set_clock(struct mmc *mmc, uint clock)
 {
-	struct cavium_mmc_slot *slot = mmc->priv;
-	struct cavium_mmc_host *host = slot->host;
-	union mio_emm_switch emm_switch;
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_host *host = slot->host;
+	union cavm_mio_emm_switch emm_switch;
 	unsigned bus;
 
 	debug("%s(%s, %u)\n", __func__, mmc->cfg->name, clock);
@@ -4005,7 +3980,7 @@ void mmc_set_clock(struct mmc *mmc, uint clock)
 
 	debug("%s: Reading MIO_EMM_SWITCH\n", __func__);
 	/* Write the change to the hardware */
-	emm_switch.u = mmc_read_csr(mmc, MIO_EMM_SWITCH);
+	emm_switch.u = mmc_read_csr(mmc, CAVM_MIO_EMM_SWITCH());
 	emm_switch.s.clk_hi = (slot->clk_period + 1) / 2;
 	emm_switch.s.clk_lo = emm_switch.s.clk_hi;
 	bus = emm_switch.s.bus_id;
@@ -4014,20 +3989,22 @@ void mmc_set_clock(struct mmc *mmc, uint clock)
 
 	emm_switch.s.bus_id = 0;
 	emm_switch.s.hs_timing = (mmc->clock > 20000000);
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
-	debug("  mio_emm_switch: 0x%llx\n", mmc_read_csr(mmc, MIO_EMM_SWITCH));
-	debug("  mio_emm_mode0: 0x%llx\n", mmc_read_csr(mmc, MIO_EMM_MODEX(0)));
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
+	debug("  mio_emm_switch: 0x%llx\n",
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_SWITCH()));
+	debug("  mio_emm_mode0: 0x%llx\n",
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_MODEX(0)));
 	udelay(1200);
 	emm_switch.s.bus_id = bus;
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	udelay(1200);
 	debug("  mio_emm_mode%d: 0x%llx\n", bus,
-	      mmc_read_csr(mmc, MIO_EMM_MODEX(bus)));
+	      mmc_read_csr(mmc, CAVM_MIO_EMM_MODEX(bus)));
 
 	mmc_set_watchdog(mmc, 1000000);
 }
 
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 static int sd_switch(struct mmc *mmc, int mode, int group, u8 value, u32 *resp)
 {
 	struct mmc_cmd cmd;
@@ -4061,12 +4038,12 @@ static int sd_change_freq(struct mmc *mmc)
 {
 	int err;
 	struct mmc_cmd cmd;
-	uint32_t scr[2];
-	uint32_t switch_status[16];
+	u32 scr[2];
+	u32 switch_status[16];
 	struct mmc_data data;
 	int timeout;
-	struct cavium_mmc_slot *slot = mmc->priv;
-	uint32_t flags;
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	u32 flags;
 #ifdef DEBUG
 	int i;
 #endif
@@ -4271,12 +4248,12 @@ retry_scr:
 }
 #endif
 
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 static int sd_version_1_x(struct mmc *mmc)
 {
 	struct mmc_cmd cmd;
 	int err;
-	uint32_t flags;
+	u32 flags;
 	ulong start;
 
 	debug("%s(%s)\n", __func__, mmc->cfg->name);
@@ -4326,10 +4303,10 @@ static int sd_version_1_x(struct mmc *mmc)
 
 static int mmc_send_if_cond(struct mmc *mmc)
 {
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 	struct mmc_cmd cmd;
 	int err;
-	uint32_t flags;
+	u32 flags;
 
 	debug("%s(%s)\n", __func__, mmc->cfg->name);
 	/* We only need a very short timeout here, 5ms */
@@ -4369,28 +4346,31 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	return 0;
 }
 
+/**
+ * Resets the MMC bus.
+ */
 static void mmc_reset_bus(struct mmc *mmc, int preserve_switch)
 {
-	struct cavium_mmc_slot *slot = (struct cavium_mmc_slot *)mmc->priv;
-	union mio_emm_cfg emm_cfg;
-	union mio_emm_switch emm_switch;
+	struct octeontx_mmc_slot *slot = (struct octeontx_mmc_slot *)mmc->priv;
+	union cavm_mio_emm_cfg emm_cfg;
+	union cavm_mio_emm_switch emm_switch;
 
 	debug("%s(%s, %d)\n", __func__, mmc->cfg->name, preserve_switch);
 	if (preserve_switch) {
-		emm_switch.u = mmc_read_csr(mmc, MIO_EMM_SWITCH);
+		emm_switch.u = mmc_read_csr(mmc, CAVM_MIO_EMM_SWITCH());
 		if (emm_switch.s.bus_id != slot->bus_id) {
 			emm_switch.s.bus_id = slot->bus_id;
-			mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+			mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 		}
 	}
 
 	/* Reset the bus */
-	emm_cfg.u = mmc_read_csr(mmc, MIO_EMM_CFG);
+	emm_cfg.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CFG());
 	emm_cfg.u &= ~(1 << slot->bus_id);
-	mmc_write_csr(mmc, MIO_EMM_CFG, emm_cfg.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
 	mdelay(20);	/* Wait 20ms */
 	emm_cfg.u |= 1 << slot->bus_id;
-	mmc_write_csr(mmc, MIO_EMM_CFG, emm_cfg.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
 
 	mdelay(20);
 
@@ -4405,10 +4385,10 @@ static void mmc_reset_bus(struct mmc *mmc, int preserve_switch)
 		debug("%s: clock period: %u\n", __func__, slot->clk_period);
 		emm_switch.s.hs_timing = (mmc->clock > 20000000);
 		emm_switch.s.bus_id = 0;
-		mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 		udelay(100);
 		emm_switch.s.bus_id = slot->bus_id;
-		mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	}
 }
 
@@ -4427,20 +4407,20 @@ static int mmc_set_dsr_cmd(struct mmc *mmc)
 
 int mmc_startup(struct mmc *mmc)
 {
-	struct cavium_mmc_slot *slot = mmc->priv;
-	struct cavium_mmc_host *host = slot->host;
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_host *host = slot->host;
 	u64 cmult, csize, capacity;
 	int err;
 	uint mult, freq;
-	union mio_emm_switch emm_switch;
-	union mio_emm_cfg emm_cfg;
-	union mio_emm_sts_mask emm_sts_mask;
-	union mio_emm_wdog emm_wdog;
+	union cavm_mio_emm_switch emm_switch;
+	union cavm_mio_emm_cfg emm_cfg;
+	union cavm_mio_emm_sts_mask emm_sts_mask;
+	union cavm_mio_emm_wdog emm_wdog;
 	int i;
 #ifdef DEBUG
 	int classes;
 #endif
-	uint8_t *ext_csd = slot->ext_csd;
+	u8 *ext_csd = slot->ext_csd;
 	bool has_parts = false;
 	bool part_completed;
 	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
@@ -4454,20 +4434,21 @@ int mmc_startup(struct mmc *mmc)
 	mmc->rca = 0;
 
 	/* Clear interrupt status */
-	mmc_write_csr(mmc, MIO_EMM_INT, mmc_read_csr(mmc, MIO_EMM_INT));
+	mmc_write_csr(mmc, CAVM_MIO_EMM_INT(),
+		      mmc_read_csr(mmc, CAVM_MIO_EMM_INT()));
 
 	/* Enable the bus */
-	emm_cfg.u = mmc_read_csr(mmc, MIO_EMM_CFG);
+	emm_cfg.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CFG());
 	emm_cfg.u |= (1 << slot->bus_id);
 	debug("%s: writing 0x%llx to mio_emm_cfg\n", __func__, emm_cfg.u);
-	mmc_write_csr(mmc, MIO_EMM_CFG, emm_cfg.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
 	mdelay(2);
 
 	/* Set clock period */
 	slot->clk_period = (host->sclock + mmc->clock - 1) / mmc->clock;
 
 	/* Default to RCA of 1 */
-	mmc_write_csr(mmc, MIO_EMM_RCA, 1);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_RCA(), 1);
 
 	/* Set the bus speed and width */
 	emm_switch.u = 0;
@@ -4476,10 +4457,10 @@ int mmc_startup(struct mmc *mmc)
 	emm_switch.s.clk_hi = (slot->clk_period + 1) / 2;
 	emm_switch.s.clk_lo = emm_switch.s.clk_hi;
 	debug("%s: clock period: %u\n", __func__, slot->clk_period);
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	emm_switch.s.bus_id = slot->bus_id;
 	udelay(1200);
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	udelay(1200);
 
 	host->last_slotid = host->cur_slotid;
@@ -4492,17 +4473,17 @@ int mmc_startup(struct mmc *mmc)
 	if (slot->bus_id == 0)
 		emm_wdog.u = 0;
 	else
-		emm_wdog.u = mmc_read_csr(mmc, MIO_EMM_WDOG);
+		emm_wdog.u = mmc_read_csr(mmc, CAVM_MIO_EMM_WDOG());
 	emm_wdog.s.clk_cnt = mmc->clock;
 	debug("Setting command timeout value to %u\n", emm_wdog.s.clk_cnt);
-	mmc_write_csr(mmc, MIO_EMM_WDOG, emm_wdog.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_WDOG(), emm_wdog.u);
 
 	mdelay(10);	/* Wait 10ms */
 
 	/* Set status mask */
 	emm_sts_mask.u = 0;
 	emm_sts_mask.s.sts_msk = 1 << 7 | 1 << 22 | 1 << 23 | 1 << 19;
-	mmc_write_csr(mmc, MIO_EMM_STS_MASK, emm_sts_mask.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_STS_MASK(), emm_sts_mask.u);
 
 	/* Reset the card */
 	debug("Resetting card\n");
@@ -4523,7 +4504,7 @@ int mmc_startup(struct mmc *mmc)
 		return err;
 	}
 
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 	/* Note that this doesn't work on the CN61XX pass 1.0.
 	 * The CN61XX pass 1.0 has an errata where only 8-bit wide buses are
 	 * supported due to checksum errors on narrower busses.
@@ -4534,7 +4515,7 @@ int mmc_startup(struct mmc *mmc)
 #endif
 	/* Now try to get the SD card's operating condition */
 	if (!err && IS_SD(mmc)) {
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 		debug("Getting SD card operating condition\n");
 		err = sd_send_op_cond(mmc);
 		if (err == ETIMEDOUT) {
@@ -4557,7 +4538,8 @@ int mmc_startup(struct mmc *mmc)
 	} else {
 		mdelay(100);
 		/* Clear interrupt status */
-		mmc_write_csr(mmc, MIO_EMM_INT, mmc_read_csr(mmc, MIO_EMM_INT));
+		mmc_write_csr(mmc, CAVM_MIO_EMM_INT(),
+			      mmc_read_csr(mmc, CAVM_MIO_EMM_INT()));
 		debug("Resetting card for MMC\n");
 		mmc_pre_idle(mmc);
 		mdelay(2);
@@ -4608,7 +4590,7 @@ int mmc_startup(struct mmc *mmc)
 	 * This also puts the cards into Standby State.
 	 */
 	if (IS_SD(mmc)) {
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 		debug("%s: Getting SD relative address\n", __func__);
 		err = sd_send_relative_addr(mmc);
 		if (err) {
@@ -4633,7 +4615,7 @@ int mmc_startup(struct mmc *mmc)
 	err = mmc_get_csd(mmc);
 	if (err) {
 		printf("%s: Error getting CSD\n", __func__);
-		emm_switch.u = mmc_read_csr(mmc, MIO_EMM_SWITCH);
+		emm_switch.u = mmc_read_csr(mmc, CAVM_MIO_EMM_SWITCH());
 		debug("clk period: %d\n",
 		      emm_switch.s.clk_hi + emm_switch.s.clk_lo);
 		return err;
@@ -4706,10 +4688,10 @@ int mmc_startup(struct mmc *mmc)
 			break;
 		}
 	} else {
-		const uint32_t tran_speed_freq[8] = {
+		const u32 tran_speed_freq[8] = {
 			10000, 100000, 1000000, 10000000, 0, 0, 0, 0
 		};
-		const uint32_t tran_mult[16] = {
+		const u32 tran_mult[16] = {
 			 0, 10, 12, 13, 15, 20, 26, 30,
 			35, 40, 45, 52, 55, 60, 70, 80
 		};
@@ -5006,7 +4988,7 @@ int mmc_startup(struct mmc *mmc)
 	}
 
 	debug("%s: Changing frequency\n", __func__);
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 	if (IS_SD(mmc))
 		err = sd_change_freq(mmc);
 #endif
@@ -5026,7 +5008,7 @@ int mmc_startup(struct mmc *mmc)
 
 
 	if (IS_SD(mmc)) {
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 		err = sd_set_bus_width_speed(mmc);
 		if (err) {
 			printf("%s: Error setting SD bus width and/or speed\n",
@@ -5107,14 +5089,14 @@ int mmc_startup(struct mmc *mmc)
  * This is the external mmc_send_cmd function.  It was required that
  * the internal version support flags so this version is required.
  */
-static int cavium_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
-			       struct mmc_data *data)
+static int octeontx_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+				 struct mmc_data *data)
 {
-	uint32_t flags = 0;
+	u32 flags = 0;
 	int ret;
 	static bool acmd;
-	struct cavium_mmc_host *host = dev_get_priv(dev);
-	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct octeontx_mmc_host *host = dev_get_priv(dev);
+	struct octeontx_mmc_slot *slot = &host->slots[host->cur_slotid];
 	struct mmc *mmc = slot->mmc;
 
 	/* Some SD commands require some flags to be changed */
@@ -5163,10 +5145,10 @@ static int cavium_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	return ret;
 }
 
-int __cavium_mmc_getwp(struct udevice *dev)
+int __octeontx_mmc_getwp(struct udevice *dev)
 {
-	struct cavium_mmc_host *host = dev_get_priv(dev);
-	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct octeontx_mmc_host *host = dev_get_priv(dev);
+	struct octeontx_mmc_slot *slot = &host->slots[host->cur_slotid];
 	struct mmc *mmc = slot->mmc;
 	int val = 0;
 	debug("%s: card \n", __func__);
@@ -5184,10 +5166,10 @@ int __cavium_mmc_getwp(struct udevice *dev)
 	return val;
 }
 
-int __cavium_mmc_getcd(struct udevice *dev)
+int __octeontx_mmc_getcd(struct udevice *dev)
 {
-	struct cavium_mmc_host *host = dev_get_priv(dev);
-	struct cavium_mmc_slot *slot = &host->slots[host->cur_slotid];
+	struct octeontx_mmc_host *host = dev_get_priv(dev);
+	struct octeontx_mmc_slot *slot = &host->slots[host->cur_slotid];
 	struct mmc *mmc = slot->mmc;
 	int bus = slot->bus_id;
 	int val = 1;
@@ -5215,7 +5197,7 @@ int __cavium_mmc_getcd(struct udevice *dev)
  */
 void __mmc_set_power(struct mmc *mmc, int on)
 {
-	struct cavium_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_slot *slot = mmc->priv;
 	int bus = slot->bus_id;
 	int val;
 
@@ -5312,11 +5294,11 @@ int mmc_initialize(bd_t *bis)
  *
  * TODO: Modify this to support multiple nodes
  */
-int cavium_mmc_initialize(struct udevice *dev)
+int octeontx_mmc_initialize(struct udevice *dev)
 {
 	static bool not_first;
-	struct cavium_mmc_host *host = dev_get_priv(dev);
-	struct cavium_mmc_slot *slot = NULL;
+	struct octeontx_mmc_host *host = dev_get_priv(dev);
+	struct octeontx_mmc_slot *slot = NULL;
 	struct mmc *mmc = NULL;
 	int bus_id = 0;
 	int rc = -1;
@@ -5335,7 +5317,7 @@ int cavium_mmc_initialize(struct udevice *dev)
 	}
 
 	debug("%s ENTER host %p\n", __func__,host);
-	for (slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
+	for (slot_index = 0; slot_index < OCTEONTX_MAX_MMC_SLOT;
 	     slot_index++) {
 		slot = &host->slots[slot_index];
 	debug("%s ENTER host %p\n", __func__,host);
@@ -5351,14 +5333,14 @@ int cavium_mmc_initialize(struct udevice *dev)
 	}
 
 	debug("%s ENTER\n", __func__);
-	rc = cavium_mmc_get_config(dev);
+	rc = octeontx_mmc_get_config(dev);
 	if (rc) {
 		debug("%s: Error getting configuration for host \n",
 		      __func__);
 		return -1;
 	}
 
-	for (slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
+	for (slot_index = 0; slot_index < OCTEONTX_MAX_MMC_SLOT;
 	     slot_index++) {
 		slot = &host->slots[slot_index];
 		mmc = slot->mmc;
@@ -5366,7 +5348,7 @@ int cavium_mmc_initialize(struct udevice *dev)
 			continue;
 		/* Disable all MMC slots and power them down */
 		debug("%s: Disabling MMC slot %s\n", __func__, mmc->cfg->name);
-		mmc_write_csr(mmc, MIO_EMM_CFG, 0);
+		mmc_write_csr(mmc, CAVM_MIO_EMM_CFG(), 0);
 		mmc_set_power(mmc, 0);
 	}
 
@@ -5374,7 +5356,7 @@ int cavium_mmc_initialize(struct udevice *dev)
 
 	/* Power them all up */
 	debug("Powering up all devices\n");
-	for (slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
+	for (slot_index = 0; slot_index < OCTEONTX_MAX_MMC_SLOT;
 	     slot_index++) {
 		slot = &host->slots[slot_index];
 		mmc = slot->mmc;
@@ -5385,7 +5367,7 @@ int cavium_mmc_initialize(struct udevice *dev)
 	}
 	found = false;
 
-	for (slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
+	for (slot_index = 0; slot_index < OCTEONTX_MAX_MMC_SLOT;
 	     slot_index++) {
 		slot = &host->slots[slot_index];
 		bus_id = slot->bus_id;
@@ -5456,30 +5438,31 @@ int cavium_mmc_initialize(struct udevice *dev)
 	return found ? 0 : rc;
 }
 
-int __cavium_mmc_init(struct mmc *mmc)
+int __octeontx_mmc_init(struct mmc *mmc)
 {
-	struct cavium_mmc_slot *slot = mmc->priv;
-	struct cavium_mmc_host *host = slot->host;
-	union mio_emm_switch emm_switch;
-	union mio_emm_cfg emm_cfg;
-	union mio_emm_sts_mask emm_sts_mask;
-	union mio_emm_wdog emm_wdog;
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_host *host = slot->host;
+	union cavm_mio_emm_switch emm_switch;
+	union cavm_mio_emm_cfg emm_cfg;
+	union cavm_mio_emm_sts_mask emm_sts_mask;
+	union cavm_mio_emm_wdog emm_wdog;
 
 	/* Clear interrupt status */
-	mmc_write_csr(mmc, MIO_EMM_INT, mmc_read_csr(mmc, MIO_EMM_INT));
+	mmc_write_csr(mmc, CAVM_MIO_EMM_INT(),
+		      mmc_read_csr(mmc, CAVM_MIO_EMM_INT()));
 
 	/* Enable the bus */
-	emm_cfg.u = mmc_read_csr(mmc, MIO_EMM_CFG);
+	emm_cfg.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CFG());
 	emm_cfg.u |= (1 << slot->bus_id);
 	debug("%s: writing 0x%llx to mio_emm_cfg\n", __func__, emm_cfg.u);
-	mmc_write_csr(mmc, MIO_EMM_CFG, emm_cfg.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
 	mdelay(2);
 
 	/* Set clock period */
 	slot->clk_period = (host->sclock + mmc->clock - 1) / mmc->clock;
 
 	/* Default to RCA of 1 */
-	mmc_write_csr(mmc, MIO_EMM_RCA, 1);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_RCA(), 1);
 
 
 	/* Set the bus speed and width */
@@ -5489,10 +5472,10 @@ int __cavium_mmc_init(struct mmc *mmc)
 	emm_switch.s.clk_hi = (slot->clk_period + 1) / 2;
 	emm_switch.s.clk_lo = emm_switch.s.clk_hi;
 	debug("%s: clock period: %u\n", __func__, slot->clk_period);
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	emm_switch.s.bus_id = slot->bus_id;
 	udelay(1200);
-	mmc_write_csr(mmc, MIO_EMM_SWITCH, emm_switch.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	udelay(1200);
 
 	host->last_slotid = host->cur_slotid;
@@ -5504,17 +5487,17 @@ int __cavium_mmc_init(struct mmc *mmc)
 	if (slot->bus_id == 0)
 		emm_wdog.u = 0;
 	else
-		emm_wdog.u = mmc_read_csr(mmc, MIO_EMM_WDOG);
+		emm_wdog.u = mmc_read_csr(mmc, CAVM_MIO_EMM_WDOG());
 	emm_wdog.s.clk_cnt = mmc->clock;
 	debug("Setting command timeout value to %u\n", emm_wdog.s.clk_cnt);
-	mmc_write_csr(mmc, MIO_EMM_WDOG, emm_wdog.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_WDOG(), emm_wdog.u);
 
 	mdelay(10);	/* Wait 10ms */
 
 	/* Set status mask */
 	emm_sts_mask.u = 0;
 	emm_sts_mask.s.sts_msk = 1 << 7 | 1 << 22 | 1 << 23 | 1 << 19;
-	mmc_write_csr(mmc, MIO_EMM_STS_MASK, emm_sts_mask.u);
+	mmc_write_csr(mmc, CAVM_MIO_EMM_STS_MASK(), emm_sts_mask.u);
 
 	mmc_set_power(mmc, 1);
 
@@ -5526,7 +5509,7 @@ int __cavium_mmc_init(struct mmc *mmc)
 int mmc_start_init(struct mmc *mmc)
 {
 	int err;
-	const struct cavium_mmc_slot *slot = mmc->priv;
+	const struct octeontx_mmc_slot *slot = mmc->priv;
 	struct blk_desc *bdesc = mmc_get_blk_desc(mmc, slot->bus_id);
 
 	debug("%s(%s): Entry\n", __func__, mmc->cfg->name);
@@ -5542,12 +5525,12 @@ int mmc_start_init(struct mmc *mmc)
 	}
 
 	mmc_set_power(mmc, 1);
-        err = cavium_mmc_init(mmc);
-        if (err) {
-                printf("%s(%s): init returned %d\n", __func__,
-                       mmc->cfg->name, err);
-                return err;
-        }
+	err = octeontx_mmc_init(mmc);
+	if (err) {
+		printf("%s(%s): init returned %d\n", __func__,
+		       mmc->cfg->name, err);
+		return err;
+	}
 
 	mmc->ddr_mode = 0;
 	mmc_set_bus_width(mmc, 1);
@@ -5561,7 +5544,7 @@ int mmc_start_init(struct mmc *mmc)
 
 	bdesc->hwpart = 0;
 
-#ifdef CONFIG_CAVIUM_MMC_SD
+#ifdef CONFIG_OCTEONTX_MMC_SD
 	/* Test for SD version 2 */
 	err = mmc_send_if_cond(mmc);
 
@@ -5643,7 +5626,7 @@ struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
 {
 	struct mmc *mmc;
 	struct blk_desc *bdesc;
-	struct cavium_mmc_slot *slot = priv;
+	struct octeontx_mmc_slot *slot = priv;
 	struct udevice *dev = slot->host->dev;
 	struct udevice *bdev;
 	int ret = -1;
@@ -5709,9 +5692,9 @@ void mmc_destroy(struct mmc *mmc)
  *
  * @return	MMC register value for voltage
  */
-static uint32_t xlate_voltage(uint32_t voltage)
+static u32 xlate_voltage(u32 voltage)
 {
-	uint32_t volt = 0;
+	u32 volt = 0;
 
 	/* Convert to millivolts */
 	voltage /= 1000;
@@ -5764,14 +5747,14 @@ static uint32_t xlate_voltage(uint32_t voltage)
  * @return	0 for success, -1 on error or if invalid
  */
 static int get_mmc_regulator(const void *blob, int of_offset,
-			     struct cavium_mmc_host *host,
-			     struct cavium_mmc_slot *slot)
+			     struct octeontx_mmc_host *host,
+			     struct octeontx_mmc_slot *slot)
 {
-	uint32_t min_microvolt;
-	uint32_t max_microvolt;
-	uint32_t power_delay;
-	uint32_t voltages;
-	uint32_t low, high;
+	u32 min_microvolt;
+	u32 max_microvolt;
+	u32 power_delay;
+	u32 voltages;
+	u32 low, high;
 	int ret;
 	bool active_high;
 
@@ -5802,9 +5785,11 @@ static int get_mmc_regulator(const void *blob, int of_offset,
 	 * we just duplicate the GPIO descriptor.
 	 */
 	if (ret == -EBUSY) {
-		struct cavium_mmc_slot *sslot;
-		for(int slot_index = 0; slot_index < CAVIUM_MAX_MMC_SLOT;
-			slot_index++) {
+		struct octeontx_mmc_slot *sslot;
+		int slot_index;
+
+		for (slot_index = 0; slot_index < OCTEONTX_MAX_MMC_SLOT;
+		     slot_index++) {
 			sslot = &host->slots[slot_index];
 			assert(sslot);
 			if (sslot->power_gpio_of_offset == of_offset) {
@@ -5853,10 +5838,10 @@ static int get_mmc_regulator(const void *blob, int of_offset,
  *
  * @return	0 for success, -1 on error.
  */
-static int cavium_mmc_get_config(struct udevice *dev)
+static int octeontx_mmc_get_config(struct udevice *dev)
 {
-	struct cavium_mmc_host *host = dev_get_priv(dev);
-	struct cavium_mmc_slot *slot;
+	struct octeontx_mmc_host *host = dev_get_priv(dev);
+	struct octeontx_mmc_slot *slot;
 	const void *blob = gd->fdt_blob;
 	int slot_node;
 	int regulator_node;
@@ -5878,7 +5863,7 @@ static int cavium_mmc_get_config(struct udevice *dev)
 			printf("Missing reg field for mmc slot in device tree\n");
 			return -1;
 		}
-		if (reg >= CAVIUM_MAX_MMC_SLOT) {
+		if (reg >= OCTEONTX_MAX_MMC_SLOT) {
 			printf("MMC slot %d is out of range\n", reg);
 			return -1;
 		}
@@ -5982,7 +5967,7 @@ static int cavium_mmc_get_config(struct udevice *dev)
 
 		slot->mmc->version = MMC_VERSION_UNKNOWN;
 		slot->mmc->rca = reg + 0x10;
-		slot->mmc->clock = CONFIG_CAVIUM_MMC_MIN_BUS_SPEED_HZ;
+		slot->mmc->clock = CONFIG_OCTEONTX_MMC_MIN_BUS_SPEED_HZ;
 		slot->bus_width = EXT_CSD_BUS_WIDTH_1;
 		slot->mmc->bus_width = fdtdec_get_int(blob, slot_node,
 						      "bus-width", 8);
@@ -5991,7 +5976,7 @@ static int cavium_mmc_get_config(struct udevice *dev)
 		if (slot->mmc->bus_width == 8)
 			slot->cfg.host_caps |= MMC_MODE_8BIT;
 
-		snprintf(slot->name, CAVIUM_MMC_NAME_LEN, "cavium_mmc%d",
+		snprintf(slot->name, OCTEONTX_MMC_NAME_LEN, "octeontx_mmc%d",
 			 slot->bus_id);
 		slot->cfg.name = slot->name;
 	}
@@ -6032,12 +6017,12 @@ int mmc_set_bkops_enable(struct mmc *mmc)
 }
 #endif
 
-static int cavium_pci_mmc_probe(struct udevice *dev)
+static int octeontx_pci_mmc_probe(struct udevice *dev)
 {
 	int rc = -1;
 	size_t size;
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
-	struct cavium_mmc_host *host = dev_get_priv(dev);
+	struct octeontx_mmc_host *host = dev_get_priv(dev);
 
 	debug("%s: Entry\n", __func__);
 	memset(host, 0, sizeof(*host));
@@ -6069,12 +6054,12 @@ static int cavium_pci_mmc_probe(struct udevice *dev)
 	      dev->node.of_offset, dev->parent, dev->priv,
 	      dev->uclass, dev->req_seq, dev->seq);
 
-	rc = cavium_mmc_initialize(dev);
+	rc = octeontx_mmc_initialize(dev);
 
 	return rc;
 }
 
-static int cavium_mmc_ofdata_to_platdata(struct udevice *dev)
+static int octeontx_mmc_ofdata_to_platdata(struct udevice *dev)
 {
 	return 0;
 }
@@ -6090,13 +6075,13 @@ int do_oct_mmc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(octmmc, 2, 1, do_oct_mmc, "Octeon MMC initialization", NULL);
 #endif
 
-U_BOOT_DRIVER(cavium_pci_mmc) = {
-	.name	= CAVIUM_MMC_DRIVER_NAME,
+U_BOOT_DRIVER(octeontx_pci_mmc) = {
+	.name	= OCTEONTX_MMC_DRIVER_NAME,
 	.id	= UCLASS_MMC,
-	.of_match = of_match_ptr(cavium_mmc_ids),
-	.ofdata_to_platdata = cavium_mmc_ofdata_to_platdata,
-	.probe	= cavium_pci_mmc_probe,
-	.priv_auto_alloc_size = sizeof(struct cavium_mmc_host),
-	.ops = &cavium_mmc_ops,
+	.of_match = of_match_ptr(octeontx_mmc_ids),
+	.ofdata_to_platdata = octeontx_mmc_ofdata_to_platdata,
+	.probe	= octeontx_pci_mmc_probe,
+	.priv_auto_alloc_size = sizeof(struct octeontx_mmc_host),
+	.ops = &octeontx_mmc_ops,
 };
 
