@@ -162,6 +162,9 @@ struct octeontx_mmc_slot {
 	bool		power_active_high:1;
 	bool		ro_inverted:1;	/** True if write-protect is inverted */
 	bool		cd_inverted:1;	/** True if card-detect is inverted */
+#ifdef CONFIG_OCTEONTX2
+	u64		timing_fracns;	/** Delay value for 125ps */
+#endif
 };
 
 struct octeontx_mmc_host {
