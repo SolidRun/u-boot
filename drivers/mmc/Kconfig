@@ -13,7 +13,6 @@ config MMC
 
 config MMC_WRITE
 	bool "support for MMC/SD write operations"
-	depends on MMC
 	default y
 	help
 	  Enable write access to MMC and SD Cards
@@ -47,6 +46,13 @@ config MMC_OCTEONTX
 	  This selects the Cavium OcteonTX Multimedia card Interface.
 	  If you have an OcteonTX board with a Multimedia Card slot,
 	  say Y here.  If unsure, say N.
+
+config MMC_HW_PARTITIONING
+	bool "Support for HW partitioning command(eMMC)"
+	default y
+	help
+	  This adds a command and an API to do hardware partitioning on eMMC
+	  devices.
 
 if MMC
 

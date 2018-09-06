@@ -753,7 +753,7 @@ int mmc_voltage_to_mv(enum mmc_voltage voltage);
  * @disable:	flag indicating if the clock must on or off
  * @return 0 if OK, -ve on error
  */
-#if !CONFIG_IS_ENABLED(MMC_CAVIUM)
+#if !CONFIG_IS_ENABLED(MMC_OCTEONTX)
 int mmc_set_clock(struct mmc *mmc, uint clock, bool disable);
 
 #define MMC_CLK_ENABLE		false

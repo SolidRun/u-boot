@@ -4,7 +4,9 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 obj-$(CONFIG_$(SPL_)DM_MMC) += mmc-uclass.o
+ifndef CONFIG_MMC_OCTEONTX
 obj-$(CONFIG_$(SPL_)MMC_WRITE) += mmc_write.o
+endif
 obj-$(CONFIG_MMC) += mmc.o
 
 ifndef CONFIG_$(SPL_)BLK
@@ -25,7 +27,6 @@ obj-$(CONFIG_MMC_DW_K3)			+= hi6220_dw_mmc.o
 obj-$(CONFIG_MMC_DW_ROCKCHIP)		+= rockchip_dw_mmc.o
 obj-$(CONFIG_MMC_DW_SOCFPGA)		+= socfpga_dw_mmc.o
 obj-$(CONFIG_MMC_DW_SNPS)		+= snps_dw_mmc.o
-obj-$(CONFIG_CAVIUM_MMC) += cavium_mmc.o
 obj-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
 obj-$(CONFIG_FSL_ESDHC_IMX) += fsl_esdhc_imx.o
 obj-$(CONFIG_FTSDC010) += ftsdc010_mci.o

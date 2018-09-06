@@ -1956,7 +1956,7 @@ void print_mmc_device_info(struct mmc *mmc)
 	       mmc->high_capacity ? "yes" : "no");
 	printf("Bus width:             %u bits\n", mmc->bus_width);
 	printf("Bus frequency:         %u\n", mmc->clock);
-	if (!mmc->card_caps & MMC_MODE_HS)
+	if (!(mmc->card_caps & MMC_MODE_HS))
 		printf("Transfer frequency:    %u\n", mmc->tran_speed);
 	printf("Bus DDR:               %s\n", mmc->ddr_mode ? "yes" : "no");
 	if (!IS_SD(mmc)) {
