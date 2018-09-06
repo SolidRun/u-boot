@@ -10,7 +10,7 @@
 #include <environment.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <asm/arch/atf.h>

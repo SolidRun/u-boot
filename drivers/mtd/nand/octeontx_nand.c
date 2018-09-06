@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <libfdt.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <pci.h>
@@ -19,6 +18,7 @@
 #include <linux/errno.h>
 #include <linux/err.h>
 #include <linux/ioport.h>
+#include <linux/libfdt.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand_bch.h>
 #include <linux/mtd/nand_ecc.h>

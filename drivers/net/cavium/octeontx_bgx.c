@@ -9,6 +9,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <errno.h>
 #include <net.h>
 #include <dm.h>
 #include <pci.h>
@@ -17,10 +18,9 @@
 #include <malloc.h>
 #include <miiphy.h>
 #include <asm/io.h>
-#include <asm/errno.h>
 
 #ifdef CONFIG_OF_LIBFDT
- #include <libfdt.h>
+ #include <linux/libfdt.h>
  #include <fdt_support.h>
 #endif
 

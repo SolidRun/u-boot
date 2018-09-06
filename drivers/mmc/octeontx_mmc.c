@@ -40,7 +40,7 @@
 #include "mmc_private.h"
 #include <errno.h>
 #include <pci.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdtdec.h>
 #include <asm/arch/fdt-helper.h>
 #include <asm/io.h>
