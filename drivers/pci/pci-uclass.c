@@ -789,16 +789,16 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_CTRL, &ctrl);
 
 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
-
 	if (vf_en > total_vf)
 		vf_en = total_vf;
-
 	dm_pci_write_config16(pdev, pos + PCI_SRIOV_NUM_VF, vf_en);
 
 	ctrl |= PCI_SRIOV_CTRL_VFE | PCI_SRIOV_CTRL_MSE;
 	dm_pci_write_config16(pdev, pos + PCI_SRIOV_CTRL, ctrl);
 
 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_NUM_VF, &num_vfs);
+	if (num_vfs > vf_en)
+		num_vfs = vf_en;
 
 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_OFFSET, &vf_offset);
 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_STRIDE, &vf_stride);
@@ -958,6 +958,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 		pplat->device = device;
 		pplat->class = class;
 		pplat->is_phys = true;
+
 	}
 
 	return 0;

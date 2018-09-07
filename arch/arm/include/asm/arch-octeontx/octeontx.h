@@ -29,6 +29,7 @@
 void octeontx_parse_board_info(void);
 void octeontx_parse_phy_info(void);
 void octeontx_parse_mac_addr(void);
+void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth);
 
 /** Board data definitions */
 struct cavm_bdt {

@@ -13,11 +13,11 @@
 #include <pci.h>
 #include <net.h>
 #include <misc.h>
-#include <netdev.h>
 #include <malloc.h>
 #include <asm/io.h>
 
 #include <asm/arch/octeontx_vnic.h>
+#include <asm/arch/octeontx.h>
 
 #include "nic_reg.h"
 #include "nic.h"
@@ -116,6 +116,7 @@ static int nicvf_check_pf_ready(struct nicvf *nic)
 static void  nicvf_handle_mbx_intr(struct nicvf *nic)
 {
 	union nic_mbx mbx = {};
+	struct eth_pdata *pdata = dev_get_platdata(nic->dev);
 	u64 *mbx_data;
 	u64 mbx_addr;
 	int i;
@@ -137,7 +138,7 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
 		nic->tns_mode = mbx.nic_cfg.tns_mode & 0x7F;
 		nic->node = mbx.nic_cfg.node_id;
 		if (!nic->set_mac_pending)
-			memcpy(nic->netdev->enetaddr,
+			memcpy(pdata->enetaddr,
 					mbx.nic_cfg.mac_addr, 6);
 		nic->loopback_supported = mbx.nic_cfg.loopback_supported;
 		nic->link_up = false;
@@ -157,12 +158,12 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
 		nic->speed = mbx.link_status.speed;
 		if (nic->link_up) {
 			printf("%s: Link is Up %d Mbps %s\n",
-				    nic->netdev->name, nic->speed,
+				    nic->dev->name, nic->speed,
 				    nic->duplex == 1 ?
 				"Full duplex" : "Half duplex");
 		} else {
 			printf("%s: Link is Down\n",
-				    nic->netdev->name);
+				    nic->dev->name);
 		}
 		break;
 	default:
@@ -173,13 +174,14 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
 	nicvf_clear_intr(nic, NICVF_INTR_MBOX, 0);
 }
 
-static int nicvf_hw_set_mac_addr(struct nicvf *nic, struct eth_device *netdev)
+static int nicvf_hw_set_mac_addr(struct nicvf *nic, struct udevice *dev)
 {
 	union nic_mbx mbx = {};
+	struct eth_pdata *pdata = dev_get_platdata(dev);
 
 	mbx.mac.msg = NIC_MBOX_MSG_SET_MAC;
 	mbx.mac.vf_id = nic->vf_id;
-	memcpy(mbx.mac.mac_addr, netdev->enetaddr, 6);
+	memcpy(mbx.mac.mac_addr, pdata->enetaddr, 6);
 
 	return nicvf_send_msg_to_pf(nic, &mbx);
 }
@@ -215,12 +217,12 @@ static int nicvf_init_resources(struct nicvf *nic)
 	}
 	return 0;
 }
-
+#if 0
 void nicvf_free_pkt(struct nicvf *nic, void *pkt)
 {
 	free(pkt);
 }
-
+#endif
 static void nicvf_snd_pkt_handler(struct nicvf *nic,
 				  struct cmp_queue *cq,
 				  void *cq_desc, int cqe_type)
@@ -299,17 +301,17 @@ int nicvf_cq_handler(struct nicvf *nic, void **ppkt, int *pkt_len)
 
 		switch (cq_desc->cqe_type) {
 		case CQE_TYPE_RX:
-			debug("%s: Got Rx CQE\n", nic->netdev->name);
+			debug("%s: Got Rx CQE\n", nic->dev->name);
 			*pkt_len = nicvf_rcv_pkt_handler(nic, cq, cq_desc, ppkt, CQE_TYPE_RX);
 			processed_rq_cqe++;
 			break;
 		case CQE_TYPE_SEND:
-			debug("%s: Got Tx CQE\n", nic->netdev->name);
+			debug("%s: Got Tx CQE\n", nic->dev->name);
 			nicvf_snd_pkt_handler(nic, cq, cq_desc, CQE_TYPE_SEND);
 			processed_sq_cqe++;
 			break;
 		default:
-			debug("%s: Got CQ type %u\n", nic->netdev->name, cq_desc->cqe_type);
+			debug("%s: Got CQ type %u\n", nic->dev->name, cq_desc->cqe_type);
 			break;
 		}
 		processed_cqe++;
@@ -344,14 +346,22 @@ void nicvf_handle_qs_err(struct nicvf *nic)
 		/* Process already queued CQEs and reconfig CQ */
 		nicvf_sq_disable(nic, qidx);
 		nicvf_cmp_queue_config(nic, qs, qidx, true);
-		nicvf_sq_free_used_descs(nic->netdev, &qs->sq[qidx], qidx);
+		nicvf_sq_free_used_descs(nic->dev, &qs->sq[qidx], qidx);
 		nicvf_sq_enable(nic, &qs->sq[qidx], qidx);
 	}
 }
 
-static int nicvf_xmit(struct eth_device *netdev, void *pkt, int pkt_len)
+static int nicvf_free_pkt(struct udevice *dev, uchar *pkt, int pkt_len)
 {
-	struct nicvf *nic = netdev->priv;
+	struct nicvf *nic = dev_get_priv(dev);
+
+	nicvf_refill_rbdr(nic);
+	return 0;
+}
+
+static int nicvf_xmit(struct udevice *dev, void *pkt, int pkt_len)
+{
+	struct nicvf *nic = dev_get_priv(dev);
 	int ret = 0;
 	int rcv_len = 0;
 	unsigned int timeout = 5000;
@@ -375,9 +385,9 @@ static int nicvf_xmit(struct eth_device *netdev, void *pkt, int pkt_len)
 	return 0;
 }
 
-static int nicvf_recv(struct eth_device *netdev)
+static int nicvf_recv(struct udevice *dev, int flags, uchar **packetp)
 {
-	struct nicvf *nic = netdev->priv;
+	struct nicvf *nic = dev_get_priv(dev);
 	void *pkt;
 	int pkt_len = 0;
 #ifdef DEBUG
@@ -399,16 +409,17 @@ static int nicvf_recv(struct eth_device *netdev)
 			puts("\n");
 		}
 #endif
-		net_process_received_packet(pkt, pkt_len);
-		nicvf_refill_rbdr(nic);
+		//net_process_received_packet(pkt, pkt_len);
+		//nicvf_refill_rbdr(nic);
+		*packetp = pkt;
 	}
 
 	return pkt_len;
 }
 
-void nicvf_stop(struct eth_device *netdev)
+void nicvf_stop(struct udevice *dev)
 {
-	struct nicvf *nic = netdev->priv;
+	struct nicvf *nic = dev_get_priv(dev);
 
 	if (!nic->open)
 		return;
@@ -422,12 +433,12 @@ void nicvf_stop(struct eth_device *netdev)
 	nic->open = false;
 }
 
-int nicvf_open(struct eth_device *netdev, bd_t *bis)
+int nicvf_open(struct udevice *dev)
 {
 	int err;
-	struct nicvf *nic = netdev->priv;
+	struct nicvf *nic = dev_get_priv(dev);
 
-	nicvf_hw_set_mac_addr(nic, netdev);
+	nicvf_hw_set_mac_addr(nic, dev);
 
 	/* Configure CPI alorithm */
 	nic->cpi_alg = CPI_ALG_NONE;
@@ -450,39 +461,43 @@ int nicvf_open(struct eth_device *netdev, bd_t *bis)
 	return 0;
 }
 
-int nicvf_initialize(struct udevice *pdev, int vf_num)
+struct nicpf *nicvf_get_nicpf(void)
 {
-	struct eth_device *netdev = NULL;
-	struct nicvf *nicvf = NULL;
-	int    ret;
+	struct udevice *pdev;
+	int err;
+
+	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
+				 PCI_DEVICE_ID_OCTEONTX_NIC_PF,
+				 0, &pdev);
+	if (err)
+		printf("%s couldn't find NIC PF device..VF probe failed\n",
+			__func__);
+
+	return (err ? NULL : dev_get_priv(pdev));
+}
+
+static int vfid = 0;
+int nicvf_initialize(struct udevice *dev)
+{
+	struct nicvf *nicvf = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	int    ret = 0, bgx, lmac;
 	size_t size;
+	char   name[16];
+	unsigned char ethaddr[ARP_HLEN];
 
-	netdev = calloc(1, sizeof(struct eth_device));
-
-	if (!netdev) {
-		ret = -ENOMEM;
-		goto fail;
+	nicvf->nicpf = nicvf_get_nicpf();
+	if (!nicvf->nicpf) {
+		printf("%s couldn't get pf device\n", __func__);
+		return -1;
 	}
-
-	nicvf = calloc(1, sizeof(struct nicvf));
-
-	if (!nicvf) {
-		ret = -ENOMEM;
-		goto fail;
-	}
-
-	netdev->priv = nicvf;
-	nicvf->netdev = netdev;
-	nicvf->nicpf = dev_get_priv(pdev);
-	nicvf->vf_id = vf_num;
-
+	nicvf->vf_id = vfid++;
+	nicvf->dev = dev;
 
 	/* Enable TSO support */
 	nicvf->hw_tso = true;
 
-	nicvf->reg_base = dm_pci_map_bar(pdev, 9, &size, PCI_REGION_MEM);
-
-	nicvf->reg_base += size * nicvf->vf_id;
+	nicvf->reg_base = dm_pci_map_bar(dev, 9, &size, PCI_REGION_MEM);
 
 	debug("nicvf->reg_base: %p\n", nicvf->reg_base);
 
@@ -496,46 +511,50 @@ int nicvf_initialize(struct udevice *pdev, int vf_num)
 	if (ret)
 		return -1;
 
-	snprintf(netdev->name, sizeof(netdev->name), "vnic%u", nicvf->vf_id);
+	sprintf(name, "vnic%u", nicvf->vf_id);
+	debug("%s name %s\n", __func__, name);
+	device_set_name(dev, name);
 
-	netdev->halt = nicvf_stop;
-	netdev->init = nicvf_open;
-	netdev->send = nicvf_xmit;
-	netdev->recv = nicvf_recv;
+	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(
+				nicvf->nicpf->vf_lmac_map[nicvf->vf_id]);
+	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(
+				nicvf->nicpf->vf_lmac_map[nicvf->vf_id]);
+	debug("%s VF %d BGX %d LMAC %d \n",
+		__func__, nicvf->vf_id, bgx, lmac);
+	debug("%s PF %p pfdev %p VF %p vfdev %p vf->pdata %p \n",
+		__func__, nicvf->nicpf, nicvf->nicpf->udev, nicvf, nicvf->dev, pdata);
 
+	octeontx_board_get_ethaddr(bgx, lmac, ethaddr);
+
+	debug("%s bgx %d lmac %d ethaddr %pM\n",
+		__func__, bgx, lmac, ethaddr);
+
+	memcpy(pdata->enetaddr, ethaddr, ARP_HLEN);
+	debug("%s enetaddr %pM ethaddr %pM\n",
+		__func__, pdata->enetaddr, ethaddr);
+	eth_env_set_enetaddr_by_index("eth", dev->seq, ethaddr);
+#if 0
 	if (!eth_env_get_enetaddr_by_index("eth", nicvf->vf_id, netdev->enetaddr)) {
 		eth_env_get_enetaddr("ethaddr", netdev->enetaddr);
 		netdev->enetaddr[5] += nicvf->vf_id;
 	}
-
-	ret = eth_register(netdev);
-
-	if (!ret)
-		return 0;
-
-	printf("Failed to register netdevice\n");
+#endif
 
 fail:
-	if (nicvf)
-		free(nicvf);
-	if(netdev)
-		free(netdev);
 	return ret;
 }
 
 int octeontx_vnic_probe(struct udevice *dev)
 {
-	void *regs;
-	size_t size;
-
-	regs = dm_pci_map_bar(dev, 9, &size, PCI_REGION_MEM);
-
-	debug("%s: %d, regs: %p\n", __FUNCTION__, __LINE__, regs);
-
-	return 0;
+	return nicvf_initialize(dev);
 }
 
-static const struct misc_ops octeontx_vnic_ops = {
+static const struct eth_ops octeontx_vnic_ops = {
+	.start = nicvf_open,
+	.stop  = nicvf_stop,
+	.send  = nicvf_xmit,
+	.recv  = nicvf_recv,
+	.free_pkt = nicvf_free_pkt,
 };
 
 static const struct udevice_id octeontx_vnic_ids[] = {
@@ -544,12 +563,13 @@ static const struct udevice_id octeontx_vnic_ids[] = {
 };
 
 U_BOOT_DRIVER(octeontx_vnic) = {
-	.name	= "octeontx_vnic",
-	.id	= UCLASS_MISC,
+	.name	= "vnic",
+	.id	= UCLASS_ETH,
 	.probe	= octeontx_vnic_probe,
 	.of_match = octeontx_vnic_ids,
 	.ops	= &octeontx_vnic_ops,
 	.priv_auto_alloc_size = sizeof(struct nicvf),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
 };
 
 static struct pci_device_id octeontx_vnic_supported[] = {

@@ -753,25 +753,24 @@ exit:
 
 int octeontx_nic_probe(struct udevice *dev)
 {
-	int vf;
-	int ret;
-	struct nicpf *nicpf;
+	int ret = 0;
+	struct nicpf *nicpf = dev_get_priv(dev);
 
-	nic_initialize(dev);
-	nicpf = dev_get_priv(dev);
-
-	ret = pci_sriov_init(dev, nicpf->num_vf_en);
-
+	ret = nic_initialize(dev);
 	if (ret < 0) {
-		printf("enabling SRIOV failed for num VFs %d",nicpf->num_vf_en);
+		printf("couldn't initialize NIC PF");
 		return ret;
 	}
-
-	for (vf = 0; vf < nicpf->num_vf_en; vf++) {
+	ret = pci_sriov_init(dev, nicpf->num_vf_en);
+	if (ret < 0) {
+		printf("enabling SRIOV failed for num VFs %d",nicpf->num_vf_en);
+	}
+#if 0
+	for (int vf = 0; vf < nicpf->num_vf_en; vf++) {
 		 nicvf_initialize(dev, vf);
 	}
-
-	return 0;
+#endif
+	return ret;
 }
 
 static const struct misc_ops octeontx_nic_ops = {

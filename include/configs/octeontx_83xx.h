@@ -50,6 +50,8 @@
 /** Maximum total number of BGX interfaces across all nodes */
 #define CONFIG_MAX_BGX			4
 
+#define CONFIG_MISC_INIT_R
+
 /** Reduce hashes printed out */
 #define CONFIG_TFTP_TSIZE
 

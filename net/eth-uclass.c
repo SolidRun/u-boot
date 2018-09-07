@@ -393,8 +393,9 @@ int eth_initialize(void)
 	int num_devices = 0;
 	struct udevice *dev;
 
+#ifndef CONFIG_MISC_INIT_R
 	eth_common_init();
-
+#endif
 	/*
 	 * Devices need to write the hwaddr even if not started so that Linux
 	 * will have access to the hwaddr that u-boot stored for the device.

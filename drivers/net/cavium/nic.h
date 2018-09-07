@@ -240,7 +240,7 @@ struct hw_info {
 };
 
 struct nicvf {
-	struct eth_device	*netdev;
+	struct udevice		*dev;
 	uint8_t			vf_id;
 	bool			sqs_mode:1;
 	bool			loopback_supported:1;
@@ -289,7 +289,6 @@ static inline int node_id(void *addr)
 
 struct nicpf {
 	struct udevice		*udev;
-	struct eth_device	*netdev;
 	struct hw_info		*hw;
 	uint8_t			node;
 	unsigned int		flags;
@@ -491,12 +490,11 @@ union nic_mbx {
 	struct set_loopback	lbk;
 };
 
-int nicvf_set_real_num_queues(struct eth_device *netdev,
+int nicvf_set_real_num_queues(struct udevice *dev,
 			      int tx_queues, int rx_queues);
-int nicvf_open(struct eth_device *netdev, bd_t *bis);
-void nicvf_stop(struct eth_device *netdev);
+int nicvf_open(struct udevice *dev);
+void nicvf_stop(struct udevice *dev);
 int nicvf_send_msg_to_pf(struct nicvf *vf, union nic_mbx *mbx);
-void nicvf_free_pkt(struct nicvf *nic, void *pkt);
 void nicvf_update_stats(struct nicvf *nic);
 
 void nic_handle_mbx_intr(struct nicpf *nic, int vf);

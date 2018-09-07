@@ -336,8 +336,8 @@ void nicvf_cmp_queue_config(struct nicvf *nic, struct queue_set *qs,
 void nicvf_sq_enable(struct nicvf *nic, struct snd_queue *sq, int qidx);
 void nicvf_sq_disable(struct nicvf *nic, int qidx);
 void nicvf_put_sq_desc(struct snd_queue *sq, int desc_cnt);
-void nicvf_sq_free_used_descs(struct eth_device *netdev,
-								struct snd_queue *sq, int qidx);
+void nicvf_sq_free_used_descs(struct udevice *dev,
+					struct snd_queue *sq, int qidx);
 int nicvf_sq_append_pkt(struct nicvf *nic, void *pkt, size_t pkt_len);
 
 void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len);

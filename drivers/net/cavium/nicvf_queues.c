@@ -10,7 +10,7 @@
 #include <config.h>
 #include <common.h>
 #include <net.h>
-#include <netdev.h>
+#include <dm/device.h>
 #include <malloc.h>
 
 #include "nic_reg.h"
@@ -708,11 +708,11 @@ void nicvf_sq_disable(struct nicvf *nic, int qidx)
 	nicvf_queue_reg_write(nic, NIC_QSET_SQ_0_7_CFG, qidx, sq_cfg);
 }
 
-void nicvf_sq_free_used_descs(struct eth_device *netdev, struct snd_queue *sq,
+void nicvf_sq_free_used_descs(struct udevice *dev, struct snd_queue *sq,
 								int qidx)
 {
 	uint64_t head;
-	struct nicvf *nic = netdev->priv;
+	struct nicvf *nic = dev_get_priv(dev);
 	struct sq_hdr_subdesc *hdr;
 
 	head = nicvf_queue_reg_read(nic, NIC_QSET_SQ_0_7_HEAD, qidx) >> 4;

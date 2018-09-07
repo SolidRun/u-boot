@@ -46,7 +46,7 @@ struct lmac {
 	bool			link_up;
 	int			lmacid; /* ID within BGX */
 	int			phy_addr; /* ID on board */
-	struct eth_device	netdev;
+	struct udevice		*dev;
 	struct mii_dev		*mii_bus;
 	struct phy_device	*phydev;
 	unsigned int		last_duplex;
@@ -859,19 +859,19 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 		}
 
 		lmac->phydev = phy_connect(lmac->mii_bus, lmac->phy_addr,
-					   &lmac->netdev,
+					   lmac->dev,
 					   if_mode[lmac->qlm_mode]);
 
 		if (!lmac->phydev) {
 			printf("%s: No PHY device\n",
-				lmac->netdev.name);
+				__func__);
 			return -1;
 		}
 
 		ret = phy_config(lmac->phydev);
 		if (ret) {
 			printf("%s: Could not initialize PHY %s\n",
-				lmac->netdev.name, lmac->phydev->dev->name);
+				__func__, lmac->phydev->dev->name);
 			return ret;
 		}
 
@@ -879,7 +879,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 		debug("%s: %d\n", __FILE__, __LINE__);
 		if (ret) {
 			printf("%s: Could not initialize PHY %s\n",
-				lmac->netdev.name, lmac->phydev->dev->name);
+				__func__, lmac->phydev->dev->name);
 		}
 
 #ifdef CONFIG_OCTEONTX_XCV
@@ -1454,10 +1454,8 @@ skip_qlm_config:
 
 	/* Enable all LMACs */
 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
-		snprintf(bgx->lmac[lmac].netdev.name,
-			 sizeof(bgx->lmac[lmac].netdev.name),
-			 "lmac%d", lmac);
-
+		struct lmac *tlmac = &bgx->lmac[lmac];
+		tlmac->dev = dev;
 		err = bgx_lmac_enable(bgx, lmac);
 		if (err) {
 			printf("BGX%d failed to enable lmac%d\n",

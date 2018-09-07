@@ -18,16 +18,31 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 extern unsigned long fdt_base_addr;
-
-#ifdef CONFIG_BOARD_EARLY_INIT_R
 extern void eth_common_init(void);
+
 int board_early_init_r(void)
 {
-	eth_common_init();
 	pci_init();
 	return 0;
 }
-#endif
+
+int misc_init_r(void)
+{
+	struct udevice *bus;
+
+	eth_common_init();
+
+	/*
+	 * Enumerate all miscellaneous devices.
+	 * So BGX/NIC/vNIC devices will be enumerated too.
+	 */
+	for (uclass_first_device(UCLASS_MISC, &bus);
+	     bus;
+	     uclass_next_device(&bus)) {
+		;
+	}
+	return 0;
+}
 
 int board_init(void)
 {
@@ -85,7 +100,7 @@ int board_late_init(void)
 	 * Now that pci_init initializes env device.
 	 * Try to validate ethaddr env variables
 	 */
-	octeontx_parse_mac_addr();
+//	octeontx_parse_mac_addr();
 
 	debug("bdt.type %s\n", p_cavm_bdt->type);
 	snprintf(boardname, sizeof(boardname), "%s> ", p_cavm_bdt->type);
@@ -94,24 +109,39 @@ int board_late_init(void)
 	return 0;
 }
 
-/*
- * Board specific ethernet initialization routine.
- */
-
-int board_eth_init(bd_t *bis)
+void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth)
 {
-	int rc = 0;
-	unsigned char ethaddr[6];
+	const void *fdt = gd->fdt_blob;
+	const char *mac = NULL;
+	int offset = 0, node, len;
+	int subnode, i = 0;
+	char bgxname[24];
 
-	if (!eth_env_get_enetaddr("ethaddr", ethaddr)) {
-		net_random_ethaddr(ethaddr);
-		printf("Generating random MAC address: %pM\n", ethaddr);
-		eth_env_set_enetaddr("ethaddr", ethaddr);
+	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
+	if (offset < 0) {
+		printf("%s couldn't find mrml bridge node in fdt\n",
+			 __func__);
+		return;
 	}
+	if (bgx == 2 && CAVIUM_IS_MODEL(CN81XX)) {
+		snprintf(bgxname, sizeof(bgxname), "rgx%d", 0);
+		lmac = 0;
+	} else
+		snprintf(bgxname, sizeof(bgxname), "bgx%d", bgx);
 
-	rc = pci_eth_init(bis);
+	node = fdt_subnode_offset(fdt, offset, bgxname);
 
-	return rc;
+	fdt_for_each_subnode(subnode, fdt, node) {
+		if (i++ != lmac)
+			continue;
+		/* check for local-mac-address */
+		mac = fdt_getprop(fdt, subnode,
+				       "local-mac-address", &len);
+		debug("%s mac %pM\n", __func__, mac);
+		memcpy(eth, mac, ARP_HLEN);
+		debug("%s mac %pM\n", __func__, eth);
+		return;
+	}
 }
 
 #ifdef CONFIG_HW_WATCHDOG

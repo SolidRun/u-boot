@@ -16,6 +16,10 @@
 #include <linux/mdio.h>
 #include <phy_interface.h>
 
+#ifdef CONFIG_DM_ETH
+#include <dm/device.h>
+#endif
+
 #define PHY_FIXED_ID		0xa5a55a5a
 
 #define PHY_MAX_ADDR 32

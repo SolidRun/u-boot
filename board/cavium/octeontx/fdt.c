@@ -256,7 +256,6 @@ void octeontx_parse_mac_addr(void)
 	int offset = 0, node, bgx_id = 0, lmacid = 0;
 	unsigned char eth_addr[ARP_HLEN], env_addr[ARP_HLEN];
 	char eaddr[32], bgxname[16], envname[16];
-	struct eth_device *ethdev;
 
 	debug("%s: ENTER\n", __func__);
 	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
@@ -302,12 +301,12 @@ void octeontx_parse_mac_addr(void)
 						mismatch = 1;
 				}
 				env_set_force(envname, eaddr);
-				ethdev = eth_get_dev_by_index(eth_id);
-				if (ethdev &&
-					memcmp(ethdev->enetaddr, eth_addr,
-						ARP_HLEN))
-					memcpy(ethdev->enetaddr, eth_addr,
-						ARP_HLEN);
+				//ethdev = eth_get_dev_by_index(eth_id);
+				//if (ethdev &&
+				//	memcmp(ethdev->enetaddr, eth_addr,
+				//		ARP_HLEN))
+				//	memcpy(ethdev->enetaddr, eth_addr,
+				//		ARP_HLEN);
 			} else {
 				printf("Warning: local-mac-address "
 				       "not found for bgx%d lmac%d\n",
@@ -322,14 +321,14 @@ void octeontx_parse_mac_addr(void)
 						snprintf(eaddr, sizeof(eaddr),
 							 "%pM", eth_addr);
 						env_set_force(envname, eaddr);
-						ethdev = eth_get_dev_by_index(
-								eth_id);
-						if (ethdev &&
-						    memcmp(ethdev->enetaddr,
-							eth_addr, ARP_HLEN))
-							memcpy(
-							ethdev->enetaddr,
-							eth_addr, ARP_HLEN);
+				//		ethdev = eth_get_dev_by_index(
+				//				eth_id);
+				//		if (ethdev &&
+				//		    memcmp(ethdev->enetaddr,
+				//			eth_addr, ARP_HLEN))
+				//			memcpy(
+				//			ethdev->enetaddr,
+				//			eth_addr, ARP_HLEN);
 					}
 				}
 			}
