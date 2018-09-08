@@ -65,7 +65,7 @@
 #define R1_CARD_IS_LOCKED	BIT(25)		/* sx, a */
 #define R1_LOCK_UNLOCK_FAILED	BIT(24)		/* erx, c */
 #define R1_COM_CRC_ERROR	BIT(23)		/* er, b */
-#define R1_ILLEGAL_COMMAND	BIT(22)		/* er, b */
+/*#define R1_ILLEGAL_COMMAND	BIT(22)*/		/* er, b */
 #define R1_CARD_ECC_FAILED	BIT(21)		/* ex, c */
 #define R1_CC_ERROR		BIT(20)		/* erx, c */
 #define R1_ERROR		BIT(19)		/* erx, c */
@@ -79,7 +79,7 @@
 #define R1_CURRENT_STATE(x)	((x & 0x00001E00) >> 9) /* sx, b (4 bits) */
 #define R1_READY_FOR_DATA	BIT(8)		/* sx, a */
 #define R1_SWITCH_ERROR		BIT(7)		/* sx, c */
-#define R1_APP_CMD		BIT(5)		/* sr, c */
+/*#define R1_APP_CMD		BIT(5)*/		/* sr, c */
 
 #define R1_BLOCK_READ_MASK	R1_OUT_OF_RANGE |	\
 				R1_ADDRESS_ERROR |	\
