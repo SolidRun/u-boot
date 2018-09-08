@@ -144,6 +144,8 @@ static int octeontx_mmc_set_ios(struct udevice *dev);
 
 static void mmc_switch_dev(struct mmc *mmc);
 
+static int octeontx_mmc_set_bus_timing(struct mmc *mmc);
+
 int octeontx_mmc_getwp(struct udevice *dev)
 	__attribute__((weak, alias("__octeontx_mmc_getwp")));
 
@@ -236,8 +238,10 @@ const char *mmc_reg_str(u64 reg)
 #endif
 	if (reg == CAVM_MIO_EMM_WDOG())
 		return "MIO_EMM_WDOG";
+#if !defined(CONFIG_ARCH_OCTEONTX2)
 	if (reg == CAVM_MIO_EMM_SAMPLE())
 		return "MIO_EMM_SAMPLE";
+#endif
 	if (reg == CAVM_MIO_EMM_STS_MASK())
 		return "MIO_EMM_STS_MASK";
 	if (reg == CAVM_MIO_EMM_RCA())
@@ -246,6 +250,14 @@ const char *mmc_reg_str(u64 reg)
 		return "MIO_EMM_BUF_IDX";
 	if (reg == CAVM_MIO_EMM_BUF_DAT())
 		return "MIO_EMM_BUF_DAT";
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	if (reg == CAVM_MIO_EMM_CALB())
+		return "MIO_EMM_CALB";
+	if (reg == CAVM_MIO_EMM_TAP())
+		return "MIO_EMM_TAP";
+	if (reg == CAVM_MIO_EMM_TIMING())
+		return "MIO_EMM_TIMING";
+#endif
 	return "UNKNOWN";
 }
 #endif
@@ -415,7 +427,13 @@ static void mmc_print_registers(struct mmc *mmc)
 	union cavm_mio_emm_rsp_hi emm_rsp_hi;
 	union cavm_mio_emm_int emm_int;
 	union cavm_mio_emm_wdog emm_wdog;
+#if !defined(CONFIG_ARCH_OCTEONTX2)
 	union cavm_mio_emm_sample emm_sample;
+#else
+	union cavm_mio_emm_calb emm_calb;
+	union cavm_mio_emm_tap emm_tap;
+	union cavm_mio_emm_timing emm_timing;
+#endif
 	union cavm_mio_emm_sts_mask emm_sts_mask;
 	union cavm_mio_emm_rca emm_rca;
 	int bus;
@@ -702,10 +720,12 @@ static void mmc_print_registers(struct mmc *mmc)
 	printf("\nMIO_EMM_WDOG:                 0x%016llx (%u)\n",
 	       emm_wdog.u, emm_wdog.s.clk_cnt);
 
+#if !defined(CONFIG_ARCH_OCTEONTX2)
 	emm_sample.u = mmc_read_csr(mmc, CAVM_MIO_EMM_SAMPLE());
 	printf("\nMIO_EMM_SAMPLE:               0x%016llx\n", emm_sample.u);
 	printf("    16-25: cmd_cnt:             %u\n", emm_sample.s.cmd_cnt);
 	printf("    0-9:   dat_cnt:             %u\n", emm_sample.s.dat_cnt);
+#endif
 
 	emm_sts_mask.u = mmc_read_csr(mmc, CAVM_MIO_EMM_STS_MASK());
 	printf("\nMIO_EMM_STS_MASK:             0x%016llx\n", emm_sts_mask.u);
@@ -713,6 +733,23 @@ static void mmc_print_registers(struct mmc *mmc)
 	emm_rca.u = mmc_read_csr(mmc, CAVM_MIO_EMM_RCA());
 	printf("\nMIO_EMM_RCA:                  0x%016llx\n", emm_rca.u);
 	printf("    0-15:  card_rca:            %u\n", emm_rca.s.card_rca);
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	emm_calb.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CALB());
+	printf("\nMIO_EMM_CALB:                 0x%016llx\n", emm_calb.u);
+	printf("       0:  start:               %u\n", emm_calb.s.start);
+	emm_tap.u = mmc_read_csr(mmc, CAVM_MIO_EMM_TAP());
+	printf("\nMIO_EMM_TAP:                  0x%016llx\n", emm_tap.u);
+	printf("     7-0:  delay:               %u\n", emm_tap.s.delay);
+	emm_timing.u = mmc_read_csr(mmc, CAVM_MIO_EMM_TIMING());
+	printf("\nMIO_EMM_TIMING:               0x%016llx\n", emm_timing.u);
+	printf("   53-48:  cmd_in_tap:          %u\n", emm_timing.s.cmd_in_tap);
+	printf("   37-32:  cmd_out_tap:         %u\n",
+	       emm_timing.s.cmd_out_tap);
+	printf("   21-16:  data_in_tap:         %u\n",
+	       emm_timing.s.data_in_tap);
+	printf("     5-0:  data_out_tap:        %u\n",
+	       emm_timing.s.data_out_tap);
+#endif
 	puts("\n");
 #endif /* DEBUG_REGISTERS */
 }
@@ -935,7 +972,6 @@ static void mmc_start_dma(const struct mmc *mmc, bool write, bool clear,
 static inline void mmc_switch_dev(struct mmc *mmc)
 {
 	union cavm_mio_emm_switch emm_switch;
-	union cavm_mio_emm_sample emm_sample;
 	union cavm_mio_emm_rca emm_rca;
 	union cavm_mio_emm_sts_mask emm_sts_mask;
 	struct octeontx_mmc_slot *slot = mmc->priv;
@@ -990,10 +1026,9 @@ static inline void mmc_switch_dev(struct mmc *mmc)
 	/* Update the watchdog to 100 ms */
 	mmc_set_watchdog(mmc, 100000);
 
-	emm_sample.u = 0;
-	emm_sample.s.cmd_cnt = slot->cmd_clk_skew;
-	emm_sample.s.dat_cnt = slot->dat_clk_skew;
-	mmc_write_csr(mmc, CAVM_MIO_EMM_SAMPLE(), emm_sample.u);
+	if (octeontx_mmc_set_bus_timing(mmc))
+		printf("%s: Error setting bus timing\n", __func__);
+
 	/* Set status mask */
 	emm_sts_mask.u = 0;
 	emm_sts_mask.s.sts_msk = 1 << 7 | 1 << 22 | 1 << 23 | 1 << 19;
@@ -3338,7 +3373,6 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 {
 	union cavm_mio_emm_switch emm_switch;
 	union cavm_mio_emm_rsp_sts emm_sts;
-	union cavm_mio_emm_sample emm_sample;
 	int switch_timeout_ms = 2550;
 	struct octeontx_mmc_host *host = dev_get_priv(dev);
 	struct octeontx_mmc_slot *slot = &host->slots[host->cur_slotid];
@@ -3532,12 +3566,10 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 	}
 
 	/* Adjust clock skew */
-	emm_sample.u = 0;
-	emm_sample.s.cmd_cnt = slot->cmd_clk_skew;
-	emm_sample.s.dat_cnt = slot->dat_clk_skew;
-	mmc_write_csr(mmc, CAVM_MIO_EMM_SAMPLE(), emm_sample.u);
-	debug("%s: Setting command clock skew to %d, data to %d sclock cycles\n",
-	      __func__, slot->cmd_clk_skew, slot->dat_clk_skew);
+	if (octeontx_mmc_set_bus_timing(mmc)) {
+		printf("%s: Error setting bus timing!\n", __func__);
+		return -1;
+	}
 
 again:
 	slot->clk_period = (host->sclock + mmc->clock - 1) / mmc->clock;
@@ -4405,6 +4437,132 @@ static int mmc_set_dsr_cmd(struct mmc *mmc)
 	return mmc_send_cmd(mmc, &cmd, NULL);
 }
 
+#if defined(CONFIG_ARCH_OCTEONTX2)
+/**
+ * Calibrate the tap delay time
+ *
+ * @param	mmc	mmc data structure
+ */
+static int octeontx2_mmc_calibrate_delay(struct mmc *mmc)
+{
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	union cavm_mio_emm_calb emm_calb;
+	union cavm_mio_emm_tap emm_tap;
+	ulong start = get_timer(0);
+
+	emm_calb.u = 0;
+	emm_calb.s.start = 1;
+	mmc_write_csr(mmc, CAVM_MIO_EMM_CALB(), emm_calb.u);
+	/* This should only take 3 microseconds */
+	do {
+		udelay(5);
+		emm_tap.u = mmc_read_csr(mmc, CAVM_MIO_EMM_TAP());
+	} while (!emm_tap.s.delay && get_timer(start) < 10);
+	if (!emm_tap.s.delay) {
+		printf("%s: Error: delay calibration failed, timed out.\n",
+		       __func__);
+		return -1;
+	}
+	/* The tap delay is the number of 10ns clocks it took for 1024
+	 * tap delays.  First we multiply the delay by 10,000 to convert
+	 * to ps then divide by 1024 to get the delay in ps per tap delay.
+	 */
+	slot->timing_tapps = 10 * 1000 * emm_tap.s.delay / 1024;
+
+	return 0;
+}
+
+/**
+ * Given a delay in ps, return the tap delay count
+ *
+ * @param	mmc	mmc data structure
+ * @param	delay	delay in picoseconds
+ *
+ * @return	Number of tap cycles or error if -1
+ */
+static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay)
+{
+	struct octeontx_mmc_slot *slot = mmc->priv;
+
+	if (!slot->timing_tapps) {
+		printf("%s: Error: tap timing not calibrated\n", __func__);
+		return -1;
+	}
+
+	return delay / slot->timing_tapps;
+}
+
+/**
+ * Programs the bus timing delays for the current clock speed
+ *
+ * @param	mmc	mmc data structure
+ *
+ * @return	0 for success, -1 on error
+ */
+static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
+{
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	union cavm_mio_emm_timing timing;
+	int delay;
+
+	timing.u = 0;
+	delay = octeontx2_mmc_calc_delay(mmc, slot->cmd_clk_skew);
+	if (delay < 0) {
+		printf("%s: Error: could not calculate command clock skew\n",
+		       __func__);
+		return -1;
+	}
+	timing.s.cmd_in_tap = delay;
+	delay = octeontx2_mmc_calc_delay(mmc, slot->cmd_clk_skew);
+	if (delay < 0) {
+		printf("%s: Error: could not calculate data clock skew\n",
+		       __func__);
+		return -1;
+	}
+	timing.s.data_in_tap = delay;
+
+	if (mmc->clock < 26000000)
+		delay = octeontx2_mmc_calc_delay(mmc, 5000);
+	else if (mmc->clock <= 52000000)
+		delay = octeontx2_mmc_calc_delay(mmc, 2500);
+	else
+		delay = octeontx2_mmc_calc_delay(mmc, 400);
+	if (delay < 0) {
+		printf("%s: Error: could not calculate command and/or data clock skew\n",
+		       __func__);
+		return -1;
+	}
+	timing.s.cmd_out_tap = delay;
+	timing.s.data_out_tap = delay;
+
+	mmc_write_csr(mmc, CAVM_MIO_EMM_TIMING(), timing.u);
+
+	return 0;
+}
+#else
+/**
+ * Programs the bus timing delays for the current clock speed
+ *
+ * @param	mmc	mmc data structure
+ *
+ * @return	0 for success
+ */
+static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
+{
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	union cavm_mio_emm_sample sample;
+
+	sample.u = 0;
+	sample.s.cmd_cnt = slot->cmd_clk_skew;
+	sample.s.dat_cnt = slot->dat_clk_skew;
+
+	mmc_write_csr(mmc, CAVM_MIO_EMM_SAMPLE(), sample.u);
+
+	return 0;
+}
+
+#endif
+
 int mmc_startup(struct mmc *mmc)
 {
 	struct octeontx_mmc_slot *slot = mmc->priv;
@@ -4436,6 +4594,12 @@ int mmc_startup(struct mmc *mmc)
 	/* Clear interrupt status */
 	mmc_write_csr(mmc, CAVM_MIO_EMM_INT(),
 		      mmc_read_csr(mmc, CAVM_MIO_EMM_INT()));
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	if (octeontx2_mmc_calibrate_delay(mmc)) {
+		printf("%s: Error: could not calibrate tap delay\n", __func__);
+		return -1;
+	}
+#endif
 
 	/* Enable the bus */
 	emm_cfg.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CFG());
