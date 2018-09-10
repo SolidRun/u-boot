@@ -4450,6 +4450,10 @@ static int octeontx2_mmc_calibrate_delay(struct mmc *mmc)
 	union cavm_mio_emm_tap emm_tap;
 	ulong start = get_timer(0);
 
+	/* ASIM doesn't support this */
+	if (slot->is_asim)
+		return 0;
+
 	emm_calb.u = 0;
 	emm_calb.s.start = 1;
 	mmc_write_csr(mmc, CAVM_MIO_EMM_CALB(), emm_calb.u);
@@ -4504,6 +4508,10 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 	struct octeontx_mmc_slot *slot = mmc->priv;
 	union cavm_mio_emm_timing timing;
 	int delay;
+
+	/* ASIM doesn't support this. */
+	if (slot->is_asim)
+		return 0;
 
 	timing.u = 0;
 	delay = octeontx2_mmc_calc_delay(mmc, slot->cmd_clk_skew);
@@ -5469,6 +5477,10 @@ int octeontx_mmc_initialize(struct udevice *dev)
 	int repeat;
 	int found = 0;
 	int slot_index;
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	bool is_asim = false;
+	const char *board_model;
+#endif
 
 	debug("%s ENTER\n", __func__);
 
@@ -5504,9 +5516,24 @@ int octeontx_mmc_initialize(struct udevice *dev)
 		return -1;
 	}
 
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	/* If we're running in ASIM then we need to skip the tap calibration
+	 * and just use the default settings.  Look in the fdt at
+	 * /cavium,bdk/BOARD-MODEL.  It will start with "ASIM-"
+	 */
+	board_model = fdt_getprop(gd->fdt_blob,
+				  fdt_path_offset(gd->fdt_blob, "/cavium,bdk"),
+				  "BOARD-MODEL", NULL);
+	if (board_model && !strncmp(board_model, "ASIM-", 5))
+		is_asim = true;
+
+#endif
 	for (slot_index = 0; slot_index < OCTEONTX_MAX_MMC_SLOT;
 	     slot_index++) {
 		slot = &host->slots[slot_index];
+#if defined(CONFIG_ARCH_OCTEONTX2)
+		slot->is_asim = is_asim;
+#endif
 		mmc = slot->mmc;
 		if (!mmc)
 			continue;

@@ -165,6 +165,9 @@ struct octeontx_mmc_slot {
 	bool		power_active_high:1;
 	bool		ro_inverted:1;	/** True if write-protect is inverted */
 	bool		cd_inverted:1;	/** True if card-detect is inverted */
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	bool		is_asim:1;	/** True if we're running in ASIM */
+#endif
 };
 
 struct octeontx_mmc_host {
