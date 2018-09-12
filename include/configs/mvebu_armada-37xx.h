@@ -12,11 +12,6 @@
 #include <configs/mvebu_armada-common.h>
 
 /*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_NR_DRAM_BANKS	1
-
-/*
  * I2C
  */
 #define CONFIG_I2C_MV

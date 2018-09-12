@@ -86,10 +86,44 @@ static void a8k_dram_init_banksize(void)
 	}
 }
 
+static u64 a3700_dram_scan_ap_sz(void)
+{
+	struct pt_regs pregs;
+
+	pregs.regs[0] = MV_SIP_DRAM_SIZE;
+	smc_call(&pregs);
+
+	return pregs.regs[0];
+}
+
+static void a3700_dram_init_banksize(void)
+{
+	/* If ddr size is below 2GB there is only one ddr bank used */
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	if (gd->ram_size <= SZ_2G) {
+		gd->bd->bi_dram[0].size = gd->ram_size;
+		return;
+	}
+
+	/*
+	 * If ddr size is above 2GB there is only one case 4GB but the firmware
+	 * uses 4 decoding windows for describing it in way reflected below.
+	 */
+	gd->bd->bi_dram[0].size = SZ_2G;
+	gd->bd->bi_dram[1].start = SZ_2G;
+	gd->bd->bi_dram[1].size = SZ_1G;
+	gd->bd->bi_dram[2].start = SZ_2G + SZ_1G;
+	gd->bd->bi_dram[2].size = SZ_256M;
+	gd->bd->bi_dram[3].start = 0xe0000000;
+	gd->bd->bi_dram[3].size = SZ_128M;
+}
+
 __weak int dram_init_banksize(void)
 {
 	if (CONFIG_IS_ENABLED(ARMADA_8K))
 		a8k_dram_init_banksize();
+	else if (CONFIG_IS_ENABLED(ARMADA_3700))
+		a3700_dram_init_banksize();
 	else
 		fdtdec_setup_memory_banksize();
 
@@ -98,11 +132,13 @@ __weak int dram_init_banksize(void)
 
 __weak int dram_init(void)
 {
-	if (CONFIG_IS_ENABLED(ARMADA_8K)) {
+	if (CONFIG_IS_ENABLED(ARMADA_8K))
 		gd->ram_size = a8k_dram_scan_ap_sz();
-		if (gd->ram_size != 0)
-			return 0;
-	}
+	else if (CONFIG_IS_ENABLED(ARMADA_3700))
+		gd->ram_size = a3700_dram_scan_ap_sz();
+
+	if (gd->ram_size != 0)
+		return 0;
 
 	if (fdtdec_setup_mem_size_base() != 0)
 		return -EINVAL;
