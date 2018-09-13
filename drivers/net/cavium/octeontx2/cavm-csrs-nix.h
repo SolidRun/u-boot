@@ -1,45 +1,12 @@
 #ifndef __CAVM_CSRS_NIX_H__
 #define __CAVM_CSRS_NIX_H__
-/* This file is auto-generated. Do not edit */
+/* This file is auto-generated.  Do not edit */
 
-/***********************license start***************
- * Copyright (c) 2003-2018  Cavium Inc. (support@cavium.com). All rights
- * reserved.
- *
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
-
- *   * Neither the name of Cavium Inc. nor the names of
- *     its contributors may be used to endorse or promote products
- *     derived from this software without specific prior written
- *     permission.
-
- * This Software, including technical data, may be subject to U.S. export  control
- * laws, including the U.S. Export Administration Act and its  associated
- * regulations, and may be subject to export or import  regulations in other
- * countries.
-
- * TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS"
- * AND WITH ALL FAULTS AND CAVIUM  NETWORKS MAKES NO PROMISES, REPRESENTATIONS OR
- * WARRANTIES, EITHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, WITH RESPECT TO
- * THE SOFTWARE, INCLUDING ITS CONDITION, ITS CONFORMITY TO ANY REPRESENTATION OR
- * DESCRIPTION, OR THE EXISTENCE OF ANY LATENT OR PATENT DEFECTS, AND CAVIUM
- * SPECIFICALLY DISCLAIMS ALL IMPLIED (IF ANY) WARRANTIES OF TITLE,
- * MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR A PARTICULAR PURPOSE, LACK OF
- * VIRUSES, ACCURACY OR COMPLETENESS, QUIET ENJOYMENT, QUIET POSSESSION OR
- * CORRESPONDENCE TO DESCRIPTION. THE ENTIRE  RISK ARISING OUT OF USE OR
- * PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
- ***********************license end**************************************/
+/***********************license start***********************************
+* Copyright (C) 2018 Marvell International Ltd.
+* SPDX-License-Identifier: BSD-3-Clause
+* https://spdx.org/licenses
+***********************license end**************************************/
 
 /**
  * @file
@@ -47,15 +14,15 @@
  * Configuration and status register (CSR) address and type definitions for
  * Cavium NIX.
  *
- * This file is auto generated. Do not edit.
+ * This file is auto generated.  Do not edit.
  *
  */
 
 /**
  * Enumeration nix_af_int_vec_e
  *
- * NIX Admin Function Interrupt Vector Enumeration
- * Enumerates the NIX AF MSI-X interrupt vectors.
+ * NIX Admin Function Interrupt Vector Enumeration Enumerates the NIX AF
+ * MSI-X interrupt vectors.
  */
 #define CAVM_NIX_AF_INT_VEC_E_AF_ERR (3)
 #define CAVM_NIX_AF_INT_VEC_E_AQ_DONE (2)
@@ -66,8 +33,8 @@
 /**
  * Enumeration nix_aq_comp_e
  *
- * NIX Completion Enumeration
- * Enumerates the values of NIX_AQ_RES_S[COMPCODE].
+ * NIX Completion Enumeration Enumerates the values of
+ * NIX_AQ_RES_S[COMPCODE].
  */
 #define CAVM_NIX_AQ_COMP_E_CTX_FAULT (4)
 #define CAVM_NIX_AQ_COMP_E_CTX_POISON (3)
@@ -80,8 +47,7 @@
 /**
  * Enumeration nix_aq_ctype_e
  *
- * NIX Context Type Enumeration
- * Enumerates NIX_AQ_INST_S[CTYPE] values.
+ * NIX Context Type Enumeration Enumerates NIX_AQ_INST_S[CTYPE] values.
  */
 #define CAVM_NIX_AQ_CTYPE_E_CQ (2)
 #define CAVM_NIX_AQ_CTYPE_E_DYNO (5)
@@ -93,8 +59,8 @@
 /**
  * Enumeration nix_aq_instop_e
  *
- * NIX Admin Queue Opcode Enumeration
- * Enumerates NIX_AQ_INST_S[OP] values.
+ * NIX Admin Queue Opcode Enumeration Enumerates NIX_AQ_INST_S[OP]
+ * values.
  */
 #define CAVM_NIX_AQ_INSTOP_E_INIT (1)
 #define CAVM_NIX_AQ_INSTOP_E_LOCK (4)
@@ -106,14 +72,12 @@
 /**
  * Enumeration nix_chan_e
  *
- * NIX Channel Number Enumeration
- * Enumerates the receive and transmit channels, and values of
- * NIX_RX_PARSE_S[CHAN], NIX_SQ_CTX_S[DEFAULT_CHAN]. CNXXXX implements a subset of
- * these channels. Specifically, only channels for links enumerated by NIX_LINK_E
- * are implemented.
- *
- * Internal:
- * P2X/X2P channel enumeration for t9x.
+ * NIX Channel Number Enumeration Enumerates the receive and transmit
+ * channels, and values of NIX_RX_PARSE_S[CHAN],
+ * NIX_SQ_CTX_S[DEFAULT_CHAN]. CNXXXX implements a subset of these
+ * channels. Specifically, only channels for links enumerated by
+ * NIX_LINK_E are implemented.  Internal: P2X/X2P channel enumeration for
+ * t9x.
  */
 #define CAVM_NIX_CHAN_E_CGXX_LMACX_CHX(a, b, c)	\
 	(0x800 + 0x100 * (a) + 0x10 * (b) + (c))
@@ -124,9 +88,9 @@
 /**
  * Enumeration nix_colorresult_e
  *
- * NIX Color Result Enumeration
- * Enumerates the values of NIX_MEM_RESULT_S[COLOR], NIX_AF_TL1()_MD_DEBUG1[COLOR]
- * and NIX_AF_TL1()_MD_DEBUG1[COLOR].
+ * NIX Color Result Enumeration Enumerates the values of
+ * NIX_MEM_RESULT_S[COLOR], NIX_AF_TL1()_MD_DEBUG1[COLOR] and
+ * NIX_AF_TL1()_MD_DEBUG1[COLOR].
  */
 #define CAVM_NIX_COLORRESULT_E_GREEN (0)
 #define CAVM_NIX_COLORRESULT_E_RED_DROP (3)
@@ -136,8 +100,8 @@
 /**
  * Enumeration nix_cqerrint_e
  *
- * NIX Completion Queue Interrupt Enumeration
- * Enumerates the bit index of NIX_CQ_CTX_S[CQ_ERR_INT,CQ_ERR_INT_ENA].
+ * NIX Completion Queue Interrupt Enumeration Enumerates the bit index of
+ * NIX_CQ_CTX_S[CQ_ERR_INT,CQ_ERR_INT_ENA].
  */
 #define CAVM_NIX_CQERRINT_E_CQE_FAULT (2)
 #define CAVM_NIX_CQERRINT_E_DOOR_ERR (0)
@@ -146,8 +110,8 @@
 /**
  * Enumeration nix_intf_e
  *
- * NIX Interface Number Enumeration
- * Enumerates the bit index of NIX_AF_STATUS[CALIBRATE_STATUS].
+ * NIX Interface Number Enumeration Enumerates the bit index of
+ * NIX_AF_STATUS[CALIBRATE_STATUS].
  */
 #define CAVM_NIX_INTF_E_CGXX(a) (0 + (a))
 #define CAVM_NIX_INTF_E_LBKX(a) (3 + (a))
@@ -156,8 +120,8 @@
 /**
  * Enumeration nix_lf_int_vec_e
  *
- * NIX Local Function Interrupt Vector Enumeration
- * Enumerates the NIX MSI-X interrupt vectors per LF.
+ * NIX Local Function Interrupt Vector Enumeration Enumerates the NIX
+ * MSI-X interrupt vectors per LF.
  */
 #define CAVM_NIX_LF_INT_VEC_E_CINTX(a) (0x40 + (a))
 #define CAVM_NIX_LF_INT_VEC_E_ERR_INT (0x81)
@@ -168,9 +132,8 @@
 /**
  * Enumeration nix_link_e
  *
- * NIX Link Number Enumeration
- * Enumerates the receive and transmit links, and LINK index of
- * NIX_AF_RX_LINK()_CFG, NIX_AF_RX_LINK()_WRR_CFG,
+ * NIX Link Number Enumeration Enumerates the receive and transmit links,
+ * and LINK index of NIX_AF_RX_LINK()_CFG, NIX_AF_RX_LINK()_WRR_CFG,
  * NIX_AF_TX_LINK()_NORM_CREDIT, NIX_AF_TX_LINK()_EXPR_CREDIT,
  * NIX_AF_TX_LINK()_HW_XOFF and NIX_AF_TX_LINK()_SW_XOFF,
  * NIX_AF_TL3_TL2()_LINK()_CFG.
@@ -183,8 +146,8 @@
 /**
  * Enumeration nix_lsoalg_e
  *
- * NIX Large Send Offload Algorithm Enumeration
- * Enumerates NIX_AF_LSO_FORMAT()_FIELD()[ALG] values. Specifies algorithm for
+ * NIX Large Send Offload Algorithm Enumeration Enumerates
+ * NIX_AF_LSO_FORMAT()_FIELD()[ALG] values. Specifies algorithm for
  * modifying the associated LSO packet field.
  */
 #define CAVM_NIX_LSOALG_E_ADD_OFFSET (3)
@@ -196,8 +159,8 @@
 /**
  * Enumeration nix_maxsqesz_e
  *
- * NIX Maximum SQE Size Enumeration
- * Enumerates the values of NIX_SQ_CTX_S[MAX_SQE_SIZE].
+ * NIX Maximum SQE Size Enumeration Enumerates the values of
+ * NIX_SQ_CTX_S[MAX_SQE_SIZE].
  */
 #define CAVM_NIX_MAXSQESZ_E_W16 (0)
 #define CAVM_NIX_MAXSQESZ_E_W8 (1)
@@ -205,8 +168,8 @@
 /**
  * Enumeration nix_mdtype_e
  *
- * NIX Meta Descriptor Type Enumeration
- * Enumerates values of NIX_AF_MDQ()_MD_DEBUG[MD_TYPE].
+ * NIX Meta Descriptor Type Enumeration Enumerates values of
+ * NIX_AF_MDQ()_MD_DEBUG[MD_TYPE].
  */
 #define CAVM_NIX_MDTYPE_E_FLUSH (1)
 #define CAVM_NIX_MDTYPE_E_PMD (2)
@@ -215,8 +178,8 @@
 /**
  * Enumeration nix_mnqerr_e
  *
- * NIX Meta-Descriptor Enqueue Error Enumeration
- * Enumerates NIX_LF_MNQ_ERR_DBG[ERRCODE] values.
+ * NIX Meta-Descriptor Enqueue Error Enumeration Enumerates
+ * NIX_LF_MNQ_ERR_DBG[ERRCODE] values.
  */
 #define CAVM_NIX_MNQERR_E_CQ_QUERY_ERR (6)
 #define CAVM_NIX_MNQERR_E_LSO_ERR (5)
@@ -232,8 +195,8 @@
 /**
  * Enumeration nix_ndc_rx_port_e
  *
- * NIX Receive NDC Port Enumeration
- * Enumerates NIX receive NDC (NDC_IDX_E::NIX()_RX) ports and the PORT index of
+ * NIX Receive NDC Port Enumeration Enumerates NIX receive NDC
+ * (NDC_IDX_E::NIX()_RX) ports and the PORT index of
  * NDC_AF_PORT()_RT()_RW()_REQ_PC and NDC_AF_PORT()_RT()_RW()_LAT_PC.
  */
 #define CAVM_NIX_NDC_RX_PORT_E_AQ (0)
@@ -246,8 +209,8 @@
 /**
  * Enumeration nix_ndc_tx_port_e
  *
- * NIX Transmit NDC Port Enumeration
- * Enumerates NIX transmit NDC (NDC_IDX_E::NIX()_TX) ports and the PORT index of
+ * NIX Transmit NDC Port Enumeration Enumerates NIX transmit NDC
+ * (NDC_IDX_E::NIX()_TX) ports and the PORT index of
  * NDC_AF_PORT()_RT()_RW()_REQ_PC and NDC_AF_PORT()_RT()_RW()_LAT_PC.
  */
 #define CAVM_NIX_NDC_TX_PORT_E_DEQ (3)
@@ -260,8 +223,8 @@
 /**
  * Enumeration nix_re_opcode_e
  *
- * NIX Receive Error Opcode Enumeration
- * Enumerates NIX_RX_PARSE_S[ERRCODE] values when NIX_RX_PARSE_S[ERRLEV] =
+ * NIX Receive Error Opcode Enumeration Enumerates
+ * NIX_RX_PARSE_S[ERRCODE] values when NIX_RX_PARSE_S[ERRLEV] =
  * NPC_ERRLEV_E::RE.
  */
 #define CAVM_NIX_RE_OPCODE_E_OL2_LENMISM (0x12)
@@ -280,8 +243,8 @@
 /**
  * Enumeration nix_redalg_e
  *
- * NIX Red Algorithm Enumeration
- * Enumerates the different algorithms of NIX_SEND_EXT_S[SHP_RA].
+ * NIX Red Algorithm Enumeration Enumerates the different algorithms of
+ * NIX_SEND_EXT_S[SHP_RA].
  */
 #define CAVM_NIX_REDALG_E_DISCARD (3)
 #define CAVM_NIX_REDALG_E_SEND (1)
@@ -291,8 +254,8 @@
 /**
  * Enumeration nix_rqint_e
  *
- * NIX Receive Queue Interrupt Enumeration
- * Enumerates the bit index of NIX_RQ_CTX_S[RQ_INT,RQ_INT_ENA].
+ * NIX Receive Queue Interrupt Enumeration Enumerates the bit index of
+ * NIX_RQ_CTX_S[RQ_INT,RQ_INT_ENA].
  */
 #define CAVM_NIX_RQINT_E_DROP (0)
 #define CAVM_NIX_RQINT_E_RX(a) (0 + (a))
@@ -301,8 +264,8 @@
 /**
  * Enumeration nix_rx_actionop_e
  *
- * NIX Receive Action Opcode Enumeration
- * Enumerates the values of NIX_RX_ACTION_S[OP].
+ * NIX Receive Action Opcode Enumeration Enumerates the values of
+ * NIX_RX_ACTION_S[OP].
  */
 #define CAVM_NIX_RX_ACTIONOP_E_DROP (0)
 #define CAVM_NIX_RX_ACTIONOP_E_MCAST (3)
@@ -315,8 +278,8 @@
 /**
  * Enumeration nix_rx_mcop_e
  *
- * NIX Receive Multicast/Mirror Opcode Enumeration
- * Enumerates the values of NIX_RX_MCE_S[OP].
+ * NIX Receive Multicast/Mirror Opcode Enumeration Enumerates the values
+ * of NIX_RX_MCE_S[OP].
  */
 #define CAVM_NIX_RX_MCOP_E_RQ (0)
 #define CAVM_NIX_RX_MCOP_E_RSS (1)
@@ -324,8 +287,8 @@
 /**
  * Enumeration nix_rx_perrcode_e
  *
- * NIX Receive Protocol Error Code Enumeration
- * Enumerates NIX_RX_PARSE_S[ERRCODE] values when NIX_RX_PARSE_S[ERRLEV] =
+ * NIX Receive Protocol Error Code Enumeration Enumerates
+ * NIX_RX_PARSE_S[ERRCODE] values when NIX_RX_PARSE_S[ERRLEV] =
  * NPC_ERRLEV_E::NIX.
  */
 #define CAVM_NIX_RX_PERRCODE_E_BUFS_OFLOW (0xa)
@@ -348,8 +311,8 @@
 /**
  * Enumeration nix_send_status_e
  *
- * NIX Send Completion Status Enumeration
- * Enumerates values of NIX_SEND_COMP_S[STATUS] and NIX_LF_SEND_ERR_DBG[ERRCODE].
+ * NIX Send Completion Status Enumeration Enumerates values of
+ * NIX_SEND_COMP_S[STATUS] and NIX_LF_SEND_ERR_DBG[ERRCODE].
  */
 #define CAVM_NIX_SEND_STATUS_E_DATA_FAULT (0x16)
 #define CAVM_NIX_SEND_STATUS_E_DATA_POISON (0x17)
@@ -380,8 +343,8 @@
 /**
  * Enumeration nix_sendcrcalg_e
  *
- * NIX Send CRC Algorithm Enumeration
- * Enumerates the CRC algorithm used, see NIX_SEND_CRC_S[ALG].
+ * NIX Send CRC Algorithm Enumeration Enumerates the CRC algorithm used,
+ * see NIX_SEND_CRC_S[ALG].
  */
 #define CAVM_NIX_SENDCRCALG_E_CRC32 (0)
 #define CAVM_NIX_SENDCRCALG_E_CRC32C (1)
@@ -390,19 +353,12 @@
 /**
  * Enumeration nix_sendl3type_e
  *
- * NIX Send Layer 3 Header Type Enumeration
- * Enumerates values of NIX_SEND_HDR_S[OL3TYPE], NIX_SEND_HDR_S[IL3TYPE].
- * Internal:
- * Encoding matches DPDK TX IP types:
- * \<pre\>
- * PKT_TX_IP_CKSUM      (1ULL \<\< 54)
- * PKT_TX_IPV4          (1ULL \<\< 55)
- * PKT_TX_IPV6          (1ULL \<\< 56)
- *
- * PKT_TX_OUTER_IP_CKSUM(1ULL \<\< 58)
- * PKT_TX_OUTER_IPV4    (1ULL \<\< 59)
- * PKT_TX_OUTER_IPV6    (1ULL \<\< 60)
- * \</pre\>
+ * NIX Send Layer 3 Header Type Enumeration Enumerates values of
+ * NIX_SEND_HDR_S[OL3TYPE], NIX_SEND_HDR_S[IL3TYPE]. Internal: Encoding
+ * matches DPDK TX IP types: \<pre\> PKT_TX_IP_CKSUM      (1ULL \<\< 54)
+ * PKT_TX_IPV4          (1ULL \<\< 55) PKT_TX_IPV6          (1ULL \<\<
+ * 56)  PKT_TX_OUTER_IP_CKSUM(1ULL \<\< 58) PKT_TX_OUTER_IPV4    (1ULL
+ * \<\< 59) PKT_TX_OUTER_IPV6    (1ULL \<\< 60) \</pre\>
  */
 #define CAVM_NIX_SENDL3TYPE_E_IP4 (2)
 #define CAVM_NIX_SENDL3TYPE_E_IP4_CKSUM (3)
@@ -412,16 +368,13 @@
 /**
  * Enumeration nix_sendl4type_e
  *
- * NIX Send Layer 4 Header Type Enumeration
- * Enumerates values of NIX_SEND_HDR_S[OL4TYPE], NIX_SEND_HDR_S[IL4TYPE].
- * Internal:
- * Encoding matches DPDK TX L4 types.
- * \<pre\>
- * PKT_TX_L4_NO_CKSUM   (0ULL \<\< 52)  // Disable L4 cksum of TX pkt.
- * PKT_TX_TCP_CKSUM     (1ULL \<\< 52)  // TCP cksum of TX pkt. computed by nic.
- * PKT_TX_SCTP_CKSUM    (2ULL \<\< 52)  // SCTP cksum of TX pkt. computed by nic.
- * PKT_TX_UDP_CKSUM     (3ULL \<\< 52)  // UDP cksum of TX pkt. computed by nic.
- * \</pre\>
+ * NIX Send Layer 4 Header Type Enumeration Enumerates values of
+ * NIX_SEND_HDR_S[OL4TYPE], NIX_SEND_HDR_S[IL4TYPE]. Internal: Encoding
+ * matches DPDK TX L4 types. \<pre\> PKT_TX_L4_NO_CKSUM   (0ULL \<\< 52)
+ * // Disable L4 cksum of TX pkt. PKT_TX_TCP_CKSUM     (1ULL \<\< 52)  //
+ * TCP cksum of TX pkt. computed by nic. PKT_TX_SCTP_CKSUM    (2ULL \<\<
+ * 52)  // SCTP cksum of TX pkt. computed by nic. PKT_TX_UDP_CKSUM
+ * (3ULL \<\< 52)  // UDP cksum of TX pkt. computed by nic. \</pre\>
  */
 #define CAVM_NIX_SENDL4TYPE_E_NONE (0)
 #define CAVM_NIX_SENDL4TYPE_E_SCTP_CKSUM (2)
@@ -431,12 +384,10 @@
 /**
  * Enumeration nix_sendldtype_e
  *
- * NIX Send Load Type Enumeration
- * Enumerates the load transaction types for reading segment bytes specified by
- * NIX_SEND_SG_S[LD_TYPE] and NIX_SEND_JUMP_S[LD_TYPE].
- *
- * Internal:
- * The hardware implementation treats undefined encodings as LDD load type.
+ * NIX Send Load Type Enumeration Enumerates the load transaction types
+ * for reading segment bytes specified by NIX_SEND_SG_S[LD_TYPE] and
+ * NIX_SEND_JUMP_S[LD_TYPE].  Internal: The hardware implementation
+ * treats undefined encodings as LDD load type.
  */
 #define CAVM_NIX_SENDLDTYPE_E_LDD (0)
 #define CAVM_NIX_SENDLDTYPE_E_LDT (1)
@@ -445,10 +396,10 @@
 /**
  * Enumeration nix_sendmemalg_e
  *
- * NIX Memory Modify Algorithm Enumeration
- * Enumerates the different algorithms for modifying memory; see
- * NIX_SEND_MEM_S[ALG]. mbufs_freed is the number of gather buffers freed to NPA
- * for the send descriptor. See NIX_SEND_HDR_S[DF] and NIX_SEND_SG_S[I*].
+ * NIX Memory Modify Algorithm Enumeration Enumerates the different
+ * algorithms for modifying memory; see NIX_SEND_MEM_S[ALG]. mbufs_freed
+ * is the number of gather buffers freed to NPA for the send descriptor.
+ * See NIX_SEND_HDR_S[DF] and NIX_SEND_SG_S[I*].
  */
 #define CAVM_NIX_SENDMEMALG_E_ADD (8)
 #define CAVM_NIX_SENDMEMALG_E_ADDLEN (0xa)
@@ -463,8 +414,8 @@
 /**
  * Enumeration nix_sendmemdsz_e
  *
- * NIX Memory Data Size Enumeration
- * Enumerates the datum size for modifying memory; see NIX_SEND_MEM_S[DSZ].
+ * NIX Memory Data Size Enumeration Enumerates the datum size for
+ * modifying memory; see NIX_SEND_MEM_S[DSZ].
  */
 #define CAVM_NIX_SENDMEMDSZ_E_B16 (2)
 #define CAVM_NIX_SENDMEMDSZ_E_B32 (1)
@@ -474,8 +425,8 @@
 /**
  * Enumeration nix_sqint_e
  *
- * NIX Send Queue Interrupt Enumeration
- * Enumerates the bit index of NIX_SQ_CTX_S[SQ_INT,SQ_INT_ENA].
+ * NIX Send Queue Interrupt Enumeration Enumerates the bit index of
+ * NIX_SQ_CTX_S[SQ_INT,SQ_INT_ENA].
  */
 #define CAVM_NIX_SQINT_E_LMT_ERR (0)
 #define CAVM_NIX_SQINT_E_MNQ_ERR (1)
@@ -485,8 +436,8 @@
 /**
  * Enumeration nix_sqoperr_e
  *
- * NIX SQ Operation Error Enumeration
- * Enumerates NIX_LF_SQ_OP_ERR_DBG[ERRCODE] values.
+ * NIX SQ Operation Error Enumeration Enumerates
+ * NIX_LF_SQ_OP_ERR_DBG[ERRCODE] values.
  */
 #define CAVM_NIX_SQOPERR_E_MAX_SQE_SIZE_ERR (4)
 #define CAVM_NIX_SQOPERR_E_SQB_FAULT (7)
@@ -501,8 +452,8 @@
 /**
  * Enumeration nix_stat_lf_rx_e
  *
- * NIX Local Function Receive Statistics Enumeration
- * Enumerates the last index of NIX_AF_LF()_RX_STAT() and NIX_LF_RX_STAT().
+ * NIX Local Function Receive Statistics Enumeration Enumerates the last
+ * index of NIX_AF_LF()_RX_STAT() and NIX_LF_RX_STAT().
  */
 #define CAVM_NIX_STAT_LF_RX_E_RX_BCAST (2)
 #define CAVM_NIX_STAT_LF_RX_E_RX_DROP (4)
@@ -520,10 +471,10 @@
 /**
  * Enumeration nix_stat_lf_tx_e
  *
- * NIX Local Function Transmit Statistics Enumeration
- * Enumerates the index of NIX_AF_LF()_TX_STAT() and NIX_LF_TX_STAT().
- * These statistics do not account for packet replication due to
- * NIX_TX_ACTION_S[OP] = NIX_TX_ACTIONOP_E::MCAST.
+ * NIX Local Function Transmit Statistics Enumeration Enumerates the
+ * index of NIX_AF_LF()_TX_STAT() and NIX_LF_TX_STAT(). These statistics
+ * do not account for packet replication due to NIX_TX_ACTION_S[OP] =
+ * NIX_TX_ACTIONOP_E::MCAST.
  */
 #define CAVM_NIX_STAT_LF_TX_E_TX_BCAST (1)
 #define CAVM_NIX_STAT_LF_TX_E_TX_DROP (3)
@@ -534,8 +485,8 @@
 /**
  * Enumeration nix_stype_e
  *
- * NIX SQB Caching Type Enumeration
- * Enumerates the values of NIX_SQ_CTX_S[SQE_STYPE].
+ * NIX SQB Caching Type Enumeration Enumerates the values of
+ * NIX_SQ_CTX_S[SQE_STYPE].
  */
 #define CAVM_NIX_STYPE_E_STF (0)
 #define CAVM_NIX_STYPE_E_STP (2)
@@ -544,12 +495,12 @@
 /**
  * Enumeration nix_subdc_e
  *
- * NIX Subdescriptor Operation Enumeration
- * Enumerates send and receive subdescriptor codes. The codes differentiate
- * subdescriptors within a NIX send or receive descriptor, excluding NIX_SEND_HDR_S for
- * send and NIX_CQE_HDR_S/NIX_WQE_HDR_S for receive, which are determined by their
- * position as the first subdescriptor, and NIX_RX_PARSE_S, which is determined by its
- * position as the second subdescriptor.
+ * NIX Subdescriptor Operation Enumeration Enumerates send and receive
+ * subdescriptor codes. The codes differentiate subdescriptors within a
+ * NIX send or receive descriptor, excluding NIX_SEND_HDR_S for send and
+ * NIX_CQE_HDR_S/NIX_WQE_HDR_S for receive, which are determined by their
+ * position as the first subdescriptor, and NIX_RX_PARSE_S, which is
+ * determined by its position as the second subdescriptor.
  */
 #define CAVM_NIX_SUBDC_E_CRC (2)
 #define CAVM_NIX_SUBDC_E_EXT (1)
@@ -564,8 +515,8 @@
 /**
  * Enumeration nix_tx_actionop_e
  *
- * NIX Transmit Action Opcode Enumeration
- * Enumerates the values of NIX_TX_ACTION_S[OP].
+ * NIX Transmit Action Opcode Enumeration Enumerates the values of
+ * NIX_TX_ACTION_S[OP].
  */
 #define CAVM_NIX_TX_ACTIONOP_E_DROP (0)
 #define CAVM_NIX_TX_ACTIONOP_E_DROP_VIOL (5)
@@ -576,8 +527,8 @@
 /**
  * Enumeration nix_tx_vtagop_e
  *
- * NIX Transmit Vtag Opcode Enumeration
- * Enumerates the values of NIX_TX_VTAG_ACTION_S[VTAG0_OP,VTAG1_OP].
+ * NIX Transmit Vtag Opcode Enumeration Enumerates the values of
+ * NIX_TX_VTAG_ACTION_S[VTAG0_OP,VTAG1_OP].
  */
 #define CAVM_NIX_TX_VTAGOP_E_INSERT (1)
 #define CAVM_NIX_TX_VTAGOP_E_NOP (0)
@@ -586,8 +537,8 @@
 /**
  * Enumeration nix_txlayer_e
  *
- * NIX Transmit Layer Enumeration
- * Enumerates the values of NIX_AF_LSO_FORMAT()_FIELD()[LAYER].
+ * NIX Transmit Layer Enumeration Enumerates the values of
+ * NIX_AF_LSO_FORMAT()_FIELD()[LAYER].
  */
 #define CAVM_NIX_TXLAYER_E_IL3 (2)
 #define CAVM_NIX_TXLAYER_E_IL4 (3)
@@ -597,8 +548,8 @@
 /**
  * Enumeration nix_vtagsize_e
  *
- * NIX Vtag Size Enumeration
- * Enumerates the values of NIX_AF_TX_VTAG_DEF()_CTL[SIZE] and NIX_AF_LF()_RX_VTAG_TYPE()[SIZE].
+ * NIX Vtag Size Enumeration Enumerates the values of
+ * NIX_AF_TX_VTAG_DEF()_CTL[SIZE] and NIX_AF_LF()_RX_VTAG_TYPE()[SIZE].
  */
 #define CAVM_NIX_VTAGSIZE_E_T4 (0)
 #define CAVM_NIX_VTAGSIZE_E_T8 (1)
@@ -606,8 +557,8 @@
 /**
  * Enumeration nix_xqe_type_e
  *
- * NIX WQE/CQE Type Enumeration
- * Enumerates the values of NIX_WQE_HDR_S[WQE_TYPE], NIX_CQE_HDR_S[CQE_TYPE].
+ * NIX WQE/CQE Type Enumeration Enumerates the values of
+ * NIX_WQE_HDR_S[WQE_TYPE], NIX_CQE_HDR_S[CQE_TYPE].
  */
 #define CAVM_NIX_XQE_TYPE_E_INVALID (0)
 #define CAVM_NIX_XQE_TYPE_E_RX (1)
@@ -619,8 +570,8 @@
 /**
  * Enumeration nix_xqesz_e
  *
- * NIX WQE/CQE Size Enumeration
- * Enumerates the values of NIX_AF_LF()_CFG[XQE_SIZE].
+ * NIX WQE/CQE Size Enumeration Enumerates the values of
+ * NIX_AF_LF()_CFG[XQE_SIZE].
  */
 #define CAVM_NIX_XQESZ_E_W16 (1)
 #define CAVM_NIX_XQESZ_E_W64 (0)
@@ -628,19 +579,15 @@
 /**
  * Structure nix_aq_inst_s
  *
- * NIX Admin Queue Instruction Structure
- * This structure specifies the AQ instruction.
- * Instructions and associated software structures are stored in memory as
- * little-endian unless NIX_AF_CFG[AF_BE] is set.
- *
- * Hardware reads of NIX_AQ_INST_S do not allocate into LLC.
- *
- * Hardware reads and writes of the context structure selected by [CTYPE], [LF]
- * and [CINDEX] use the NDC and LLC caching style configured for that context. For
- * example:
- * * When [CTYPE] = NIX_AQ_CTYPE_E::RQ: use NIX_AF_LF()_RSS_CFG[CACHING] and
- * NIX_AF_LF()_RSS_CFG[WAY_MASK].
- * * When [CTYPE] = NIX_AQ_CTYPE_E::MCE: use NIX_AF_RX_MCAST_CFG[CACHING] and
+ * NIX Admin Queue Instruction Structure This structure specifies the AQ
+ * instruction. Instructions and associated software structures are
+ * stored in memory as little-endian unless NIX_AF_CFG[AF_BE] is set.
+ * Hardware reads of NIX_AQ_INST_S do not allocate into LLC.  Hardware
+ * reads and writes of the context structure selected by [CTYPE], [LF]
+ * and [CINDEX] use the NDC and LLC caching style configured for that
+ * context. For example: * When [CTYPE] = NIX_AQ_CTYPE_E::RQ: use
+ * NIX_AF_LF()_RSS_CFG[CACHING] and NIX_AF_LF()_RSS_CFG[WAY_MASK]. * When
+ * [CTYPE] = NIX_AQ_CTYPE_E::MCE: use NIX_AF_RX_MCAST_CFG[CACHING] and
  * NIX_AF_RX_MCAST_CFG[WAY_MASK].
  */
 union cavm_nix_aq_inst_s {
@@ -661,19 +608,16 @@ union cavm_nix_aq_inst_s {
 /**
  * Structure nix_aq_res_s
  *
- * NIX Admin Queue Result Structure
- * NIX writes this structure after it completes the NIX_AQ_INST_S instruction.
- * The result structure is exactly 16 bytes, and each instruction completion produces
- * exactly one result structure.
- *
- * Results and associated software structures are stored in memory as
- * little-endian unless NIX_AF_CFG[AF_BE] is set.
- *
+ * NIX Admin Queue Result Structure NIX writes this structure after it
+ * completes the NIX_AQ_INST_S instruction. The result structure is
+ * exactly 16 bytes, and each instruction completion produces exactly one
+ * result structure.  Results and associated software structures are
+ * stored in memory as little-endian unless NIX_AF_CFG[AF_BE] is set.
  * When [OP] = NIX_AQ_INSTOP_E::INIT, WRITE or READ, this structure is
- * immediately followed by context read or write data. See NIX_AQ_INSTOP_E.
- *
- * Hardware writes of NIX_AQ_RES_S and context data always allocate into LLC.
- * Hardware reads of context data do not allocate into LLC.
+ * immediately followed by context read or write data. See
+ * NIX_AQ_INSTOP_E.  Hardware writes of NIX_AQ_RES_S and context data
+ * always allocate into LLC. Hardware reads of context data do not
+ * allocate into LLC.
  */
 union cavm_nix_aq_res_s {
 	u64 u[2];
@@ -691,13 +635,13 @@ union cavm_nix_aq_res_s {
 /**
  * Structure nix_cint_hw_s
  *
- * NIX Completion Interrupt Context Hardware Structure
- * This structure contains context state maintained by hardware for each
- * completion interrupt (CINT) in NDC/LLC/DRAM. Software accesses this structure
- * with the NIX_LF_CINT()* registers.
- * Hardware maintains a table of NIX_AF_CONST2[CINTS] contiguous NIX_CINT_HW_S
- * structures per LF starting at AF IOVA NIX_AF_LF()_CINTS_BASE.
- * Always stored in byte invariant little-endian format (LE8).
+ * NIX Completion Interrupt Context Hardware Structure This structure
+ * contains context state maintained by hardware for each completion
+ * interrupt (CINT) in NDC/LLC/DRAM. Software accesses this structure
+ * with the NIX_LF_CINT()* registers. Hardware maintains a table of
+ * NIX_AF_CONST2[CINTS] contiguous NIX_CINT_HW_S structures per LF
+ * starting at AF IOVA NIX_AF_LF()_CINTS_BASE. Always stored in byte
+ * invariant little-endian format (LE8).
  */
 union cavm_nix_cint_hw_s {
 	u64 u[2];
@@ -719,10 +663,9 @@ union cavm_nix_cint_hw_s {
 /**
  * Structure nix_cq_ctx_s
  *
- * NIX Completion Queue Context Structure
- * This structure contains context state maintained by hardware for each CQ in
- * NDC/LLC/DRAM.
- * Software uses the same structure format to read and write an CQ context with
+ * NIX Completion Queue Context Structure This structure contains context
+ * state maintained by hardware for each CQ in NDC/LLC/DRAM. Software
+ * uses the same structure format to read and write an CQ context with
  * the NIX admin queue.
  */
 union cavm_nix_cq_ctx_s {
@@ -761,11 +704,11 @@ union cavm_nix_cq_ctx_s {
 /**
  * Structure nix_cqe_hdr_s
  *
- * NIX Completion Queue Entry Header Structure
- * This 64-bit structure defines the first word of every CQE. It is immediately
- * followed by NIX_RX_PARSE_S in a receive CQE, and by NIX_SEND_COMP_S in a send
- * completion CQE.
- * Stored in memory as little-endian unless NIX_AF_LF()_CFG[BE] is set.
+ * NIX Completion Queue Entry Header Structure This 64-bit structure
+ * defines the first word of every CQE. It is immediately followed by
+ * NIX_RX_PARSE_S in a receive CQE, and by NIX_SEND_COMP_S in a send
+ * completion CQE. Stored in memory as little-endian unless
+ * NIX_AF_LF()_CFG[BE] is set.
  */
 union cavm_nix_cqe_hdr_s {
 	u64 u;
@@ -782,9 +725,9 @@ union cavm_nix_cqe_hdr_s {
 /**
  * Structure nix_inst_hdr_s
  *
- * NIX Instruction Header Structure
- * This structure defines the instruction header that precedes the packet header
- * supplied to NPC for packets to be transmitted by NIX.
+ * NIX Instruction Header Structure This structure defines the
+ * instruction header that precedes the packet header supplied to NPC for
+ * packets to be transmitted by NIX.
  */
 union cavm_nix_inst_hdr_s {
 	u64 u;
@@ -812,10 +755,10 @@ union cavm_nix_iova_s {
 /**
  * Structure nix_ipsec_dyno_s
  *
- * NIX IPSEC Dynamic Ordering Counter Structure
- * This structure specifies the format of an IPSEC dynamic ordering (DYNO) counter
- * in NDC/LLC/DRAM. See NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA].
- * Software uses the same structure format to read and write a DYNO counter with
+ * NIX IPSEC Dynamic Ordering Counter Structure This structure specifies
+ * the format of an IPSEC dynamic ordering (DYNO) counter in
+ * NDC/LLC/DRAM. See NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA]. Software
+ * uses the same structure format to read and write a DYNO counter with
  * the NIX admin queue.
  */
 union cavm_nix_ipsec_dyno_s {
@@ -829,9 +772,9 @@ union cavm_nix_ipsec_dyno_s {
 /**
  * Structure nix_mem_result_s
  *
- * NIX Memory Value Structure
- * When NIX_SEND_MEM_S[ALG]=NIX_SENDMEMALG_E::SETRSLT, the value written to memory is formed with
- * this structure.
+ * NIX Memory Value Structure When
+ * NIX_SEND_MEM_S[ALG]=NIX_SENDMEMALG_E::SETRSLT, the value written to
+ * memory is formed with this structure.
  */
 union cavm_nix_mem_result_s {
 	u64 u;
@@ -846,9 +789,9 @@ union cavm_nix_mem_result_s {
 /**
  * Structure nix_op_q_wdata_s
  *
- * NIX Statistics Operation Write Data Structure
- * This structure specifies the write data format of an atomic 64-bit load-and-add
- * of some NIX_LF_RQ_OP_*, NIX_LF_SQ_OP* and NIX_LF_CQ_OP* registers.
+ * NIX Statistics Operation Write Data Structure This structure specifies
+ * the write data format of an atomic 64-bit load-and-add of some
+ * NIX_LF_RQ_OP_*, NIX_LF_SQ_OP* and NIX_LF_CQ_OP* registers.
  */
 union cavm_nix_op_q_wdata_s {
 	u64 u;
@@ -863,13 +806,13 @@ union cavm_nix_op_q_wdata_s {
 /**
  * Structure nix_qint_hw_s
  *
- * NIX Queue Interrupt Context Hardware Structure
- * This structure contains context state maintained by hardware for each queue
- * interrupt (QINT) in NDC/LLC/DRAM. Software accesses this structure with the
- * NIX_LF_QINT()* registers.
- * Hardware maintains a table of NIX_AF_CONST2[QINTS] contiguous NIX_QINT_HW_S
- * structures per LF starting at IOVA NIX_AF_LF()_QINTS_BASE.
- * Always stored in byte invariant little-endian format (LE8).
+ * NIX Queue Interrupt Context Hardware Structure This structure contains
+ * context state maintained by hardware for each queue interrupt (QINT)
+ * in NDC/LLC/DRAM. Software accesses this structure with the
+ * NIX_LF_QINT()* registers. Hardware maintains a table of
+ * NIX_AF_CONST2[QINTS] contiguous NIX_QINT_HW_S structures per LF
+ * starting at IOVA NIX_AF_LF()_QINTS_BASE. Always stored in byte
+ * invariant little-endian format (LE8).
  */
 union cavm_nix_qint_hw_s {
 	u32 u;
@@ -884,11 +827,11 @@ union cavm_nix_qint_hw_s {
 /**
  * Structure nix_rq_ctx_hw_s
  *
- * NIX Receive Queue Context Structure
- * This structure contains context state maintained by hardware for each RQ in
- * NDC/LLC/DRAM. Software uses the equivalent NIX_RQ_CTX_S structure format to
- * read and write an RQ context with the NIX admin queue.
- * Always stored in byte invariant little-endian format (LE8).
+ * NIX Receive Queue Context Structure This structure contains context
+ * state maintained by hardware for each RQ in NDC/LLC/DRAM. Software
+ * uses the equivalent NIX_RQ_CTX_S structure format to read and write an
+ * RQ context with the NIX admin queue. Always stored in byte invariant
+ * little-endian format (LE8).
  */
 union cavm_nix_rq_ctx_hw_s {
 	u64 u[16];
@@ -968,9 +911,9 @@ union cavm_nix_rq_ctx_hw_s {
 /**
  * Structure nix_rq_ctx_s
  *
- * NIX Receive Queue Context Structure
- * This structure specifies the format used by software to read and write an RQ context with
- * the NIX admin queue.
+ * NIX Receive Queue Context Structure This structure specifies the
+ * format used by software to read and write an RQ context with the NIX
+ * admin queue.
  */
 union cavm_nix_rq_ctx_s {
 	u64 u[16];
@@ -1049,11 +992,11 @@ union cavm_nix_rq_ctx_s {
 /**
  * Structure nix_rsse_s
  *
- * NIX Receive Side Scaling Entry Structure
- * This structure specifies the format of each hardware entry in the NIX RSS
- * tables in NDC/LLC/DRAM. See NIX_AF_LF()_RSS_BASE and NIX_AF_LF()_RSS_GRP().
- * Software uses the same structure format to read and write an RSS table entry
- * with the NIX admin queue.
+ * NIX Receive Side Scaling Entry Structure This structure specifies the
+ * format of each hardware entry in the NIX RSS tables in NDC/LLC/DRAM.
+ * See NIX_AF_LF()_RSS_BASE and NIX_AF_LF()_RSS_GRP(). Software uses the
+ * same structure format to read and write an RSS table entry with the
+ * NIX admin queue.
  */
 union cavm_nix_rsse_s {
 	u32 u;
@@ -1067,8 +1010,8 @@ union cavm_nix_rsse_s {
 /**
  * Structure nix_rx_action_s
  *
- * NIX Receive Action Structure
- * This structure defines the format of NPC_RESULT_S[ACTION] for a receive packet.
+ * NIX Receive Action Structure This structure defines the format of
+ * NPC_RESULT_S[ACTION] for a receive packet.
  */
 union cavm_nix_rx_action_s {
 	u64 u;
@@ -1086,11 +1029,12 @@ union cavm_nix_rx_action_s {
 /**
  * Structure nix_rx_imm_s
  *
- * NIX Receive Immediate Subdescriptor Structure
- * The receive immediate subdescriptor indicates that bytes immediately following this
- * NIX_RX_IMM_S (after skipping [APAD] bytes) were saved from the received packet. The
- * next subdescriptor following this NIX_RX_IMM_S (when one exists) will follow the
- * immediate bytes, after rounding up the address to a multiple of 16 bytes.
+ * NIX Receive Immediate Subdescriptor Structure The receive immediate
+ * subdescriptor indicates that bytes immediately following this
+ * NIX_RX_IMM_S (after skipping [APAD] bytes) were saved from the
+ * received packet. The next subdescriptor following this NIX_RX_IMM_S
+ * (when one exists) will follow the immediate bytes, after rounding up
+ * the address to a multiple of 16 bytes.
  */
 union cavm_nix_rx_imm_s {
 	u64 u;
@@ -1106,13 +1050,13 @@ union cavm_nix_rx_imm_s {
 /**
  * Structure nix_rx_mce_s
  *
- * NIX Receive Multicast/Mirror Entry Structure
- * This structure specifies the format of entries in the NIX receive
- * multicast/mirror table maintained by hardware in NDC/LLC/DRAM. See
- * NIX_AF_RX_MCAST_BASE and NIX_AF_RX_MCAST_CFG. Note the table may contain both
- * multicast and mirror replication lists.
- * Software uses the same structure format to read and write a multicast/mirror
- * table entry with the NIX admin queue.
+ * NIX Receive Multicast/Mirror Entry Structure This structure specifies
+ * the format of entries in the NIX receive multicast/mirror table
+ * maintained by hardware in NDC/LLC/DRAM. See NIX_AF_RX_MCAST_BASE and
+ * NIX_AF_RX_MCAST_CFG. Note the table may contain both multicast and
+ * mirror replication lists. Software uses the same structure format to
+ * read and write a multicast/mirror table entry with the NIX admin
+ * queue.
  */
 union cavm_nix_rx_mce_s {
 	u64 u;
@@ -1131,13 +1075,12 @@ union cavm_nix_rx_mce_s {
 /**
  * Structure nix_rx_parse_s
  *
- * NIX Receive Parse Structure
- * This structure contains the receive packet parse result. It immediately follows
- * NIX_CQE_HDR_S in a receive CQE, or NIX_WQE_HDR_S in a receive WQE.
- * Stored in memory as little-endian unless NIX_AF_LF()_CFG[BE] is set.
- *
- * Header layers are always 2-byte aligned, so all header pointers in this
- * structure ([EOH_PTR], [LAPTR] through [LHPTR], [VTAG*_PTR]) are even.
+ * NIX Receive Parse Structure This structure contains the receive packet
+ * parse result. It immediately follows NIX_CQE_HDR_S in a receive CQE,
+ * or NIX_WQE_HDR_S in a receive WQE. Stored in memory as little-endian
+ * unless NIX_AF_LF()_CFG[BE] is set.  Header layers are always 2-byte
+ * aligned, so all header pointers in this structure ([EOH_PTR], [LAPTR]
+ * through [LHPTR], [VTAG*_PTR]) are even.
  */
 union cavm_nix_rx_parse_s {
 	u64 u[7];
@@ -1202,15 +1145,15 @@ union cavm_nix_rx_parse_s {
 /**
  * Structure nix_rx_sg_s
  *
- * NIX Receive Scatter/Gather Subdescriptor Structure
- * The receive scatter/gather subdescriptor specifies one to three segments of packet data bytes.
- * There may be multiple NIX_RX_SG_Ss in each NIX receive descriptor.
- *
- * NIX_RX_SG_S is immediately followed by one NIX_IOVA_S word when [SEGS] = 1,
- * three NIX_IOVA_S words when [SEGS] \>= 2. Each NIX_IOVA_S word specifies the
- * LF IOVA of first packet data byte in the corresponding segment; first NIX_IOVA_S
- * word for segment 1, second word for segment 2, third word for segment 3. Note
- * the third word is present when [SEGS] \>= 2 but only valid when [SEGS] = 3.
+ * NIX Receive Scatter/Gather Subdescriptor Structure The receive
+ * scatter/gather subdescriptor specifies one to three segments of packet
+ * data bytes. There may be multiple NIX_RX_SG_Ss in each NIX receive
+ * descriptor.  NIX_RX_SG_S is immediately followed by one NIX_IOVA_S
+ * word when [SEGS] = 1, three NIX_IOVA_S words when [SEGS] \>= 2. Each
+ * NIX_IOVA_S word specifies the LF IOVA of first packet data byte in the
+ * corresponding segment; first NIX_IOVA_S word for segment 1, second
+ * word for segment 2, third word for segment 3. Note the third word is
+ * present when [SEGS] \>= 2 but only valid when [SEGS] = 3.
  */
 union cavm_nix_rx_sg_s {
 	u64 u;
@@ -1228,10 +1171,10 @@ union cavm_nix_rx_sg_s {
 /**
  * Structure nix_rx_vtag_action_s
  *
- * NIX Receive Vtag Action Structure
- * This structure defines the format of NPC_RESULT_S[VTAG_ACTION] for a receive packet.
- * It specifies up to two Vtags (e.g. C-VLAN/S-VLAN tags, 802.1BR E-TAG) for optional
- * capture and/or stripping.
+ * NIX Receive Vtag Action Structure This structure defines the format of
+ * NPC_RESULT_S[VTAG_ACTION] for a receive packet. It specifies up to two
+ * Vtags (e.g. C-VLAN/S-VLAN tags, 802.1BR E-TAG) for optional capture
+ * and/or stripping.
  */
 union cavm_nix_rx_vtag_action_s {
 	u64 u;
@@ -1255,8 +1198,8 @@ union cavm_nix_rx_vtag_action_s {
 /**
  * Structure nix_send_comp_s
  *
- * NIX Send Completion Structure
- * This structure immediately follows NIX_CQE_HDR_S in a send completion CQE.
+ * NIX Send Completion Structure This structure immediately follows
+ * NIX_CQE_HDR_S in a send completion CQE.
  */
 union cavm_nix_send_comp_s {
 	u64 u;
@@ -1271,31 +1214,29 @@ union cavm_nix_send_comp_s {
 /**
  * Structure nix_send_crc_s
  *
- * NIX Send CRC Subdescriptor Structure
- * The send CRC subdescriptor specifies a CRC calculation be performed during
- * transmission.
- * Ignored when present in a send descriptor with NIX_SEND_EXT_S[LSO] set.
- * There may be up to two NIX_SEND_CRC_Ss per send descriptor.
- *
- * NIX_SEND_CRC_S constraints:
- * * When present, NIX_SEND_CRC_S subdescriptors must precede all NIX_SEND_SG_S,
- * NIX_SEND_IMM_S and NIX_SEND_MEM_S subdescriptors in the send descriptor.
- * * NIX_SEND_CRC_S subdescriptors must follow the same order as their checksum
- * and insert regions in the packet, i.e. the checksum and insert regions of a
- * NIX_SEND_CRC_S must come after the checksum and insert regions of a preceding
- * NIX_SEND_CRC_S. There must be no overlap between any NIX_SEND_CRC_S checksum
- * and insert regions.
- * * If either NIX_SEND_HDR_S[OL4TYPE,IL4TYPE] = NIX_SENDL4TYPE_E::SCTP_CKSUM, the
- * SCTP checksum region and NIX_SEND_CRC_S insert region must not overlap, and
- * likewise the NIX_SEND_CRC_S checksum region and SCTP insert region must not
- * overlap.
- * * If either NIX_SEND_HDR_S[OL3TYPE,IL3TYPE] = NIX_SENDL3TYPE_E::IP4_CKSUM, the
- * IPv4 header checksum region and NIX_SEND_CRC_S insert region must not overlap.
- * * Any checksums inserted by NIX_SEND_HDR_S[OL3TYPE,OL4TYPE,IL3TYPE,IL4TYPE]
- * must be outside of the NIX_SEND_CRC_S checksum and insert regions.
- *
- * Hardware adjusts [START], [SIZE] and [INSERT] as needed to account for any VLAN
- * inserted by NIX_SEND_EXT_S[VLAN*] or Vtag inserted by NIX_TX_VTAG_ACTION_S.
+ * NIX Send CRC Subdescriptor Structure The send CRC subdescriptor
+ * specifies a CRC calculation be performed during transmission. Ignored
+ * when present in a send descriptor with NIX_SEND_EXT_S[LSO] set. There
+ * may be up to two NIX_SEND_CRC_Ss per send descriptor.  NIX_SEND_CRC_S
+ * constraints: * When present, NIX_SEND_CRC_S subdescriptors must
+ * precede all NIX_SEND_SG_S, NIX_SEND_IMM_S and NIX_SEND_MEM_S
+ * subdescriptors in the send descriptor. * NIX_SEND_CRC_S subdescriptors
+ * must follow the same order as their checksum and insert regions in the
+ * packet, i.e. the checksum and insert regions of a NIX_SEND_CRC_S must
+ * come after the checksum and insert regions of a preceding
+ * NIX_SEND_CRC_S. There must be no overlap between any NIX_SEND_CRC_S
+ * checksum and insert regions. * If either
+ * NIX_SEND_HDR_S[OL4TYPE,IL4TYPE] = NIX_SENDL4TYPE_E::SCTP_CKSUM, the
+ * SCTP checksum region and NIX_SEND_CRC_S insert region must not
+ * overlap, and likewise the NIX_SEND_CRC_S checksum region and SCTP
+ * insert region must not overlap. * If either
+ * NIX_SEND_HDR_S[OL3TYPE,IL3TYPE] = NIX_SENDL3TYPE_E::IP4_CKSUM, the
+ * IPv4 header checksum region and NIX_SEND_CRC_S insert region must not
+ * overlap. * Any checksums inserted by
+ * NIX_SEND_HDR_S[OL3TYPE,OL4TYPE,IL3TYPE,IL4TYPE] must be outside of the
+ * NIX_SEND_CRC_S checksum and insert regions.  Hardware adjusts [START],
+ * [SIZE] and [INSERT] as needed to account for any VLAN inserted by
+ * NIX_SEND_EXT_S[VLAN*] or Vtag inserted by NIX_TX_VTAG_ACTION_S.
  */
 union cavm_nix_send_crc_s {
 	u64 u[2];
@@ -1315,11 +1256,11 @@ union cavm_nix_send_crc_s {
 /**
  * Structure nix_send_ext_s
  *
- * NIX Send Extended Header Subdescriptor Structure
- * The send extended header specifies LSO, VLAN insertion, timestamp and/or
- * scheduling services on the packet. If present, it must immediately follow
- * NIX_SEND_HDR_S. All fields are assumed to be zero when this subdescriptor is not
- * present.
+ * NIX Send Extended Header Subdescriptor Structure The send extended
+ * header specifies LSO, VLAN insertion, timestamp and/or scheduling
+ * services on the packet. If present, it must immediately follow
+ * NIX_SEND_HDR_S. All fields are assumed to be zero when this
+ * subdescriptor is not present.
  */
 union cavm_nix_send_ext_s {
 	u64 u[2];
@@ -1351,8 +1292,8 @@ union cavm_nix_send_ext_s {
 /**
  * Structure nix_send_hdr_s
  *
- * NIX Send Header Subdescriptor Structure
- * The send header is the first subdescriptor of every send descriptor.
+ * NIX Send Header Subdescriptor Structure The send header is the first
+ * subdescriptor of every send descriptor.
  */
 union cavm_nix_send_hdr_s {
 	u64 u[2];
@@ -1380,20 +1321,18 @@ union cavm_nix_send_hdr_s {
 /**
  * Structure nix_send_imm_s
  *
- * NIX Send Immediate Subdescriptor Structure
- * The send immediate subdescriptor requests that bytes immediately following this
- * NIX_SEND_IMM_S (after skipping [APAD] bytes) are to be included in the packet data.
- * The next subdescriptor following this NIX_SEND_IMM_S (when one exists) will
- * follow the immediate bytes, after rounding up the address to a multiple of 16 bytes.
- *
- * There may be multiple NIX_SEND_IMM_S in one NIX send descriptor. A
- * NIX_SEND_IMM_S is ignored in a NIX send descriptor if the sum of all prior
+ * NIX Send Immediate Subdescriptor Structure The send immediate
+ * subdescriptor requests that bytes immediately following this
+ * NIX_SEND_IMM_S (after skipping [APAD] bytes) are to be included in the
+ * packet data. The next subdescriptor following this NIX_SEND_IMM_S
+ * (when one exists) will follow the immediate bytes, after rounding up
+ * the address to a multiple of 16 bytes.  There may be multiple
+ * NIX_SEND_IMM_S in one NIX send descriptor. A NIX_SEND_IMM_S is ignored
+ * in a NIX send descriptor if the sum of all prior
  * NIX_SEND_SG_S[SEG*_SIZE]s and NIX_SEND_IMM_S[SIZE]s meets or exceeds
- * NIX_SEND_HDR_S[TOTAL].
- *
- * When NIX_SEND_EXT_S[LSO] is set in the descriptor, all NIX_SEND_IMM_S
- * bytes must be included in the first NIX_SEND_EXT_S[LSO_SB] bytes of the
- * source packet.
+ * NIX_SEND_HDR_S[TOTAL].  When NIX_SEND_EXT_S[LSO] is set in the
+ * descriptor, all NIX_SEND_IMM_S bytes must be included in the first
+ * NIX_SEND_EXT_S[LSO_SB] bytes of the source packet.
  */
 union cavm_nix_send_imm_s {
 	u64 u;
@@ -1409,15 +1348,14 @@ union cavm_nix_send_imm_s {
 /**
  * Structure nix_send_jump_s
  *
- * NIX Send Jump Subdescriptor Structure
- * The send jump subdescriptor selects a new address for fetching the remaining
- * subdescriptors of a send descriptor. This allows software to create a send
- * descriptor longer than SQE size selected by NIX_SQ_CTX_S[MAX_SQE_SIZE].
- *
- * There can be only one NIX_SEND_JUMP_S subdescriptor in a send descriptor. If
- * present, it must immediately follow NIX_SEND_HDR_S if NIX_SEND_EXT_S is not
- * present, else it must immediately follow NIX_SEND_EXT_S. In either case, it
- * must terminate the SQE enqueued by software.
+ * NIX Send Jump Subdescriptor Structure The send jump subdescriptor
+ * selects a new address for fetching the remaining subdescriptors of a
+ * send descriptor. This allows software to create a send descriptor
+ * longer than SQE size selected by NIX_SQ_CTX_S[MAX_SQE_SIZE].  There
+ * can be only one NIX_SEND_JUMP_S subdescriptor in a send descriptor. If
+ * present, it must immediately follow NIX_SEND_HDR_S if NIX_SEND_EXT_S
+ * is not present, else it must immediately follow NIX_SEND_EXT_S. In
+ * either case, it must terminate the SQE enqueued by software.
  */
 union cavm_nix_send_jump_s {
 	u64 u[2];
@@ -1437,22 +1375,19 @@ union cavm_nix_send_jump_s {
 /**
  * Structure nix_send_mem_s
  *
- * NIX Send Memory Subdescriptor Structure
- * The send memory subdescriptor atomically sets, increments or decrements a memory location.
- *
- * NIX_SEND_MEM_S subdescriptors must follow all NIX_SEND_SG_S and NIX_SEND_IMM_S
- * subdescriptors in the NIX send descriptor. NIX will not initiate the memory
- * update for this subdescriptor until after it has completed all LLC/DRAM fetches
- * that service all prior NIX_SEND_SG_S subdescriptors. The memory update is
- * executed once, even if the packet is replicated due to NIX_TX_ACTION_S[OP] =
- * NIX_TX_ACTIONOP_E::MCAST.
- *
- * Performance is best if a memory decrement by one is used rather than any other memory
- * set/increment/decrement. (Less internal bus bandwidth is used with memory decrements by one.)
- *
- * When NIX_SEND_EXT_S[LSO] is set in the descriptor, NIX executes the
- * memory update only while processing the last LSO segment, after
- * processing prior segments.
+ * NIX Send Memory Subdescriptor Structure The send memory subdescriptor
+ * atomically sets, increments or decrements a memory location.
+ * NIX_SEND_MEM_S subdescriptors must follow all NIX_SEND_SG_S and
+ * NIX_SEND_IMM_S subdescriptors in the NIX send descriptor. NIX will not
+ * initiate the memory update for this subdescriptor until after it has
+ * completed all LLC/DRAM fetches that service all prior NIX_SEND_SG_S
+ * subdescriptors. The memory update is executed once, even if the packet
+ * is replicated due to NIX_TX_ACTION_S[OP] = NIX_TX_ACTIONOP_E::MCAST.
+ * Performance is best if a memory decrement by one is used rather than
+ * any other memory set/increment/decrement. (Less internal bus bandwidth
+ * is used with memory decrements by one.)  When NIX_SEND_EXT_S[LSO] is
+ * set in the descriptor, NIX executes the memory update only while
+ * processing the last LSO segment, after processing prior segments.
  */
 union cavm_nix_send_mem_s {
 	u64 u[2];
@@ -1471,19 +1406,19 @@ union cavm_nix_send_mem_s {
 /**
  * Structure nix_send_sg_s
  *
- * NIX Send Scatter/Gather Subdescriptor Structure
- * The send scatter/gather subdescriptor requests one to three segments of packet
- * data bytes to be transmitted. There may be multiple NIX_SEND_SG_Ss in each NIX send descriptor.
- *
- * NIX_SEND_SG_S is immediately followed by one NIX_IOVA_S word when [SEGS] = 1,
- * three NIX_IOVA_S words when [SEGS] \>= 2. Each NIX_IOVA_S word specifies the
- * LF IOVA of first packet data byte in the corresponding segment; first NIX_IOVA_S
- * word for segment 1, second word for segment 2, third word for segment 3. Note
- * the third word is present when [SEGS] \>= 2 but only valid when [SEGS] = 3.
- *
- * If the sum of all prior NIX_SEND_SG_S[SEG*_SIZE]s and NIX_SEND_IMM_S[SIZE]s
- * meets or exceeds NIX_SEND_HDR_S[TOTAL], this subdescriptor will not contribute
- * any packet data but may free buffers to NPA (see [I1]).
+ * NIX Send Scatter/Gather Subdescriptor Structure The send
+ * scatter/gather subdescriptor requests one to three segments of packet
+ * data bytes to be transmitted. There may be multiple NIX_SEND_SG_Ss in
+ * each NIX send descriptor.  NIX_SEND_SG_S is immediately followed by
+ * one NIX_IOVA_S word when [SEGS] = 1, three NIX_IOVA_S words when
+ * [SEGS] \>= 2. Each NIX_IOVA_S word specifies the LF IOVA of first
+ * packet data byte in the corresponding segment; first NIX_IOVA_S word
+ * for segment 1, second word for segment 2, third word for segment 3.
+ * Note the third word is present when [SEGS] \>= 2 but only valid when
+ * [SEGS] = 3.  If the sum of all prior NIX_SEND_SG_S[SEG*_SIZE]s and
+ * NIX_SEND_IMM_S[SIZE]s meets or exceeds NIX_SEND_HDR_S[TOTAL], this
+ * subdescriptor will not contribute any packet data but may free buffers
+ * to NPA (see [I1]).
  */
 union cavm_nix_send_sg_s {
 	u64 u;
@@ -1505,29 +1440,26 @@ union cavm_nix_send_sg_s {
 /**
  * Structure nix_send_work_s
  *
- * NIX Send Work Subdescriptor Structure
- * This subdescriptor adds work to the SSO. At most one NIX_SEND_WORK_S subdescriptor
- * can exist in the NIX send descriptor. If a NIX_SEND_WORK_S exists in the
- * descriptor, it must be the last subdescriptor. NIX will not initiate the work add
- * for this subdescriptor until after (1) it has completed all LLC/DRAM fetches that
- * service all prior NIX_SEND_SG_S subdescriptors, (2) it has
- * fetched all subdescriptors in the descriptor, and (3) all NIX_SEND_MEM_S[WMEM]=1
- * LLC/DRAM updates have completed.
- *
- * Provided the path of descriptors from the SQ through NIX to an output FIFO is
- * unmodified between the descriptors (as should normally be the case, but it is
- * possible for software to change the path), NIX also (1) will submit
- * the SSO add works from all descriptors in the SQ in order, and
+ * NIX Send Work Subdescriptor Structure This subdescriptor adds work to
+ * the SSO. At most one NIX_SEND_WORK_S subdescriptor can exist in the
+ * NIX send descriptor. If a NIX_SEND_WORK_S exists in the descriptor, it
+ * must be the last subdescriptor. NIX will not initiate the work add for
+ * this subdescriptor until after (1) it has completed all LLC/DRAM
+ * fetches that service all prior NIX_SEND_SG_S subdescriptors, (2) it
+ * has fetched all subdescriptors in the descriptor, and (3) all
+ * NIX_SEND_MEM_S[WMEM]=1 LLC/DRAM updates have completed.  Provided the
+ * path of descriptors from the SQ through NIX to an output FIFO is
+ * unmodified between the descriptors (as should normally be the case,
+ * but it is possible for software to change the path), NIX also (1) will
+ * submit the SSO add works from all descriptors in the SQ in order, and
  * (2) will not submit an SSO work add until after all prior descriptors
- * in the SQ have completed their NIX_SEND_SG_S
- * processing, and (3) will not submit an SSO work add until after
- * it has fetched all subdescriptors from prior descriptors in the SQ.
- *
- * When NIX_SEND_EXT_S[LSO] is set in the descriptor, NIX executes the
- * NIX_SEND_WORK_S work add only while processing the last LSO segment, after
- * processing prior segments.
- *
- * Hardware ignores NIX_SEND_WORK_S when NIX_SQ_CTX_S[SSO_ENA] is clear.
+ * in the SQ have completed their NIX_SEND_SG_S processing, and (3) will
+ * not submit an SSO work add until after it has fetched all
+ * subdescriptors from prior descriptors in the SQ.  When
+ * NIX_SEND_EXT_S[LSO] is set in the descriptor, NIX executes the
+ * NIX_SEND_WORK_S work add only while processing the last LSO segment,
+ * after processing prior segments.  Hardware ignores NIX_SEND_WORK_S
+ * when NIX_SQ_CTX_S[SSO_ENA] is clear.
  */
 union cavm_nix_send_work_s {
 	u64 u[2];
@@ -1545,12 +1477,11 @@ union cavm_nix_send_work_s {
 /**
  * Structure nix_sq_ctx_hw_s
  *
- * NIX SQ Context Hardware Structure
- * This structure contains context state maintained by hardware for each SQ in
- * NDC/LLC/DRAM.
- * Software uses the equivalent NIX_SQ_CTX_S structure format to read and write an
- * SQ context with the NIX admin queue.
- * Always stored in byte invariant little-endian format (LE8).
+ * NIX SQ Context Hardware Structure This structure contains context
+ * state maintained by hardware for each SQ in NDC/LLC/DRAM. Software
+ * uses the equivalent NIX_SQ_CTX_S structure format to read and write an
+ * SQ context with the NIX admin queue. Always stored in byte invariant
+ * little-endian format (LE8).
  */
 union cavm_nix_sq_ctx_hw_s {
 	u64 u[16];
@@ -1621,13 +1552,12 @@ union cavm_nix_sq_ctx_hw_s {
 /**
  * Structure nix_sq_ctx_s
  *
- * NIX Send Queue Context Structure
- * This structure specifies the format used by software with the NIX admin queue
- * to read and write a send queue's NIX_SQ_CTX_HW_S structure maintained by
- * hardware in NDC/LLC/DRAM.
- *
- * The SQ statistics ([OCTS], [PKTS], [DROP_OCTS], [DROP_PKTS]) do not account for
- * packet replication due to NIX_TX_ACTION_S[OP] = NIX_TX_ACTIONOP_E::MCAST.
+ * NIX Send Queue Context Structure This structure specifies the format
+ * used by software with the NIX admin queue to read and write a send
+ * queue's NIX_SQ_CTX_HW_S structure maintained by hardware in
+ * NDC/LLC/DRAM.  The SQ statistics ([OCTS], [PKTS], [DROP_OCTS],
+ * [DROP_PKTS]) do not account for packet replication due to
+ * NIX_TX_ACTION_S[OP] = NIX_TX_ACTIONOP_E::MCAST.
  */
 union cavm_nix_sq_ctx_s {
 	u64 u[16];
@@ -1696,8 +1626,8 @@ union cavm_nix_sq_ctx_s {
 /**
  * Structure nix_tx_action_s
  *
- * NIX Transmit Action Structure
- * This structure defines the format of NPC_RESULT_S[ACTION] for a transmit packet.
+ * NIX Transmit Action Structure This structure defines the format of
+ * NPC_RESULT_S[ACTION] for a transmit packet.
  */
 union cavm_nix_tx_action_s {
 	u64 u;
@@ -1714,21 +1644,18 @@ union cavm_nix_tx_action_s {
 /**
  * Structure nix_tx_vtag_action_s
  *
- * NIX Transmit Vtag Action Structure
- * This structure defines the format of NPC_RESULT_S[VTAG_ACTION] for a transmit
- * packet. It specifies the optional insertion or replacement of up to two Vtags
- * (e.g. C-VLAN/S-VLAN tags, 802.1BR E-TAG).
- *
- * If two Vtags are specified:
- * * The Vtag 0 byte offset from packet start (see [VTAG0_RELPTR]) must be less
- * than or equal to the Vtag 1 byte offset.
- * * Hardware executes the Vtag 0 action first, Vtag 1 action second.
- * * If Vtag 0 is inserted, hardware adjusts the Vtag 1 byte offset accordingly.
- * Thus, if the two offsets are equal in the structure, hardware inserts Vtag 1
- * immediately after Vtag 0 in the packet.
- *
- * A Vtag must not be inserted or replaced within an outer or inner L3/L4 header,
- * but may be inserted or replaced within an outer L4 payload.
+ * NIX Transmit Vtag Action Structure This structure defines the format
+ * of NPC_RESULT_S[VTAG_ACTION] for a transmit packet. It specifies the
+ * optional insertion or replacement of up to two Vtags (e.g.
+ * C-VLAN/S-VLAN tags, 802.1BR E-TAG).  If two Vtags are specified: * The
+ * Vtag 0 byte offset from packet start (see [VTAG0_RELPTR]) must be less
+ * than or equal to the Vtag 1 byte offset. * Hardware executes the Vtag
+ * 0 action first, Vtag 1 action second. * If Vtag 0 is inserted,
+ * hardware adjusts the Vtag 1 byte offset accordingly. Thus, if the two
+ * offsets are equal in the structure, hardware inserts Vtag 1
+ * immediately after Vtag 0 in the packet.  A Vtag must not be inserted
+ * or replaced within an outer or inner L3/L4 header, but may be inserted
+ * or replaced within an outer L4 payload.
  */
 union cavm_nix_tx_vtag_action_s {
 	u64 u;
@@ -1754,10 +1681,10 @@ union cavm_nix_tx_vtag_action_s {
 /**
  * Structure nix_wqe_hdr_s
  *
- * NIX Work Queue Entry Header Structure
- * This 64-bit structure defines the first word of every receive WQE generated by
- * NIX. It is immediately followed by NIX_RX_PARSE_S.
- * Stored in memory as little-endian unless NIX_AF_LF()_CFG[BE] is set.
+ * NIX Work Queue Entry Header Structure This 64-bit structure defines
+ * the first word of every receive WQE generated by NIX. It is
+ * immediately followed by NIX_RX_PARSE_S. Stored in memory as little-
+ * endian unless NIX_AF_LF()_CFG[BE] is set.
  */
 union cavm_nix_wqe_hdr_s {
 	u64 u;
@@ -1839,8 +1766,8 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_aq_done_ack
  *
- * NIX AF Admin Queue Done Count Ack Register
- * This register is written by software to acknowledge interrupts.
+ * NIX AF Admin Queue Done Count Ack Register This register is written by
+ * software to acknowledge interrupts.
  */
 union cavm_nixx_af_aq_done_ack {
 	u64 u;
@@ -1966,8 +1893,8 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_TIMER(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_aq_done_wait
  *
- * NIX AF Admin Queue Done Interrupt Coalescing Wait Register
- * Specifies the queue interrupt coalescing settings.
+ * NIX AF Admin Queue Done Interrupt Coalescing Wait Register Specifies
+ * the queue interrupt coalescing settings.
  */
 union cavm_nixx_af_aq_done_wait {
 	u64 u;
@@ -1990,8 +1917,8 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_WAIT(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_aq_door
  *
- * NIX AF Admin Queue Doorbell Register
- * Software writes to this register to enqueue entries to AQ.
+ * NIX AF Admin Queue Doorbell Register Software writes to this register
+ * to enqueue entries to AQ.
  */
 union cavm_nixx_af_aq_door {
 	u64 u;
@@ -2070,13 +1997,10 @@ static inline u64 CAVM_NIXX_AF_AVG_DELAY(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_bar2_alias#
  *
- * INTERNAL: NIX Admin Function  BAR2 Alias Registers
- *
- * These registers alias to the NIX BAR2 registers for the PF and function
- * selected by NIX_AF_BAR2_SEL[PF_FUNC].
- *
- * Internal:
- * Not implemented. Placeholder for bug33464.
+ * INTERNAL: NIX Admin Function  BAR2 Alias Registers  These registers
+ * alias to the NIX BAR2 registers for the PF and function selected by
+ * NIX_AF_BAR2_SEL[PF_FUNC].  Internal: Not implemented. Placeholder for
+ * bug33464.
  */
 union cavm_nixx_af_bar2_aliasx {
 	u64 u;
@@ -2096,11 +2020,9 @@ static inline u64 CAVM_NIXX_AF_BAR2_ALIASX(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_bar2_sel
  *
- * INTERNAL: NIX Admin Function BAR2 Select Register
- *
- * This register configures BAR2 accesses from the NIX_AF_BAR2_ALIAS() registers in BAR0.
- * Internal:
- * Not implemented. Placeholder for bug33464.
+ * INTERNAL: NIX Admin Function BAR2 Select Register  This register
+ * configures BAR2 accesses from the NIX_AF_BAR2_ALIAS() registers in
+ * BAR0. Internal: Not implemented. Placeholder for bug33464.
  */
 union cavm_nixx_af_bar2_sel {
 	u64 u;
@@ -2223,8 +2145,8 @@ static inline u64 CAVM_NIXX_AF_CINT_TIMERX(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_const
  *
- * NIX AF Constants Register
- * This register contains constants for software discovery.
+ * NIX AF Constants Register This register contains constants for
+ * software discovery.
  */
 union cavm_nixx_af_const {
 	u64 u;
@@ -2254,8 +2176,8 @@ static inline u64 CAVM_NIXX_AF_CONST(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_const1
  *
- * NIX AF Constants 1 Register
- * This register contains constants for software discovery.
+ * NIX AF Constants 1 Register This register contains constants for
+ * software discovery.
  */
 union cavm_nixx_af_const1 {
 	u64 u;
@@ -2281,8 +2203,8 @@ static inline u64 CAVM_NIXX_AF_CONST1(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_const2
  *
- * NIX AF Constants 2 Register
- * This register contains constants for software discovery.
+ * NIX AF Constants 2 Register This register contains constants for
+ * software discovery.
  */
 union cavm_nixx_af_const2 {
 	u64 u;
@@ -2305,8 +2227,8 @@ static inline u64 CAVM_NIXX_AF_CONST2(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_const3
  *
- * NIX AF Constants 2 Register
- * This register contains constants for software discovery.
+ * NIX AF Constants 2 Register This register contains constants for
+ * software discovery.
  */
 union cavm_nixx_af_const3 {
 	u64 u;
@@ -2334,8 +2256,8 @@ static inline u64 CAVM_NIXX_AF_CONST3(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_cq_const
  *
- * NIX AF CQ Constants Register
- * This register contains constants for software discovery.
+ * NIX AF CQ Constants Register This register contains constants for
+ * software discovery.
  */
 union cavm_nixx_af_cq_const {
 	u64 u;
@@ -2451,8 +2373,8 @@ static inline u64 CAVM_NIXX_AF_ERR_INT(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_err_int_ena_w1c
  *
- * NIX Admin Function Error Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NIX Admin Function Error Interrupt Enable Clear Register This register
+ * clears interrupt enable bits.
  */
 union cavm_nixx_af_err_int_ena_w1c {
 	u64 u;
@@ -2483,8 +2405,8 @@ static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_err_int_ena_w1s
  *
- * NIX Admin Function Error Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NIX Admin Function Error Interrupt Enable Set Register This register
+ * sets interrupt enable bits.
  */
 union cavm_nixx_af_err_int_ena_w1s {
 	u64 u;
@@ -2515,8 +2437,8 @@ static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_err_int_w1s
  *
- * NIX Admin Function Error Interrupt Set Register
- * This register sets interrupt bits.
+ * NIX Admin Function Error Interrupt Set Register This register sets
+ * interrupt bits.
  */
 union cavm_nixx_af_err_int_w1s {
 	u64 u;
@@ -2547,8 +2469,8 @@ static inline u64 CAVM_NIXX_AF_ERR_INT_W1S(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_expr_tx_fifo_status
  *
- * NIX AF Express Transmit FIFO Status Register
- * Status of FIFO which transmits express packets to CGX and LBK.
+ * NIX AF Express Transmit FIFO Status Register Status of FIFO which
+ * transmits express packets to CGX and LBK.
  */
 union cavm_nixx_af_expr_tx_fifo_status {
 	u64 u;
@@ -2594,8 +2516,8 @@ static inline u64 CAVM_NIXX_AF_GEN_INT(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_gen_int_ena_w1c
  *
- * NIX AF General Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NIX AF General Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_nixx_af_gen_int_ena_w1c {
 	u64 u;
@@ -2620,8 +2542,8 @@ static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_gen_int_ena_w1s
  *
- * NIX AF General Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NIX AF General Interrupt Enable Set Register This register sets
+ * interrupt enable bits.
  */
 union cavm_nixx_af_gen_int_ena_w1s {
 	u64 u;
@@ -2646,8 +2568,8 @@ static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_gen_int_w1s
  *
- * NIX AF General Interrupt Set Register
- * This register sets interrupt bits.
+ * NIX AF General Interrupt Set Register This register sets interrupt
+ * bits.
  */
 union cavm_nixx_af_gen_int_w1s {
 	u64 u;
@@ -2698,8 +2620,8 @@ static inline u64 CAVM_NIXX_AF_LFX_CFG(u64 a)
  *
  * NIX AF Local Function Completion Interrupts Base Address Registers
  * This register specifies the base AF IOVA of LF's completion interrupt
- * context table in NDC/LLC/DRAM. The table consists of NIX_AF_CONST2[CINTS]
- * contiguous NIX_CINT_HW_S structures.
+ * context table in NDC/LLC/DRAM. The table consists of
+ * NIX_AF_CONST2[CINTS] contiguous NIX_CINT_HW_S structures.
  */
 union cavm_nixx_af_lfx_cints_base {
 	u64 u;
@@ -2722,9 +2644,10 @@ static inline u64 CAVM_NIXX_AF_LFX_CINTS_BASE(u64 a)
  * Register (RVU_PF_BAR0) nix#_af_lf#_cints_cfg
  *
  * NIX AF Local Function Completion Interrupts Configuration Registers
- * This register controls access to the LF's completion interrupt context table in
- * NDC/LLC/DRAM. The table consists of NIX_AF_CONST2[CINTS] contiguous NIX_CINT_HW_S
- * structures. The size of each structure is 1 \<\< NIX_AF_CONST3[CINT_LOG2BYTES].
+ * This register controls access to the LF's completion interrupt context
+ * table in NDC/LLC/DRAM. The table consists of NIX_AF_CONST2[CINTS]
+ * contiguous NIX_CINT_HW_S structures. The size of each structure is 1
+ * \<\< NIX_AF_CONST3[CINT_LOG2BYTES].
  */
 union cavm_nixx_af_lfx_cints_cfg {
 	u64 u;
@@ -2747,9 +2670,9 @@ static inline u64 CAVM_NIXX_AF_LFX_CINTS_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_cqs_base
  *
- * NIX AF Local Function Completion Queues Base Address Register
- * This register specifies the base AF IOVA of the LF's CQ context table.
- * The table consists of NIX_AF_LF()_CQS_CFG[MAX_QUEUESM1]+1 contiguous
+ * NIX AF Local Function Completion Queues Base Address Register This
+ * register specifies the base AF IOVA of the LF's CQ context table. The
+ * table consists of NIX_AF_LF()_CQS_CFG[MAX_QUEUESM1]+1 contiguous
  * NIX_CQ_CTX_S structures.
  */
 union cavm_nixx_af_lfx_cqs_base {
@@ -2772,8 +2695,8 @@ static inline u64 CAVM_NIXX_AF_LFX_CQS_BASE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_cqs_cfg
  *
- * NIX AF Local Function Completion Queues Configuration Register
- * This register configures completion queues in the LF.
+ * NIX AF Local Function Completion Queues Configuration Register This
+ * register configures completion queues in the LF.
  */
 union cavm_nixx_af_lfx_cqs_cfg {
 	u64 u;
@@ -2796,11 +2719,11 @@ static inline u64 CAVM_NIXX_AF_LFX_CQS_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_lock#
  *
- * NIX AF Local Function Lockdown Registers
- * Internal:
- * The NIX lockdown depth of 32 bytes is shallow compared to 96 bytes for NIC and meant for outer
- * MAC and/or VLAN (optionally preceded by a small number of skip bytes). NPC's MCAM can be used
- * for deeper protocol-aware lockdown.
+ * NIX AF Local Function Lockdown Registers Internal: The NIX lockdown
+ * depth of 32 bytes is shallow compared to 96 bytes for NIC and meant
+ * for outer MAC and/or VLAN (optionally preceded by a small number of
+ * skip bytes). NPC's MCAM can be used for deeper protocol-aware
+ * lockdown.
  */
 union cavm_nixx_af_lfx_lockx {
 	u64 u;
@@ -2821,10 +2744,10 @@ static inline u64 CAVM_NIXX_AF_LFX_LOCKX(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_qints_base
  *
- * NIX AF Local Function Queue Interrupts Base Address Registers
- * This register specifies the base AF IOVA of LF's queue interrupt context
- * table in NDC/LLC/DRAM. The table consists of NIX_AF_CONST2[QINTS] contiguous
- * NIX_QINT_HW_S structures.
+ * NIX AF Local Function Queue Interrupts Base Address Registers This
+ * register specifies the base AF IOVA of LF's queue interrupt context
+ * table in NDC/LLC/DRAM. The table consists of NIX_AF_CONST2[QINTS]
+ * contiguous NIX_QINT_HW_S structures.
  */
 union cavm_nixx_af_lfx_qints_base {
 	u64 u;
@@ -2846,10 +2769,11 @@ static inline u64 CAVM_NIXX_AF_LFX_QINTS_BASE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_qints_cfg
  *
- * NIX AF Local Function Queue Interrupts Configuration Registers
- * This register controls access to the LF's queue interrupt context table in
- * NDC/LLC/DRAM. The table consists of NIX_AF_CONST2[QINTS] contiguous NIX_QINT_HW_S
- * structures. The size of each structure is 1 \<\< NIX_AF_CONST3[QINT_LOG2BYTES].
+ * NIX AF Local Function Queue Interrupts Configuration Registers This
+ * register controls access to the LF's queue interrupt context table in
+ * NDC/LLC/DRAM. The table consists of NIX_AF_CONST2[QINTS] contiguous
+ * NIX_QINT_HW_S structures. The size of each structure is 1 \<\<
+ * NIX_AF_CONST3[QINT_LOG2BYTES].
  */
 union cavm_nixx_af_lfx_qints_cfg {
 	u64 u;
@@ -2872,9 +2796,9 @@ static inline u64 CAVM_NIXX_AF_LFX_QINTS_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rqs_base
  *
- * NIX AF Local Function Receive Queues Base Address Register
- * This register specifies the base AF IOVA of the LF's RQ context table.
- * The table consists of NIX_AF_LF()_RQS_CFG[MAX_QUEUESM1]+1 contiguous
+ * NIX AF Local Function Receive Queues Base Address Register This
+ * register specifies the base AF IOVA of the LF's RQ context table. The
+ * table consists of NIX_AF_LF()_RQS_CFG[MAX_QUEUESM1]+1 contiguous
  * NIX_RQ_CTX_S structures.
  */
 union cavm_nixx_af_lfx_rqs_base {
@@ -2897,8 +2821,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RQS_BASE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rqs_cfg
  *
- * NIX AF Local Function Receive Queues Configuration Register
- * This register configures receive queues in the LF.
+ * NIX AF Local Function Receive Queues Configuration Register This
+ * register configures receive queues in the LF.
  */
 union cavm_nixx_af_lfx_rqs_cfg {
 	u64 u;
@@ -2924,9 +2848,9 @@ static inline u64 CAVM_NIXX_AF_LFX_RQS_CFG(u64 a)
  * NIX AF Local Function Receive Size Scaling Table Base Address Register
  * This register specifies the base AF IOVA of the RSS table per LF. The
  * table is present when NIX_AF_LF()_RSS_CFG[ENA] is set and consists of
- * 2^(NIX_AF_LF()_RSS_CFG[SIZE]+8) contiguous NIX_RSSE_S structures, where the
- * size of each structure is 1 \<\< NIX_AF_CONST3[RSSE_LOG2BYTES].
- * See NIX_AF_LF()_RSS_GRP().
+ * 2^(NIX_AF_LF()_RSS_CFG[SIZE]+8) contiguous NIX_RSSE_S structures,
+ * where the size of each structure is 1 \<\<
+ * NIX_AF_CONST3[RSSE_LOG2BYTES]. See NIX_AF_LF()_RSS_GRP().
  */
 union cavm_nixx_af_lfx_rss_base {
 	u64 u;
@@ -2948,8 +2872,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RSS_BASE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rss_cfg
  *
- * NIX AF Local Function Receive Size Scaling Table Configuration Register
- * See NIX_AF_LF()_RSS_BASE and NIX_AF_LF()_RSS_GRP().
+ * NIX AF Local Function Receive Size Scaling Table Configuration
+ * Register See NIX_AF_LF()_RSS_BASE and NIX_AF_LF()_RSS_GRP().
  */
 union cavm_nixx_af_lfx_rss_cfg {
 	u64 u;
@@ -2974,16 +2898,15 @@ static inline u64 CAVM_NIXX_AF_LFX_RSS_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rss_grp#
  *
- * NIX AF Local Function Receive Side Scaling Group Registers
- * A receive packet targets a LF's RSS group when its NIX_RX_ACTION_S[OP] =
+ * NIX AF Local Function Receive Side Scaling Group Registers A receive
+ * packet targets a LF's RSS group when its NIX_RX_ACTION_S[OP] =
  * NIX_RX_ACTIONOP_E::RSS, or its target multicast list has an entry with
- * NIX_RX_MCE_S[OP] = NIX_RX_MCOP_E::RSS. The RSS group index (this register's last
- * index) is NIX_RX_ACTION_S[INDEX] or NIX_RX_MCE_S[INDEX].
- *
- * The RSS computation is as follows:
- * * The packet's flow_tag (see NIX_LF_RX_SECRET()) and RSS group are used to
- * select a NIX_RSSE_S entry in the LF's RSS table (see [SIZEM1]).
- * * NIX_RSSE_S selects the packet's destination RQ.
+ * NIX_RX_MCE_S[OP] = NIX_RX_MCOP_E::RSS. The RSS group index (this
+ * register's last index) is NIX_RX_ACTION_S[INDEX] or
+ * NIX_RX_MCE_S[INDEX].  The RSS computation is as follows: * The
+ * packet's flow_tag (see NIX_LF_RX_SECRET()) and RSS group are used to
+ * select a NIX_RSSE_S entry in the LF's RSS table (see [SIZEM1]). *
+ * NIX_RSSE_S selects the packet's destination RQ.
  */
 union cavm_nixx_af_lfx_rss_grpx {
 	u64 u;
@@ -3085,11 +3008,11 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG1(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_dyno_base
  *
- * NIX AF LF Receive IPSEC Dynamic Ordering Base Address Registers
- * This register specifies the base AF IOVA of the LF's IPSEC dynamic ordering
+ * NIX AF LF Receive IPSEC Dynamic Ordering Base Address Registers This
+ * register specifies the base AF IOVA of the LF's IPSEC dynamic ordering
  * counter table in NDC/LLC/DRAM. The table consists of 1 \<\<
- * (NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_IDX_W]) NIX_IPSEC_DYNO_S structures.
- * See NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA].
+ * (NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_IDX_W]) NIX_IPSEC_DYNO_S
+ * structures. See NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA].
  */
 union cavm_nixx_af_lfx_rx_ipsec_dyno_base {
 	u64 u;
@@ -3137,7 +3060,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_CFG(u64 a)
  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_sa_base
  *
  * NIX AF LF Receive IPSEC Security Association Base Address Register
- * This register specifies the base IOVA of CPT's IPSEC SA table in LLC/DRAM.
+ * This register specifies the base IOVA of CPT's IPSEC SA table in
+ * LLC/DRAM.
  */
 union cavm_nixx_af_lfx_rx_ipsec_sa_base {
 	u64 u;
@@ -3159,8 +3083,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_SA_BASE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_stat#
  *
- * NIX AF Local Function Receive Statistics Registers
- * The last dimension indicates which statistic, and is enumerated by NIX_STAT_LF_RX_E.
+ * NIX AF Local Function Receive Statistics Registers The last dimension
+ * indicates which statistic, and is enumerated by NIX_STAT_LF_RX_E.
  */
 union cavm_nixx_af_lfx_rx_statx {
 	u64 u;
@@ -3181,9 +3105,9 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_STATX(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_vtag_type#
  *
- * NIX AF Local Function Receive Vtag Type Registers
- * These registers specify optional Vtag (e.g. VLAN, E-TAG) actions for received
- * packets. Indexed by NIX_RX_VTAG_ACTION_S[VTAG*_TYPE].
+ * NIX AF Local Function Receive Vtag Type Registers These registers
+ * specify optional Vtag (e.g. VLAN, E-TAG) actions for received packets.
+ * Indexed by NIX_RX_VTAG_ACTION_S[VTAG*_TYPE].
  */
 union cavm_nixx_af_lfx_rx_vtag_typex {
 	u64 u;
@@ -3207,9 +3131,9 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_VTAG_TYPEX(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_sqs_base
  *
- * NIX AF Local Function Send Queues Base Address Register
- * This register specifies the base AF IOVA of the LF's SQ context table.
- * The table consists of NIX_AF_LF()_SQS_CFG[MAX_QUEUESM1]+1 contiguous
+ * NIX AF Local Function Send Queues Base Address Register This register
+ * specifies the base AF IOVA of the LF's SQ context table. The table
+ * consists of NIX_AF_LF()_SQS_CFG[MAX_QUEUESM1]+1 contiguous
  * NIX_SQ_CTX_HW_S structures.
  */
 union cavm_nixx_af_lfx_sqs_base {
@@ -3232,8 +3156,8 @@ static inline u64 CAVM_NIXX_AF_LFX_SQS_BASE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_sqs_cfg
  *
- * NIX AF Local Function Send Queues Configuration Register
- * This register configures send queues in the LF.
+ * NIX AF Local Function Send Queues Configuration Register This register
+ * configures send queues in the LF.
  */
 union cavm_nixx_af_lfx_sqs_cfg {
 	u64 u;
@@ -3323,8 +3247,8 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_PARSE_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_tx_stat#
  *
- * NIX AF Local Function Transmit Statistics Registers
- * The last dimension indicates which statistic, and is enumerated by NIX_STAT_LF_TX_E.
+ * NIX AF Local Function Transmit Statistics Registers The last dimension
+ * indicates which statistic, and is enumerated by NIX_STAT_LF_TX_E.
  */
 union cavm_nixx_af_lfx_tx_statx {
 	u64 u;
@@ -3413,17 +3337,15 @@ static inline u64 CAVM_NIXX_AF_LSO_CFG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lso_format#_field#
  *
- * NIX AF Large Send Offload Format Field Registers
- * These registers specify LSO packet modification formats. Each format may modify
- * up to eight packet fields with the following constraints:
- * * If fewer than eight fields are modified, [ALG] must be NIX_LSOALG_E::NOP in the
- * unused field registers.
- * * Modified fields must be specified in contiguous field registers starting with
- * NIX_AF_LSO_FORMAT()_FIELD(0).
- * * Modified fields cannot overlap.
- * * Multiple fields with the same [LAYER] value must be specified in
- * ascending [OFFSET] order.
- * * Fields in different layers must be specified in ascending [LAYER] order.
+ * NIX AF Large Send Offload Format Field Registers These registers
+ * specify LSO packet modification formats. Each format may modify up to
+ * eight packet fields with the following constraints: * If fewer than
+ * eight fields are modified, [ALG] must be NIX_LSOALG_E::NOP in the
+ * unused field registers. * Modified fields must be specified in
+ * contiguous field registers starting with NIX_AF_LSO_FORMAT()_FIELD(0).
+ * * Modified fields cannot overlap. * Multiple fields with the same
+ * [LAYER] value must be specified in ascending [OFFSET] order. * Fields
+ * in different layers must be specified in ascending [LAYER] order.
  */
 union cavm_nixx_af_lso_formatx_fieldx {
 	u64 u;
@@ -3449,28 +3371,19 @@ static inline u64 CAVM_NIXX_AF_LSO_FORMATX_FIELDX(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) nix#_af_mark_format#_ctl
  *
- * NIX AF Packet Marking Format Registers
- * Describes packet marking calculations for YELLOW and for
- * NIX_COLORRESULT_E::RED_SEND packets. NIX_SEND_EXT_S[MARKFORM] selects the CSR
- * used for the packet descriptor.
- *
- * All the packet marking offset calculations assume big-endian bits within a byte.
- *
- * For example, if NIX_SEND_EXT_S[MARKPTR] is 3 and [OFFSET] is 5 and the packet is YELLOW,
- * the NIX marking hardware would do this:
- *
- * _  byte[3]\<2:0\> |=   [Y_VAL]\<3:1\>
- * _  byte[3]\<2:0\> &= ~[Y_MASK]\<3:1\>
- * _  byte[4]\<7\>   |=   [Y_VAL]\<0\>
- * _  byte[4]\<7\>   &= ~[Y_MASK]\<0\>
- *
- * where byte[3] is the third byte in the packet, and byte[4] the fourth.
- *
- * For another example, if NIX_SEND_EXT_S[MARKPTR] is 3 and [OFFSET] is 0 and the
- * packet is NIX_COLORRESULT_E::RED_SEND,
- *
- * _   byte[3]\<7:4\> |=   [R_VAL]\<3:0\>
- * _   byte[3]\<7:4\> &= ~[R_MASK]\<3:0\>
+ * NIX AF Packet Marking Format Registers Describes packet marking
+ * calculations for YELLOW and for NIX_COLORRESULT_E::RED_SEND packets.
+ * NIX_SEND_EXT_S[MARKFORM] selects the CSR used for the packet
+ * descriptor.  All the packet marking offset calculations assume big-
+ * endian bits within a byte.  For example, if NIX_SEND_EXT_S[MARKPTR] is
+ * 3 and [OFFSET] is 5 and the packet is YELLOW, the NIX marking hardware
+ * would do this:  _  byte[3]\<2:0\> |=   [Y_VAL]\<3:1\> _
+ * byte[3]\<2:0\> &= ~[Y_MASK]\<3:1\> _  byte[4]\<7\>   |=   [Y_VAL]\<0\>
+ * _  byte[4]\<7\>   &= ~[Y_MASK]\<0\>  where byte[3] is the third byte
+ * in the packet, and byte[4] the fourth.  For another example, if
+ * NIX_SEND_EXT_S[MARKPTR] is 3 and [OFFSET] is 0 and the packet is
+ * NIX_COLORRESULT_E::RED_SEND,  _   byte[3]\<7:4\> |=   [R_VAL]\<3:0\> _
+ * byte[3]\<7:4\> &= ~[R_MASK]\<3:0\>
  */
 union cavm_nixx_af_mark_formatx_ctl {
 	u64 u;
@@ -3495,8 +3408,8 @@ static inline u64 CAVM_NIXX_AF_MARK_FORMATX_CTL(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_mc_mirror_const
  *
- * NIX AF Multicast/Mirror Constants Register
- * This register contains constants for software discovery.
+ * NIX AF Multicast/Mirror Constants Register This register contains
+ * constants for software discovery.
  */
 union cavm_nixx_af_mc_mirror_const {
 	u64 u;
@@ -3517,8 +3430,8 @@ static inline u64 CAVM_NIXX_AF_MC_MIRROR_CONST(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_mdq#_cir
  *
- * NIX AF Meta Descriptor Queue Committed Information Rate Registers
- * This register has the same bit fields as NIX_AF_TL1()_CIR.
+ * NIX AF Meta Descriptor Queue Committed Information Rate Registers This
+ * register has the same bit fields as NIX_AF_TL1()_CIR.
  */
 union cavm_nixx_af_mdqx_cir {
 	u64 u;
@@ -3546,8 +3459,9 @@ static inline u64 CAVM_NIXX_AF_MDQX_CIR(u64 a)
  * Register (RVU_PF_BAR0) nix#_af_mdq#_md_debug
  *
  * NIX AF Meta Descriptor Queue Meta Descriptor State Debug Registers
- * This register provides access to the meta descriptor at the front of the MDQ. An MDQ can
- * hold up to 8 packet meta descriptors (PMD) and one flush meta descriptor (FMD).
+ * This register provides access to the meta descriptor at the front of
+ * the MDQ. An MDQ can hold up to 8 packet meta descriptors (PMD) and one
+ * flush meta descriptor (FMD).
  */
 union cavm_nixx_af_mdqx_md_debug {
 	u64 u;
@@ -3598,8 +3512,8 @@ static inline u64 CAVM_NIXX_AF_MDQX_PARENT(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_mdq#_pir
  *
- * NIX AF Meta Descriptor Queue Peak Information Rate Registers
- * This register has the same bit fields as NIX_AF_TL1()_CIR.
+ * NIX AF Meta Descriptor Queue Peak Information Rate Registers This
+ * register has the same bit fields as NIX_AF_TL1()_CIR.
  */
 union cavm_nixx_af_mdqx_pir {
 	u64 u;
@@ -3627,7 +3541,6 @@ static inline u64 CAVM_NIXX_AF_MDQX_PIR(u64 a)
  * Register (RVU_PF_BAR0) nix#_af_mdq#_pointers
  *
  * INTERNAL: NIX AF Meta Descriptor 4 Linked List Pointers Debug Register
- *
  * This register has the same bit fields as NIX_AF_TL4()_POINTERS.
  */
 union cavm_nixx_af_mdqx_pointers {
@@ -3674,8 +3587,8 @@ static inline u64 CAVM_NIXX_AF_MDQX_PTR_FIFO(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_mdq#_sched_state
  *
- * NIX AF Meta Descriptor Queue Scheduling Control State Registers
- * This register has the same bit fields as NIX_AF_TL2()_SCHED_STATE.
+ * NIX AF Meta Descriptor Queue Scheduling Control State Registers This
+ * register has the same bit fields as NIX_AF_TL2()_SCHED_STATE.
  */
 union cavm_nixx_af_mdqx_sched_state {
 	u64 u;
@@ -3696,8 +3609,8 @@ static inline u64 CAVM_NIXX_AF_MDQX_SCHED_STATE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_mdq#_schedule
  *
- * NIX AF Meta Descriptor Queue Scheduling Control Registers
- * This register has the same bit fields as NIX_AF_TL2()_SCHEDULE.
+ * NIX AF Meta Descriptor Queue Scheduling Control Registers This
+ * register has the same bit fields as NIX_AF_TL2()_SCHEDULE.
  */
 union cavm_nixx_af_mdqx_schedule {
 	u64 u;
@@ -3719,8 +3632,8 @@ static inline u64 CAVM_NIXX_AF_MDQX_SCHEDULE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_mdq#_shape
  *
- * NIX AF Meta Descriptor Queue Shaping Control Registers
- * This register has the same bit fields as NIX_AF_TL3()_SHAPE.
+ * NIX AF Meta Descriptor Queue Shaping Control Registers This register
+ * has the same bit fields as NIX_AF_TL3()_SHAPE.
  */
 union cavm_nixx_af_mdqx_shape {
 	u64 u;
@@ -3747,9 +3660,9 @@ static inline u64 CAVM_NIXX_AF_MDQX_SHAPE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_mdq#_shape_state
  *
- * NIX AF Meta Descriptor Queue Shaping State Registers
- * This register has the same bit fields as NIX_AF_TL2()_SHAPE_STATE.
- * This register must not be written during normal operation.
+ * NIX AF Meta Descriptor Queue Shaping State Registers This register has
+ * the same bit fields as NIX_AF_TL2()_SHAPE_STATE. This register must
+ * not be written during normal operation.
  */
 union cavm_nixx_af_mdqx_shape_state {
 	u64 u;
@@ -3772,8 +3685,8 @@ static inline u64 CAVM_NIXX_AF_MDQX_SHAPE_STATE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_mdq#_sw_xoff
  *
- * NIX AF Meta Descriptor Controlled XOFF Registers
- * This register has the same bit fields as NIX_AF_TL1()_SW_XOFF
+ * NIX AF Meta Descriptor Controlled XOFF Registers This register has the
+ * same bit fields as NIX_AF_TL1()_SW_XOFF
  */
 union cavm_nixx_af_mdqx_sw_xoff {
 	u64 u;
@@ -3797,8 +3710,8 @@ static inline u64 CAVM_NIXX_AF_MDQX_SW_XOFF(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_mdq_const
  *
- * NIX AF Meta Descriptor Queue Constants Register
- * This register contains constants for software discovery.
+ * NIX AF Meta Descriptor Queue Constants Register This register contains
+ * constants for software discovery.
  */
 union cavm_nixx_af_mdq_const {
 	u64 u;
@@ -3853,8 +3766,8 @@ static inline u64 CAVM_NIXX_AF_NDC_CFG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_ndc_rx_sync
  *
- * NIX AF Receive NDC Sync Register
- * Used to synchronize the NIX receive NDC (NDC_IDX_E::NIX()_RX).
+ * NIX AF Receive NDC Sync Register Used to synchronize the NIX receive
+ * NDC (NDC_IDX_E::NIX()_RX).
  */
 union cavm_nixx_af_ndc_rx_sync {
 	u64 u;
@@ -3877,8 +3790,8 @@ static inline u64 CAVM_NIXX_AF_NDC_RX_SYNC(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_ndc_tx_sync
  *
- * NIX AF NDC_TX Sync Register
- * Used to synchronize the NIX transmit NDC (NDC_IDX_E::NIX()_TX).
+ * NIX AF NDC_TX Sync Register Used to synchronize the NIX transmit NDC
+ * (NDC_IDX_E::NIX()_TX).
  */
 union cavm_nixx_af_ndc_tx_sync {
 	u64 u;
@@ -3901,8 +3814,8 @@ static inline u64 CAVM_NIXX_AF_NDC_TX_SYNC(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_norm_tx_fifo_status
  *
- * NIX AF Normal Transmit FIFO Status Register
- * Status of FIFO which transmits normal (potentially preemptable) packets to CGX and LBK.
+ * NIX AF Normal Transmit FIFO Status Register Status of FIFO which
+ * transmits normal (potentially preemptable) packets to CGX and LBK.
  */
 union cavm_nixx_af_norm_tx_fifo_status {
 	u64 u;
@@ -3944,8 +3857,8 @@ static inline u64 CAVM_NIXX_AF_PSE_400_RATE_DIVIDER(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_pse_active_cycles_pc
  *
- * NIX AF Active Cycles Register
- * These registers are indexed by the conditional clock domain number.
+ * NIX AF Active Cycles Register These registers are indexed by the
+ * conditional clock domain number.
  */
 union cavm_nixx_af_pse_active_cycles_pc {
 	u64 u;
@@ -4082,8 +3995,8 @@ static inline u64 CAVM_NIXX_AF_PSE_CHANNEL_LEVEL(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_pse_const
  *
- * NIX AF PSE Constants Register
- * This register contains constants for software discovery.
+ * NIX AF PSE Constants Register This register contains constants for
+ * software discovery.
  */
 union cavm_nixx_af_pse_const {
 	u64 u;
@@ -4194,9 +4107,8 @@ static inline u64 CAVM_NIXX_AF_PSE_SHAPER_CFG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_ras
  *
- * NIX AF RAS Interrupt Register
- * This register is intended for delivery of RAS events to the SCP, so should be
- * ignored by OS drivers.
+ * NIX AF RAS Interrupt Register This register is intended for delivery
+ * of RAS events to the SCP, so should be ignored by OS drivers.
  */
 union cavm_nixx_af_ras {
 	u64 u;
@@ -4225,8 +4137,8 @@ static inline u64 CAVM_NIXX_AF_RAS(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_ras_ena_w1c
  *
- * NIX AF RAS Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NIX AF RAS Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_nixx_af_ras_ena_w1c {
 	u64 u;
@@ -4255,8 +4167,8 @@ static inline u64 CAVM_NIXX_AF_RAS_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_ras_ena_w1s
  *
- * NIX AF RAS Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NIX AF RAS Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
  */
 union cavm_nixx_af_ras_ena_w1s {
 	u64 u;
@@ -4285,8 +4197,7 @@ static inline u64 CAVM_NIXX_AF_RAS_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_ras_w1s
  *
- * NIX AF RAS Interrupt Set Register
- * This register sets interrupt bits.
+ * NIX AF RAS Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_nixx_af_ras_w1s {
 	u64 u;
@@ -4340,8 +4251,8 @@ static inline u64 CAVM_NIXX_AF_REB_BP_TESTX(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rq_const
  *
- * NIX AF RQ Constants Register
- * This register contains constants for software discovery.
+ * NIX AF RQ Constants Register This register contains constants for
+ * software discovery.
  */
 union cavm_nixx_af_rq_const {
 	u64 u;
@@ -4407,8 +4318,8 @@ static inline u64 CAVM_NIXX_AF_RQM_ECO(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rvu_int
  *
- * NIX AF RVU Interrupt Register
- * This register contains RVU error interrupt summary bits.
+ * NIX AF RVU Interrupt Register This register contains RVU error
+ * interrupt summary bits.
  */
 union cavm_nixx_af_rvu_int {
 	u64 u;
@@ -4429,8 +4340,8 @@ static inline u64 CAVM_NIXX_AF_RVU_INT(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rvu_int_ena_w1c
  *
- * NIX AF RVU Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NIX AF RVU Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_nixx_af_rvu_int_ena_w1c {
 	u64 u;
@@ -4451,8 +4362,8 @@ static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rvu_int_ena_w1s
  *
- * NIX AF RVU Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NIX AF RVU Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
  */
 union cavm_nixx_af_rvu_int_ena_w1s {
 	u64 u;
@@ -4473,8 +4384,7 @@ static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rvu_int_w1s
  *
- * NIX AF RVU Interrupt Set Register
- * This register sets interrupt bits.
+ * NIX AF RVU Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_nixx_af_rvu_int_w1s {
 	u64 u;
@@ -4495,9 +4405,9 @@ static inline u64 CAVM_NIXX_AF_RVU_INT_W1S(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rvu_lf_cfg_debug
  *
- * NIX Privileged LF Configuration Debug Register
- * This debug register allows software to lookup the reverse mapping from VF/PF
- * slot to LF. The forward mapping is programmed with NIX_PRIV_LF()_CFG.
+ * NIX Privileged LF Configuration Debug Register This debug register
+ * allows software to lookup the reverse mapping from VF/PF slot to LF.
+ * The forward mapping is programmed with NIX_PRIV_LF()_CFG.
  */
 union cavm_nixx_af_rvu_lf_cfg_debug {
 	u64 u;
@@ -4523,8 +4433,8 @@ static inline u64 CAVM_NIXX_AF_RVU_LF_CFG_DEBUG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_active_cycles_pc#
  *
- * NIX AF Active Cycles Register
- * These registers are indexed by the conditional clock domain number.
+ * NIX AF Active Cycles Register These registers are indexed by the
+ * conditional clock domain number.
  */
 union cavm_nixx_af_rx_active_cycles_pcx {
 	u64 u;
@@ -4632,21 +4542,15 @@ static inline u64 CAVM_NIXX_AF_RX_CPTX_CREDIT(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_cpt#_inst_qsel
  *
- * NIX AF Receive CPT Instruction Queue Select Register
- * Selects the CPT queue to which instructions (CPT_INST_S) are sent.
- * Internal:
- * NIX sends CPT_INST_S to the CPT_LF_NQ() physical address for [PF_FUNC] and [SLOT]:
- * \<pre\>
- * // CPT_LF_NQ() physical address:
- * chip_pa_defs::io_rvu2a_t cpt_addr;
- * cpt_addr = RVU_BAR_E::RVU_PF()_FUNC()_BAR2(pf, func);
- * cpt_addr.block = RVU_BLOCK_ADDR_E::CPT()({a}); // {a} = CPT index
- * cpt_addr.slot = [SLOT];
- * cpt_addr.offset = `CPT_LF_NQX__BASE;
- *
- * // NDC/NCBI command:
- * ncbi_cmd.paddr = 1; // Physical address
- * ncbi_cmd.addr = cpt_addr;
+ * NIX AF Receive CPT Instruction Queue Select Register Selects the CPT
+ * queue to which instructions (CPT_INST_S) are sent. Internal: NIX sends
+ * CPT_INST_S to the CPT_LF_NQ() physical address for [PF_FUNC] and
+ * [SLOT]: \<pre\> // CPT_LF_NQ() physical address:
+ * chip_pa_defs::io_rvu2a_t cpt_addr; cpt_addr =
+ * RVU_BAR_E::RVU_PF()_FUNC()_BAR2(pf, func); cpt_addr.block =
+ * RVU_BLOCK_ADDR_E::CPT()({a}); // {a} = CPT index cpt_addr.slot =
+ * [SLOT]; cpt_addr.offset = `CPT_LF_NQX__BASE;  // NDC/NCBI command:
+ * ncbi_cmd.paddr = 1; // Physical address ncbi_cmd.addr = cpt_addr;
  * \</pre\>
  */
 union cavm_nixx_af_rx_cptx_inst_qsel {
@@ -4669,8 +4573,8 @@ static inline u64 CAVM_NIXX_AF_RX_CPTX_INST_QSEL(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_iip4
  *
- * NIX AF Receive Inner IPv4 Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an inner IPv4 header.
+ * NIX AF Receive Inner IPv4 Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an inner IPv4 header.
  * Typically the same as NPC_PCK_DEF_IIP4.
  */
 union cavm_nixx_af_rx_def_iip4 {
@@ -4694,8 +4598,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IIP4(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_iip6
  *
- * NIX AF Receive Inner IPv6 Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an inner IPv6 header.
+ * NIX AF Receive Inner IPv6 Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an inner IPv6 header.
  */
 union cavm_nixx_af_rx_def_iip6 {
 	u64 u;
@@ -4718,9 +4622,9 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IIP6(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_ipsec#
  *
- * NIX AF Receive IPSEC Header Definition Registers
- * These two registers define layer information in NPC_RESULT_S to identify an
- * IPSEC header for up to two IPSEC packet formats. The two formats are typically
+ * NIX AF Receive IPSEC Header Definition Registers These two registers
+ * define layer information in NPC_RESULT_S to identify an IPSEC header
+ * for up to two IPSEC packet formats. The two formats are typically
  * IPSEC ESP (RFC 4303) and UDP-encapsulated IPSEC ESP (RFC 3948).
  */
 union cavm_nixx_af_rx_def_ipsecx {
@@ -4747,8 +4651,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IPSECX(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_isctp
  *
- * NIX AF Receive Inner SCTP Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an inner SCTP header.
+ * NIX AF Receive Inner SCTP Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an inner SCTP header.
  */
 union cavm_nixx_af_rx_def_isctp {
 	u64 u;
@@ -4771,8 +4675,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_ISCTP(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_itcp
  *
- * NIX AF Receive Inner TCP Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an inner TCP header.
+ * NIX AF Receive Inner TCP Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an inner TCP header.
  */
 union cavm_nixx_af_rx_def_itcp {
 	u64 u;
@@ -4795,8 +4699,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_ITCP(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_iudp
  *
- * NIX AF Receive Inner UDP Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an inner UDP header.
+ * NIX AF Receive Inner UDP Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an inner UDP header.
  */
 union cavm_nixx_af_rx_def_iudp {
 	u64 u;
@@ -4819,8 +4723,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IUDP(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_oip4
  *
- * NIX AF Receive Outer IPv4 Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an outer IPv4 L3 header.
+ * NIX AF Receive Outer IPv4 Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an outer IPv4 L3 header.
  * Typically the same as NPC_PCK_DEF_OIP4.
  */
 union cavm_nixx_af_rx_def_oip4 {
@@ -4844,8 +4748,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OIP4(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_oip6
  *
- * NIX AF Receive Outer IPv6 Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an outer IPv6 header.
+ * NIX AF Receive Outer IPv6 Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an outer IPv6 header.
  * Typically the same as NPC_PCK_DEF_OIP6.
  */
 union cavm_nixx_af_rx_def_oip6 {
@@ -4869,9 +4773,9 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OIP6(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_ol2
  *
- * NIX AF Receive Outer L2 Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an outer L2/Ethernet
- * header. Typically the same as NPC_PCK_DEF_OL2.
+ * NIX AF Receive Outer L2 Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an outer L2/Ethernet header.
+ * Typically the same as NPC_PCK_DEF_OL2.
  */
 union cavm_nixx_af_rx_def_ol2 {
 	u64 u;
@@ -4894,8 +4798,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OL2(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_osctp
  *
- * NIX AF Receive Outer SCTP Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an outer SCTP header.
+ * NIX AF Receive Outer SCTP Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an outer SCTP header.
  */
 union cavm_nixx_af_rx_def_osctp {
 	u64 u;
@@ -4918,8 +4822,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OSCTP(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_otcp
  *
- * NIX AF Receive Outer TCP Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an outer TCP header.
+ * NIX AF Receive Outer TCP Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an outer TCP header.
  */
 union cavm_nixx_af_rx_def_otcp {
 	u64 u;
@@ -4942,8 +4846,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OTCP(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_oudp
  *
- * NIX AF Receive Outer UDP Header Definition Register
- * Defines layer information in NPC_RESULT_S to identify an outer UDP header.
+ * NIX AF Receive Outer UDP Header Definition Register Defines layer
+ * information in NPC_RESULT_S to identify an outer UDP header.
  */
 union cavm_nixx_af_rx_def_oudp {
 	u64 u;
@@ -4966,23 +4870,16 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OUDP(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_flow_key_alg#_field#
  *
- * NIX AF Receive Flow Key Algorithm Field Registers
- * A flow key algorithm defines how the 40-byte FLOW_KEY is formed from the received
- * packet header. FLOW_KEY is formed using up to five header fields (this register's
- * last index) with up to 16 bytes per field.
- *
- * The algorithm (index {a} (ALG) of these registers) is selected by
+ * NIX AF Receive Flow Key Algorithm Field Registers A flow key algorithm
+ * defines how the 40-byte FLOW_KEY is formed from the received packet
+ * header. FLOW_KEY is formed using up to five header fields (this
+ * register's last index) with up to 16 bytes per field.  The algorithm
+ * (index {a} (ALG) of these registers) is selected by
  * NIX_RX_ACTION_S[FLOW_KEY_ALG] from the packet's NPC_RESULT_S[ACTION].
- *
- * Internal:
- * 40-byte FLOW_KEY is wide enough to support an IPv6 5-tuple that includes a
- * VXLAN/GENEVE/NVGRE tunnel ID, e.g:
- * _ Source IP: 16B.
- * _ Dest IP: 16B.
- * _ Source port: 2B.
- * _ Dest port: 2B.
- * _ Tunnel VNI/VSI: 3B.
- * _ Total: 39B.
+ * Internal: 40-byte FLOW_KEY is wide enough to support an IPv6 5-tuple
+ * that includes a VXLAN/GENEVE/NVGRE tunnel ID, e.g: _ Source IP: 16B. _
+ * Dest IP: 16B. _ Source port: 2B. _ Dest port: 2B. _ Tunnel VNI/VSI:
+ * 3B. _ Total: 39B.
  */
 union cavm_nixx_af_rx_flow_key_algx_fieldx {
 	u64 u;
@@ -5013,8 +4910,8 @@ static inline u64 CAVM_NIXX_AF_RX_FLOW_KEY_ALGX_FIELDX(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_ipsec_gen_cfg
  *
- * NIX AF Receive IPSEC General Configuration Register
- * This register specifies the values of certain fields in CPT instructions
+ * NIX AF Receive IPSEC General Configuration Register This register
+ * specifies the values of certain fields in CPT instructions
  * (CPT_INST_S) generated by NIX for IPSEC hardware fast-path packets.
  */
 union cavm_nixx_af_rx_ipsec_gen_cfg {
@@ -5039,8 +4936,8 @@ static inline u64 CAVM_NIXX_AF_RX_IPSEC_GEN_CFG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_link#_cfg
  *
- * NIX AF Receive Link Configuration Registers
- * Index enumerated by NIX_LINK_E.
+ * NIX AF Receive Link Configuration Registers Index enumerated by
+ * NIX_LINK_E.
  */
 union cavm_nixx_af_rx_linkx_cfg {
 	u64 u;
@@ -5062,12 +4959,11 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_link#_sl#_spkt_cnt
  *
- * INTERNAL: NIX Receive Software Sync Link Packet Count Registers
- *
- * For diagnostic use only for debug of NIX_AF_RX_SW_SYNC[ENA] function. LINK
- * index is enumerated by NIX_LINK_E. SL index is zero for non-express packets,
- * one for express packets. For the internal NIX_LINK_E::MC, SL index is zero for
- * multicast replay, one for mirror replay.
+ * INTERNAL: NIX Receive Software Sync Link Packet Count Registers  For
+ * diagnostic use only for debug of NIX_AF_RX_SW_SYNC[ENA] function. LINK
+ * index is enumerated by NIX_LINK_E. SL index is zero for non-express
+ * packets, one for express packets. For the internal NIX_LINK_E::MC, SL
+ * index is zero for multicast replay, one for mirror replay.
  */
 union cavm_nixx_af_rx_linkx_slx_spkt_cnt {
 	u64 u;
@@ -5090,8 +4986,8 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_SLX_SPKT_CNT(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_link#_wrr_cfg
  *
- * NIX AF Receive Link Weighted Round Robin Configuration Registers
- * Index enumerated by NIX_LINK_E.
+ * NIX AF Receive Link Weighted Round Robin Configuration Registers Index
+ * enumerated by NIX_LINK_E.
  */
 union cavm_nixx_af_rx_linkx_wrr_cfg {
 	u64 u;
@@ -5112,32 +5008,26 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_WRR_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_mcast_base
  *
- * NIX AF Receive Multicast/Mirror Table Base Address Register
- * This register specifies the base AF IOVA of the receive multicast/mirror
- * table in NDC/LLC/DRAM. The table consists of 1 \<\< (NIX_AF_RX_MCAST_CFG[SIZE]+8)
- * contiguous NIX_RX_MCE_S structures. The size of each structure is
- * 1 \<\< NIX_AF_CONST3[MCE_LOG2BYTES].
- *
- * The table contains multicast/mirror replication lists. Each list consists of
- * linked entries with NIX_RX_MCE_S[EOL] = 1 in the last entry. All lists
- * must reside within the table size specified by NIX_AF_RX_MCAST_CFG[SIZE]. A
- * mirror replication list will typically consist of two entries, but that is not
- * checked or enforced by hardware.
- *
- * A receive packet is multicast when the action returned by NPC has
- * NIX_RX_ACTION_S[OP] = NIX_RX_ACTIONOP_E::MCAST.
- * A receive packet is mirrored when the action returned by NPC has
- * NIX_RX_ACTION_S[OP] = NIX_RX_ACTIONOP_E::MIRROR.
- * In both cases, NIX_RX_ACTION_S[INDEX] specifies the index of the replication
- * list's first NIX_RX_MCE_S in the table, and a linked entry with
- * NIX_RX_MCE_S[EOL] = 1 indicates the end of list.
- *
- * If a mirrored flow is part of a multicast replication list, software should
- * include the two mirror entries in that list.
- *
- * Internal:
- * A multicast list may have multiple entries for the same LF (e.g. for future
- * RoCE/IB multicast).
+ * NIX AF Receive Multicast/Mirror Table Base Address Register This
+ * register specifies the base AF IOVA of the receive multicast/mirror
+ * table in NDC/LLC/DRAM. The table consists of 1 \<\<
+ * (NIX_AF_RX_MCAST_CFG[SIZE]+8) contiguous NIX_RX_MCE_S structures. The
+ * size of each structure is 1 \<\< NIX_AF_CONST3[MCE_LOG2BYTES].  The
+ * table contains multicast/mirror replication lists. Each list consists
+ * of linked entries with NIX_RX_MCE_S[EOL] = 1 in the last entry. All
+ * lists must reside within the table size specified by
+ * NIX_AF_RX_MCAST_CFG[SIZE]. A mirror replication list will typically
+ * consist of two entries, but that is not checked or enforced by
+ * hardware.  A receive packet is multicast when the action returned by
+ * NPC has NIX_RX_ACTION_S[OP] = NIX_RX_ACTIONOP_E::MCAST. A receive
+ * packet is mirrored when the action returned by NPC has
+ * NIX_RX_ACTION_S[OP] = NIX_RX_ACTIONOP_E::MIRROR. In both cases,
+ * NIX_RX_ACTION_S[INDEX] specifies the index of the replication list's
+ * first NIX_RX_MCE_S in the table, and a linked entry with
+ * NIX_RX_MCE_S[EOL] = 1 indicates the end of list.  If a mirrored flow
+ * is part of a multicast replication list, software should include the
+ * two mirror entries in that list.  Internal: A multicast list may have
+ * multiple entries for the same LF (e.g. for future RoCE/IB multicast).
  */
 union cavm_nixx_af_rx_mcast_base {
 	u64 u;
@@ -5159,18 +5049,15 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_BASE(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_mcast_buf_base
  *
- * NIX AF Receive Multicast Buffer Base Address Register
- * This register specifies the base AF IOVA of the receive multicast
- * buffers in NDC/LLC/DRAM. These buffers are used to temporarily store packets
+ * NIX AF Receive Multicast Buffer Base Address Register This register
+ * specifies the base AF IOVA of the receive multicast buffers in
+ * NDC/LLC/DRAM. These buffers are used to temporarily store packets
  * whose action returned by NPC has NIX_RX_ACTION_S[OP] =
  * NIX_RX_ACTIONOP_E::MCAST. The number of buffers is configured by
- * NIX_AF_RX_MCAST_BUF_CFG[SIZE].
- *
- * If the number of free buffers is insufficient for a received multicast packet,
- * hardware tail drops the packet and sets NIX_AF_GEN_INT[RX_MCAST_DROP].
- *
- * Hardware prioritizes the processing of RX mirror packets over RX multicast
- * packets.
+ * NIX_AF_RX_MCAST_BUF_CFG[SIZE].  If the number of free buffers is
+ * insufficient for a received multicast packet, hardware tail drops the
+ * packet and sets NIX_AF_GEN_INT[RX_MCAST_DROP].  Hardware prioritizes
+ * the processing of RX mirror packets over RX multicast packets.
  */
 union cavm_nixx_af_rx_mcast_buf_base {
 	u64 u;
@@ -5192,8 +5079,8 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_BASE(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_mcast_buf_cfg
  *
- * NIX AF Receive Multicast Buffer Configuration Register
- * See NIX_AF_RX_MCAST_BUF_BASE.
+ * NIX AF Receive Multicast Buffer Configuration Register See
+ * NIX_AF_RX_MCAST_BUF_BASE.
  */
 union cavm_nixx_af_rx_mcast_buf_cfg {
 	u64 u;
@@ -5221,8 +5108,8 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_CFG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_mcast_cfg
  *
- * NIX AF Receive Multicast/Mirror Table Configuration Register
- * See NIX_AF_RX_MCAST_BASE.
+ * NIX AF Receive Multicast/Mirror Table Configuration Register See
+ * NIX_AF_RX_MCAST_BASE.
  */
 union cavm_nixx_af_rx_mcast_cfg {
 	u64 u;
@@ -5247,17 +5134,15 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_CFG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_mirror_buf_base
  *
- * NIX AF Receive Mirror Buffer Base Address Register
- * This register specifies the base AF IOVA of the receive mirror buffers
- * in NDC/LLC/DRAM. These buffers are used to temporarily store packets whose
- * action returned by NPC has NIX_RX_ACTION_S[OP] = NIX_RX_ACTIONOP_E::MIRROR. The
- * number of buffers is configured by NIX_AF_RX_MIRROR_BUF_CFG[SIZE].
- *
- * If the number of free buffers is insufficient for a received multicast packet,
- * hardware tail drops the packet and sets NIX_AF_GEN_INT[RX_MIRROR_DROP].
- *
- * Hardware prioritizes the processing of RX mirror packets over RX multicast
- * packets.
+ * NIX AF Receive Mirror Buffer Base Address Register This register
+ * specifies the base AF IOVA of the receive mirror buffers in
+ * NDC/LLC/DRAM. These buffers are used to temporarily store packets
+ * whose action returned by NPC has NIX_RX_ACTION_S[OP] =
+ * NIX_RX_ACTIONOP_E::MIRROR. The number of buffers is configured by
+ * NIX_AF_RX_MIRROR_BUF_CFG[SIZE].  If the number of free buffers is
+ * insufficient for a received multicast packet, hardware tail drops the
+ * packet and sets NIX_AF_GEN_INT[RX_MIRROR_DROP].  Hardware prioritizes
+ * the processing of RX mirror packets over RX multicast packets.
  */
 union cavm_nixx_af_rx_mirror_buf_base {
 	u64 u;
@@ -5279,8 +5164,8 @@ static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_BASE(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_mirror_buf_cfg
  *
- * NIX AF Receive Mirror Buffer Configuration Register
- * See NIX_AF_RX_MIRROR_BUF_BASE.
+ * NIX AF Receive Mirror Buffer Configuration Register See
+ * NIX_AF_RX_MIRROR_BUF_BASE.
  */
 union cavm_nixx_af_rx_mirror_buf_cfg {
 	u64 u;
@@ -5308,8 +5193,8 @@ static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_CFG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_npc_mc_drop
  *
- * NIX AF Multicast Drop Statistics Register
- * The counter increments for every dropped MC packet marked by the NPC.
+ * NIX AF Multicast Drop Statistics Register The counter increments for
+ * every dropped MC packet marked by the NPC.
  */
 union cavm_nixx_af_rx_npc_mc_drop {
 	u64 u;
@@ -5330,8 +5215,8 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MC_DROP(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_npc_mc_rcv
  *
- * NIX AF Multicast Receive Statistics Register
- * The counter increments for every received MC packet marked by the NPC.
+ * NIX AF Multicast Receive Statistics Register The counter increments
+ * for every received MC packet marked by the NPC.
  */
 union cavm_nixx_af_rx_npc_mc_rcv {
 	u64 u;
@@ -5352,8 +5237,8 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MC_RCV(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_npc_mirror_drop
  *
- * NIX AF Mirror Drop Statistics Register
- * The counter increments for every dropped MIRROR packet marked by the NPC.
+ * NIX AF Mirror Drop Statistics Register The counter increments for
+ * every dropped MIRROR packet marked by the NPC.
  */
 union cavm_nixx_af_rx_npc_mirror_drop {
 	u64 u;
@@ -5374,8 +5259,8 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_DROP(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_npc_mirror_rcv
  *
- * NIX AF Mirror Receive Statistics Register
- * The counter increments for every received MIRROR packet marked by the NPC.
+ * NIX AF Mirror Receive Statistics Register The counter increments for
+ * every received MIRROR packet marked by the NPC.
  */
 union cavm_nixx_af_rx_npc_mirror_rcv {
 	u64 u;
@@ -5417,8 +5302,7 @@ static inline u64 CAVM_NIXX_AF_RX_SW_SYNC(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_sdp_hw_xoff#
  *
- * NIX AF SDP Transmit Link Hardware Controlled XOFF Registers
- * .
+ * NIX AF SDP Transmit Link Hardware Controlled XOFF Registers .
  */
 union cavm_nixx_af_sdp_hw_xoffx {
 	u64 u;
@@ -5438,8 +5322,8 @@ static inline u64 CAVM_NIXX_AF_SDP_HW_XOFFX(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_sdp_link_credit
  *
- * NIX AF Transmit Link SDP Credit Register
- * This register tracks SDP link credits.
+ * NIX AF Transmit Link SDP Credit Register This register tracks SDP link
+ * credits.
  */
 union cavm_nixx_af_sdp_link_credit {
 	u64 u;
@@ -5483,8 +5367,8 @@ static inline u64 CAVM_NIXX_AF_SDP_SW_XOFFX(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_sdp_tx_fifo_status
  *
- * NIX AF SDP Transmit FIFO Status Register
- * Status of FIFO which transmits packets to SDP.
+ * NIX AF SDP Transmit FIFO Status Register Status of FIFO which
+ * transmits packets to SDP.
  */
 union cavm_nixx_af_sdp_tx_fifo_status {
 	u64 u;
@@ -5505,8 +5389,8 @@ static inline u64 CAVM_NIXX_AF_SDP_TX_FIFO_STATUS(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_seb_active_cycles_pc#
  *
- * NIX AF Active Cycles Register
- * These registers are indexed by the conditional clock domain number.
+ * NIX AF Active Cycles Register These registers are indexed by the
+ * conditional clock domain number.
  */
 union cavm_nixx_af_seb_active_cycles_pcx {
 	u64 u;
@@ -5673,8 +5557,8 @@ static inline u64 CAVM_NIXX_AF_SMQX_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_smq#_head
  *
- * NIX AF SQM SMQ Head Register
- * These registers track the head of the SMQ linked list.
+ * NIX AF SQM SMQ Head Register These registers track the head of the SMQ
+ * linked list.
  */
 union cavm_nixx_af_smqx_head {
 	u64 u;
@@ -5696,8 +5580,8 @@ static inline u64 CAVM_NIXX_AF_SMQX_HEAD(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_smq#_nxt_head
  *
- * NIX AF SQM SMQ Next Head Register
- * These registers track the next head of the SMQ linked list.
+ * NIX AF SQM SMQ Next Head Register These registers track the next head
+ * of the SMQ linked list.
  */
 union cavm_nixx_af_smqx_nxt_head {
 	u64 u;
@@ -5719,8 +5603,8 @@ static inline u64 CAVM_NIXX_AF_SMQX_NXT_HEAD(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_smq#_status
  *
- * NIX AF SQM SMQ Status Register
- * These registers track the status of the SMQ FIFO.
+ * NIX AF SQM SMQ Status Register These registers track the status of the
+ * SMQ FIFO.
  */
 union cavm_nixx_af_smqx_status {
 	u64 u;
@@ -5741,8 +5625,8 @@ static inline u64 CAVM_NIXX_AF_SMQX_STATUS(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_smq#_tail
  *
- * NIX AF SQM SMQ Head Register
- * These registers track the tail of SMQ linked list.
+ * NIX AF SQM SMQ Head Register These registers track the tail of SMQ
+ * linked list.
  */
 union cavm_nixx_af_smqx_tail {
 	u64 u;
@@ -5764,8 +5648,8 @@ static inline u64 CAVM_NIXX_AF_SMQX_TAIL(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_sq_const
  *
- * NIX AF SQ Constants Register
- * This register contains constants for software discovery.
+ * NIX AF SQ Constants Register This register contains constants for
+ * software discovery.
  */
 union cavm_nixx_af_sq_const {
 	u64 u;
@@ -5788,8 +5672,8 @@ static inline u64 CAVM_NIXX_AF_SQ_CONST(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_sqm_active_cycles_pc
  *
- * NIX AF SQM Active Cycles Register
- * These registers are indexed by the conditional clock domain number.
+ * NIX AF SQM Active Cycles Register These registers are indexed by the
+ * conditional clock domain number.
  */
 union cavm_nixx_af_sqm_active_cycles_pc {
 	u64 u;
@@ -5833,9 +5717,8 @@ static inline u64 CAVM_NIXX_AF_SQM_BP_TESTX(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_sqm_dbg_ctl_status
  *
- * INTERNAL: NIX AF SQM Debug Register
- *
- * This register is for SQM diagnostic use only.
+ * INTERNAL: NIX AF SQM Debug Register  This register is for SQM
+ * diagnostic use only.
  */
 union cavm_nixx_af_sqm_dbg_ctl_status {
 	u64 u;
@@ -5960,8 +5843,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_CIR(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_dropped_bytes
  *
- * NIX AF Transmit Level 1 Dropped Bytes Registers
- * This register has the same bit fields as NIX_AF_TL1()_GREEN_BYTES.
+ * NIX AF Transmit Level 1 Dropped Bytes Registers This register has the
+ * same bit fields as NIX_AF_TL1()_GREEN_BYTES.
  */
 union cavm_nixx_af_tl1x_dropped_bytes {
 	u64 u;
@@ -5982,8 +5865,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_BYTES(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_dropped_packets
  *
- * NIX AF Transmit Level 1 Dropped Packets Registers
- * This register has the same bit fields as NIX_AF_TL1()_GREEN_PACKETS.
+ * NIX AF Transmit Level 1 Dropped Packets Registers This register has
+ * the same bit fields as NIX_AF_TL1()_GREEN_PACKETS.
  */
 union cavm_nixx_af_tl1x_dropped_packets {
 	u64 u;
@@ -6073,13 +5956,13 @@ static inline u64 CAVM_NIXX_AF_TL1X_GREEN_PACKETS(u64 a)
  * Register (RVU_PF_BAR0) nix#_af_tl1#_md_debug0
  *
  * NIX AF Transmit Level 1 Meta Descriptor Debug 0 Registers
- * NIX_AF_TL1()_MD_DEBUG0, NIX_AF_TL1()_MD_DEBUG1, NIX_AF_TL1()_MD_DEBUG2 and
- * NIX_AF_TL1()_MD_DEBUG3 provide access to the TLn queue meta descriptor. A TLn
- * queue can hold up to two packet meta descriptors (PMD) and one flush meta
- * descriptor (FMD):
- * * PMD0 state is accessed with [PMD0_VLD], [PMD0_LENGTH] and NIX_AF_TL1()_MD_DEBUG1.
- * * PMD1 is accessed with [PMD1_VLD], [PMD1_LENGTH] and NIX_AF_TL1()_MD_DEBUG2.
- * * FMD is accessed with NIX_AF_TL1()_MD_DEBUG3.
+ * NIX_AF_TL1()_MD_DEBUG0, NIX_AF_TL1()_MD_DEBUG1, NIX_AF_TL1()_MD_DEBUG2
+ * and NIX_AF_TL1()_MD_DEBUG3 provide access to the TLn queue meta
+ * descriptor. A TLn queue can hold up to two packet meta descriptors
+ * (PMD) and one flush meta descriptor (FMD): * PMD0 state is accessed
+ * with [PMD0_VLD], [PMD0_LENGTH] and NIX_AF_TL1()_MD_DEBUG1. * PMD1 is
+ * accessed with [PMD1_VLD], [PMD1_LENGTH] and NIX_AF_TL1()_MD_DEBUG2. *
+ * FMD is accessed with NIX_AF_TL1()_MD_DEBUG3.
  */
 union cavm_nixx_af_tl1x_md_debug0 {
 	u64 u;
@@ -6111,8 +5994,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG0(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_md_debug1
  *
- * NIX AF Transmit Level 1 Meta Descriptor Debug 1 Registers
- * Packet meta descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 1 Meta Descriptor Debug 1 Registers Packet meta
+ * descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl1x_md_debug1 {
 	u64 u;
@@ -6147,8 +6030,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG1(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_md_debug2
  *
- * NIX AF Transmit Level 1 Meta Descriptor Debug 2 Registers
- * Packet meta descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 1 Meta Descriptor Debug 2 Registers Packet meta
+ * descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl1x_md_debug2 {
 	u64 u;
@@ -6183,8 +6066,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG2(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_md_debug3
  *
- * NIX AF Transmit Level 1 Meta Descriptor Debug 3 Registers
- * Flush meta descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 1 Meta Descriptor Debug 3 Registers Flush meta
+ * descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl1x_md_debug3 {
 	u64 u;
@@ -6209,9 +6092,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG3(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_red
  *
- * INTERNAL: NIX Transmit Level 1 Red State Debug Register
- *
- * This register has the same bit fields as NIX_AF_TL1()_YELLOW.
+ * INTERNAL: NIX Transmit Level 1 Red State Debug Register  This register
+ * has the same bit fields as NIX_AF_TL1()_YELLOW.
  */
 union cavm_nixx_af_tl1x_red {
 	u64 u;
@@ -6234,8 +6116,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_RED(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_red_bytes
  *
- * NIX AF Transmit Level 1 Red Sent Bytes Registers
- * This register has the same bit fields as NIX_AF_TL1()_GREEN_BYTES.
+ * NIX AF Transmit Level 1 Red Sent Bytes Registers This register has the
+ * same bit fields as NIX_AF_TL1()_GREEN_BYTES.
  */
 union cavm_nixx_af_tl1x_red_bytes {
 	u64 u;
@@ -6256,8 +6138,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_RED_BYTES(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_red_packets
  *
- * NIX AF Transmit Level 1 Red Sent Packets Registers
- * This register has the same bit fields as NIX_AF_TL1()_GREEN_PACKETS.
+ * NIX AF Transmit Level 1 Red Sent Packets Registers This register has
+ * the same bit fields as NIX_AF_TL1()_GREEN_PACKETS.
  */
 union cavm_nixx_af_tl1x_red_packets {
 	u64 u;
@@ -6328,8 +6210,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_SHAPE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_shape_state
  *
- * NIX AF Transmit Level 1 Shape State Register
- * This register must not be written during normal operation.
+ * NIX AF Transmit Level 1 Shape State Register This register must not be
+ * written during normal operation.
  */
 union cavm_nixx_af_tl1x_shape_state {
 	u64 u;
@@ -6423,8 +6305,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_YELLOW(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_yellow_bytes
  *
- * NIX AF Transmit Level 1 Yellow Sent Bytes Registers
- * This register has the same bit fields as NIX_AF_TL1()_GREEN_BYTES.
+ * NIX AF Transmit Level 1 Yellow Sent Bytes Registers This register has
+ * the same bit fields as NIX_AF_TL1()_GREEN_BYTES.
  */
 union cavm_nixx_af_tl1x_yellow_bytes {
 	u64 u;
@@ -6445,8 +6327,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_BYTES(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1#_yellow_packets
  *
- * NIX AF Transmit Level 1 Yellow Sent Packets Registers
- * This register has the same bit fields as NIX_AF_TL1()_GREEN_PACKETS.
+ * NIX AF Transmit Level 1 Yellow Sent Packets Registers This register
+ * has the same bit fields as NIX_AF_TL1()_GREEN_PACKETS.
  */
 union cavm_nixx_af_tl1x_yellow_packets {
 	u64 u;
@@ -6467,8 +6349,8 @@ static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_PACKETS(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl1_const
  *
- * NIX AF Transmit Level 1 Constants Register
- * This register contains constants for software discovery.
+ * NIX AF Transmit Level 1 Constants Register This register contains
+ * constants for software discovery.
  */
 union cavm_nixx_af_tl1_const {
 	u64 u;
@@ -6489,8 +6371,8 @@ static inline u64 CAVM_NIXX_AF_TL1_CONST(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_cir
  *
- * NIX AF Transmit Level 2 Committed Information Rate Registers
- * This register has the same bit fields as NIX_AF_TL1()_CIR.
+ * NIX AF Transmit Level 2 Committed Information Rate Registers This
+ * register has the same bit fields as NIX_AF_TL1()_CIR.
  */
 union cavm_nixx_af_tl2x_cir {
 	u64 u;
@@ -6517,9 +6399,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_CIR(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_green
  *
- * INTERNAL: NIX Transmit Level 2 Green State Debug Register
- *
- * This register has the same bit fields as NIX_AF_TL1()_GREEN.
+ * INTERNAL: NIX Transmit Level 2 Green State Debug Register  This
+ * register has the same bit fields as NIX_AF_TL1()_GREEN.
  */
 union cavm_nixx_af_tl2x_green {
 	u64 u;
@@ -6545,8 +6426,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_GREEN(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_md_debug0
  *
- * NIX AF Transmit Level 2 Meta Descriptor Debug 0 Registers
- * See NIX_AF_TL1()_MD_DEBUG0
+ * NIX AF Transmit Level 2 Meta Descriptor Debug 0 Registers See
+ * NIX_AF_TL1()_MD_DEBUG0
  */
 union cavm_nixx_af_tl2x_md_debug0 {
 	u64 u;
@@ -6578,8 +6459,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG0(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_md_debug1
  *
- * NIX AF Transmit Level 2 Meta Descriptor Debug 1 Registers
- * Packet meta descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 2 Meta Descriptor Debug 1 Registers Packet meta
+ * descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl2x_md_debug1 {
 	u64 u;
@@ -6614,8 +6495,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG1(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_md_debug2
  *
- * NIX AF Transmit Level 2 Meta Descriptor Debug 2 Registers
- * Packet meta descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 2 Meta Descriptor Debug 2 Registers Packet meta
+ * descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl2x_md_debug2 {
 	u64 u;
@@ -6650,8 +6531,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG2(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_md_debug3
  *
- * NIX AF Transmit Level 2 Meta Descriptor Debug 3 Registers
- * Flush meta descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 2 Meta Descriptor Debug 3 Registers Flush meta
+ * descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl2x_md_debug3 {
 	u64 u;
@@ -6698,8 +6579,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_PARENT(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_pir
  *
- * NIX AF Transmit Level 2 Peak Information Rate Registers
- * This register has the same bit fields as NIX_AF_TL1()_CIR.
+ * NIX AF Transmit Level 2 Peak Information Rate Registers This register
+ * has the same bit fields as NIX_AF_TL1()_CIR.
  */
 union cavm_nixx_af_tl2x_pir {
 	u64 u;
@@ -6749,9 +6630,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_POINTERS(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_red
  *
- * INTERNAL: NIX Transmit Level 2 Red State Debug Register
- *
- * This register has the same bit fields as NIX_AF_TL1()_RED.
+ * INTERNAL: NIX Transmit Level 2 Red State Debug Register  This register
+ * has the same bit fields as NIX_AF_TL1()_RED.
  */
 union cavm_nixx_af_tl2x_red {
 	u64 u;
@@ -6844,8 +6724,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_SHAPE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_shape_state
  *
- * NIX AF Transmit Level 2 Shape State Registers
- * This register must not be written during normal operation.
+ * NIX AF Transmit Level 2 Shape State Registers This register must not
+ * be written during normal operation.
  */
 union cavm_nixx_af_tl2x_shape_state {
 	u64 u;
@@ -6868,8 +6748,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_SHAPE_STATE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_sw_xoff
  *
- * NIX AF Transmit Level 2 Software Controlled XOFF Registers
- * This register has the same bit fields as NIX_AF_TL1()_SW_XOFF.
+ * NIX AF Transmit Level 2 Software Controlled XOFF Registers This
+ * register has the same bit fields as NIX_AF_TL1()_SW_XOFF.
  */
 union cavm_nixx_af_tl2x_sw_xoff {
 	u64 u;
@@ -6917,9 +6797,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_TOPOLOGY(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2#_yellow
  *
- * INTERNAL: NIX Transmit Level 2 Yellow State Debug Register
- *
- * This register has the same bit fields as NIX_AF_TL1()_YELLOW.
+ * INTERNAL: NIX Transmit Level 2 Yellow State Debug Register  This
+ * register has the same bit fields as NIX_AF_TL1()_YELLOW.
  */
 union cavm_nixx_af_tl2x_yellow {
 	u64 u;
@@ -6942,8 +6821,8 @@ static inline u64 CAVM_NIXX_AF_TL2X_YELLOW(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl2_const
  *
- * NIX AF Transmit Level 2 Constants Register
- * This register contains constants for software discovery.
+ * NIX AF Transmit Level 2 Constants Register This register contains
+ * constants for software discovery.
  */
 union cavm_nixx_af_tl2_const {
 	u64 u;
@@ -6964,8 +6843,8 @@ static inline u64 CAVM_NIXX_AF_TL2_CONST(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_cir
  *
- * NIX AF Transmit Level 3 Committed Information Rate Registers
- * This register has the same bit fields as NIX_AF_TL1()_CIR.
+ * NIX AF Transmit Level 3 Committed Information Rate Registers This
+ * register has the same bit fields as NIX_AF_TL1()_CIR.
  */
 union cavm_nixx_af_tl3x_cir {
 	u64 u;
@@ -7018,8 +6897,8 @@ static inline u64 CAVM_NIXX_AF_TL3X_GREEN(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_md_debug0
  *
- * NIX AF Transmit Level 3 Meta Descriptor Debug 0 Registers
- * See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 3 Meta Descriptor Debug 0 Registers See
+ * NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl3x_md_debug0 {
 	u64 u;
@@ -7051,8 +6930,8 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG0(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_md_debug1
  *
- * NIX AF Transmit Level 3 Meta Descriptor Debug 1 Registers
- * Packet meta descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 3 Meta Descriptor Debug 1 Registers Packet meta
+ * descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl3x_md_debug1 {
 	u64 u;
@@ -7087,8 +6966,8 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG1(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_md_debug2
  *
- * NIX AF Transmit Level 3 Meta Descriptor Debug 2 Registers
- * Packet meta descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 3 Meta Descriptor Debug 2 Registers Packet meta
+ * descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl3x_md_debug2 {
 	u64 u;
@@ -7123,8 +7002,8 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG2(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_md_debug3
  *
- * NIX AF Transmit Level 3 Meta Descriptor Debug 3 Registers
- * Flush meta descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 3 Meta Descriptor Debug 3 Registers Flush meta
+ * descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl3x_md_debug3 {
 	u64 u;
@@ -7171,8 +7050,8 @@ static inline u64 CAVM_NIXX_AF_TL3X_PARENT(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_pir
  *
- * NIX AF Transmit Level 3 Peak Information Rate Registers
- * This register has the same bit fields as NIX_AF_TL1()_CIR.
+ * NIX AF Transmit Level 3 Peak Information Rate Registers This register
+ * has the same bit fields as NIX_AF_TL1()_CIR.
  */
 union cavm_nixx_af_tl3x_pir {
 	u64 u;
@@ -7200,7 +7079,6 @@ static inline u64 CAVM_NIXX_AF_TL3X_PIR(u64 a)
  * Register (RVU_PF_BAR0) nix#_af_tl3#_pointers
  *
  * INTERNAL: NIX Transmit Level 3 Linked List Pointers Debug Register
- *
  * This register has the same bit fields as NIX_AF_TL2()_POINTERS.
  */
 union cavm_nixx_af_tl3x_pointers {
@@ -7224,9 +7102,8 @@ static inline u64 CAVM_NIXX_AF_TL3X_POINTERS(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_red
  *
- * INTERNAL: NIX Transmit Level 3 Red State Debug Register
- *
- * This register has the same bit fields as NIX_AF_TL3()_YELLOW.
+ * INTERNAL: NIX Transmit Level 3 Red State Debug Register  This register
+ * has the same bit fields as NIX_AF_TL3()_YELLOW.
  */
 union cavm_nixx_af_tl3x_red {
 	u64 u;
@@ -7249,8 +7126,8 @@ static inline u64 CAVM_NIXX_AF_TL3X_RED(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_sched_state
  *
- * NIX AF Transmit Level 3 Scheduling Control State Registers
- * This register has the same bit fields as NIX_AF_TL2()_SCHED_STATE.
+ * NIX AF Transmit Level 3 Scheduling Control State Registers This
+ * register has the same bit fields as NIX_AF_TL2()_SCHED_STATE.
  */
 union cavm_nixx_af_tl3x_sched_state {
 	u64 u;
@@ -7271,8 +7148,8 @@ static inline u64 CAVM_NIXX_AF_TL3X_SCHED_STATE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_schedule
  *
- * NIX AF Transmit Level 3 Scheduling Control Registers
- * This register has the same bit fields as NIX_AF_TL2()_SCHEDULE.
+ * NIX AF Transmit Level 3 Scheduling Control Registers This register has
+ * the same bit fields as NIX_AF_TL2()_SCHEDULE.
  */
 union cavm_nixx_af_tl3x_schedule {
 	u64 u;
@@ -7321,9 +7198,9 @@ static inline u64 CAVM_NIXX_AF_TL3X_SHAPE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_shape_state
  *
- * NIX AF Transmit Level 3 Shaping State Registers
- * This register has the same bit fields as NIX_AF_TL2()_SHAPE_STATE.
- * This register must not be written during normal operation.
+ * NIX AF Transmit Level 3 Shaping State Registers This register has the
+ * same bit fields as NIX_AF_TL2()_SHAPE_STATE. This register must not be
+ * written during normal operation.
  */
 union cavm_nixx_af_tl3x_shape_state {
 	u64 u;
@@ -7346,8 +7223,8 @@ static inline u64 CAVM_NIXX_AF_TL3X_SHAPE_STATE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3#_sw_xoff
  *
- * NIX AF Transmit Level 3 Software Controlled XOFF Registers
- * This register has the same bit fields as NIX_AF_TL1()_SW_XOFF
+ * NIX AF Transmit Level 3 Software Controlled XOFF Registers This
+ * register has the same bit fields as NIX_AF_TL1()_SW_XOFF
  */
 union cavm_nixx_af_tl3x_sw_xoff {
 	u64 u;
@@ -7418,8 +7295,8 @@ static inline u64 CAVM_NIXX_AF_TL3X_YELLOW(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3_const
  *
- * NIX AF Transmit Level 3 Constants Register
- * This register contains constants for software discovery.
+ * NIX AF Transmit Level 3 Constants Register This register contains
+ * constants for software discovery.
  */
 union cavm_nixx_af_tl3_const {
 	u64 u;
@@ -7482,12 +7359,12 @@ static inline u64 CAVM_NIXX_AF_TL3_TL2X_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl3_tl2#_link#_cfg
  *
- * NIX AF Transmit Level 3/2 Link Configuration Registers
- * These registers specify the links and associated channels that a given TL3 or
- * TL2 queue (depending on NIX_AF_PSE_CHANNEL_LEVEL[BP_LEVEL]) can transmit on.
- * Each TL3/TL2 queue can be enabled to transmit on and be backpressured by one or
- * more links and associated channels. The last index (LINK) is enumerated by
- * NIX_LINK_E.
+ * NIX AF Transmit Level 3/2 Link Configuration Registers These registers
+ * specify the links and associated channels that a given TL3 or TL2
+ * queue (depending on NIX_AF_PSE_CHANNEL_LEVEL[BP_LEVEL]) can transmit
+ * on. Each TL3/TL2 queue can be enabled to transmit on and be
+ * backpressured by one or more links and associated channels. The last
+ * index (LINK) is enumerated by NIX_LINK_E.
  */
 union cavm_nixx_af_tl3_tl2x_linkx_cfg {
 	u64 u;
@@ -7532,8 +7409,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_BP_STATUS(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_cir
  *
- * NIX AF Transmit Level 4 Committed Information Rate Registers
- * This register has the same bit fields as NIX_AF_TL1()_CIR.
+ * NIX AF Transmit Level 4 Committed Information Rate Registers This
+ * register has the same bit fields as NIX_AF_TL1()_CIR.
  */
 union cavm_nixx_af_tl4x_cir {
 	u64 u;
@@ -7560,9 +7437,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_CIR(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_green
  *
- * INTERNAL: NIX Transmit Level 4 Green State Debug Register
- *
- * This register has the same bit fields as NIX_AF_TL3()_GREEN.
+ * INTERNAL: NIX Transmit Level 4 Green State Debug Register  This
+ * register has the same bit fields as NIX_AF_TL3()_GREEN.
  */
 union cavm_nixx_af_tl4x_green {
 	u64 u;
@@ -7588,8 +7464,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_GREEN(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_md_debug0
  *
- * NIX AF Transmit Level 4 Meta Descriptor Debug 0 Registers
- * See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 4 Meta Descriptor Debug 0 Registers See
+ * NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl4x_md_debug0 {
 	u64 u;
@@ -7621,8 +7497,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG0(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_md_debug1
  *
- * NIX AF Transmit Level 4 Meta Descriptor Debug 1 Registers
- * Packet meta descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 4 Meta Descriptor Debug 1 Registers Packet meta
+ * descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl4x_md_debug1 {
 	u64 u;
@@ -7657,8 +7533,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG1(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_md_debug2
  *
- * NIX AF Transmit Level 4 Meta Descriptor Debug 2 Registers
- * Packet meta descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 4 Meta Descriptor Debug 2 Registers Packet meta
+ * descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl4x_md_debug2 {
 	u64 u;
@@ -7693,8 +7569,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG2(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_md_debug3
  *
- * NIX AF Transmit Level 4 Meta Descriptor Debug 3 Registers
- * Flush meta descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
+ * NIX AF Transmit Level 4 Meta Descriptor Debug 3 Registers Flush meta
+ * descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
 union cavm_nixx_af_tl4x_md_debug3 {
 	u64 u;
@@ -7741,8 +7617,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_PARENT(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_pir
  *
- * NIX AF Transmit Level 4 Peak Information Rate Registers
- * This register has the same bit fields as NIX_AF_TL1()_CIR.
+ * NIX AF Transmit Level 4 Peak Information Rate Registers This register
+ * has the same bit fields as NIX_AF_TL1()_CIR.
  */
 union cavm_nixx_af_tl4x_pir {
 	u64 u;
@@ -7770,7 +7646,6 @@ static inline u64 CAVM_NIXX_AF_TL4X_PIR(u64 a)
  * Register (RVU_PF_BAR0) nix#_af_tl4#_pointers
  *
  * INTERNAL: NIX Transmit Level 4 Linked List Pointers Debug Register
- *
  * This register has the same bit fields as NIX_AF_TL2()_POINTERS.
  */
 union cavm_nixx_af_tl4x_pointers {
@@ -7794,9 +7669,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_POINTERS(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_red
  *
- * INTERNAL: NIX Transmit Level 4 Red State Debug Register
- *
- * This register has the same bit fields as NIX_AF_TL3()_YELLOW.
+ * INTERNAL: NIX Transmit Level 4 Red State Debug Register  This register
+ * has the same bit fields as NIX_AF_TL3()_YELLOW.
  */
 union cavm_nixx_af_tl4x_red {
 	u64 u;
@@ -7819,8 +7693,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_RED(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_sched_state
  *
- * NIX AF Transmit Level 4 Scheduling Control State Registers
- * This register has the same bit fields as NIX_AF_TL2()_SCHED_STATE.
+ * NIX AF Transmit Level 4 Scheduling Control State Registers This
+ * register has the same bit fields as NIX_AF_TL2()_SCHED_STATE.
  */
 union cavm_nixx_af_tl4x_sched_state {
 	u64 u;
@@ -7841,8 +7715,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_SCHED_STATE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_schedule
  *
- * NIX AF Transmit Level 4 Scheduling Control Registers
- * This register has the same bit fields as NIX_AF_TL2()_SCHEDULE.
+ * NIX AF Transmit Level 4 Scheduling Control Registers This register has
+ * the same bit fields as NIX_AF_TL2()_SCHEDULE.
  */
 union cavm_nixx_af_tl4x_schedule {
 	u64 u;
@@ -7864,9 +7738,9 @@ static inline u64 CAVM_NIXX_AF_TL4X_SCHEDULE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_sdp_link_cfg
  *
- * NIX AF Transmit Level 4 Link Configuration Registers
- * These registers specify which TL4 queues transmit to and are optionally
- * backpressured by SDP.
+ * NIX AF Transmit Level 4 Link Configuration Registers These registers
+ * specify which TL4 queues transmit to and are optionally backpressured
+ * by SDP.
  */
 union cavm_nixx_af_tl4x_sdp_link_cfg {
 	u64 u;
@@ -7890,8 +7764,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_SDP_LINK_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_shape
  *
- * NIX AF Transmit Level 4 Shaping Control Registers
- * This register has the same bit fields as NIX_AF_TL2()_SHAPE.
+ * NIX AF Transmit Level 4 Shaping Control Registers This register has
+ * the same bit fields as NIX_AF_TL2()_SHAPE.
  */
 union cavm_nixx_af_tl4x_shape {
 	u64 u;
@@ -7918,9 +7792,9 @@ static inline u64 CAVM_NIXX_AF_TL4X_SHAPE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_shape_state
  *
- * NIX AF Transmit Level 4 Shaping State Registers
- * This register has the same bit fields as NIX_AF_TL2()_SHAPE_STATE.
- * This register must not be written during normal operation.
+ * NIX AF Transmit Level 4 Shaping State Registers This register has the
+ * same bit fields as NIX_AF_TL2()_SHAPE_STATE. This register must not be
+ * written during normal operation.
  */
 union cavm_nixx_af_tl4x_shape_state {
 	u64 u;
@@ -7943,8 +7817,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_SHAPE_STATE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_sw_xoff
  *
- * NIX AF Transmit Level 4 Software Controlled XOFF Registers
- * This register has the same bit fields as NIX_AF_TL1()_SW_XOFF
+ * NIX AF Transmit Level 4 Software Controlled XOFF Registers This
+ * register has the same bit fields as NIX_AF_TL1()_SW_XOFF
  */
 union cavm_nixx_af_tl4x_sw_xoff {
 	u64 u;
@@ -7992,9 +7866,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_TOPOLOGY(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4#_yellow
  *
- * INTERNAL: NIX Transmit Level 4 Yellow State Debug Register
- *
- * This register has the same bit fields as NIX_AF_TL3()_YELLOW
+ * INTERNAL: NIX Transmit Level 4 Yellow State Debug Register  This
+ * register has the same bit fields as NIX_AF_TL3()_YELLOW
  */
 union cavm_nixx_af_tl4x_yellow {
 	u64 u;
@@ -8017,8 +7890,8 @@ static inline u64 CAVM_NIXX_AF_TL4X_YELLOW(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tl4_const
  *
- * NIX AF Transmit Level 4 Constants Register
- * This register contains constants for software discovery.
+ * NIX AF Transmit Level 4 Constants Register This register contains
+ * constants for software discovery.
  */
 union cavm_nixx_af_tl4_const {
 	u64 u;
@@ -8039,9 +7912,9 @@ static inline u64 CAVM_NIXX_AF_TL4_CONST(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_link#_expr_credit
  *
- * NIX AF Transmit Link Express Credit Registers
- * These registers track credits per link for express packets that may potentially
- * preempt normal packets. Link index enumerated by NIX_LINK_E.
+ * NIX AF Transmit Link Express Credit Registers These registers track
+ * credits per link for express packets that may potentially preempt
+ * normal packets. Link index enumerated by NIX_LINK_E.
  */
 union cavm_nixx_af_tx_linkx_expr_credit {
 	u64 u;
@@ -8065,8 +7938,8 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_EXPR_CREDIT(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_link#_hw_xoff
  *
- * NIX AF Transmit Link Hardware Controlled XOFF Registers
- * Link index enumerated by NIX_LINK_E.
+ * NIX AF Transmit Link Hardware Controlled XOFF Registers Link index
+ * enumerated by NIX_LINK_E.
  */
 union cavm_nixx_af_tx_linkx_hw_xoff {
 	u64 u;
@@ -8086,9 +7959,9 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_HW_XOFF(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_link#_norm_credit
  *
- * NIX AF Transmit Link Normal Credit Registers
- * These registers track credits per link for normal (potentially preemptable)
- * packets sent to CGX and LBK. Link index enumerated by NIX_LINK_E.
+ * NIX AF Transmit Link Normal Credit Registers These registers track
+ * credits per link for normal (potentially preemptable) packets sent to
+ * CGX and LBK. Link index enumerated by NIX_LINK_E.
  */
 union cavm_nixx_af_tx_linkx_norm_credit {
 	u64 u;
@@ -8112,8 +7985,8 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_NORM_CREDIT(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_link#_sw_xoff
  *
- * NIX AF Transmit Link Software Controlled XOFF Registers
- * Link index enumerated by NIX_LINK_E.
+ * NIX AF Transmit Link Software Controlled XOFF Registers Link index
+ * enumerated by NIX_LINK_E.
  */
 union cavm_nixx_af_tx_linkx_sw_xoff {
 	u64 u;
@@ -8133,13 +8006,13 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_SW_XOFF(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_mcast#
  *
- * NIX AF Transmit Multicast Registers
- * These registers access transmit multicast table entries used to specify multicast replication
- * lists. Each list consists of linked entries with [EOL] = 1 in the last entry.
- *
- * A transmit packet is multicast when the action returned by NPC has NIX_TX_ACTION_S[OP] =
- * NIX_TX_ACTIONOP_E::MCAST. NIX_TX_ACTION_S[INDEX] points to the start of the multicast
- * replication list, and [EOL] = 1 indicates the end of list.
+ * NIX AF Transmit Multicast Registers These registers access transmit
+ * multicast table entries used to specify multicast replication lists.
+ * Each list consists of linked entries with [EOL] = 1 in the last entry.
+ * A transmit packet is multicast when the action returned by NPC has
+ * NIX_TX_ACTION_S[OP] = NIX_TX_ACTIONOP_E::MCAST. NIX_TX_ACTION_S[INDEX]
+ * points to the start of the multicast replication list, and [EOL] = 1
+ * indicates the end of list.
  */
 union cavm_nixx_af_tx_mcastx {
 	u64 u;
@@ -8163,8 +8036,8 @@ static inline u64 CAVM_NIXX_AF_TX_MCASTX(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_npc_capture_config
  *
- * NIX AF Transmit NPC Response Capture Configuration Register
- * Configures the NPC response capture logic for transmit packets. When enabled,
+ * NIX AF Transmit NPC Response Capture Configuration Register Configures
+ * the NPC response capture logic for transmit packets. When enabled,
  * allows NPC responses for selected packets to be captured in
  * NIX_AF_TX_NPC_CAPTURE_INFO and NIX_AF_TX_NPC_CAPTURE_RESP().
  */
@@ -8196,9 +8069,9 @@ static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_CONFIG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_npc_capture_info
  *
- * NIX AF Transmit NPC Response Capture Information Register
- * This register contains captured NPC response information for a transmit packet.
- * See NIX_AF_TX_NPC_CAPTURE_CONFIG.
+ * NIX AF Transmit NPC Response Capture Information Register This
+ * register contains captured NPC response information for a transmit
+ * packet. See NIX_AF_TX_NPC_CAPTURE_CONFIG.
  */
 union cavm_nixx_af_tx_npc_capture_info {
 	u64 u;
@@ -8223,9 +8096,10 @@ static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_INFO(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_npc_capture_resp#
  *
- * NIX AF Transmit NPC Capture Response Registers
- * These registers contain the captured NPC response for a transmit packet when
- * NIX_AF_TX_NPC_CAPTURE_INFO[VLD] is set. See also NIX_AF_TX_NPC_CAPTURE_CONFIG.
+ * NIX AF Transmit NPC Capture Response Registers These registers contain
+ * the captured NPC response for a transmit packet when
+ * NIX_AF_TX_NPC_CAPTURE_INFO[VLD] is set. See also
+ * NIX_AF_TX_NPC_CAPTURE_CONFIG.
  */
 union cavm_nixx_af_tx_npc_capture_respx {
 	u64 u;
@@ -8268,8 +8142,8 @@ static inline u64 CAVM_NIXX_AF_TX_TSTMP_CFG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_vtag_def#_ctl
  *
- * NIX AF Transmit Vtag Definition Control Registers
- * The transmit Vtag definition table specifies Vtag layers (e.g. VLAN, E-TAG) to
+ * NIX AF Transmit Vtag Definition Control Registers The transmit Vtag
+ * definition table specifies Vtag layers (e.g. VLAN, E-TAG) to
  * optionally insert or replace in the TX packet header. Indexed by
  * NIX_TX_VTAG_ACTION_S[VTAG*_DEF].
  */
@@ -8292,8 +8166,8 @@ static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_CTL(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_vtag_def#_data
  *
- * NIX AF Transmit Vtag Definition Data Registers
- * See NIX_AF_TX_VTAG_DEF()_CTL.
+ * NIX AF Transmit Vtag Definition Data Registers See
+ * NIX_AF_TX_VTAG_DEF()_CTL.
  */
 union cavm_nixx_af_tx_vtag_defx_data {
 	u64 u;
@@ -8356,8 +8230,8 @@ static inline u64 CAVM_NIXX_LF_CINTX_CNT(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_cint#_ena_w1c
  *
- * NIX LF Completion Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * NIX LF Completion Interrupt Enable Clear Registers This register
+ * clears interrupt enable bits.
  */
 union cavm_nixx_lf_cintx_ena_w1c {
 	u64 u;
@@ -8378,8 +8252,8 @@ static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1C(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_cint#_ena_w1s
  *
- * NIX LF Completion Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * NIX LF Completion Interrupt Enable Set Registers This register sets
+ * interrupt enable bits.
  */
 union cavm_nixx_lf_cintx_ena_w1s {
 	u64 u;
@@ -8421,8 +8295,8 @@ static inline u64 CAVM_NIXX_LF_CINTX_INT(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_cint#_int_w1s
  *
- * NIX LF Completion Interrupt Set Registers
- * This register sets interrupt bits.
+ * NIX LF Completion Interrupt Set Registers This register sets interrupt
+ * bits.
  */
 union cavm_nixx_lf_cintx_int_w1s {
 	u64 u;
@@ -8466,11 +8340,9 @@ static inline u64 CAVM_NIXX_LF_CINTX_WAIT(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_cq_op_door
  *
- * NIX LF CQ Doorbell Operation Register
- * A write to this register dequeues CQEs from a CQ ring within the LF.
- * A read is RAZ.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF CQ Doorbell Operation Register A write to this register
+ * dequeues CQEs from a CQ ring within the LF. A read is RAZ.  RSL
+ * accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_cq_op_door {
 	u64 u;
@@ -8493,13 +8365,10 @@ static inline u64 CAVM_NIXX_LF_CQ_OP_DOOR(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_cq_op_int
  *
- * NIX LF Completion Queue Interrupt Operation Register
- * A 64-bit atomic load-and-add to this register reads CQ interrupts and
- * interrupt enables.
- * A write optionally sets or clears interrupts and interrupt enables.
- * A read is RAZ.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Completion Queue Interrupt Operation Register A 64-bit atomic
+ * load-and-add to this register reads CQ interrupts and interrupt
+ * enables. A write optionally sets or clears interrupts and interrupt
+ * enables. A read is RAZ.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_cq_op_int {
 	u64 u;
@@ -8524,13 +8393,11 @@ static inline u64 CAVM_NIXX_LF_CQ_OP_INT(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_cq_op_status
  *
- * NIX LF Completion Queue Status Operation Register
- * A 64-bit atomic load-and-add to this register reads NIX_CQ_CTX_S[HEAD,TAIL].
- * The atomic write data has format NIX_OP_Q_WDATA_S and selects the CQ within LF.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Completion Queue Status Operation Register A 64-bit atomic
+ * load-and-add to this register reads NIX_CQ_CTX_S[HEAD,TAIL]. The
+ * atomic write data has format NIX_OP_Q_WDATA_S and selects the CQ
+ * within LF.  All other accesses to this register (e.g. reads and
+ * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_cq_op_status {
 	u64 u;
@@ -8598,8 +8465,8 @@ static inline u64 CAVM_NIXX_LF_ERR_INT(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_err_int_ena_w1c
  *
- * NIX LF Error Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NIX LF Error Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_nixx_lf_err_int_ena_w1c {
 	u64 u;
@@ -8642,8 +8509,8 @@ static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1C(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_err_int_ena_w1s
  *
- * NIX LF Error Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NIX LF Error Interrupt Enable Set Register This register sets
+ * interrupt enable bits.
  */
 union cavm_nixx_lf_err_int_ena_w1s {
 	u64 u;
@@ -8686,8 +8553,7 @@ static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1S(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_err_int_w1s
  *
- * NIX LF Error Interrupt Set Register
- * This register sets interrupt bits.
+ * NIX LF Error Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_nixx_lf_err_int_w1s {
 	u64 u;
@@ -8752,8 +8618,8 @@ static inline u64 CAVM_NIXX_LF_GINT(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_gint_ena_w1c
  *
- * NIX LF General Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NIX LF General Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_nixx_lf_gint_ena_w1c {
 	u64 u;
@@ -8775,8 +8641,8 @@ static inline u64 CAVM_NIXX_LF_GINT_ENA_W1C(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_gint_ena_w1s
  *
- * NIX LF General Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NIX LF General Interrupt Enable Set Register This register sets
+ * interrupt enable bits.
  */
 union cavm_nixx_lf_gint_ena_w1s {
 	u64 u;
@@ -8798,8 +8664,8 @@ static inline u64 CAVM_NIXX_LF_GINT_ENA_W1S(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_gint_w1s
  *
- * NIX LF General Interrupt Set Register
- * This register sets interrupt bits.
+ * NIX LF General Interrupt Set Register This register sets interrupt
+ * bits.
  */
 union cavm_nixx_lf_gint_w1s {
 	u64 u;
@@ -8821,11 +8687,11 @@ static inline u64 CAVM_NIXX_LF_GINT_W1S(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_mnq_err_dbg
  *
- * NIX LF Meta-descriptor Enqueue Error Debug Register
- * This register captures debug info for an error detected during send
- * meta-descriptor enqueue from an SQ to an SMQ.
- * Hardware sets [VALID] when the debug info is captured, and subsequent errors
- * are not captured until software clears [VALID] by writing a one to it.
+ * NIX LF Meta-descriptor Enqueue Error Debug Register This register
+ * captures debug info for an error detected during send meta-descriptor
+ * enqueue from an SQ to an SMQ. Hardware sets [VALID] when the debug
+ * info is captured, and subsequent errors are not captured until
+ * software clears [VALID] by writing a one to it.
  */
 union cavm_nixx_lf_mnq_err_dbg {
 	u64 u;
@@ -8849,12 +8715,12 @@ static inline u64 CAVM_NIXX_LF_MNQ_ERR_DBG(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_op_ipsec_dyno_cnt
  *
- * NIX LF IPSEC Dynamic Ordering Counter Operation Register
- * A 64-bit atomic load-and-add to this register reads an IPSEC dynamic ordering
- * counter (NIX_IPSEC_DYNO_S). A write decrements NIX_IPSEC_DYNO_S[COUNT]. A read
- * is RAZ. See NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA].
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF IPSEC Dynamic Ordering Counter Operation Register A 64-bit
+ * atomic load-and-add to this register reads an IPSEC dynamic ordering
+ * counter (NIX_IPSEC_DYNO_S). A write decrements
+ * NIX_IPSEC_DYNO_S[COUNT]. A read is RAZ. See
+ * NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA].  RSL accesses to this
+ * register are RAZ/WI.
  */
 union cavm_nixx_lf_op_ipsec_dyno_cnt {
 	u64 u;
@@ -8878,30 +8744,25 @@ static inline u64 CAVM_NIXX_LF_OP_IPSEC_DYNO_CNT(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_op_send#
  *
- * NIX LF Send Operation Registers
- * An LMTST (or large store from CPT) to this address enqueues one or more SQEs to
- * a send queue. NIX_SEND_HDR_S[SQ] in the first SQE selects the send queue.The
- * maximum size of each SQE is specified by NIX_SQ_CTX_S[MAX_SQE_SIZE].
- *
- * A read to this address is RAZ.
- *
- * An RSL access to this address will fault.
- *
- * The endianness of the instruction write data is controlled by NIX_AF_LF()_CFG[BE].
- *
- * When a NIX_SEND_JUMP_S is not present in the SQE, the SQE consists of the
- * entire send descriptor.
- *
- * When a NIX_SEND_JUMP_S is present in the SQE, the SQE must contain exactly the
- * portion of the send descriptor up to and including the NIX_SEND_JUMP_S, and the
- * remainder of the send descriptor must be at LF IOVA NIX_SEND_JUMP_S[ADDR] in
- * LLC/DRAM.
- *
- * Software must ensure that all LLC/DRAM locations that will be referenced by NIX while
- * processing this descriptor, including all packet data and post-jump subdescriptors
- * contain the latest updates before issuing the LMTST. A DMB instruction may be required prior
- * to the LMTST to ensure this. A DMB following the LMTST may be useful if SQ descriptor ordering
- * matters and more than one CPU core is simultaneously enqueueing to the same SQ.
+ * NIX LF Send Operation Registers An LMTST (or large store from CPT) to
+ * this address enqueues one or more SQEs to a send queue.
+ * NIX_SEND_HDR_S[SQ] in the first SQE selects the send queue.The maximum
+ * size of each SQE is specified by NIX_SQ_CTX_S[MAX_SQE_SIZE].  A read
+ * to this address is RAZ.  An RSL access to this address will fault.
+ * The endianness of the instruction write data is controlled by
+ * NIX_AF_LF()_CFG[BE].  When a NIX_SEND_JUMP_S is not present in the
+ * SQE, the SQE consists of the entire send descriptor.  When a
+ * NIX_SEND_JUMP_S is present in the SQE, the SQE must contain exactly
+ * the portion of the send descriptor up to and including the
+ * NIX_SEND_JUMP_S, and the remainder of the send descriptor must be at
+ * LF IOVA NIX_SEND_JUMP_S[ADDR] in LLC/DRAM.  Software must ensure that
+ * all LLC/DRAM locations that will be referenced by NIX while processing
+ * this descriptor, including all packet data and post-jump
+ * subdescriptors contain the latest updates before issuing the LMTST. A
+ * DMB instruction may be required prior to the LMTST to ensure this. A
+ * DMB following the LMTST may be useful if SQ descriptor ordering
+ * matters and more than one CPU core is simultaneously enqueueing to the
+ * same SQ.
  */
 union cavm_nixx_lf_op_sendx {
 	u64 u;
@@ -8942,8 +8803,8 @@ static inline u64 CAVM_NIXX_LF_QINTX_CNT(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_qint#_ena_w1c
  *
- * NIX LF Queue Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * NIX LF Queue Interrupt Enable Clear Registers This register clears
+ * interrupt enable bits.
  */
 union cavm_nixx_lf_qintx_ena_w1c {
 	u64 u;
@@ -8964,8 +8825,8 @@ static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1C(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_qint#_ena_w1s
  *
- * NIX LF Queue Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * NIX LF Queue Interrupt Enable Set Registers This register sets
+ * interrupt enable bits.
  */
 union cavm_nixx_lf_qintx_ena_w1s {
 	u64 u;
@@ -9059,8 +8920,8 @@ static inline u64 CAVM_NIXX_LF_RAS(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_ras_ena_w1c
  *
- * NIX LF RAS Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NIX LF RAS Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_nixx_lf_ras_ena_w1c {
 	u64 u;
@@ -9091,8 +8952,8 @@ static inline u64 CAVM_NIXX_LF_RAS_ENA_W1C(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_ras_ena_w1s
  *
- * NIX LF RAS Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NIX LF RAS Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
  */
 union cavm_nixx_lf_ras_ena_w1s {
 	u64 u;
@@ -9123,8 +8984,7 @@ static inline u64 CAVM_NIXX_LF_RAS_ENA_W1S(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_ras_w1s
  *
- * NIX LF RAS Interrupt Set Register
- * This register sets interrupt bits.
+ * NIX LF RAS Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_nixx_lf_ras_w1s {
 	u64 u;
@@ -9155,13 +9015,11 @@ static inline u64 CAVM_NIXX_LF_RAS_W1S(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_rq_op_drop_octs
  *
- * NIX LF Receive Queue Dropped Octets Operation Register
- * A 64-bit atomic load-and-add to this register reads NIX_RQ_CTX_S[DROP_OCTS].
- * The atomic write data has format NIX_OP_Q_WDATA_S and selects the RQ within LF.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Receive Queue Dropped Octets Operation Register A 64-bit atomic
+ * load-and-add to this register reads NIX_RQ_CTX_S[DROP_OCTS]. The
+ * atomic write data has format NIX_OP_Q_WDATA_S and selects the RQ
+ * within LF.  All other accesses to this register (e.g. reads and
+ * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_rq_op_drop_octs {
 	u64 u;
@@ -9183,13 +9041,11 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_OCTS(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_rq_op_drop_pkts
  *
- * NIX LF Receive Queue Dropped Packets Operation Register
- * A 64-bit atomic load-and-add to this register reads NIX_RQ_CTX_S[DROP_PKTS].
- * The atomic write data has format NIX_OP_Q_WDATA_S and selects the RQ within LF.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Receive Queue Dropped Packets Operation Register A 64-bit
+ * atomic load-and-add to this register reads NIX_RQ_CTX_S[DROP_PKTS].
+ * The atomic write data has format NIX_OP_Q_WDATA_S and selects the RQ
+ * within LF.  All other accesses to this register (e.g. reads and
+ * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_rq_op_drop_pkts {
 	u64 u;
@@ -9211,14 +9067,12 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_PKTS(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_rq_op_int
  *
- * NIX LF Receive Queue Interrupt Operation Register
- * A 64-bit atomic load-and-add to this register reads RQ interrupts and
- * interrupt enables.
- * A 64-bit write optionally sets or clears interrupts and interrupt enables.
- *
- * All other accesses to this register (e.g. reads, 128-bit accesses) are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Receive Queue Interrupt Operation Register A 64-bit atomic
+ * load-and-add to this register reads RQ interrupts and interrupt
+ * enables. A 64-bit write optionally sets or clears interrupts and
+ * interrupt enables.  All other accesses to this register (e.g. reads,
+ * 128-bit accesses) are RAZ/WI.  RSL accesses to this register are
+ * RAZ/WI.
  */
 union cavm_nixx_lf_rq_op_int {
 	u64 u;
@@ -9243,12 +9097,10 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_INT(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_rq_op_octs
  *
- * NIX LF Receive Queue Octets Operation Register
- * A 64-bit atomic load-and-add to this register reads NIX_RQ_CTX_S[OCTS]. The atomic
- * write data has format NIX_OP_Q_WDATA_S and selects the RQ within LF.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
+ * NIX LF Receive Queue Octets Operation Register A 64-bit atomic load-
+ * and-add to this register reads NIX_RQ_CTX_S[OCTS]. The atomic write
+ * data has format NIX_OP_Q_WDATA_S and selects the RQ within LF.  All
+ * other accesses to this register (e.g. reads and writes) are RAZ/WI.
  * RSL accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_rq_op_octs {
@@ -9271,12 +9123,10 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_OCTS(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_rq_op_pkts
  *
- * NIX LF Receive Queue Packets Operation Register
- * A 64-bit atomic load-and-add to this register reads NIX_RQ_CTX_S[PKTS]. The atomic
- * write data has format NIX_OP_Q_WDATA_S and selects the RQ within LF.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
+ * NIX LF Receive Queue Packets Operation Register A 64-bit atomic load-
+ * and-add to this register reads NIX_RQ_CTX_S[PKTS]. The atomic write
+ * data has format NIX_OP_Q_WDATA_S and selects the RQ within LF.  All
+ * other accesses to this register (e.g. reads and writes) are RAZ/WI.
  * RSL accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_rq_op_pkts {
@@ -9299,13 +9149,11 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_PKTS(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_rq_op_re_pkts
  *
- * NIX LF Receive Queue Errored Packets Operation Register
- * A 64-bit atomic load-and-add to this register reads NIX_RQ_CTX_S[RE_PKTS].
- * The atomic write data has format NIX_OP_Q_WDATA_S and selects the RQ within LF.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Receive Queue Errored Packets Operation Register A 64-bit
+ * atomic load-and-add to this register reads NIX_RQ_CTX_S[RE_PKTS]. The
+ * atomic write data has format NIX_OP_Q_WDATA_S and selects the RQ
+ * within LF.  All other accesses to this register (e.g. reads and
+ * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_rq_op_re_pkts {
 	u64 u;
@@ -9347,8 +9195,8 @@ static inline u64 CAVM_NIXX_LF_RX_SECRETX(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_rx_stat#
  *
- * NIX LF Receive Statistics Registers
- * The last dimension indicates which statistic, and is enumerated by NIX_STAT_LF_RX_E.
+ * NIX LF Receive Statistics Registers The last dimension indicates which
+ * statistic, and is enumerated by NIX_STAT_LF_RX_E.
  */
 union cavm_nixx_lf_rx_statx {
 	u64 u;
@@ -9369,11 +9217,11 @@ static inline u64 CAVM_NIXX_LF_RX_STATX(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_send_err_dbg
  *
- * NIX LF Send Error Debug Register
- * This register captures debug info an error detected on packet send after a
- * meta-descriptor is granted by PSE.
- * Hardware sets [VALID] when the debug info is captured, and subsequent errors
- * are not captured until software clears [VALID] by writing a one to it.
+ * NIX LF Send Error Debug Register This register captures debug info an
+ * error detected on packet send after a meta-descriptor is granted by
+ * PSE. Hardware sets [VALID] when the debug info is captured, and
+ * subsequent errors are not captured until software clears [VALID] by
+ * writing a one to it.
  */
 union cavm_nixx_lf_send_err_dbg {
 	u64 u;
@@ -9397,13 +9245,11 @@ static inline u64 CAVM_NIXX_LF_SEND_ERR_DBG(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_sq_op_drop_octs
  *
- * NIX LF Send Queue Dropped Octets Operation Register
- * A 64-bit atomic load-and-add to this register reads NIX_SQ_CTX_S[DROP_OCTS].
- * The atomic write data has format NIX_OP_Q_WDATA_S and selects the SQ within LF.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Send Queue Dropped Octets Operation Register A 64-bit atomic
+ * load-and-add to this register reads NIX_SQ_CTX_S[DROP_OCTS]. The
+ * atomic write data has format NIX_OP_Q_WDATA_S and selects the SQ
+ * within LF.  All other accesses to this register (e.g. reads and
+ * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_sq_op_drop_octs {
 	u64 u;
@@ -9425,13 +9271,11 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_OCTS(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_sq_op_drop_pkts
  *
- * NIX LF Send Queue Dropped Packets Operation Register
- * A 64-bit atomic load-and-add to this register reads NIX_SQ_CTX_S[DROP_PKTS].
- * The atomic write data has format NIX_OP_Q_WDATA_S and selects the SQ within LF.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Send Queue Dropped Packets Operation Register A 64-bit atomic
+ * load-and-add to this register reads NIX_SQ_CTX_S[DROP_PKTS]. The
+ * atomic write data has format NIX_OP_Q_WDATA_S and selects the SQ
+ * within LF.  All other accesses to this register (e.g. reads and
+ * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_sq_op_drop_pkts {
 	u64 u;
@@ -9453,11 +9297,11 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_PKTS(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_sq_op_err_dbg
  *
- * NIX LF SQ Operation Error Debug Register
- * This register captures debug info for an error detected on LMT store to
- * NIX_LF_OP_SEND() or when a NIX_LF_SQ_OP_* register is accessed.
- * Hardware sets [VALID] when the debug info is captured, and subsequent errors
- * are not captured until software clears [VALID] by writing a one to it.
+ * NIX LF SQ Operation Error Debug Register This register captures debug
+ * info for an error detected on LMT store to NIX_LF_OP_SEND() or when a
+ * NIX_LF_SQ_OP_* register is accessed. Hardware sets [VALID] when the
+ * debug info is captured, and subsequent errors are not captured until
+ * software clears [VALID] by writing a one to it.
  */
 union cavm_nixx_lf_sq_op_err_dbg {
 	u64 u;
@@ -9481,13 +9325,11 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_ERR_DBG(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_sq_op_int
  *
- * NIX LF Send Queue Interrupt Operation Register
- * A 64-bit atomic load-and-add to this register reads SQ interrupts,
- * interrupt enables and XOFF status.
- * A write optionally sets or clears interrupts, interrupt enables and XOFF
- * status. A read is RAZ.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Send Queue Interrupt Operation Register A 64-bit atomic load-
+ * and-add to this register reads SQ interrupts, interrupt enables and
+ * XOFF status. A write optionally sets or clears interrupts, interrupt
+ * enables and XOFF status. A read is RAZ.  RSL accesses to this register
+ * are RAZ/WI.
  */
 union cavm_nixx_lf_sq_op_int {
 	u64 u;
@@ -9513,13 +9355,11 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_INT(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_sq_op_octs
  *
- * NIX LF Send Queue Octets Operation Register
- * A 64-bit atomic load-and-add to this register reads NIX_SQ_CTX_S[OCTS]. The atomic
- * write data has format NIX_OP_Q_WDATA_S and selects the SQ within LF.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Send Queue Octets Operation Register A 64-bit atomic load-and-
+ * add to this register reads NIX_SQ_CTX_S[OCTS]. The atomic write data
+ * has format NIX_OP_Q_WDATA_S and selects the SQ within LF.  All other
+ * accesses to this register (e.g. reads and writes) are RAZ/WI.  RSL
+ * accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_sq_op_octs {
 	u64 u;
@@ -9541,13 +9381,11 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_OCTS(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_sq_op_pkts
  *
- * NIX LF Send Queue Packets Operation Register
- * A 64-bit atomic load-and-add to this register reads NIX_SQ_CTX_S[PKTS]. The atomic
- * write data has format NIX_OP_Q_WDATA_S and selects the SQ within LF.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NIX LF Send Queue Packets Operation Register A 64-bit atomic load-and-
+ * add to this register reads NIX_SQ_CTX_S[PKTS]. The atomic write data
+ * has format NIX_OP_Q_WDATA_S and selects the SQ within LF.  All other
+ * accesses to this register (e.g. reads and writes) are RAZ/WI.  RSL
+ * accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_sq_op_pkts {
 	u64 u;
@@ -9569,15 +9407,12 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_PKTS(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_sq_op_status
  *
- * NIX LF Send Queue Status Operation Register
- * A 64-bit atomic load-and-add to this register reads status fields in
- * NIX_SQ_CTX_S. The atomic write data has format NIX_OP_Q_WDATA_S and
- * selects the SQ within LF.
- * Completion of the load-and-add operation also ensures that all previously
- * issued LMT stores to NIX_LF_OP_SEND() have completed.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
+ * NIX LF Send Queue Status Operation Register A 64-bit atomic load-and-
+ * add to this register reads status fields in NIX_SQ_CTX_S. The atomic
+ * write data has format NIX_OP_Q_WDATA_S and selects the SQ within LF.
+ * Completion of the load-and-add operation also ensures that all
+ * previously issued LMT stores to NIX_LF_OP_SEND() have completed.  All
+ * other accesses to this register (e.g. reads and writes) are RAZ/WI.
  * RSL accesses to this register are RAZ/WI.
  */
 union cavm_nixx_lf_sq_op_status {
@@ -9613,8 +9448,8 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_STATUS(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_tx_stat#
  *
- * NIX LF Transmit Statistics Registers
- * The last dimension indicates which statistic, and is enumerated by NIX_STAT_LF_TX_E.
+ * NIX LF Transmit Statistics Registers The last dimension indicates
+ * which statistic, and is enumerated by NIX_STAT_LF_TX_E.
  */
 union cavm_nixx_lf_tx_statx {
 	u64 u;
@@ -9658,17 +9493,13 @@ static inline u64 CAVM_NIXX_PRIV_AF_INT_CFG(void)
 /**
  * Register (RVU_PF_BAR0) nix#_priv_lf#_cfg
  *
- * NIX Privileged Local Function Configuration Registers
- * These registers allow each NIX local function (LF) to be provisioned to a VF/PF
- * for RVU. See also NIX_AF_RVU_LF_CFG_DEBUG.
- *
- * Software should read this register after write to ensure that the LF is mapped to
- * [PF_FUNC] before issuing transactions to the mapped PF and function.
- *
- * [SLOT] must be zero.
- *
- * Internal:
- * Hardware ignores [SLOT] and always assumes 0x0.
+ * NIX Privileged Local Function Configuration Registers These registers
+ * allow each NIX local function (LF) to be provisioned to a VF/PF for
+ * RVU. See also NIX_AF_RVU_LF_CFG_DEBUG.  Software should read this
+ * register after write to ensure that the LF is mapped to [PF_FUNC]
+ * before issuing transactions to the mapped PF and function.  [SLOT]
+ * must be zero.  Internal: Hardware ignores [SLOT] and always assumes
+ * 0x0.
  */
 union cavm_nixx_priv_lfx_cfg {
 	u64 u;

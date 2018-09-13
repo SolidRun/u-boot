@@ -1,45 +1,12 @@
 #ifndef __CAVM_CSRS_CGX_H__
 #define __CAVM_CSRS_CGX_H__
-/* This file is auto-generated. Do not edit */
+/* This file is auto-generated.  Do not edit */
 
-/***********************license start***************
- * Copyright (c) 2003-2018  Cavium Inc. (support@cavium.com). All rights
- * reserved.
- *
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
-
- *   * Neither the name of Cavium Inc. nor the names of
- *     its contributors may be used to endorse or promote products
- *     derived from this software without specific prior written
- *     permission.
-
- * This Software, including technical data, may be subject to U.S. export  control
- * laws, including the U.S. Export Administration Act and its  associated
- * regulations, and may be subject to export or import  regulations in other
- * countries.
-
- * TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS"
- * AND WITH ALL FAULTS AND CAVIUM  NETWORKS MAKES NO PROMISES, REPRESENTATIONS OR
- * WARRANTIES, EITHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, WITH RESPECT TO
- * THE SOFTWARE, INCLUDING ITS CONDITION, ITS CONFORMITY TO ANY REPRESENTATION OR
- * DESCRIPTION, OR THE EXISTENCE OF ANY LATENT OR PATENT DEFECTS, AND CAVIUM
- * SPECIFICALLY DISCLAIMS ALL IMPLIED (IF ANY) WARRANTIES OF TITLE,
- * MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR A PARTICULAR PURPOSE, LACK OF
- * VIRUSES, ACCURACY OR COMPLETENESS, QUIET ENJOYMENT, QUIET POSSESSION OR
- * CORRESPONDENCE TO DESCRIPTION. THE ENTIRE  RISK ARISING OUT OF USE OR
- * PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
- ***********************license end**************************************/
+/***********************license start***********************************
+* Copyright (C) 2018 Marvell International Ltd.
+* SPDX-License-Identifier: BSD-3-Clause
+* https://spdx.org/licenses
+***********************license end**************************************/
 
 /**
  * @file
@@ -47,15 +14,15 @@
  * Configuration and status register (CSR) address and type definitions for
  * Cavium CGX.
  *
- * This file is auto generated. Do not edit.
+ * This file is auto generated.  Do not edit.
  *
  */
 
 /**
  * Enumeration cgx_bar_e
  *
- * CGX Base Address Register Enumeration
- * Enumerates the base address registers.
+ * CGX Base Address Register Enumeration Enumerates the base address
+ * registers.
  */
 #define CAVM_CGX_BAR_E_CGXX_PF_BAR0(a) (0x87e0e0000000ll + 0x1000000ll * (a))
 #define CAVM_CGX_BAR_E_CGXX_PF_BAR0_SIZE 0x100000ull
@@ -65,8 +32,7 @@
 /**
  * Enumeration cgx_int_vec_e
  *
- * CGX MSI-X Vector Enumeration
- * Enumeration the MSI-X interrupt vectors.
+ * CGX MSI-X Vector Enumeration Enumeration the MSI-X interrupt vectors.
  */
 #define CAVM_CGX_INT_VEC_E_CMRX_INT(a) (0 + 9 * (a))
 #define CAVM_CGX_INT_VEC_E_CMR_MEM_INT (0x24)
@@ -83,8 +49,7 @@
 /**
  * Enumeration cgx_lmac_types_e
  *
- * CGX LMAC Type Enumeration
- * Enumerates the LMAC Types that CGX supports.
+ * CGX LMAC Type Enumeration Enumerates the LMAC Types that CGX supports.
  */
 #define CAVM_CGX_LMAC_TYPES_E_FIFTYG_R (8)
 #define CAVM_CGX_LMAC_TYPES_E_FORTYG_R (4)
@@ -101,9 +66,8 @@
 /**
  * Enumeration cgx_opcode_e
  *
- * INTERNAL: CGX Error Opcode Enumeration
- *
- * Enumerates the error opcodes created by CGX and presented to NCSI/NIX.
+ * INTERNAL: CGX Error Opcode Enumeration  Enumerates the error opcodes
+ * created by CGX and presented to NCSI/NIX.
  */
 #define CAVM_CGX_OPCODE_E_RE_FCS (7)
 #define CAVM_CGX_OPCODE_E_RE_FCS_RCV (8)
@@ -117,8 +81,8 @@
 /**
  * Enumeration cgx_spu_br_train_cst_e
  *
- * CGX Training Coefficient Status Enumeration
- * 2-bit status for each coefficient as defined in IEEE 802.3, Table 72-5.
+ * CGX Training Coefficient Status Enumeration 2-bit status for each
+ * coefficient as defined in IEEE 802.3, Table 72-5.
  */
 #define CAVM_CGX_SPU_BR_TRAIN_CST_E_MAXIMUM (3)
 #define CAVM_CGX_SPU_BR_TRAIN_CST_E_MINIMUM (2)
@@ -128,8 +92,8 @@
 /**
  * Enumeration cgx_spu_br_train_cup_e
  *
- * CGX Training Coefficient Enumeration
- * 2-bit command for each coefficient as defined in IEEE 802.3, Table 72-4.
+ * CGX Training Coefficient Enumeration 2-bit command for each
+ * coefficient as defined in IEEE 802.3, Table 72-4.
  */
 #define CAVM_CGX_SPU_BR_TRAIN_CUP_E_DECREMENT (1)
 #define CAVM_CGX_SPU_BR_TRAIN_CUP_E_HOLD (0)
@@ -139,13 +103,13 @@
 /**
  * Enumeration cgx_usxgmii_rate_e
  *
- * CGX USXGMII Rate Enumeration
- * Enumerates the USXGMII sub-port type rate, CGX()_SPU()_CONTROL1[USXGMII_RATE].
- *
- * Selecting a rate higher than the maximum allowed for a given port sub-type
- * (specified by CGX()_SPU()_CONTROL1[USXGMII_TYPE]), e.g., selecting ::RATE_2HG (2.5
- * Gbps) for CGX_USXGMII_TYPE_E::SXGMII_2G, will cause unpredictable behavior. USXGMII
- * hardware-based autonegotiation may change this setting.
+ * CGX USXGMII Rate Enumeration Enumerates the USXGMII sub-port type
+ * rate, CGX()_SPU()_CONTROL1[USXGMII_RATE].  Selecting a rate higher
+ * than the maximum allowed for a given port sub-type (specified by
+ * CGX()_SPU()_CONTROL1[USXGMII_TYPE]), e.g., selecting ::RATE_2HG (2.5
+ * Gbps) for CGX_USXGMII_TYPE_E::SXGMII_2G, will cause unpredictable
+ * behavior. USXGMII hardware-based autonegotiation may change this
+ * setting.
  */
 #define CAVM_CGX_USXGMII_RATE_E_RATE_100M (1)
 #define CAVM_CGX_USXGMII_RATE_E_RATE_10G (5)
@@ -159,18 +123,16 @@
 /**
  * Enumeration cgx_usxgmii_type_e
  *
- * CGX USXGMII Port Sub-Type Enumeration
- * Enumerates the USXGMII sub-port type, CGX()_SPU()_CONTROL1[USXGMII_TYPE].
- *
- * The description indicates the maximum rate and the maximum number of ports (LMACs)
- * for each sub-type. The minimum rate for any port is 10M.
- * The rate selection for each LMAC is made using CGX()_SPU()_CONTROL1[USXGMII_RATE]
- * and the number of active ports/LMACs is implicitly determined by the value given to
- * CGX()_CMR()_CONFIG[ENABLE] for each LMAC.
- *
- * Selecting a rate higher than the maximum allowed for a given port sub-type or
- * enabling more LMACs than the maximum allowed for a given port sub-type will cause
- * unpredictable behavior.
+ * CGX USXGMII Port Sub-Type Enumeration Enumerates the USXGMII sub-port
+ * type, CGX()_SPU()_CONTROL1[USXGMII_TYPE].  The description indicates
+ * the maximum rate and the maximum number of ports (LMACs) for each sub-
+ * type. The minimum rate for any port is 10M. The rate selection for
+ * each LMAC is made using CGX()_SPU()_CONTROL1[USXGMII_RATE] and the
+ * number of active ports/LMACs is implicitly determined by the value
+ * given to CGX()_CMR()_CONFIG[ENABLE] for each LMAC.  Selecting a rate
+ * higher than the maximum allowed for a given port sub-type or enabling
+ * more LMACs than the maximum allowed for a given port sub-type will
+ * cause unpredictable behavior.
  */
 #define CAVM_CGX_USXGMII_TYPE_E_DXGMII_10G (3)
 #define CAVM_CGX_USXGMII_TYPE_E_DXGMII_20G (5)
@@ -184,9 +146,9 @@
 /**
  * Structure cgx_spu_br_lane_train_status_s
  *
- * CGX Lane Training Status Structure
- * This is the group of lane status bits for a single lane in the BASE-R PMD status register
- * (MDIO address 1.151) as defined in IEEE 802.3ba-2010, Table 45-55.
+ * CGX Lane Training Status Structure This is the group of lane status
+ * bits for a single lane in the BASE-R PMD status register (MDIO address
+ * 1.151) as defined in IEEE 802.3ba-2010, Table 45-55.
  */
 union cavm_cgx_spu_br_lane_train_status_s {
 	u32 u;
@@ -203,9 +165,9 @@ union cavm_cgx_spu_br_lane_train_status_s {
 /**
  * Structure cgx_spu_br_train_cup_s
  *
- * CGX Lane Training Coeffiecient Structure
- * This is the coefficient update field of the BASE-R link training packet as defined in
- * IEEE 802.3, Table 72-4.
+ * CGX Lane Training Coeffiecient Structure This is the coefficient
+ * update field of the BASE-R link training packet as defined in IEEE
+ * 802.3, Table 72-4.
  */
 union cavm_cgx_spu_br_train_cup_s {
 	u32 u;
@@ -233,9 +195,8 @@ union cavm_cgx_spu_br_train_cup_s {
 /**
  * Structure cgx_spu_br_train_rep_s
  *
- * CGX Training Report Structure
- * This is the status report field of the BASE-R link training packet as defined in IEEE 802.3,
- * Table 72-5.
+ * CGX Training Report Structure This is the status report field of the
+ * BASE-R link training packet as defined in IEEE 802.3, Table 72-5.
  */
 union cavm_cgx_spu_br_train_rep_s {
 	u32 u;
@@ -253,10 +214,9 @@ union cavm_cgx_spu_br_train_rep_s {
 /**
  * Structure cgx_spu_sds_cu_s
  *
- * INTERNAL: CGX Training Coeffiecient Structure
- *
- * This structure is similar to CGX_SPU_BR_TRAIN_CUP_S format, but with reserved fields removed
- * and [RCVR_READY] field added.
+ * INTERNAL: CGX Training Coeffiecient Structure  This structure is
+ * similar to CGX_SPU_BR_TRAIN_CUP_S format, but with reserved fields
+ * removed and [RCVR_READY] field added.
  */
 union cavm_cgx_spu_sds_cu_s {
 	u32 u;
@@ -275,9 +235,10 @@ union cavm_cgx_spu_sds_cu_s {
 /**
  * Structure cgx_spu_sds_skew_status_s
  *
- * CGX Skew Status Structure
- * Provides receive skew information detected for a physical SerDes lane when it is assigned to a
- * multilane LMAC/LPCS. Contents are valid when RX deskew is done for the associated LMAC/LPCS.
+ * CGX Skew Status Structure Provides receive skew information detected
+ * for a physical SerDes lane when it is assigned to a multilane
+ * LMAC/LPCS. Contents are valid when RX deskew is done for the
+ * associated LMAC/LPCS.
  */
 union cavm_cgx_spu_sds_skew_status_s {
 	u32 u;
@@ -295,9 +256,9 @@ union cavm_cgx_spu_sds_skew_status_s {
 /**
  * Structure cgx_spu_sds_sr_s
  *
- * INTERNAL: CGX Lane Training Coefficient Structure
- *
- * Similar to CGX_SPU_BR_TRAIN_REP_S format, but with reserved and RX ready fields removed.
+ * INTERNAL: CGX Lane Training Coefficient Structure  Similar to
+ * CGX_SPU_BR_TRAIN_REP_S format, but with reserved and RX ready fields
+ * removed.
  */
 union cavm_cgx_spu_sds_sr_s {
 	u32 u;
@@ -313,8 +274,8 @@ union cavm_cgx_spu_sds_sr_s {
 /**
  * Register (RSL) cgx#_active_pc
  *
- * CGX ACTIVE PC Register
- * This register counts the conditional clocks for power management.
+ * CGX ACTIVE PC Register This register counts the conditional clocks for
+ * power management.
  */
 union cavm_cgxx_active_pc {
 	u64 u;
@@ -360,73 +321,69 @@ static inline u64 CAVM_CGXX_CMRX_ACTIVITY(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_config
  *
- * CGX CMR Configuration Registers
- * Logical MAC/PCS configuration registers; one per LMAC. The maximum number of LMACs (and
- * maximum LMAC ID) that can be enabled by these registers is limited by
- * CGX()_CMR_RX_LMACS[LMACS] and CGX()_CMR_TX_LMACS[LMACS].
- *
- * Internal:
- * \<pre\>
- * Example configurations:
- *   ---------------------------------------------------------------------------
- *   Configuration           LMACS  Register             [ENABLE]    [LMAC_TYPE]
- *   ---------------------------------------------------------------------------
- *   1x50G+1x25G+1xSGMII     4      CGXn_CMR0_CONFIG     1           8
- *                                  CGXn_CMR1_CONFIG     0           --
- *                                  CGXn_CMR2_CONFIG     1           7
- *                                  CGXn_CMR3_CONFIG     1           0
- *   ---------------------------------------------------------------------------
- *   USXGMII                 1-4    CGXn_CMR0_CONFIG     1           a
- *                                  CGXn_CMR1_CONFIG     1           a
- *                                  CGXn_CMR2_CONFIG     1           a
- *                                  CGXn_CMR3_CONFIG     1           a
- *   ---------------------------------------------------------------------------
- *   1x100GBASE-R4           1      CGXn_CMR0_CONFIG     1           9
- *                                  CGXn_CMR1_CONFIG     0           --
- *                                  CGXn_CMR2_CONFIG     0           --
- *                                  CGXn_CMR3_CONFIG     0           --
- *   ---------------------------------------------------------------------------
- *   2x50GBASE-R2            2      CGXn_CMR0_CONFIG     1           8
- *                                  CGXn_CMR1_CONFIG     1           8
- *                                  CGXn_CMR2_CONFIG     0           --
- *                                  CGXn_CMR3_CONFIG     0           --
- *   ---------------------------------------------------------------------------
- *   4x25GBASE-R             4      CGXn_CMR0_CONFIG     1           7
- *                                  CGXn_CMR1_CONFIG     1           7
- *                                  CGXn_CMR2_CONFIG     1           7
- *                                  CGXn_CMR3_CONFIG     1           7
- *   ---------------------------------------------------------------------------
- *   QSGMII                  4      CGXn_CMR0_CONFIG     1           6
- *                                  CGXn_CMR1_CONFIG     1           6
- *                                  CGXn_CMR2_CONFIG     1           6
- *                                  CGXn_CMR3_CONFIG     1           6
- *   ---------------------------------------------------------------------------
- *   1x40GBASE-R4            1      CGXn_CMR0_CONFIG     1           4
- *                                  CGXn_CMR1_CONFIG     0           --
- *                                  CGXn_CMR2_CONFIG     0           --
- *                                  CGXn_CMR3_CONFIG     0           --
- *   ---------------------------------------------------------------------------
- *   4x10GBASE-R             4      CGXn_CMR0_CONFIG     1           3
- *                                  CGXn_CMR1_CONFIG     1           3
- *                                  CGXn_CMR2_CONFIG     1           3
- *                                  CGXn_CMR3_CONFIG     1           3
- *   ---------------------------------------------------------------------------
- *   2xRXAUI                 2      CGXn_CMR0_CONFIG     1           2
- *                                  CGXn_CMR1_CONFIG     1           2
- *                                  CGXn_CMR2_CONFIG     0           --
- *                                  CGXn_CMR3_CONFIG     0           --
- *   ---------------------------------------------------------------------------
- *   1x10GBASE-X/XAUI/DXAUI  1      CGXn_CMR0_CONFIG     1           1
- *                                  CGXn_CMR1_CONFIG     0           --
- *                                  CGXn_CMR2_CONFIG     0           --
- *                                  CGXn_CMR3_CONFIG     0           --
- *   ---------------------------------------------------------------------------
- *   4xSGMII/1000BASE-X      4      CGXn_CMR0_CONFIG     1           0
- *                                  CGXn_CMR1_CONFIG     1           0
- *                                  CGXn_CMR2_CONFIG     1           0
- *                                  CGXn_CMR3_CONFIG     1           0
- *   ---------------------------------------------------------------------------
- * \</pre\>
+ * CGX CMR Configuration Registers Logical MAC/PCS configuration
+ * registers; one per LMAC. The maximum number of LMACs (and maximum LMAC
+ * ID) that can be enabled by these registers is limited by
+ * CGX()_CMR_RX_LMACS[LMACS] and CGX()_CMR_TX_LMACS[LMACS].  Internal:
+ * \<pre\> Example configurations:   ------------------------------------
+ * ---------------------------------------   Configuration
+ * LMACS  Register             [ENABLE]    [LMAC_TYPE]   ----------------
+ * -----------------------------------------------------------
+ * 1x50G+1x25G+1xSGMII     4      CGXn_CMR0_CONFIG     1           8
+ * CGXn_CMR1_CONFIG     0           --
+ * CGXn_CMR2_CONFIG     1           7
+ * CGXn_CMR3_CONFIG     1           0   ---------------------------------
+ * ------------------------------------------   USXGMII
+ * 1-4    CGXn_CMR0_CONFIG     1           a
+ * CGXn_CMR1_CONFIG     1           a
+ * CGXn_CMR2_CONFIG     1           a
+ * CGXn_CMR3_CONFIG     1           a   ---------------------------------
+ * ------------------------------------------   1x100GBASE-R4           1
+ * CGXn_CMR0_CONFIG     1           9
+ * CGXn_CMR1_CONFIG     0           --
+ * CGXn_CMR2_CONFIG     0           --
+ * CGXn_CMR3_CONFIG     0           --   --------------------------------
+ * -------------------------------------------   2x50GBASE-R2
+ * 2      CGXn_CMR0_CONFIG     1           8
+ * CGXn_CMR1_CONFIG     1           8
+ * CGXn_CMR2_CONFIG     0           --
+ * CGXn_CMR3_CONFIG     0           --   --------------------------------
+ * -------------------------------------------   4x25GBASE-R
+ * 4      CGXn_CMR0_CONFIG     1           7
+ * CGXn_CMR1_CONFIG     1           7
+ * CGXn_CMR2_CONFIG     1           7
+ * CGXn_CMR3_CONFIG     1           7   ---------------------------------
+ * ------------------------------------------   QSGMII                  4
+ * CGXn_CMR0_CONFIG     1           6
+ * CGXn_CMR1_CONFIG     1           6
+ * CGXn_CMR2_CONFIG     1           6
+ * CGXn_CMR3_CONFIG     1           6   ---------------------------------
+ * ------------------------------------------   1x40GBASE-R4            1
+ * CGXn_CMR0_CONFIG     1           4
+ * CGXn_CMR1_CONFIG     0           --
+ * CGXn_CMR2_CONFIG     0           --
+ * CGXn_CMR3_CONFIG     0           --   --------------------------------
+ * -------------------------------------------   4x10GBASE-R
+ * 4      CGXn_CMR0_CONFIG     1           3
+ * CGXn_CMR1_CONFIG     1           3
+ * CGXn_CMR2_CONFIG     1           3
+ * CGXn_CMR3_CONFIG     1           3   ---------------------------------
+ * ------------------------------------------   2xRXAUI                 2
+ * CGXn_CMR0_CONFIG     1           2
+ * CGXn_CMR1_CONFIG     1           2
+ * CGXn_CMR2_CONFIG     0           --
+ * CGXn_CMR3_CONFIG     0           --   --------------------------------
+ * -------------------------------------------   1x10GBASE-X/XAUI/DXAUI
+ * 1      CGXn_CMR0_CONFIG     1           1
+ * CGXn_CMR1_CONFIG     0           --
+ * CGXn_CMR2_CONFIG     0           --
+ * CGXn_CMR3_CONFIG     0           --   --------------------------------
+ * -------------------------------------------   4xSGMII/1000BASE-X
+ * 4      CGXn_CMR0_CONFIG     1           0
+ * CGXn_CMR1_CONFIG     1           0
+ * CGXn_CMR2_CONFIG     1           0
+ * CGXn_CMR3_CONFIG     1           0   ---------------------------------
+ * ------------------------------------------ \</pre\>
  */
 union cavm_cgxx_cmrx_config {
 	u64 u;
@@ -483,8 +440,8 @@ static inline u64 CAVM_CGXX_CMRX_INT(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_int_ena_w1c
  *
- * CGX CMR Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * CGX CMR Interrupt Enable Clear Register This register clears interrupt
+ * enable bits.
  */
 union cavm_cgxx_cmrx_int_ena_w1c {
 	u64 u;
@@ -511,8 +468,8 @@ static inline u64 CAVM_CGXX_CMRX_INT_ENA_W1C(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_int_ena_w1s
  *
- * CGX CMR Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * CGX CMR Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
  */
 union cavm_cgxx_cmrx_int_ena_w1s {
 	u64 u;
@@ -539,8 +496,7 @@ static inline u64 CAVM_CGXX_CMRX_INT_ENA_W1S(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_int_w1s
  *
- * CGX CMR Interrupt Set Register
- * This register sets interrupt bits.
+ * CGX CMR Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_cgxx_cmrx_int_w1s {
 	u64 u;
@@ -588,8 +544,7 @@ static inline u64 CAVM_CGXX_CMRX_LED_TIMING(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_prt_cbfc_ctl
  *
- * CGX CMR LMAC PFC Control Registers
- * See CGX()_CMR()_RX_LOGL_XOFF[XOFF].
+ * CGX CMR LMAC PFC Control Registers See CGX()_CMR()_RX_LOGL_XOFF[XOFF].
  */
 union cavm_cgxx_cmrx_prt_cbfc_ctl {
 	u64 u;
@@ -695,40 +650,26 @@ static inline u64 CAVM_CGXX_CMRX_RX_BP_STATUS(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_dmac_ctl0
  *
- * CGX CMR Receive DMAC Address-Control0 Register
- * DMAC CAM control register for use by X2P/NIX bound traffic.
- * Received packets are only passed to X2P/NIX when the DMAC0 filter result is
- * ACCEPT and STEERING0 filter result is PASS. See also CGX()_CMR_RX_DMAC()_CAM0
- * and CGX()_CMR_RX_STEERING0().
- *
- * Internal:
- * "* ALGORITHM
- * Here is some pseudo code that represents the address filter behavior.
- * \<pre\>
- * dmac_addr_filter(uint8 prt, uint48 dmac) {
- * for (lmac=0, lmac\<4, lmac++) {
- *   if (is_bcst(dmac))                               // broadcast accept
- *     return (CGX()_CMR(lmac)_RX_DMAC_CTL0[BCST_ACCEPT] ? ACCEPT : REJECT);
- *   if (is_mcst(dmac) && CGX()_CMR(lmac)_RX_DMAC_CTL0[MCST_MODE] == 0)   // multicast reject
- *     return REJECT;
- *   if (is_mcst(dmac) && CGX()_CMR(lmac)_RX_DMAC_CTL0[MCST_MODE] == 1)   // multicast accept
- *     return ACCEPT;
- *   else        // DMAC CAM filter
- *     cam_hit = 0;
- *   for (i=0; i\<32; i++) {
- *     cam = CGX()_CMR_RX_DMAC(i)_CAM0;
- *     if (cam[EN] && cam[ID] == lmac && cam[ADR] == dmac) {
- *       cam_hit = 1;
- *       break;
- *     }
- *   }
- *   if (cam_hit) {
- *     return (CGX()_CMR(lmac)_RX_DMAC_CTL0[CAM_ACCEPT] ? ACCEPT : REJECT);
- *   else
- *     return (CGX()_CMR(lmac)_RX_DMAC_CTL0[CAM_ACCEPT] ? REJECT : ACCEPT);
- *   }
- * }
- * \</pre\>"
+ * CGX CMR Receive DMAC Address-Control0 Register DMAC CAM control
+ * register for use by X2P/NIX bound traffic. Received packets are only
+ * passed to X2P/NIX when the DMAC0 filter result is ACCEPT and STEERING0
+ * filter result is PASS. See also CGX()_CMR_RX_DMAC()_CAM0 and
+ * CGX()_CMR_RX_STEERING0().  Internal: "* ALGORITHM Here is some pseudo
+ * code that represents the address filter behavior. \<pre\>
+ * dmac_addr_filter(uint8 prt, uint48 dmac) { for (lmac=0, lmac\<4,
+ * lmac++) {   if (is_bcst(dmac))                               //
+ * broadcast accept     return (CGX()_CMR(lmac)_RX_DMAC_CTL0[BCST_ACCEPT]
+ * ? ACCEPT : REJECT);   if (is_mcst(dmac) &&
+ * CGX()_CMR(lmac)_RX_DMAC_CTL0[MCST_MODE] == 0)   // multicast reject
+ * return REJECT;   if (is_mcst(dmac) &&
+ * CGX()_CMR(lmac)_RX_DMAC_CTL0[MCST_MODE] == 1)   // multicast accept
+ * return ACCEPT;   else        // DMAC CAM filter     cam_hit = 0;   for
+ * (i=0; i\<32; i++) {     cam = CGX()_CMR_RX_DMAC(i)_CAM0;     if
+ * (cam[EN] && cam[ID] == lmac && cam[ADR] == dmac) {       cam_hit = 1;
+ * break;     }   }   if (cam_hit) {     return
+ * (CGX()_CMR(lmac)_RX_DMAC_CTL0[CAM_ACCEPT] ? ACCEPT : REJECT);   else
+ * return (CGX()_CMR(lmac)_RX_DMAC_CTL0[CAM_ACCEPT] ? REJECT : ACCEPT);
+ * } } \</pre\>"
  */
 union cavm_cgxx_cmrx_rx_dmac_ctl0 {
 	u64 u;
@@ -751,15 +692,13 @@ static inline u64 CAVM_CGXX_CMRX_RX_DMAC_CTL0(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_dmac_ctl1
  *
- * CGX CMR Receive DMAC Address-Control1 Register
- * DMAC CAM control register for use by NCSI bound traffic.
- * Received packets are only passed to NCSI when the DMAC1 filter result is ACCEPT and
- * STEERING1 filter result is PASS. See also CGX()_CMR_RX_DMAC()_CAM1 and
- * CGX()_CMR_RX_STEERING1().
- * For use with the LMAC associated with NCSI; see CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID].
- *
- * Internal:
- * ALGORITHM: See CGX()_CMR()_RX_DMAC_CTL0.
+ * CGX CMR Receive DMAC Address-Control1 Register DMAC CAM control
+ * register for use by NCSI bound traffic. Received packets are only
+ * passed to NCSI when the DMAC1 filter result is ACCEPT and STEERING1
+ * filter result is PASS. See also CGX()_CMR_RX_DMAC()_CAM1 and
+ * CGX()_CMR_RX_STEERING1(). For use with the LMAC associated with NCSI;
+ * see CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID].  Internal: ALGORITHM: See
+ * CGX()_CMR()_RX_DMAC_CTL0.
  */
 union cavm_cgxx_cmrx_rx_dmac_ctl1 {
 	u64 u;
@@ -806,8 +745,8 @@ static inline u64 CAVM_CGXX_CMRX_RX_FIFO_LEN(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_id_map
  *
- * CGX CMR Receive ID Map Register
- * These registers set the RX LMAC ID mapping for X2P/NIX.
+ * CGX CMR Receive ID Map Register These registers set the RX LMAC ID
+ * mapping for X2P/NIX.
  */
 union cavm_cgxx_cmrx_rx_id_map {
 	u64 u;
@@ -999,28 +938,16 @@ static inline u64 CAVM_CGXX_CMRX_RX_PAUSE_DROP_TIME(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_stat0
  *
- * CGX Receive Status Register 0
- * These registers provide a count of received packets that meet the following conditions:
- * * are not recognized as ERROR packets(any OPCODE).
- * * are not recognized as PAUSE packets.
- * * are not dropped due FIFO full status.
- * * are not dropped due DMAC0 or STEERING0 filtering.
- *
- * Internal:
- * "This pseudo code represents the RX STAT0 through STAT8 accounting:
- * \<pre\>
- * If (errored)
- *   incr RX_STAT8
- * else if (ctrl packet, i.e. Pause/PFC)
- *   incr RX_STAT2,3
- * else if (fifo full drop)
- *   incr RX_STAT6,7
- * else if (DMAC0/VLAN0 filter drop)
- *   incr RX_STAT4,5 if not a filter+decision
- * else
- *   incr RX_STAT0,1
- * end
- * \</pre\>"
+ * CGX Receive Status Register 0 These registers provide a count of
+ * received packets that meet the following conditions: * are not
+ * recognized as ERROR packets(any OPCODE). * are not recognized as PAUSE
+ * packets. * are not dropped due FIFO full status. * are not dropped due
+ * DMAC0 or STEERING0 filtering.  Internal: "This pseudo code represents
+ * the RX STAT0 through STAT8 accounting: \<pre\> If (errored)   incr
+ * RX_STAT8 else if (ctrl packet, i.e. Pause/PFC)   incr RX_STAT2,3 else
+ * if (fifo full drop)   incr RX_STAT6,7 else if (DMAC0/VLAN0 filter
+ * drop)   incr RX_STAT4,5 if not a filter+decision else   incr
+ * RX_STAT0,1 end \</pre\>"
  */
 union cavm_cgxx_cmrx_rx_stat0 {
 	u64 u;
@@ -1041,8 +968,8 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT0(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_stat1
  *
- * CGX Receive Status Register 1
- * These registers provide a count of octets of received packets.
+ * CGX Receive Status Register 1 These registers provide a count of
+ * octets of received packets.
  */
 union cavm_cgxx_cmrx_rx_stat1 {
 	u64 u;
@@ -1063,12 +990,11 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT1(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_stat2
  *
- * CGX Receive Status Register 2
- * These registers provide a count of received packets that meet the following conditions:
- * * are not recognized as ERROR packets(any OPCODE).
- * * are recognized as PAUSE packets.
- *
- * Pause packets can be optionally dropped or forwarded based on
+ * CGX Receive Status Register 2 These registers provide a count of
+ * received packets that meet the following conditions: * are not
+ * recognized as ERROR packets(any OPCODE). * are recognized as PAUSE
+ * packets.  Pause packets can be optionally dropped or forwarded based
+ * on
  * CGX()_SMU()_RX_FRM_CTL[CTL_DRP]/CGX()_GMP_GMI_RX()_FRM_CTL[CTL_DRP].
  * This count increments regardless of whether the packet is dropped.
  */
@@ -1091,8 +1017,8 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT2(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_stat3
  *
- * CGX Receive Status Register 3
- * These registers provide a count of octets of received PAUSE and control packets.
+ * CGX Receive Status Register 3 These registers provide a count of
+ * octets of received PAUSE and control packets.
  */
 union cavm_cgxx_cmrx_rx_stat3 {
 	u64 u;
@@ -1113,18 +1039,16 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT3(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_stat4
  *
- * CGX Receive Status Register 4
- * These registers provide a count of received packets that meet the following conditions:
- * * are not recognized as ERROR packets(any OPCODE).
- * * are not recognized as PAUSE packets.
- * * are not dropped due FIFO full status.
- * * are dropped due DMAC0 or STEERING0 filtering.
- *
- * 16B packets or smaller (20B in case of FCS strip) as the result of truncation
- * or other means are not dropped by CGX (unless filter and decision is also
- * asserted) and will never appear in this count.
- * Should the MAC signal to the CMR that the packet be filtered upon decision before the end of
- * packet, then STAT4 and STAT5 will not be updated.
+ * CGX Receive Status Register 4 These registers provide a count of
+ * received packets that meet the following conditions: * are not
+ * recognized as ERROR packets(any OPCODE). * are not recognized as PAUSE
+ * packets. * are not dropped due FIFO full status. * are dropped due
+ * DMAC0 or STEERING0 filtering.  16B packets or smaller (20B in case of
+ * FCS strip) as the result of truncation or other means are not dropped
+ * by CGX (unless filter and decision is also asserted) and will never
+ * appear in this count. Should the MAC signal to the CMR that the packet
+ * be filtered upon decision before the end of packet, then STAT4 and
+ * STAT5 will not be updated.
  */
 union cavm_cgxx_cmrx_rx_stat4 {
 	u64 u;
@@ -1145,8 +1069,8 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT4(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_stat5
  *
- * CGX Receive Status Register 5
- * These registers provide a count of octets of filtered DMAC0 or VLAN STEERING0 packets.
+ * CGX Receive Status Register 5 These registers provide a count of
+ * octets of filtered DMAC0 or VLAN STEERING0 packets.
  */
 union cavm_cgxx_cmrx_rx_stat5 {
 	u64 u;
@@ -1167,15 +1091,14 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT5(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_stat6
  *
- * CGX Receive Status Register 6
- * These registers provide a count of received packets that meet the following conditions:
- * * are not recognized as ERROR packets(any OPCODE).
- * * are not recognized as PAUSE packets.
- * * are dropped due FIFO full status.
- *
- * They do not count any packet that is truncated at the point of overflow and sent
- * on to the NIX. The truncated packet will be marked with error and increment STAT8.
- * These registers count all entire packets dropped by the FIFO for a given LMAC.
+ * CGX Receive Status Register 6 These registers provide a count of
+ * received packets that meet the following conditions: * are not
+ * recognized as ERROR packets(any OPCODE). * are not recognized as PAUSE
+ * packets. * are dropped due FIFO full status.  They do not count any
+ * packet that is truncated at the point of overflow and sent on to the
+ * NIX. The truncated packet will be marked with error and increment
+ * STAT8. These registers count all entire packets dropped by the FIFO
+ * for a given LMAC.
  */
 union cavm_cgxx_cmrx_rx_stat6 {
 	u64 u;
@@ -1196,9 +1119,9 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT6(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_stat7
  *
- * CGX Receive Status Register 7
- * These registers provide a count of octets of received packets that were dropped due to a full
- * receive FIFO.
+ * CGX Receive Status Register 7 These registers provide a count of
+ * octets of received packets that were dropped due to a full receive
+ * FIFO.
  */
 union cavm_cgxx_cmrx_rx_stat7 {
 	u64 u;
@@ -1219,9 +1142,9 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT7(u64 a)
 /**
  * Register (RSL) cgx#_cmr#_rx_stat8
  *
- * CGX Receive Status Register 8
- * These registers provide a count of received packets that meet the following conditions:
- *  * are recognized as ERROR packets(any OPCODE).
+ * CGX Receive Status Register 8 These registers provide a count of
+ * received packets that meet the following conditions:  * are recognized
+ * as ERROR packets(any OPCODE).
  */
 union cavm_cgxx_cmrx_rx_stat8 {
 	u64 u;
@@ -1873,8 +1796,8 @@ static inline u64 CAVM_CGXX_CMR_ECO(void)
 /**
  * Register (RSL) cgx#_cmr_global_config
  *
- * CGX CMR Global Configuration Register
- * These registers configure the global CMR, PCS, and MAC.
+ * CGX CMR Global Configuration Register These registers configure the
+ * global CMR, PCS, and MAC.
  */
 union cavm_cgxx_cmr_global_config {
 	u64 u;
@@ -1926,8 +1849,8 @@ static inline u64 CAVM_CGXX_CMR_MEM_INT(void)
 /**
  * Register (RSL) cgx#_cmr_mem_int_ena_w1c
  *
- * CGX CMR Memory Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * CGX CMR Memory Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_cgxx_cmr_mem_int_ena_w1c {
 	u64 u;
@@ -1949,8 +1872,8 @@ static inline u64 CAVM_CGXX_CMR_MEM_INT_ENA_W1C(void)
 /**
  * Register (RSL) cgx#_cmr_mem_int_ena_w1s
  *
- * CGX CMR Memory Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * CGX CMR Memory Interrupt Enable Set Register This register sets
+ * interrupt enable bits.
  */
 union cavm_cgxx_cmr_mem_int_ena_w1s {
 	u64 u;
@@ -1972,8 +1895,8 @@ static inline u64 CAVM_CGXX_CMR_MEM_INT_ENA_W1S(void)
 /**
  * Register (RSL) cgx#_cmr_mem_int_w1s
  *
- * CGX CMR Memory Interrupt Set Register
- * This register sets interrupt bits.
+ * CGX CMR Memory Interrupt Set Register This register sets interrupt
+ * bits.
  */
 union cavm_cgxx_cmr_mem_int_w1s {
 	u64 u;
@@ -2085,9 +2008,8 @@ static inline u64 CAVM_CGXX_CMR_P2XX_COUNT(u64 a)
 /**
  * Register (RSL) cgx#_cmr_rx_dmac#_cam0
  *
- * CGX CMR Receive CAM Registers
- * These registers provide access to the 32 DMAC CAM0 entries in CGX,
- * for use by X2P/NIX bound traffic.
+ * CGX CMR Receive CAM Registers These registers provide access to the 32
+ * DMAC CAM0 entries in CGX, for use by X2P/NIX bound traffic.
  */
 union cavm_cgxx_cmr_rx_dmacx_cam0 {
 	u64 u;
@@ -2110,10 +2032,10 @@ static inline u64 CAVM_CGXX_CMR_RX_DMACX_CAM0(u64 a)
 /**
  * Register (RSL) cgx#_cmr_rx_dmac#_cam1
  *
- * CGX CMR Receive CAM Registers
- * These registers provide access to the 32 DMAC CAM entries in CGX for use by NCSI bound
- * traffic. See CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID] and
- * CGX()_CMR_RX_STEERING1() registers.
+ * CGX CMR Receive CAM Registers These registers provide access to the 32
+ * DMAC CAM entries in CGX for use by NCSI bound traffic. See
+ * CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID] and CGX()_CMR_RX_STEERING1()
+ * registers.
  */
 union cavm_cgxx_cmr_rx_dmacx_cam1 {
 	u64 u;
@@ -2157,14 +2079,16 @@ static inline u64 CAVM_CGXX_CMR_RX_LMACS(void)
 /**
  * Register (RSL) cgx#_cmr_rx_ovr_bp
  *
- * CGX CMR Receive-Ports Backpressure Override Registers
- * Per-LMAC backpressure override register.
- * For SMU, CGX()_CMR_RX_OVR_BP[EN]\<0\> must be set to one and CGX()_CMR_RX_OVR_BP[BP]\<0\> must be
- * cleared to zero (to forcibly disable hardware-automatic 802.3 PAUSE packet generation) with
- * the HiGig2 Protocol when CGX()_SMU()_HG2_CONTROL[HG2TX_EN]=0. (The HiGig2 protocol is
- * indicated by CGX()_SMU()_TX_CTL[HG_EN]=1 and CGX()_SMU()_RX_UDD_SKP[LEN]=16).
- * Hardware can only auto-generate backpressure through HiGig2 messages (optionally, when
- * CGX()_SMU()_HG2_CONTROL[HG2TX_EN]=1) with the HiGig2 protocol.
+ * CGX CMR Receive-Ports Backpressure Override Registers Per-LMAC
+ * backpressure override register. For SMU, CGX()_CMR_RX_OVR_BP[EN]\<0\>
+ * must be set to one and CGX()_CMR_RX_OVR_BP[BP]\<0\> must be cleared to
+ * zero (to forcibly disable hardware-automatic 802.3 PAUSE packet
+ * generation) with the HiGig2 Protocol when
+ * CGX()_SMU()_HG2_CONTROL[HG2TX_EN]=0. (The HiGig2 protocol is indicated
+ * by CGX()_SMU()_TX_CTL[HG_EN]=1 and CGX()_SMU()_RX_UDD_SKP[LEN]=16).
+ * Hardware can only auto-generate backpressure through HiGig2 messages
+ * (optionally, when CGX()_SMU()_HG2_CONTROL[HG2TX_EN]=1) with the HiGig2
+ * protocol.
  */
 union cavm_cgxx_cmr_rx_ovr_bp {
 	u64 u;
@@ -2187,8 +2111,8 @@ static inline u64 CAVM_CGXX_CMR_RX_OVR_BP(void)
 /**
  * Register (RSL) cgx#_cmr_rx_stat10
  *
- * CGX Receive Status Register 10
- * These registers provide a count of octets of filtered DMAC1 or VLAN STEERING1 packets.
+ * CGX Receive Status Register 10 These registers provide a count of
+ * octets of filtered DMAC1 or VLAN STEERING1 packets.
  */
 union cavm_cgxx_cmr_rx_stat10 {
 	u64 u;
@@ -2209,10 +2133,10 @@ static inline u64 CAVM_CGXX_CMR_RX_STAT10(void)
 /**
  * Register (RSL) cgx#_cmr_rx_stat11
  *
- * CGX Receive Status Register 11
- * This registers provides a count of packets dropped at the NCSI interface. This
- * includes drops due to CGX()_CMR_GLOBAL_CONFIG[CMR_NCSI_DROP] or NCSI FIFO full.
- * The count of dropped NCSI packets is not accounted for in any other stats
+ * CGX Receive Status Register 11 This registers provides a count of
+ * packets dropped at the NCSI interface. This includes drops due to
+ * CGX()_CMR_GLOBAL_CONFIG[CMR_NCSI_DROP] or NCSI FIFO full. The count of
+ * dropped NCSI packets is not accounted for in any other stats
  * registers.
  */
 union cavm_cgxx_cmr_rx_stat11 {
@@ -2234,8 +2158,8 @@ static inline u64 CAVM_CGXX_CMR_RX_STAT11(void)
 /**
  * Register (RSL) cgx#_cmr_rx_stat12
  *
- * CGX Receive Status Register 12
- * This register provide a count of octets of dropped at the NCSI interface.
+ * CGX Receive Status Register 12 This register provide a count of octets
+ * of dropped at the NCSI interface.
  */
 union cavm_cgxx_cmr_rx_stat12 {
 	u64 u;
@@ -2256,17 +2180,16 @@ static inline u64 CAVM_CGXX_CMR_RX_STAT12(void)
 /**
  * Register (RSL) cgx#_cmr_rx_stat9
  *
- * CGX Receive Status Register 9
- * These registers provide a count of all received packets that were dropped by the DMAC1 or VLAN
- * STEERING1 filter.
- * Packets that are dropped by the DMAC1 or VLAN STEERING1 filters are counted here
- * regardless of whether they were ERR packets, but does not include those reported in
- * CGX()_CMR()_RX_STAT6.
- * 16B packets or smaller (20B in case of FCS strip) as the result of truncation
- * or other means are not dropped by CGX (unless filter and decision is also
- * asserted) and will never appear in this count.
- * Should the MAC signal to the CMR that the packet be filtered upon decision before the end of
- * packet, then STAT9 and STAT10 will not be updated.
+ * CGX Receive Status Register 9 These registers provide a count of all
+ * received packets that were dropped by the DMAC1 or VLAN STEERING1
+ * filter. Packets that are dropped by the DMAC1 or VLAN STEERING1
+ * filters are counted here regardless of whether they were ERR packets,
+ * but does not include those reported in CGX()_CMR()_RX_STAT6. 16B
+ * packets or smaller (20B in case of FCS strip) as the result of
+ * truncation or other means are not dropped by CGX (unless filter and
+ * decision is also asserted) and will never appear in this count. Should
+ * the MAC signal to the CMR that the packet be filtered upon decision
+ * before the end of packet, then STAT9 and STAT10 will not be updated.
  */
 union cavm_cgxx_cmr_rx_stat9 {
 	u64 u;
@@ -2287,35 +2210,24 @@ static inline u64 CAVM_CGXX_CMR_RX_STAT9(void)
 /**
  * Register (RSL) cgx#_cmr_rx_steering0#
  *
- * CGX CMR Receive Steering0 Registers
- * These registers, along with CGX()_CMR_RX_STEERING_VETYPE0(), provide eight filters for
- * identifying and steering receive traffic to X2P/NIX.
- * Received packets are only passed to X2P/NIX when the DMAC0 filter result is
- * ACCEPT and STEERING0 filter result is PASS. See also
- * CGX()_CMR()_RX_DMAC_CTL0.
- *
- * Internal:
- * "* ALGORITHM
- * \<pre\>
- * rx_steering(uint48 pkt_dmac, uint16 pkt_etype, uint16 pkt_vlan_id) {
- *    for (int i = 0; i \< 8; i++) {
- *       steer = CGX()_CMR_RX_STEERING0(i);
- *       vetype = CGX()_CMR_RX_STEERING_VETYPE0(i);
- *       if (steer[MCST_EN] || steer[DMAC_EN] || vetype[VLAN_EN] || vetype[VLAN_TAG_EN]) {
- *          // Filter is enabled.
- *          if (   (!steer[MCST_EN] || is_mcst(pkt_dmac))
- *              && (!steer[DMAC_EN] || pkt_dmac == steer[DMAC])
- *              && (!vetype[VLAN_EN] || pkt_vlan_id == vetype[VLAN_ID])
- *              && (!vetype[VLAN_TAG_EN] || pkt_etype == vetype[VLAN_ETYPE]) )
- *          {
- *             // Filter match (all enabled matching criteria are met).
- *             return steer[PASS];
- *          }
- *       }
- *    }
- *    return CGX()_CMR_RX_STEERING_DEFAULT0[PASS]; // No match
- * }
- * \</pre\>"
+ * CGX CMR Receive Steering0 Registers These registers, along with
+ * CGX()_CMR_RX_STEERING_VETYPE0(), provide eight filters for identifying
+ * and steering receive traffic to X2P/NIX. Received packets are only
+ * passed to X2P/NIX when the DMAC0 filter result is ACCEPT and STEERING0
+ * filter result is PASS. See also CGX()_CMR()_RX_DMAC_CTL0.  Internal:
+ * "* ALGORITHM \<pre\> rx_steering(uint48 pkt_dmac, uint16 pkt_etype,
+ * uint16 pkt_vlan_id) {    for (int i = 0; i \< 8; i++) {       steer =
+ * CGX()_CMR_RX_STEERING0(i);       vetype =
+ * CGX()_CMR_RX_STEERING_VETYPE0(i);       if (steer[MCST_EN] ||
+ * steer[DMAC_EN] || vetype[VLAN_EN] || vetype[VLAN_TAG_EN]) {
+ * // Filter is enabled.          if (   (!steer[MCST_EN] ||
+ * is_mcst(pkt_dmac))              && (!steer[DMAC_EN] || pkt_dmac ==
+ * steer[DMAC])              && (!vetype[VLAN_EN] || pkt_vlan_id ==
+ * vetype[VLAN_ID])              && (!vetype[VLAN_TAG_EN] || pkt_etype ==
+ * vetype[VLAN_ETYPE]) )          {             // Filter match (all
+ * enabled matching criteria are met).             return steer[PASS];
+ * }       }    }    return CGX()_CMR_RX_STEERING_DEFAULT0[PASS]; // No
+ * match } \</pre\>"
  */
 union cavm_cgxx_cmr_rx_steering0x {
 	u64 u;
@@ -2339,16 +2251,14 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING0X(u64 a)
 /**
  * Register (RSL) cgx#_cmr_rx_steering1#
  *
- * CGX CMR Receive Steering1 Registers
- * These registers, along with CGX()_CMR_RX_STEERING_VETYPE1(), provide eight filters for
- * identifying and steering NCSI receive traffic.
- * Received packets are only passed to NCSI when the DMAC1 filter result is ACCEPT and
- * STEERING1 filter result is PASS. See also CGX()_CMR_RX_DMAC()_CAM1 and
- * CGX()_CMR_RX_STEERING1().
- * For use with the LMAC associated with NCSI. See CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID].
- *
- * Internal:
- * ALGORITHM: See CGX()_CMR_RX_STEERING0().
+ * CGX CMR Receive Steering1 Registers These registers, along with
+ * CGX()_CMR_RX_STEERING_VETYPE1(), provide eight filters for identifying
+ * and steering NCSI receive traffic. Received packets are only passed to
+ * NCSI when the DMAC1 filter result is ACCEPT and STEERING1 filter
+ * result is PASS. See also CGX()_CMR_RX_DMAC()_CAM1 and
+ * CGX()_CMR_RX_STEERING1(). For use with the LMAC associated with NCSI.
+ * See CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID].  Internal: ALGORITHM: See
+ * CGX()_CMR_RX_STEERING0().
  */
 union cavm_cgxx_cmr_rx_steering1x {
 	u64 u;
@@ -2372,11 +2282,12 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING1X(u64 a)
 /**
  * Register (RSL) cgx#_cmr_rx_steering_default0
  *
- * CGX CMR Receive Steering Default0 Destination Register
- * For determining destination of traffic that does not meet matching algorithm
- * described in registers CGX()_CMR_RX_STEERING0() and CGX()_CMR_RX_STEERING_VETYPE0().
- * All 16B packets or smaller (20B in case of FCS strip) as the result of truncation will steer
- * to default destination
+ * CGX CMR Receive Steering Default0 Destination Register For determining
+ * destination of traffic that does not meet matching algorithm described
+ * in registers CGX()_CMR_RX_STEERING0() and
+ * CGX()_CMR_RX_STEERING_VETYPE0(). All 16B packets or smaller (20B in
+ * case of FCS strip) as the result of truncation will steer to default
+ * destination
  */
 union cavm_cgxx_cmr_rx_steering_default0 {
 	u64 u;
@@ -2397,12 +2308,13 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING_DEFAULT0(void)
 /**
  * Register (RSL) cgx#_cmr_rx_steering_default1
  *
- * CGX CMR Receive Steering Default1 Destination Register
- * For use with the lmac_id associated with NCSI. See CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID].
- * For determining destination of traffic that does not meet matching algorithm
- * described in registers CGX()_CMR_RX_STEERING1() and CGX()_CMR_RX_STEERING_VETYPE1().
- * All 16B packets or smaller (20B in case of FCS strip) as the result of truncation will steer
- * to default destination
+ * CGX CMR Receive Steering Default1 Destination Register For use with
+ * the lmac_id associated with NCSI. See
+ * CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID]. For determining destination of
+ * traffic that does not meet matching algorithm described in registers
+ * CGX()_CMR_RX_STEERING1() and CGX()_CMR_RX_STEERING_VETYPE1(). All 16B
+ * packets or smaller (20B in case of FCS strip) as the result of
+ * truncation will steer to default destination
  */
 union cavm_cgxx_cmr_rx_steering_default1 {
 	u64 u;
@@ -2423,9 +2335,9 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING_DEFAULT1(void)
 /**
  * Register (RSL) cgx#_cmr_rx_steering_vetype0#
  *
- * CGX CMR Receive VLAN Ethertype1 Register
- * These registers, along with CGX()_CMR_RX_STEERING0(), provide eight filters for identifying
- * and steering X2P/NIX receive traffic.
+ * CGX CMR Receive VLAN Ethertype1 Register These registers, along with
+ * CGX()_CMR_RX_STEERING0(), provide eight filters for identifying and
+ * steering X2P/NIX receive traffic.
  */
 union cavm_cgxx_cmr_rx_steering_vetype0x {
 	u64 u;
@@ -2449,10 +2361,10 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING_VETYPE0X(u64 a)
 /**
  * Register (RSL) cgx#_cmr_rx_steering_vetype1#
  *
- * CGX CMR Receive VLAN Ethertype1 Register
- * For use with the lmac_id associated with NCSI. See CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID].
- * These registers, along with CGX()_CMR_RX_STEERING1(), provide eight filters for identifying
- * and steering NCSI receive traffic.
+ * CGX CMR Receive VLAN Ethertype1 Register For use with the lmac_id
+ * associated with NCSI. See CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID]. These
+ * registers, along with CGX()_CMR_RX_STEERING1(), provide eight filters
+ * for identifying and steering NCSI receive traffic.
  */
 union cavm_cgxx_cmr_rx_steering_vetype1x {
 	u64 u;
@@ -2476,8 +2388,8 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING_VETYPE1X(u64 a)
 /**
  * Register (RSL) cgx#_cmr_tx_lmacs
  *
- * CGX CMR Transmit Logical MACs Registers
- * This register sets the number of LMACs allowed on the TX interface. The value is important for
+ * CGX CMR Transmit Logical MACs Registers This register sets the number
+ * of LMACs allowed on the TX interface. The value is important for
  * defining the partitioning of the transmit FIFO.
  */
 union cavm_cgxx_cmr_tx_lmacs {
@@ -2519,8 +2431,8 @@ static inline u64 CAVM_CGXX_CMR_X2PX_COUNT(u64 a)
 /**
  * Register (RSL) cgx#_const
  *
- * CGX CONST Registers
- * This register contains constants for software discovery.
+ * CGX CONST Registers This register contains constants for software
+ * discovery.
  */
 union cavm_cgxx_const {
 	u64 u;
@@ -2543,8 +2455,8 @@ static inline u64 CAVM_CGXX_CONST(void)
 /**
  * Register (RSL) cgx#_const1
  *
- * CGX CONST1 Registers
- * This register contains constants for software discovery.
+ * CGX CONST1 Registers This register contains constants for software
+ * discovery.
  */
 union cavm_cgxx_const1 {
 	u64 u;
@@ -2608,12 +2520,10 @@ static inline u64 CAVM_CGXX_GMP_GMIX_RX_WOL_CTRL1(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi#_tx_eee
  *
- * INTERNAL: CGX GMP GMI TX EEE Configure Registers
- *
- * Reserved.
- * Internal:
- * These registers control when GMP GMI TX requests to enter or exist LPI. Those
- * registers take effect only when EEE is supported and enabled for a given LMAC.
+ * INTERNAL: CGX GMP GMI TX EEE Configure Registers  Reserved. Internal:
+ * These registers control when GMP GMI TX requests to enter or exist
+ * LPI. Those registers take effect only when EEE is supported and
+ * enabled for a given LMAC.
  */
 union cavm_cgxx_gmp_gmix_tx_eee {
 	u64 u;
@@ -2643,10 +2553,8 @@ static inline u64 CAVM_CGXX_GMP_GMIX_TX_EEE(u64 a)
  * Register (RSL) cgx#_gmp_gmi#_tx_eee_cfg1
  *
  * INTERNAL: CGX GMP GMI TX EEE Configure More Configuration Registers
- *
- * Reserved.
- * Internal:
- * Controls the GMP exiting of LPI and starting to send data.
+ * Reserved. Internal: Controls the GMP exiting of LPI and starting to
+ * send data.
  */
 union cavm_cgxx_gmp_gmix_tx_eee_cfg1 {
 	u64 u;
@@ -2679,8 +2587,8 @@ static inline u64 CAVM_CGXX_GMP_GMIX_TX_EEE_CFG1(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi#_wol_int
  *
- * CGX GMP GMI RX WOL Interrupt Registers
- * These registers allow WOL interrupts to be sent to the control processor.
+ * CGX GMP GMI RX WOL Interrupt Registers These registers allow WOL
+ * interrupts to be sent to the control processor.
  */
 union cavm_cgxx_gmp_gmix_wol_int {
 	u64 u;
@@ -2701,8 +2609,8 @@ static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi#_wol_int_ena_w1c
  *
- * CGX GMP GMI RX WOL Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * CGX GMP GMI RX WOL Interrupt Enable Clear Registers This register
+ * clears interrupt enable bits.
  */
 union cavm_cgxx_gmp_gmix_wol_int_ena_w1c {
 	u64 u;
@@ -2723,8 +2631,8 @@ static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_ENA_W1C(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi#_wol_int_ena_w1s
  *
- * CGX GMP GMI RX WOL Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * CGX GMP GMI RX WOL Interrupt Enable Set Registers This register sets
+ * interrupt enable bits.
  */
 union cavm_cgxx_gmp_gmix_wol_int_ena_w1s {
 	u64 u;
@@ -2745,8 +2653,8 @@ static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_ENA_W1S(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi#_wol_int_w1s
  *
- * CGX GMP GMI RX WOL Interrupt Set Registers
- * This register sets interrupt bits.
+ * CGX GMP GMI RX WOL Interrupt Set Registers This register sets
+ * interrupt bits.
  */
 union cavm_cgxx_gmp_gmix_wol_int_w1s {
 	u64 u;
@@ -2767,8 +2675,8 @@ static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_W1S(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_prt#_cfg
  *
- * CGX GMP GMI LMAC Configuration Registers
- * This register controls the configuration of the LMAC.
+ * CGX GMP GMI LMAC Configuration Registers This register controls the
+ * configuration of the LMAC.
  */
 union cavm_cgxx_gmp_gmi_prtx_cfg {
 	u64 u;
@@ -2797,33 +2705,27 @@ static inline u64 CAVM_CGXX_GMP_GMI_PRTX_CFG(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_rx#_decision
  *
- * CGX GMP Packet-Decision Registers
- * This register specifies the byte count used to determine when to accept or to filter a packet.
- * As each byte in a packet is received by GMI, the L2 byte count is compared against
- * [CNT]. In normal operation, the L2 header begins after the
- * PREAMBLE + SFD (CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK] = 1) and any optional UDD skip
- * data (CGX()_GMP_GMI_RX()_UDD_SKP[LEN]).
- *
- * Internal:
- * Notes:
- * As each byte in a packet is received by GMI, the L2 byte count is compared
- * against the [CNT].  The L2 byte count is the number of bytes
- * from the beginning of the L2 header (DMAC).  In normal operation, the L2
- * header begins after the PREAMBLE+SFD (CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK]=1) and any
- * optional UDD skip data (CGX()_GMP_GMI_RX()_UDD_SKP[LEN]).
- * When CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK] is clear, PREAMBLE+SFD are prepended to the
- * packet and would require UDD skip length to account for them.
- *
- * Full Duplex:
- * _   L2 Size \<  [CNT] - Accept packet. No filtering is applied.
- * _   L2 Size \>= [CNT] - Apply filter. Accept packet based on PAUSE packet filter.
- *
- * Half Duplex:
- * _   L2 Size \<  [CNT] - Drop packet. Packet is unconditionally dropped.
- * _   L2 Size \>= [CNT] - Accept packet.
- *
- * where L2_size = MAX(0, total_packet_size - CGX()_GMP_GMI_RX()_UDD_SKP[LEN] -
- *                        ((CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK]==1)*8)).
+ * CGX GMP Packet-Decision Registers This register specifies the byte
+ * count used to determine when to accept or to filter a packet. As each
+ * byte in a packet is received by GMI, the L2 byte count is compared
+ * against [CNT]. In normal operation, the L2 header begins after the
+ * PREAMBLE + SFD (CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK] = 1) and any
+ * optional UDD skip data (CGX()_GMP_GMI_RX()_UDD_SKP[LEN]).  Internal:
+ * Notes: As each byte in a packet is received by GMI, the L2 byte count
+ * is compared against the [CNT].  The L2 byte count is the number of
+ * bytes from the beginning of the L2 header (DMAC).  In normal
+ * operation, the L2 header begins after the PREAMBLE+SFD
+ * (CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK]=1) and any optional UDD skip data
+ * (CGX()_GMP_GMI_RX()_UDD_SKP[LEN]). When
+ * CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK] is clear, PREAMBLE+SFD are
+ * prepended to the packet and would require UDD skip length to account
+ * for them.  Full Duplex: _   L2 Size \<  [CNT] - Accept packet. No
+ * filtering is applied. _   L2 Size \>= [CNT] - Apply filter. Accept
+ * packet based on PAUSE packet filter.  Half Duplex: _   L2 Size \<
+ * [CNT] - Drop packet. Packet is unconditionally dropped. _   L2 Size
+ * \>= [CNT] - Accept packet.  where L2_size = MAX(0, total_packet_size -
+ * CGX()_GMP_GMI_RX()_UDD_SKP[LEN] -
+ * ((CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK]==1)*8)).
  */
 union cavm_cgxx_gmp_gmi_rxx_decision {
 	u64 u;
@@ -2872,30 +2774,23 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_FRM_CHK(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_rx#_frm_ctl
  *
- * CGX GMP Frame Control Registers
- * This register controls the handling of the frames.
- * The [CTL_BCK] and [CTL_DRP] bits control how the hardware handles incoming PAUSE packets. The
- * most
- * common modes of operation:
- * _ [CTL_BCK] = 1, [CTL_DRP] = 1: hardware handles everything.
- * _ [CTL_BCK] = 0, [CTL_DRP] = 0: software sees all PAUSE frames.
- * _ [CTL_BCK] = 0, [CTL_DRP] = 1: all PAUSE frames are completely ignored.
- *
- * These control bits should be set to [CTL_BCK] = 0, [CTL_DRP] = 0 in half-duplex mode. Since
- * PAUSE
- * packets only apply to full duplex operation, any PAUSE packet would constitute an exception
- * which should be handled by the processing cores. PAUSE packets should not be forwarded.
- *
- * Internal:
- * Notes:
- * [PRE_STRP]:
- * When [PRE_CHK] is set (indicating that the PREAMBLE will be sent), [PRE_STRP]
- * determines if the PREAMBLE+SFD bytes are thrown away or sent to the Octane
- * core as part of the packet.
- * In either mode, the PREAMBLE+SFD bytes are not counted toward the packet
- * size when checking against the MIN and MAX bounds.  Furthermore, the bytes
- * are skipped when locating the start of the L2 header for DMAC and Control
- * frame recognition.
+ * CGX GMP Frame Control Registers This register controls the handling of
+ * the frames. The [CTL_BCK] and [CTL_DRP] bits control how the hardware
+ * handles incoming PAUSE packets. The most common modes of operation: _
+ * [CTL_BCK] = 1, [CTL_DRP] = 1: hardware handles everything. _ [CTL_BCK]
+ * = 0, [CTL_DRP] = 0: software sees all PAUSE frames. _ [CTL_BCK] = 0,
+ * [CTL_DRP] = 1: all PAUSE frames are completely ignored.  These control
+ * bits should be set to [CTL_BCK] = 0, [CTL_DRP] = 0 in half-duplex
+ * mode. Since PAUSE packets only apply to full duplex operation, any
+ * PAUSE packet would constitute an exception which should be handled by
+ * the processing cores. PAUSE packets should not be forwarded.
+ * Internal: Notes: [PRE_STRP]: When [PRE_CHK] is set (indicating that
+ * the PREAMBLE will be sent), [PRE_STRP] determines if the PREAMBLE+SFD
+ * bytes are thrown away or sent to the Octane core as part of the
+ * packet. In either mode, the PREAMBLE+SFD bytes are not counted toward
+ * the packet size when checking against the MIN and MAX bounds.
+ * Furthermore, the bytes are skipped when locating the start of the L2
+ * header for DMAC and Control frame recognition.
  */
 union cavm_cgxx_gmp_gmi_rxx_frm_ctl {
 	u64 u;
@@ -2944,8 +2839,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_FRM_CTL(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_rx#_ifg
  *
- * CGX GMI Minimum Interframe-Gap Cycles Registers
- * This register specifies the minimum number of interframe-gap (IFG) cycles between packets.
+ * CGX GMI Minimum Interframe-Gap Cycles Registers This register
+ * specifies the minimum number of interframe-gap (IFG) cycles between
+ * packets.
  */
 union cavm_cgxx_gmp_gmi_rxx_ifg {
 	u64 u;
@@ -2966,67 +2862,50 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_IFG(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_rx#_int
  *
- * CGX GMP GMI RX Interrupt Registers
- * These registers allow interrupts to be sent to the control processor.
- * * Exception conditions \<10:0\> can also set the rcv/opcode in the received packet's work-queue
- * entry. CGX()_GMP_GMI_RX()_FRM_CHK provides a bit mask for configuring which conditions
- * set the error.
- * In half duplex operation, the expectation is that collisions will appear as either MINERR or
- * CAREXT errors.
- *
- * Internal:
- * Notes:
- * (1) exception conditions 10:0 can also set the rcv/opcode in the received
- * packet's workQ entry.  The CGX()_GMP_GMI_RX()_FRM_CHK register provides a bit mask
- * for configuring which conditions set the error.
- *
- * (2) in half duplex operation, the expectation is that collisions will appear
- * as either MINERR o r CAREXT errors.
- *
- * (3) JABBER An RX jabber error indicates that a packet was received which
- * is longer than the maximum allowed packet as defined by the
- * system.  GMI will truncate the packet at the JABBER count.
- * Failure to do so could lead to system instabilty.
- *
- * (4) NIBERR This error is illegal at 1000Mbs speeds
- * (CGX()_GMP_GMI_PRT()_CFG[SPEED]==0) and will never assert.
- *
- * (5) MINERR total frame DA+SA+TL+DATA+PAD+FCS \< 64
- *
- * (6) ALNERR Indicates that the packet received was not an integer number of
- * bytes.  If FCS checking is enabled, ALNERR will only assert if
- * the FCS is bad.  If FCS checking is disabled, ALNERR will
- * assert in all non-integer frame cases.
- *
- * (7) Collisions Collisions can only occur in half-duplex mode.  A collision
- * is assumed by the receiver when the slottime
+ * CGX GMP GMI RX Interrupt Registers These registers allow interrupts to
+ * be sent to the control processor. * Exception conditions \<10:0\> can
+ * also set the rcv/opcode in the received packet's work-queue entry.
+ * CGX()_GMP_GMI_RX()_FRM_CHK provides a bit mask for configuring which
+ * conditions set the error. In half duplex operation, the expectation is
+ * that collisions will appear as either MINERR or CAREXT errors.
+ * Internal: Notes: (1) exception conditions 10:0 can also set the
+ * rcv/opcode in the received packet's workQ entry.  The
+ * CGX()_GMP_GMI_RX()_FRM_CHK register provides a bit mask for
+ * configuring which conditions set the error.  (2) in half duplex
+ * operation, the expectation is that collisions will appear as either
+ * MINERR o r CAREXT errors.  (3) JABBER An RX jabber error indicates
+ * that a packet was received which is longer than the maximum allowed
+ * packet as defined by the system.  GMI will truncate the packet at the
+ * JABBER count. Failure to do so could lead to system instabilty.  (4)
+ * NIBERR This error is illegal at 1000Mbs speeds
+ * (CGX()_GMP_GMI_PRT()_CFG[SPEED]==0) and will never assert.  (5) MINERR
+ * total frame DA+SA+TL+DATA+PAD+FCS \< 64  (6) ALNERR Indicates that the
+ * packet received was not an integer number of bytes.  If FCS checking
+ * is enabled, ALNERR will only assert if the FCS is bad.  If FCS
+ * checking is disabled, ALNERR will assert in all non-integer frame
+ * cases.  (7) Collisions Collisions can only occur in half-duplex mode.
+ * A collision is assumed by the receiver when the slottime
  * (CGX()_GMP_GMI_PRT()_CFG[SLOTTIME]) is not satisfied.  In 10/100 mode,
- * this will result in a frame \< SLOTTIME.  In 1000 mode, it
- * could result either in frame \< SLOTTIME or a carrier extend
- * error with the SLOTTIME.  These conditions are visible by...
- * . transfer ended before slottime COLDET
- * . carrier extend error           CAREXT
- *
- * (A) LENERR Length errors occur when the received packet does not match the
- * length field.  LENERR is only checked for packets between 64
- * and 1500 bytes.  For untagged frames, the length must exact
- * match.  For tagged frames the length or length+4 must match.
- *
- * (B) PCTERR checks that the frame begins with a valid PREAMBLE sequence.
- * Does not check the number of PREAMBLE cycles.
- *
- * (C) OVRERR *DON'T PUT IN HRM*
- * OVRERR is an architectural assertion check internal to GMI to
- * make sure no assumption was violated.  In a correctly operating
- * system, this interrupt can never fire.
- * GMI has an internal arbiter which selects which of four ports to
- * buffer in the main RX FIFO.  If we normally buffer eight bytes,
- * then each port will typically push a tick every eight cycles if
- * the packet interface is going as fast as possible.  If there
- * are four ports, they push every two cycles.  So that's the
- * assumption.  That the inbound module will always be able to
- * consume the tick before another is produced.  If that doesn't
- * happen that's when OVRERR will assert."
+ * this will result in a frame \< SLOTTIME.  In 1000 mode, it could
+ * result either in frame \< SLOTTIME or a carrier extend error with the
+ * SLOTTIME.  These conditions are visible by... . transfer ended before
+ * slottime COLDET . carrier extend error           CAREXT  (A) LENERR
+ * Length errors occur when the received packet does not match the length
+ * field.  LENERR is only checked for packets between 64 and 1500 bytes.
+ * For untagged frames, the length must exact match.  For tagged frames
+ * the length or length+4 must match.  (B) PCTERR checks that the frame
+ * begins with a valid PREAMBLE sequence. Does not check the number of
+ * PREAMBLE cycles.  (C) OVRERR *DON'T PUT IN HRM* OVRERR is an
+ * architectural assertion check internal to GMI to make sure no
+ * assumption was violated.  In a correctly operating system, this
+ * interrupt can never fire. GMI has an internal arbiter which selects
+ * which of four ports to buffer in the main RX FIFO.  If we normally
+ * buffer eight bytes, then each port will typically push a tick every
+ * eight cycles if the packet interface is going as fast as possible.  If
+ * there are four ports, they push every two cycles.  So that's the
+ * assumption.  That the inbound module will always be able to consume
+ * the tick before another is produced.  If that doesn't happen that's
+ * when OVRERR will assert."
  */
 union cavm_cgxx_gmp_gmi_rxx_int {
 	u64 u;
@@ -3073,8 +2952,8 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_rx#_int_ena_w1c
  *
- * CGX GMP GMI RX Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * CGX GMP GMI RX Interrupt Enable Clear Registers This register clears
+ * interrupt enable bits.
  */
 union cavm_cgxx_gmp_gmi_rxx_int_ena_w1c {
 	u64 u;
@@ -3121,8 +3000,8 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_ENA_W1C(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_rx#_int_ena_w1s
  *
- * CGX GMP GMI RX Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * CGX GMP GMI RX Interrupt Enable Set Registers This register sets
+ * interrupt enable bits.
  */
 union cavm_cgxx_gmp_gmi_rxx_int_ena_w1s {
 	u64 u;
@@ -3169,8 +3048,8 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_ENA_W1S(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_rx#_int_w1s
  *
- * CGX GMP GMI RX Interrupt Set Registers
- * This register sets interrupt bits.
+ * CGX GMP GMI RX Interrupt Set Registers This register sets interrupt
+ * bits.
  */
 union cavm_cgxx_gmp_gmi_rxx_int_w1s {
 	u64 u;
@@ -3217,8 +3096,8 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_W1S(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_rx#_jabber
  *
- * CGX GMP Maximum Packet-Size Registers
- * This register specifies the maximum size for packets, beyond which the GMI truncates.
+ * CGX GMP Maximum Packet-Size Registers This register specifies the
+ * maximum size for packets, beyond which the GMI truncates.
  */
 union cavm_cgxx_gmp_gmi_rxx_jabber {
 	u64 u;
@@ -3239,33 +3118,23 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_JABBER(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_rx#_udd_skp
  *
- * CGX GMP GMI User-Defined Data Skip Registers
- * This register specifies the amount of user-defined data (UDD) added before the start of the
- * L2C data.
- *
- * Internal:
- * Notes:
- * (1) The skip bytes are part of the packet and will be handled by NIX.
- *
- * (2) The system can determine if the UDD bytes are included in the FCS check
- * by using the FCSSEL field - if the FCS check is enabled.
- *
- * (3) Assume that the preamble/sfd is always at the start of the frame - even
- * before UDD bytes.  In most cases, there will be no preamble in these
- * cases since it will be packet interface in direct communication to
- * another packet interface (MAC to MAC) without a PHY involved.
- *
- * (4) We can still do address filtering and control packet filtering is the
- * user desires.
- *
- * (5) CGX()_GMP_GMI_RX()_UDD_SKP[LEN] must be 0 in half-duplex operation unless
- * CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK] is clear.  If CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK] is
- * clear,
- * then CGX()_GMP_GMI_RX()_UDD_SKP[LEN] will normally be 8.
- *
- * (6) In all cases, the UDD bytes will be sent down the packet interface as
- * part of the packet.  The UDD bytes are never stripped from the actual
- * packet.
+ * CGX GMP GMI User-Defined Data Skip Registers This register specifies
+ * the amount of user-defined data (UDD) added before the start of the
+ * L2C data.  Internal: Notes: (1) The skip bytes are part of the packet
+ * and will be handled by NIX.  (2) The system can determine if the UDD
+ * bytes are included in the FCS check by using the FCSSEL field - if the
+ * FCS check is enabled.  (3) Assume that the preamble/sfd is always at
+ * the start of the frame - even before UDD bytes.  In most cases, there
+ * will be no preamble in these cases since it will be packet interface
+ * in direct communication to another packet interface (MAC to MAC)
+ * without a PHY involved.  (4) We can still do address filtering and
+ * control packet filtering is the user desires.  (5)
+ * CGX()_GMP_GMI_RX()_UDD_SKP[LEN] must be 0 in half-duplex operation
+ * unless CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK] is clear.  If
+ * CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK] is clear, then
+ * CGX()_GMP_GMI_RX()_UDD_SKP[LEN] will normally be 8.  (6) In all cases,
+ * the UDD bytes will be sent down the packet interface as part of the
+ * packet.  The UDD bytes are never stripped from the actual packet.
  */
 union cavm_cgxx_gmp_gmi_rxx_udd_skp {
 	u64 u;
@@ -3412,8 +3281,8 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_tx#_int_ena_w1c
  *
- * CGX GMI TX Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * CGX GMI TX Interrupt Enable Clear Registers This register clears
+ * interrupt enable bits.
  */
 union cavm_cgxx_gmp_gmi_txx_int_ena_w1c {
 	u64 u;
@@ -3447,8 +3316,8 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_ENA_W1C(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_tx#_int_ena_w1s
  *
- * CGX GMI TX Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * CGX GMI TX Interrupt Enable Set Registers This register sets interrupt
+ * enable bits.
  */
 union cavm_cgxx_gmp_gmi_txx_int_ena_w1s {
 	u64 u;
@@ -3482,8 +3351,7 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_ENA_W1S(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_tx#_int_w1s
  *
- * CGX GMI TX Interrupt Set Registers
- * This register sets interrupt bits.
+ * CGX GMI TX Interrupt Set Registers This register sets interrupt bits.
  */
 union cavm_cgxx_gmp_gmi_txx_int_w1s {
 	u64 u;
@@ -3538,27 +3406,21 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_MIN_PKT(u64 a)
 /**
  * Register (RSL) cgx#_gmp_gmi_tx#_pause_pkt_interval
  *
- * CGX GMI TX PAUSE-Packet Transmission-Interval Registers
- * This register specifies how often PAUSE packets are sent.
- * Internal:
- * Notes:
- * Choosing proper values of CGX()_GMP_GMI_TX()_PAUSE_PKT_TIME[PTIME] and
- * CGX()_GMP_GMI_TX()_PAUSE_PKT_INTERVAL[INTERVAL] can be challenging to the system
- * designer.  It is suggested that TIME be much greater than INTERVAL and
- * CGX()_GMP_GMI_TX()_PAUSE_ZERO[SEND] be set.  This allows a periodic refresh of the PAUSE
- * count and then when the backpressure condition is lifted, a PAUSE packet
- * with TIME==0 will be sent indicating that Octane is ready for additional
- * data.
- *
- * If the system chooses to not set CGX()_GMP_GMI_TX()_PAUSE_ZERO[SEND], then it is
- * suggested that TIME and INTERVAL are programmed such that they satisify the
- * following rule:
- *
- * _ INTERVAL \<= TIME - (largest_pkt_size + IFG + pause_pkt_size)
- *
- * where largest_pkt_size is that largest packet that the system can send
- * (normally 1518B), IFG is the interframe gap and pause_pkt_size is the size
- * of the PAUSE packet (normally 64B).
+ * CGX GMI TX PAUSE-Packet Transmission-Interval Registers This register
+ * specifies how often PAUSE packets are sent. Internal: Notes: Choosing
+ * proper values of CGX()_GMP_GMI_TX()_PAUSE_PKT_TIME[PTIME] and
+ * CGX()_GMP_GMI_TX()_PAUSE_PKT_INTERVAL[INTERVAL] can be challenging to
+ * the system designer.  It is suggested that TIME be much greater than
+ * INTERVAL and CGX()_GMP_GMI_TX()_PAUSE_ZERO[SEND] be set.  This allows
+ * a periodic refresh of the PAUSE count and then when the backpressure
+ * condition is lifted, a PAUSE packet with TIME==0 will be sent
+ * indicating that Octane is ready for additional data.  If the system
+ * chooses to not set CGX()_GMP_GMI_TX()_PAUSE_ZERO[SEND], then it is
+ * suggested that TIME and INTERVAL are programmed such that they
+ * satisify the following rule:  _ INTERVAL \<= TIME - (largest_pkt_size
+ * + IFG + pause_pkt_size)  where largest_pkt_size is that largest packet
+ * that the system can send (normally 1518B), IFG is the interframe gap
+ * and pause_pkt_size is the size of the PAUSE packet (normally 64B).
  */
 union cavm_cgxx_gmp_gmi_txx_pause_pkt_interval {
 	u64 u;
@@ -3747,14 +3609,15 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_COL_ATTEMPT(void)
 /**
  * Register (RSL) cgx#_gmp_gmi_tx_ifg
  *
- * CGX GMI TX Interframe-Gap Cycles Registers
- * Consider the following when programming IFG1 and IFG2:
- * * For 10/100/1000 Mb/s half-duplex systems that require IEEE 802.3 compatibility, IFG1 must be
- * in the range of 1-8, [IFG2] must be in the range of 4-12, and the [IFG1] + [IFG2] sum must be 12.
- * * For 10/100/1000 Mb/s full-duplex systems that require IEEE 802.3 compatibility, IFG1 must be
- * in the range of 1-11, [IFG2] must be in the range of 1-11, and the [IFG1] + [IFG2] sum must be 12.
- * For all other systems, IFG1 and IFG2 can be any value in the range of 1-15, allowing for a
- * total possible IFG sum of 2-30.
+ * CGX GMI TX Interframe-Gap Cycles Registers Consider the following when
+ * programming IFG1 and IFG2: * For 10/100/1000 Mb/s half-duplex systems
+ * that require IEEE 802.3 compatibility, IFG1 must be in the range of
+ * 1-8, [IFG2] must be in the range of 4-12, and the [IFG1] + [IFG2] sum
+ * must be 12. * For 10/100/1000 Mb/s full-duplex systems that require
+ * IEEE 802.3 compatibility, IFG1 must be in the range of 1-11, [IFG2]
+ * must be in the range of 1-11, and the [IFG1] + [IFG2] sum must be 12.
+ * For all other systems, IFG1 and IFG2 can be any value in the range of
+ * 1-15, allowing for a total possible IFG sum of 2-30.
  */
 union cavm_cgxx_gmp_gmi_tx_ifg {
 	u64 u;
@@ -3776,8 +3639,8 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_IFG(void)
 /**
  * Register (RSL) cgx#_gmp_gmi_tx_jam
  *
- * CGX GMI TX JAM Pattern Registers
- * This register provides the pattern used in JAM bytes.
+ * CGX GMI TX JAM Pattern Registers This register provides the pattern
+ * used in JAM bytes.
  */
 union cavm_cgxx_gmp_gmi_tx_jam {
 	u64 u;
@@ -3798,9 +3661,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_JAM(void)
 /**
  * Register (RSL) cgx#_gmp_gmi_tx_lfsr
  *
- * CGX GMI TX LFSR Registers
- * This register shows the contents of the linear feedback shift register (LFSR), which is used
- * to implement truncated binary exponential backoff.
+ * CGX GMI TX LFSR Registers This register shows the contents of the
+ * linear feedback shift register (LFSR), which is used to implement
+ * truncated binary exponential backoff.
  */
 union cavm_cgxx_gmp_gmi_tx_lfsr {
 	u64 u;
@@ -3842,8 +3705,8 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_PAUSE_PKT_DMAC(void)
 /**
  * Register (RSL) cgx#_gmp_gmi_tx_pause_pkt_type
  *
- * CGX GMI TX PAUSE-Packet-PTYPE Field Registers
- * This register provides the PTYPE field that is placed in outbound PAUSE packets.
+ * CGX GMI TX PAUSE-Packet-PTYPE Field Registers This register provides
+ * the PTYPE field that is placed in outbound PAUSE packets.
  */
 union cavm_cgxx_gmp_gmi_tx_pause_pkt_type {
 	u64 u;
@@ -3864,12 +3727,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_PAUSE_PKT_TYPE(void)
 /**
  * Register (RSL) cgx#_gmp_misc#_cfg
  *
- * CGX GMP PCS Miscellaneous Control Registers
- * This register contains general configuration that should not need to be changed from reset
- * settings.
- *
- * Internal:
- * Per lmac diagnostic and chicken bits.
+ * CGX GMP PCS Miscellaneous Control Registers This register contains
+ * general configuration that should not need to be changed from reset
+ * settings.  Internal: Per lmac diagnostic and chicken bits.
  */
 union cavm_cgxx_gmp_miscx_cfg {
 	u64 u;
@@ -3905,8 +3765,7 @@ static inline u64 CAVM_CGXX_GMP_MISCX_CFG(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs#_an_expansion
  *
- * CGX GMP PCS AN Expansion register Register 6
- * AN status
+ * CGX GMP PCS AN Expansion register Register 6 AN status
  */
 union cavm_cgxx_gmp_pcsx_an_expansion {
 	u64 u;
@@ -3929,9 +3788,10 @@ static inline u64 CAVM_CGXX_GMP_PCSX_AN_EXPANSION(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs#_an_lp_abil_np
  *
- * CGX GMP PCS AN Link Partner Ability Next Page Register 8
- * This register contains the advertised ability of the link partners Next Page. The definition
- * for this register is provided in 32.5.4.2 for changes to 28.2.4.1.4.
+ * CGX GMP PCS AN Link Partner Ability Next Page Register 8 This register
+ * contains the advertised ability of the link partners Next Page. The
+ * definition for this register is provided in 32.5.4.2 for changes to
+ * 28.2.4.1.4.
  */
 union cavm_cgxx_gmp_pcsx_an_lp_abil_np {
 	u64 u;
@@ -3957,13 +3817,14 @@ static inline u64 CAVM_CGXX_GMP_PCSX_AN_LP_ABIL_NP(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs#_an_np_tx
  *
- * CGX GMP PCS AN Next Page Transmit Register 7
- * Software programs this register with the contents of the AN message next page or unformatted
- * next page link code word to be transmitted during autonegotiation. Next page exchange occurs
- * after the base link code words have been exchanged if either end of the link segment sets the
- * NP bit to 1, indicating that it has at least one next page to send. Once initiated, next page
- * exchange continues until both ends of the link segment set their NP bits to 0.
- * Both sides must be NP capable to use NP exchanges.
+ * CGX GMP PCS AN Next Page Transmit Register 7 Software programs this
+ * register with the contents of the AN message next page or unformatted
+ * next page link code word to be transmitted during autonegotiation.
+ * Next page exchange occurs after the base link code words have been
+ * exchanged if either end of the link segment sets the NP bit to 1,
+ * indicating that it has at least one next page to send. Once initiated,
+ * next page exchange continues until both ends of the link segment set
+ * their NP bits to 0. Both sides must be NP capable to use NP exchanges.
  */
 union cavm_cgxx_gmp_pcsx_an_np_tx {
 	u64 u;
@@ -4010,16 +3871,15 @@ static inline u64 CAVM_CGXX_GMP_PCSX_DBG_CONTROL(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs#_rx_eee_wake
  *
- * INTERNAL: CGX GMP PCS  RX EEE Wake Error Counter  Registers
- *
- * Reserved.
- * Internal:
- * This register is used by PHY types that support EEE to count wake time faults where
- * the PHY fails to complete its normal wake sequence within the time required for the
- * specific PHY type. The definition of the fault event to be counted is defined for
- * each PHY and may occur during a refresh or a wake-up as defined by the PHY. This
- * 16-bit counter shall be reset to all zeros upon execution of the PCS reset. This
- * counter shall be held at all ones in the case of overflow.
+ * INTERNAL: CGX GMP PCS  RX EEE Wake Error Counter  Registers  Reserved.
+ * Internal: This register is used by PHY types that support EEE to count
+ * wake time faults where the PHY fails to complete its normal wake
+ * sequence within the time required for the specific PHY type. The
+ * definition of the fault event to be counted is defined for each PHY
+ * and may occur during a refresh or a wake-up as defined by the PHY.
+ * This 16-bit counter shall be reset to all zeros upon execution of the
+ * PCS reset. This counter shall be held at all ones in the case of
+ * overflow.
  */
 union cavm_cgxx_gmp_pcsx_rx_eee_wake {
 	u64 u;
@@ -4041,10 +3901,7 @@ static inline u64 CAVM_CGXX_GMP_PCSX_RX_EEE_WAKE(u64 a)
  * Register (RSL) cgx#_gmp_pcs#_rx_lpi_timing
  *
  * INTERNAL: CGX GMP PCS  RX EEE LPI Timing Parameters Registers
- *
- * Reserved.
- * Internal:
- * Receiver LPI timing parameters Tqr, Twr and Twtf.
+ * Reserved. Internal: Receiver LPI timing parameters Tqr, Twr and Twtf.
  */
 union cavm_cgxx_gmp_pcsx_rx_lpi_timing {
 	u64 u;
@@ -4068,8 +3925,7 @@ static inline u64 CAVM_CGXX_GMP_PCSX_RX_LPI_TIMING(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs#_status1
  *
- * CGX GMP PCS Status 1 Register
- * PCS LPI Status, Link OK.  Register 3.1
+ * CGX GMP PCS Status 1 Register PCS LPI Status, Link OK.  Register 3.1
  */
 union cavm_cgxx_gmp_pcsx_status1 {
 	u64 u;
@@ -4097,10 +3953,8 @@ static inline u64 CAVM_CGXX_GMP_PCSX_STATUS1(u64 a)
  * Register (RSL) cgx#_gmp_pcs#_tx_lpi_timing
  *
  * INTERNAL: CGX GMP GMI  TX EEE LPI Timing Parameters Registers
- *
- * Reserved.
- * Internal:
- * Transmitter LPI timing parameters Tsl, Tql and Tul.
+ * Reserved. Internal: Transmitter LPI timing parameters Tsl, Tql and
+ * Tul.
  */
 union cavm_cgxx_gmp_pcsx_tx_lpi_timing {
 	u64 u;
@@ -4178,8 +4032,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_ANX_EXT_ST(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs_an#_lp_abil
  *
- * CGX GMP PCS Autonegotiation Link Partner Ability Registers
- * This is the autonegotiation link partner ability register 5 as per IEEE 802.3, Clause 37.
+ * CGX GMP PCS Autonegotiation Link Partner Ability Registers This is the
+ * autonegotiation link partner ability register 5 as per IEEE 802.3,
+ * Clause 37.
  */
 union cavm_cgxx_gmp_pcs_anx_lp_abil {
 	u64 u;
@@ -4207,10 +4062,11 @@ static inline u64 CAVM_CGXX_GMP_PCS_ANX_LP_ABIL(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs_an#_results
  *
- * CGX GMP PCS Autonegotiation Results Registers
- * This register is not valid when CGX()_GMP_PCS_MISC()_CTL[AN_OVRD] is set to 1. If
+ * CGX GMP PCS Autonegotiation Results Registers This register is not
+ * valid when CGX()_GMP_PCS_MISC()_CTL[AN_OVRD] is set to 1. If
  * CGX()_GMP_PCS_MISC()_CTL[AN_OVRD] is set to 0 and
- * CGX()_GMP_PCS_AN()_RESULTS[AN_CPT] is set to 1, this register is valid.
+ * CGX()_GMP_PCS_AN()_RESULTS[AN_CPT] is set to 1, this register is
+ * valid.
  */
 union cavm_cgxx_gmp_pcs_anx_results {
 	u64 u;
@@ -4275,8 +4131,8 @@ static inline u64 CAVM_CGXX_GMP_PCS_INTX(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs_int#_ena_w1c
  *
- * CGX GMP PCS Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * CGX GMP PCS Interrupt Enable Clear Registers This register clears
+ * interrupt enable bits.
  */
 union cavm_cgxx_gmp_pcs_intx_ena_w1c {
 	u64 u;
@@ -4316,8 +4172,8 @@ static inline u64 CAVM_CGXX_GMP_PCS_INTX_ENA_W1C(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs_int#_ena_w1s
  *
- * CGX GMP PCS Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * CGX GMP PCS Interrupt Enable Set Registers This register sets
+ * interrupt enable bits.
  */
 union cavm_cgxx_gmp_pcs_intx_ena_w1s {
 	u64 u;
@@ -4357,8 +4213,7 @@ static inline u64 CAVM_CGXX_GMP_PCS_INTX_ENA_W1S(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs_int#_w1s
  *
- * CGX GMP PCS Interrupt Set Registers
- * This register sets interrupt bits.
+ * CGX GMP PCS Interrupt Set Registers This register sets interrupt bits.
  */
 union cavm_cgxx_gmp_pcs_intx_w1s {
 	u64 u;
@@ -4398,8 +4253,8 @@ static inline u64 CAVM_CGXX_GMP_PCS_INTX_W1S(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs_link#_timer
  *
- * CGX GMP PCS Link Timer Registers
- * This is the 1.6 ms nominal link timer register.
+ * CGX GMP PCS Link Timer Registers This is the 1.6 ms nominal link timer
+ * register.
  */
 union cavm_cgxx_gmp_pcs_linkx_timer {
 	u64 u;
@@ -4420,15 +4275,14 @@ static inline u64 CAVM_CGXX_GMP_PCS_LINKX_TIMER(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs_misc#_ctl
  *
- * CGX GMP SGMII Miscellaneous Control Registers
- * Internal:
- * SGMII bit [12] is really a misnomer, it is a decode  of pi_qlm_cfg pins to indicate SGMII or
- * 1000Base-X modes.
- *
- * Note: The SGMII AN Advertisement Register above will be sent during Auto Negotiation if
- * [MAC_PHY] is set (1=PHY mode). If the bit is not set (0=MAC mode), the
- * tx_Config_Reg\<14\> becomes ACK bit and tx_Config_Reg\<0\> is always 1.
- * All other bits in tx_Config_Reg sent will be 0. The PHY dictates the Auto Negotiation results.
+ * CGX GMP SGMII Miscellaneous Control Registers Internal: SGMII bit [12]
+ * is really a misnomer, it is a decode  of pi_qlm_cfg pins to indicate
+ * SGMII or 1000Base-X modes.  Note: The SGMII AN Advertisement Register
+ * above will be sent during Auto Negotiation if [MAC_PHY] is set (1=PHY
+ * mode). If the bit is not set (0=MAC mode), the tx_Config_Reg\<14\>
+ * becomes ACK bit and tx_Config_Reg\<0\> is always 1. All other bits in
+ * tx_Config_Reg sent will be 0. The PHY dictates the Auto Negotiation
+ * results.
  */
 union cavm_cgxx_gmp_pcs_miscx_ctl {
 	u64 u;
@@ -4505,11 +4359,11 @@ static inline u64 CAVM_CGXX_GMP_PCS_MRX_CONTROL(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs_mr#_status
  *
- * CGX GMP PCS Status Registers
- * Bits \<15:9\> in this register indicate the ability to operate when
- * CGX()_GMP_PCS_MISC()_CTL[MAC_PHY] is set to MAC mode. Bits \<15:9\> are always read as
- * 0, indicating that the chip cannot operate in the corresponding modes. The field [RM_FLT] is a
- * 'don't care' when the selected mode is SGMII/QSGMII.
+ * CGX GMP PCS Status Registers Bits \<15:9\> in this register indicate
+ * the ability to operate when CGX()_GMP_PCS_MISC()_CTL[MAC_PHY] is set
+ * to MAC mode. Bits \<15:9\> are always read as 0, indicating that the
+ * chip cannot operate in the corresponding modes. The field [RM_FLT] is
+ * a 'don't care' when the selected mode is SGMII/QSGMII.
  */
 union cavm_cgxx_gmp_pcs_mrx_status {
 	u64 u;
@@ -4593,12 +4447,14 @@ static inline u64 CAVM_CGXX_GMP_PCS_RXX_SYNC(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs_sgm#_an_adv
  *
- * CGX GMP PCS SGMII Autonegotiation Advertisement Registers
- * This is the SGMII autonegotiation advertisement register (sent out as tx_Config_Reg\<15:0\> as
- * defined in IEEE 802.3 clause 37). This register is sent during autonegotiation if
- * CGX()_GMP_PCS_MISC()_CTL[MAC_PHY] is set (1 = PHY mode). If the bit is not set (0 =
- * MAC mode), then tx_Config_Reg\<14\> becomes ACK bit and tx_Config_Reg\<0\> is always 1. All other
- * bits in tx_Config_Reg sent will be 0. The PHY dictates the autonegotiation results.
+ * CGX GMP PCS SGMII Autonegotiation Advertisement Registers This is the
+ * SGMII autonegotiation advertisement register (sent out as
+ * tx_Config_Reg\<15:0\> as defined in IEEE 802.3 clause 37). This
+ * register is sent during autonegotiation if
+ * CGX()_GMP_PCS_MISC()_CTL[MAC_PHY] is set (1 = PHY mode). If the bit is
+ * not set (0 = MAC mode), then tx_Config_Reg\<14\> becomes ACK bit and
+ * tx_Config_Reg\<0\> is always 1. All other bits in tx_Config_Reg sent
+ * will be 0. The PHY dictates the autonegotiation results.
  */
 union cavm_cgxx_gmp_pcs_sgmx_an_adv {
 	u64 u;
@@ -4625,9 +4481,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_SGMX_AN_ADV(u64 a)
 /**
  * Register (RSL) cgx#_gmp_pcs_sgm#_lp_adv
  *
- * CGX GMP PCS SGMII Link-Partner-Advertisement Registers
- * This is the SGMII link partner advertisement register (received as rx_Config_Reg\<15:0\> as
- * defined in IEEE 802.3 clause 37).
+ * CGX GMP PCS SGMII Link-Partner-Advertisement Registers This is the
+ * SGMII link partner advertisement register (received as
+ * rx_Config_Reg\<15:0\> as defined in IEEE 802.3 clause 37).
  */
 union cavm_cgxx_gmp_pcs_sgmx_lp_adv {
 	u64 u;
@@ -4686,9 +4542,10 @@ static inline u64 CAVM_CGXX_GMP_PCS_TXX_STATES(u64 a)
  * Register (RSL) cgx#_gmp_pcs_tx_rx#_polarity
  *
  * CGX GMP PCS TX/RX Polarity Registers
- * CGX()_GMP_PCS_TX_RX()_POLARITY[AUTORXPL] shows correct polarity needed on the link
- * receive path after code group synchronization is achieved.  When LMAC_TYPE=QSGMII, only lane 0
- * polarity data and settings are relevant and settings for lanes 1, 2 and 3 are unused.
+ * CGX()_GMP_PCS_TX_RX()_POLARITY[AUTORXPL] shows correct polarity needed
+ * on the link receive path after code group synchronization is achieved.
+ * When LMAC_TYPE=QSGMII, only lane 0 polarity data and settings are
+ * relevant and settings for lanes 1, 2 and 3 are unused.
  */
 union cavm_cgxx_gmp_pcs_tx_rxx_polarity {
 	u64 u;
@@ -4712,9 +4569,8 @@ static inline u64 CAVM_CGXX_GMP_PCS_TX_RXX_POLARITY(u64 a)
 /**
  * Register (RSL) cgx#_msix_pba#
  *
- * CGX MSI-X Pending Bit Array Registers
- * This register is the MSI-X PBA table, the bit number is indexed by the CGX_INT_VEC_E
- * enumeration.
+ * CGX MSI-X Pending Bit Array Registers This register is the MSI-X PBA
+ * table, the bit number is indexed by the CGX_INT_VEC_E enumeration.
  */
 union cavm_cgxx_msix_pbax {
 	u64 u;
@@ -4734,8 +4590,8 @@ static inline u64 CAVM_CGXX_MSIX_PBAX(u64 a)
 /**
  * Register (RSL) cgx#_msix_vec#_addr
  *
- * CGX MSI-X Vector Table Address Registers
- * This register is the MSI-X vector table, indexed by the CGX_INT_VEC_E enumeration.
+ * CGX MSI-X Vector Table Address Registers This register is the MSI-X
+ * vector table, indexed by the CGX_INT_VEC_E enumeration.
  */
 union cavm_cgxx_msix_vecx_addr {
 	u64 u;
@@ -4758,8 +4614,8 @@ static inline u64 CAVM_CGXX_MSIX_VECX_ADDR(u64 a)
 /**
  * Register (RSL) cgx#_msix_vec#_ctl
  *
- * CGX MSI-X Vector Table Control and Data Registers
- * This register is the MSI-X vector table, indexed by the CGX_INT_VEC_E enumeration.
+ * CGX MSI-X Vector Table Control and Data Registers This register is the
+ * MSI-X vector table, indexed by the CGX_INT_VEC_E enumeration.
  */
 union cavm_cgxx_msix_vecx_ctl {
 	u64 u;
@@ -4806,9 +4662,8 @@ static inline u64 CAVM_CGXX_SMUX_BP_TEST(u64 a)
 /**
  * Register (RSL) cgx#_smu#_cbfc_ctl
  *
- * CGX SMU PFC Control Registers
- * Internal:
- * INTERNAL: XOFF for a specific class/channel \<i\> is XOFF\<i\> = ([PHYS_EN]\<i\> & cmr_rx_phys_bp) |
+ * CGX SMU PFC Control Registers Internal: INTERNAL: XOFF for a specific
+ * class/channel \<i\> is XOFF\<i\> = ([PHYS_EN]\<i\> & cmr_rx_phys_bp) |
  * ([LOGL_EN]\<i\> & cmr_rx_logl_xoff\<i\>).
  */
 union cavm_cgxx_smux_cbfc_ctl {
@@ -4857,9 +4712,9 @@ static inline u64 CAVM_CGXX_SMUX_CTRL(u64 a)
 /**
  * Register (RSL) cgx#_smu#_ext_loopback
  *
- * CGX SMU External Loopback Registers
- * In loopback mode, the IFG1+IFG2 of local and remote parties must match exactly; otherwise
- * loopback FIFO will overrun: CGX()_SMU()_TX_INT[LB_OVRFLW].
+ * CGX SMU External Loopback Registers In loopback mode, the IFG1+IFG2 of
+ * local and remote parties must match exactly; otherwise loopback FIFO
+ * will overrun: CGX()_SMU()_TX_INT[LB_OVRFLW].
  */
 union cavm_cgxx_smux_ext_loopback {
 	u64 u;
@@ -4884,24 +4739,23 @@ static inline u64 CAVM_CGXX_SMUX_EXT_LOOPBACK(u64 a)
 /**
  * Register (RSL) cgx#_smu#_hg2_control
  *
- * CGX SMU HiGig2 Control Registers
- * HiGig2 TX- and RX-enable are normally set together for HiGig2 messaging. Setting just the TX
- * or RX bit results in only the HG2 message transmit or receive capability.
- *
- * Setting [PHYS_EN] and [LOGL_EN] to 1 allows link PAUSE or backpressure to NIX as per the
- * received HiGig2 message. Setting these fields to 0 disables link PAUSE and backpressure to NIX
- * in response to received messages.
- *
- * CGX()_SMU()_TX_CTL[HG_EN] must be set (to enable HiGig) whenever either [HG2TX_EN] or
- * [HG2RX_EN] are set. CGX()_SMU()_RX_UDD_SKP[LEN] must be set to 16 (to select HiGig2)
+ * CGX SMU HiGig2 Control Registers HiGig2 TX- and RX-enable are normally
+ * set together for HiGig2 messaging. Setting just the TX or RX bit
+ * results in only the HG2 message transmit or receive capability.
+ * Setting [PHYS_EN] and [LOGL_EN] to 1 allows link PAUSE or backpressure
+ * to NIX as per the received HiGig2 message. Setting these fields to 0
+ * disables link PAUSE and backpressure to NIX in response to received
+ * messages.  CGX()_SMU()_TX_CTL[HG_EN] must be set (to enable HiGig)
  * whenever either [HG2TX_EN] or [HG2RX_EN] are set.
- *
- * CGX()_CMR_RX_OVR_BP[EN]\<0\> must be set and CGX()_CMR_RX_OVR_BP[BP]\<0\> must be cleared
- * to 0 (to forcibly disable hardware-automatic 802.3 PAUSE packet generation) with the HiGig2
- * Protocol when [HG2TX_EN] = 0. (The HiGig2 protocol is indicated
- * by CGX()_SMU()_TX_CTL[HG_EN] = 1 and CGX()_SMU()_RX_UDD_SKP[LEN]=16.) Hardware
- * can only autogenerate backpressure via HiGig2 messages (optionally, when [HG2TX_EN] = 1) with
- * the HiGig2 protocol.
+ * CGX()_SMU()_RX_UDD_SKP[LEN] must be set to 16 (to select HiGig2)
+ * whenever either [HG2TX_EN] or [HG2RX_EN] are set.
+ * CGX()_CMR_RX_OVR_BP[EN]\<0\> must be set and
+ * CGX()_CMR_RX_OVR_BP[BP]\<0\> must be cleared to 0 (to forcibly disable
+ * hardware-automatic 802.3 PAUSE packet generation) with the HiGig2
+ * Protocol when [HG2TX_EN] = 0. (The HiGig2 protocol is indicated by
+ * CGX()_SMU()_TX_CTL[HG_EN] = 1 and CGX()_SMU()_RX_UDD_SKP[LEN]=16.)
+ * Hardware can only autogenerate backpressure via HiGig2 messages
+ * (optionally, when [HG2TX_EN] = 1) with the HiGig2 protocol.
  */
 union cavm_cgxx_smux_hg2_control {
 	u64 u;
@@ -4926,7 +4780,8 @@ static inline u64 CAVM_CGXX_SMUX_HG2_CONTROL(u64 a)
  * Register (RSL) cgx#_smu#_mmsi_ctl_sta
  *
  * CGX SMU MAC Merge Service Interface (MMSI) Control/Status Registers
- * MMSI control and status registers for frame preemption mode. Refer to IEEE 802.3br, Clause 99.
+ * MMSI control and status registers for frame preemption mode. Refer to
+ * IEEE 802.3br, Clause 99.
  */
 union cavm_cgxx_smux_mmsi_ctl_sta {
 	u64 u;
@@ -5037,11 +4892,12 @@ static inline u64 CAVM_CGXX_SMUX_RX_CTL(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_decision
  *
- * CGX SMU Packet Decision Registers
- * This register specifies the byte count used to determine when to accept or to filter a packet.
- * As each byte in a packet is received by CGX, the L2 byte count (i.e. the number of bytes from
- * the beginning of the L2 header (DMAC)) is compared against CNT. In normal operation, the L2
- * header begins after the PREAMBLE + SFD (CGX()_SMU()_RX_FRM_CTL[PRE_CHK] = 1) and any
+ * CGX SMU Packet Decision Registers This register specifies the byte
+ * count used to determine when to accept or to filter a packet. As each
+ * byte in a packet is received by CGX, the L2 byte count (i.e. the
+ * number of bytes from the beginning of the L2 header (DMAC)) is
+ * compared against CNT. In normal operation, the L2 header begins after
+ * the PREAMBLE + SFD (CGX()_SMU()_RX_FRM_CTL[PRE_CHK] = 1) and any
  * optional UDD skip data (CGX()_SMU()_RX_UDD_SKP[LEN]).
  */
 union cavm_cgxx_smux_rx_decision {
@@ -5063,8 +4919,8 @@ static inline u64 CAVM_CGXX_SMUX_RX_DECISION(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_frm_chk
  *
- * CGX SMU RX Frame Check Registers
- * The CSRs provide the enable bits for a subset of errors passed to CMR encoded.
+ * CGX SMU RX Frame Check Registers The CSRs provide the enable bits for
+ * a subset of errors passed to CMR encoded.
  */
 union cavm_cgxx_smux_rx_frm_chk {
 	u64 u;
@@ -5091,19 +4947,17 @@ static inline u64 CAVM_CGXX_SMUX_RX_FRM_CHK(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_frm_ctl
  *
- * CGX SMU RX Frame Control Registers
- * This register controls the handling of the frames.
- * The [CTL_BCK] and [CTL_DRP] bits control how the hardware handles incoming PAUSE packets. The
- * most
- * common modes of operation:
- * _ [CTL_BCK] = 1, [CTL_DRP] = 1: hardware handles everything
- * _ [CTL_BCK] = 0, [CTL_DRP] = 0: software sees all PAUSE frames
- * _ [CTL_BCK] = 0, [CTL_DRP] = 1: all PAUSE frames are completely ignored
- *
- * These control bits should be set to [CTL_BCK] = 0, [CTL_DRP] = 0 in half-duplex mode. Since
- * PAUSE
- * packets only apply to full duplex operation, any PAUSE packet would constitute an exception
- * which should be handled by the processing cores. PAUSE packets should not be forwarded.
+ * CGX SMU RX Frame Control Registers This register controls the handling
+ * of the frames. The [CTL_BCK] and [CTL_DRP] bits control how the
+ * hardware handles incoming PAUSE packets. The most common modes of
+ * operation: _ [CTL_BCK] = 1, [CTL_DRP] = 1: hardware handles everything
+ * _ [CTL_BCK] = 0, [CTL_DRP] = 0: software sees all PAUSE frames _
+ * [CTL_BCK] = 0, [CTL_DRP] = 1: all PAUSE frames are completely ignored
+ * These control bits should be set to [CTL_BCK] = 0, [CTL_DRP] = 0 in
+ * half-duplex mode. Since PAUSE packets only apply to full duplex
+ * operation, any PAUSE packet would constitute an exception which should
+ * be handled by the processing cores. PAUSE packets should not be
+ * forwarded.
  */
 union cavm_cgxx_smux_rx_frm_ctl {
 	u64 u;
@@ -5131,12 +4985,10 @@ static inline u64 CAVM_CGXX_SMUX_RX_FRM_CTL(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_int
  *
- * CGX SMU Receive Interrupt Registers
- * SMU Interrupt Register.
- * Internal:
- * Exception conditions \<9\> and \<4:0\> can also set the rcv/opcode in the received packet's work
- * queue entry. CGX()_SMU()_RX_FRM_CHK provides a bit mask for configuring which
- * conditions set the error.
+ * CGX SMU Receive Interrupt Registers SMU Interrupt Register. Internal:
+ * Exception conditions \<9\> and \<4:0\> can also set the rcv/opcode in
+ * the received packet's work queue entry. CGX()_SMU()_RX_FRM_CHK
+ * provides a bit mask for configuring which conditions set the error.
  */
 union cavm_cgxx_smux_rx_int {
 	u64 u;
@@ -5170,8 +5022,8 @@ static inline u64 CAVM_CGXX_SMUX_RX_INT(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_int_ena_w1c
  *
- * CGX SMU Receive Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * CGX SMU Receive Interrupt Enable Clear Registers This register clears
+ * interrupt enable bits.
  */
 union cavm_cgxx_smux_rx_int_ena_w1c {
 	u64 u;
@@ -5205,8 +5057,8 @@ static inline u64 CAVM_CGXX_SMUX_RX_INT_ENA_W1C(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_int_ena_w1s
  *
- * CGX SMU Receive Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * CGX SMU Receive Interrupt Enable Set Registers This register sets
+ * interrupt enable bits.
  */
 union cavm_cgxx_smux_rx_int_ena_w1s {
 	u64 u;
@@ -5240,8 +5092,8 @@ static inline u64 CAVM_CGXX_SMUX_RX_INT_ENA_W1S(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_int_w1s
  *
- * CGX SMU Receive Interrupt Set Registers
- * This register sets interrupt bits.
+ * CGX SMU Receive Interrupt Set Registers This register sets interrupt
+ * bits.
  */
 union cavm_cgxx_smux_rx_int_w1s {
 	u64 u;
@@ -5275,12 +5127,11 @@ static inline u64 CAVM_CGXX_SMUX_RX_INT_W1S(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_jabber
  *
- * CGX SMU Maximum Packet-Size Registers
- * This register specifies the maximum size for packets, beyond which the SMU truncates.
- * Internal:
- * JABBER[CNT] is checked against the packet that arrives from SPU.  The checking
- * is performed before preamble is stripped or PTP is inserted.  If present, preamble is
- * counted as eight bytes of the incoming packet.
+ * CGX SMU Maximum Packet-Size Registers This register specifies the
+ * maximum size for packets, beyond which the SMU truncates. Internal:
+ * JABBER[CNT] is checked against the packet that arrives from SPU.  The
+ * checking is performed before preamble is stripped or PTP is inserted.
+ * If present, preamble is counted as eight bytes of the incoming packet.
  */
 union cavm_cgxx_smux_rx_jabber {
 	u64 u;
@@ -5301,25 +5152,18 @@ static inline u64 CAVM_CGXX_SMUX_RX_JABBER(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_udd_skp
  *
- * CGX SMU User-Defined Data Skip Registers
- * Internal:
- * (1) The skip bytes are part of the packet and will be sent down the NCB
- * packet interface and will be handled by NIX.
- *
- * (2) The system can determine if the UDD bytes are included in the FCS check
- * by using the FCSSEL field if the FCS check is enabled.
- *
- * (3) Assume that the preamble/sfd is always at the start of the frame even
- * before UDD bytes.  In most cases, there will be no preamble in these
- * cases since it will be packet interface in direct communication to
- * another packet interface (MAC to MAC) without a PHY involved.
- *
- * (4) We can still do address filtering and control packet filtering if the
- * user desires.
- *
- * (5) In all cases, the UDD bytes will be sent down the packet interface as
- * part of the packet.  The UDD bytes are never stripped from the actual
- * packet.
+ * CGX SMU User-Defined Data Skip Registers Internal: (1) The skip bytes
+ * are part of the packet and will be sent down the NCB packet interface
+ * and will be handled by NIX.  (2) The system can determine if the UDD
+ * bytes are included in the FCS check by using the FCSSEL field if the
+ * FCS check is enabled.  (3) Assume that the preamble/sfd is always at
+ * the start of the frame even before UDD bytes.  In most cases, there
+ * will be no preamble in these cases since it will be packet interface
+ * in direct communication to another packet interface (MAC to MAC)
+ * without a PHY involved.  (4) We can still do address filtering and
+ * control packet filtering if the user desires.  (5) In all cases, the
+ * UDD bytes will be sent down the packet interface as part of the
+ * packet.  The UDD bytes are never stripped from the actual packet.
  */
 union cavm_cgxx_smux_rx_udd_skp {
 	u64 u;
@@ -5384,8 +5228,8 @@ static inline u64 CAVM_CGXX_SMUX_RX_WOL_CTRL1(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_wol_int
  *
- * CGX SMU RX WOL Interrupt Registers
- * These registers allow WOL interrupts to be sent to the control processor.
+ * CGX SMU RX WOL Interrupt Registers These registers allow WOL
+ * interrupts to be sent to the control processor.
  */
 union cavm_cgxx_smux_rx_wol_int {
 	u64 u;
@@ -5406,8 +5250,8 @@ static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_wol_int_ena_w1c
  *
- * CGX SMU RX WOL Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * CGX SMU RX WOL Interrupt Enable Clear Registers This register clears
+ * interrupt enable bits.
  */
 union cavm_cgxx_smux_rx_wol_int_ena_w1c {
 	u64 u;
@@ -5428,8 +5272,8 @@ static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_ENA_W1C(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_wol_int_ena_w1s
  *
- * CGX SMU RX WOL Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * CGX SMU RX WOL Interrupt Enable Set Registers This register sets
+ * interrupt enable bits.
  */
 union cavm_cgxx_smux_rx_wol_int_ena_w1s {
 	u64 u;
@@ -5450,8 +5294,8 @@ static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_ENA_W1S(u64 a)
 /**
  * Register (RSL) cgx#_smu#_rx_wol_int_w1s
  *
- * CGX SMU RX WOL Interrupt Set Registers
- * This register sets interrupt bits.
+ * CGX SMU RX WOL Interrupt Set Registers This register sets interrupt
+ * bits.
  */
 union cavm_cgxx_smux_rx_wol_int_w1s {
 	u64 u;
@@ -5493,8 +5337,8 @@ static inline u64 CAVM_CGXX_SMUX_SMAC(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_append
  *
- * CGX SMU TX Append Control Registers
- * For more details on the interactions between FCS and PAD, see also the description of
+ * CGX SMU TX Append Control Registers For more details on the
+ * interactions between FCS and PAD, see also the description of
  * CGX()_SMU()_TX_MIN_PKT[MIN_SIZE].
  */
 union cavm_cgxx_smux_tx_append {
@@ -5590,12 +5434,10 @@ static inline u64 CAVM_CGXX_SMUX_TX_DCNT(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_eee
  *
- * INTERNAL: CGX SMU TX EEE Configure Registers
- *
- * Resvered.
- * Internal:
- * These registers control when SMU TX requests to enter or exist LPI. Those registers
- * take effect only when EEE is supported and enabled for a given LMAC.
+ * INTERNAL: CGX SMU TX EEE Configure Registers  Resvered. Internal:
+ * These registers control when SMU TX requests to enter or exist LPI.
+ * Those registers take effect only when EEE is supported and enabled for
+ * a given LMAC.
  */
 union cavm_cgxx_smux_tx_eee {
 	u64 u;
@@ -5623,10 +5465,7 @@ static inline u64 CAVM_CGXX_SMUX_TX_EEE(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_eee_timer_status
  *
- * INTERNAL: CGX SMU TX EEE TIMER STATUS Registers
- *
- * Reserved.
- * Internal:
+ * INTERNAL: CGX SMU TX EEE TIMER STATUS Registers  Reserved. Internal:
  * These registers configure SMU TX EEE timing parameters.
  */
 union cavm_cgxx_smux_tx_eee_timer_status {
@@ -5652,11 +5491,8 @@ static inline u64 CAVM_CGXX_SMUX_TX_EEE_TIMER_STATUS(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_eee_timing
  *
- * INTERNAL: CGX SMU TX EEE TIMING Parameter Registers
- *
- * Reserved.
- * Internal:
- * These registers configure SMU TX EEE timing parameters.
+ * INTERNAL: CGX SMU TX EEE TIMING Parameter Registers  Reserved.
+ * Internal: These registers configure SMU TX EEE timing parameters.
  */
 union cavm_cgxx_smux_tx_eee_timing {
 	u64 u;
@@ -5679,23 +5515,20 @@ static inline u64 CAVM_CGXX_SMUX_TX_EEE_TIMING(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_ifg
  *
- * CGX SMU TX Interframe-Gap Cycles Registers
- * Programming IFG1 and IFG2:
+ * CGX SMU TX Interframe-Gap Cycles Registers Programming IFG1 and IFG2:
  * * For XAUI/RXAUI/10G/25G/40G/50G/100G systems that require IEEE 802.3
- * compatibility, the [IFG1]+[IFG2] sum must be 12.
- * * In loopback mode, the [IFG1]+[IFG2] of local and remote parties must match exactly;
- * otherwise loopback FIFO will overrun: CGX()_SMU()_TX_INT[LB_OVRFLW].
- * * When CGX()_SMU()_TX_CTL[DIC_EN] is set, [IFG1]+[IFG2] sum must be at least 8.
- * The behavior of smaller values is un-determined.
- * * When CGX()_SMU()_TX_CTL[DIC_EN] is cleared, the minimum value of [IFG1]+[IFG2] is 1
- * for 40G/50G/100G LMAC_TYPE configurations and 5 for all other values. The behavior
- * of smaller values is un-determined.
- *
- * Internal:
- * When CGX()_SMU()_TX_CTL[DIC_EN] is set, SMU TX treats ([IFG1]+[IFG2]) \< 8 as 8 for
- * 40G/50G/100G MACs and ([IFG1]+[IFG2]) \< 8 as 8 for other MACs. When
- * CGX()_SMU()_TX_CTL[DIC_EN] is cleared, SMU TX can work correctly with any IFG1 and
- * IFG2.
+ * compatibility, the [IFG1]+[IFG2] sum must be 12. * In loopback mode,
+ * the [IFG1]+[IFG2] of local and remote parties must match exactly;
+ * otherwise loopback FIFO will overrun: CGX()_SMU()_TX_INT[LB_OVRFLW]. *
+ * When CGX()_SMU()_TX_CTL[DIC_EN] is set, [IFG1]+[IFG2] sum must be at
+ * least 8. The behavior of smaller values is un-determined. * When
+ * CGX()_SMU()_TX_CTL[DIC_EN] is cleared, the minimum value of
+ * [IFG1]+[IFG2] is 1 for 40G/50G/100G LMAC_TYPE configurations and 5 for
+ * all other values. The behavior of smaller values is un-determined.
+ * Internal: When CGX()_SMU()_TX_CTL[DIC_EN] is set, SMU TX treats
+ * ([IFG1]+[IFG2]) \< 8 as 8 for 40G/50G/100G MACs and ([IFG1]+[IFG2]) \<
+ * 8 as 8 for other MACs. When CGX()_SMU()_TX_CTL[DIC_EN] is cleared, SMU
+ * TX can work correctly with any IFG1 and IFG2.
  */
 union cavm_cgxx_smux_tx_ifg {
 	u64 u;
@@ -5746,8 +5579,8 @@ static inline u64 CAVM_CGXX_SMUX_TX_INT(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_int_ena_w1c
  *
- * CGX SMU TX Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * CGX SMU TX Interrupt Enable Clear Registers This register clears
+ * interrupt enable bits.
  */
 union cavm_cgxx_smux_tx_int_ena_w1c {
 	u64 u;
@@ -5773,8 +5606,8 @@ static inline u64 CAVM_CGXX_SMUX_TX_INT_ENA_W1C(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_int_ena_w1s
  *
- * CGX SMU TX Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * CGX SMU TX Interrupt Enable Set Registers This register sets interrupt
+ * enable bits.
  */
 union cavm_cgxx_smux_tx_int_ena_w1s {
 	u64 u;
@@ -5800,8 +5633,7 @@ static inline u64 CAVM_CGXX_SMUX_TX_INT_ENA_W1S(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_int_w1s
  *
- * CGX SMU TX Interrupt Set Registers
- * This register sets interrupt bits.
+ * CGX SMU TX Interrupt Set Registers This register sets interrupt bits.
  */
 union cavm_cgxx_smux_tx_int_w1s {
 	u64 u;
@@ -5827,9 +5659,8 @@ static inline u64 CAVM_CGXX_SMUX_TX_INT_W1S(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_min_pkt
  *
- * CGX SMU TX Minimum-Size-Packet Registers
- * Internal:
- * [MIN_SIZE] less than 16 will be ignored by hardware which will use 16 instead.
+ * CGX SMU TX Minimum-Size-Packet Registers Internal: [MIN_SIZE] less
+ * than 16 will be ignored by hardware which will use 16 instead.
  */
 union cavm_cgxx_smux_tx_min_pkt {
 	u64 u;
@@ -5850,8 +5681,8 @@ static inline u64 CAVM_CGXX_SMUX_TX_MIN_PKT(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_pause_pkt_dmac
  *
- * CGX SMU TX PAUSE-Packet DMAC-Field Registers
- * This register provides the DMAC value that is placed in outbound PAUSE packets.
+ * CGX SMU TX PAUSE-Packet DMAC-Field Registers This register provides
+ * the DMAC value that is placed in outbound PAUSE packets.
  */
 union cavm_cgxx_smux_tx_pause_pkt_dmac {
 	u64 u;
@@ -5872,8 +5703,8 @@ static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_DMAC(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_pause_pkt_interval
  *
- * CGX SMU TX PAUSE-Packet Transmission-Interval Registers
- * This register specifies how often PAUSE packets are sent.
+ * CGX SMU TX PAUSE-Packet Transmission-Interval Registers This register
+ * specifies how often PAUSE packets are sent.
  */
 union cavm_cgxx_smux_tx_pause_pkt_interval {
 	u64 u;
@@ -5917,8 +5748,8 @@ static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_TIME(u64 a)
 /**
  * Register (RSL) cgx#_smu#_tx_pause_pkt_type
  *
- * CGX SMU TX PAUSE-Packet P_TYPE-Field Registers
- * This register provides the P_TYPE field that is placed in outbound PAUSE packets.
+ * CGX SMU TX PAUSE-Packet P_TYPE-Field Registers This register provides
+ * the P_TYPE field that is placed in outbound PAUSE packets.
  */
 union cavm_cgxx_smux_tx_pause_pkt_type {
 	u64 u;
@@ -6030,15 +5861,17 @@ static inline u64 CAVM_CGXX_SMUX_TX_THRESH(u64 a)
 /**
  * Register (RSL) cgx#_spu#_an_adv
  *
- * CGX SPU Autonegotiation Advertisement Registers
- * Software programs this register with the contents of the AN-link code word base page to be
- * transmitted during autonegotiation. (See IEEE 802.3 section 73.6 for details.) Any write
- * operations to this register prior to completion of autonegotiation, as indicated by
- * CGX()_SPU()_AN_STATUS[AN_COMPLETE], should be followed by a renegotiation in order for
- * the new values to take effect. Renegotiation is initiated by setting
- * CGX()_SPU()_AN_CONTROL[AN_RESTART]. Once autonegotiation has completed, software can
- * examine this register along with CGX()_SPU()_AN_LP_BASE to determine the highest
- * common denominator technology.
+ * CGX SPU Autonegotiation Advertisement Registers Software programs this
+ * register with the contents of the AN-link code word base page to be
+ * transmitted during autonegotiation. (See IEEE 802.3 section 73.6 for
+ * details.) Any write operations to this register prior to completion of
+ * autonegotiation, as indicated by CGX()_SPU()_AN_STATUS[AN_COMPLETE],
+ * should be followed by a renegotiation in order for the new values to
+ * take effect. Renegotiation is initiated by setting
+ * CGX()_SPU()_AN_CONTROL[AN_RESTART]. Once autonegotiation has
+ * completed, software can examine this register along with
+ * CGX()_SPU()_AN_LP_BASE to determine the highest common denominator
+ * technology.
  */
 union cavm_cgxx_spux_an_adv {
 	u64 u;
@@ -6083,12 +5916,14 @@ static inline u64 CAVM_CGXX_SPUX_AN_ADV(u64 a)
 /**
  * Register (RSL) cgx#_spu#_an_bp_status
  *
- * CGX SPU Autonegotiation Backplane Ethernet & BASE-R Copper Status Registers
- * The contents of this register are updated during autonegotiation and are valid when
- * CGX()_SPU()_AN_STATUS[AN_COMPLETE] is set. At that time, one of the port type bits will be
- * set depending on the AN priority resolution. The port types are listed in order of decreasing
- * priority. If a BASE-R type is negotiated then [FEC] or [RS_FEC] will be set to indicate
- * whether/which FEC operation has been negotiated and will be clear otherwise.
+ * CGX SPU Autonegotiation Backplane Ethernet & BASE-R Copper Status
+ * Registers The contents of this register are updated during
+ * autonegotiation and are valid when CGX()_SPU()_AN_STATUS[AN_COMPLETE]
+ * is set. At that time, one of the port type bits will be set depending
+ * on the AN priority resolution. The port types are listed in order of
+ * decreasing priority. If a BASE-R type is negotiated then [FEC] or
+ * [RS_FEC] will be set to indicate whether/which FEC operation has been
+ * negotiated and will be clear otherwise.
  */
 union cavm_cgxx_spux_an_bp_status {
 	u64 u;
@@ -6155,10 +5990,11 @@ static inline u64 CAVM_CGXX_SPUX_AN_CONTROL(u64 a)
 /**
  * Register (RSL) cgx#_spu#_an_lp_base
  *
- * CGX SPU Autonegotiation Link-Partner Base-Page Ability Registers
- * This register captures the contents of the latest AN link code word base page received from
- * the link partner during autonegotiation. (See IEEE 802.3 section 73.6 for details.)
- * CGX()_SPU()_AN_STATUS[PAGE_RX] is set when this register is updated by hardware.
+ * CGX SPU Autonegotiation Link-Partner Base-Page Ability Registers This
+ * register captures the contents of the latest AN link code word base
+ * page received from the link partner during autonegotiation. (See IEEE
+ * 802.3 section 73.6 for details.) CGX()_SPU()_AN_STATUS[PAGE_RX] is set
+ * when this register is updated by hardware.
  */
 union cavm_cgxx_spux_an_lp_base {
 	u64 u;
@@ -6203,9 +6039,10 @@ static inline u64 CAVM_CGXX_SPUX_AN_LP_BASE(u64 a)
 /**
  * Register (RSL) cgx#_spu#_an_lp_xnp
  *
- * CGX SPU Autonegotiation Link Partner Extended Next Page Ability Registers
- * This register captures the contents of the latest next page code word received from the link
- * partner during autonegotiation, if any. See IEEE 802.3 section 73.7.7 for details.
+ * CGX SPU Autonegotiation Link Partner Extended Next Page Ability
+ * Registers This register captures the contents of the latest next page
+ * code word received from the link partner during autonegotiation, if
+ * any. See IEEE 802.3 section 73.7.7 for details.
  */
 union cavm_cgxx_spux_an_lp_xnp {
 	u64 u;
@@ -6262,13 +6099,15 @@ static inline u64 CAVM_CGXX_SPUX_AN_STATUS(u64 a)
 /**
  * Register (RSL) cgx#_spu#_an_xnp_tx
  *
- * CGX SPU Autonegotiation Extended Next Page Transmit Registers
- * Software programs this register with the contents of the AN message next page or unformatted
- * next page link code word to be transmitted during autonegotiation. Next page exchange occurs
- * after the base link code words have been exchanged if either end of the link segment sets the
- * NP bit to 1, indicating that it has at least one next page to send. Once initiated, next page
- * exchange continues until both ends of the link segment set their NP bits to 0. See IEEE
- * 802.3 section 73.7.7 for details.
+ * CGX SPU Autonegotiation Extended Next Page Transmit Registers Software
+ * programs this register with the contents of the AN message next page
+ * or unformatted next page link code word to be transmitted during
+ * autonegotiation. Next page exchange occurs after the base link code
+ * words have been exchanged if either end of the link segment sets the
+ * NP bit to 1, indicating that it has at least one next page to send.
+ * Once initiated, next page exchange continues until both ends of the
+ * link segment set their NP bits to 0. See IEEE 802.3 section 73.7.7 for
+ * details.
  */
 union cavm_cgxx_spux_an_xnp_tx {
 	u64 u;
@@ -6295,16 +6134,18 @@ static inline u64 CAVM_CGXX_SPUX_AN_XNP_TX(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_algn_status
  *
- * CGX SPU Multilane BASE-R PCS Alignment-Status Registers
- * This register implements the IEEE 802.3 multilane BASE-R PCS alignment status 1-4 registers
- * (3.50-3.53). It is valid only when the LPCS type is 40GBASE-R, 50GBASE-R, 100GBASE-R,
- * (CGX()_CMR()_CONFIG[LMAC_TYPE] = CGX_LMAC_TYPES_E::FORTYG_R,FIFTYG_R,HUNDREDG_R), and always
- * returns 0x0 for all other LPCS
- * types. Service interfaces (lanes) 19-0 (100G) and 3-0 (all others) are mapped to PCS lanes
- * 19-0 or 3-0 via CGX()_SPU()_BR_LANE_MAP()[LN_MAPPING]. For 100G, logical lane 0 fans out to
- * service interfaces 0-4, logical lane 1 fans out to service interfaces 5-9, ... etc. For all
- * other modes, logical lanes and service interfaces are identical. Logical interfaces (lanes)
- * map to SerDes lanes via CGX()_CMR()_CONFIG[LANE_TO_SDS] (programmable).
+ * CGX SPU Multilane BASE-R PCS Alignment-Status Registers This register
+ * implements the IEEE 802.3 multilane BASE-R PCS alignment status 1-4
+ * registers (3.50-3.53). It is valid only when the LPCS type is
+ * 40GBASE-R, 50GBASE-R, 100GBASE-R, (CGX()_CMR()_CONFIG[LMAC_TYPE] =
+ * CGX_LMAC_TYPES_E::FORTYG_R,FIFTYG_R,HUNDREDG_R), and always returns
+ * 0x0 for all other LPCS types. Service interfaces (lanes) 19-0 (100G)
+ * and 3-0 (all others) are mapped to PCS lanes 19-0 or 3-0 via
+ * CGX()_SPU()_BR_LANE_MAP()[LN_MAPPING]. For 100G, logical lane 0 fans
+ * out to service interfaces 0-4, logical lane 1 fans out to service
+ * interfaces 5-9, ... etc. For all other modes, logical lanes and
+ * service interfaces are identical. Logical interfaces (lanes) map to
+ * SerDes lanes via CGX()_CMR()_CONFIG[LANE_TO_SDS] (programmable).
  */
 union cavm_cgxx_spux_br_algn_status {
 	u64 u;
@@ -6329,31 +6170,30 @@ static inline u64 CAVM_CGXX_SPUX_BR_ALGN_STATUS(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_lane_map#
  *
- * CGX SPU 40,50,100GBASE-R Lane-Mapping Registers
- * This register implements the IEEE 802.3 lane 0-19 mapping registers
- * (3.400-3.403). It is valid only when the LPCS type is 40GBASE-R, 50GBASE-R,
+ * CGX SPU 40,50,100GBASE-R Lane-Mapping Registers This register
+ * implements the IEEE 802.3 lane 0-19 mapping registers (3.400-3.403).
+ * It is valid only when the LPCS type is 40GBASE-R, 50GBASE-R,
  * 100GBASE-R, USXGMII (CGX()_CMR()_CONFIG[LMAC_TYPE]), and always
- * returns 0x0 for all other LPCS types. The LNx_MAPPING field for each programmed PCS
- * lane (called service interface in 802.3) is valid when that lane has achieved
- * alignment marker lock on the receive side (i.e. the associated
- * CGX()_SPU()_BR_ALGN_STATUS[MARKER_LOCK] = 1), and is invalid otherwise. When valid,
- * it returns the actual detected receive PCS lane number based on the received
- * alignment marker contents received on that service interface.
- *
- * In RS-FEC mode the LNx_MAPPING field is valid when that lane has achieved alignment
- * marker lock on the receive side (i.e. the associated
- * CGX(0..2)_SPU(0..3)_RSFEC_STATUS[AMPS_LOCK] = 1), and is invalid otherwise. When valid,
- * it returns the actual detected receive FEC lane number based on the received
- * alignment marker contents received on that logical lane therefore expect for RS-FEC
- * that LNx_MAPPING = x.
- *
- * The mapping is flexible because IEEE 802.3 allows multilane BASE-R receive lanes to
- * be re-ordered. Note that for the transmit side, each logical lane is mapped to a
- * physical SerDes lane based on the programming of
- * CGX()_CMR()_CONFIG[LANE_TO_SDS]. For the receive side,
- * CGX()_CMR()_CONFIG[LANE_TO_SDS] specifies the logical lane to physical SerDes
- * lane mapping, and this register specifies the service interface (or lane) to PCS
- * lane mapping.
+ * returns 0x0 for all other LPCS types. The LNx_MAPPING field for each
+ * programmed PCS lane (called service interface in 802.3) is valid when
+ * that lane has achieved alignment marker lock on the receive side (i.e.
+ * the associated CGX()_SPU()_BR_ALGN_STATUS[MARKER_LOCK] = 1), and is
+ * invalid otherwise. When valid, it returns the actual detected receive
+ * PCS lane number based on the received alignment marker contents
+ * received on that service interface.  In RS-FEC mode the LNx_MAPPING
+ * field is valid when that lane has achieved alignment marker lock on
+ * the receive side (i.e. the associated
+ * CGX(0..2)_SPU(0..3)_RSFEC_STATUS[AMPS_LOCK] = 1), and is invalid
+ * otherwise. When valid, it returns the actual detected receive FEC lane
+ * number based on the received alignment marker contents received on
+ * that logical lane therefore expect for RS-FEC that LNx_MAPPING = x.
+ * The mapping is flexible because IEEE 802.3 allows multilane BASE-R
+ * receive lanes to be re-ordered. Note that for the transmit side, each
+ * logical lane is mapped to a physical SerDes lane based on the
+ * programming of CGX()_CMR()_CONFIG[LANE_TO_SDS]. For the receive side,
+ * CGX()_CMR()_CONFIG[LANE_TO_SDS] specifies the logical lane to physical
+ * SerDes lane mapping, and this register specifies the service interface
+ * (or lane) to PCS lane mapping.
  */
 union cavm_cgxx_spux_br_lane_mapx {
 	u64 u;
@@ -6397,24 +6237,23 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_CONTROL(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_pmd_ld_cup
  *
- * CGX SPU BASE-R PMD Local Device Coefficient Update Registers
- * This register implements MDIO register 1.154 of 802.3-2012 Section 5 CL45 for 10GBASE-R and
- * and of 802.3by-2016 CL45 for 25GBASE-R. Note that for 10G, 25G LN0_ only is used.
- *
- * It implements  MDIO registers 1.1300-1.1303 for all other BASE-R modes (40G, 50G, 100G) per
- * 802.3bj-2014 CL45. Note that for 50G LN0_ and LN1_ only are used.
- *
- * The fields in this register are read/write even though they are specified as read-only in 802.3.
- *
- * The register is automatically cleared at the start of training. When link training
- * is in progress, each field reflects the contents of the coefficient update field in the
- * associated lane's outgoing training frame.
- *
- * If CGX()_SPU_DBG_CONTROL[BR_PMD_TRAIN_SOFT_EN] is set, then this register must be updated
- * by software during link training and hardware updates are disabled. If
- * CGX()_SPU_DBG_CONTROL[BR_PMD_TRAIN_SOFT_EN] is clear, this register is automatically
- * updated by hardware, and it should not be written by software. The lane fields in this
- * register are indexed by logical PCS lane ID.
+ * CGX SPU BASE-R PMD Local Device Coefficient Update Registers This
+ * register implements MDIO register 1.154 of 802.3-2012 Section 5 CL45
+ * for 10GBASE-R and and of 802.3by-2016 CL45 for 25GBASE-R. Note that
+ * for 10G, 25G LN0_ only is used.  It implements  MDIO registers
+ * 1.1300-1.1303 for all other BASE-R modes (40G, 50G, 100G) per
+ * 802.3bj-2014 CL45. Note that for 50G LN0_ and LN1_ only are used.  The
+ * fields in this register are read/write even though they are specified
+ * as read-only in 802.3.  The register is automatically cleared at the
+ * start of training. When link training is in progress, each field
+ * reflects the contents of the coefficient update field in the
+ * associated lane's outgoing training frame.  If
+ * CGX()_SPU_DBG_CONTROL[BR_PMD_TRAIN_SOFT_EN] is set, then this register
+ * must be updated by software during link training and hardware updates
+ * are disabled. If CGX()_SPU_DBG_CONTROL[BR_PMD_TRAIN_SOFT_EN] is clear,
+ * this register is automatically updated by hardware, and it should not
+ * be written by software. The lane fields in this register are indexed
+ * by logical PCS lane ID.
  */
 union cavm_cgxx_spux_br_pmd_ld_cup {
 	u64 u;
@@ -6437,24 +6276,22 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_LD_CUP(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_pmd_ld_rep
  *
- * CGX SPU BASE-R PMD Local Device Status Report Registers
- * This register implements MDIO register 1.155 of 802.3-2012 Section 5 CL45 for 10GBASE-R and
- * and of 802.3by-2016 CL45 for 25GBASE-R. Note that for 10G, 25G LN0_ only is used.
- *
- * It implements  MDIO registers 1.1400-1.1403 for all other BASE-R modes (40G, 50G, 100G) per
- * 802.3bj-2014 CL45. Note that for 50G LN0_ and LN1_ only are used.
- *
- * The fields in this register are read/write even though they are specified as read-only in 802.3.
- *
- * The register is automatically cleared at the start of training. Each field
- * reflects the contents of the status report field in the associated lane's outgoing training
- * frame.
- *
- * If CGX()_SPU_DBG_CONTROL[BR_PMD_TRAIN_SOFT_EN] is set, then this register must
- * be updated by software during link training and hardware updates are disabled. If
- * CGX()_SPU_DBG_CONTROL[BR_PMD_TRAIN_SOFT_EN] is clear, this register is automatically
- * updated by hardware, and it should not be written by software. The lane fields in this
- * register are indexed by logical PCS lane ID.
+ * CGX SPU BASE-R PMD Local Device Status Report Registers This register
+ * implements MDIO register 1.155 of 802.3-2012 Section 5 CL45 for
+ * 10GBASE-R and and of 802.3by-2016 CL45 for 25GBASE-R. Note that for
+ * 10G, 25G LN0_ only is used.  It implements  MDIO registers
+ * 1.1400-1.1403 for all other BASE-R modes (40G, 50G, 100G) per
+ * 802.3bj-2014 CL45. Note that for 50G LN0_ and LN1_ only are used.  The
+ * fields in this register are read/write even though they are specified
+ * as read-only in 802.3.  The register is automatically cleared at the
+ * start of training. Each field reflects the contents of the status
+ * report field in the associated lane's outgoing training frame.  If
+ * CGX()_SPU_DBG_CONTROL[BR_PMD_TRAIN_SOFT_EN] is set, then this register
+ * must be updated by software during link training and hardware updates
+ * are disabled. If CGX()_SPU_DBG_CONTROL[BR_PMD_TRAIN_SOFT_EN] is clear,
+ * this register is automatically updated by hardware, and it should not
+ * be written by software. The lane fields in this register are indexed
+ * by logical PCS lane ID.
  */
 union cavm_cgxx_spux_br_pmd_ld_rep {
 	u64 u;
@@ -6477,18 +6314,18 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_LD_REP(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_pmd_lp_cup
  *
- * CGX SPU BASE-R PMD Link Partner Coefficient Update Registers
- * This register implements MDIO register 1.152 of 802.3-2012 Section 5 CL45 for 10GBASE-R and
- * and of 802.3by-2016 CL45 for 25GBASE-R. Note that for 10G, 25G LN0_ only is used.
- *
- * It implements  MDIO registers 1.1100-1.1103 for all other BASE-R modes (40G, 50G, 100G) per
- * 802.3bj-2014 CL45. Note that for 50G LN0_ and LN1_ only are used.
- *
- * The register is automatically cleared at the start of training. Each field reflects
- * the contents of the coefficient update field in the lane's most recently received training
- * frame. This register should not be written when link training is enabled, i.e. when
- * CGX()_SPU()_BR_PMD_CONTROL[TRAIN_EN] is set. The lane fields in this register are indexed by
- * logical PCS lane ID.
+ * CGX SPU BASE-R PMD Link Partner Coefficient Update Registers This
+ * register implements MDIO register 1.152 of 802.3-2012 Section 5 CL45
+ * for 10GBASE-R and and of 802.3by-2016 CL45 for 25GBASE-R. Note that
+ * for 10G, 25G LN0_ only is used.  It implements  MDIO registers
+ * 1.1100-1.1103 for all other BASE-R modes (40G, 50G, 100G) per
+ * 802.3bj-2014 CL45. Note that for 50G LN0_ and LN1_ only are used.  The
+ * register is automatically cleared at the start of training. Each field
+ * reflects the contents of the coefficient update field in the lane's
+ * most recently received training frame. This register should not be
+ * written when link training is enabled, i.e. when
+ * CGX()_SPU()_BR_PMD_CONTROL[TRAIN_EN] is set. The lane fields in this
+ * register are indexed by logical PCS lane ID.
  */
 union cavm_cgxx_spux_br_pmd_lp_cup {
 	u64 u;
@@ -6511,18 +6348,18 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_LP_CUP(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_pmd_lp_rep
  *
- * CGX SPU BASE-R PMD Link Partner Status Report Registers
- * This register implements MDIO register 1.153 of 802.3-2012 Section 5 CL45 for 10GBASE-R and
- * and of 802.3by-2016 CL45 for 25GBASE-R. Note that for 10G, 25G LN0_ only is used.
- *
- * It implements  MDIO registers 1.1200-1.1203 for all other BASE-R modes (40G, 50G, 100G) per
- * 802.3bj-2014 CL45. Note that for 50G LN0_ and LN1_ only are used.
- *
- * The register is automatically cleared at the start of training. Each field reflects
- * the contents of the coefficient update field in the lane's most recently received training
- * frame. This register should not be written when link training is enabled, i.e. when
- * CGX()_SPU()_BR_PMD_CONTROL[TRAIN_EN] is set. The lane fields in this register are indexed by
- * logical PCS lane ID.
+ * CGX SPU BASE-R PMD Link Partner Status Report Registers This register
+ * implements MDIO register 1.153 of 802.3-2012 Section 5 CL45 for
+ * 10GBASE-R and and of 802.3by-2016 CL45 for 25GBASE-R. Note that for
+ * 10G, 25G LN0_ only is used.  It implements  MDIO registers
+ * 1.1200-1.1203 for all other BASE-R modes (40G, 50G, 100G) per
+ * 802.3bj-2014 CL45. Note that for 50G LN0_ and LN1_ only are used.  The
+ * register is automatically cleared at the start of training. Each field
+ * reflects the contents of the coefficient update field in the lane's
+ * most recently received training frame. This register should not be
+ * written when link training is enabled, i.e. when
+ * CGX()_SPU()_BR_PMD_CONTROL[TRAIN_EN] is set. The lane fields in this
+ * register are indexed by logical PCS lane ID.
  */
 union cavm_cgxx_spux_br_pmd_lp_rep {
 	u64 u;
@@ -6545,11 +6382,12 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_LP_REP(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_pmd_status
  *
- * CGX SPU BASE-R PMD Status Registers
- * The lane fields in this register are indexed by logical PCS lane ID. The lane 0 field (LN0_*)
- * is valid for 10GBASE-R, 25GBASE-R, 40GBASE-R, 50GBASE-R and 100GBASE-R. The lane 1 field
- * (LN1_*) is valid for 40GBASE-R, 50GBASE-R and 100GBASE-R. The remaining fields (LN2_*, LN3_*)
- * are only valid for 40GBASE-R and 100GBASE-R.
+ * CGX SPU BASE-R PMD Status Registers The lane fields in this register
+ * are indexed by logical PCS lane ID. The lane 0 field (LN0_*) is valid
+ * for 10GBASE-R, 25GBASE-R, 40GBASE-R, 50GBASE-R and 100GBASE-R. The
+ * lane 1 field (LN1_*) is valid for 40GBASE-R, 50GBASE-R and 100GBASE-R.
+ * The remaining fields (LN2_*, LN3_*) are only valid for 40GBASE-R and
+ * 100GBASE-R.
  */
 union cavm_cgxx_spux_br_pmd_status {
 	u64 u;
@@ -6599,17 +6437,17 @@ static inline u64 CAVM_CGXX_SPUX_BR_STATUS1(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_status2
  *
- * CGX SPU BASE-R Status 2 Registers
- * This register implements a combination of the following IEEE 802.3 registers:
- * * BASE-R PCS status 2 (MDIO address 3.33).
- * * BASE-R BER high-order counter (MDIO address 3.44).
- * * Errored-blocks high-order counter (MDIO address 3.45).
- *
- * Note that the relative locations of some fields have been moved from IEEE 802.3 in order to
- * make the register layout more software friendly: the BER counter high-order and low-order bits
- * from sections 3.44 and 3.33 have been combined into the contiguous, 22-bit [BER_CNT] field;
- * likewise, the errored-blocks counter high-order and low-order bits from section 3.45 have been
- * combined into the contiguous, 22-bit [ERR_BLKS] field.
+ * CGX SPU BASE-R Status 2 Registers This register implements a
+ * combination of the following IEEE 802.3 registers: * BASE-R PCS status
+ * 2 (MDIO address 3.33). * BASE-R BER high-order counter (MDIO address
+ * 3.44). * Errored-blocks high-order counter (MDIO address 3.45).  Note
+ * that the relative locations of some fields have been moved from IEEE
+ * 802.3 in order to make the register layout more software friendly: the
+ * BER counter high-order and low-order bits from sections 3.44 and 3.33
+ * have been combined into the contiguous, 22-bit [BER_CNT] field;
+ * likewise, the errored-blocks counter high-order and low-order bits
+ * from section 3.45 have been combined into the contiguous, 22-bit
+ * [ERR_BLKS] field.
  */
 union cavm_cgxx_spux_br_status2 {
 	u64 u;
@@ -6635,8 +6473,8 @@ static inline u64 CAVM_CGXX_SPUX_BR_STATUS2(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_tp_control
  *
- * CGX SPU BASE-R Test-Pattern Control Registers
- * Refer to the test pattern methodology described in 802.3 sections 49.2.8 and 82.2.10.
+ * CGX SPU BASE-R Test-Pattern Control Registers Refer to the test
+ * pattern methodology described in 802.3 sections 49.2.8 and 82.2.10.
  */
 union cavm_cgxx_spux_br_tp_control {
 	u64 u;
@@ -6665,8 +6503,8 @@ static inline u64 CAVM_CGXX_SPUX_BR_TP_CONTROL(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_tp_err_cnt
  *
- * CGX SPU BASE-R Test-Pattern Error-Count Registers
- * This register provides the BASE-R PCS test-pattern error counter.
+ * CGX SPU BASE-R Test-Pattern Error-Count Registers This register
+ * provides the BASE-R PCS test-pattern error counter.
  */
 union cavm_cgxx_spux_br_tp_err_cnt {
 	u64 u;
@@ -6687,8 +6525,8 @@ static inline u64 CAVM_CGXX_SPUX_BR_TP_ERR_CNT(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_tp_seed_a
  *
- * CGX SPU BASE-R Test-Pattern Seed A Registers
- * Refer to the test pattern methodology described in 802.3 sections 49.2.8 and 82.2.10.
+ * CGX SPU BASE-R Test-Pattern Seed A Registers Refer to the test pattern
+ * methodology described in 802.3 sections 49.2.8 and 82.2.10.
  */
 union cavm_cgxx_spux_br_tp_seed_a {
 	u64 u;
@@ -6709,8 +6547,8 @@ static inline u64 CAVM_CGXX_SPUX_BR_TP_SEED_A(u64 a)
 /**
  * Register (RSL) cgx#_spu#_br_tp_seed_b
  *
- * CGX SPU BASE-R Test-Pattern Seed B Registers
- * Refer to the test pattern methodology described in 802.3 sections 49.2.8 and 82.2.10.
+ * CGX SPU BASE-R Test-Pattern Seed B Registers Refer to the test pattern
+ * methodology described in 802.3 sections 49.2.8 and 82.2.10.
  */
 union cavm_cgxx_spux_br_tp_seed_b {
 	u64 u;
@@ -6853,16 +6691,16 @@ static inline u64 CAVM_CGXX_SPUX_FEC_CONTROL(u64 a)
 /**
  * Register (RSL) cgx#_spu#_fec_ln#_rsfec_err
  *
- * CGX SPU Reed-Solomon FEC Symbol Error Counter for FEC Lanes 0-3 Registers
- * This register is valid only when Reed-Solomon FEC is enabled.
- * The symbol error counters are defined in 802.3 section 91.6.11 (for 100G
- * and extended to 50G) and 802.3by-2016 section 108.6.9 (for 25G and extended to USXGMII).
- * The counter is reset to all zeros when the register is read, and held at all ones in case
- * of overflow.
- *
- * The reset operation takes precedence over the increment operation; if the register
- * is read on the same clock cycle as an increment operation, the counter is reset to
- * all zeros and the increment operation is lost. The counters are writable for test
+ * CGX SPU Reed-Solomon FEC Symbol Error Counter for FEC Lanes 0-3
+ * Registers This register is valid only when Reed-Solomon FEC is
+ * enabled. The symbol error counters are defined in 802.3 section
+ * 91.6.11 (for 100G and extended to 50G) and 802.3by-2016 section
+ * 108.6.9 (for 25G and extended to USXGMII). The counter is reset to all
+ * zeros when the register is read, and held at all ones in case of
+ * overflow.  The reset operation takes precedence over the increment
+ * operation; if the register is read on the same clock cycle as an
+ * increment operation, the counter is reset to all zeros and the
+ * increment operation is lost. The counters are writable for test
  * purposes, rather than read-only as specified in IEEE 802.3.
  */
 union cavm_cgxx_spux_fec_lnx_rsfec_err {
@@ -6925,8 +6763,8 @@ static inline u64 CAVM_CGXX_SPUX_INT(u64 a)
 /**
  * Register (RSL) cgx#_spu#_int_ena_w1c
  *
- * CGX SPU Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * CGX SPU Interrupt Enable Clear Registers This register clears
+ * interrupt enable bits.
  */
 union cavm_cgxx_spux_int_ena_w1c {
 	u64 u;
@@ -6967,8 +6805,8 @@ static inline u64 CAVM_CGXX_SPUX_INT_ENA_W1C(u64 a)
 /**
  * Register (RSL) cgx#_spu#_int_ena_w1s
  *
- * CGX SPU Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * CGX SPU Interrupt Enable Set Registers This register sets interrupt
+ * enable bits.
  */
 union cavm_cgxx_spux_int_ena_w1s {
 	u64 u;
@@ -7009,8 +6847,7 @@ static inline u64 CAVM_CGXX_SPUX_INT_ENA_W1S(u64 a)
 /**
  * Register (RSL) cgx#_spu#_int_w1s
  *
- * CGX SPU Interrupt Set Registers
- * This register sets interrupt bits.
+ * CGX SPU Interrupt Set Registers This register sets interrupt bits.
  */
 union cavm_cgxx_spux_int_w1s {
 	u64 u;
@@ -7051,19 +6888,19 @@ static inline u64 CAVM_CGXX_SPUX_INT_W1S(u64 a)
 /**
  * Register (RSL) cgx#_spu#_ln#_br_bip_err_cnt
  *
- * CGX SPU 40,50,100GBASE-R BIP Error-Counter Registers
- * This register implements the IEEE 802.3 BIP error-counter registers for PCS lanes
- * 0-19 (3.200-3.203). It is valid only when the LPCS type is 40GBASE-R, 50GBASE-R,
- * 100GBASE-R, (CGX()_CMR()_CONFIG[LMAC_TYPE]), and always returns 0x0
- * for all other LPCS types. The counters are indexed by the RX PCS lane number based
- * on the alignment marker detected on each lane and captured in
- * CGX()_SPU()_BR_LANE_MAP(). Each counter counts the BIP errors for its PCS lane, and is
- * held at all ones in case of overflow. The counters are reset to all zeros when this
- * register is read by software.
- *
- * The reset operation takes precedence over the increment operation; if the register
- * is read on the same clock cycle as an increment operation, the counter is reset to
- * all zeros and the increment operation is lost. The counters are writable for test
+ * CGX SPU 40,50,100GBASE-R BIP Error-Counter Registers This register
+ * implements the IEEE 802.3 BIP error-counter registers for PCS lanes
+ * 0-19 (3.200-3.203). It is valid only when the LPCS type is 40GBASE-R,
+ * 50GBASE-R, 100GBASE-R, (CGX()_CMR()_CONFIG[LMAC_TYPE]), and always
+ * returns 0x0 for all other LPCS types. The counters are indexed by the
+ * RX PCS lane number based on the alignment marker detected on each lane
+ * and captured in CGX()_SPU()_BR_LANE_MAP(). Each counter counts the BIP
+ * errors for its PCS lane, and is held at all ones in case of overflow.
+ * The counters are reset to all zeros when this register is read by
+ * software.  The reset operation takes precedence over the increment
+ * operation; if the register is read on the same clock cycle as an
+ * increment operation, the counter is reset to all zeros and the
+ * increment operation is lost. The counters are writable for test
  * purposes, rather than read-only as specified in IEEE 802.3.
  */
 union cavm_cgxx_spux_lnx_br_bip_err_cnt {
@@ -7085,20 +6922,20 @@ static inline u64 CAVM_CGXX_SPUX_LNX_BR_BIP_ERR_CNT(u64 a, u64 b)
 /**
  * Register (RSL) cgx#_spu#_ln#_fec_corr_blks
  *
- * CGX SPU FEC Corrected-Blocks Counters 0-19 Registers
- * This register is valid only when the LPCS type is BASE-R
- * (CGX()_CMR()_CONFIG[LMAC_TYPE]) and applies
- * to BASE-R FEC and Reed-Solomon FEC (RS-FEC). When BASE-R FEC is enabled, the FEC
- * corrected-block counters are defined in IEEE 802.3 section 74.8.4.1. Each
- * corrected-blocks counter increments by one for a corrected FEC block, i.e. an FEC
- * block that has been received with invalid parity on the associated PCS lane and has
- * been corrected by the FEC decoder. The counter is reset to all zeros when the register
- * is read, and held at all ones in case of overflow.
- *
- * The reset operation takes precedence over the increment operation; if the register
- * is read on the same clock cycle as an increment operation, the counter is reset to
- * all zeros and the increment operation is lost. The counters are writable for test
- * purposes, rather than read-only as specified in IEEE 802.3.
+ * CGX SPU FEC Corrected-Blocks Counters 0-19 Registers This register is
+ * valid only when the LPCS type is BASE-R
+ * (CGX()_CMR()_CONFIG[LMAC_TYPE]) and applies to BASE-R FEC and Reed-
+ * Solomon FEC (RS-FEC). When BASE-R FEC is enabled, the FEC corrected-
+ * block counters are defined in IEEE 802.3 section 74.8.4.1. Each
+ * corrected-blocks counter increments by one for a corrected FEC block,
+ * i.e. an FEC block that has been received with invalid parity on the
+ * associated PCS lane and has been corrected by the FEC decoder. The
+ * counter is reset to all zeros when the register is read, and held at
+ * all ones in case of overflow.  The reset operation takes precedence
+ * over the increment operation; if the register is read on the same
+ * clock cycle as an increment operation, the counter is reset to all
+ * zeros and the increment operation is lost. The counters are writable
+ * for test purposes, rather than read-only as specified in IEEE 802.3.
  */
 union cavm_cgxx_spux_lnx_fec_corr_blks {
 	u64 u;
@@ -7119,20 +6956,20 @@ static inline u64 CAVM_CGXX_SPUX_LNX_FEC_CORR_BLKS(u64 a, u64 b)
 /**
  * Register (RSL) cgx#_spu#_ln#_fec_uncorr_blks
  *
- * CGX SPU FEC Uncorrected-Blocks Counters 0-19 Registers
- * This register is valid only when the LPCS type is BASE-R
- * (CGX()_CMR()_CONFIG[LMAC_TYPE]) and applies
- * to BASE-R FEC and Reed-Solomon FEC (RS-FEC). When BASE-R FEC is enabled, the FEC
- * corrected-block counters are defined in IEEE 802.3 section 74.8.4.2. Each
- * uncorrected-blocks counter increments by one for an uncorrected FEC block, i.e. an FEC
- * block that has been received with invalid parity on the associated PCS lane and has
- * not been corrected by the FEC decoder. The counter is reset to all zeros when the
- * register is read, and held at all ones in case of overflow.
- *
- * The reset operation takes precedence over the increment operation; if the register
- * is read on the same clock cycle as an increment operation, the counter is reset to
- * all zeros and the increment operation is lost. The counters are writable for test
- * purposes, rather than read-only as specified in IEEE 802.3.
+ * CGX SPU FEC Uncorrected-Blocks Counters 0-19 Registers This register
+ * is valid only when the LPCS type is BASE-R
+ * (CGX()_CMR()_CONFIG[LMAC_TYPE]) and applies to BASE-R FEC and Reed-
+ * Solomon FEC (RS-FEC). When BASE-R FEC is enabled, the FEC corrected-
+ * block counters are defined in IEEE 802.3 section 74.8.4.2. Each
+ * uncorrected-blocks counter increments by one for an uncorrected FEC
+ * block, i.e. an FEC block that has been received with invalid parity on
+ * the associated PCS lane and has not been corrected by the FEC decoder.
+ * The counter is reset to all zeros when the register is read, and held
+ * at all ones in case of overflow.  The reset operation takes precedence
+ * over the increment operation; if the register is read on the same
+ * clock cycle as an increment operation, the counter is reset to all
+ * zeros and the increment operation is lost. The counters are writable
+ * for test purposes, rather than read-only as specified in IEEE 802.3.
  */
 union cavm_cgxx_spux_lnx_fec_uncorr_blks {
 	u64 u;
@@ -7179,13 +7016,13 @@ static inline u64 CAVM_CGXX_SPUX_LPCS_STATES(u64 a)
 /**
  * Register (RSL) cgx#_spu#_misc_control
  *
- * CGX SPU Miscellaneous Control Registers
- * "* RX logical PCS lane polarity vector \<3:0\> = [XOR_RXPLRT]\<3:0\> ^ {4{[RXPLRT]}}.
- * * TX logical PCS lane polarity vector \<3:0\> = [XOR_TXPLRT]\<3:0\> ^ {4{[TXPLRT]}}.
- *
- * In short, keep [RXPLRT] and [TXPLRT] cleared, and use [XOR_RXPLRT] and [XOR_TXPLRT] fields to
- * define the polarity per logical PCS lane. Only bit 0 of vector is used for 10GBASE-R, and
- * only bits 1:0 of vector are used for RXAUI."
+ * CGX SPU Miscellaneous Control Registers "* RX logical PCS lane
+ * polarity vector \<3:0\> = [XOR_RXPLRT]\<3:0\> ^ {4{[RXPLRT]}}. * TX
+ * logical PCS lane polarity vector \<3:0\> = [XOR_TXPLRT]\<3:0\> ^
+ * {4{[TXPLRT]}}.  In short, keep [RXPLRT] and [TXPLRT] cleared, and use
+ * [XOR_RXPLRT] and [XOR_TXPLRT] fields to define the polarity per
+ * logical PCS lane. Only bit 0 of vector is used for 10GBASE-R, and only
+ * bits 1:0 of vector are used for RXAUI."
  */
 union cavm_cgxx_spux_misc_control {
 	u64 u;
@@ -7213,10 +7050,10 @@ static inline u64 CAVM_CGXX_SPUX_MISC_CONTROL(u64 a)
 /**
  * Register (RSL) cgx#_spu#_rsfec_corr
  *
- * CGX SPU Reed-Solomon FEC Corrected Codeword Counter Register
- * This register implements the IEEE 802.3 RS-FEC corrected codewords counter
- * described in 802.3 section 91.6.8 (for 100G and extended to 50G) and 802.3by-2016
- * section 108.6.7 (for 25G and extended to USXGMII).
+ * CGX SPU Reed-Solomon FEC Corrected Codeword Counter Register This
+ * register implements the IEEE 802.3 RS-FEC corrected codewords counter
+ * described in 802.3 section 91.6.8 (for 100G and extended to 50G) and
+ * 802.3by-2016 section 108.6.7 (for 25G and extended to USXGMII).
  */
 union cavm_cgxx_spux_rsfec_corr {
 	u64 u;
@@ -7237,9 +7074,9 @@ static inline u64 CAVM_CGXX_SPUX_RSFEC_CORR(u64 a)
 /**
  * Register (RSL) cgx#_spu#_rsfec_status
  *
- * CGX SPU Reed-Solomon FEC Status Registers
- * This register implements the IEEE 802.3 RS-FEC status and lane mapping registers as
- * described in 802.3 section 91.6 (for 100G and extended to 50G) and 802.3by-2016
+ * CGX SPU Reed-Solomon FEC Status Registers This register implements the
+ * IEEE 802.3 RS-FEC status and lane mapping registers as described in
+ * 802.3 section 91.6 (for 100G and extended to 50G) and 802.3by-2016
  * section 108-6 (for 25G and extended to USXGMII).
  */
 union cavm_cgxx_spux_rsfec_status {
@@ -7266,10 +7103,11 @@ static inline u64 CAVM_CGXX_SPUX_RSFEC_STATUS(u64 a)
 /**
  * Register (RSL) cgx#_spu#_rsfec_uncorr
  *
- * CGX SPU Reed-Solomon FEC Uncorrected Codeword Counter Register
- * This register implements the IEEE 802.3 RS-FEC uncorrected codewords counter
- * described in 802.3 section 91.6.9 (for 100G and extended to 50G) and 802.3by-2016
- * section 108.6.8 (for 25G and extended to USXGMII).
+ * CGX SPU Reed-Solomon FEC Uncorrected Codeword Counter Register This
+ * register implements the IEEE 802.3 RS-FEC uncorrected codewords
+ * counter described in 802.3 section 91.6.9 (for 100G and extended to
+ * 50G) and 802.3by-2016 section 108.6.8 (for 25G and extended to
+ * USXGMII).
  */
 union cavm_cgxx_spux_rsfec_uncorr {
 	u64 u;
@@ -7290,12 +7128,10 @@ static inline u64 CAVM_CGXX_SPUX_RSFEC_UNCORR(u64 a)
 /**
  * Register (RSL) cgx#_spu#_rx_eee_wake
  *
- * INTERNAL: CGX SPU  RX EEE Wake Error Counter  Registers
- *
- * Reserved.
- * Internal:
- * A counter that is incremented each time that the LPI receive state diagram enters
- * the RX_WTF state indicating that a wake time fault has been detected.
+ * INTERNAL: CGX SPU  RX EEE Wake Error Counter  Registers  Reserved.
+ * Internal: A counter that is incremented each time that the LPI receive
+ * state diagram enters the RX_WTF state indicating that a wake time
+ * fault has been detected.
  */
 union cavm_cgxx_spux_rx_eee_wake {
 	u64 u;
@@ -7316,11 +7152,9 @@ static inline u64 CAVM_CGXX_SPUX_RX_EEE_WAKE(u64 a)
 /**
  * Register (RSL) cgx#_spu#_rx_lpi_timing
  *
- * INTERNAL: CGX SPU RX EEE LPI Timing Parameters Registers
- *
- * Reserved.
- * Internal:
- * This register specifies receiver LPI timing parameters Tqr, Twr and Twtf.
+ * INTERNAL: CGX SPU RX EEE LPI Timing Parameters Registers  Reserved.
+ * Internal: This register specifies receiver LPI timing parameters Tqr,
+ * Twr and Twtf.
  */
 union cavm_cgxx_spux_rx_lpi_timing {
 	u64 u;
@@ -7345,11 +7179,9 @@ static inline u64 CAVM_CGXX_SPUX_RX_LPI_TIMING(u64 a)
 /**
  * Register (RSL) cgx#_spu#_rx_lpi_timing2
  *
- * INTERNAL: CGX SPU RX EEE LPI Timing2 Parameters Registers
- *
- * Reserved.
- * Internal:
- * This register specifies receiver LPI timing parameters hold_off_timer.
+ * INTERNAL: CGX SPU RX EEE LPI Timing2 Parameters Registers  Reserved.
+ * Internal: This register specifies receiver LPI timing parameters
+ * hold_off_timer.
  */
 union cavm_cgxx_spux_rx_lpi_timing2 {
 	u64 u;
@@ -7485,11 +7317,8 @@ static inline u64 CAVM_CGXX_SPUX_STATUS2(u64 a)
 /**
  * Register (RSL) cgx#_spu#_tx_lpi_timing
  *
- * INTERNAL: CGX SPU TX EEE LPI Timing Parameters Registers
- *
- * Reserved.
- * Internal:
- * Transmit LPI timing parameters Tsl, Tql and Tul
+ * INTERNAL: CGX SPU TX EEE LPI Timing Parameters Registers  Reserved.
+ * Internal: Transmit LPI timing parameters Tsl, Tql and Tul
  */
 union cavm_cgxx_spux_tx_lpi_timing {
 	u64 u;
@@ -7517,11 +7346,8 @@ static inline u64 CAVM_CGXX_SPUX_TX_LPI_TIMING(u64 a)
 /**
  * Register (RSL) cgx#_spu#_tx_lpi_timing2
  *
- * INTERNAL: CGX SPU TX EEE LPI Timing2 Parameters Registers
- *
- * Reserved.
- * Internal:
- * This register specifies transmit LPI timer parameters.
+ * INTERNAL: CGX SPU TX EEE LPI Timing2 Parameters Registers  Reserved.
+ * Internal: This register specifies transmit LPI timer parameters.
  */
 union cavm_cgxx_spux_tx_lpi_timing2 {
 	u64 u;
@@ -7573,13 +7399,15 @@ static inline u64 CAVM_CGXX_SPUX_TX_MRK_CNT(u64 a)
 /**
  * Register (RSL) cgx#_spu#_usx_an_adv
  *
- * CGX SPU USXGMII Autonegotiation Advertisement Registers
- * Software programs this register with the contents of the AN-link code word base page to be
- * transmitted during autonegotiation. Any write operations to this register prior to completion
- * of autonegotiation should be followed by a renegotiation in order for the new values to take
- * effect. Once autonegotiation has completed, software can examine this register along with
- * CGX()_SPU()_USX_AN_ADV to determine the highest common denominator technology.
- * The format for this register is from USXGMII Multiport specification section 1.1.2 Table 2.
+ * CGX SPU USXGMII Autonegotiation Advertisement Registers Software
+ * programs this register with the contents of the AN-link code word base
+ * page to be transmitted during autonegotiation. Any write operations to
+ * this register prior to completion of autonegotiation should be
+ * followed by a renegotiation in order for the new values to take
+ * effect. Once autonegotiation has completed, software can examine this
+ * register along with CGX()_SPU()_USX_AN_ADV to determine the highest
+ * common denominator technology. The format for this register is from
+ * USXGMII Multiport specification section 1.1.2 Table 2.
  */
 union cavm_cgxx_spux_usx_an_adv {
 	u64 u;
@@ -7633,8 +7461,8 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_CONTROL(u64 a)
 /**
  * Register (RSL) cgx#_spu#_usx_an_expansion
  *
- * CGX SPU USXGMII Autonegotiation Expansion Register
- * This register is only used to signal page reception.
+ * CGX SPU USXGMII Autonegotiation Expansion Register This register is
+ * only used to signal page reception.
  */
 union cavm_cgxx_spux_usx_an_expansion {
 	u64 u;
@@ -7657,8 +7485,8 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_EXPANSION(u64 a)
 /**
  * Register (RSL) cgx#_spu#_usx_an_flow_ctrl
  *
- * CGX SPU USXGMII Flow Control Registers
- * This register is used by software to affect USXGMII AN hardware behavior.
+ * CGX SPU USXGMII Flow Control Registers This register is used by
+ * software to affect USXGMII AN hardware behavior.
  */
 union cavm_cgxx_spux_usx_an_flow_ctrl {
 	u64 u;
@@ -7679,8 +7507,7 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_FLOW_CTRL(u64 a)
 /**
  * Register (RSL) cgx#_spu#_usx_an_link_timer
  *
- * CGX SPU USXGMII Link Timer Registers
- * This is the link timer register.
+ * CGX SPU USXGMII Link Timer Registers This is the link timer register.
  */
 union cavm_cgxx_spux_usx_an_link_timer {
 	u64 u;
@@ -7702,9 +7529,11 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_LINK_TIMER(u64 a)
  * Register (RSL) cgx#_spu#_usx_an_lp_abil
  *
  * CGX SPU USXGMII Autonegotiation Link-Partner Advertisement Registers
- * This register captures the contents of the latest AN link code word base page received from
- * the link partner during autonegotiation. This is register 5 per IEEE 802.3, Clause 37.
- * CGX()_SPU()_USX_AN_EXPANSION[AN_PAGE_RECEIVED] is set when this register is updated by hardware.
+ * This register captures the contents of the latest AN link code word
+ * base page received from the link partner during autonegotiation. This
+ * is register 5 per IEEE 802.3, Clause 37.
+ * CGX()_SPU()_USX_AN_EXPANSION[AN_PAGE_RECEIVED] is set when this
+ * register is updated by hardware.
  */
 union cavm_cgxx_spux_usx_an_lp_abil {
 	u64 u;
@@ -7790,8 +7619,8 @@ static inline u64 CAVM_CGXX_SPU_DBG_CONTROL(void)
 /**
  * Register (RSL) cgx#_spu_sds#_skew_status
  *
- * CGX SPU SerDes Lane Skew Status Registers
- * This register provides SerDes lane skew status. One register per physical SerDes lane.
+ * CGX SPU SerDes Lane Skew Status Registers This register provides
+ * SerDes lane skew status. One register per physical SerDes lane.
  */
 union cavm_cgxx_spu_sdsx_skew_status {
 	u64 u;
@@ -7812,8 +7641,8 @@ static inline u64 CAVM_CGXX_SPU_SDSX_SKEW_STATUS(u64 a)
 /**
  * Register (RSL) cgx#_spu_sds#_states
  *
- * CGX SPU SerDes States Registers
- * This register provides SerDes lane states. One register per physical SerDes lane.
+ * CGX SPU SerDes States Registers This register provides SerDes lane
+ * states. One register per physical SerDes lane.
  */
 union cavm_cgxx_spu_sdsx_states {
 	u64 u;
@@ -7852,10 +7681,11 @@ static inline u64 CAVM_CGXX_SPU_SDSX_STATES(u64 a)
 /**
  * Register (RSL) cgx#_spu_usxgmii_control
  *
- * CGX SPU Common USXGMII Control Register
- * This register is the common control register that enables USXGMII Mode. The fields
- * in this register are preserved across any LMAC soft-resets. For an LMAC in soft-
- * reset state in USXGMII mode, the CGX will transmit Remote Fault BASE-R blocks.
+ * CGX SPU Common USXGMII Control Register This register is the common
+ * control register that enables USXGMII Mode. The fields in this
+ * register are preserved across any LMAC soft-resets. For an LMAC in
+ * soft- reset state in USXGMII mode, the CGX will transmit Remote Fault
+ * BASE-R blocks.
  */
 union cavm_cgxx_spu_usxgmii_control {
 	u64 u;

@@ -1,45 +1,12 @@
 #ifndef __CAVM_CSRS_NPC_H__
 #define __CAVM_CSRS_NPC_H__
-/* This file is auto-generated. Do not edit */
+/* This file is auto-generated.  Do not edit */
 
-/***********************license start***************
- * Copyright (c) 2003-2018  Cavium Inc. (support@cavium.com). All rights
- * reserved.
- *
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
-
- *   * Neither the name of Cavium Inc. nor the names of
- *     its contributors may be used to endorse or promote products
- *     derived from this software without specific prior written
- *     permission.
-
- * This Software, including technical data, may be subject to U.S. export  control
- * laws, including the U.S. Export Administration Act and its  associated
- * regulations, and may be subject to export or import  regulations in other
- * countries.
-
- * TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS"
- * AND WITH ALL FAULTS AND CAVIUM  NETWORKS MAKES NO PROMISES, REPRESENTATIONS OR
- * WARRANTIES, EITHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, WITH RESPECT TO
- * THE SOFTWARE, INCLUDING ITS CONDITION, ITS CONFORMITY TO ANY REPRESENTATION OR
- * DESCRIPTION, OR THE EXISTENCE OF ANY LATENT OR PATENT DEFECTS, AND CAVIUM
- * SPECIFICALLY DISCLAIMS ALL IMPLIED (IF ANY) WARRANTIES OF TITLE,
- * MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR A PARTICULAR PURPOSE, LACK OF
- * VIRUSES, ACCURACY OR COMPLETENESS, QUIET ENJOYMENT, QUIET POSSESSION OR
- * CORRESPONDENCE TO DESCRIPTION. THE ENTIRE  RISK ARISING OUT OF USE OR
- * PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
- ***********************license end**************************************/
+/***********************license start***********************************
+* Copyright (C) 2018 Marvell International Ltd.
+* SPDX-License-Identifier: BSD-3-Clause
+* https://spdx.org/licenses
+***********************license end**************************************/
 
 /**
  * @file
@@ -47,15 +14,15 @@
  * Configuration and status register (CSR) address and type definitions for
  * Cavium NPC.
  *
- * This file is auto generated. Do not edit.
+ * This file is auto generated.  Do not edit.
  *
  */
 
 /**
  * Enumeration npc_errlev_e
  *
- * NPC Error Level Enumeration
- * Enumerates the lowest protocol layer containing an error.
+ * NPC Error Level Enumeration Enumerates the lowest protocol layer
+ * containing an error.
  */
 #define CAVM_NPC_ERRLEV_E_LA (1)
 #define CAVM_NPC_ERRLEV_E_LB (2)
@@ -72,8 +39,7 @@
 /**
  * Enumeration npc_intf_e
  *
- * NPC Interface Enumeration
- * Enumerates the NPC interfaces.
+ * NPC Interface Enumeration Enumerates the NPC interfaces.
  */
 #define CAVM_NPC_INTF_E_NIXX_RX(a) (0 + 2 * (a))
 #define CAVM_NPC_INTF_E_NIXX_TX(a) (1 + 2 * (a))
@@ -81,8 +47,7 @@
 /**
  * Enumeration npc_lid_e
  *
- * NPC Layer ID Enumeration
- * Enumerates layers parsed by NPC.
+ * NPC Layer ID Enumeration Enumerates layers parsed by NPC.
  */
 #define CAVM_NPC_LID_E_LA (0)
 #define CAVM_NPC_LID_E_LB (1)
@@ -96,8 +61,8 @@
 /**
  * Enumeration npc_lkupop_e
  *
- * NPC Lookup Operation Enumeration
- * Enumerates the lookup operation for NPC_AF_LKUP_CTL[OP].
+ * NPC Lookup Operation Enumeration Enumerates the lookup operation for
+ * NPC_AF_LKUP_CTL[OP].
  */
 #define CAVM_NPC_LKUPOP_E_KEY (1)
 #define CAVM_NPC_LKUPOP_E_PKT (0)
@@ -114,8 +79,8 @@
 /**
  * Structure npc_layer_info_s
  *
- * NPC Layer Parse Information Structure
- * This structure specifies the format of NPC_RESULT_S[LA,LB,...,LH].
+ * NPC Layer Parse Information Structure This structure specifies the
+ * format of NPC_RESULT_S[LA,LB,...,LH].
  */
 union cavm_npc_layer_info_s {
 	u32 u;
@@ -131,11 +96,10 @@ union cavm_npc_layer_info_s {
 /**
  * Structure npc_layer_kex_s
  *
- * NPC Layer MCAM Search Key Extract Structure
- * This structure specifies the format of each of the
- * NPC_PARSE_KEX_S[LA,LB,...,LH] fields. It contains the subset of
- * NPC_LAYER_INFO_S fields that can be included in the MCAM search key.
- * See NPC_PARSE_KEX_S and NPC_AF_INTF()_KEX_CFG.
+ * NPC Layer MCAM Search Key Extract Structure This structure specifies
+ * the format of each of the NPC_PARSE_KEX_S[LA,LB,...,LH] fields. It
+ * contains the subset of NPC_LAYER_INFO_S fields that can be included in
+ * the MCAM search key. See NPC_PARSE_KEX_S and NPC_AF_INTF()_KEX_CFG.
  */
 union cavm_npc_layer_kex_s {
 	u32 u;
@@ -150,9 +114,9 @@ union cavm_npc_layer_kex_s {
 /**
  * Structure npc_mcam_key_x1_s
  *
- * NPC MCAM Search Key X1 Structure
- * This structure specifies the MCAM search key format used by an interface
- * when NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X1.
+ * NPC MCAM Search Key X1 Structure This structure specifies the MCAM
+ * search key format used by an interface when
+ * NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X1.
  */
 union cavm_npc_mcam_key_x1_s {
 	u64 u[3];
@@ -169,9 +133,9 @@ union cavm_npc_mcam_key_x1_s {
 /**
  * Structure npc_mcam_key_x2_s
  *
- * NPC MCAM Search Key X2 Structure
- * This structure specifies the MCAM search key format used by an interface
- * when NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X2.
+ * NPC MCAM Search Key X2 Structure This structure specifies the MCAM
+ * search key format used by an interface when
+ * NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X2.
  */
 union cavm_npc_mcam_key_x2_s {
 	u64 u[5];
@@ -190,9 +154,9 @@ union cavm_npc_mcam_key_x2_s {
 /**
  * Structure npc_mcam_key_x4_s
  *
- * NPC MCAM Search Key X4 Structure
- * This structure specifies the MCAM search key format used by an interface
- * when NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X4.
+ * NPC MCAM Search Key X4 Structure This structure specifies the MCAM
+ * search key format used by an interface when
+ * NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X4.
  */
 union cavm_npc_mcam_key_x4_s {
 	u64 u[8];
@@ -213,9 +177,9 @@ union cavm_npc_mcam_key_x4_s {
 /**
  * Structure npc_parse_kex_s
  *
- * NPC Parse Key Extract Structure
- * This structure contains the subset of NPC_RESULT_S fields that can be included
- * in the MCAM search key. See NPC_AF_INTF()_KEX_CFG.
+ * NPC Parse Key Extract Structure This structure contains the subset of
+ * NPC_RESULT_S fields that can be included in the MCAM search key. See
+ * NPC_AF_INTF()_KEX_CFG.
  */
 union cavm_npc_parse_kex_s {
 	u64 u[2];
@@ -243,8 +207,8 @@ union cavm_npc_parse_kex_s {
 /**
  * Structure npc_result_s
  *
- * NPC Result Structure
- * This structure contains a packet's parse and flow identification information.
+ * NPC Result Structure This structure contains a packet's parse and flow
+ * identification information.
  */
 union cavm_npc_result_s {
 	u64 u[6];
@@ -345,8 +309,8 @@ static inline u64 CAVM_NPC_AF_CFG(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_const
  *
- * NPC AF Constants Register
- * This register contains constants for software discovery.
+ * NPC AF Constants Register This register contains constants for
+ * software discovery.
  */
 union cavm_npc_af_const {
 	u64 u;
@@ -374,8 +338,8 @@ static inline u64 CAVM_NPC_AF_CONST(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_const1
  *
- * NPC AF Constants 1 Register
- * This register contains constants for software discovery.
+ * NPC AF Constants 1 Register This register contains constants for
+ * software discovery.
  */
 union cavm_npc_af_const1 {
 	u64 u;
@@ -419,9 +383,9 @@ static inline u64 CAVM_NPC_AF_CPIX_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) npc_af_dbg_ctl
  *
- * NPC AF Debug Control Register
- * This register controls the capture of debug information in NPC_AF_KPU()_DBG,
- * NPC_AF_MCAM_DBG, NPC_AF_DBG_DATA() and NPC_AF_DBG_RESULT().
+ * NPC AF Debug Control Register This register controls the capture of
+ * debug information in NPC_AF_KPU()_DBG, NPC_AF_MCAM_DBG,
+ * NPC_AF_DBG_DATA() and NPC_AF_DBG_RESULT().
  */
 union cavm_npc_af_dbg_ctl {
 	u64 u;
@@ -444,9 +408,9 @@ static inline u64 CAVM_NPC_AF_DBG_CTL(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_dbg_data#
  *
- * NPC AF Debug Data Registers
- * These registers contain the packet header data of the last packet/lookup whose
- * debug information is captured by NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
+ * NPC AF Debug Data Registers These registers contain the packet header
+ * data of the last packet/lookup whose debug information is captured by
+ * NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
  */
 union cavm_npc_af_dbg_datax {
 	u64 u;
@@ -466,9 +430,9 @@ static inline u64 CAVM_NPC_AF_DBG_DATAX(u64 a)
 /**
  * Register (RVU_PF_BAR0) npc_af_dbg_result#
  *
- * NPC AF Debug Result Registers
- * These registers contain the result data of the last packet/lookup whose debug
- * information is captured by NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
+ * NPC AF Debug Result Registers These registers contain the result data
+ * of the last packet/lookup whose debug information is captured by
+ * NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
  */
 union cavm_npc_af_dbg_resultx {
 	u64 u;
@@ -509,10 +473,8 @@ static inline u64 CAVM_NPC_AF_DBG_STATUS(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_dv_fc_scratch
  *
- * INTERNAL: NPC AF Scratch Register
- *
- * Internal:
- * This register is for internal DV purpose.
+ * INTERNAL: NPC AF Scratch Register  Internal: This register is for
+ * internal DV purpose.
  */
 union cavm_npc_af_dv_fc_scratch {
 	u64 u;
@@ -553,11 +515,12 @@ static inline u64 CAVM_NPC_AF_ECO0(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_ikpu_err_ctl
  *
- * NPC AF Initial KPU Error Control Registers
- * Similar to NPC_AF_KPU()_ERR_CTL, but specifies values captured in
- * NPC_RESULT_S[ERRLEV,ERRCODE] for errors detected by the PKIND-based initial
- * actions from NPC_AF_PKIND()_ACTION0 and NPC_AF_PKIND()_ACTION1.
- * [DP_OFFSET_ERRCODE] from this register is never used.
+ * NPC AF Initial KPU Error Control Registers Similar to
+ * NPC_AF_KPU()_ERR_CTL, but specifies values captured in
+ * NPC_RESULT_S[ERRLEV,ERRCODE] for errors detected by the PKIND-based
+ * initial actions from NPC_AF_PKIND()_ACTION0 and
+ * NPC_AF_PKIND()_ACTION1. [DP_OFFSET_ERRCODE] from this register is
+ * never used.
  */
 union cavm_npc_af_ikpu_err_ctl {
 	u64 u;
@@ -604,9 +567,10 @@ static inline u64 CAVM_NPC_AF_INTFX_KEX_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) npc_af_intf#_ldata#_flags#_cfg
  *
- * NPC AF Interface Layer Data Flags Configuration Registers
- * These registers control the extraction of layer data (LDATA) into the MCAM search key for each
- * interface based on the FLAGS\<3:0\> bits of two layers selected by NPC_AF_KEX_LDATA()_FLAGS_CFG.
+ * NPC AF Interface Layer Data Flags Configuration Registers These
+ * registers control the extraction of layer data (LDATA) into the MCAM
+ * search key for each interface based on the FLAGS\<3:0\> bits of two
+ * layers selected by NPC_AF_KEX_LDATA()_FLAGS_CFG.
  */
 union cavm_npc_af_intfx_ldatax_flagsx_cfg {
 	u64 u;
@@ -631,15 +595,15 @@ static inline u64 CAVM_NPC_AF_INTFX_LDATAX_FLAGSX_CFG(u64 a, u64 b, u64 c)
 /**
  * Register (RVU_PF_BAR0) npc_af_intf#_lid#_lt#_ld#_cfg
  *
- * NPC AF Interface Layer Data Extract Configuration Registers
- * These registers control the extraction of layer data (LDATA) into the MCAM search key for each
- * interface. Up to two LDATA fields can be extracted per layer (LID(0..7) indexed by NPC_LID_E),
- * with up to 16 bytes per LDATA field. For each layer, the corresponding
- * NPC_LAYER_INFO_S[LTYPE] value in NPC_RESULT_S is used as the LTYPE(0..15) index and select the
- * associated LDATA(0..1) registers.
- *
- * NPC_LAYER_INFO_S[LTYPE]=0x0 means the corresponding layer not parsed (invalid), so
- * software should keep NPC_AF_INTF()_LID()_LT(0)_LD()_CFG[ENA] clear to disable extraction
+ * NPC AF Interface Layer Data Extract Configuration Registers These
+ * registers control the extraction of layer data (LDATA) into the MCAM
+ * search key for each interface. Up to two LDATA fields can be extracted
+ * per layer (LID(0..7) indexed by NPC_LID_E), with up to 16 bytes per
+ * LDATA field. For each layer, the corresponding NPC_LAYER_INFO_S[LTYPE]
+ * value in NPC_RESULT_S is used as the LTYPE(0..15) index and select the
+ * associated LDATA(0..1) registers.  NPC_LAYER_INFO_S[LTYPE]=0x0 means
+ * the corresponding layer not parsed (invalid), so software should keep
+ * NPC_AF_INTF()_LID()_LT(0)_LD()_CFG[ENA] clear to disable extraction
  * when LTYPE is zero.
  */
 union cavm_npc_af_intfx_lidx_ltx_ldx_cfg {
@@ -665,10 +629,10 @@ static inline u64 CAVM_NPC_AF_INTFX_LIDX_LTX_LDX_CFG(u64 a, u64 b, u64 c, u64 d)
 /**
  * Register (RVU_PF_BAR0) npc_af_intf#_miss_act
  *
- * NPC AF Interface MCAM Miss Action Data Registers
- * When a combination of NPC_AF_MCAME()_BANK()_CAM()_* and
- * NPC_AF_MCAME()_BANK()_CFG[ENA] yields an MCAM miss for a packet, this
- * register specifies the packet's match action captured in NPC_RESULT_S[ACTION].
+ * NPC AF Interface MCAM Miss Action Data Registers When a combination of
+ * NPC_AF_MCAME()_BANK()_CAM()_* and NPC_AF_MCAME()_BANK()_CFG[ENA]
+ * yields an MCAM miss for a packet, this register specifies the packet's
+ * match action captured in NPC_RESULT_S[ACTION].
  */
 union cavm_npc_af_intfx_miss_act {
 	u64 u;
@@ -688,8 +652,8 @@ static inline u64 CAVM_NPC_AF_INTFX_MISS_ACT(u64 a)
 /**
  * Register (RVU_PF_BAR0) npc_af_intf#_miss_stat_act
  *
- * NPC AF Interface MCAM Miss Stat Action Data Registers
- * Used to optionally increment a NPC_AF_MATCH_STAT() counter when a packet
+ * NPC AF Interface MCAM Miss Stat Action Data Registers Used to
+ * optionally increment a NPC_AF_MATCH_STAT() counter when a packet
  * misses an MCAM entry.
  */
 union cavm_npc_af_intfx_miss_stat_act {
@@ -712,8 +676,8 @@ static inline u64 CAVM_NPC_AF_INTFX_MISS_STAT_ACT(u64 a)
 /**
  * Register (RVU_PF_BAR0) npc_af_intf#_miss_tag_act
  *
- * NPC AF Interface MCAM Miss VTag Action Data Registers
- * When a combination of NPC_AF_MCAME()_BANK()_CAM()_* and
+ * NPC AF Interface MCAM Miss VTag Action Data Registers When a
+ * combination of NPC_AF_MCAME()_BANK()_CAM()_* and
  * NPC_AF_MCAME()_BANK()_CFG[ENA] yields an MCAM miss for a packet, this
  * register specifies the packet's match Vtag action captured in
  * NPC_RESULT_S[VTAG_ACTION].
@@ -736,8 +700,8 @@ static inline u64 CAVM_NPC_AF_INTFX_MISS_TAG_ACT(u64 a)
 /**
  * Register (RVU_PF_BAR0) npc_af_intf#_stat
  *
- * NPC AF Interface Statistics Registers
- * Statistics per interface. Index enumerated by NPC_INTF_E.
+ * NPC AF Interface Statistics Registers Statistics per interface. Index
+ * enumerated by NPC_INTF_E.
  */
 union cavm_npc_af_intfx_stat {
 	u64 u;
@@ -825,9 +789,9 @@ static inline u64 CAVM_NPC_AF_KPUX_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) npc_af_kpu#_dbg
  *
- * NPC AF KPU Debug Registers
- * This register contains information for the last packet/lookup for which debug
- * is enabled by NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
+ * NPC AF KPU Debug Registers This register contains information for the
+ * last packet/lookup for which debug is enabled by
+ * NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
  */
 union cavm_npc_af_kpux_dbg {
 	u64 u;
@@ -849,11 +813,11 @@ static inline u64 CAVM_NPC_AF_KPUX_DBG(u64 a)
 /**
  * Register (RVU_PF_BAR0) npc_af_kpu#_entry#_action0
  *
- * NPC AF KPU Entry Action Data 0 Registers
- * When a KPU's search data matches a KPU CAM entry in
- * NPC_AF_KPU()_ENTRY()_CAM(), the corresponding entry action in
- * NPC_AF_KPU()_ENTRY()_ACTION0 and NPC_AF_KPU()_ENTRY()_ACTION1 specifies the
- * next state and operations to perform before exiting the KPU.
+ * NPC AF KPU Entry Action Data 0 Registers When a KPU's search data
+ * matches a KPU CAM entry in NPC_AF_KPU()_ENTRY()_CAM(), the
+ * corresponding entry action in NPC_AF_KPU()_ENTRY()_ACTION0 and
+ * NPC_AF_KPU()_ENTRY()_ACTION1 specifies the next state and operations
+ * to perform before exiting the KPU.
  */
 union cavm_npc_af_kpux_entryx_action0 {
 	u64 u;
@@ -886,8 +850,8 @@ static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION0(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) npc_af_kpu#_entry#_action1
  *
- * NPC AF KPU Entry Action Data 0 Registers
- * See NPC_AF_KPU()_ENTRY()_ACTION0.
+ * NPC AF KPU Entry Action Data 0 Registers See
+ * NPC_AF_KPU()_ENTRY()_ACTION0.
  */
 union cavm_npc_af_kpux_entryx_action1 {
 	u64 u;
@@ -912,21 +876,18 @@ static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION1(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) npc_af_kpu#_entry#_cam#
  *
- * NPC AF KPU Entry CAM Registers
- * KPU comparison ternary data. The field values in
- * NPC_AF_KPU()_ENTRY()_CAM() are ternary, where  each data bit of the
- * search key matches as follows:
- * _ [CAM(1)]\<n\>=0, [CAM(0)]\<n\>=0: Always match; search key data\<n\> don't care.
- * _ [CAM(1)]\<n\>=0, [CAM(0)]\<n\>=1: Match when search key data\<n\> == 0.
- * _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=0: Match when search key data\<n\> == 1.
- * _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=1: Reserved.
- *
- * The reserved combination is not allowed. Hardware suppresses any write to
- * CAM(0) or CAM(1) that would result in the reserved combination for any CAM bit.
- *
- * Software must program a default entry for each KPU, e.g. by programming each
- * KPU's last entry {b} (NPC_AF_KPU()_ENTRY({b})_CAM()) to always match all
- * bits.
+ * NPC AF KPU Entry CAM Registers KPU comparison ternary data. The field
+ * values in NPC_AF_KPU()_ENTRY()_CAM() are ternary, where  each data bit
+ * of the search key matches as follows: _ [CAM(1)]\<n\>=0,
+ * [CAM(0)]\<n\>=0: Always match; search key data\<n\> don't care. _
+ * [CAM(1)]\<n\>=0, [CAM(0)]\<n\>=1: Match when search key data\<n\> ==
+ * 0. _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=0: Match when search key data\<n\>
+ * == 1. _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=1: Reserved.  The reserved
+ * combination is not allowed. Hardware suppresses any write to CAM(0) or
+ * CAM(1) that would result in the reserved combination for any CAM bit.
+ * Software must program a default entry for each KPU, e.g. by
+ * programming each KPU's last entry {b} (NPC_AF_KPU()_ENTRY({b})_CAM())
+ * to always match all bits.
  */
 union cavm_npc_af_kpux_entryx_camx {
 	u64 u;
@@ -950,8 +911,7 @@ static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_CAMX(u64 a, u64 b, u64 c)
 /**
  * Register (RVU_PF_BAR0) npc_af_kpu#_entry_dis#
  *
- * NPC AF KPU Entry Disable Registers
- * See NPC_AF_KPU()_ENTRY()_ACTION0.
+ * NPC AF KPU Entry Disable Registers See NPC_AF_KPU()_ENTRY()_ACTION0.
  */
 union cavm_npc_af_kpux_entry_disx {
 	u64 u;
@@ -971,9 +931,9 @@ static inline u64 CAVM_NPC_AF_KPUX_ENTRY_DISX(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) npc_af_kpu#_err_ctl
  *
- * NPC AF KPU Error Control Registers
- * This register specifies values captured in NPC_RESULT_S[ERRLEV,ERRCODE] when errors
- * are detected by a KPU.
+ * NPC AF KPU Error Control Registers This register specifies values
+ * captured in NPC_RESULT_S[ERRLEV,ERRCODE] when errors are detected by a
+ * KPU.
  */
 union cavm_npc_af_kpux_err_ctl {
 	u64 u;
@@ -1104,9 +1064,9 @@ static inline u64 CAVM_NPC_AF_MCAM_BANKX_HITX(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) npc_af_mcam_dbg
  *
- * NPC AF MCAM Debug Register
- * This register contains information for the last packet/lookup for which debug
- * is enabled by NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
+ * NPC AF MCAM Debug Register This register contains information for the
+ * last packet/lookup for which debug is enabled by
+ * NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
  */
 union cavm_npc_af_mcam_dbg {
 	u64 u;
@@ -1156,22 +1116,20 @@ static inline u64 CAVM_NPC_AF_MCAM_SCRUB_CTL(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_mcame#_bank#_action
  *
- * NPC AF MCAM Entry Bank Action Data Registers
- * Specifies a packet's match action captured in NPC_RESULT_S[ACTION].
- *
- * When an interface is configured to use the NPC_MCAM_KEY_X2_S search key
- * format (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X2),
- * * NPC_AF_MCAME()_BANK(0)_ACTION/_TAG_ACT/_STAT_ACT are used if the search key
- * matches NPC_AF_MCAME()_BANK(0..1)_CAM()_W*.
- * * NPC_AF_MCAME()_BANK(2)_ACTION/_TAG_ACT/_STAT_ACT are used if the search key
- * matches NPC_AF_MCAME()_BANK(2..3)_CAM()_W*.
- * * NPC_AF_MCAME()_BANK(1,3)_ACTION/_TAG_ACT/_STAT_ACT are not used.
- *
- * When an interface is configured to use the NPC_MCAM_KEY_X4_S search key
- * format (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X4):
- * * NPC_AF_MCAME()_BANK(0)_ACTION/_TAG_ACT/_STAT_ACT are used if the search key
- * matches NPC_AF_MCAME()_BANK(0..3)_CAM()_W*.
- * * NPC_AF_MCAME()_BANK(1..3)_ACTION/_TAG_ACT/_STAT_ACT are not used.
+ * NPC AF MCAM Entry Bank Action Data Registers Specifies a packet's
+ * match action captured in NPC_RESULT_S[ACTION].  When an interface is
+ * configured to use the NPC_MCAM_KEY_X2_S search key format
+ * (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X2), *
+ * NPC_AF_MCAME()_BANK(0)_ACTION/_TAG_ACT/_STAT_ACT are used if the
+ * search key matches NPC_AF_MCAME()_BANK(0..1)_CAM()_W*. *
+ * NPC_AF_MCAME()_BANK(2)_ACTION/_TAG_ACT/_STAT_ACT are used if the
+ * search key matches NPC_AF_MCAME()_BANK(2..3)_CAM()_W*. *
+ * NPC_AF_MCAME()_BANK(1,3)_ACTION/_TAG_ACT/_STAT_ACT are not used.  When
+ * an interface is configured to use the NPC_MCAM_KEY_X4_S search key
+ * format (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X4): *
+ * NPC_AF_MCAME()_BANK(0)_ACTION/_TAG_ACT/_STAT_ACT are used if the
+ * search key matches NPC_AF_MCAME()_BANK(0..3)_CAM()_W*. *
+ * NPC_AF_MCAME()_BANK(1..3)_ACTION/_TAG_ACT/_STAT_ACT are not used.
  */
 union cavm_npc_af_mcamex_bankx_action {
 	u64 u;
@@ -1191,69 +1149,84 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_ACTION(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) npc_af_mcame#_bank#_cam#_intf
  *
- * NPC AF MCAM Entry Bank CAM Data Interface Registers
- * MCAM comparison ternary data interface word. The field values in
+ * NPC AF MCAM Entry Bank CAM Data Interface Registers MCAM comparison
+ * ternary data interface word. The field values in
  * NPC_AF_MCAME()_BANK()_CAM()_INTF, NPC_AF_MCAME()_BANK()_CAM()_W0 and
- * NPC_AF_MCAME()_BANK()_CAM()_W1 are ternary, where  each data bit of the
- * search key matches as follows:
- * _ [CAM(1)]\<n\>=0, [CAM(0)]\<n\>=0: Always match; search key data\<n\> don't care.
- * _ [CAM(1)]\<n\>=0, [CAM(0)]\<n\>=1: Match when search key data\<n\> == 0.
- * _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=0: Match when search key data\<n\> == 1.
- * _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=1: Reserved.
- *
- * The reserved combination is not allowed. Hardware suppresses any write to
- * CAM(0) or CAM(1) that would result in the reserved combination for any CAM bit.
- *
- * When an interface is configured to use the NPC_MCAM_KEY_X1_S search key
- * format (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X1), the four banks
- * of every MCAM entry are used as individual entries, each of which is
- * independently compared with the search key as follows:
- * _ NPC_AF_MCAME()_BANK()_CAM()_INTF[INTF] corresponds to NPC_MCAM_KEY_X1_S[INTF].
- * _ NPC_AF_MCAME()_BANK()_CAM()_W0[MD] corresponds to NPC_MCAM_KEY_X1_S[KW0].
- * _ NPC_AF_MCAME()_BANK()_CAM()_W1[MD] corresponds to NPC_MCAM_KEY_X1_S[KW1].
- *
- * When an interface is configured to use the NPC_MCAM_KEY_X2_S search key
- * format (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X2), banks 0-1 of
- * every MCAM entry are used as one double-wide entry, banks 2-3 as a second
- * double-wide entry, and each double-wide entry is independently compared
- * with the search key as follows:
- * _ NPC_AF_MCAME()_BANK(0,2)_CAM()_INTF[INTF] corresponds to NPC_MCAM_KEY_X2_S[INTF].
- * _ NPC_AF_MCAME()_BANK(0,2)_CAM()_W0[MD] corresponds to NPC_MCAM_KEY_X2_S[KW0].
- * _ NPC_AF_MCAME()_BANK(0,2)_CAM()_W1[MD] corresponds to NPC_MCAM_KEY_X2_S[KW1]\<47:0\>.
- * _ NPC_AF_MCAME()_BANK(1,3)_CAM()_INTF[INTF] corresponds to NPC_MCAM_KEY_X2_S[INTF].
- * _ NPC_AF_MCAME()_BANK(1,3)_CAM()_W0[MD]\<15:0\> corresponds to NPC_MCAM_KEY_X2_S[KW1]\<63:48\>.
- * _ NPC_AF_MCAME()_BANK(1,3)_CAM()_W0[MD]\<63:16\> corresponds to NPC_MCAM_KEY_X2_S[KW2]\<47:0\>.
- * _ NPC_AF_MCAME()_BANK(1,3)_CAM()_W1[MD]\<15:0\> corresponds to NPC_MCAM_KEY_X2_S[KW2]\<63:48\>.
- * _ NPC_AF_MCAME()_BANK(1,3)_CAM()_W1[MD]\<47:16\> corresponds to NPC_MCAM_KEY_X2_S[KW3]\<31:0\>.
- *
- * When an interface is configured to use the NPC_MCAM_KEY_X4_S search key
- * format (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X4), the four banks of every MCAM entry
- * are used as a single quad-wide entry that is compared with the search key as follows:
- * _ NPC_AF_MCAME()_BANK(0)_CAM()_INTF[INTF] corresponds to NPC_MCAM_KEY_X4_S[INTF].
- * _ NPC_AF_MCAME()_BANK(0)_CAM()_W0[MD] corresponds to NPC_MCAM_KEY_X4_S[KW0].
- * _ NPC_AF_MCAME()_BANK(0)_CAM()_W1[MD] corresponds to NPC_MCAM_KEY_X4_S[KW1]\<47:0\>.
- * _ NPC_AF_MCAME()_BANK(1)_CAM()_INTF[INTF] corresponds to NPC_MCAM_KEY_X4_S[INTF].
- * _ NPC_AF_MCAME()_BANK(1)_CAM()_W0[MD]\<15:0\> corresponds to NPC_MCAM_KEY_X4_S[KW1]\<63:48\>.
- * _ NPC_AF_MCAME()_BANK(1)_CAM()_W0[MD]\<63:16\> corresponds to NPC_MCAM_KEY_X4_S[KW2]\<47:0\>.
- * _ NPC_AF_MCAME()_BANK(1)_CAM()_W1[MD]\<15:0\> corresponds to NPC_MCAM_KEY_X4_S[KW2]\<63:48\>.
- * _ NPC_AF_MCAME()_BANK(1)_CAM()_W1[MD]\<47:16\> corresponds to NPC_MCAM_KEY_X4_S[KW3]\<31:0\>.
- * _ NPC_AF_MCAME()_BANK(2)_CAM()_INTF[INTF] corresponds to NPC_MCAM_KEY_X4_S[INTF].
- * _ NPC_AF_MCAME()_BANK(2)_CAM()_W0[MD]\<31:0\> corresponds to NPC_MCAM_KEY_X4_S[KW3]\<63:32\>.
- * _ NPC_AF_MCAME()_BANK(2)_CAM()_W0[MD]\<63:32\> corresponds to NPC_MCAM_KEY_X4_S[KW4]\<31:0\>.
- * _ NPC_AF_MCAME()_BANK(2)_CAM()_W1[MD]\<31:0\> corresponds to NPC_MCAM_KEY_X4_S[KW4]\<63:32\>.
- * _ NPC_AF_MCAME()_BANK(2)_CAM()_W1[MD]\<47:32\> corresponds to NPC_MCAM_KEY_X4_S[KW5]\<15:0\>.
- * _ NPC_AF_MCAME()_BANK(3)_CAM()_INTF[INTF] corresponds to NPC_MCAM_KEY_X4_S[INTF].
- * _ NPC_AF_MCAME()_BANK(3)_CAM()_W0[MD]\<47:0\> corresponds to NPC_MCAM_KEY_X4_S[KW5]\<63:16\>.
- * _ NPC_AF_MCAME()_BANK(3)_CAM()_W0[MD]\<63:48\> corresponds to NPC_MCAM_KEY_X4_S[KW6]\<15:0\>.
- * _ NPC_AF_MCAME()_BANK(3)_CAM()_W1[MD] corresponds to NPC_MCAM_KEY_X4_S[KW6]\<63:16\>.
- *
- * Note that for the X2 and X4 formats, a wide entry will not match unless
- * the INTF fields from the associated two or four banks match the INTF
- * value from the search key.
- *
- * For the X1 and X2 formats, a match in a lower-numbered bank takes priority over
- * a match in any higher numbered banks. Within each bank, the lowest numbered
- * matching entry takes priority over any higher numbered entry.
+ * NPC_AF_MCAME()_BANK()_CAM()_W1 are ternary, where  each data bit of
+ * the search key matches as follows: _ [CAM(1)]\<n\>=0, [CAM(0)]\<n\>=0:
+ * Always match; search key data\<n\> don't care. _ [CAM(1)]\<n\>=0,
+ * [CAM(0)]\<n\>=1: Match when search key data\<n\> == 0. _
+ * [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=0: Match when search key data\<n\> ==
+ * 1. _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=1: Reserved.  The reserved
+ * combination is not allowed. Hardware suppresses any write to CAM(0) or
+ * CAM(1) that would result in the reserved combination for any CAM bit.
+ * When an interface is configured to use the NPC_MCAM_KEY_X1_S search
+ * key format (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X1), the
+ * four banks of every MCAM entry are used as individual entries, each of
+ * which is independently compared with the search key as follows: _
+ * NPC_AF_MCAME()_BANK()_CAM()_INTF[INTF] corresponds to
+ * NPC_MCAM_KEY_X1_S[INTF]. _ NPC_AF_MCAME()_BANK()_CAM()_W0[MD]
+ * corresponds to NPC_MCAM_KEY_X1_S[KW0]. _
+ * NPC_AF_MCAME()_BANK()_CAM()_W1[MD] corresponds to
+ * NPC_MCAM_KEY_X1_S[KW1].  When an interface is configured to use the
+ * NPC_MCAM_KEY_X2_S search key format (NPC_AF_INTF()_KEX_CFG[KEYW] =
+ * NPC_MCAMKEYW_E::X2), banks 0-1 of every MCAM entry are used as one
+ * double-wide entry, banks 2-3 as a second double-wide entry, and each
+ * double-wide entry is independently compared with the search key as
+ * follows: _ NPC_AF_MCAME()_BANK(0,2)_CAM()_INTF[INTF] corresponds to
+ * NPC_MCAM_KEY_X2_S[INTF]. _ NPC_AF_MCAME()_BANK(0,2)_CAM()_W0[MD]
+ * corresponds to NPC_MCAM_KEY_X2_S[KW0]. _
+ * NPC_AF_MCAME()_BANK(0,2)_CAM()_W1[MD] corresponds to
+ * NPC_MCAM_KEY_X2_S[KW1]\<47:0\>. _
+ * NPC_AF_MCAME()_BANK(1,3)_CAM()_INTF[INTF] corresponds to
+ * NPC_MCAM_KEY_X2_S[INTF]. _
+ * NPC_AF_MCAME()_BANK(1,3)_CAM()_W0[MD]\<15:0\> corresponds to
+ * NPC_MCAM_KEY_X2_S[KW1]\<63:48\>. _
+ * NPC_AF_MCAME()_BANK(1,3)_CAM()_W0[MD]\<63:16\> corresponds to
+ * NPC_MCAM_KEY_X2_S[KW2]\<47:0\>. _
+ * NPC_AF_MCAME()_BANK(1,3)_CAM()_W1[MD]\<15:0\> corresponds to
+ * NPC_MCAM_KEY_X2_S[KW2]\<63:48\>. _
+ * NPC_AF_MCAME()_BANK(1,3)_CAM()_W1[MD]\<47:16\> corresponds to
+ * NPC_MCAM_KEY_X2_S[KW3]\<31:0\>.  When an interface is configured to
+ * use the NPC_MCAM_KEY_X4_S search key format
+ * (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X4), the four banks of
+ * every MCAM entry are used as a single quad-wide entry that is compared
+ * with the search key as follows: _
+ * NPC_AF_MCAME()_BANK(0)_CAM()_INTF[INTF] corresponds to
+ * NPC_MCAM_KEY_X4_S[INTF]. _ NPC_AF_MCAME()_BANK(0)_CAM()_W0[MD]
+ * corresponds to NPC_MCAM_KEY_X4_S[KW0]. _
+ * NPC_AF_MCAME()_BANK(0)_CAM()_W1[MD] corresponds to
+ * NPC_MCAM_KEY_X4_S[KW1]\<47:0\>. _
+ * NPC_AF_MCAME()_BANK(1)_CAM()_INTF[INTF] corresponds to
+ * NPC_MCAM_KEY_X4_S[INTF]. _ NPC_AF_MCAME()_BANK(1)_CAM()_W0[MD]\<15:0\>
+ * corresponds to NPC_MCAM_KEY_X4_S[KW1]\<63:48\>. _
+ * NPC_AF_MCAME()_BANK(1)_CAM()_W0[MD]\<63:16\> corresponds to
+ * NPC_MCAM_KEY_X4_S[KW2]\<47:0\>. _
+ * NPC_AF_MCAME()_BANK(1)_CAM()_W1[MD]\<15:0\> corresponds to
+ * NPC_MCAM_KEY_X4_S[KW2]\<63:48\>. _
+ * NPC_AF_MCAME()_BANK(1)_CAM()_W1[MD]\<47:16\> corresponds to
+ * NPC_MCAM_KEY_X4_S[KW3]\<31:0\>. _
+ * NPC_AF_MCAME()_BANK(2)_CAM()_INTF[INTF] corresponds to
+ * NPC_MCAM_KEY_X4_S[INTF]. _ NPC_AF_MCAME()_BANK(2)_CAM()_W0[MD]\<31:0\>
+ * corresponds to NPC_MCAM_KEY_X4_S[KW3]\<63:32\>. _
+ * NPC_AF_MCAME()_BANK(2)_CAM()_W0[MD]\<63:32\> corresponds to
+ * NPC_MCAM_KEY_X4_S[KW4]\<31:0\>. _
+ * NPC_AF_MCAME()_BANK(2)_CAM()_W1[MD]\<31:0\> corresponds to
+ * NPC_MCAM_KEY_X4_S[KW4]\<63:32\>. _
+ * NPC_AF_MCAME()_BANK(2)_CAM()_W1[MD]\<47:32\> corresponds to
+ * NPC_MCAM_KEY_X4_S[KW5]\<15:0\>. _
+ * NPC_AF_MCAME()_BANK(3)_CAM()_INTF[INTF] corresponds to
+ * NPC_MCAM_KEY_X4_S[INTF]. _ NPC_AF_MCAME()_BANK(3)_CAM()_W0[MD]\<47:0\>
+ * corresponds to NPC_MCAM_KEY_X4_S[KW5]\<63:16\>. _
+ * NPC_AF_MCAME()_BANK(3)_CAM()_W0[MD]\<63:48\> corresponds to
+ * NPC_MCAM_KEY_X4_S[KW6]\<15:0\>. _ NPC_AF_MCAME()_BANK(3)_CAM()_W1[MD]
+ * corresponds to NPC_MCAM_KEY_X4_S[KW6]\<63:16\>.  Note that for the X2
+ * and X4 formats, a wide entry will not match unless the INTF fields
+ * from the associated two or four banks match the INTF value from the
+ * search key.  For the X1 and X2 formats, a match in a lower-numbered
+ * bank takes priority over a match in any higher numbered banks. Within
+ * each bank, the lowest numbered matching entry takes priority over any
+ * higher numbered entry.
  */
 union cavm_npc_af_mcamex_bankx_camx_intf {
 	u64 u;
@@ -1274,8 +1247,8 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_INTF(u64 a, u64 b, u64 c)
 /**
  * Register (RVU_PF_BAR0) npc_af_mcame#_bank#_cam#_w0
  *
- * NPC AF MCAM Entry Bank CAM Data Word 0 Registers
- * MCAM comparison ternary data word 0. See NPC_AF_MCAME()_BANK()_CAM()_INTF.
+ * NPC AF MCAM Entry Bank CAM Data Word 0 Registers MCAM comparison
+ * ternary data word 0. See NPC_AF_MCAME()_BANK()_CAM()_INTF.
  */
 union cavm_npc_af_mcamex_bankx_camx_w0 {
 	u64 u;
@@ -1295,8 +1268,8 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W0(u64 a, u64 b, u64 c)
 /**
  * Register (RVU_PF_BAR0) npc_af_mcame#_bank#_cam#_w1
  *
- * NPC AF MCAM Entry Bank Data Word 1 Registers
- * MCAM comparison ternary data word 1. See NPC_AF_MCAME()_BANK()_CAM()_INTF.
+ * NPC AF MCAM Entry Bank Data Word 1 Registers MCAM comparison ternary
+ * data word 1. See NPC_AF_MCAME()_BANK()_CAM()_INTF.
  */
 union cavm_npc_af_mcamex_bankx_camx_w1 {
 	u64 u;
@@ -1338,9 +1311,9 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_CFG(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) npc_af_mcame#_bank#_stat_act
  *
- * NPC AF MCAM Entry Bank Statistics Action Registers
- * Used to optionally increment a NPC_AF_MATCH_STAT() counter when a packet
- * matches an MCAM entry. See also NPC_AF_MCAME()_BANK()_ACTION.
+ * NPC AF MCAM Entry Bank Statistics Action Registers Used to optionally
+ * increment a NPC_AF_MATCH_STAT() counter when a packet matches an MCAM
+ * entry. See also NPC_AF_MCAME()_BANK()_ACTION.
  */
 union cavm_npc_af_mcamex_bankx_stat_act {
 	u64 u;
@@ -1362,9 +1335,9 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_STAT_ACT(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) npc_af_mcame#_bank#_tag_act
  *
- * NPC AF MCAM Entry Bank VTag Action Data Registers
- * Specifies a packet's match Vtag action captured in NPC_RESULT_S[VTAG_ACTION].
- * See also NPC_AF_MCAME()_BANK()_ACTION.
+ * NPC AF MCAM Entry Bank VTag Action Data Registers Specifies a packet's
+ * match Vtag action captured in NPC_RESULT_S[VTAG_ACTION]. See also
+ * NPC_AF_MCAME()_BANK()_ACTION.
  */
 union cavm_npc_af_mcamex_bankx_tag_act {
 	u64 u;
@@ -1415,8 +1388,9 @@ static inline u64 CAVM_NPC_AF_PCK_CFG(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_pck_def_iip4
  *
- * NPC AF Protocol Check Inner IPv4 Definition Register
- * Provides layer information used by the protocol checker to identify an inner IPv4 header.
+ * NPC AF Protocol Check Inner IPv4 Definition Register Provides layer
+ * information used by the protocol checker to identify an inner IPv4
+ * header.
  */
 union cavm_npc_af_pck_def_iip4 {
 	u64 u;
@@ -1439,8 +1413,9 @@ static inline u64 CAVM_NPC_AF_PCK_DEF_IIP4(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_pck_def_oip4
  *
- * NPC AF Protocol Check Outer IPv4 Definition Register
- * Provides layer information used by the protocol checker to identify an outer IPv4 header.
+ * NPC AF Protocol Check Outer IPv4 Definition Register Provides layer
+ * information used by the protocol checker to identify an outer IPv4
+ * header.
  */
 union cavm_npc_af_pck_def_oip4 {
 	u64 u;
@@ -1463,9 +1438,9 @@ static inline u64 CAVM_NPC_AF_PCK_DEF_OIP4(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_pck_def_oip6
  *
- * NPC AF Protocol Check Outer IPv6 Definition Register
- * Provides layer information used by the protocol checker to identify an outer
- * IPv6 header. [LID] must have the same value as NPC_AF_PCK_DEF_OIP4[LID].
+ * NPC AF Protocol Check Outer IPv6 Definition Register Provides layer
+ * information used by the protocol checker to identify an outer IPv6
+ * header. [LID] must have the same value as NPC_AF_PCK_DEF_OIP4[LID].
  */
 union cavm_npc_af_pck_def_oip6 {
 	u64 u;
@@ -1488,8 +1463,9 @@ static inline u64 CAVM_NPC_AF_PCK_DEF_OIP6(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_pck_def_ol2
  *
- * NPC AF Protocol Check Outer L2 Definition Register
- * Provides layer information used by the protocol checker to identify an outer L2 header.
+ * NPC AF Protocol Check Outer L2 Definition Register Provides layer
+ * information used by the protocol checker to identify an outer L2
+ * header.
  */
 union cavm_npc_af_pck_def_ol2 {
 	u64 u;
@@ -1512,9 +1488,9 @@ static inline u64 CAVM_NPC_AF_PCK_DEF_OL2(void)
 /**
  * Register (RVU_PF_BAR0) npc_af_pkind#_action0
  *
- * NPC AF Port Kind Action Data 0 Registers
- * NPC_AF_PKIND()_ACTION0 and NPC_AF_PKIND()_ACTION1 specify the initial parse state and
- * operations to perform before entering KPU 0.
+ * NPC AF Port Kind Action Data 0 Registers NPC_AF_PKIND()_ACTION0 and
+ * NPC_AF_PKIND()_ACTION1 specify the initial parse state and operations
+ * to perform before entering KPU 0.
  */
 union cavm_npc_af_pkindx_action0 {
 	u64 u;
@@ -1547,9 +1523,9 @@ static inline u64 CAVM_NPC_AF_PKINDX_ACTION0(u64 a)
 /**
  * Register (RVU_PF_BAR0) npc_af_pkind#_action1
  *
- * NPC AF Port Kind Action Data 1 Registers
- * NPC_AF_PKIND()_ACTION0 and NPC_AF_PKIND()_ACTION1 specify the initial parse state and
- * operations to perform before entering KPU 0.
+ * NPC AF Port Kind Action Data 1 Registers NPC_AF_PKIND()_ACTION0 and
+ * NPC_AF_PKIND()_ACTION1 specify the initial parse state and operations
+ * to perform before entering KPU 0.
  */
 union cavm_npc_af_pkindx_action1 {
 	u64 u;
@@ -1574,36 +1550,24 @@ static inline u64 CAVM_NPC_AF_PKINDX_ACTION1(u64 a)
 /**
  * Register (RVU_PF_BAR0) npc_af_pkind#_cpi_def#
  *
- * NPC AF Port Kind Channel Parse Index Definition Registers
- * These registers specify the layer information and algorithm to compute a
- * packet's channel parse index (CPI), which provides a port to channel adder for
- * calculating NPC_RESULT_S[CHAN].
- *
- * There are two CPI definitions per port kind, allowing the CPI computation to
- * use two possible layer definitions in the parsed packet, e.g. DiffServ DSCP
- * from either IPv4 or IPv6 header.
- *
- * CPI pseudocode:
- * \<pre\>
- * for (i = 0; i \< 2; i++) {
- *    cpi_def = NPC_AF_PKIND()_CPI_DEF(i);
- *    LX = LA, LB, ..., or LH as selected by cpi_def[LID];
- *
- *    if (cpi_def[VALID]
- *        && ((cpi_def[LTYPE_MATCH] & cpi_def[LTYPE_MASK])
- *             == (NPC_RESULT_S[LX[LTYPE]] & cpi_def[LTYPE_MASK]))
- *        && ((cpi_def[FLAGS_MATCH] & cpi_def[FLAGS_MASK])
- *             == (NPC_RESULT_S[LX[FLAGS]] & cpi_def[FLAGS_MASK])))
- *    {
- *       // Found matching layer
- *       nibble_offset = (2*NPC_RESULT_S[LX[LPTR]]) + cpi_def[ADD_OFFSET];
- *       add_byte = byte at nibble_offset from start of packet;
- *       cpi_add = (add_byte & cpi_def[ADD_MASK]) \>\> cpi_def[ADD_SHIFT];
- *       cpi = cpi_def[CPI_BASE] + cpi_add;
- *       NPC_RESULT_S[CHAN] += NPC_AF_CPI(cpi)_CFG[PADD];
- *       break;
- *    }
- * }
+ * NPC AF Port Kind Channel Parse Index Definition Registers These
+ * registers specify the layer information and algorithm to compute a
+ * packet's channel parse index (CPI), which provides a port to channel
+ * adder for calculating NPC_RESULT_S[CHAN].  There are two CPI
+ * definitions per port kind, allowing the CPI computation to use two
+ * possible layer definitions in the parsed packet, e.g. DiffServ DSCP
+ * from either IPv4 or IPv6 header.  CPI pseudocode: \<pre\> for (i = 0;
+ * i \< 2; i++) {    cpi_def = NPC_AF_PKIND()_CPI_DEF(i);    LX = LA, LB,
+ * ..., or LH as selected by cpi_def[LID];     if (cpi_def[VALID]
+ * && ((cpi_def[LTYPE_MATCH] & cpi_def[LTYPE_MASK])             ==
+ * (NPC_RESULT_S[LX[LTYPE]] & cpi_def[LTYPE_MASK]))        &&
+ * ((cpi_def[FLAGS_MATCH] & cpi_def[FLAGS_MASK])             ==
+ * (NPC_RESULT_S[LX[FLAGS]] & cpi_def[FLAGS_MASK])))    {       // Found
+ * matching layer       nibble_offset = (2*NPC_RESULT_S[LX[LPTR]]) +
+ * cpi_def[ADD_OFFSET];       add_byte = byte at nibble_offset from start
+ * of packet;       cpi_add = (add_byte & cpi_def[ADD_MASK]) \>\>
+ * cpi_def[ADD_SHIFT];       cpi = cpi_def[CPI_BASE] + cpi_add;
+ * NPC_RESULT_S[CHAN] += NPC_AF_CPI(cpi)_CFG[PADD];       break;    } }
  * \</pre\>
  */
 union cavm_npc_af_pkindx_cpi_defx {

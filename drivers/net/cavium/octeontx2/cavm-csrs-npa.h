@@ -1,45 +1,12 @@
 #ifndef __CAVM_CSRS_NPA_H__
 #define __CAVM_CSRS_NPA_H__
-/* This file is auto-generated. Do not edit */
+/* This file is auto-generated.  Do not edit */
 
-/***********************license start***************
- * Copyright (c) 2003-2018  Cavium Inc. (support@cavium.com). All rights
- * reserved.
- *
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
-
- *   * Neither the name of Cavium Inc. nor the names of
- *     its contributors may be used to endorse or promote products
- *     derived from this software without specific prior written
- *     permission.
-
- * This Software, including technical data, may be subject to U.S. export  control
- * laws, including the U.S. Export Administration Act and its  associated
- * regulations, and may be subject to export or import  regulations in other
- * countries.
-
- * TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS"
- * AND WITH ALL FAULTS AND CAVIUM  NETWORKS MAKES NO PROMISES, REPRESENTATIONS OR
- * WARRANTIES, EITHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, WITH RESPECT TO
- * THE SOFTWARE, INCLUDING ITS CONDITION, ITS CONFORMITY TO ANY REPRESENTATION OR
- * DESCRIPTION, OR THE EXISTENCE OF ANY LATENT OR PATENT DEFECTS, AND CAVIUM
- * SPECIFICALLY DISCLAIMS ALL IMPLIED (IF ANY) WARRANTIES OF TITLE,
- * MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR A PARTICULAR PURPOSE, LACK OF
- * VIRUSES, ACCURACY OR COMPLETENESS, QUIET ENJOYMENT, QUIET POSSESSION OR
- * CORRESPONDENCE TO DESCRIPTION. THE ENTIRE  RISK ARISING OUT OF USE OR
- * PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
- ***********************license end**************************************/
+/***********************license start***********************************
+* Copyright (C) 2018 Marvell International Ltd.
+* SPDX-License-Identifier: BSD-3-Clause
+* https://spdx.org/licenses
+***********************license end**************************************/
 
 /**
  * @file
@@ -47,15 +14,15 @@
  * Configuration and status register (CSR) address and type definitions for
  * Cavium NPA.
  *
- * This file is auto generated. Do not edit.
+ * This file is auto generated.  Do not edit.
  *
  */
 
 /**
  * Enumeration npa_af_int_vec_e
  *
- * NPA Admin Function Interrupt Vector Enumeration
- * Enumerates the NPA AF MSI-X interrupt vectors.
+ * NPA Admin Function Interrupt Vector Enumeration Enumerates the NPA AF
+ * MSI-X interrupt vectors.
  */
 #define CAVM_NPA_AF_INT_VEC_E_AF_ERR (3)
 #define CAVM_NPA_AF_INT_VEC_E_AQ_DONE (2)
@@ -66,8 +33,8 @@
 /**
  * Enumeration npa_aq_comp_e
  *
- * NPA Admin Queue Completion Enumeration
- * Enumerates the values of NPA_AQ_RES_S[COMPCODE].
+ * NPA Admin Queue Completion Enumeration Enumerates the values of
+ * NPA_AQ_RES_S[COMPCODE].
  */
 #define CAVM_NPA_AQ_COMP_E_CTX_FAULT (4)
 #define CAVM_NPA_AQ_COMP_E_CTX_POISON (3)
@@ -79,8 +46,8 @@
 /**
  * Enumeration npa_aq_ctype_e
  *
- * NPA Admin Queue Context Type Enumeration
- * Enumerates NPA_AQ_INST_S[CTYPE] values.
+ * NPA Admin Queue Context Type Enumeration Enumerates
+ * NPA_AQ_INST_S[CTYPE] values.
  */
 #define CAVM_NPA_AQ_CTYPE_E_AURA (0)
 #define CAVM_NPA_AQ_CTYPE_E_POOL (1)
@@ -88,8 +55,8 @@
 /**
  * Enumeration npa_aq_instop_e
  *
- * NPA Admin Queue Opcode Enumeration
- * Enumerates NPA_AQ_INST_S[OP] values.
+ * NPA Admin Queue Opcode Enumeration Enumerates NPA_AQ_INST_S[OP]
+ * values.
  */
 #define CAVM_NPA_AQ_INSTOP_E_INIT (1)
 #define CAVM_NPA_AQ_INSTOP_E_LOCK (4)
@@ -101,8 +68,8 @@
 /**
  * Enumeration npa_aura_err_int_e
  *
- * NPA Aura Error Interrupt Enumeration
- * Enumerates the bit index of NPA_AURA_S[ERR_INT], and NPA_AURA_S[ERR_INT_ENA].
+ * NPA Aura Error Interrupt Enumeration Enumerates the bit index of
+ * NPA_AURA_S[ERR_INT], and NPA_AURA_S[ERR_INT_ENA].
  */
 #define CAVM_NPA_AURA_ERR_INT_E_AURA_ADD_OVER (1)
 #define CAVM_NPA_AURA_ERR_INT_E_AURA_ADD_UNDER (2)
@@ -113,18 +80,19 @@
 /**
  * Enumeration npa_bpintf_e
  *
- * NPA Backpressure Interface Enumeration
- * Enumerates index of NPA_AURA_S[BP_ENA].
+ * NPA Backpressure Interface Enumeration Enumerates index of
+ * NPA_AURA_S[BP_ENA].
  */
 #define CAVM_NPA_BPINTF_E_NIXX_RX(a) (0 + (a))
 
 /**
  * Enumeration npa_inpq_e
  *
- * NPA Input Queue Enumeration
- * Enumerates ALLOC/FREE input queues from coprocessors.
+ * NPA Input Queue Enumeration Enumerates ALLOC/FREE input queues from
+ * coprocessors.
  */
 #define CAVM_NPA_INPQ_E_AURA_OP (0xe)
+#define CAVM_NPA_INPQ_E_BPHY (7)
 #define CAVM_NPA_INPQ_E_DPI (6)
 #define CAVM_NPA_INPQ_E_INTERNAL_RSV (0xf)
 #define CAVM_NPA_INPQ_E_NIXX_RX(a) (0 + 2 * (a))
@@ -136,8 +104,8 @@
 /**
  * Enumeration npa_lf_int_vec_e
  *
- * NPA Local Function Interrupt Vector Enumeration
- * Enumerates the NPA MSI-X interrupt vectors per LF.
+ * NPA Local Function Interrupt Vector Enumeration Enumerates the NPA
+ * MSI-X interrupt vectors per LF.
  */
 #define CAVM_NPA_LF_INT_VEC_E_ERR_INT (0x40)
 #define CAVM_NPA_LF_INT_VEC_E_POISON (0x41)
@@ -146,9 +114,9 @@
 /**
  * Enumeration npa_ndc0_port_e
  *
- * NPA NDC0 Port Enumeration
- * Enumerates NPA NDC0 (NDC_IDX_E::NPA_U(0)) ports and the PORT index of
- * NDC_AF_PORT()_RT()_RW()_REQ_PC and NDC_AF_PORT()_RT()_RW()_LAT_PC.
+ * NPA NDC0 Port Enumeration Enumerates NPA NDC0 (NDC_IDX_E::NPA_U(0))
+ * ports and the PORT index of NDC_AF_PORT()_RT()_RW()_REQ_PC and
+ * NDC_AF_PORT()_RT()_RW()_LAT_PC.
  */
 #define CAVM_NPA_NDC0_PORT_E_AURA0 (0)
 #define CAVM_NPA_NDC0_PORT_E_AURA1 (1)
@@ -160,8 +128,8 @@
 /**
  * Enumeration npa_pool_err_int_e
  *
- * NPA Pool Error Interrupt Enumeration
- * Enumerates the bit index of NPA_POOL_S[ERR_INT] and NPA_POOL_S[ERR_INT_ENA].
+ * NPA Pool Error Interrupt Enumeration Enumerates the bit index of
+ * NPA_POOL_S[ERR_INT] and NPA_POOL_S[ERR_INT_ENA].
  */
 #define CAVM_NPA_POOL_ERR_INT_E_OVFLS (0)
 #define CAVM_NPA_POOL_ERR_INT_E_PERR (2)
@@ -171,19 +139,15 @@
 /**
  * Structure npa_aq_inst_s
  *
- * NPA Admin Queue Instruction Structure
- * This structure specifies the AQ instruction.
- * Instructions and associated software structures are stored in memory as
- * little-endian unless NPA_AF_GEN_CFG[AF_BE] is set.
- *
- * Hardware reads of NPA_AQ_INST_S do not allocate into LLC.
- *
- * Hardware reads and writes of the context structure selected by [CTYPE], [LF]
- * and [CINDEX] use the NDC and LLC caching style configured for that context,
- * i.e.:
- * * NPA_AURA_HW_S reads and writes use NPA_AF_LF()_AURAS_CFG[CACHING] and
- * NPA_AF_LF()_AURAS_CFG[WAY_MASK].
- * * NPA_POOL_HW_S reads and writes use NPA_AURA_HW_S[POOL_CACHING] and
+ * NPA Admin Queue Instruction Structure This structure specifies the AQ
+ * instruction. Instructions and associated software structures are
+ * stored in memory as little-endian unless NPA_AF_GEN_CFG[AF_BE] is set.
+ * Hardware reads of NPA_AQ_INST_S do not allocate into LLC.  Hardware
+ * reads and writes of the context structure selected by [CTYPE], [LF]
+ * and [CINDEX] use the NDC and LLC caching style configured for that
+ * context, i.e.: * NPA_AURA_HW_S reads and writes use
+ * NPA_AF_LF()_AURAS_CFG[CACHING] and NPA_AF_LF()_AURAS_CFG[WAY_MASK]. *
+ * NPA_POOL_HW_S reads and writes use NPA_AURA_HW_S[POOL_CACHING] and
  * NPA_AURA_HW_S[POOL_WAY_MASK].
  */
 union cavm_npa_aq_inst_s {
@@ -204,19 +168,16 @@ union cavm_npa_aq_inst_s {
 /**
  * Structure npa_aq_res_s
  *
- * NPA Admin Queue Result Structure
- * NPA writes this structure after it completes the NPA_AQ_INST_S instruction.
- * The result structure is exactly 16 bytes, and each instruction completion produces
- * exactly one result structure.
- *
- * Results and associated software structures are stored in memory as
- * little-endian unless NPA_AF_GEN_CFG[AF_BE] is set.
- *
+ * NPA Admin Queue Result Structure NPA writes this structure after it
+ * completes the NPA_AQ_INST_S instruction. The result structure is
+ * exactly 16 bytes, and each instruction completion produces exactly one
+ * result structure.  Results and associated software structures are
+ * stored in memory as little-endian unless NPA_AF_GEN_CFG[AF_BE] is set.
  * When [OP] = NPA_AQ_INSTOP_E::INIT, WRITE or READ, this structure is
- * immediately followed by context read or write data. See NPA_AQ_INSTOP_E.
- *
- * Hardware writes of NPA_AQ_RES_S and context data always allocate into LLC.
- * Hardware reads of context data do not allocate into LLC.
+ * immediately followed by context read or write data. See
+ * NPA_AQ_INSTOP_E.  Hardware writes of NPA_AQ_RES_S and context data
+ * always allocate into LLC. Hardware reads of context data do not
+ * allocate into LLC.
  */
 union cavm_npa_aq_res_s {
 	u64 u[2];
@@ -234,10 +195,10 @@ union cavm_npa_aq_res_s {
 /**
  * Structure npa_aura_op_wdata_s
  *
- * NPA Aura Operation Write Data Structure
- * This structure specifies the write data format of a 64-bit atomic load-and-add
- * to NPA_LF_AURA_OP_ALLOC() and NPA_LF_POOL_OP_PC, and a 128-bit atomic CASP
- * operation to NPA_LF_AURA_OP_ALLOC().
+ * NPA Aura Operation Write Data Structure This structure specifies the
+ * write data format of a 64-bit atomic load-and-add to
+ * NPA_LF_AURA_OP_ALLOC() and NPA_LF_POOL_OP_PC, and a 128-bit atomic
+ * CASP operation to NPA_LF_AURA_OP_ALLOC().
  */
 union cavm_npa_aura_op_wdata_s {
 	u64 u;
@@ -252,10 +213,9 @@ union cavm_npa_aura_op_wdata_s {
 /**
  * Structure npa_aura_s
  *
- * NPA Aura Context Structure
- * This structure specifies the format used by software with the NPA admin queue
- * to read and write an aura's NPA_AURA_HW_S structure maintained by hardware in
- * LLC/DRAM.
+ * NPA Aura Context Structure This structure specifies the format used by
+ * software with the NPA admin queue to read and write an aura's
+ * NPA_AURA_HW_S structure maintained by hardware in LLC/DRAM.
  */
 union cavm_npa_aura_s {
 	u64 u[8];
@@ -313,10 +273,9 @@ union cavm_npa_aura_s {
 /**
  * Structure npa_pool_s
  *
- * NPA Pool Context Structure
- * This structure specifies the format used by software with the NPA admin queue
- * to read and write a pool's NPA_POOL_HW_S structure maintained by hardware in
- * LLC/DRAM.
+ * NPA Pool Context Structure This structure specifies the format used by
+ * software with the NPA admin queue to read and write a pool's
+ * NPA_POOL_HW_S structure maintained by hardware in LLC/DRAM.
  */
 union cavm_npa_pool_s {
 	u64 u[16];
@@ -378,13 +337,13 @@ union cavm_npa_pool_s {
 /**
  * Structure npa_qint_hw_s
  *
- * NPA Queue Interrupt Context Hardware Structure
- * This structure contains context state maintained by hardware for each queue
- * interrupt (QINT) in NDC/LLC/DRAM. Software accesses this structure with the
- * NPA_LF_QINT()_* registers.
- * Hardware maintains a table of NPA_AF_CONST[QINTS] contiguous NPA_QINT_HW_S
- * structures per LF starting at IOVA NPA_AF_LF()_QINTS_BASE.
- * Always stored in byte invariant little-endian format (LE8).
+ * NPA Queue Interrupt Context Hardware Structure This structure contains
+ * context state maintained by hardware for each queue interrupt (QINT)
+ * in NDC/LLC/DRAM. Software accesses this structure with the
+ * NPA_LF_QINT()_* registers. Hardware maintains a table of
+ * NPA_AF_CONST[QINTS] contiguous NPA_QINT_HW_S structures per LF
+ * starting at IOVA NPA_AF_LF()_QINTS_BASE. Always stored in byte
+ * invariant little-endian format (LE8).
  */
 union cavm_npa_qint_hw_s {
 	u32 u;
@@ -483,8 +442,8 @@ static inline u64 CAVM_NPA_AF_AQ_DONE(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_aq_done_ack
  *
- * NPA AF AQ Done Count Ack Register
- * This register is written by software to acknowledge interrupts.
+ * NPA AF AQ Done Count Ack Register This register is written by software
+ * to acknowledge interrupts.
  */
 union cavm_npa_af_aq_done_ack {
 	u64 u;
@@ -505,8 +464,8 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_ACK(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_aq_done_ena_w1c
  *
- * NPA AF AQ Done Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NPA AF AQ Done Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_npa_af_aq_done_ena_w1c {
 	u64 u;
@@ -527,8 +486,8 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_aq_done_ena_w1s
  *
- * NPA AF AQ Done Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NPA AF AQ Done Interrupt Enable Set Register This register sets
+ * interrupt enable bits.
  */
 union cavm_npa_af_aq_done_ena_w1s {
 	u64 u;
@@ -591,8 +550,8 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_INT_W1S(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_aq_done_timer
  *
- * NPA AF Admin Queue Done Interrupt Timer Register
- * Used to debug the queue interrupt coalescing timer.
+ * NPA AF Admin Queue Done Interrupt Timer Register Used to debug the
+ * queue interrupt coalescing timer.
  */
 union cavm_npa_af_aq_done_timer {
 	u64 u;
@@ -613,8 +572,8 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_TIMER(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_aq_done_wait
  *
- * NPA AF AQ Done Interrupt Coalescing Wait Register
- * Specifies the queue interrupt coalescing settings.
+ * NPA AF AQ Done Interrupt Coalescing Wait Register Specifies the queue
+ * interrupt coalescing settings.
  */
 union cavm_npa_af_aq_done_wait {
 	u64 u;
@@ -637,8 +596,8 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_WAIT(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_aq_door
  *
- * NPA AF Admin Queue Doorbell Register
- * Software writes to this register to enqueue one or more entries to AQ.
+ * NPA AF Admin Queue Doorbell Register Software writes to this register
+ * to enqueue one or more entries to AQ.
  */
 union cavm_npa_af_aq_door {
 	u64 u;
@@ -718,13 +677,10 @@ static inline u64 CAVM_NPA_AF_AVG_DELAY(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_bar2_alias#
  *
- * INTERNAL: NPA Admin Function  BAR2 Alias Registers
- *
- * These registers alias to the NPA BAR2 registers for the PF and function
- * selected by NPA_AF_BAR2_SEL[PF_FUNC].
- *
- * Internal:
- * Not implemented. Placeholder for bug33464.
+ * INTERNAL: NPA Admin Function  BAR2 Alias Registers  These registers
+ * alias to the NPA BAR2 registers for the PF and function selected by
+ * NPA_AF_BAR2_SEL[PF_FUNC].  Internal: Not implemented. Placeholder for
+ * bug33464.
  */
 union cavm_npa_af_bar2_aliasx {
 	u64 u;
@@ -744,11 +700,9 @@ static inline u64 CAVM_NPA_AF_BAR2_ALIASX(u64 a)
 /**
  * Register (RVU_PF_BAR0) npa_af_bar2_sel
  *
- * INTERNAL: NPA Admin Function BAR2 Select Register
- *
- * This register configures BAR2 accesses from the NPA_AF_BAR2_ALIAS() registers in BAR0.
- * Internal:
- * Not implemented. Placeholder for bug33464.
+ * INTERNAL: NPA Admin Function BAR2 Select Register  This register
+ * configures BAR2 accesses from the NPA_AF_BAR2_ALIAS() registers in
+ * BAR0. Internal: Not implemented. Placeholder for bug33464.
  */
 union cavm_npa_af_bar2_sel {
 	u64 u;
@@ -815,8 +769,8 @@ static inline u64 CAVM_NPA_AF_BP_TEST(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_const
  *
- * NPA AF Constants Register
- * This register contains constants for software discovery.
+ * NPA AF Constants Register This register contains constants for
+ * software discovery.
  */
 union cavm_npa_af_const {
 	u64 u;
@@ -841,8 +795,8 @@ static inline u64 CAVM_NPA_AF_CONST(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_const1
  *
- * NPA AF Constants Register 1
- * This register contains constants for software discovery.
+ * NPA AF Constants Register 1 This register contains constants for
+ * software discovery.
  */
 union cavm_npa_af_const1 {
 	u64 u;
@@ -933,8 +887,8 @@ static inline u64 CAVM_NPA_AF_ERR_INT(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_err_int_ena_w1c
  *
- * NPA Admin Function Error Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NPA Admin Function Error Interrupt Enable Clear Register This register
+ * clears interrupt enable bits.
  */
 union cavm_npa_af_err_int_ena_w1c {
 	u64 u;
@@ -958,8 +912,8 @@ static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_err_int_ena_w1s
  *
- * NPA Admin Function Error Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NPA Admin Function Error Interrupt Enable Set Register This register
+ * sets interrupt enable bits.
  */
 union cavm_npa_af_err_int_ena_w1s {
 	u64 u;
@@ -983,8 +937,8 @@ static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_err_int_w1s
  *
- * NPA Admin Function Error Interrupt Set Register
- * This register sets interrupt bits.
+ * NPA Admin Function Error Interrupt Set Register This register sets
+ * interrupt bits.
  */
 union cavm_npa_af_err_int_w1s {
 	u64 u;
@@ -1008,8 +962,8 @@ static inline u64 CAVM_NPA_AF_ERR_INT_W1S(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_gen_cfg
  *
- * NPA AF General Configuration Register
- * This register provides NPA control and status information.
+ * NPA AF General Configuration Register This register provides NPA
+ * control and status information.
  */
 union cavm_npa_af_gen_cfg {
 	u64 u;
@@ -1038,8 +992,8 @@ static inline u64 CAVM_NPA_AF_GEN_CFG(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_gen_int
  *
- * NPA AF General Interrupt Register
- * This register contains general error interrupt summary bits.
+ * NPA AF General Interrupt Register This register contains general error
+ * interrupt summary bits.
  */
 union cavm_npa_af_gen_int {
 	u64 u;
@@ -1062,8 +1016,8 @@ static inline u64 CAVM_NPA_AF_GEN_INT(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_gen_int_ena_w1c
  *
- * NPA AF General Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NPA AF General Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_npa_af_gen_int_ena_w1c {
 	u64 u;
@@ -1086,8 +1040,8 @@ static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_gen_int_ena_w1s
  *
- * NPA AF General Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NPA AF General Interrupt Enable Set Register This register sets
+ * interrupt enable bits.
  */
 union cavm_npa_af_gen_int_ena_w1s {
 	u64 u;
@@ -1110,8 +1064,8 @@ static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_gen_int_w1s
  *
- * NPA AF General Interrupt Set Register
- * This register sets interrupt bits.
+ * NPA AF General Interrupt Set Register This register sets interrupt
+ * bits.
  */
 union cavm_npa_af_gen_int_w1s {
 	u64 u;
@@ -1165,13 +1119,24 @@ union cavm_npa_af_lfx_auras_cfg {
 		u64 loc_aura_size                    : 4;
 		u64 loc_aura_offset                  : 14;
 		u64 caching                          : 1;
-		u64 reserved_35                      : 1;
+		u64 be                               : 1;
 		u64 rmt_aura_size                    : 4;
 		u64 rmt_aura_offset                  : 14;
 		u64 rmt_lf                           : 7;
 		u64 reserved_61_63                   : 3;
 	} s;
-	/* struct cavm_npa_af_lfx_auras_cfg_s cn; */
+	struct cavm_npa_af_lfx_auras_cfg_cn96xx {
+		u64 way_mask                         : 16;
+		u64 loc_aura_size                    : 4;
+		u64 loc_aura_offset                  : 14;
+		u64 caching                          : 1;
+		u64 reserved_35                      : 1;
+		u64 rmt_aura_size                    : 4;
+		u64 rmt_aura_offset                  : 14;
+		u64 rmt_lf                           : 7;
+		u64 reserved_61_63                   : 3;
+	} cn96xx;
+	/* struct cavm_npa_af_lfx_auras_cfg_s cnf95xx; */
 };
 
 static inline u64 CAVM_NPA_AF_LFX_AURAS_CFG(u64 a)
@@ -1228,11 +1193,11 @@ static inline u64 CAVM_NPA_AF_LFX_QINTS_BASE(u64 a)
 /**
  * Register (RVU_PF_BAR0) npa_af_lf#_qints_cfg
  *
- * NPA AF Local Function Queue Interrupts Configuration Registers
- * This register controls access to the LF's queue interrupt context table in
- * LLC/DRAM. The table consists of NPA_AF_CONST[QINTS] contiguous NPA_QINT_HW_S
- * structures. The size of each structure is 1 \<\< NPA_AF_CONST1[QINT_LOG2BYTES]
- * bytes.
+ * NPA AF Local Function Queue Interrupts Configuration Registers This
+ * register controls access to the LF's queue interrupt context table in
+ * LLC/DRAM. The table consists of NPA_AF_CONST[QINTS] contiguous
+ * NPA_QINT_HW_S structures. The size of each structure is 1 \<\<
+ * NPA_AF_CONST1[QINT_LOG2BYTES] bytes.
  */
 union cavm_npa_af_lfx_qints_cfg {
 	u64 u;
@@ -1278,8 +1243,8 @@ static inline u64 CAVM_NPA_AF_LF_RST(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_ndc_cfg
  *
- * NDC AF General Configuration Register
- * This register provides NDC control.
+ * NDC AF General Configuration Register This register provides NDC
+ * control.
  */
 union cavm_npa_af_ndc_cfg {
 	u64 u;
@@ -1305,8 +1270,7 @@ static inline u64 CAVM_NPA_AF_NDC_CFG(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_ndc_sync
  *
- * NPA AF NDC Sync Register
- * Used to synchronize the NPA NDC.
+ * NPA AF NDC Sync Register Used to synchronize the NPA NDC.
  */
 union cavm_npa_af_ndc_sync {
 	u64 u;
@@ -1329,9 +1293,8 @@ static inline u64 CAVM_NPA_AF_NDC_SYNC(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_ras
  *
- * NPA AF RAS Interrupt Register
- * This register is intended for delivery of RAS events to the SCP, so should be
- * ignored by OS drivers.
+ * NPA AF RAS Interrupt Register This register is intended for delivery
+ * of RAS events to the SCP, so should be ignored by OS drivers.
  */
 union cavm_npa_af_ras {
 	u64 u;
@@ -1355,8 +1318,8 @@ static inline u64 CAVM_NPA_AF_RAS(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_ras_ena_w1c
  *
- * NPA AF RAS Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NPA AF RAS Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_npa_af_ras_ena_w1c {
 	u64 u;
@@ -1380,8 +1343,8 @@ static inline u64 CAVM_NPA_AF_RAS_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_ras_ena_w1s
  *
- * NPA AF RAS Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NPA AF RAS Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
  */
 union cavm_npa_af_ras_ena_w1s {
 	u64 u;
@@ -1405,8 +1368,7 @@ static inline u64 CAVM_NPA_AF_RAS_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_ras_w1s
  *
- * NPA AF RAS Interrupt Set Register
- * This register sets interrupt bits.
+ * NPA AF RAS Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_npa_af_ras_w1s {
 	u64 u;
@@ -1430,8 +1392,8 @@ static inline u64 CAVM_NPA_AF_RAS_W1S(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_rvu_int
  *
- * NPA AF RVU Interrupt Register
- * This register contains RVU error interrupt summary bits.
+ * NPA AF RVU Interrupt Register This register contains RVU error
+ * interrupt summary bits.
  */
 union cavm_npa_af_rvu_int {
 	u64 u;
@@ -1452,8 +1414,8 @@ static inline u64 CAVM_NPA_AF_RVU_INT(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_rvu_int_ena_w1c
  *
- * NPA AF RVU Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NPA AF RVU Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_npa_af_rvu_int_ena_w1c {
 	u64 u;
@@ -1474,8 +1436,8 @@ static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_rvu_int_ena_w1s
  *
- * NPA AF RVU Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NPA AF RVU Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
  */
 union cavm_npa_af_rvu_int_ena_w1s {
 	u64 u;
@@ -1496,8 +1458,7 @@ static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_rvu_int_w1s
  *
- * NPA AF RVU Interrupt Set Register
- * This register sets interrupt bits.
+ * NPA AF RVU Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_npa_af_rvu_int_w1s {
 	u64 u;
@@ -1518,9 +1479,9 @@ static inline u64 CAVM_NPA_AF_RVU_INT_W1S(void)
 /**
  * Register (RVU_PF_BAR0) npa_af_rvu_lf_cfg_debug
  *
- * NPA Privileged LF Configuration Debug Register
- * This debug register allows software to lookup the reverse mapping from VF/PF
- * slot to LF. The forward mapping is programmed with NPA_PRIV_LF()_CFG.
+ * NPA Privileged LF Configuration Debug Register This debug register
+ * allows software to lookup the reverse mapping from VF/PF slot to LF.
+ * The forward mapping is programmed with NPA_PRIV_LF()_CFG.
  */
 union cavm_npa_af_rvu_lf_cfg_debug {
 	u64 u;
@@ -1546,17 +1507,15 @@ static inline u64 CAVM_NPA_AF_RVU_LF_CFG_DEBUG(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_alloc#
  *
- * NPA Aura Allocate Operation Registers
- * These registers are used to allocate one or two pointers from a given aura's pool.
- * A 64-bit atomic load-and-add to NPA_LF_AURA_OP_ALLOC(0) allocates a single pointer.
- * A 128-bit atomic CASP operation to NPA_LF_AURA_OP_ALLOC(0..1) allocates two pointers.
- * The atomic write data format is NPA_AURA_OP_WDATA_S.
- * For CASP, the first SWAP word in the write data contains NPA_AURA_OP_WDATA_S
- * and the remaining write data words are ignored.
- *
- * All other accesses to this register (e.g. reads and writes) are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA Aura Allocate Operation Registers These registers are used to
+ * allocate one or two pointers from a given aura's pool. A 64-bit atomic
+ * load-and-add to NPA_LF_AURA_OP_ALLOC(0) allocates a single pointer. A
+ * 128-bit atomic CASP operation to NPA_LF_AURA_OP_ALLOC(0..1) allocates
+ * two pointers. The atomic write data format is NPA_AURA_OP_WDATA_S. For
+ * CASP, the first SWAP word in the write data contains
+ * NPA_AURA_OP_WDATA_S and the remaining write data words are ignored.
+ * All other accesses to this register (e.g. reads and writes) are
+ * RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_npa_lf_aura_op_allocx {
 	u64 u;
@@ -1576,11 +1535,9 @@ static inline u64 CAVM_NPA_LF_AURA_OP_ALLOCX(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_cnt
  *
- * NPA LF Aura Count Register
- * A 64-bit atomic load-and-add to this register returns a given aura's
- * count. A write sets or adds the aura's count. A read is RAZ.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Aura Count Register A 64-bit atomic load-and-add to this
+ * register returns a given aura's count. A write sets or adds the aura's
+ * count. A read is RAZ.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_npa_lf_aura_op_cnt {
 	u64 u;
@@ -1604,13 +1561,11 @@ static inline u64 CAVM_NPA_LF_AURA_OP_CNT(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_free0
  *
- * NPA LF Aura Free Operation Register 0
- * A 128-bit write to NPA_LF_AURA_OP_FREE0 and NPA_LF_AURA_OP_FREE1
- * frees a pointer into a given aura's pool.
- * All other accesses to these registers (e.g. reads and 64-bit writes) are
+ * NPA LF Aura Free Operation Register 0 A 128-bit write to
+ * NPA_LF_AURA_OP_FREE0 and NPA_LF_AURA_OP_FREE1 frees a pointer into a
+ * given aura's pool. All other accesses to these registers (e.g. reads
+ * and 64-bit writes) are RAZ/WI.  RSL accesses to this register are
  * RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
  */
 union cavm_npa_lf_aura_op_free0 {
 	u64 u;
@@ -1630,10 +1585,8 @@ static inline u64 CAVM_NPA_LF_AURA_OP_FREE0(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_free1
  *
- * NPA LF Aura Free Operation Register 1
- * See NPA_LF_AURA_OP_FREE0.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Aura Free Operation Register 1 See NPA_LF_AURA_OP_FREE0.  RSL
+ * accesses to this register are RAZ/WI.
  */
 union cavm_npa_lf_aura_op_free1 {
 	u64 u;
@@ -1655,12 +1608,11 @@ static inline u64 CAVM_NPA_LF_AURA_OP_FREE1(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_int
  *
- * NPA LF Aura Interrupt Operation Register
- * A 64-bit atomic load-and-add to this register reads
+ * NPA LF Aura Interrupt Operation Register A 64-bit atomic load-and-add
+ * to this register reads
  * NPA_AURA_HW_S[ERR_INT,ERR_INT_ENA,THRESH_INT,THRESH_INT_ENA]. A write
- * optionally sets or clears these fields. A read is RAZ.
- *
- * RSL accesses to this register are RAZ/WI.
+ * optionally sets or clears these fields. A read is RAZ.  RSL accesses
+ * to this register are RAZ/WI.
  */
 union cavm_npa_lf_aura_op_int {
 	u64 u;
@@ -1687,11 +1639,9 @@ static inline u64 CAVM_NPA_LF_AURA_OP_INT(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_limit
  *
- * NPA LF Aura Allocation Limit Register
- * A 64-bit atomic load-and-add to this register returns a given aura's
- * limit. A write sets the aura's limit. A read is RAZ.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Aura Allocation Limit Register A 64-bit atomic load-and-add to
+ * this register returns a given aura's limit. A write sets the aura's
+ * limit. A read is RAZ.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_npa_lf_aura_op_limit {
 	u64 u;
@@ -1715,13 +1665,11 @@ static inline u64 CAVM_NPA_LF_AURA_OP_LIMIT(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_thresh
  *
- * NPA LF Aura Threshold Operation Register
- * A 64-bit atomic load-and-add to this register reads
- * NPA_AURA_HW_S[THRESH_UP,THRESH]. A write to the register writes
- * NPA_AURA_HW_S[THRESH_UP,THRESH] and recomputes NPA_AURA_HW_S[THRESH_INT].
- * A read is RAZ.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Aura Threshold Operation Register A 64-bit atomic load-and-add
+ * to this register reads NPA_AURA_HW_S[THRESH_UP,THRESH]. A write to the
+ * register writes NPA_AURA_HW_S[THRESH_UP,THRESH] and recomputes
+ * NPA_AURA_HW_S[THRESH_INT]. A read is RAZ.  RSL accesses to this
+ * register are RAZ/WI.
  */
 union cavm_npa_lf_aura_op_thresh {
 	u64 u;
@@ -1774,8 +1722,8 @@ static inline u64 CAVM_NPA_LF_ERR_INT(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_err_int_ena_w1c
  *
- * NPA LF Error Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NPA LF Error Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_npa_lf_err_int_ena_w1c {
 	u64 u;
@@ -1804,8 +1752,8 @@ static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1C(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_err_int_ena_w1s
  *
- * NPA LF Error Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NPA LF Error Interrupt Enable Set Register This register sets
+ * interrupt enable bits.
  */
 union cavm_npa_lf_err_int_ena_w1s {
 	u64 u;
@@ -1834,8 +1782,7 @@ static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1S(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_err_int_w1s
  *
- * NPA LF Error Interrupt Set Register
- * This register sets interrupt bits.
+ * NPA LF Error Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_npa_lf_err_int_w1s {
 	u64 u;
@@ -1864,11 +1811,10 @@ static inline u64 CAVM_NPA_LF_ERR_INT_W1S(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_available
  *
- * NPA LF Pool Available Count Operation Register
- * A 64-bit atomic load-and-add to this register returns a given pool's free
- * pointer count. Reads and writes are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Pool Available Count Operation Register A 64-bit atomic load-
+ * and-add to this register returns a given pool's free pointer count.
+ * Reads and writes are RAZ/WI.  RSL accesses to this register are
+ * RAZ/WI.
  */
 union cavm_npa_lf_pool_op_available {
 	u64 u;
@@ -1892,12 +1838,11 @@ static inline u64 CAVM_NPA_LF_POOL_OP_AVAILABLE(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_int
  *
- * NPA LF Pool Interrupt Operation Register
- * A 64-bit atomic load-and-add to this register reads
- * NPA_POOL_S[ERR_INT,ERR_INT_ENA,THRESH_INT,THRESH_INT_ENA]. A write optionally
- * sets or clears these fields. A read is RAZ.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Pool Interrupt Operation Register A 64-bit atomic load-and-add
+ * to this register reads
+ * NPA_POOL_S[ERR_INT,ERR_INT_ENA,THRESH_INT,THRESH_INT_ENA]. A write
+ * optionally sets or clears these fields. A read is RAZ.  RSL accesses
+ * to this register are RAZ/WI.
  */
 union cavm_npa_lf_pool_op_int {
 	u64 u;
@@ -1924,12 +1869,11 @@ static inline u64 CAVM_NPA_LF_POOL_OP_INT(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_pc
  *
- * NPA LF Pool Performance Count Register
- * A 64-bit atomic load-and-add to this register reads NPA_POOL_S[OP_PC] from a
- * given aura's pool. The aura is selected by the atomic write data, whose format
- * is NPA_AURA_OP_WDATA_S. Reads and writes are RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Pool Performance Count Register A 64-bit atomic load-and-add to
+ * this register reads NPA_POOL_S[OP_PC] from a given aura's pool. The
+ * aura is selected by the atomic write data, whose format is
+ * NPA_AURA_OP_WDATA_S. Reads and writes are RAZ/WI.  RSL accesses to
+ * this register are RAZ/WI.
  */
 union cavm_npa_lf_pool_op_pc {
 	u64 u;
@@ -1951,13 +1895,11 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PC(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_ptr_end0
  *
- * NPA LF Pool Pointer End Operation Register 0
- * A 128-bit write to the NPA_LF_POOL_OP_PTR_END0 and NPA_LF_POOL_OP_PTR_END1
- * registers writes to a given pool's pointer end value.
- * All other accesses to these registers (e.g. reads and 64-bit writes) are
- * RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Pool Pointer End Operation Register 0 A 128-bit write to the
+ * NPA_LF_POOL_OP_PTR_END0 and NPA_LF_POOL_OP_PTR_END1 registers writes
+ * to a given pool's pointer end value. All other accesses to these
+ * registers (e.g. reads and 64-bit writes) are RAZ/WI.  RSL accesses to
+ * this register are RAZ/WI.
  */
 union cavm_npa_lf_pool_op_ptr_end0 {
 	u64 u;
@@ -1977,10 +1919,8 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END0(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_ptr_end1
  *
- * NPA LF Pool Pointer End Operation Register 1
- * See NPA_LF_POOL_OP_PTR_END0.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Pool Pointer End Operation Register 1 See
+ * NPA_LF_POOL_OP_PTR_END0.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_npa_lf_pool_op_ptr_end1 {
 	u64 u;
@@ -2001,13 +1941,11 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END1(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_ptr_start0
  *
- * NPA LF Pool Pointer Start Operation Register 0
- * A 128-bit write to the NPA_LF_POOL_OP_PTR_START0 and NPA_LF_POOL_OP_PTR_START1
- * registers writes to a given pool's pointer start value.
- * All other accesses to these registers (e.g. reads and 64-bit writes) are
- * RAZ/WI.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Pool Pointer Start Operation Register 0 A 128-bit write to the
+ * NPA_LF_POOL_OP_PTR_START0 and NPA_LF_POOL_OP_PTR_START1 registers
+ * writes to a given pool's pointer start value. All other accesses to
+ * these registers (e.g. reads and 64-bit writes) are RAZ/WI.  RSL
+ * accesses to this register are RAZ/WI.
  */
 union cavm_npa_lf_pool_op_ptr_start0 {
 	u64 u;
@@ -2027,10 +1965,8 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START0(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_ptr_start1
  *
- * NPA LF Pool Pointer Start Operation Register 1
- * See NPA_LF_POOL_OP_PTR_START0.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Pool Pointer Start Operation Register 1 See
+ * NPA_LF_POOL_OP_PTR_START0.  RSL accesses to this register are RAZ/WI.
  */
 union cavm_npa_lf_pool_op_ptr_start1 {
 	u64 u;
@@ -2051,12 +1987,10 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START1(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_thresh
  *
- * NPA LF Pool Threshold Operation Register
- * A 64-bit atomic load-and-add to this register reads
- * NPA_POOL_S[THRESH_UP,THRESH]. A write to the register writes
- * NPA_POOL_S[THRESH_UP,THRESH]. A read is RAZ.
- *
- * RSL accesses to this register are RAZ/WI.
+ * NPA LF Pool Threshold Operation Register A 64-bit atomic load-and-add
+ * to this register reads NPA_POOL_S[THRESH_UP,THRESH]. A write to the
+ * register writes NPA_POOL_S[THRESH_UP,THRESH]. A read is RAZ.  RSL
+ * accesses to this register are RAZ/WI.
  */
 union cavm_npa_lf_pool_op_thresh {
 	u64 u;
@@ -2101,8 +2035,8 @@ static inline u64 CAVM_NPA_LF_QINTX_CNT(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_qint#_ena_w1c
  *
- * NPA LF Queue Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * NPA LF Queue Interrupt Enable Clear Registers This register clears
+ * interrupt enable bits.
  */
 union cavm_npa_lf_qintx_ena_w1c {
 	u64 u;
@@ -2123,8 +2057,8 @@ static inline u64 CAVM_NPA_LF_QINTX_ENA_W1C(u64 a)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_qint#_ena_w1s
  *
- * NPA LF Queue Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * NPA LF Queue Interrupt Enable Set Registers This register sets
+ * interrupt enable bits.
  */
 union cavm_npa_lf_qintx_ena_w1s {
 	u64 u;
@@ -2211,8 +2145,8 @@ static inline u64 CAVM_NPA_LF_RAS(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_ras_ena_w1c
  *
- * NPA LF RAS Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * NPA LF RAS Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
  */
 union cavm_npa_lf_ras_ena_w1c {
 	u64 u;
@@ -2236,8 +2170,8 @@ static inline u64 CAVM_NPA_LF_RAS_ENA_W1C(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_ras_ena_w1s
  *
- * NPA LF RAS Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * NPA LF RAS Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
  */
 union cavm_npa_lf_ras_ena_w1s {
 	u64 u;
@@ -2261,8 +2195,7 @@ static inline u64 CAVM_NPA_LF_RAS_ENA_W1S(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_ras_w1s
  *
- * NPA LF RAS Interrupt Set Register
- * This register sets interrupt bits.
+ * NPA LF RAS Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_npa_lf_ras_w1s {
 	u64 u;
@@ -2309,17 +2242,13 @@ static inline u64 CAVM_NPA_PRIV_AF_INT_CFG(void)
 /**
  * Register (RVU_PF_BAR0) npa_priv_lf#_cfg
  *
- * NPA Privileged Local Function Configuration Registers
- * These registers allow each NPA local function (LF) to be provisioned to a VF/PF
- * slot for RVU. See also NPA_AF_RVU_LF_CFG_DEBUG.
- *
- * Software should read this register after write to ensure that the LF is mapped to
- * [PF_FUNC] before issuing transactions to the mapped PF and function.
- *
- * [SLOT] must be zero.
- *
- * Internal:
- * Hardware ignores [SLOT] and always assumes 0x0.
+ * NPA Privileged Local Function Configuration Registers These registers
+ * allow each NPA local function (LF) to be provisioned to a VF/PF slot
+ * for RVU. See also NPA_AF_RVU_LF_CFG_DEBUG.  Software should read this
+ * register after write to ensure that the LF is mapped to [PF_FUNC]
+ * before issuing transactions to the mapped PF and function.  [SLOT]
+ * must be zero.  Internal: Hardware ignores [SLOT] and always assumes
+ * 0x0.
  */
 union cavm_npa_priv_lfx_cfg {
 	u64 u;

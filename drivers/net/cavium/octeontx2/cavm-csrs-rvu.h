@@ -1,45 +1,12 @@
 #ifndef __CAVM_CSRS_RVU_H__
 #define __CAVM_CSRS_RVU_H__
-/* This file is auto-generated. Do not edit */
+/* This file is auto-generated.  Do not edit */
 
-/***********************license start***************
- * Copyright (c) 2003-2018  Cavium Inc. (support@cavium.com). All rights
- * reserved.
- *
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
-
- *   * Neither the name of Cavium Inc. nor the names of
- *     its contributors may be used to endorse or promote products
- *     derived from this software without specific prior written
- *     permission.
-
- * This Software, including technical data, may be subject to U.S. export  control
- * laws, including the U.S. Export Administration Act and its  associated
- * regulations, and may be subject to export or import  regulations in other
- * countries.
-
- * TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS"
- * AND WITH ALL FAULTS AND CAVIUM  NETWORKS MAKES NO PROMISES, REPRESENTATIONS OR
- * WARRANTIES, EITHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, WITH RESPECT TO
- * THE SOFTWARE, INCLUDING ITS CONDITION, ITS CONFORMITY TO ANY REPRESENTATION OR
- * DESCRIPTION, OR THE EXISTENCE OF ANY LATENT OR PATENT DEFECTS, AND CAVIUM
- * SPECIFICALLY DISCLAIMS ALL IMPLIED (IF ANY) WARRANTIES OF TITLE,
- * MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR A PARTICULAR PURPOSE, LACK OF
- * VIRUSES, ACCURACY OR COMPLETENESS, QUIET ENJOYMENT, QUIET POSSESSION OR
- * CORRESPONDENCE TO DESCRIPTION. THE ENTIRE  RISK ARISING OUT OF USE OR
- * PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
- ***********************license end**************************************/
+/***********************license start***********************************
+* Copyright (C) 2018 Marvell International Ltd.
+* SPDX-License-Identifier: BSD-3-Clause
+* https://spdx.org/licenses
+***********************license end**************************************/
 
 /**
  * @file
@@ -47,18 +14,17 @@
  * Configuration and status register (CSR) address and type definitions for
  * Cavium RVU.
  *
- * This file is auto generated. Do not edit.
+ * This file is auto generated.  Do not edit.
  *
  */
 
 /**
  * Enumeration rvu_af_int_vec_e
  *
- * RVU Admin Function Interrupt Vector Enumeration
- * Enumerates the MSI-X interrupt vectors.
- * Internal:
- * RVU maintains the state of these vectors internally, and generates GIB
- * messages for it without accessing the MSI-X table region in LLC/DRAM.
+ * RVU Admin Function Interrupt Vector Enumeration Enumerates the MSI-X
+ * interrupt vectors. Internal: RVU maintains the state of these vectors
+ * internally, and generates GIB messages for it without accessing the
+ * MSI-X table region in LLC/DRAM.
  */
 #define CAVM_RVU_AF_INT_VEC_E_GEN (3)
 #define CAVM_RVU_AF_INT_VEC_E_MBOX (4)
@@ -69,10 +35,8 @@
 /**
  * Enumeration rvu_bar_e
  *
- * RVU Base Address Register Enumeration
- * Enumerates the base address registers.
- * Internal:
- * For documentation only.
+ * RVU Base Address Register Enumeration Enumerates the base address
+ * registers. Internal: For documentation only.
  */
 #define CAVM_RVU_BAR_E_RVU_PFX_BAR0(a) (0x840000000000ll + 0x1000000000ll * (a))
 #define CAVM_RVU_BAR_E_RVU_PFX_BAR0_SIZE 0x10000000ull
@@ -83,9 +47,9 @@
 /**
  * Enumeration rvu_block_addr_e
  *
- * RVU Block Address Enumeration
- * Enumerates addressing of RVU resource blocks within each RVU BAR, i.e. values
- * of RVU_FUNC_ADDR_S[BLOCK] and RVU_AF_ADDR_S[BLOCK].
+ * RVU Block Address Enumeration Enumerates addressing of RVU resource
+ * blocks within each RVU BAR, i.e. values of RVU_FUNC_ADDR_S[BLOCK] and
+ * RVU_AF_ADDR_S[BLOCK].
  */
 #define CAVM_RVU_BLOCK_ADDR_E_CPTX(a) (0xa + (a))
 #define CAVM_RVU_BLOCK_ADDR_E_LMT (1)
@@ -102,8 +66,8 @@
 /**
  * Enumeration rvu_block_type_e
  *
- * RVU Block Type Enumeration
- * Enumerates values of RVU_PF/RVU_VF_BLOCK_ADDR()_DISC[BTYPE].
+ * RVU Block Type Enumeration Enumerates values of
+ * RVU_PF/RVU_VF_BLOCK_ADDR()_DISC[BTYPE].
  */
 #define CAVM_RVU_BLOCK_TYPE_E_CPT (9)
 #define CAVM_RVU_BLOCK_TYPE_E_DDF (0xb)
@@ -124,22 +88,17 @@
 /**
  * Enumeration rvu_bus_lf_e
  *
- * INTERNAL: RVU Bus LF Range Enumeration
- *
- * Enumerates the LF range for the RVU bus.
- * Internal:
- * This is an enum used in csr3 virtual equations.
+ * INTERNAL: RVU Bus LF Range Enumeration  Enumerates the LF range for
+ * the RVU bus. Internal: This is an enum used in csr3 virtual equations.
  */
 #define CAVM_RVU_BUS_LF_E_RVU_BUS_LFX(a) (0 + 0x2000000 * (a))
 
 /**
  * Enumeration rvu_bus_lf_slot_e
  *
- * INTERNAL: RVU Bus LF Slot Range Enumeration
- *
- * Enumerates the LF and Slot range for the RVU bus.
- * Internal:
- * This is an enum used in csr3 virtual equations.
+ * INTERNAL: RVU Bus LF Slot Range Enumeration  Enumerates the LF and
+ * Slot range for the RVU bus. Internal: This is an enum used in csr3
+ * virtual equations.
  */
 #define CAVM_RVU_BUS_LF_SLOT_E_RVU_BUS_LFX_SLOTX(a, b)	\
 	(0 + 0x2000000 * (a) + 0x1000 * (b))
@@ -147,22 +106,17 @@
 /**
  * Enumeration rvu_bus_pf_e
  *
- * INTERNAL: RVU Bus PF Range Enumeration
- *
- * Enumerates the PF range for the RVU bus.
- * Internal:
- * This is an enum used in csr3 virtual equations.
+ * INTERNAL: RVU Bus PF Range Enumeration  Enumerates the PF range for
+ * the RVU bus. Internal: This is an enum used in csr3 virtual equations.
  */
 #define CAVM_RVU_BUS_PF_E_RVU_BUS_PFX(a) (0ll + 0x1000000000ll * (a))
 
 /**
  * Enumeration rvu_bus_pfvf_e
  *
- * INTERNAL: RVU Bus PFVF Range Enumeration
- *
- * Enumerates the PF and VF ranges for the RVU bus.
- * Internal:
- * This is an enum used in csr3 virtual equations.
+ * INTERNAL: RVU Bus PFVF Range Enumeration  Enumerates the PF and VF
+ * ranges for the RVU bus. Internal: This is an enum used in csr3 virtual
+ * equations.
  */
 #define CAVM_RVU_BUS_PFVF_E_RVU_BUS_PFX(a) (0 + 0x2000000 * (a))
 #define CAVM_RVU_BUS_PFVF_E_RVU_BUS_VFX(a) (0 + 0x2000000 * (a))
@@ -170,11 +124,9 @@
 /**
  * Enumeration rvu_busbar_e
  *
- * INTERNAL: RVU Bus Base Address Region Enumeration
- *
- * Enumerates the base address region for the RVU bus.
- * Internal:
- * This is an enum used in csr3 virtual equations.
+ * INTERNAL: RVU Bus Base Address Region Enumeration  Enumerates the base
+ * address region for the RVU bus. Internal: This is an enum used in csr3
+ * virtual equations.
  */
 #define CAVM_RVU_BUSBAR_E_RVU_BUSBAR0 (0)
 #define CAVM_RVU_BUSBAR_E_RVU_BUSBAR2 (0x200000000ll)
@@ -182,19 +134,16 @@
 /**
  * Enumeration rvu_busdid_e
  *
- * INTERNAL: RVU Bus DID Enumeration
- *
- * Enumerates the DID offset for the RVU bus.
- * Internal:
- * This is an enum used in csr3 virtual equations.
+ * INTERNAL: RVU Bus DID Enumeration  Enumerates the DID offset for the
+ * RVU bus. Internal: This is an enum used in csr3 virtual equations.
  */
 #define CAVM_RVU_BUSDID_E_RVU_BUSDID (0x840000000000ll)
 
 /**
  * Enumeration rvu_pf_int_vec_e
  *
- * RVU PF Interrupt Vector Enumeration
- * Enumerates the MSI-X interrupt vectors.
+ * RVU PF Interrupt Vector Enumeration Enumerates the MSI-X interrupt
+ * vectors.
  */
 #define CAVM_RVU_PF_INT_VEC_E_AFPF_MBOX (6)
 #define CAVM_RVU_PF_INT_VEC_E_VFFLRX(a) (0 + (a))
@@ -204,17 +153,17 @@
 /**
  * Enumeration rvu_vf_int_vec_e
  *
- * RVU VF Interrupt Vector Enumeration
- * Enumerates the MSI-X interrupt vectors.
+ * RVU VF Interrupt Vector Enumeration Enumerates the MSI-X interrupt
+ * vectors.
  */
 #define CAVM_RVU_VF_INT_VEC_E_MBOX (0)
 
 /**
  * Structure rvu_af_addr_s
  *
- * RVU Admin Function Register Address Structure
- * Address format for accessing shared Admin Function (AF) registers in
- * RVU PF BAR0. These registers may be accessed by all RVU PFs whose
+ * RVU Admin Function Register Address Structure Address format for
+ * accessing shared Admin Function (AF) registers in RVU PF BAR0. These
+ * registers may be accessed by all RVU PFs whose
  * RVU_PRIV_PF()_CFG[AF_ENA] bit is set.
  */
 union cavm_rvu_af_addr_s {
@@ -230,8 +179,8 @@ union cavm_rvu_af_addr_s {
 /**
  * Structure rvu_func_addr_s
  *
- * RVU Function-unique Address Structure
- * Address format for accessing function-unique registers in RVU PF/FUNC BAR2.
+ * RVU Function-unique Address Structure Address format for accessing
+ * function-unique registers in RVU PF/FUNC BAR2.
  */
 union cavm_rvu_func_addr_s {
 	u32 u;
@@ -247,9 +196,8 @@ union cavm_rvu_func_addr_s {
 /**
  * Structure rvu_msix_vec_s
  *
- * RVU MSI-X Vector Structure
- * Format of entries in the RVU MSI-X table region in LLC/DRAM. See
- * RVU_PRIV_PF()_MSIX_CFG.
+ * RVU MSI-X Vector Structure Format of entries in the RVU MSI-X table
+ * region in LLC/DRAM. See RVU_PRIV_PF()_MSIX_CFG.
  */
 union cavm_rvu_msix_vec_s {
 	u64 u[2];
@@ -266,13 +214,11 @@ union cavm_rvu_msix_vec_s {
 /**
  * Structure rvu_pf_func_s
  *
- * RVU PF Function Identification Structure
- * Identifies an RVU PF/VF, and format of *_PRIV_LF()_CFG[PF_FUNC] in RVU
- * resource blocks, e.g. NPA_PRIV_LF()_CFG[PF_FUNC].
- *
- * Internal:
- * Also used for PF/VF identification on inter-coprocessor hardware
- * interfaces (NPA, SSO, CPT, ...).
+ * RVU PF Function Identification Structure Identifies an RVU PF/VF, and
+ * format of *_PRIV_LF()_CFG[PF_FUNC] in RVU resource blocks, e.g.
+ * NPA_PRIV_LF()_CFG[PF_FUNC].  Internal: Also used for PF/VF
+ * identification on inter-coprocessor hardware interfaces (NPA, SSO,
+ * CPT, ...).
  */
 union cavm_rvu_pf_func_s {
 	u32 u;
@@ -307,13 +253,10 @@ static inline u64 CAVM_RVU_AF_AFPFX_MBOXX(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) rvu_af_bar2_alias#
  *
- * INTERNAL: RVU Admin Function  BAR2 Alias Registers
- *
- * These registers alias to the RVU BAR2 registers for the PF and function
- * selected by RVU_AF_BAR2_SEL[PF_FUNC].
- *
- * Internal:
- * Not implemented. Placeholder for bug33464.
+ * INTERNAL: RVU Admin Function  BAR2 Alias Registers  These registers
+ * alias to the RVU BAR2 registers for the PF and function selected by
+ * RVU_AF_BAR2_SEL[PF_FUNC].  Internal: Not implemented. Placeholder for
+ * bug33464.
  */
 union cavm_rvu_af_bar2_aliasx {
 	u64 u;
@@ -333,11 +276,9 @@ static inline u64 CAVM_RVU_AF_BAR2_ALIASX(u64 a)
 /**
  * Register (RVU_PF_BAR0) rvu_af_bar2_sel
  *
- * INTERNAL: RVU Admin Function BAR2 Select Register
- *
- * This register configures BAR2 accesses from the RVU_AF_BAR2_ALIAS() registers in BAR0.
- * Internal:
- * Not implemented. Placeholder for bug33464.
+ * INTERNAL: RVU Admin Function BAR2 Select Register  This register
+ * configures BAR2 accesses from the RVU_AF_BAR2_ALIAS() registers in
+ * BAR0. Internal: Not implemented. Placeholder for bug33464.
  */
 union cavm_rvu_af_bar2_sel {
 	u64 u;
@@ -426,8 +367,8 @@ static inline u64 CAVM_RVU_AF_ECO(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_gen_int
  *
- * RVU Admin Function General Interrupt Register
- * This register contains General interrupt summary bits.
+ * RVU Admin Function General Interrupt Register This register contains
+ * General interrupt summary bits.
  */
 union cavm_rvu_af_gen_int {
 	u64 u;
@@ -449,8 +390,8 @@ static inline u64 CAVM_RVU_AF_GEN_INT(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_gen_int_ena_w1c
  *
- * RVU Admin Function General Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * RVU Admin Function General Interrupt Enable Clear Register This
+ * register clears interrupt enable bits.
  */
 union cavm_rvu_af_gen_int_ena_w1c {
 	u64 u;
@@ -472,8 +413,8 @@ static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_gen_int_ena_w1s
  *
- * RVU Admin Function General Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * RVU Admin Function General Interrupt Enable Set Register This register
+ * sets interrupt enable bits.
  */
 union cavm_rvu_af_gen_int_ena_w1s {
 	u64 u;
@@ -495,8 +436,8 @@ static inline u64 CAVM_RVU_AF_GEN_INT_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_gen_int_w1s
  *
- * RVU Admin Function General Interrupt Set Register
- * This register sets interrupt bits.
+ * RVU Admin Function General Interrupt Set Register This register sets
+ * interrupt bits.
  */
 union cavm_rvu_af_gen_int_w1s {
 	u64 u;
@@ -672,8 +613,8 @@ static inline u64 CAVM_RVU_AF_PFAF_MBOX_INT_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_pfaf_mbox_int_w1s
  *
- * RVU Admin Function PF to AF Mailbox Interrupt Set Registers
- * This register sets interrupt bits.
+ * RVU Admin Function PF to AF Mailbox Interrupt Set Registers This
+ * register sets interrupt bits.
  */
 union cavm_rvu_af_pfaf_mbox_int_w1s {
 	u64 u;
@@ -715,8 +656,8 @@ static inline u64 CAVM_RVU_AF_PFFLR_INT(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_pfflr_int_ena_w1c
  *
- * RVU Admin Function PF Function Level Reset Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * RVU Admin Function PF Function Level Reset Interrupt Enable Clear
+ * Registers This register clears interrupt enable bits.
  */
 union cavm_rvu_af_pfflr_int_ena_w1c {
 	u64 u;
@@ -737,8 +678,8 @@ static inline u64 CAVM_RVU_AF_PFFLR_INT_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_pfflr_int_ena_w1s
  *
- * RVU Admin Function PF Function Level Reset Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * RVU Admin Function PF Function Level Reset Interrupt Enable Set
+ * Registers This register sets interrupt enable bits.
  */
 union cavm_rvu_af_pfflr_int_ena_w1s {
 	u64 u;
@@ -802,8 +743,8 @@ static inline u64 CAVM_RVU_AF_PFME_INT(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_pfme_int_ena_w1c
  *
- * RVU Admin Function PF Bus Master Enable Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * RVU Admin Function PF Bus Master Enable Interrupt Enable Clear
+ * Registers This register clears interrupt enable bits.
  */
 union cavm_rvu_af_pfme_int_ena_w1c {
 	u64 u;
@@ -846,8 +787,8 @@ static inline u64 CAVM_RVU_AF_PFME_INT_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_pfme_int_w1s
  *
- * RVU Admin Function PF Bus Master Enable Interrupt Set Registers
- * This register sets interrupt bits.
+ * RVU Admin Function PF Bus Master Enable Interrupt Set Registers This
+ * register sets interrupt bits.
  */
 union cavm_rvu_af_pfme_int_w1s {
 	u64 u;
@@ -910,8 +851,8 @@ static inline u64 CAVM_RVU_AF_PFTRPEND(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_pftrpend_w1s
  *
- * RVU Admin Function PF Transaction Pending Set Registers
- * This register reads or sets bits.
+ * RVU Admin Function PF Transaction Pending Set Registers This register
+ * reads or sets bits.
  */
 union cavm_rvu_af_pftrpend_w1s {
 	u64 u;
@@ -932,9 +873,9 @@ static inline u64 CAVM_RVU_AF_PFTRPEND_W1S(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_ras
  *
- * RVU Admin Function RAS Interrupt Register
- * This register is intended for delivery of RAS events to the SCP, so should be
- * ignored by OS drivers.
+ * RVU Admin Function RAS Interrupt Register This register is intended
+ * for delivery of RAS events to the SCP, so should be ignored by OS
+ * drivers.
  */
 union cavm_rvu_af_ras {
 	u64 u;
@@ -955,8 +896,8 @@ static inline u64 CAVM_RVU_AF_RAS(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_ras_ena_w1c
  *
- * RVU Admin Function RAS Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * RVU Admin Function RAS Interrupt Enable Clear Register This register
+ * clears interrupt enable bits.
  */
 union cavm_rvu_af_ras_ena_w1c {
 	u64 u;
@@ -977,8 +918,8 @@ static inline u64 CAVM_RVU_AF_RAS_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_ras_ena_w1s
  *
- * RVU Admin Function RAS Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * RVU Admin Function RAS Interrupt Enable Set Register This register
+ * sets interrupt enable bits.
  */
 union cavm_rvu_af_ras_ena_w1s {
 	u64 u;
@@ -999,8 +940,8 @@ static inline u64 CAVM_RVU_AF_RAS_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_ras_w1s
  *
- * RVU Admin Function RAS Interrupt Set Register
- * This register sets interrupt bits.
+ * RVU Admin Function RAS Interrupt Set Register This register sets
+ * interrupt bits.
  */
 union cavm_rvu_af_ras_w1s {
 	u64 u;
@@ -1021,10 +962,9 @@ static inline u64 CAVM_RVU_AF_RAS_W1S(void)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_block_addr#_disc
  *
- * RVU PF Block Address Discovery Registers
- * These registers allow each PF driver to discover block resources that are
- * provisioned to its PF. The register's block address index is enumerated by
- * RVU_BLOCK_ADDR_E.
+ * RVU PF Block Address Discovery Registers These registers allow each PF
+ * driver to discover block resources that are provisioned to its PF. The
+ * register's block address index is enumerated by RVU_BLOCK_ADDR_E.
  */
 union cavm_rvu_pf_block_addrx_disc {
 	u64 u;
@@ -1070,8 +1010,8 @@ static inline u64 CAVM_RVU_PF_INT(void)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_int_ena_w1c
  *
- * RVU PF Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * RVU PF Interrupt Enable Clear Register This register clears interrupt
+ * enable bits.
  */
 union cavm_rvu_pf_int_ena_w1c {
 	u64 u;
@@ -1092,8 +1032,8 @@ static inline u64 CAVM_RVU_PF_INT_ENA_W1C(void)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_int_ena_w1s
  *
- * RVU PF Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * RVU PF Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
  */
 union cavm_rvu_pf_int_ena_w1s {
 	u64 u;
@@ -1114,8 +1054,7 @@ static inline u64 CAVM_RVU_PF_INT_ENA_W1S(void)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_int_w1s
  *
- * RVU PF Interrupt Set Register
- * This register sets interrupt bits.
+ * RVU PF Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_rvu_pf_int_w1s {
 	u64 u;
@@ -1136,8 +1075,8 @@ static inline u64 CAVM_RVU_PF_INT_W1S(void)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_msix_pba#
  *
- * RVU PF MSI-X Pending-Bit-Array Registers
- * This register is the MSI-X PF PBA table.
+ * RVU PF MSI-X Pending-Bit-Array Registers This register is the MSI-X PF
+ * PBA table.
  */
 union cavm_rvu_pf_msix_pbax {
 	u64 u;
@@ -1157,13 +1096,12 @@ static inline u64 CAVM_RVU_PF_MSIX_PBAX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_msix_vec#_addr
  *
- * RVU PF MSI-X Vector-Table Address Registers
- * These registers and RVU_PF_MSIX_VEC()_CTL form the PF MSI-X vector table.
- * The number of MSI-X vectors for a given PF is specified by
- * RVU_PRIV_PF()_MSIX_CFG[PF_MSIXT_SIZEM1] (plus 1).
- *
- * Software must do a read after any writes to the MSI-X vector table to ensure
- * that the writes have completed before interrupts are generated to the modified
+ * RVU PF MSI-X Vector-Table Address Registers These registers and
+ * RVU_PF_MSIX_VEC()_CTL form the PF MSI-X vector table. The number of
+ * MSI-X vectors for a given PF is specified by
+ * RVU_PRIV_PF()_MSIX_CFG[PF_MSIXT_SIZEM1] (plus 1).  Software must do a
+ * read after any writes to the MSI-X vector table to ensure that the
+ * writes have completed before interrupts are generated to the modified
  * vectors.
  */
 union cavm_rvu_pf_msix_vecx_addr {
@@ -1187,8 +1125,8 @@ static inline u64 CAVM_RVU_PF_MSIX_VECX_ADDR(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_msix_vec#_ctl
  *
- * RVU PF MSI-X Vector-Table Control and Data Registers
- * These registers and RVU_PF_MSIX_VEC()_ADDR form the PF MSI-X vector table.
+ * RVU PF MSI-X Vector-Table Control and Data Registers These registers
+ * and RVU_PF_MSIX_VEC()_ADDR form the PF MSI-X vector table.
  */
 union cavm_rvu_pf_msix_vecx_ctl {
 	u64 u;
@@ -1291,8 +1229,8 @@ static inline u64 CAVM_RVU_PF_VFFLR_INTX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_vfflr_int_ena_w1c#
  *
- * RVU PF VF Function Level Reset Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * RVU PF VF Function Level Reset Interrupt Enable Clear Registers This
+ * register clears interrupt enable bits.
  */
 union cavm_rvu_pf_vfflr_int_ena_w1cx {
 	u64 u;
@@ -1312,8 +1250,8 @@ static inline u64 CAVM_RVU_PF_VFFLR_INT_ENA_W1CX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_vfflr_int_ena_w1s#
  *
- * RVU PF VF Function Level Reset Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * RVU PF VF Function Level Reset Interrupt Enable Set Registers This
+ * register sets interrupt enable bits.
  */
 union cavm_rvu_pf_vfflr_int_ena_w1sx {
 	u64 u;
@@ -1333,8 +1271,8 @@ static inline u64 CAVM_RVU_PF_VFFLR_INT_ENA_W1SX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_vfflr_int_w1s#
  *
- * RVU PF VF Function Level Reset Interrupt Set Registers
- * This register sets interrupt bits.
+ * RVU PF VF Function Level Reset Interrupt Set Registers This register
+ * sets interrupt bits.
  */
 union cavm_rvu_pf_vfflr_int_w1sx {
 	u64 u;
@@ -1374,8 +1312,8 @@ static inline u64 CAVM_RVU_PF_VFME_INTX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_vfme_int_ena_w1c#
  *
- * RVU PF VF Bus Master Enable Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * RVU PF VF Bus Master Enable Interrupt Enable Clear Registers This
+ * register clears interrupt enable bits.
  */
 union cavm_rvu_pf_vfme_int_ena_w1cx {
 	u64 u;
@@ -1395,8 +1333,8 @@ static inline u64 CAVM_RVU_PF_VFME_INT_ENA_W1CX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_vfme_int_ena_w1s#
  *
- * RVU PF VF Bus Master Enable Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * RVU PF VF Bus Master Enable Interrupt Enable Set Registers This
+ * register sets interrupt enable bits.
  */
 union cavm_rvu_pf_vfme_int_ena_w1sx {
 	u64 u;
@@ -1416,8 +1354,8 @@ static inline u64 CAVM_RVU_PF_VFME_INT_ENA_W1SX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_vfme_int_w1s#
  *
- * RVU PF VF Bus Master Enable Interrupt Set Registers
- * This register sets interrupt bits.
+ * RVU PF VF Bus Master Enable Interrupt Set Registers This register sets
+ * interrupt bits.
  */
 union cavm_rvu_pf_vfme_int_w1sx {
 	u64 u;
@@ -1477,8 +1415,8 @@ static inline u64 CAVM_RVU_PF_VFPF_MBOX_INTX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_vfpf_mbox_int_ena_w1c#
  *
- * RVU VF to PF Mailbox Interrupt Enable Clear Registers
- * This register clears interrupt enable bits.
+ * RVU VF to PF Mailbox Interrupt Enable Clear Registers This register
+ * clears interrupt enable bits.
  */
 union cavm_rvu_pf_vfpf_mbox_int_ena_w1cx {
 	u64 u;
@@ -1498,8 +1436,8 @@ static inline u64 CAVM_RVU_PF_VFPF_MBOX_INT_ENA_W1CX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_vfpf_mbox_int_ena_w1s#
  *
- * RVU VF to PF Mailbox Interrupt Enable Set Registers
- * This register sets interrupt enable bits.
+ * RVU VF to PF Mailbox Interrupt Enable Set Registers This register sets
+ * interrupt enable bits.
  */
 union cavm_rvu_pf_vfpf_mbox_int_ena_w1sx {
 	u64 u;
@@ -1519,8 +1457,8 @@ static inline u64 CAVM_RVU_PF_VFPF_MBOX_INT_ENA_W1SX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_vfpf_mbox_int_w1s#
  *
- * RVU VF to PF Mailbox Interrupt Set Registers
- * This register sets interrupt bits.
+ * RVU VF to PF Mailbox Interrupt Set Registers This register sets
+ * interrupt bits.
  */
 union cavm_rvu_pf_vfpf_mbox_int_w1sx {
 	u64 u;
@@ -1560,8 +1498,8 @@ static inline u64 CAVM_RVU_PF_VFTRPENDX(u64 a)
 /**
  * Register (RVU_PF_BAR2) rvu_pf_vftrpend_w1s#
  *
- * RVU PF VF Transaction Pending Set Registers
- * This register reads or sets bits.
+ * RVU PF VF Transaction Pending Set Registers This register reads or
+ * sets bits.
  */
 union cavm_rvu_pf_vftrpend_w1sx {
 	u64 u;
@@ -1601,9 +1539,9 @@ static inline u64 CAVM_RVU_PRIV_ACTIVE_PC(void)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_block_type#_rev
  *
- * RVU Privileged Block Type Revision Registers
- * These registers are used by configuration software to specify the revision ID
- * of each block type enumerated by RVU_BLOCK_TYPE_E, to assist VF/PF software
+ * RVU Privileged Block Type Revision Registers These registers are used
+ * by configuration software to specify the revision ID of each block
+ * type enumerated by RVU_BLOCK_TYPE_E, to assist VF/PF software
  * discovery.
  */
 union cavm_rvu_priv_block_typex_rev {
@@ -1647,8 +1585,8 @@ static inline u64 CAVM_RVU_PRIV_CLK_CFG(void)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_const
  *
- * RVU Privileged Constants Register
- * This register contains constants for software discovery.
+ * RVU Privileged Constants Register This register contains constants for
+ * software discovery.
  */
 union cavm_rvu_priv_const {
 	u64 u;
@@ -1693,8 +1631,8 @@ static inline u64 CAVM_RVU_PRIV_GEN_CFG(void)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_hwvf#_cpt#_cfg
  *
- * RVU Privileged Hardware VF CPT Configuration Registers
- * Similar to RVU_PRIV_HWVF()_NIX()_CFG, but for CPT({a}) block.
+ * RVU Privileged Hardware VF CPT Configuration Registers Similar to
+ * RVU_PRIV_HWVF()_NIX()_CFG, but for CPT({a}) block.
  */
 union cavm_rvu_priv_hwvfx_cptx_cfg {
 	u64 u;
@@ -1738,11 +1676,12 @@ static inline u64 CAVM_RVU_PRIV_HWVFX_INT_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_hwvf#_nix#_cfg
  *
- * RVU Privileged Hardware VF NIX Configuration Registers
- * These registers are used to assist VF software discovery. For each HWVF, if the
- * HWVF is mapped to a VF by RVU_PRIV_PF()_CFG[FIRST_HWVF,NVF], software
- * writes NIX block's resource configuration for the VF in this register. The VF
- * driver can read RVU_VF_BLOCK_ADDR()_DISC to discover the configuration.
+ * RVU Privileged Hardware VF NIX Configuration Registers These registers
+ * are used to assist VF software discovery. For each HWVF, if the HWVF
+ * is mapped to a VF by RVU_PRIV_PF()_CFG[FIRST_HWVF,NVF], software
+ * writes NIX block's resource configuration for the VF in this register.
+ * The VF driver can read RVU_VF_BLOCK_ADDR()_DISC to discover the
+ * configuration.
  */
 union cavm_rvu_priv_hwvfx_nixx_cfg {
 	u64 u;
@@ -1763,8 +1702,8 @@ static inline u64 CAVM_RVU_PRIV_HWVFX_NIXX_CFG(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_hwvf#_npa_cfg
  *
- * RVU Privileged Hardware VF NPA Configuration Registers
- * Similar to RVU_PRIV_HWVF()_NIX()_CFG, but for NPA block.
+ * RVU Privileged Hardware VF NPA Configuration Registers Similar to
+ * RVU_PRIV_HWVF()_NIX()_CFG, but for NPA block.
  */
 union cavm_rvu_priv_hwvfx_npa_cfg {
 	u64 u;
@@ -1785,8 +1724,8 @@ static inline u64 CAVM_RVU_PRIV_HWVFX_NPA_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_hwvf#_sso_cfg
  *
- * RVU Privileged Hardware VF SSO Configuration Registers
- * Similar to RVU_PRIV_HWVF()_NIX()_CFG, but for SSO block.
+ * RVU Privileged Hardware VF SSO Configuration Registers Similar to
+ * RVU_PRIV_HWVF()_NIX()_CFG, but for SSO block.
  */
 union cavm_rvu_priv_hwvfx_sso_cfg {
 	u64 u;
@@ -1876,8 +1815,8 @@ static inline u64 CAVM_RVU_PRIV_PFX_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_pf#_cpt#_cfg
  *
- * RVU Privileged PF CPT Configuration Registers
- * Similar to RVU_PRIV_PF()_NIX()_CFG, but for CPT({a}) block.
+ * RVU Privileged PF CPT Configuration Registers Similar to
+ * RVU_PRIV_PF()_NIX()_CFG, but for CPT({a}) block.
  */
 union cavm_rvu_priv_pfx_cptx_cfg {
 	u64 u;
@@ -1944,28 +1883,23 @@ static inline u64 CAVM_RVU_PRIV_PFX_INT_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_pf#_msix_cfg
  *
- * RVU Privileged PF MSI-X Configuration Registers
- * These registers specify MSI-X table sizes and locations for RVU PFs and
- * associated VFs. Hardware maintains all RVU MSI-X tables in a contiguous memory
- * region in LLC/DRAM called the MSI-X table region. The table region's base AF IOVA
- * is specified by RVU_AF_MSIXTR_BASE, and its size as a multiple of
- * 16-byte RVU_MSIX_VEC_S structures must be less than or equal to
- * RVU_PRIV_CONST[MAX_MSIX].
- *
- * A PF's MSI-X table consists of the following range of RVU_MSIX_VEC_S structures
- * in the table region:
- * * First index: [PF_MSIXT_OFFSET].
- * * Last index: [PF_MSIXT_OFFSET] + [PF_MSIXT_SIZEM1].
- *
- * If a PF has enabled VFs (associated RVU_PRIV_PF()_CFG[NVF] is nonzero),
- * then each VF's MSI-X table consumes the following range of RVU_MSIX_VEC_S structures:
- * * First index: [VF_MSIXT_OFFSET] + N*([VF_MSIXT_SIZEM1] + 1).
- * * Last index: [VF_MSIXT_OFFSET] + N*([VF_MSIXT_SIZEM1] + 1) + [VF_MSIXT_SIZEM1].
- *
- * N=0 for the first VF, N=1 for the second VF, etc.
- *
- * Different PFs and VFs must have non-overlapping vector ranges, and the last
- * index of any range must be less than RVU_PRIV_CONST[MAX_MSIX].
+ * RVU Privileged PF MSI-X Configuration Registers These registers
+ * specify MSI-X table sizes and locations for RVU PFs and associated
+ * VFs. Hardware maintains all RVU MSI-X tables in a contiguous memory
+ * region in LLC/DRAM called the MSI-X table region. The table region's
+ * base AF IOVA is specified by RVU_AF_MSIXTR_BASE, and its size as a
+ * multiple of 16-byte RVU_MSIX_VEC_S structures must be less than or
+ * equal to RVU_PRIV_CONST[MAX_MSIX].  A PF's MSI-X table consists of the
+ * following range of RVU_MSIX_VEC_S structures in the table region: *
+ * First index: [PF_MSIXT_OFFSET]. * Last index: [PF_MSIXT_OFFSET] +
+ * [PF_MSIXT_SIZEM1].  If a PF has enabled VFs (associated
+ * RVU_PRIV_PF()_CFG[NVF] is nonzero), then each VF's MSI-X table
+ * consumes the following range of RVU_MSIX_VEC_S structures: * First
+ * index: [VF_MSIXT_OFFSET] + N*([VF_MSIXT_SIZEM1] + 1). * Last index:
+ * [VF_MSIXT_OFFSET] + N*([VF_MSIXT_SIZEM1] + 1) + [VF_MSIXT_SIZEM1].
+ * N=0 for the first VF, N=1 for the second VF, etc.  Different PFs and
+ * VFs must have non-overlapping vector ranges, and the last index of any
+ * range must be less than RVU_PRIV_CONST[MAX_MSIX].
  */
 union cavm_rvu_priv_pfx_msix_cfg {
 	u64 u;
@@ -1988,10 +1922,10 @@ static inline u64 CAVM_RVU_PRIV_PFX_MSIX_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_pf#_nix#_cfg
  *
- * RVU Privileged PF NIX Configuration Registers
- * These registers are used to assist PF software discovery. For each enabled RVU
- * PF, software writes the block's resource configuration for the PF in this
- * register. The PF driver can read RVU_PF_BLOCK_ADDR()_DISC to discover the
+ * RVU Privileged PF NIX Configuration Registers These registers are used
+ * to assist PF software discovery. For each enabled RVU PF, software
+ * writes the block's resource configuration for the PF in this register.
+ * The PF driver can read RVU_PF_BLOCK_ADDR()_DISC to discover the
  * configuration.
  */
 union cavm_rvu_priv_pfx_nixx_cfg {
@@ -2013,8 +1947,8 @@ static inline u64 CAVM_RVU_PRIV_PFX_NIXX_CFG(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_pf#_npa_cfg
  *
- * RVU Privileged PF NPA Configuration Registers
- * Similar to RVU_PRIV_PF()_NIX()_CFG, but for NPA block.
+ * RVU Privileged PF NPA Configuration Registers Similar to
+ * RVU_PRIV_PF()_NIX()_CFG, but for NPA block.
  */
 union cavm_rvu_priv_pfx_npa_cfg {
 	u64 u;
@@ -2035,8 +1969,8 @@ static inline u64 CAVM_RVU_PRIV_PFX_NPA_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_pf#_sso_cfg
  *
- * RVU Privileged PF SSO Configuration Registers
- * Similar to RVU_PRIV_PF()_NIX()_CFG, but for SSO block.
+ * RVU Privileged PF SSO Configuration Registers Similar to
+ * RVU_PRIV_PF()_NIX()_CFG, but for SSO block.
  */
 union cavm_rvu_priv_pfx_sso_cfg {
 	u64 u;
@@ -2057,8 +1991,8 @@ static inline u64 CAVM_RVU_PRIV_PFX_SSO_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_pf#_ssow_cfg
  *
- * RVU Privileged PF SSO Work Slot Configuration Registers
- * Similar to RVU_PRIV_PF()_NIX()_CFG, but for SSOW block.
+ * RVU Privileged PF SSO Work Slot Configuration Registers Similar to
+ * RVU_PRIV_PF()_NIX()_CFG, but for SSOW block.
  */
 union cavm_rvu_priv_pfx_ssow_cfg {
 	u64 u;
@@ -2079,8 +2013,8 @@ static inline u64 CAVM_RVU_PRIV_PFX_SSOW_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) rvu_priv_pf#_tim_cfg
  *
- * RVU Privileged PF SSO Work Slot Configuration Registers
- * Similar to RVU_PRIV_PF()_NIX()_CFG, but for TIM block.
+ * RVU Privileged PF SSO Work Slot Configuration Registers Similar to
+ * RVU_PRIV_PF()_NIX()_CFG, but for TIM block.
  */
 union cavm_rvu_priv_pfx_tim_cfg {
 	u64 u;
@@ -2101,10 +2035,9 @@ static inline u64 CAVM_RVU_PRIV_PFX_TIM_CFG(u64 a)
 /**
  * Register (RVU_VF_BAR2) rvu_vf_block_addr#_disc
  *
- * RVU VF Block Address Discovery Registers
- * These registers allow each VF driver to discover block resources that are
- * provisioned to its VF. The register's block address index is enumerated by
- * RVU_BLOCK_ADDR_E.
+ * RVU VF Block Address Discovery Registers These registers allow each VF
+ * driver to discover block resources that are provisioned to its VF. The
+ * register's block address index is enumerated by RVU_BLOCK_ADDR_E.
  */
 union cavm_rvu_vf_block_addrx_disc {
 	u64 u;
@@ -2150,8 +2083,8 @@ static inline u64 CAVM_RVU_VF_INT(void)
 /**
  * Register (RVU_VF_BAR2) rvu_vf_int_ena_w1c
  *
- * RVU VF Interrupt Enable Clear Register
- * This register clears interrupt enable bits.
+ * RVU VF Interrupt Enable Clear Register This register clears interrupt
+ * enable bits.
  */
 union cavm_rvu_vf_int_ena_w1c {
 	u64 u;
@@ -2172,8 +2105,8 @@ static inline u64 CAVM_RVU_VF_INT_ENA_W1C(void)
 /**
  * Register (RVU_VF_BAR2) rvu_vf_int_ena_w1s
  *
- * RVU VF Interrupt Enable Set Register
- * This register sets interrupt enable bits.
+ * RVU VF Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
  */
 union cavm_rvu_vf_int_ena_w1s {
 	u64 u;
@@ -2194,8 +2127,7 @@ static inline u64 CAVM_RVU_VF_INT_ENA_W1S(void)
 /**
  * Register (RVU_VF_BAR2) rvu_vf_int_w1s
  *
- * RVU VF Interrupt Set Register
- * This register sets interrupt bits.
+ * RVU VF Interrupt Set Register This register sets interrupt bits.
  */
 union cavm_rvu_vf_int_w1s {
 	u64 u;
@@ -2216,8 +2148,8 @@ static inline u64 CAVM_RVU_VF_INT_W1S(void)
 /**
  * Register (RVU_VF_BAR2) rvu_vf_msix_pba#
  *
- * RVU VF MSI-X Pending-Bit-Array Registers
- * This register is the MSI-X VF PBA table.
+ * RVU VF MSI-X Pending-Bit-Array Registers This register is the MSI-X VF
+ * PBA table.
  */
 union cavm_rvu_vf_msix_pbax {
 	u64 u;
@@ -2237,13 +2169,12 @@ static inline u64 CAVM_RVU_VF_MSIX_PBAX(u64 a)
 /**
  * Register (RVU_VF_BAR2) rvu_vf_msix_vec#_addr
  *
- * RVU VF MSI-X Vector-Table Address Registers
- * These registers and RVU_VF_MSIX_VEC()_CTL form the VF MSI-X vector table.
- * The number of MSI-X vectors for a given VF is specified by
- * RVU_PRIV_PF()_MSIX_CFG[VF_MSIXT_SIZEM1] (plus 1).
- *
- * Software must do a read after any writes to the MSI-X vector table to ensure
- * that the writes have completed before interrupts are generated to the modified
+ * RVU VF MSI-X Vector-Table Address Registers These registers and
+ * RVU_VF_MSIX_VEC()_CTL form the VF MSI-X vector table. The number of
+ * MSI-X vectors for a given VF is specified by
+ * RVU_PRIV_PF()_MSIX_CFG[VF_MSIXT_SIZEM1] (plus 1).  Software must do a
+ * read after any writes to the MSI-X vector table to ensure that the
+ * writes have completed before interrupts are generated to the modified
  * vectors.
  */
 union cavm_rvu_vf_msix_vecx_addr {
@@ -2267,8 +2198,8 @@ static inline u64 CAVM_RVU_VF_MSIX_VECX_ADDR(u64 a)
 /**
  * Register (RVU_VF_BAR2) rvu_vf_msix_vec#_ctl
  *
- * RVU VF MSI-X Vector-Table Control and Data Registers
- * These registers and RVU_VF_MSIX_VEC()_ADDR form the VF MSI-X vector table.
+ * RVU VF MSI-X Vector-Table Control and Data Registers These registers
+ * and RVU_VF_MSIX_VEC()_ADDR form the VF MSI-X vector table.
  */
 union cavm_rvu_vf_msix_vecx_ctl {
 	u64 u;
