@@ -1,8 +1,10 @@
-/**
- * (C) Copyright 2018, Cavium Inc.
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:	GPL-2.0+
-**/
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
+ */
+
 
 #ifndef OCTEONTX_XCV_H_
 #define OCTEONTX_XCV_H_

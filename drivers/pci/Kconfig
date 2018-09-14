@@ -110,7 +110,7 @@ config PCI_OCTEONTX_ECAM
 	bool "OcteonTX ECAM support"
 	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	help
-	  Enable support for the Cavium OcteonTX SoC family ECAM controllers.
+	  Enable support for the OcteonTX/TX2 SoC family ECAM controllers.
 	  These controllers provide PCI configuration access to all on-board
 	  peripherals so it should only be disabled for testing purposes
 

@@ -1,9 +1,8 @@
 /*
- * Command for updating boot image.
+ * Copyright (C) 2018 Marvell International Ltd.
  *
- * Copyright (C) 2008 Atmel Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
  */
 
 #include <common.h>

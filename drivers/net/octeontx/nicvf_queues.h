@@ -1,10 +1,10 @@
 /*
- * This file is subject to the terms and conditions of the GNU General Public
- * License.  See the file "COPYING" in the main directory of this archive
- * for more details.
+ * Copyright (C) 2018 Marvell International Ltd.
  *
- * Copyright (C) 2014 Cavium, Inc.
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
  */
+
 
 #ifndef NICVF_QUEUES_H
 #define NICVF_QUEUES_H

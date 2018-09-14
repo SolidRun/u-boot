@@ -1,12 +1,10 @@
-/**
- * OcteonTX SPI U_BOOT_DRIVER
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
  *
- * Copyright (C) 2016 Cavium, Inc.
- *
- * SPDX-LICENSE-IDENTIFIER:	GPL-2.0+
- *
- * SPI/MPI driver for Cavium OcteonTX series of SoCs
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
  */
+
 #include <common.h>
 #include <spi.h>
 #include <asm/io.h>

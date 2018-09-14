@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2012-2018 Marvell Inc.
+ * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
  */
+
 #ifndef __OCTEONTX_MMC_H__
 #define __OCTEONTX_MMC_H__
 

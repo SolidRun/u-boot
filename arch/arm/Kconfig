@@ -1599,7 +1599,7 @@ config ARCH_ROCKCHIP
 	imply USB_FUNCTION_FASTBOOT
 
 config ARCH_OCTEONTX
-	bool "Support Cavium OcteonTX SoCs"
+	bool "Support OcteonTX SoCs"
 	select DM
 	select ARM64
 	select OF_CONTROL
@@ -1607,7 +1607,7 @@ config ARCH_OCTEONTX
 	select SYS_CACHE_SHIFT_7
 
 config ARCH_OCTEONTX2
-	bool "Support Cavium OcteonTX2 SoCs"
+	bool "Support OcteonTX2 SoCs"
 	select DM
 	select ARM64
 	select OF_CONTROL

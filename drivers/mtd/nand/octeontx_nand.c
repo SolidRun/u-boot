@@ -1,8 +1,8 @@
 /*
- * (C) Copyright 2018 Marvell International Ltd.
- * <aaron.williams@marvell.com>
+ * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:	GPL-2.0
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
  */
 
 #include <common.h>

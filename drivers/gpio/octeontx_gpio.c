@@ -1,5 +1,8 @@
 /*
- * (C) Copyright 2016 Cavium, Inc. <support@cavium.com>
+ * Copyright (C) 2018 Marvell International Ltd.
+ *
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
  *
  * (C) Copyright 2011
  * eInfochips Ltd. <www.einfochips.com>
@@ -8,7 +11,6 @@
  * (C) Copyright 2010
  * Marvell Semiconductor <www.marvell.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

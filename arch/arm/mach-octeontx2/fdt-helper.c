@@ -1,10 +1,11 @@
-/**
- * (C) Copyright 2016, Cavium Inc.
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
  */
 
-/* This file contains flat device-tree helper functions used by Cavium.
+/* This file contains flat device-tree helper functions.
  * At some later point these functions should be moved into U-Boot common code.
  */
 

@@ -371,7 +371,7 @@ config SYS_I2C_OCTEONTX
 	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2) && DM_I2C
 	default y
 	help
-	 Enable I2C support for Cavium OcteonTX line of processors.
+	 Enable I2C support for OcteonTX line of processors.
 
 config SYS_I2C_S3C24X0
 	bool "Samsung I2C driver"

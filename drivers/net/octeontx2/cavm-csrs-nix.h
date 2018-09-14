@@ -2,11 +2,13 @@
 #define __CAVM_CSRS_NIX_H__
 /* This file is auto-generated.  Do not edit */
 
-/***********************license start***********************************
-* Copyright (C) 2018 Marvell International Ltd.
-* SPDX-License-Identifier: BSD-3-Clause
-* https://spdx.org/licenses
-***********************license end**************************************/
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ *
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
+ */
+
 
 /**
  * @file

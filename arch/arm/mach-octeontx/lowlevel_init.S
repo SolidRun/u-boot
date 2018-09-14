@@ -1,9 +1,8 @@
 /*
- * (C) Copyright 2014-2016, Cavium Networks, Inc
+ * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:	GPL-2.0+
- *
- * Extracted from armv8/start.S
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
  */
 
 #include <config.h>

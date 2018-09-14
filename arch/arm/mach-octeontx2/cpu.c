@@ -1,8 +1,9 @@
-/**
- * (C) Copyright 2016, Cavium, Inc. <support@cavium.com>
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:	GPL-2.0+
- **/
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
+ */
 
 #include <common.h>
 #include <asm/armv8/mmu.h>

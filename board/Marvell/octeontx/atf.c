@@ -1,7 +1,9 @@
-// SPDX-License-Identifier: GPL-2.0+
-/**
- * (C) Copyright 2014, Cavium Inc.
-**/
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ *
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
+ */
 
 #include <common.h>
 #include <asm/io.h>
