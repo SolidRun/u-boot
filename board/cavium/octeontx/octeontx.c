@@ -184,16 +184,6 @@ int dram_init(void)
 }
 
 /**
- * Board specific reset that is system reset.
- */
-void reset_cpu(ulong addr)
-{
-	u64 val = readq(CAVM_RST_SOFT_RST) | 1;
-
-	writeq(val, CAVM_RST_SOFT_RST);
-}
-
-/**
  * Board late initialization routine.
  */
 int board_late_init(void)

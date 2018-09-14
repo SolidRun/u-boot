@@ -47,3 +47,8 @@ u64 get_page_table_size(void)
 {
 	return 0x4c000;
 }
+
+void reset_cpu(ulong addr)
+{
+
+}

@@ -71,40 +71,12 @@
 # define CONFIG_SYS_I2C_OCTEONTX_SPEED_11	CONFIG_SYS_I2C_OCTEONTX_SPEED_10
 #endif
 
-#define RST_BOOT	0x87e006001600ll
-
 #define TWSI_THP		24
 
 #define TWSI_SW_TWSI		0x1000
 #define TWSI_TWSI_SW		0x1008
 #define TWSI_INT		0x1010
 #define TWSI_SW_TWSI_EXT	0x1018
-
-union rst_boot {
-	u64 u;
-	struct {
-		u64 rboot_pin:1;
-		u64 rboot:1;
-		u64 lboot:10;
-		u64 lboot_ext23:6;
-		u64 lboot_ext45:6;
-		u64 reserved_24_29:6;
-		u64 lboot_oci:3;
-		u64 pnr_mul:6;
-		u64 reserved_39_39:1;
-		u64 c_mul:7;
-		u64 reserved_47_54:8;
-		u64 dis_scan:1;
-		u64 dis_huk:1;
-		u64 vrm_err:1;
-		u64 jt_tstmode:1;
-		u64 ckill_ppdis:1;
-		u64 trusted_mode:1;
-		u64 ejtagdis:1;
-		u64 jtcsrdis:1;
-		u64 chipkill:1;
-	} s;
-};
 
 union twsx_sw_twsi {
 	u64 u;
@@ -805,12 +777,10 @@ static int twsi_init(void *baseaddr, unsigned int speed, int slaveaddr)
 	int n_div;
 	int m_div;
 	union twsx_sw_twsi sw_twsi;
-	union rst_boot rst_boot;
 
 	debug("%s(%p, %u, 0x%x)\n", __func__, baseaddr, speed, slaveaddr);
-	rst_boot.u = readq(RST_BOOT);
 
-	io_clock_hz = rst_boot.s.pnr_mul * PLL_REF_CLK;
+	io_clock_hz = octeontx_get_io_clock();
 
 	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.  Compute the
 	 * clocks M divider based on the SCLK.
@@ -904,12 +874,9 @@ static int octeontx_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	int m_div, n_div;
 	unsigned io_clock_hz;
 	union twsx_sw_twsi sw_twsi;
-	union rst_boot rst_boot;
 	void *baseaddr = twsi->baseaddr;
 
-	rst_boot.u = readq(RST_BOOT);
-
-	io_clock_hz = rst_boot.s.pnr_mul * PLL_REF_CLK;
+	io_clock_hz = octeontx_get_io_clock();
 	debug("%s(%p, %u) io clock: %u\n", __func__, bus, speed, io_clock_hz);
 
 	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.  Compute the
