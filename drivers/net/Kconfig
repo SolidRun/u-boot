@@ -326,6 +326,20 @@ config MT7628_ETH
 	  The MediaTek MT7628 ethernet interface is used on MT7628 and
 	  MT7688 based boards.
 
+config NET_OCTEONTX
+	bool "OcteonTX Ethernet support"
+	depends on ARCH_OCTEONTX
+	help
+	  You must select Y to enable network device support for
+	  OcteonTX SoCs. If unsure, say n
+
+config NET_OCTEONTX2
+	bool "OcteonTX2 Ethernet support"
+	depends on ARCH_OCTEONTX2
+	help
+	  You must select Y to enable network device support for
+	  OcteonTX2 SoCs. If unsure, say n
+
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
 	depends on DM_ETH && DM_PCI
@@ -613,7 +627,5 @@ config MVMDIO
 	  Dove, Armada 370, Armada XP, Armada 37xx and Armada7K/8K/8KP).
 
 	  This driver is used by the MVPP2 and MVNETA drivers.
-
-source drivers/net/cavium/Kconfig
 
 endif # NETDEVICES

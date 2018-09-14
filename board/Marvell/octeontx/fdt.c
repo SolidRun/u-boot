@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern unsigned long fdt_base_addr;
 
-#ifdef CONFIG_OCTEONTX_BGX
+#ifdef CONFIG_NET_OCTEONTX
 static int octeontx_get_mdio_bus(const void *fdt, int phy_offset)
 {
 	int node, bus = -1;
@@ -56,7 +56,7 @@ static int octeontx_get_phy_addr(const void *fdt, int phy_offset)
 
 void octeontx_parse_phy_info(void)
 {
-#ifdef CONFIG_OCTEONTX_BGX
+#ifdef CONFIG_NET_OCTEONTX
 	const void *fdt = gd->fdt_blob;
 	int offset = 0, node, bgx_id = 0, lmacid = 0;
 	const u32 *val;

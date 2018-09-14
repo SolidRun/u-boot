@@ -49,6 +49,7 @@
 
 /** Maximum total number of BGX interfaces across all nodes */
 #define CONFIG_MAX_BGX			3
+#define CONFIG_OCTEONTX_XCV
 
 #define CONFIG_MISC_INIT_R
 

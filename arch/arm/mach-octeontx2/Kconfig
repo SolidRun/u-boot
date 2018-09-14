@@ -2,7 +2,7 @@ if ARCH_OCTEONTX2
 
 config SYS_VENDOR
 	string
-	default	"cavium"
+	default	"Marvell"
 
 config SYS_SOC
 	string

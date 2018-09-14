@@ -1627,17 +1627,6 @@ config ARCH_ASPEED
 	select OF_CONTROL
 	imply CMD_DM
 
-config ARCH_THUNDERX
-	bool "Support Cavium ThunderX SoCs"
-	select THUNDERX
-	select OF_CONTROL
-	select DM
-	select DM_SERIAL
-	select DM_PCI
-	select DM_PCI_COMPAT
-	select OF_SEPARATE
-	select ARM64
-
 endchoice
 
 config ARCH_SUPPORT_TFABOOT
@@ -1785,6 +1774,8 @@ source "board/bosch/guardian/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
+source "board/Marvell/octeontx/Kconfig"
+source "board/Marvell/octeontx2/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
@@ -1795,8 +1786,6 @@ source "board/broadcom/bcm968580xref/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
 source "board/broadcom/bcmns2/Kconfig"
-source "board/cavium/octeontx/Kconfig"
-source "board/cavium/octeontx2/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/eets/pdu001/Kconfig"
 source "board/emulation/qemu-arm/Kconfig"

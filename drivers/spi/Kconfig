@@ -101,10 +101,10 @@ config CF_SPI
           Enable the ColdFire SPI driver. This driver can be used on
           some m68k SoCs.
 
-config CAVIUM_SPI
-	bool "Cavium SPI driver"
+config OCTEONTX_SPI
+	bool "OcteonTX SPI driver"
 	help
-	  Enable the Cavium SPI driver. This driver can be used to
+	  Enable the OcteonTX SPI driver. This driver can be used to
 	  access the SPI NOR flash on OcteonTX SoC platforms.
 
 config DESIGNWARE_SPI
