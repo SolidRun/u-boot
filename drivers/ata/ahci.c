@@ -28,9 +28,6 @@
 #if CONFIG_ARCH_OCTEONTX
 #include <asm/arch/octeontx.h>
 #endif
-#if CONFIG_ARCH_OCTEONTX2
-#include <asm/arch/octeontx2.h>
-#endif
 
 static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port);
 
@@ -55,8 +52,6 @@ struct ahci_uc_priv *probe_ent = NULL;
 #define WAIT_MS_DATAIO	10000
 #define WAIT_MS_FLUSH	5000
 #define WAIT_MS_LINKUP	200
-
-extern char boardtype[32];
 
 __weak void __iomem *ahci_port_base(void __iomem *base, u32 port)
 {
@@ -616,15 +611,18 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 
 	debug("Exit start port %d\n", port);
 
+#if CONFIG_ARCH_OCTEONTX
 	/*
 	 * Skip interface busy check based on error and status
 	 * information from task file data register as these boards
 	 * have port multiplier and device is always present
 	 * U-boot lacks port multiplier support hence this ugly hack.
 	 */
-	if ((strcasecmp(p_cavm_bdt->type, "sff8104") == 0) ||
-		(strcasecmp(p_cavm_bdt->type, "nas8104") == 0))
+
+	if (octeontx_board_has_pmp())
 		return 0;
+#endif
+
 	/*
 	 * Make sure interface is not busy based on error and status
 	 * information from task file data register before proceeding

@@ -18,8 +18,52 @@
 #include <dm/util.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+struct cavm_bdt g_cavm_bdt;
+
 extern unsigned long fdt_base_addr;
 extern void cgx_intf_shutdown(void);
+
+void octeontx_parse_board_info(void)
+{
+	const char *str;
+	int node;
+	int ret = 0, len = 16;
+	u64 midr;
+
+	debug("%s: ENTER\n", __func__);
+
+	asm ("mrs %[rd],MIDR_EL1" : [rd] "=r" (midr));
+
+	g_cavm_bdt.prod_id = (midr >> 4) & 0xff;
+
+	if (!gd->fdt_blob) {
+		printf("ERROR: %s: no valid device tree found\n", __func__);
+		return;
+	}
+
+	debug("%s: fdt blob at %p\n", __func__, gd->fdt_blob);
+	ret = fdt_check_header(gd->fdt_blob);
+	if (ret < 0) {
+		printf("fdt: %s\n", fdt_strerror(ret));
+		return;
+	}
+	debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
+
+	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
+	if (node < 0) {
+		printf("%s: /cavium,bdk is missing from device tree: %s\n",
+		       __func__, fdt_strerror(node));
+		return;
+	}
+	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
+	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
+	if (str) {
+		strncpy(g_cavm_bdt.type, str, sizeof(g_cavm_bdt.type));
+		debug("fdt: BOARD-MODEL bdt.type %s \n", g_cavm_bdt.type);
+	} else {
+		printf("Error: cannot retrieve board type from fdt\n");
+	}
+}
 
 void board_quiesce_devices(void)
 {
@@ -51,18 +95,15 @@ void board_quiesce_devices(void)
 	}
 }
 
-#ifdef CONFIG_BOARD_EARLY_INIT_R
 int board_early_init_r(void)
 {
 	pci_init();
 	return 0;
 }
-#endif
 
 int board_init(void)
 {
-	octeontx2_parse_board_info();
-	printf("Board: %s\n", p_cavm_bdt->type);
+	octeontx_parse_board_info();
 	return 0;
 }
 
@@ -134,13 +175,61 @@ int board_late_init(void)
 	 * Try to validate ethaddr env variables
 	 */
 
-	debug("bdt.type %s\n", p_cavm_bdt->type);
-	snprintf(boardname, sizeof(boardname), "%s> ", p_cavm_bdt->type);
+	debug("bdt.type %s\n", g_cavm_bdt.type);
+	snprintf(boardname, sizeof(boardname), "%s> ", g_cavm_bdt.type);
 	env_set("prompt", boardname);
 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
 
 	board_misc_init();
 
+	return 0;
+}
+
+/*
+ * Invoked before relocation, so limit to stack variables.
+ */
+int show_board_info(void)
+{
+	const char *str;
+	int node, prod_id;
+	int ret = 0, len = 16;
+	u64 midr;
+
+	asm ("mrs %[rd],MIDR_EL1" : [rd] "=r" (midr));
+
+	prod_id = (midr >> 4) & 0xff;
+
+	if (!gd->fdt_blob) {
+		printf("ERROR: %s: no valid device tree found\n", __func__);
+		return ret;
+	}
+
+	debug("%s: fdt blob at %p\n", __func__, gd->fdt_blob);
+	ret = fdt_check_header(gd->fdt_blob);
+	if (ret < 0) {
+		printf("fdt: %s\n", fdt_strerror(ret));
+		return ret;
+	}
+	debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
+
+	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
+	if (node < 0) {
+		printf("%s: /cavium,bdk is missing from device tree: %s\n",
+		       __func__, fdt_strerror(node));
+		return ret;
+	}
+	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
+	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
+	if (!str) {
+		printf("Error: cannot retrieve board type from fdt\n");
+	}
+
+	if (prod_id == CN96XX)
+		printf("OcteonTX2 CN96XX ARM V8 Core\n");
+	if (prod_id == CN95XX)
+		printf("OcteonTX2 CN95XX ARM V8 Core\n");
+
+	printf("Board: %s\n", str);
 	return 0;
 }
 

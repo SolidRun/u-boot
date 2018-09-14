@@ -6,14 +6,14 @@
 #ifndef __OCTEONTX2_H__
 #define __OCTEONTX2_H__
 
-#define CN93XX	0xB2
-#define CAVIUM_CN9XXX	CN93XX	/* TODO: Fix this! */
-#define CAVIUM_IS_MODEL(model)	(p_cavm_bdt->prod_id == (model))
+#define CN96XX	0xB2
+#define CN95XX	0xB3
+
+#define is_board_model(model)	(g_cavm_bdt.prod_id == (model))
 
 /** Reg offsets */
 #define CAVM_RST_BOOT		0x87E006001600ULL
 #define CAVM_RST_CHIP_DOM_W1S	0x87E006001810ULL
-#define CAVM_MIO_FUS_DAT2	0x87E003001410ULL
 
 #define CAVM_GTI_CWD_POKEX	0x802000050000ULL
 #define CAVM_GTI_CWD_WDOGX	0x802000040000ULL
@@ -33,6 +33,6 @@ struct cavm_bdt {
 	u8 alt_pkg;
 	char type[16];
 };
-extern struct cavm_bdt *p_cavm_bdt;
+extern struct cavm_bdt g_cavm_bdt;
 
 #endif /* __OCTEONTX2_H__ */

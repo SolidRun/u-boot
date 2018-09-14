@@ -8,7 +8,7 @@
 
 #define CN81XX	0xA2
 #define CN83XX	0xA3
-#define CAVIUM_IS_MODEL(model)	(p_cavm_bdt->prod_id == model)
+#define is_board_model(model)	(g_cavm_bdt.prod_id == model)
 
 #define MAX_LMAC_PER_BGX 4
 
@@ -27,8 +27,8 @@
 
 /** Function definitions */
 void octeontx_parse_board_info(void);
+int octeontx_board_has_pmp(void);
 void octeontx_parse_phy_info(void);
-void octeontx_parse_mac_addr(void);
 void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth);
 
 /** Board data definitions */
@@ -38,6 +38,6 @@ struct cavm_bdt {
 	u8 alt_pkg;
 	char type[16];
 };
-extern struct cavm_bdt *p_cavm_bdt;
+extern struct cavm_bdt g_cavm_bdt;
 
 #endif
