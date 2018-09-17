@@ -30,7 +30,7 @@ void octeontx_cleanup_ethaddr(void)
 	for (int i = 0; i < 20; i++) {
 		sprintf(ename, i ? "eth%daddr" : "ethaddr", i);
 		if(env_get(ename))
-			env_set(ename, NULL);
+			env_set_force(ename, NULL);
 	}
 }
 
@@ -62,9 +62,12 @@ void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth)
 		/* check for local-mac-address */
 		mac = fdt_getprop(fdt, subnode,
 				       "local-mac-address", &len);
-		debug("%s mac %pM\n", __func__, mac);
-		memcpy(eth, mac, ARP_HLEN);
-		debug("%s mac %pM\n", __func__, eth);
+		if(mac) {
+			debug("%s mac %pM\n", __func__, mac);
+			memcpy(eth, mac, ARP_HLEN);
+		} else
+			memset(eth, 0, ARP_HLEN);
+		debug("%s eth %pM\n", __func__, eth);
 		return;
 	}
 }
