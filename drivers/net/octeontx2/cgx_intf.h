@@ -44,7 +44,8 @@ enum cgx_error_type {
 	CGX_ERR_TRAINING_FAIL,
 	CGX_ERR_RX_EQU_FAIL,
 	CGX_ERR_SPUX_BER_FAIL,
-	CGX_ERR_SPUX_RSFEC_ALGN_FAIL,	/* = 22 */
+	CGX_ERR_SPUX_RSFEC_ALGN_FAIL,
+	CGX_ERR_SPUX_MARKER_LOCK_FAIL,	/* = 23 */
 	/* FIXME : add more error types when adding support for new modes */
 };
 
@@ -99,13 +100,11 @@ enum cgx_stat {
 	CGX_STAT_FAIL
 };
 
-enum cgx_csr_own {
-	/* ownership is free, no SW component is writing to CSRs */
-	CGX_OWN_NONE,
+enum cgx_cmd_own {
+	/* default ownership with kernel/uefi/u-boot */
+	CGX_OWN_NON_SECURE_SW,
 	/* set by kernel/uefi/u-boot after posting a new request to ATF */
 	CGX_OWN_FIRMWARE,
-	/* set by kernel/uefi/u-boot when preparing for the request */
-	CGX_OWN_NON_SECURE_FW,
 };
 
 /* scratchx(0) CSR used for ATF->non-secure SW communication.
@@ -236,7 +235,7 @@ struct cgx_link_change_args {		/* start from bit 8 */
 };
 
 union cgx_cmd_s {
-	uint64_t own_status:2;			/* cgx_csr_own */
+	uint64_t own_status:2;			/* cgx_cmd_own */
 	struct cgx_cmd cmd;
 	struct cgx_ctl_args cmd_args;
 	struct cgx_mtu_args mtu_size;

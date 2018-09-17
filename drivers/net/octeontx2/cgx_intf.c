@@ -99,8 +99,6 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
 		goto error;
 	}
  
-	set_ownership(cgx, lmac, CGX_OWN_NON_SECURE_FW);
-
 	/* send command */
 	scr1.u = cgx_rd_scr1(cgx, lmac);
 	scr1.s.cmd.id = cmd;
@@ -120,8 +118,6 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
 		err = -ETIMEDOUT;
 		goto error;
 	}
-
-	set_ownership(cgx, lmac, CGX_OWN_NON_SECURE_FW);
 
 	if (cmd == CGX_CMD_INTF_SHUTDOWN)
 		goto error;
@@ -154,7 +150,6 @@ error:
 	/* clear ownership and ack */
 	scr0.s.evt_sts.ack = 0;
 	cgx_wr_scr0(cgx, lmac, scr0.u);
-	set_ownership(cgx, lmac, CGX_OWN_NONE);
 
 	*rsp = err ? 0 : scr0.u;
 
