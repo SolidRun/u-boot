@@ -429,7 +429,7 @@ static int nix_af_setup_sq(struct nix *nix)
 	link_cfg.s.maxlen = NIX_MAX_HW_MTU;
 	link_cfg.s.minlen = NIX_MIN_HW_MTU;
 	nix_af_reg_write(nix->nix_af,
-			 CAVM_NIXX_AF_RX_LINKX_CFG(nix->lmac->lmac_id),
+			 CAVM_NIXX_AF_RX_LINKX_CFG(nix->lmac->link_num),
 			 link_cfg.u);
 
 	return 0;
