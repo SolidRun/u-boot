@@ -6,5 +6,5 @@
 # */
 
 
-obj-$(CONFIG_NET_OCTEONTX2) += cgx_intf.o cgx.o nix_af.o nix.o rvu_pf.o \
+obj-$(CONFIG_NET_OCTEONTX2) += cgx.o nix_af.o nix.o rvu_pf.o \
 				rvu_af.o rvu_common.o

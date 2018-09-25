@@ -80,8 +80,10 @@ void board_quiesce_devices(void)
 	if (ret)
 		printf("couldn't remove rvu pf devices\n");
 
+#ifdef CONFIG_OCTEONTX2_CGX_INTF
 	/* Bring down all cgx lmac links */
 	cgx_intf_shutdown();
+#endif
 
 	/* Removes all CGX and RVU AF devices */
 	ret = uclass_get(UCLASS_MISC, &uc_dev);
