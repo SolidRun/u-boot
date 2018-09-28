@@ -9,8 +9,8 @@
 #ifndef __CGX_INTF_H__
 #define __CGX_INTF_H__
 
-#define CGX_FIRWARE_MAJOR_VER		1
-#define CGX_FIRWARE_MINOR_VER		0
+#define CGX_FIRMWARE_MAJOR_VER		1
+#define CGX_FIRMWARE_MINOR_VER		0
 
 /* Register offsets */
 #define CGX_CMR_INT		0x87e0e0000040
