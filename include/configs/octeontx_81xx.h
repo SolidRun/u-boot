@@ -78,10 +78,10 @@
 
 /***** SPI Defines *********/
 #ifdef CONFIG_DM_SPI_FLASH
-#define CONFIG_SF_DEFAULT_SPEED 12500000
-#define CONFIG_SF_DEFAULT_MODE	0
-#define CONFIG_SF_DEFAULT_BUS	0
-#define CONFIG_SF_DEFAULT_CS	0
+# define CONFIG_SF_DEFAULT_SPEED 12500000
+# define CONFIG_SF_DEFAULT_MODE	0
+# define CONFIG_SF_DEFAULT_BUS	0
+# define CONFIG_SF_DEFAULT_CS	0
 #endif
 
 /** Extra environment settings */
