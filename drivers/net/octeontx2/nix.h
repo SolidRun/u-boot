@@ -237,9 +237,10 @@ struct nix_aq_sq_request {
 
 static inline u64 nix_af_reg_read(struct nix_af *nix_af, u64 offset)
 {
+	u64 val = readq(nix_af->nix_af_base + offset);
 	debug("%s reg %p val %llx\n", __func__, nix_af->nix_af_base + offset,
-		readq(nix_af->nix_af_base + offset));
-	return readq(nix_af->nix_af_base + offset);
+		val);
+	return val;
 }
 
 static inline void nix_af_reg_write(struct nix_af *nix_af, u64 offset,
@@ -252,9 +253,10 @@ static inline void nix_af_reg_write(struct nix_af *nix_af, u64 offset,
 
 static inline u64 nix_pf_reg_read(struct nix *nix, u64 offset)
 {
+	u64 val = readq(nix->nix_base + offset);
 	debug("%s reg %p val %llx\n", __func__, nix->nix_base + offset,
-		readq(nix->nix_base + offset));
-	return readq(nix->nix_base + offset);
+		val);
+	return val;
 }
 
 static inline void nix_pf_reg_write(struct nix *nix, u64 offset,
@@ -267,9 +269,10 @@ static inline void nix_pf_reg_write(struct nix *nix, u64 offset,
 
 static inline u64 npa_af_reg_read(struct npa_af *npa_af, u64 offset)
 {
+	u64 val = readq(npa_af->npa_af_base + offset);
 	debug("%s reg %p val %llx\n", __func__, npa_af->npa_af_base + offset,
-		readq(npa_af->npa_af_base + offset));
-	return readq(npa_af->npa_af_base + offset);
+		val);
+	return val;
 }
 
 static inline void npa_af_reg_write(struct npa_af *npa_af, u64 offset,
@@ -282,9 +285,10 @@ static inline void npa_af_reg_write(struct npa_af *npa_af, u64 offset,
 
 static inline u64 npc_af_reg_read(struct nix_af *nix_af, u64 offset)
 {
+	u64 val = readq(nix_af->npc_af_base + offset);
 	debug("%s reg %p val %llx\n", __func__, nix_af->npc_af_base + offset,
-		readq(nix_af->npc_af_base + offset));
-	return readq(nix_af->npc_af_base + offset);
+		val);
+	return val;
 }
 
 static inline void npc_af_reg_write(struct nix_af *nix_af, u64 offset,

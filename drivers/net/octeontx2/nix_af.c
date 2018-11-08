@@ -503,6 +503,7 @@ static int nix_attach_receive_queue(struct nix_af *nix_af, int lf)
 	memset(&rq_req, 0, sizeof(struct nix_aq_rq_request));
 	
 	rq_req.rq.s.ena = 1;
+	rq_req.rq.s.spb_ena = 1;
 	rq_req.rq.s.ipsech_ena = 0;
 	rq_req.rq.s.ena_wqwd = 0;
 	rq_req.rq.s.cq = NIX_CQ_RX;
@@ -521,8 +522,8 @@ static int nix_attach_receive_queue(struct nix_af *nix_af, int lf)
 	rq_req.rq.s.later_skip = 0;
 	rq_req.rq.s.xqe_imm_copy = 0;
 	rq_req.rq.s.xqe_hdr_split = 0;
-	rq_req.rq.s.xqe_drop = 255;
-	rq_req.rq.s.xqe_pass = 255;
+	rq_req.rq.s.xqe_drop = 0;
+	rq_req.rq.s.xqe_pass = 0;
 	rq_req.rq.s.wqe_pool_drop = 0;	/* No WQE pool */
 	rq_req.rq.s.wqe_pool_pass = 0;	/* No WQE pool */
 	rq_req.rq.s.spb_aura_drop = 255;
@@ -596,7 +597,7 @@ static int nix_attach_completion_queue(struct nix *nix, int cq_idx)
 	cq_req.cq.s.ena = 1;
 	cq_req.cq.s.bpid = nix->lmac->pknd;
 	cq_req.cq.s.substream = 0;	/* FIXME: Substream IDs? */
-	cq_req.cq.s.drop_ena = 1;
+	cq_req.cq.s.drop_ena = 0;
 	cq_req.cq.s.caching = 1;
 	cq_req.cq.s.qsize = CQS_QSIZE;
 	cq_req.cq.s.drop = 255 * 7 / 8;
@@ -631,9 +632,21 @@ int nix_lf_admin_setup(struct nix *nix)
 	union cavm_nixx_af_lfx_rss_grpx rss_grp;
 	union cavm_nixx_af_lfx_tx_cfg2 tx_cfg2;
 	union cavm_nixx_af_lfx_cfg lfx_cfg;
+	union cavm_nixx_af_lf_rst lf_rst;
 	u32 index;
 	struct nix_af *nix_af = nix->nix_af;
 	int err;
+
+	/* Reset the LF */
+	lf_rst.u = 0;
+	lf_rst.s.lf = nix->lf;
+	lf_rst.s.exec = 1;
+	nix_af_reg_write(nix_af, CAVM_NIXX_AF_LF_RST(), lf_rst.u);
+
+	do {
+		lf_rst.u = nix_af_reg_read(nix_af, CAVM_NIXX_AF_LF_RST());
+		WATCHDOG_RESET();
+	} while (lf_rst.s.exec);
 
 	/* Config NIX RQ HW context and base*/
 	nix_af_reg_write(nix_af, CAVM_NIXX_AF_LFX_RQS_BASE(nix->lf),
@@ -846,11 +859,15 @@ int npc_lf_admin_setup(struct nix *nix)
 	union cavm_npc_af_pkindx_action0 action0;
 	union cavm_npc_af_pkindx_action1 action1;
 	union cavm_npc_af_intfx_kex_cfg kex_cfg;
+	union cavm_npc_af_intfx_miss_stat_act intfx_stat_act;
 	union cavm_npc_af_mcamex_bankx_camx_intf camx_intf;
 	union cavm_npc_af_mcamex_bankx_camx_w0 camx_w0;
 	union cavm_npc_af_mcamex_bankx_cfg bankx_cfg;
+	union cavm_npc_af_mcamex_bankx_stat_act mcamex_stat_act;
+
 	union cavm_nix_rx_action_s rx_action;
 	union cavm_nix_tx_action_s tx_action;
+
 	struct nix_af *nix_af = nix->nix_af;
 	u32 kpus;
 	int pkind = nix->lmac->link_num;
@@ -868,9 +885,17 @@ int npc_lf_admin_setup(struct nix *nix)
 	npc_af_reg_write(nix_af, CAVM_NPC_AF_PKINDX_ACTION1(pkind), action1.u);
 
 	kex_cfg.u = 0;
-	kex_cfg.s.parse_nibble_ena = 0x07;
+	kex_cfg.s.keyw = CAVM_NPC_MCAMKEYW_E_X1;
+	kex_cfg.s.parse_nibble_ena = 0x7;
 	npc_af_reg_write(nix_af,
 			 CAVM_NPC_AF_INTFX_KEX_CFG(CAVM_NPC_INTF_E_NIXX_RX(0)),
+			 kex_cfg.u);
+
+	/* Errata #35786 */
+	kex_cfg.u = 0;
+	kex_cfg.s.parse_nibble_ena = 0x7;
+	npc_af_reg_write(nix_af,
+			 CAVM_NPC_AF_INTFX_KEX_CFG(CAVM_NPC_INTF_E_NIXX_TX(0)),
 			 kex_cfg.u);
 
 	camx_intf.u = 0;
@@ -886,7 +911,8 @@ int npc_lf_admin_setup(struct nix *nix)
 			 camx_intf.u);
 
 	camx_w0.u = 0;
-	camx_w0.s.md = ~(nix->lmac->chan_num);
+	camx_w0.s.md = ~(nix->lmac->chan_num) & (~((~0x0ull) << 12));
+	debug("NPC LF ADMIN camx_w0.u %llx\n", camx_w0.u);
 	npc_af_reg_write(nix_af,
 			 CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W0(pkind, 0, 0),
 			 camx_w0.u);
@@ -903,11 +929,19 @@ int npc_lf_admin_setup(struct nix *nix)
 	npc_af_reg_write(nix_af, CAVM_NPC_AF_MCAMEX_BANKX_CAMX_W1(pkind, 0, 1),
 			 0);
 
-	bankx_cfg.u = 0;
-	bankx_cfg.s.ena = 1;
-	npc_af_reg_write(nix_af, CAVM_NPC_AF_MCAMEX_BANKX_CFG(pkind, 0),
-			 bankx_cfg.u);
-
+	/* Enable stats for NPC INTF RX */
+	mcamex_stat_act.u = 0;
+	mcamex_stat_act.s.ena = 1;
+	mcamex_stat_act.s.stat_sel = pkind;
+	npc_af_reg_write(nix_af,
+			 CAVM_NPC_AF_MCAMEX_BANKX_STAT_ACT(pkind, 0),
+			 mcamex_stat_act.u);
+	intfx_stat_act.u = 0;
+	intfx_stat_act.s.ena = 1;
+	intfx_stat_act.s.stat_sel = 16;
+	npc_af_reg_write(nix_af,
+			 CAVM_NPC_AF_INTFX_MISS_STAT_ACT(CAVM_NPC_INTF_E_NIXX_RX(0)),
+			 intfx_stat_act.u);
 	rx_action.u = 0;
 	rx_action.s.pf_func = nix->pf_func;
 	rx_action.s.op = CAVM_NIX_RX_ACTIONOP_E_UCAST;
@@ -923,11 +957,21 @@ int npc_lf_admin_setup(struct nix *nix)
 	npc_af_reg_write(nix_af,
 			 CAVM_NPC_AF_INTFX_MISS_ACT(CAVM_NPC_INTF_E_NIXX_RX(0)),
 			 rx_action.u);
+	bankx_cfg.u = 0;
+	bankx_cfg.s.ena = 1;
+	npc_af_reg_write(nix_af, CAVM_NPC_AF_MCAMEX_BANKX_CFG(pkind, 0),
+			 bankx_cfg.u);
+
 	tx_action.u = 0;
 	tx_action.s.op = CAVM_NIX_TX_ACTIONOP_E_UCAST_DEFAULT;
 	npc_af_reg_write(nix_af,
 			 CAVM_NPC_AF_INTFX_MISS_ACT(CAVM_NPC_INTF_E_NIXX_TX(0)),
 			 tx_action.u);
+
+#ifdef DEBUG
+	/* Enable debug capture on RX intf */
+	npc_af_reg_write(nix_af, CAVM_NPC_AF_DBG_CTL(), 0x4);
+#endif
 
 	return 0;
 }
@@ -961,6 +1005,7 @@ int nix_af_setup(struct nix_af *nix_af)
 	union cavm_nixx_af_const3 af_const3;
 	union cavm_nixx_af_sq_const sq_const;
 	union cavm_nixx_af_cfg af_cfg;
+	union cavm_nixx_af_status af_status;
 	union cavm_nixx_af_ndc_cfg ndc_cfg;
 	union cavm_nixx_af_aq_cfg aq_cfg;
 	union cavm_nixx_af_blk_rst blk_rst;
@@ -993,6 +1038,22 @@ int nix_af_setup(struct nix_af *nix_af)
 		    return -1;
 	}
 	af_cfg.s.af_be = 0;
+	af_cfg.u |= 0x5E;	/* Errata 35057 */
+	nix_af_reg_write(nix_af, CAVM_NIXX_AF_CFG(), af_cfg.u);
+
+	/* Perform Calibration */
+	af_cfg.u = nix_af_reg_read(nix_af, CAVM_NIXX_AF_CFG());
+	af_cfg.s.calibrate_x2p = 1;
+	nix_af_reg_write(nix_af, CAVM_NIXX_AF_CFG(), af_cfg.u);
+
+	/* Wait for calibration to complete */
+	do {
+		af_status.u = nix_af_reg_read(nix_af, CAVM_NIXX_AF_STATUS());
+		WATCHDOG_RESET();
+	} while (af_status.s.calibrate_done == 0);
+
+	af_cfg.u = nix_af_reg_read(nix_af, CAVM_NIXX_AF_CFG());
+	af_cfg.s.calibrate_x2p = 0;
 	nix_af_reg_write(nix_af, CAVM_NIXX_AF_CFG(), af_cfg.u);
 
 	/* Enable NDC cache */
