@@ -53,6 +53,9 @@
 #include <div64.h>
 #include <watchdog.h>
 #include <console.h>	/* for ctrlc */
+#ifdef CONFIG_ARCH_OCTEONTX2
+#include <asm/arch/octeontx2.h>
+#endif
 
 #ifdef DEBUG
 #define DEBUG_CSR
@@ -4450,29 +4453,37 @@ static int octeontx2_mmc_calibrate_delay(struct mmc *mmc)
 	union cavm_mio_emm_calb emm_calb;
 	union cavm_mio_emm_tap emm_tap;
 	ulong start = get_timer(0);
+	u8 rev;
 
 	/* ASIM doesn't support this */
 	if (slot->is_asim)
 		return 0;
 
-	emm_calb.u = 0;
-	emm_calb.s.start = 1;
-	mmc_write_csr(mmc, CAVM_MIO_EMM_CALB(), emm_calb.u);
-	/* This should only take 3 microseconds */
-	do {
-		udelay(5);
-		emm_tap.u = mmc_read_csr(mmc, CAVM_MIO_EMM_TAP());
-	} while (!emm_tap.s.delay && get_timer(start) < 10);
+	dm_pci_read_config8(slot->host->dev, PCI_REVISION_ID, &rev);
+	/* MIO_EMM errata for T96 pass 1.x */
+	if (is_board_model(CN96XX) && !rev)
+		emm_tap.s.delay = 4;
+	else {
+		emm_calb.u = 0;
+		emm_calb.s.start = 1;
+		mmc_write_csr(mmc, CAVM_MIO_EMM_CALB(), emm_calb.u);
+		/* This should only take 3 microseconds */
+		do {
+			udelay(5);
+			emm_tap.u = mmc_read_csr(mmc, CAVM_MIO_EMM_TAP());
+		} while (!emm_tap.s.delay && get_timer(start) < 10);
+	}
+
 	if (!emm_tap.s.delay) {
 		printf("%s: Error: delay calibration failed, timed out.\n",
 		       __func__);
 		return -1;
 	}
-	/* The tap delay is the number of 10ns clocks it took for 1024
+	/* The tap delay is the number of 10ns clocks it took for 512
 	 * tap delays.  First we multiply the delay by 10,000 to convert
-	 * to ps then divide by 1024 to get the delay in ps per tap delay.
+	 * to ps then divide by 512 to get the delay in ps per tap delay.
 	 */
-	slot->timing_tapps = 10 * 1000 * emm_tap.s.delay / 1024;
+	slot->timing_tapps = 10 * 1000 * emm_tap.s.delay / 512;
 
 	return 0;
 }
