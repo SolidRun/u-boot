@@ -91,6 +91,8 @@
 #define NDF_BUS_ACQUIRE		1
 #define NDF_BUS_RELEASE		0
 
+#define DBGX_EDSCR(X)		(0x87A008000088 + (X) * 0x80000)
+
 struct ndf_nop_cmd {
 	u16 opcode:	4;
 	u16 nop:	12;
@@ -907,7 +909,6 @@ static int ndf_build_pre_cmd(struct octeontx_nfc *tn, int cmd1,
 		else
 			width = 1;
 	}
-
 	rc = ndf_queue_cmd_timing(tn, timings);
 	if (rc)
 		return rc;
@@ -1984,6 +1985,9 @@ static int octeontx_nfc_chip_init(struct octeontx_nfc *tn, struct udevice *dev,
 	debug("%s: mtd: %p\n", __func__, mtd);
 	mtd->dev->parent = dev;
 
+	debug("%s: NDF_MISC: 0x%llx\n", __func__,
+	      readq(tn->base + NDF_MISC));
+
 	/* TODO: support more then 1 chip */
 	debug("%s: Scanning identification\n", __func__);
 	ret = nand_scan_ident(mtd, 1, NULL);
@@ -2053,6 +2057,7 @@ static int octeontx_nfc_init(struct octeontx_nfc *tn)
 	ndf_misc &= ~NDF_MISC_EX_DIS;
 	ndf_misc |= (NDF_MISC_BT_DIS | NDF_MISC_RST_FF);
 	writeq(ndf_misc, tn->base + NDF_MISC);
+	debug("%s: NDF_MISC: 0x%llx\n", __func__, readq(tn->base + NDF_MISC));
 
 	/* Bring the fifo out of reset */
 	ndf_misc &= ~(NDF_MISC_RST_FF);
@@ -2113,7 +2118,6 @@ static int octeontx_pci_nand_probe(struct udevice *dev)
 		ret = -EINVAL;
 		goto release;
 	}
-
 	debug("%s: bar at %p\n", __func__, tn->base);
 	tn->buf.dmabuflen = NAND_MAX_PAGESIZE + NAND_MAX_OOBSIZE;
 	tn->buf.dmabuf = dma_alloc_coherent(tn->buf.dmabuflen,
@@ -2152,6 +2156,35 @@ static int octeontx_pci_nand_probe(struct udevice *dev)
 unclk:
 release:
 	return ret;
+}
+
+int octeontx_pci_nand_disable(struct udevice *dev)
+{
+	struct octeontx_nfc *tn = dev_get_priv(dev);
+	u64 dma_cfg;
+	u64 ndf_misc;
+
+	debug("%s: Disabling NAND device %s\n", __func__, dev->name);
+	dma_cfg = readq(tn->base + NDF_DMA_CFG);
+	dma_cfg &= ~NDF_DMA_CFG_EN;
+	dma_cfg |= NDF_DMA_CFG_CLR;
+	writeq(dma_cfg, tn->base + NDF_DMA_CFG);
+
+	/* Disable execution and put FIFO in reset mode */
+	ndf_misc = readq(tn->base + NDF_MISC);
+	ndf_misc |= NDF_MISC_EX_DIS | NDF_MISC_RST_FF;
+	writeq(ndf_misc, tn->base + NDF_MISC);
+	ndf_misc &= ~NDF_MISC_RST_FF;
+	writeq(ndf_misc, tn->base + NDF_MISC);
+#ifdef DEBUG
+	printf("%s: NDF_MISC: 0x%llx\n", __func__, readq(tn->base + NDF_MISC));
+#endif
+	/* Clear any interrupts and enable bits */
+	writeq(~0ull, tn->base + NDF_INT_ENA_W1C);
+	writeq(~0ull, tn->base + NDF_INT);
+	debug("%s: NDF_ST_REG: 0x%llx\n", __func__,
+	      readq(tn->base + NDF_ST_REG));
+	return 0;
 }
 
 #ifdef CONFIG_OCTEONTX_BCH
@@ -2206,6 +2239,8 @@ U_BOOT_DRIVER(octeontx_pci_nand) = {
 	.ofdata_to_platdata = octeontx_nand_ofdata_to_platdata,
 	.probe = octeontx_pci_nand_probe,
 	.priv_auto_alloc_size = sizeof(struct octeontx_nfc),
+	.remove = octeontx_pci_nand_disable,
+	.flags = DM_FLAG_OS_PREPARE,
 };
 
 U_BOOT_PCI_DEVICE(octeontx_pci_nand, octeontx_nfc_pci_id_table);
@@ -2232,7 +2267,7 @@ void board_nand_init(void)
 	}
 #endif
 
-	ret = uclass_get_device_by_driver(UCLASS_MISC,
+	ret = uclass_get_device_by_driver(UCLASS_MTD,
 					  DM_GET_DRIVER(octeontx_pci_nand),
 					  &dev);
 	if (ret && ret != -ENODEV)

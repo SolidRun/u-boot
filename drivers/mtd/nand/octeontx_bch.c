@@ -419,6 +419,7 @@ U_BOOT_DRIVER(octeontx_pci_bchpf) = {
 	.probe	= octeontx_pci_bchpf_probe,
 	.remove = octeontx_pci_bchpf_remove,
 	.priv_auto_alloc_size = sizeof(struct bch_device),
+	.flags = DM_FLAG_OS_PREPARE,
 };
 
 U_BOOT_DRIVER(octeontx_pci_bchvf) = {
