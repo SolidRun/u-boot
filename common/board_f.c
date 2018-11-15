@@ -913,7 +913,7 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_DISPLAY_BOARDINFO)
 	show_board_info,
 #endif
-#if defined(CONFIG_DISPLAY_BOARDINFO)
+#if defined(CONFIG_DISPLAY_BOARDINFO) && defined(CONFIG_ARCH_MVEBU)
 	print_cpuinfo,		/* display cpu info (and speed) */
 #endif
 	INIT_FUNC_WATCHDOG_INIT

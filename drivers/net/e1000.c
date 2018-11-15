@@ -4571,7 +4571,7 @@ e1000_get_phy_cfg_done(struct e1000_hw *hw)
 			mdelay(1);
 			timeout--;
 		}
-/*
+
 		if (!timeout) {
 			DEBUGOUT("MNG configuration cycle has not "
 					"completed.\n");
@@ -4585,7 +4585,7 @@ e1000_get_phy_cfg_done(struct e1000_hw *hw)
 			 * return -E1000_ERR_RESET;
 			 */
 		}
-*/
+
 		break;
 	}
 

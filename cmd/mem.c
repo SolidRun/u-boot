@@ -1125,6 +1125,7 @@ static int do_random(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif
 
+#ifdef CONFIG_ARCH_MVEBU
 int do_ir(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 offset = 0x0;
@@ -1205,6 +1206,7 @@ int do_ir(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	return 0;
 }
+#endif
 
 /**************************************************/
 U_BOOT_CMD(
@@ -1384,6 +1386,7 @@ U_BOOT_CMD(
 );
 #endif
 
+#ifdef CONFIG_ARCH_MVEBU
 U_BOOT_CMD(
 	ir,      2,     1,      do_ir,
 	"ir	- Reading and changing internal register values.\n",
@@ -1393,3 +1396,4 @@ U_BOOT_CMD(
 	"\tor by writing 0 or 1 in the required place.\n"
 	"\tPressing enter without any value keeps the value unchanged.\n"
 );
+#endif
