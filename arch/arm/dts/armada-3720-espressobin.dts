@@ -137,6 +137,7 @@
 	status = "okay";
 };
 
+/* J1 */
 &sdhci0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdio_pins>;
@@ -145,6 +146,7 @@
 	status = "okay";
 };
 
+/* U11 */
 &sdhci1 {
 	non-removable;
 	bus-width = <8>;
