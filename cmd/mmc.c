@@ -284,7 +284,11 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
 #ifndef CONFIG_BLK
 	original_part = mmc->block_dev.hwpart;
 #else
+#ifdef CONFIG_MMC_CAVIUM
 	original_part = mmc_get_blk_desc(mmc, curr_device)->hwpart;
+#else
+	original_part = mmc_get_blk_desc(mmc)->hwpart;
+#endif
 #endif
 	if (blk_select_hwpart_devnum(IF_TYPE_MMC, curr_device, MMC_PART_RPMB) !=
 	    0)
@@ -320,7 +324,11 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
 	printf("\nMMC read: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 
+#ifdef CONFIG_MMC_CAVIUM
 	n = blk_dread(mmc_get_blk_desc(mmc, curr_device), blk, cnt, addr);
+#else
+	n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, addr);
+#endif
 	printf("%d blocks read: %s\n", n, (n == cnt) ? "OK" : "ERROR");
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
@@ -417,7 +425,11 @@ static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
 		printf("Error: card is write protected!\n");
 		return CMD_RET_FAILURE;
 	}
+#ifdef CONFIG_MMC_CAVIUM
 	n = blk_dwrite(mmc_get_blk_desc(mmc, curr_device), blk, cnt, addr);
+#else
+	n = blk_dwrite(mmc_get_blk_desc(mmc), blk, cnt, addr);
+#endif
 	printf("%d blocks written: %s\n", n, (n == cnt) ? "OK" : "ERROR");
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
@@ -445,7 +457,11 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
 		printf("Error: card is write protected!\n");
 		return CMD_RET_FAILURE;
 	}
+#ifdef CONFIG_MMC_CAVIUM
 	n = blk_derase(mmc_get_blk_desc(mmc, curr_device), blk, cnt);
+#else
+	n = blk_derase(mmc_get_blk_desc(mmc), blk, cnt);
+#endif
 	printf("%d blocks erased: %s\n", n, (n == cnt) ? "OK" : "ERROR");
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
@@ -520,7 +536,11 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 	else
 		printf("mmc%d(part %d) is current device\n",
 		       curr_device,
+#ifdef CONFIG_MMC_CAVIUM
 		       mmc_get_blk_desc(mmc, curr_device)->hwpart);
+#else
+		       mmc_get_blk_desc(mmc)->hwpart);
+#endif
 
 	return CMD_RET_SUCCESS;
 }

@@ -256,6 +256,7 @@ int mmc_get_next_devnum(void)
 	return blk_find_max_devnum(IF_TYPE_MMC);
 }
 
+#ifdef CONFIG_MMC_CAVIUM
 struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum)
 {
 	struct blk_desc *desc;
@@ -271,6 +272,20 @@ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum)
 	}
 	return NULL;
 }
+#else
+struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
+{
+	struct blk_desc *desc;
+	struct udevice *dev;
+ 
+	device_find_first_child(mmc->dev, &dev);
+	if (!dev)
+		return NULL;
+	desc = dev_get_uclass_platdata(dev);
+
+	return desc;
+}
+#endif
 
 void mmc_do_preinit(void)
 {
@@ -419,8 +434,8 @@ int mmc_unbind(struct udevice *dev)
 static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 {
 	struct udevice *mmc_dev = dev_get_parent(bdev);
-#ifdef CONFIG_MMC_OCTEONTX
 	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
+#ifdef CONFIG_MMC_OCTEONTX
 	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
 	struct mmc *mmc = host->slots[desc->devnum].mmc;
 
