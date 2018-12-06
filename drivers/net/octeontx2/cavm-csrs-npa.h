@@ -2,13 +2,11 @@
 #define __CAVM_CSRS_NPA_H__
 /* This file is auto-generated.  Do not edit */
 
-/*
- * Copyright (C) 2018 Marvell International Ltd.
- *
- * SPDX-License-Identifier:    GPL-2.0
- * https://spdx.org/licenses
- */
-
+/***********************license start***********************************
+* Copyright (C) 2018 Marvell International Ltd.
+* SPDX-License-Identifier: BSD-3-Clause
+* https://spdx.org/licenses
+***********************license end**************************************/
 
 /**
  * @file

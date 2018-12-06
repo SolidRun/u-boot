@@ -2,13 +2,11 @@
 #define __CAVM_CSRS_RVU_H__
 /* This file is auto-generated.  Do not edit */
 
-/*
- * Copyright (C) 2018 Marvell International Ltd.
- *
- * SPDX-License-Identifier:    GPL-2.0
- * https://spdx.org/licenses
- */
-
+/***********************license start***********************************
+* Copyright (C) 2018 Marvell International Ltd.
+* SPDX-License-Identifier: BSD-3-Clause
+* https://spdx.org/licenses
+***********************license end**************************************/
 
 /**
  * @file
@@ -51,7 +49,9 @@
  *
  * RVU Block Address Enumeration Enumerates addressing of RVU resource
  * blocks within each RVU BAR, i.e. values of RVU_FUNC_ADDR_S[BLOCK] and
- * RVU_AF_ADDR_S[BLOCK].
+ * RVU_AF_ADDR_S[BLOCK].  CNXXXX may not implement all enumerated blocks.
+ * Software can read RVU_PF/RVU_VF_BLOCK_ADDR()_DISC[IMP] to discover
+ * which blocks are implemented and enabled.
  */
 #define CAVM_RVU_BLOCK_ADDR_E_CPTX(a) (0xa + (a))
 #define CAVM_RVU_BLOCK_ADDR_E_LMT (1)
@@ -60,6 +60,7 @@
 #define CAVM_RVU_BLOCK_ADDR_E_NPA (3)
 #define CAVM_RVU_BLOCK_ADDR_E_NPC (6)
 #define CAVM_RVU_BLOCK_ADDR_E_RX(a) (0 + (a))
+#define CAVM_RVU_BLOCK_ADDR_E_REEX(a) (0x14 + (a))
 #define CAVM_RVU_BLOCK_ADDR_E_RVUM (0)
 #define CAVM_RVU_BLOCK_ADDR_E_SSO (7)
 #define CAVM_RVU_BLOCK_ADDR_E_SSOW (8)
@@ -73,14 +74,13 @@
  */
 #define CAVM_RVU_BLOCK_TYPE_E_CPT (9)
 #define CAVM_RVU_BLOCK_TYPE_E_DDF (0xb)
-#define CAVM_RVU_BLOCK_TYPE_E_DFA (0xe)
-#define CAVM_RVU_BLOCK_TYPE_E_HNA (0xf)
 #define CAVM_RVU_BLOCK_TYPE_E_LMT (2)
 #define CAVM_RVU_BLOCK_TYPE_E_NDC (0xa)
 #define CAVM_RVU_BLOCK_TYPE_E_NIX (3)
 #define CAVM_RVU_BLOCK_TYPE_E_NPA (4)
 #define CAVM_RVU_BLOCK_TYPE_E_NPC (5)
 #define CAVM_RVU_BLOCK_TYPE_E_RAD (0xd)
+#define CAVM_RVU_BLOCK_TYPE_E_REE (0xe)
 #define CAVM_RVU_BLOCK_TYPE_E_RVUM (0)
 #define CAVM_RVU_BLOCK_TYPE_E_SSO (6)
 #define CAVM_RVU_BLOCK_TYPE_E_SSOW (7)
@@ -966,7 +966,7 @@ static inline u64 CAVM_RVU_AF_RAS_W1S(void)
  *
  * RVU PF Block Address Discovery Registers These registers allow each PF
  * driver to discover block resources that are provisioned to its PF. The
- * register's block address index is enumerated by RVU_BLOCK_ADDR_E.
+ * register's BLOCK_ADDR index is enumerated by RVU_BLOCK_ADDR_E.
  */
 union cavm_rvu_pf_block_addrx_disc {
 	u64 u;
@@ -2039,7 +2039,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_TIM_CFG(u64 a)
  *
  * RVU VF Block Address Discovery Registers These registers allow each VF
  * driver to discover block resources that are provisioned to its VF. The
- * register's block address index is enumerated by RVU_BLOCK_ADDR_E.
+ * register's BLOCK_ADDR index is enumerated by RVU_BLOCK_ADDR_E.
  */
 union cavm_rvu_vf_block_addrx_disc {
 	u64 u;

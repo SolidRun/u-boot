@@ -2,13 +2,11 @@
 #define __CAVM_CSRS_NIX_H__
 /* This file is auto-generated.  Do not edit */
 
-/*
- * Copyright (C) 2018 Marvell International Ltd.
- *
- * SPDX-License-Identifier:    GPL-2.0
- * https://spdx.org/licenses
- */
-
+/***********************license start***********************************
+* Copyright (C) 2018 Marvell International Ltd.
+* SPDX-License-Identifier: BSD-3-Clause
+* https://spdx.org/licenses
+***********************license end**************************************/
 
 /**
  * @file
@@ -757,11 +755,8 @@ union cavm_nix_iova_s {
 /**
  * Structure nix_ipsec_dyno_s
  *
- * NIX IPSEC Dynamic Ordering Counter Structure This structure specifies
- * the format of an IPSEC dynamic ordering (DYNO) counter in
- * NDC/LLC/DRAM. See NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA]. Software
- * uses the same structure format to read and write a DYNO counter with
- * the NIX admin queue.
+ * INTERNAL: NIX IPSEC Dynamic Ordering Counter Structure  Internal: Not
+ * used; no IPSEC fast-path.
  */
 union cavm_nix_ipsec_dyno_s {
 	u32 u;
@@ -2157,10 +2152,9 @@ union cavm_nixx_af_const {
 		u64 cgx_lmacs                        : 4;
 		u64 num_cgx                          : 4;
 		u64 lbk_channels                     : 8;
-		u64 lbk_to_nix0                      : 6;
-		u64 lbk_to_nix1                      : 6;
-		u64 lbk_from_nix0                    : 6;
-		u64 lbk_from_nix1                    : 6;
+		u64 num_lbk                          : 4;
+		u64 num_sdp                          : 4;
+		u64 reserved_32_47                   : 16;
 		u64 links                            : 8;
 		u64 intfs                            : 4;
 		u64 reserved_60_63                   : 4;
@@ -2936,7 +2930,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RSS_GRPX(u64 a, u64 b)
 union cavm_nixx_af_lfx_rx_cfg {
 	u64 u;
 	struct cavm_nixx_af_lfx_rx_cfg_s {
-		u64 reserved_0_32                    : 33;
+		u64 reserved_0_31                    : 32;
+		u64 drop_re                          : 1;
 		u64 lenerr_en                        : 1;
 		u64 ip6_udp_opt                      : 1;
 		u64 dis_apad                         : 1;
@@ -2948,7 +2943,21 @@ union cavm_nixx_af_lfx_rx_cfg {
 		u64 len_ol3                          : 1;
 		u64 reserved_42_63                   : 22;
 	} s;
-	/* struct cavm_nixx_af_lfx_rx_cfg_s cn; */
+	struct cavm_nixx_af_lfx_rx_cfg_cn96xx {
+		u64 reserved_0_31                    : 32;
+		u64 reserved_32                      : 1;
+		u64 lenerr_en                        : 1;
+		u64 ip6_udp_opt                      : 1;
+		u64 dis_apad                         : 1;
+		u64 csum_il4                         : 1;
+		u64 csum_ol4                         : 1;
+		u64 len_il4                          : 1;
+		u64 len_il3                          : 1;
+		u64 len_ol4                          : 1;
+		u64 len_ol3                          : 1;
+		u64 reserved_42_63                   : 22;
+	} cn96xx;
+	/* struct cavm_nixx_af_lfx_rx_cfg_s cnf95xx; */
 };
 
 static inline u64 CAVM_NIXX_AF_LFX_RX_CFG(u64 a)
@@ -2961,7 +2970,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_cfg0
  *
- * NIX AF LF Receive IPSEC Configuration Registers
+ * INTERNAL: NIX AF LF Receive IPSEC Configuration Registers  Internal:
+ * Not used; no IPSEC fast-path.
  */
 union cavm_nixx_af_lfx_rx_ipsec_cfg0 {
 	u64 u;
@@ -2988,7 +2998,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG0(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_cfg1
  *
- * NIX AF LF Receive IPSEC Security Association Configuration Register
+ * INTERNAL: NIX AF LF Receive IPSEC Security Association Configuration
+ * Register  Internal: Not used; no IPSEC fast-path.
  */
 union cavm_nixx_af_lfx_rx_ipsec_cfg1 {
 	u64 u;
@@ -3010,11 +3021,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG1(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_dyno_base
  *
- * NIX AF LF Receive IPSEC Dynamic Ordering Base Address Registers This
- * register specifies the base AF IOVA of the LF's IPSEC dynamic ordering
- * counter table in NDC/LLC/DRAM. The table consists of 1 \<\<
- * (NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_IDX_W]) NIX_IPSEC_DYNO_S
- * structures. See NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA].
+ * INTERNAL: NIX AF LF Receive IPSEC Dynamic Ordering Base Address
+ * Registers  Internal: Not used; no IPSEC fast-path.
  */
 union cavm_nixx_af_lfx_rx_ipsec_dyno_base {
 	u64 u;
@@ -3036,7 +3044,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_BASE(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_dyno_cfg
  *
- * NIX AF LF Receive IPSEC Dynamic Ordering Base Address Registers
+ * INTERNAL: NIX AF LF Receive IPSEC Dynamic Ordering Base Address
+ * Registers  Internal: Not used; no IPSEC fast-path.
  */
 union cavm_nixx_af_lfx_rx_ipsec_dyno_cfg {
 	u64 u;
@@ -3061,9 +3070,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_CFG(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_sa_base
  *
- * NIX AF LF Receive IPSEC Security Association Base Address Register
- * This register specifies the base IOVA of CPT's IPSEC SA table in
- * LLC/DRAM.
+ * INTERNAL: NIX AF LF Receive IPSEC Security Association Base Address
+ * Register  Internal: Not used; no IPSEC fast-path.
  */
 union cavm_nixx_af_lfx_rx_ipsec_sa_base {
 	u64 u;
@@ -4624,10 +4632,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IIP6(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_def_ipsec#
  *
- * NIX AF Receive IPSEC Header Definition Registers These two registers
- * define layer information in NPC_RESULT_S to identify an IPSEC header
- * for up to two IPSEC packet formats. The two formats are typically
- * IPSEC ESP (RFC 4303) and UDP-encapsulated IPSEC ESP (RFC 3948).
+ * INTERNAL: NIX AF Receive IPSEC Header Definition Registers  Internal:
+ * Not used; no IPSEC fast-path.
  */
 union cavm_nixx_af_rx_def_ipsecx {
 	u64 u;
@@ -4912,9 +4918,8 @@ static inline u64 CAVM_NIXX_AF_RX_FLOW_KEY_ALGX_FIELDX(u64 a, u64 b)
 /**
  * Register (RVU_PF_BAR0) nix#_af_rx_ipsec_gen_cfg
  *
- * NIX AF Receive IPSEC General Configuration Register This register
- * specifies the values of certain fields in CPT instructions
- * (CPT_INST_S) generated by NIX for IPSEC hardware fast-path packets.
+ * INTERNAL: NIX AF Receive IPSEC General Configuration Register
+ * Internal: Not used; no IPSEC fast-path.
  */
 union cavm_nixx_af_rx_ipsec_gen_cfg {
 	u64 u;
@@ -8717,12 +8722,8 @@ static inline u64 CAVM_NIXX_LF_MNQ_ERR_DBG(void)
 /**
  * Register (RVU_PFVF_BAR2) nix#_lf_op_ipsec_dyno_cnt
  *
- * NIX LF IPSEC Dynamic Ordering Counter Operation Register A 64-bit
- * atomic load-and-add to this register reads an IPSEC dynamic ordering
- * counter (NIX_IPSEC_DYNO_S). A write decrements
- * NIX_IPSEC_DYNO_S[COUNT]. A read is RAZ. See
- * NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA].  RSL accesses to this
- * register are RAZ/WI.
+ * INTERNAL: NIX LF IPSEC Dynamic Ordering Counter Operation Register
+ * Internal: Not used; no IPSEC fast-path. All accesses are RAZ/WI.
  */
 union cavm_nixx_lf_op_ipsec_dyno_cnt {
 	u64 u;

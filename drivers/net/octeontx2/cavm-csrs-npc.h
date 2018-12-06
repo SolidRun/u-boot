@@ -2,13 +2,11 @@
 #define __CAVM_CSRS_NPC_H__
 /* This file is auto-generated.  Do not edit */
 
-/*
- * Copyright (C) 2018 Marvell International Ltd.
- *
- * SPDX-License-Identifier:    GPL-2.0
- * https://spdx.org/licenses
- */
-
+/***********************license start***********************************
+* Copyright (C) 2018 Marvell International Ltd.
+* SPDX-License-Identifier: BSD-3-Clause
+* https://spdx.org/licenses
+***********************license end**************************************/
 
 /**
  * @file
@@ -887,9 +885,11 @@ static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION1(u64 a, u64 b)
  * == 1. _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=1: Reserved.  The reserved
  * combination is not allowed. Hardware suppresses any write to CAM(0) or
  * CAM(1) that would result in the reserved combination for any CAM bit.
- * Software must program a default entry for each KPU, e.g. by
- * programming each KPU's last entry {b} (NPC_AF_KPU()_ENTRY({b})_CAM())
- * to always match all bits.
+ * The reset value for all non-reserved fields is all zeros for CAM(1)
+ * and all ones for CAM(0), matching a search key of all zeros.  Software
+ * must program a default entry for each KPU, e.g. by programming each
+ * KPU's last entry {b} (NPC_AF_KPU()_ENTRY({b})_CAM()) to always match
+ * all bits.
  */
 union cavm_npc_af_kpux_entryx_camx {
 	u64 u;
@@ -1162,10 +1162,14 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_ACTION(u64 a, u64 b)
  * 1. _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=1: Reserved.  The reserved
  * combination is not allowed. Hardware suppresses any write to CAM(0) or
  * CAM(1) that would result in the reserved combination for any CAM bit.
- * When an interface is configured to use the NPC_MCAM_KEY_X1_S search
- * key format (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X1), the
- * four banks of every MCAM entry are used as individual entries, each of
- * which is independently compared with the search key as follows: _
+ * The reset value for all non-reserved fields in
+ * NPC_AF_MCAME()_BANK()_CAM()_INTF, NPC_AF_MCAME()_BANK()_CAM()_W0 and
+ * NPC_AF_MCAME()_BANK()_CAM()_W1 is all zeros for CAM(1) and all ones
+ * for CAM(0), matching a search key of all zeros.  When an interface is
+ * configured to use the NPC_MCAM_KEY_X1_S search key format
+ * (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X1), the four banks of
+ * every MCAM entry are used as individual entries, each of which is
+ * independently compared with the search key as follows: _
  * NPC_AF_MCAME()_BANK()_CAM()_INTF[INTF] corresponds to
  * NPC_MCAM_KEY_X1_S[INTF]. _ NPC_AF_MCAME()_BANK()_CAM()_W0[MD]
  * corresponds to NPC_MCAM_KEY_X1_S[KW0]. _
@@ -1560,8 +1564,8 @@ static inline u64 CAVM_NPC_AF_PKINDX_ACTION1(u64 a)
  * possible layer definitions in the parsed packet, e.g. DiffServ DSCP
  * from either IPv4 or IPv6 header.  CPI pseudocode: \<pre\> for (i = 0;
  * i \< 2; i++) {    cpi_def = NPC_AF_PKIND()_CPI_DEF(i);    LX = LA, LB,
- * ..., or LH as selected by cpi_def[LID];     if (cpi_def[VALID]
- * && ((cpi_def[LTYPE_MATCH] & cpi_def[LTYPE_MASK])             ==
+ * ..., or LH as selected by cpi_def[LID];     if (cpi_def[ENA]        &&
+ * ((cpi_def[LTYPE_MATCH] & cpi_def[LTYPE_MASK])             ==
  * (NPC_RESULT_S[LX[LTYPE]] & cpi_def[LTYPE_MASK]))        &&
  * ((cpi_def[FLAGS_MATCH] & cpi_def[FLAGS_MASK])             ==
  * (NPC_RESULT_S[LX[FLAGS]] & cpi_def[FLAGS_MASK])))    {       // Found

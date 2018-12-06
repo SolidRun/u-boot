@@ -1,12 +1,12 @@
 #ifndef __CAVM_CSRS_CGX_H__
 #define __CAVM_CSRS_CGX_H__
 /* This file is auto-generated.  Do not edit */
-/*
- * Copyright (C) 2018 Marvell International Ltd.
- *
- * SPDX-License-Identifier:    GPL-2.0
- * https://spdx.org/licenses
- */
+
+/***********************license start***********************************
+* Copyright (C) 2018 Marvell International Ltd.
+* SPDX-License-Identifier: BSD-3-Clause
+* https://spdx.org/licenses
+***********************license end**************************************/
 
 /**
  * @file
@@ -6222,9 +6222,16 @@ union cavm_cgxx_spux_br_pmd_control {
 		u64 train_restart                    : 1;
 		u64 train_en                         : 1;
 		u64 use_lane_poly                    : 1;
-		u64 reserved_3_63                    : 61;
+		u64 max_wait_disable                 : 1;
+		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_cgxx_spux_br_pmd_control_s cn; */
+	struct cavm_cgxx_spux_br_pmd_control_cn96xx {
+		u64 train_restart                    : 1;
+		u64 train_en                         : 1;
+		u64 use_lane_poly                    : 1;
+		u64 reserved_3_63                    : 61;
+	} cn96xx;
+	/* struct cavm_cgxx_spux_br_pmd_control_s cnf95xx; */
 };
 
 static inline u64 CAVM_CGXX_SPUX_BR_PMD_CONTROL(u64 a)
