@@ -14,6 +14,10 @@
 #include <asm/unaligned.h>
 #include <watchdog.h>
 
+#if defined(CONFIG_ARCH_OCTEONTX2)
+#include <asm/arch/octeontx2.h>
+#endif
+
 #define OCTEONTX_SPI_MAX_BYTES		9
 #define OCTEONTX_SPI_MAX_CLOCK_HZ	50000000
 
@@ -314,11 +318,19 @@ static void octeontx_spi_wait_ready(struct udevice *dev)
 static int octeontx_spi_claim_bus(struct udevice *dev)
 {
 	void *baseaddr = octeontx_spi_get_baseaddr(dev);
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	struct octeontx_spi *priv = dev_get_priv(dev->parent);
+#endif
 	union mpi_cfg mpi_cfg;
 
 	debug("%s(%s)\n", __func__, dev->name);
 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
 		return -EINVAL;
+
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	if (priv->is_otx2)
+		acquire_flash_arb(true);
+#endif
 
 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
 	mpi_cfg.s.tritx = 0;
@@ -338,11 +350,19 @@ static int octeontx_spi_claim_bus(struct udevice *dev)
 static int octeontx_spi_release_bus(struct udevice *dev)
 {
 	void *baseaddr = octeontx_spi_get_baseaddr(dev);
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	struct octeontx_spi *priv = dev_get_priv(dev->parent);
+#endif
 	union mpi_cfg mpi_cfg;
 
 	debug("%s(%s)\n", __func__, dev->name);
 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
 		return -EINVAL;
+
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	if (priv->is_otx2)
+		acquire_flash_arb(false);
+#endif
 
 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
 	mpi_cfg.s.enable = 0;

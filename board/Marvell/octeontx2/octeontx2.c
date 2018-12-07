@@ -224,6 +224,25 @@ int show_board_info(void)
 	return 0;
 }
 
+void acquire_flash_arb(bool acquire)
+{
+	union cavm_cpc_boot_ownerx ownerx;
+
+	if (acquire == false) {
+		ownerx.u = readl(CAVM_CPC_BOOT_OWNERX(3));
+		ownerx.s.boot_req = 0;
+		writel(ownerx.u, CAVM_CPC_BOOT_OWNERX(3));
+	} else {
+		ownerx.u = 0;
+		ownerx.s.boot_req = 1;
+		writel(ownerx.u, CAVM_CPC_BOOT_OWNERX(3));
+		udelay(1);
+		do {
+			ownerx.u = readl(CAVM_CPC_BOOT_OWNERX(3));
+		} while (ownerx.s.boot_wait);
+	}
+}
+
 #ifdef CONFIG_HW_WATCHDOG
 void hw_watchdog_reset(void)
 {
