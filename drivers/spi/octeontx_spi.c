@@ -24,6 +24,7 @@
 #define MPI_CFG				0x1000
 #define MPI_STS				0x1008
 #define MPI_TX				0x1010
+#define MPI_XMIT			0x1018
 #define MPI_WIDE_DAT			0x1040
 #define MPI_IO_CTL			0x1048
 #define MPI_DAT(X)			(0x1080 + ((X) << 3))
@@ -215,10 +216,29 @@ union mpi_tx {
 	/* struct mpi_tx_s cn; */
 };
 
+/**
+ * Register (NCB) mpi#_xmit
+ *
+ * MPI/SPI Transmit Register
+ */
+union mpi_xmit {
+        u64 u;
+        struct mpi_xmit_s {
+                u64 totnum                           : 11;
+                u64 reserved_11_19                   : 9;
+                u64 txnum                            : 11;
+                u64 reserved_31_59                   : 29;
+                u64 leavecs                          : 1;
+                u64 csid                             : 2;
+                u64 reserved_63                      : 1;
+        } s;
+};
+
 /** Local driver data structure */
 struct octeontx_spi {
 	void *baseaddr;		/** Register base address */
 	u32 clkdiv;		/** Clock divisor for device speed */
+	bool is_otx2;		/** Gen 2 SoC */
 };
 
 void *octeontx_spi_get_baseaddr(struct udevice *dev)
@@ -260,6 +280,10 @@ static union mpi_cfg octeontx_spi_set_mpicfg(struct udevice *dev)
 	mpi_cfg.s.csena1 = 1;
 	mpi_cfg.s.csena2 = 1;
 	mpi_cfg.s.csena3 = 1;
+	if (priv->is_otx2) {
+		mpi_cfg.s.legacy_dis = 1;
+		mpi_cfg.s.iomode = 0; /* X1_UNIDIR */
+	}
 	debug("\n mpi_cfg %llx\n",mpi_cfg.u);
 	return mpi_cfg;
 }
@@ -331,7 +355,9 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			     const void *dout, void *din, unsigned long flags)
 {
 	void *baseaddr = octeontx_spi_get_baseaddr(dev);
+	struct octeontx_spi *priv = dev_get_priv(dev->parent);
 	union mpi_tx mpi_tx;
+	union mpi_xmit mpi_xmit;
 	union mpi_cfg mpi_cfg;
 	uint64_t wide_dat = 0;
 	int len = bitlen / 8;
@@ -359,19 +385,34 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			wide_dat = get_unaligned((uint64_t *)tx_data);
 			debug("  tx: %016llx\n", (unsigned long long)wide_dat);
 			tx_data += 8;
-			writeq(wide_dat, baseaddr + MPI_WIDE_DAT);
+			if (priv->is_otx2 == true)
+				writeq(wide_dat, baseaddr + MPI_WIDE_BUF(0));
+			else
+				writeq(wide_dat, baseaddr + MPI_WIDE_DAT);
 		}
-		mpi_tx.u = 0;
-		mpi_tx.s.csid = cs;
-		mpi_tx.s.leavecs = 1;
-		mpi_tx.s.txnum = tx_data ? 8 : 0;
-		mpi_tx.s.totnum = 8;
-		writeq(mpi_tx.u, baseaddr + MPI_TX);
 
+		if (priv->is_otx2 == true) {
+			mpi_xmit.u = 0;
+			mpi_xmit.s.csid = cs;
+			mpi_xmit.s.leavecs = 1;
+			mpi_xmit.s.txnum = tx_data ? 8 : 0;
+			mpi_xmit.s.totnum = 8;
+			writeq(mpi_xmit.u, baseaddr + MPI_XMIT);
+		} else {
+			mpi_tx.u = 0;
+			mpi_tx.s.csid = cs;
+			mpi_tx.s.leavecs = 1;
+			mpi_tx.s.txnum = tx_data ? 8 : 0;
+			mpi_tx.s.totnum = 8;
+			writeq(mpi_tx.u, baseaddr + MPI_TX);
+		}
 		octeontx_spi_wait_ready(dev);
 
 		if (rx_data) {
-			wide_dat = readq(baseaddr + MPI_WIDE_DAT);
+			if (priv->is_otx2 == true)
+				wide_dat = readq(baseaddr + MPI_WIDE_BUF(0));
+			else
+				wide_dat = readq(baseaddr + MPI_WIDE_DAT);
 			debug("  rx: %016llx\n", (unsigned long long)wide_dat);
 			*(uint64_t *)rx_data = wide_dat;
 			rx_data += 8;
@@ -380,27 +421,47 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	}
 
 	/* Write and read the rest of the data */
-	if (tx_data)
-		for (i = 0; i < len; i++) {
-			debug("  tx: %02x\n", *tx_data);
-			writeq(*tx_data++, baseaddr + MPI_DAT(i));
+	if (tx_data) {
+		if (priv->is_otx2 == true) {
+			memcpy(&wide_dat, tx_data, len);
+			debug("  tx: %016llx\n", wide_dat);
+			writeq(wide_dat, baseaddr + MPI_WIDE_BUF(0));
+		} else {
+			for (i = 0; i < len; i++) {
+				debug("  tx: %02x\n", *tx_data);
+				writeq(*tx_data++, baseaddr + MPI_DAT(i));
+			}
 		}
-
-	mpi_tx.u = 0;
-	mpi_tx.s.csid = cs;
-	mpi_tx.s.leavecs = !(flags & SPI_XFER_END);
-	mpi_tx.s.txnum = tx_data ? len : 0;
-	mpi_tx.s.totnum = len;
-
-	writeq(mpi_tx.u, baseaddr + MPI_TX);
-
+	}
+	if (priv->is_otx2 == true) {
+		mpi_xmit.u = 0;
+		mpi_xmit.s.csid = cs;
+		mpi_xmit.s.leavecs = !(flags & SPI_XFER_END);
+		mpi_xmit.s.txnum = tx_data ? len : 0;
+		mpi_xmit.s.totnum = len;
+		writeq(mpi_xmit.u, baseaddr + MPI_XMIT);
+	} else {
+		mpi_tx.u = 0;
+		mpi_tx.s.csid = cs;
+		mpi_tx.s.leavecs = !(flags & SPI_XFER_END);
+		mpi_tx.s.txnum = tx_data ? len : 0;
+		mpi_tx.s.totnum = len;
+		writeq(mpi_tx.u, baseaddr + MPI_TX);
+	}
 	octeontx_spi_wait_ready(dev);
 
 	if (rx_data) {
-		for (i = 0; i < len; i++) {
-			*rx_data = readq(baseaddr + MPI_DAT(i)) & 0xff;
-			debug("  rx: %02x\n", *rx_data);
-			rx_data++;
+		if (priv->is_otx2 == true) {
+			wide_dat = readq(baseaddr + MPI_WIDE_BUF(0));
+			debug("  tx: %016llx\n", wide_dat);
+			memcpy(rx_data, &wide_dat, len);
+			rx_data += len;
+		} else {
+			for (i = 0; i < len; i++) {
+				*rx_data = readq(baseaddr + MPI_DAT(i)) & 0xff;
+				debug("  rx: %02x\n", *rx_data);
+				rx_data++;
+			}
 		}
 	}
 
@@ -437,10 +498,14 @@ static int octeontx_pci_spi_probe(struct udevice *dev)
 	struct octeontx_spi *priv = dev_get_priv(dev);
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	size_t size;
+	unsigned short ssid;
 
 	debug("SPI PCI device: %x\n", bdf);
 	dev->req_seq = PCI_FUNC(bdf);
 	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+
+	dm_pci_read_config16(dev, PCI_SUBSYSTEM_ID, &ssid);
+	priv->is_otx2 = (((ssid >> 12) & 0xF) == 0xB) ? true : false;
 
 	debug("SPI bus %s %d at %p\n",dev->name, dev->seq, priv->baseaddr);
 
