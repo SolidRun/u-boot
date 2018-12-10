@@ -116,7 +116,7 @@
 #endif
 
 /** Maximum supported MMC slots */
-#define OCTEONTX_MAX_MMC_SLOT		2
+#define OCTEONTX_MAX_MMC_SLOT		3
 
 #define OCTEONTX_MMC_NAME_LEN		32
 
