@@ -29,7 +29,7 @@
 
 #include <common.h>
 #ifdef DEBUG
-#include <command.h>
+# include <command.h>
 #endif
 #include <dm.h>
 #include <dm/device.h>
@@ -1096,6 +1096,62 @@ static int octeontx_mmc_wait_dma(struct mmc *mmc, ulong timeout)
 	return timed_out ? -1 : 0;
 }
 
+#ifdef CONFIG_OCTEONTX_NO_DMA
+/**
+ * Reads one or more sectors into memory
+ *
+ * @param mmc	mmc data structure
+ * @param src	source sector number
+ * @param dst	pointer to destination address to read into
+ * @param size	number of sectors to read
+ *
+ * @return number of sectors read
+ */
+int octeontx_mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
+{
+	union cavm_mio_emm_buf_idx buf_idx;
+	struct mmc_cmd cmd;
+	int rc;
+	int i;
+	uint64_t *dst_ptr = (uint64_t *)dst;
+	int start_size = size;
+
+	debug("%s(%p, 0x%llx, %p, 0x%x)\n", __func__, mmc, src, dst, size);
+	if (!(mmc->high_capacity))
+		src *= MMC_MAX_BLOCK_LEN;
+
+	cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
+	cmd.resp_type = MMC_RSP_R1;
+	cmd.cmdarg = src;
+
+	mmc_switch_dev(mmc);
+
+	while (size-- > 0) {
+
+		rc = mmc_send_cmd_flags(mmc, &cmd, NULL, 0);
+		if (rc) {
+			printf("Send MMC_CMD_READ_SINGLE_BLOCK failed\n");
+			return -1;
+		}
+		buf_idx.u = 0;
+		buf_idx.s.inc = 1;
+		mmc_write_csr(mmc, CAVM_MIO_EMM_BUF_IDX(), buf_idx.u);
+		for (i = 0; i < MMC_MAX_BLOCK_LEN / 8; i++)
+			*dst_ptr++ = mmc_read_csr(mmc, CAVM_MIO_EMM_BUF_DAT());
+#ifdef DEBUG
+		printf("%s: sector: 0x%llx\n", __func__, src);
+		print_buffer((unsigned long)dst, dst, 1, 512, 0);
+		mmc_print_registers(mmc);
+#endif
+		if (mmc->high_capacity)
+			src++;
+		else
+			src += MMC_MAX_BLOCK_LEN;
+		dst += MMC_MAX_BLOCK_LEN;
+	}
+	return start_size;
+}
+#else
 /**
  * Reads one or more sectors into memory
  *
@@ -1245,7 +1301,7 @@ retry_dma:
 	      size - emm_dma.s.block_cnt);
 	return size - emm_dma.s.block_cnt;
 }
-
+#endif
 /**
  * Writes sectors to MMC device
  *
@@ -3366,6 +3422,9 @@ static int sd_set_ios(struct mmc *mmc)
 	udelay(100);
 	mmc_write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 	mdelay(20);
+        debug("%s: Setting bus timing\n", __func__);
+	if (octeontx_mmc_set_bus_timing(mmc))
+		printf("%s: Error setting bus timing\n", __func__);
 #ifdef DEBUG
 	mmc_print_registers(mmc);
 #endif
@@ -4442,6 +4501,7 @@ static int mmc_set_dsr_cmd(struct mmc *mmc)
 }
 
 #if defined(CONFIG_ARCH_OCTEONTX2)
+# if !defined(CONFIG_OCTEONTX_MMC_NO_TIMING)
 /**
  * Calibrate the tap delay time
  *
@@ -4455,9 +4515,12 @@ static int octeontx2_mmc_calibrate_delay(struct mmc *mmc)
 	ulong start = get_timer(0);
 	u8 rev;
 
+	debug("%s(%s)\n", __func__, mmc->cfg->name);
 	/* ASIM doesn't support this */
-	if (slot->is_asim)
+	if (slot->is_asim) {
+		debug("  No calibration for ASIM\n");
 		return 0;
+	}
 
 	dm_pci_read_config8(slot->host->dev, PCI_REVISION_ID, &rev);
 	/* MIO_EMM errata for T96 pass 1.x */
@@ -4507,6 +4570,7 @@ static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay)
 
 	return delay / slot->timing_tapps;
 }
+# endif
 
 /**
  * Programs the bus timing delays for the current clock speed
@@ -4517,10 +4581,12 @@ static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay)
  */
 static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 {
+# if !defined(CONFIG_OCTEONTX_MMC_NO_TIMING)
 	struct octeontx_mmc_slot *slot = mmc->priv;
 	union cavm_mio_emm_timing timing;
 	int delay;
 
+        debug("%s(%s) asim: %d\n", __func__, mmc->cfg->name, slot->is_asim);
 	/* ASIM doesn't support this. */
 	if (slot->is_asim)
 		return 0;
@@ -4551,12 +4617,21 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 		printf("%s: Error: could not calculate command and/or data clock skew\n",
 		       __func__);
 		return -1;
-	}
-	timing.s.cmd_out_tap = delay;
-	timing.s.data_out_tap = delay;
+	} else {
+                debug("%s: delay for clock %u is %d\n", __func__,
+                      mmc->clock, delay);
+        }
+        /* TODO: Write an algorithm to figure out the correct values */
+        timing.s.cmd_in_tap = 4;
+        timing.s.data_in_tap = 4;
+	timing.s.cmd_out_tap = /* delay */ 39;
+	timing.s.data_out_tap = /* delay */ 39;
+	debug("%s: MIO_EMM_TIMING: cmd_in: %d, cmd_out: %d, data_in: %d, data_out: %d\n",
+	      __func__, timing.s.cmd_in_tap, timing.s.cmd_out_tap,
+              timing.s.data_in_tap, timing.s.data_out_tap);
 
 	mmc_write_csr(mmc, CAVM_MIO_EMM_TIMING(), timing.u);
-
+# endif
 	return 0;
 }
 #else
@@ -4572,6 +4647,7 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 	struct octeontx_mmc_slot *slot = mmc->priv;
 	union cavm_mio_emm_sample sample;
 
+        debug("%s: OcteonTX\n", __func__);s
 	sample.u = 0;
 	sample.s.cmd_cnt = slot->cmd_clk_skew;
 	sample.s.dat_cnt = slot->dat_clk_skew;
@@ -4614,7 +4690,7 @@ int mmc_startup(struct mmc *mmc)
 	/* Clear interrupt status */
 	mmc_write_csr(mmc, CAVM_MIO_EMM_INT(),
 		      mmc_read_csr(mmc, CAVM_MIO_EMM_INT()));
-#if defined(CONFIG_ARCH_OCTEONTX2)
+#if defined(CONFIG_ARCH_OCTEONTX2) && !defined(CONFIG_OCTEONTX_MMC_NO_TIMING)
 	if (octeontx2_mmc_calibrate_delay(mmc)) {
 		printf("%s: Error: could not calibrate tap delay\n", __func__);
 		return -1;
