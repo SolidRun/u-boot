@@ -143,7 +143,7 @@ static int mmc_set_env_part(struct mmc *mmc)
 	int ret = 0;
 
 	env_mmc_orig_hwpart =
-#ifdef CONFIG_MMC_CAVIUM
+#ifdef CONFIG_MMC_OCTEONTX
 		mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV)->hwpart;
 #else
 		mmc_get_blk_desc(mmc)->hwpart;
@@ -192,7 +192,7 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
 			    unsigned long offset, const void *buffer)
 {
 	uint blk_start, blk_cnt, n;
-#ifdef CONFIG_MMC_CAVIUM
+#ifdef CONFIG_MMC_OCTEONTX
 	struct blk_desc *desc = mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV);
 #else
 	struct blk_desc *desc = mmc_get_blk_desc(mmc);
@@ -305,7 +305,7 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 			   unsigned long offset, const void *buffer)
 {
 	uint blk_start, blk_cnt, n;
-#ifdef CONFIG_MMC_CAVIUM
+#ifdef CONFIG_MMC_OCTEONTX
 	struct blk_desc *desc = mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV);
 #else
 	struct blk_desc *desc = mmc_get_blk_desc(mmc);

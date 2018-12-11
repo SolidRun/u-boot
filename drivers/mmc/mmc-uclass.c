@@ -256,7 +256,7 @@ int mmc_get_next_devnum(void)
 	return blk_find_max_devnum(IF_TYPE_MMC);
 }
 
-#ifdef CONFIG_MMC_CAVIUM
+#ifdef CONFIG_MMC_OCTEONTX
 struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum)
 {
 	struct blk_desc *desc;

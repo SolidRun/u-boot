@@ -888,7 +888,7 @@ int mmc_get_env_dev(void);
  * @devnum:	device number
  * @return block device if found, else NULL
  */
-#ifdef CONFIG_MMC_CAVIUM
+#ifdef CONFIG_MMC_OCTEONTX
 struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum);
 #else
 struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
