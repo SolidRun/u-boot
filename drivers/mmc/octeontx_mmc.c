@@ -4647,7 +4647,7 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 	struct octeontx_mmc_slot *slot = mmc->priv;
 	union cavm_mio_emm_sample sample;
 
-        debug("%s: OcteonTX\n", __func__);s
+        debug("%s: OcteonTX\n", __func__);
 	sample.u = 0;
 	sample.s.cmd_cnt = slot->cmd_clk_skew;
 	sample.s.dat_cnt = slot->dat_clk_skew;
