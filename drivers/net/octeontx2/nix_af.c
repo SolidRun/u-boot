@@ -320,9 +320,6 @@ int npa_af_shutdown(struct npa_af *npa_af)
 		WATCHDOG_RESET();
 	} while (blk_rst.s.busy);
 
-	blk_rst.u = 0;
-	npa_af_reg_write(npa_af, CAVM_NPA_AF_BLK_RST(), blk_rst.u);
-
 	rvu_aq_free(&npa_af->aq);
 
 	debug("%s: npa af reset -- \n", __func__);
@@ -990,9 +987,6 @@ int npc_af_shutdown(struct nix_af *nix_af)
 		WATCHDOG_RESET();
 	} while (blk_rst.s.busy);
 
-	blk_rst.u = 0;
-	npc_af_reg_write(nix_af, CAVM_NPC_AF_BLK_RST(), blk_rst.u);
-
 	debug("%s: npc af reset -- \n", __func__);
 
 	return 0;
@@ -1111,9 +1105,6 @@ int nix_af_shutdown(struct nix_af *nix_af)
 		blk_rst.u = nix_af_reg_read(nix_af, CAVM_NIXX_AF_BLK_RST());
 		WATCHDOG_RESET();
 	} while (blk_rst.s.busy);
-
-	blk_rst.u = 0;
-	nix_af_reg_write(nix_af, CAVM_NIXX_AF_BLK_RST(), blk_rst.u);
 
 	rvu_aq_free(&nix_af->aq);
 
