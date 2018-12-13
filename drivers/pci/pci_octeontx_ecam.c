@@ -15,7 +15,6 @@
 
 #include <asm/io.h>
 
-
 DECLARE_GLOBAL_DATA_PTR;
 
 struct octeontx_pci {
@@ -23,6 +22,9 @@ struct octeontx_pci {
 
 	struct fdt_resource cfg;
 	struct fdt_resource bus;
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	struct fdt_resource pem;
+#endif
 };
 
 static int pci_octeontx_ecam_read_config(struct udevice *bus, pci_dev_t bdf,
@@ -203,6 +205,103 @@ static int pci_octeontx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 	return 0;
 }
 
+static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
+					uint offset, ulong *valuep,
+					enum pci_size_t size)
+{
+	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
+	struct pci_controller *hose = dev_get_uclass_priv(bus);
+	uintptr_t address;
+	u32 b, d, f;
+
+	b = PCI_BUS(bdf) + 1 - hose->first_busno;
+	d = PCI_DEV(bdf);
+	f = PCI_FUNC(bdf);
+
+	address = (b << 20) | (d << 15) | (f << 12);
+
+	debug("bdf %x %02x.%02x.%02x: u%d %x (%p) \n",
+	      bdf, b, d, f, size, offset, address);
+	address += pcie->cfg.start;
+
+	debug("%02x.%02x.%02x: u%d %x (%p) %lx \n",
+	      b, d, f, size, offset, address, *valuep);
+	*valuep = pci_conv_32_to_size(~0UL, offset, size);
+
+	if (b == 1 && d > 0)
+		return 0;
+
+	switch (size) {
+	case PCI_SIZE_8:
+		debug("byte %llx\n",address+offset);
+		*valuep = readb(address + offset);
+		break;
+	case PCI_SIZE_16:
+		debug("word %llx\n",address+offset);
+		*valuep = readw(address + offset);
+		break;
+	case PCI_SIZE_32:
+		debug("long %llx\n",address+offset);
+		*valuep = readl(address + offset);
+		break;
+	default:
+		printf("Invalid size\n");
+	}
+
+	debug("%02x.%02x.%02x: u%d %x (%lx) -> %lx\n",
+	      b, d, f, size, offset, address, *valuep);
+
+	return 0;
+}
+
+static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
+					 uint offset, ulong value,
+					 enum pci_size_t size)
+{
+	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
+	struct pci_controller *hose = dev_get_uclass_priv(bus);
+	uintptr_t address;
+	u32 b, d, f;
+
+	b = PCI_BUS(bdf) + 1 - hose->first_busno;
+	d = PCI_DEV(bdf);
+	f = PCI_FUNC(bdf);
+
+	address = (b << 20) | (d << 15) | (f << 12);
+
+	debug("bdf %x %02x.%02x.%02x: u%d %x (%p) \n",
+	      bdf, b, d, f, size, offset, address);
+	address += pcie->cfg.start;
+
+	debug("%02x.%02x.%02x: u%d %x (%p) %lx \n",
+	      b, d, f, size, offset, address, value);
+
+	if (b == 1 && d > 0)
+		return 0;
+
+	switch (size) {
+	case PCI_SIZE_8:
+		debug("byte %llx %x\n",address+offset, value);
+		writeb(value, address + offset);
+		break;
+	case PCI_SIZE_16:
+		debug("word %llx %x\n",address+offset, value);
+		writew(value, address + offset);
+		break;
+	case PCI_SIZE_32:
+		debug("long %llx %x\n",address+offset, value);
+		writel(value, address + offset);
+		break;
+	default:
+		printf("Invalid size\n");
+	}
+
+	debug("%02x.%02x.%02x: u%d %x (%lx) <- %lx\n",
+	      b, d, f, size, offset, address, value);
+
+	return 0;
+}
+
 static int pci_octeontx_ofdata_to_platdata(struct udevice *dev)
 {
 	return 0;
@@ -219,6 +318,19 @@ static int pci_octeontx_ecam_probe(struct udevice *dev)
 	if (err) {
 		printf("Error reading resource: %s\n", fdt_strerror(err));
 		return err;
+	}
+
+	err = fdt_node_check_compatible(gd->fdt_blob, dev->node.of_offset,
+					"marvell,pci-host-octeontx2-pem");
+	if (!err) {
+		err = fdt_get_resource(gd->fdt_blob, dev->node.of_offset,
+					"reg", 1, &pcie->pem);
+
+		if (err) {
+			printf("Error reading resource: %s\n",
+				fdt_strerror(err));
+			return err;
+		}
 	}
 
 	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->node.of_offset,
@@ -254,6 +366,16 @@ static const struct udevice_id pci_octeontx_pem_ids[] = {
 	{ }
 };
 
+static const struct dm_pci_ops pci_octeontx2_pem_ops = {
+	.read_config	= pci_octeontx2_pem_read_config,
+	.write_config	= pci_octeontx2_pem_write_config,
+};
+
+static const struct udevice_id pci_octeontx2_pem_ids[] = {
+	{ .compatible = "marvell,pci-host-octeontx2-pem" },
+	{ }
+};
+
 U_BOOT_DRIVER(pci_octeontx_ecam) = {
 	.name	= "pci_octeontx_ecam",
 	.id	= UCLASS_PCI,
@@ -263,6 +385,16 @@ U_BOOT_DRIVER(pci_octeontx_ecam) = {
 	.probe	= pci_octeontx_ecam_probe,
 	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
 	.flags = DM_FLAG_PRE_RELOC,
+};
+
+U_BOOT_DRIVER(pci_octeontx2_pcie) = {
+	.name	= "pci_octeontx2_pem",
+	.id	= UCLASS_PCI,
+	.of_match = pci_octeontx2_pem_ids,
+	.ops	= &pci_octeontx2_pem_ops,
+	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
+	.probe	= pci_octeontx_ecam_probe,
+	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
 };
 
 U_BOOT_DRIVER(pci_octeontx_pcie) = {
