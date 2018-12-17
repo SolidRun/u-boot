@@ -64,6 +64,28 @@ struct lmac *nix_get_cgx_lmac(int lmac_instance)
 	return NULL;
 }
 
+void cgx_lmac_mac_filter_clear(struct lmac *lmac)
+{
+	union cavm_cgxx_cmrx_rx_dmac_ctl0 dmac_ctl0;
+	union cavm_cgxx_cmr_rx_dmacx_cam0 dmac_cam0;
+	void *reg_addr;
+
+	dmac_cam0.u = 0x0;
+	reg_addr = lmac->cgx->reg_base +
+			CAVM_CGXX_CMR_RX_DMACX_CAM0(lmac->lmac_id * 8);
+	writeq(dmac_cam0.u, reg_addr);
+	debug("%s: reg %p dmac_cam0 %llx\n", __func__, reg_addr, dmac_cam0.u);
+
+	dmac_ctl0.u = 0x0;
+	dmac_ctl0.s.bcst_accept = 1;
+	dmac_ctl0.s.mcst_mode = 1;
+	dmac_ctl0.s.cam_accept = 0;
+	reg_addr = lmac->cgx->reg_base +
+			CAVM_CGXX_CMRX_RX_DMAC_CTL0(lmac->lmac_id);
+	writeq(dmac_ctl0.u, reg_addr);
+	debug("%s: reg %p dmac_ctl0 %llx\n", __func__, reg_addr, dmac_ctl0.u);
+}
+
 void cgx_lmac_mac_filter_setup(struct lmac *lmac)
 {
 	union cavm_cgxx_cmrx_rx_dmac_ctl0 dmac_ctl0;
@@ -284,10 +306,24 @@ int cgx_probe(struct udevice *dev)
 	return err;
 }
 
+int cgx_remove(struct udevice *dev)
+{
+	struct cgx *cgx = dev_get_priv(dev);
+	int i;
+
+	debug("%s: cgx remove reg_base %p cgx_id %d",
+		__func__, cgx->reg_base, cgx->cgx_id);
+	for (i = 0; i < cgx->lmac_count; i++)
+		cgx_lmac_mac_filter_clear(cgx->lmac[i]);
+
+	return 0;
+}
+
 U_BOOT_DRIVER(cgx) = {
         .name   = "cgx",
         .id     = UCLASS_MISC,
         .probe  = cgx_probe,
+        .remove  = cgx_remove,
         .priv_auto_alloc_size = sizeof(struct cgx),
 };
 
