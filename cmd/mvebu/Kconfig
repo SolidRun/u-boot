@@ -9,6 +9,14 @@ config CMD_MVEBU_BUBT
 	  For details about bubt command please see the documentation
 	  in doc/mvebu/cmd/bubt.txt
 
+config CMD_MVEBU_MV_FW_INFO
+	bool "mv_fw_info"
+	depends on TARGET_MVEBU_ARMADA_8K
+	default y
+	help
+	  mv_fw_info command prints FreeRTOS version and firmware information
+	  for the FW running on CM3 CPUs of AP and connected CPs.
+
 config CMD_MVEBU_PHY_FW_DOWNLOAD
 	bool "phy_fw_down"
 	depends on MVMDIO
