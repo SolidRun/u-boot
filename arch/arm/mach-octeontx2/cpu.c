@@ -37,6 +37,12 @@ static struct mm_region octeontx2_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE
 	}, {
+		.virt = 0x8c0000000000UL,
+		.phys = 0x8c0000000000UL,
+		.size = 0x40000000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE
+	}, {
 		/* List terminator */
 		0,
 	}
@@ -45,7 +51,7 @@ struct mm_region *mem_map = octeontx2_mem_map;
 
 u64 get_page_table_size(void)
 {
-	return 0x4c000;
+	return 0x6c000;
 }
 
 void reset_cpu(ulong addr)
