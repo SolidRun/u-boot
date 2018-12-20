@@ -1847,6 +1847,7 @@ void print_mmc_device_info(struct mmc *mmc)
 	const char *type;
 	const char *version;
 	const u8 *ext_csd = slot->ext_csd;
+	union cavm_mio_emm_modex emm_mode;
 	u32 card_type;
 	int prev = 0;
 	int i;
@@ -2015,7 +2016,10 @@ void print_mmc_device_info(struct mmc *mmc)
 	printf("High capacity:         %s\n",
 	       mmc->high_capacity ? "yes" : "no");
 	printf("Bus width:             %u bits\n", mmc->bus_width);
-	printf("Bus frequency:         %u\n", mmc->clock);
+	emm_mode.u = mmc_read_csr(mmc, CAVM_MIO_EMM_MODEX(slot->bus_id));
+	printf("Bus frequency:         %u, actual: %llu\n", mmc->clock,
+	       slot->host->sclock / (emm_mode.s.clk_hi + emm_mode.s.clk_lo));
+	printf("Host SClock:           %llu\n", slot->host->sclock);
 	if (!(mmc->card_caps & MMC_MODE_HS))
 		printf("Transfer frequency:    %u\n", mmc->tran_speed);
 	printf("Bus DDR:               %s\n", mmc->ddr_mode ? "yes" : "no");
@@ -2285,8 +2289,12 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 {
 	struct mmc_cmd cmd;
 	int err;
+	int retries = 4;
 
 	debug("%s(%s, %d)\n", __func__, mmc->cfg->name, len);
+	if (mmc->ddr_mode)
+		return 0;
+
 	mmc_switch_dev(mmc);
 
 	if (mmc->card_caps & MMC_MODE_DDR_52MHz) {
@@ -2298,8 +2306,11 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 	cmd.resp_type = MMC_RSP_R1;
 	cmd.cmdarg = len;
 
-	debug("%s: Setting block length to %d\n", __func__, len);
-	err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	do {
+		debug("%s: Setting block length to %d\n", __func__, len);
+		err = octeontx_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	} while (err && retries--);
+
 	if (err)
 		printf("%s: Error setting block length to %d\n", __func__, len);
 
@@ -3399,7 +3410,7 @@ static int sd_set_ios(struct mmc *mmc)
 
 	debug("%s(%s)\n", __func__, mmc->cfg->name);
 	debug("%s: clock: %d (max %d), width %d\n",
-	      __func__, clock, mmc->cfg->f_max, mmc->bus_width);
+	      __func__, clock, slot->cfg.f_max, mmc->bus_width);
 	if (mmc->bus_width > 4)
 		mmc->bus_width = 4;
 	slot->clk_period = (host->sclock + clock - 1) / clock;
@@ -3441,14 +3452,14 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 	struct octeontx_mmc_slot *slot = &host->slots[host->cur_slotid];
 	struct mmc *mmc = slot->mmc;
 	int timeout = 2000;
-	char cardtype;
 	int hs_timing = 0;
-	int ddr = 0;
 	int bus_width;
 	int power_class;
 	int clock = mmc->clock;
 	u32 flags = 0;
 	int index;
+	char cardtype;
+	bool ddr = false;
 #ifdef DEBUG
 	union cavm_mio_emm_rsp_lo emm_rsp_lo;
 #endif
@@ -3470,7 +3481,7 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 
 	cardtype = slot->ext_csd[EXT_CSD_CARD_TYPE] & 0x3f;
 	if (cardtype == 7) {
-		ddr = 1;
+		ddr = !slot->disable_ddr;
 		mmc->card_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz |
 				  MMC_MODE_DDR_52MHz;
 		debug("%s: Dual voltage card type supports 52MHz DDR at 1.8 and 3V\n",
@@ -3480,7 +3491,7 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 	hs_timing = false;
 	if (cardtype & (1 << 2)) {
 		hs_timing = true;
-		ddr = true;
+		ddr = !slot->disable_ddr;
 		mmc->card_caps |= MMC_MODE_DDR_52MHz;
 		debug("        High-Speed eMMC %dMHz %sat 1.2v or 3v\n",
 		      52, "DDR ");
@@ -3506,7 +3517,7 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 		hs_timing = true;
 		if ((mmc->cfg->voltages & MMC_VDD_165_195) ||
 		    env_get("octeontx_mmc_ddr"))
-			ddr = true;
+			ddr = !slot->disable_ddr;
 	}
 	if (cardtype & EXT_CSD_CARD_TYPE_DDR_1_2V) {
 		debug("        High-Speed DDR eMMC 52MHz at 1.2V I/O\n");
@@ -3557,13 +3568,16 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 
 	if (hs_timing) {
 		if ((cardtype & (MMC_HS_52MHZ | MMC_HS_DDR_52MHz_18_3V)) &&
-		    (mmc->cfg->f_max >= 50000000)) {
+		    (mmc->cfg->f_max >= 50000000) && 
+		    (slot->cfg.f_max >= 50000000)) {
 			mmc->card_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 			clock = min(52000000, (int)(mmc->cfg->f_max));
+			clock = min(clock, (int)slot->cfg.f_max);
 			debug("High-speed 52MHz timing mode detected\n");
 		} else {
 			mmc->card_caps |= MMC_MODE_HS;
 			clock = min(26000000, (int)(mmc->cfg->f_max));
+			clock = min(clock, (int)slot->cfg.f_max);
 			debug("High-speed 26MHz timing mode detected\n");
 		}
 		if (ddr && (mmc->card_caps & MMC_MODE_HS_52MHz)) {
@@ -3712,7 +3726,6 @@ again:
 		}
 		printf("%s: CRC error communicating with MMC device at %uHz, trying %uHz.\n",
 		       __func__, mmc->clock, next_speed);
-		mmc->clock = next_speed;
 		goto again;
 	}
 
@@ -3778,7 +3791,7 @@ again:
 	if (emm_switch.s.switch_err1) {
 		/* Error while performing HS_TIMING switch */
 		if (ddr) {
-			ddr = 0;
+			ddr = false;
 			debug("%s: Turning off DDR mode\n", __func__);
 			mmc->card_caps &= ~MMC_MODE_DDR_52MHz;
 			if (bus_width == EXT_CSD_DDR_BUS_WIDTH_8)
@@ -3986,8 +3999,8 @@ again:
 		}
 	}
 
-	if (ddr && hs_timing && clock >= 26000000) {
-		if (clock >= 52000000)
+	if (ddr && hs_timing && clock >= 25000000) {
+		if (clock >= 50000000)
 			mmc->card_caps |= MMC_MODE_DDR_52MHz;
 
 		switch (mmc->bus_width) {
@@ -4055,14 +4068,16 @@ void mmc_set_clock(struct mmc *mmc, uint clock)
 	unsigned bus;
 
 	debug("%s(%s, %u)\n", __func__, mmc->cfg->name, clock);
-	debug("%s: min: %u, max: %u, trans: %u, hs: %u, set: %u\n",
-	      __func__, mmc->cfg->f_min, mmc->cfg->f_max, mmc->tran_speed,
+	debug("%s: min: %u, max: %u, slot max: %u, trans: %u, hs: %u, set: %u\n",
+	      __func__, mmc->cfg->f_min, mmc->cfg->f_max, slot->cfg.f_max,
+	      mmc->tran_speed,
 	      (mmc->card_caps & MMC_MODE_HS) ? 1 : 0, clock);
 	if (clock == 0) {
 		printf("%s: ERROR: Cannot set clock to zero!\n", __func__);
 		return;
 	}
 	clock = min(clock, mmc->cfg->f_max);
+	clock = min(clock, slot->cfg.f_max);
 	clock = max(clock, mmc->cfg->f_min);
 	if (mmc->tran_speed && !(mmc->card_caps & MMC_MODE_HS)) {
 		clock = min(clock, mmc->tran_speed);
@@ -4097,6 +4112,10 @@ void mmc_set_clock(struct mmc *mmc, uint clock)
 	      mmc_read_csr(mmc, CAVM_MIO_EMM_MODEX(bus)));
 
 	mmc_set_watchdog(mmc, 1000000);
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	if (!IS_SD(mmc))
+		octeontx_mmc_set_bus_timing(mmc);
+#endif
 }
 
 #ifdef CONFIG_OCTEONTX_MMC_SD
@@ -4500,7 +4519,89 @@ static int mmc_set_dsr_cmd(struct mmc *mmc)
 	return mmc_send_cmd(mmc, &cmd, NULL);
 }
 
+
+
 #if defined(CONFIG_ARCH_OCTEONTX2)
+
+static int octeontx2_mmc_calibrate_mmc(struct mmc *mmc)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);        
+	struct mmc_cmd cmd;
+	struct mmc_data data;
+	union cavm_mio_emm_timing timing;
+	uint64_t tap_status = 0, tap_status2 = 0;
+	int tap;
+	int err;
+	int first_good = -1, last_good = -1;
+
+	mmc_switch_dev(mmc);
+	cmd.cmdidx = MMC_CMD_SEND_EXT_CSD;
+	cmd.resp_type = MMC_RSP_R1;
+	cmd.cmdarg = 0;
+        
+	data.dest = (char *)ext_csd;
+	data.blocks = 1;
+	data.blocksize = MMC_MAX_BLOCK_LEN;
+	data.flags = MMC_DATA_READ;
+	timing.u = mmc_read_csr(mmc, CAVM_MIO_EMM_TIMING());
+	/* Work-around, TODO: fix for next pass of 96xx */
+	timing.s.cmd_out_tap = 39;
+	timing.s.data_out_tap = 39;
+
+	for (tap = 0; tap < 64; tap++) {
+		timing.s.data_in_tap = tap;
+		mmc_write_csr(mmc, CAVM_MIO_EMM_TIMING(), timing.u);
+                
+		err = octeontx_mmc_send_cmd(mmc->dev, &cmd, &data);
+		debug("%s: tap %2d: %s\n", __func__, tap, err ? "bad" : "good");
+		if (!err)
+			tap_status |= (1ull << tap);
+	}
+	debug("%s: tap status: 0x%llx\n", __func__, tap_status);
+	for (tap = 0; tap < 64; tap++) {
+		timing.s.data_in_tap = tap;
+		mmc_write_csr(mmc, CAVM_MIO_EMM_TIMING(), timing.u);
+                
+		err = octeontx_mmc_send_cmd(mmc->dev, &cmd, &data);
+		debug("%s: tap %2d: %s\n", __func__, tap, err ? "bad" : "good");
+		if (!err)
+			tap_status2 |= (1ull << tap);
+	}
+	debug("%s: tap status2: 0x%llx\n", __func__, tap_status2);
+	tap_status &= tap_status2;
+        
+	for (tap = 0; tap < 64; tap++)
+		if (tap_status & (1ull << tap)) {
+			first_good = tap;
+			break;
+		}
+	for (tap = 63; tap >= 0; tap--) {
+		if (tap_status & (1ull << tap)) {
+			last_good = tap;
+			break;
+		}
+	}
+	debug("%s: tap_status: 0x%llx, tap_status2: 0x%llx, last tap: %d, first tap: %d\n", 
+	      __func__, tap_status, tap_status2, last_good, first_good);
+	if (first_good < 0 || last_good < 0) {
+		debug("%s: Error: no good tap values found!\n", __func__);
+		return -1;
+	}
+	tap = (first_good + last_good) / 2;
+	while (!(tap_status & (1ull << tap)) && tap < last_good)
+		tap++;
+        
+	debug("%s: Setting data input tap and cmd input tap to %d\n",
+	      __func__, tap);
+	debug("%s: tap_status: 0x%llx, tap_status2: 0x%llx, tap: %d\n", 
+	       __func__, tap_status, tap_status2, tap);
+	timing.u = mmc_read_csr(mmc, CAVM_MIO_EMM_TIMING());
+	timing.s.cmd_in_tap = timing.s.data_in_tap = tap;
+	mmc_write_csr(mmc, CAVM_MIO_EMM_TIMING(), timing.u);
+
+	return 0;
+}
+
 # if !defined(CONFIG_OCTEONTX_MMC_NO_TIMING)
 /**
  * Calibrate the tap delay time
@@ -4547,6 +4648,8 @@ static int octeontx2_mmc_calibrate_delay(struct mmc *mmc)
 	 * to ps then divide by 512 to get the delay in ps per tap delay.
 	 */
 	slot->timing_tapps = 10 * 1000 * emm_tap.s.delay / 512;
+	debug("%s: timing taps: %llu, delay: %u\n", 
+	      __func__, slot->timing_tapps, emm_tap.s.delay);
 
 	return 0;
 }
@@ -4562,13 +4665,22 @@ static int octeontx2_mmc_calibrate_delay(struct mmc *mmc)
 static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay)
 {
 	struct octeontx_mmc_slot *slot = mmc->priv;
+	int rc;
 
+	if (!slot->timing_tapps) {
+		rc = octeontx2_mmc_calibrate_delay(mmc);
+		if (rc) {
+			printf("%s: Error calculating timing taps delay\n", 
+			       __func__);
+			return rc;
+		}
+	}
 	if (!slot->timing_tapps) {
 		printf("%s: Error: tap timing not calibrated\n", __func__);
 		return -1;
 	}
 
-	return delay / slot->timing_tapps;
+	return min((int)(delay / slot->timing_tapps), 63);
 }
 # endif
 
@@ -4584,57 +4696,67 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 # if !defined(CONFIG_OCTEONTX_MMC_NO_TIMING)
 	struct octeontx_mmc_slot *slot = mmc->priv;
 	union cavm_mio_emm_timing timing;
-	int delay;
+	int bdelay;
 
         debug("%s(%s) asim: %d\n", __func__, mmc->cfg->name, slot->is_asim);
 	/* ASIM doesn't support this. */
 	if (slot->is_asim)
 		return 0;
-
+#if 0
 	timing.u = 0;
-	delay = octeontx2_mmc_calc_delay(mmc, slot->cmd_clk_skew);
-	if (delay < 0) {
+	bdelay = octeontx2_mmc_calc_delay(mmc, slot->cmd_clk_skew);
+	if (bdelay < 0) {
 		printf("%s: Error: could not calculate command clock skew\n",
 		       __func__);
 		return -1;
 	}
-	timing.s.cmd_in_tap = delay;
-	delay = octeontx2_mmc_calc_delay(mmc, slot->cmd_clk_skew);
-	if (delay < 0) {
+	timing.s.cmd_in_tap = bdelay;
+	bdelay = octeontx2_mmc_calc_delay(mmc, slot->cmd_clk_skew);
+	if (bdelay < 0) {
 		printf("%s: Error: could not calculate data clock skew\n",
 		       __func__);
 		return -1;
 	}
-	timing.s.data_in_tap = delay;
-
+	timing.s.data_in_tap = bdelay;
+#endif
 	if (mmc->clock < 26000000)
-		delay = octeontx2_mmc_calc_delay(mmc, 5000);
+		bdelay = octeontx2_mmc_calc_delay(mmc, 5000);
 	else if (mmc->clock <= 52000000)
-		delay = octeontx2_mmc_calc_delay(mmc, 2500);
+		bdelay = octeontx2_mmc_calc_delay(mmc, 2500);
 	else
-		delay = octeontx2_mmc_calc_delay(mmc, 400);
-	if (delay < 0) {
+		bdelay = octeontx2_mmc_calc_delay(mmc, 400);
+	debug("%s: bdelay: %d, clock: %d\n", __func__, bdelay, mmc->clock);
+	if (bdelay < 0) {
 		printf("%s: Error: could not calculate command and/or data clock skew\n",
 		       __func__);
 		return -1;
 	} else {
-                debug("%s: delay for clock %u is %d\n", __func__,
-                      mmc->clock, delay);
-        }
-        /* TODO: Write an algorithm to figure out the correct values */
-        timing.s.cmd_in_tap = 4;
-        timing.s.data_in_tap = 4;
-	timing.s.cmd_out_tap = /* delay */ 39;
-	timing.s.data_out_tap = /* delay */ 39;
-	debug("%s: MIO_EMM_TIMING: cmd_in: %d, cmd_out: %d, data_in: %d, data_out: %d\n",
-	      __func__, timing.s.cmd_in_tap, timing.s.cmd_out_tap,
-              timing.s.data_in_tap, timing.s.data_out_tap);
-
+		debug("%s: delay for clock %u is %d\n", __func__,
+		      mmc->clock, bdelay);
+	}
+#  if defined(CONFIG_ARCH_OCTEONTX2)
+	/* TODO: Write an algorithm to figure out the correct values */
+	timing.s.cmd_in_tap = 4;
+	timing.s.data_in_tap = 4;
+	timing.s.cmd_out_tap = /* bdelay */ 39;
+	timing.s.data_out_tap = /* bdelay */ 39;
 	mmc_write_csr(mmc, CAVM_MIO_EMM_TIMING(), timing.u);
+	if (mmc->clock >= 25000000) {
+		if (!IS_SD(mmc)) {
+			octeontx2_mmc_calibrate_mmc(mmc);
+		} else {
+			debug("%s: MIO_EMM_TIMING: cmd_in: %d, cmd_out: %d, data_in: %d, data_out: %d\n",
+			      __func__, timing.s.cmd_in_tap, 
+			      timing.s.cmd_out_tap, timing.s.data_in_tap, 
+			      timing.s.data_out_tap);
+		}
+	}
+#  endif
 # endif
 	return 0;
 }
 #else
+
 /**
  * Programs the bus timing delays for the current clock speed
  *
@@ -4647,7 +4769,7 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 	struct octeontx_mmc_slot *slot = mmc->priv;
 	union cavm_mio_emm_sample sample;
 
-        debug("%s: OcteonTX\n", __func__);
+	debug("%s: OcteonTX\n", __func__);
 	sample.u = 0;
 	sample.s.cmd_cnt = slot->cmd_clk_skew;
 	sample.s.dat_cnt = slot->dat_clk_skew;
@@ -5289,7 +5411,6 @@ int mmc_startup(struct mmc *mmc)
 		if (err) {
 			printf("%s: Error setting block length to %d\n",
 			       __func__, mmc->read_bl_len);
-			return err;
 		}
 	}
 
@@ -5494,52 +5615,52 @@ int mmc_set_rst_n_function(struct mmc *mmc, u8 enable)
 
 static int mmc_probe(bd_t *bis)
 {
-        int ret, i;
-        struct uclass *uc;
-        struct udevice *dev;
+	int ret, i;
+	struct uclass *uc;
+	struct udevice *dev;
 
-        ret = uclass_get(UCLASS_MMC, &uc);
-        if (ret)
-                return ret;
+	ret = uclass_get(UCLASS_MMC, &uc);
+	if (ret)
+		return ret;
 
-        /*
-         * Try to add them in sequence order. Really with driver model we
-         * should allow holes, but the current MMC list does not allow that.
-         * So if we request 0, 1, 3 we will get 0, 1, 2.
-         */
-        for (i = 0; ; i++) {
-                ret = uclass_get_device_by_seq(UCLASS_MMC, i, &dev);
-                if (ret == -ENODEV)
-                        break;
-        }
-        uclass_foreach_dev(dev, uc) {
-                ret = device_probe(dev);
-                if (ret)
-                        printf("%s - probe failed: %d\n", dev->name, ret);
-        }
+	/*
+	 * Try to add them in sequence order. Really with driver model we
+	 * should allow holes, but the current MMC list does not allow that.
+	 * So if we request 0, 1, 3 we will get 0, 1, 2.
+	 */
+	for (i = 0; ; i++) {
+		ret = uclass_get_device_by_seq(UCLASS_MMC, i, &dev);
+		if (ret == -ENODEV)
+			break;
+	}
+	uclass_foreach_dev(dev, uc) {
+		ret = device_probe(dev);
+		if (ret)
+			printf("%s - probe failed: %d\n", dev->name, ret);
+	}
 
-        return 0;
+	return 0;
 }
 
 int mmc_initialize(bd_t *bis)
 {
-        static int initialized = 0;
-        int ret;
-        if (initialized)        /* Avoid initializing mmc multiple times */
-                return 0;
-        initialized = 1;
+	static int initialized = 0;
+	int ret;
+	if (initialized)        /* Avoid initializing mmc multiple times */
+		return 0;
+	initialized = 1;
 
 #ifndef CONFIG_BLK
 #if !CONFIG_IS_ENABLED(MMC_TINY)
-        mmc_list_init();
+	mmc_list_init();
 #endif
 #endif
-        ret = mmc_probe(bis);
-        if (ret)
-                return ret;
+	ret = mmc_probe(bis);
+	if (ret)
+		return ret;
 
 #ifndef CONFIG_SPL_BUILD
-        print_mmc_devices(',');
+	print_mmc_devices(',');
 #endif
 
 	return 0;
@@ -6125,6 +6246,7 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 	int slot_node;
 	int regulator_node;
 	int ret;
+	char env_name[20];
 
 	debug("%s(%p, %d, %p)\n", __func__, blob, host->of_offset, host);
 
@@ -6153,6 +6275,14 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 		slot->cfg.f_max = fdtdec_get_uint(blob, slot_node,
 						  "max-frequency",
 						  26000000);
+		/* Note that this doesn't work if the environment variables
+		 * have not yet been read.
+		 */
+		snprintf(env_name, sizeof(env_name), "mmc_max_frequency%d", 
+			 reg);
+		slot->cfg.f_max = min((uint)env_get_ulong(env_name, 10, 
+							  slot->cfg.f_max),
+				      slot->cfg.f_max);
 		/* Set min frequency */
 		slot->cfg.f_min = 400000;
 		/* Set maximum number of blocks that can be transferred
@@ -6171,7 +6301,8 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 		if (fdtdec_get_bool(blob, slot_node, "sd-uhs-ddr50"))
 			slot->cfg.host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz |
 				MMC_MODE_DDR_52MHz;
-
+		slot->disable_ddr = fdtdec_get_bool(blob, slot_node,
+						    "marvell,disable-ddr");
 
 		/* Get voltage range */
 		if (fdtdec_get_int_array(blob, slot_node,
