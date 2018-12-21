@@ -40,6 +40,8 @@
 
 #define CONFIG_NR_DRAM_BANKS		1
 
+#define CONFIG_MISC_INIT_R
+
 /**
  * Only allow the Ethernet MAC address environment variable to be
  * overwritten once.

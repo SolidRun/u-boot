@@ -23,6 +23,7 @@ struct cavm_bdt g_cavm_bdt;
 
 extern unsigned long fdt_base_addr;
 extern void cgx_intf_shutdown(void);
+extern void eth_common_init(void);
 
 void octeontx_parse_board_info(void)
 {
@@ -139,10 +140,11 @@ int dram_init(void)
 /**
  * Board misc devices initialization routine.
  */
-void board_misc_init(void)
+int misc_init_r(void)
 {
 	struct udevice *bus;
 
+	eth_common_init();
 	/*
 	 * Enumerate all known miscellaneous devices.
 	 * Enumeration has the side-effect of probing them,
@@ -153,6 +155,7 @@ void board_misc_init(void)
 	     uclass_next_device(&bus)) {
 		;
 	}
+	return 0;
 }
 
 /**
@@ -172,8 +175,6 @@ int board_late_init(void)
 	snprintf(boardname, sizeof(boardname), "%s> ", g_cavm_bdt.type);
 	env_set("prompt", boardname);
 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
-
-	board_misc_init();
 
 	return 0;
 }
