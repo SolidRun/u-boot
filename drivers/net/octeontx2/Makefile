@@ -7,4 +7,5 @@
 
 
 obj-$(CONFIG_NET_OCTEONTX2) += cgx.o nix_af.o nix.o rvu_pf.o \
-				rvu_af.o rvu_common.o
+				rvu_af.o rvu_common.o octeontx_smi.o
+
