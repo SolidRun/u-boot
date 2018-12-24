@@ -136,7 +136,7 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
 	}
 	if (scr0.s.evt_sts.stat != CGX_STAT_SUCCESS) {
 		printf("%s failure for cmd %d on cgx %u lmac %u with errcode"
-			" %d\n", __func__, cmd, cgx, lmac, scr0.s.err.type);
+			" %d\n", __func__, cmd, cgx, lmac, scr0.s.link_sts.err_type);
 		err = -1;
 		goto error;
 	}
