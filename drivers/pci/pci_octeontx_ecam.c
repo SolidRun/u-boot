@@ -466,6 +466,7 @@ static int pci_octeontx_ecam_probe(struct udevice *dev)
 		return err;
 	}
 
+#if defined(CONFIG_ARCH_OCTEONTX2)
 	err = fdt_node_check_compatible(gd->fdt_blob, dev->node.of_offset,
 					"marvell,pci-host-octeontx2-pem");
 	if (!err) {
@@ -478,7 +479,7 @@ static int pci_octeontx_ecam_probe(struct udevice *dev)
 			return err;
 		}
 	}
-
+#endif
 	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->node.of_offset,
 				       &pcie->bus);
 
