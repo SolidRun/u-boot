@@ -142,4 +142,14 @@ config CMD_MVEBU_NAND_OEM
 	  and restores its original data. It supposed to run on new boards, on
 	  which the NAND manufacturer pre-programmed earlier prepared image.
 
+config CMD_MVEBU_MV_GET_COUNTERS
+	bool "mv_get_counters"
+	depends on TARGET_MVEBU_ARMADA_8K
+	default y
+	help
+	  mv_get_counters print MIB Counters.
+	  First argument select eth port to print.
+	  When no argument is given default port is Ethact.
+	  Wrong port being selected could cause crash.
+
 endmenu
