@@ -69,12 +69,28 @@ static int wait_for_ownership(u8 cgx, u8 lmac)
 {
 	union cgx_scratchx1 scr1;
 	union cgx_scratchx0 scr0;
+	u64 cmrx_int;
 	int timeout = 5000;
 
 	do {
 	
 		scr1.u = cgx_rd_scr1(cgx, lmac);
 		scr0.u = cgx_rd_scr0(cgx, lmac);
+		/* clear async events if any */
+		if ((scr0.s.evt_sts.evt_type == CGX_EVT_ASYNC) &&
+			scr0.s.evt_sts.ack) {
+			/* clear interrupt */
+			cmrx_int = readq(CGX_CMR_INT +
+					 CGX_SHIFT(cgx) + CMR_SHIFT(lmac));
+			cmrx_int |= 0x2; // Overflw bit
+			writeq(cmrx_int, CGX_CMR_INT +
+					 CGX_SHIFT(cgx) + CMR_SHIFT(lmac));
+
+			/* clear ack */
+			scr0.s.evt_sts.ack = 0;
+			cgx_wr_scr0(cgx, lmac, scr0.u);
+		}
+
 		if (timeout-- < 0) {
 			debug("timeout waiting for ownership\n");
 			return -ETIMEDOUT;
@@ -98,7 +114,7 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
 		err = -ETIMEDOUT;
 		goto error;
 	}
- 
+
 	/* send command */
 	scr1.u = cgx_rd_scr1(cgx, lmac);
 	scr1.s.cmd.id = cmd;
