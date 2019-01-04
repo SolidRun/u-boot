@@ -109,7 +109,7 @@ struct sar_info ap807_sar_1[] = {
 enum clocking_options {
 	CPU_2000_DDR_1200_RCLK_1200 = 0x0,
 	CPU_2000_DDR_1050_RCLK_1050 = 0x1,
-	CPU_1800_DDR_1200_RCLK_1200 = 0x6,
+	CPU_2200_DDR_1200_RCLK_1200 = 0x6,
 	CPU_1800_DDR_1050_RCLK_1200 = 0x7,
 	CPU_1600_DDR_1200_RCLK_1200 = 0x0d,
 	CPU_1600_DDR_900_RCLK_900 = 0x0e,
@@ -120,7 +120,7 @@ static const u32 pll_freq_tbl[16][4] = {
 	/* CPU */   /* DDR */   /* Ring */
 	{2.0 * GHz, 1.2  * GHz, 1.2  * GHz, CPU_2000_DDR_1200_RCLK_1200},
 	{2.0 * GHz, 1.05 * GHz, 1.05 * GHz, CPU_2000_DDR_1050_RCLK_1050},
-	{1.8 * GHz, 1.2  * GHz, 1.2  * GHz, CPU_1800_DDR_1200_RCLK_1200},
+	{2.2 * GHz, 1.2  * GHz, 1.2  * GHz, CPU_2200_DDR_1200_RCLK_1200},
 	{1.8 * GHz, 1.05 * GHz, 1.2 * GHz, CPU_1800_DDR_1050_RCLK_1200},
 	{1.6 * GHz, 1.2 * GHz, 1.2 * GHz, CPU_1600_DDR_1200_RCLK_1200},
 	{1.6 * GHz, 0.9  * GHz, 0.9  * GHz, CPU_1600_DDR_900_RCLK_900},
