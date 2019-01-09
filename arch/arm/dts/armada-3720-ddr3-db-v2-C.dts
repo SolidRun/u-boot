@@ -25,7 +25,7 @@
 */
 
 / {
-	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V2";
+	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V2-C";
 	compatible = "marvell,armada-3720-db-v2",
 		     "marvell,armada3720",
 		     "marvell,armada3710";
