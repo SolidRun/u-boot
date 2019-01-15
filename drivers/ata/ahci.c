@@ -511,6 +511,11 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 		ahci_sg->addr =
 		    cpu_to_le32((unsigned long) buf + i * MAX_DATA_BYTE_COUNT);
 		ahci_sg->addr_hi = 0;
+#ifdef CONFIG_PHYS_64BIT
+		ahci_sg->addr_hi =
+		    cpu_to_le32((u32)(((u64)(buf + i * MAX_DATA_BYTE_COUNT)
+					>> 16) >> 16));
+#endif
 		ahci_sg->flags_size = cpu_to_le32(0x3fffff &
 					  (buf_len < MAX_DATA_BYTE_COUNT
 					   ? (buf_len - 1)
@@ -600,8 +605,20 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 
 	writel_with_flush((unsigned long)pp->cmd_slot,
 			  port_mmio + PORT_LST_ADDR);
+#ifdef CONFIG_PHYS_64BIT
+	if (uc_priv->cap & HOST_64BIT)
+		writel_with_flush(
+			cpu_to_le32((u32)(((u64)(pp->cmd_slot) >> 16) >> 16)),
+			port_mmio + PORT_LST_ADDR_HI);
+#endif
 
 	writel_with_flush(pp->rx_fis, port_mmio + PORT_FIS_ADDR);
+#ifdef CONFIG_PHYS_64BIT
+	if (uc_priv->cap & HOST_64BIT)
+		writel_with_flush(
+			cpu_to_le32((u32)(((pp->rx_fis) >> 16) >> 16)),
+			port_mmio + PORT_FIS_ADDR_HI);
+#endif
 
 #ifdef CONFIG_SUNXI_AHCI
 	sunxi_dma_init(port_mmio);

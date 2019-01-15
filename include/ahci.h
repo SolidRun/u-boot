@@ -40,6 +40,9 @@
 #define HOST_IRQ_EN		(1 << 1)  /* global IRQ enable */
 #define HOST_AHCI_EN		(1 << 31) /* AHCI enabled */
 
+/* HOST_CAP bits */
+#define HOST_64BIT		(1 << 31) /* 64-Bit Addressing */
+
 /* Registers for each SATA port */
 #define PORT_LST_ADDR		0x00 /* command list DMA addr */
 #define PORT_LST_ADDR_HI	0x04 /* command list DMA addr hi */
