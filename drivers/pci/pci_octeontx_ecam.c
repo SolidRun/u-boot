@@ -279,14 +279,12 @@ static void pci_octeontx2_pem_errata(struct udevice *bus, uint offset,
 	u64 rval, wval;
 	u32 cfg_off, data;
 	u64 raddr, waddr;
-	static int init_done = 0;
 	u8 shift;
 
 	raddr = pcie->pem.start + PEM_CFG_RD;
 	waddr = pcie->pem.start + PEM_CFG_WR;
 
 	debug("%s raddr %llx waddr %llx\n", __func__, raddr, waddr);
-	if (!init_done) {
 		cfg_off = rval = wval = data = 0;
 
 		cfg_off = PCIERC_RASDP_DE_ME;
@@ -323,9 +321,6 @@ static void pci_octeontx2_pem_errata(struct udevice *bus, uint offset,
 		wval |= ((u64)data << 32);
 	debug("%s CHGP1 waddr %llx wval %llx\n", __func__, waddr, wval);
 		writeq(wval, waddr);
-
-		init_done = 1;
-	}
 
 	cfg_off = PCIERC_RAS_EINJ_EN;
 	wval = cfg_off;
