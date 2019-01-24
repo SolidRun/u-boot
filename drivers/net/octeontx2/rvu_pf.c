@@ -35,8 +35,11 @@ int rvu_pf_init(struct rvu_pf *rvu)
 	rvu->nix = nix;
 
 	/* to make post_probe happy */
-	memcpy(pdata->enetaddr, nix->lmac->mac_addr, 6);
-	eth_env_set_enetaddr_by_index("eth", rvu->dev->seq, pdata->enetaddr);
+	if (is_valid_ethaddr(nix->lmac->mac_addr)) {
+		memcpy(pdata->enetaddr, nix->lmac->mac_addr, 6);
+		eth_env_set_enetaddr_by_index("eth", rvu->dev->seq,
+					      pdata->enetaddr);
+	}
 
 	return 0;
 }

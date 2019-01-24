@@ -743,7 +743,25 @@ int nix_lf_recv(struct udevice *dev, int flags, uchar **packetp)
 
 int nix_lf_setup_mac(struct udevice *dev)
 {
-	return -ENOSYS;
+	struct rvu_pf *rvu = dev_get_priv(dev);
+	struct nix *nix = rvu->nix;
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	/* If lower level firmware fails to set proper MAC
+	 * u-boot framework updates MAC to random address.
+	 * Use this hook to update mac address in cgx lmac
+	 * and call mac filter setup to update new address.
+	 */
+	if (memcmp(nix->lmac->mac_addr, pdata->enetaddr, ARP_HLEN)) {
+		memcpy(nix->lmac->mac_addr, pdata->enetaddr, 6);
+		eth_env_set_enetaddr_by_index("eth", rvu->dev->seq,
+					      pdata->enetaddr);
+		cgx_lmac_mac_filter_setup(nix->lmac);
+		debug("%s: lMAC %pM\n", __func__, nix->lmac->mac_addr);
+		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
+	}
+	debug("%s: setupMAC %pM\n", __func__, pdata->enetaddr);
+	return 0;
 }
 
 int nix_lf_read_rom_mac(struct udevice *dev)

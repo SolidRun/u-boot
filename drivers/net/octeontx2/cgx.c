@@ -271,8 +271,6 @@ static int cgx_lmac_init(struct cgx *cgx)
 		cgx_intf_get_mac_addr(cgx->cgx_id, i, lmac->mac_addr);
 		debug("%s: cgx%d lmac%d mac_addr\n",__func__,cgx->cgx_id, i);
 		debug("%s: MAC %pM\n", __func__, lmac->mac_addr);
-		eth_env_set_enetaddr_by_index("eth", lmac->instance-1,
-						 lmac->mac_addr);
 		printf("CGX%d LMAC%d %s \n", cgx->cgx_id, lmac->lmac_id,
 					lmac_type_to_str[lmac->lmac_type]);
 
