@@ -199,7 +199,8 @@ int board_late_init(void)
 
 	/*
 	 * Now that pci_init initializes env device.
-	 * Try to validate ethaddr env variables
+	 * Try to cleanup ethaddr env variables, this is needed
+	 * as with each boot, configuration of QLM can change.
 	 */
 	octeontx_cleanup_ethaddr();
 

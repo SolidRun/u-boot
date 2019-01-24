@@ -25,6 +25,17 @@ extern unsigned long fdt_base_addr;
 extern void cgx_intf_shutdown(void);
 extern void eth_common_init(void);
 
+void octeontx2_cleanup_ethaddr(void)
+{
+	char ename[32];
+
+	for (int i = 0; i < 20; i++) {
+		sprintf(ename, i ? "eth%daddr" : "ethaddr", i);
+		if (env_get(ename))
+			env_set_force(ename, NULL);
+	}
+}
+
 void octeontx_parse_board_info(void)
 {
 	const char *str;
@@ -166,10 +177,13 @@ int board_late_init(void)
 	char boardname[20];
 
 	debug("%s()\n", __func__);
+
 	/*
 	 * Now that pci_init initializes env device.
-	 * Try to validate ethaddr env variables
+	 * Try to cleanup ethaddr env variables, this is needed
+	 * as with each boot, configuration of QLM can change.
 	 */
+	octeontx2_cleanup_ethaddr();
 
 	debug("bdt.type %s\n", g_cavm_bdt.type);
 	snprintf(boardname, sizeof(boardname), "%s> ", g_cavm_bdt.type);
