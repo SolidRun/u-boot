@@ -16,10 +16,13 @@
 
 #if defined(CONFIG_ARCH_OCTEONTX2)
 #include <asm/arch/octeontx2.h>
+#define USE_TBI_CLK
 #endif
 
 #define OCTEONTX_SPI_MAX_BYTES		9
 #define OCTEONTX_SPI_MAX_CLOCK_HZ	50000000
+
+#define OCTEONTX2_TBI_CLK		100000000
 
 #define OCTEONTX_SPI_NUM_CS		4
 
@@ -75,7 +78,8 @@ union mpi_cfg {
 		 * 0 = SPI_CS_n asserted low.
 		 */
 		uint64_t cshi		:1;
-		uint64_t 		:2;	/** Reserved */
+		uint64_t rsvd		:1;	/** Reserved */
+		uint64_t cs_sticky	:1;	/** cs sticky bit */
 		/** 0 = shift MSB first, 1 = shift LSB first */
 		uint64_t lsbfirst	:1;
 		/**
@@ -112,7 +116,8 @@ union mpi_cfg {
 		uint64_t clk_cont	:1;
 		uint64_t wireor		:1;
 		uint64_t lsbfirst	:1;
-		uint64_t		:2;
+		uint64_t cs_sticky	:1;
+		uint64_t rsvd		:1;
 		uint64_t cshi		:1;
 		uint64_t idleclks	:2;
 		uint64_t tritx		:1;
@@ -220,23 +225,25 @@ union mpi_tx {
 	/* struct mpi_tx_s cn; */
 };
 
+#if defined(CONFIG_ARCH_OCTEONTX2)
 /**
  * Register (NCB) mpi#_xmit
  *
  * MPI/SPI Transmit Register
  */
 union mpi_xmit {
-        u64 u;
-        struct mpi_xmit_s {
-                u64 totnum                           : 11;
-                u64 reserved_11_19                   : 9;
-                u64 txnum                            : 11;
-                u64 reserved_31_59                   : 29;
-                u64 leavecs                          : 1;
-                u64 csid                             : 2;
-                u64 reserved_63                      : 1;
-        } s;
+	u64 u;
+	struct mpi_xmit_s {
+		u64 totnum		: 11;
+		u64 reserved_11_19	: 9;
+		u64 txnum		: 11;
+		u64 reserved_31_59	: 29;
+		u64 leavecs		: 1;
+		u64 csid		: 2;
+		u64 reserved_63		: 1;
+	} s;
 };
+#endif
 
 /** Local driver data structure */
 struct octeontx_spi {
@@ -244,14 +251,6 @@ struct octeontx_spi {
 	u32 clkdiv;		/** Clock divisor for device speed */
 	bool is_otx2;		/** Gen 2 SoC */
 };
-
-void *octeontx_spi_get_baseaddr(struct udevice *dev)
-{
-	struct udevice *bus = dev_get_parent(dev);
-	struct octeontx_spi *priv = dev_get_priv(bus);
-
-	return priv->baseaddr;
-}
 
 static union mpi_cfg octeontx_spi_set_mpicfg(struct udevice *dev)
 {
@@ -284,10 +283,7 @@ static union mpi_cfg octeontx_spi_set_mpicfg(struct udevice *dev)
 	mpi_cfg.s.csena1 = 1;
 	mpi_cfg.s.csena2 = 1;
 	mpi_cfg.s.csena3 = 1;
-	if (priv->is_otx2) {
-		mpi_cfg.s.legacy_dis = 1;
-		mpi_cfg.s.iomode = 0; /* X1_UNIDIR */
-	}
+
 	debug("\n mpi_cfg %llx\n",mpi_cfg.u);
 	return mpi_cfg;
 }
@@ -299,7 +295,9 @@ static union mpi_cfg octeontx_spi_set_mpicfg(struct udevice *dev)
  */
 static void octeontx_spi_wait_ready(struct udevice *dev)
 {
-	void *baseaddr = octeontx_spi_get_baseaddr(dev);
+	struct udevice *bus = dev_get_parent(dev);
+	struct octeontx_spi *priv = dev_get_priv(bus);
+	void *baseaddr = priv->baseaddr;
 	union mpi_sts mpi_sts;
 
 	do {
@@ -317,19 +315,17 @@ static void octeontx_spi_wait_ready(struct udevice *dev)
  */
 static int octeontx_spi_claim_bus(struct udevice *dev)
 {
-	void *baseaddr = octeontx_spi_get_baseaddr(dev);
-#if defined(CONFIG_ARCH_OCTEONTX2)
-	struct octeontx_spi *priv = dev_get_priv(dev->parent);
-#endif
+	struct udevice *bus = dev_get_parent(dev);
+	struct octeontx_spi *priv = dev_get_priv(bus);
+	void *baseaddr = priv->baseaddr;
 	union mpi_cfg mpi_cfg;
 
-	debug("%s(%s)\n", __func__, dev->name);
+	debug("\n\n%s(%s)\n", __func__, dev->name);
 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
 		return -EINVAL;
 
 #if defined(CONFIG_ARCH_OCTEONTX2)
-	if (priv->is_otx2)
-		acquire_flash_arb(true);
+	acquire_flash_arb(true);
 #endif
 
 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
@@ -349,19 +345,17 @@ static int octeontx_spi_claim_bus(struct udevice *dev)
  */
 static int octeontx_spi_release_bus(struct udevice *dev)
 {
-	void *baseaddr = octeontx_spi_get_baseaddr(dev);
-#if defined(CONFIG_ARCH_OCTEONTX2)
-	struct octeontx_spi *priv = dev_get_priv(dev->parent);
-#endif
+	struct udevice *bus = dev_get_parent(dev);
+	struct octeontx_spi *priv = dev_get_priv(bus);
+	void *baseaddr = priv->baseaddr;
 	union mpi_cfg mpi_cfg;
 
-	debug("%s(%s)\n", __func__, dev->name);
+	debug("%s(%s)\n\n", __func__, dev->name);
 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
 		return -EINVAL;
 
 #if defined(CONFIG_ARCH_OCTEONTX2)
-	if (priv->is_otx2)
-		acquire_flash_arb(false);
+	acquire_flash_arb(false);
 #endif
 
 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
@@ -371,13 +365,14 @@ static int octeontx_spi_release_bus(struct udevice *dev)
 	return 0;
 }
 
+#if defined(CONFIG_ARCH_OCTEONTX)
 static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			     const void *dout, void *din, unsigned long flags)
 {
-	void *baseaddr = octeontx_spi_get_baseaddr(dev);
-	struct octeontx_spi *priv = dev_get_priv(dev->parent);
+	struct udevice *bus = dev_get_parent(dev);
+	struct octeontx_spi *priv = dev_get_priv(bus);
+	void *baseaddr = priv->baseaddr;
 	union mpi_tx mpi_tx;
-	union mpi_xmit mpi_xmit;
 	union mpi_cfg mpi_cfg;
 	uint64_t wide_dat = 0;
 	int len = bitlen / 8;
@@ -389,7 +384,7 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (!OCTEONTX_SPI_CS_VALID(cs))
 		return -EINVAL;
 
-	debug("%s(%s, %u, %p, %p, 0x%lx), cs: %d\n",
+	debug("\n %s(%s, %u, %p, %p, 0x%lx), cs: %d\n",
 	      __func__, dev->name, bitlen, dout, din, flags, cs);
 
 	mpi_cfg = octeontx_spi_set_mpicfg(dev);
@@ -397,96 +392,203 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (mpi_cfg.u != readq(baseaddr + MPI_CFG))
 		writeq(mpi_cfg.u, baseaddr + MPI_CFG);
 
+	debug("\n mpi_cfg upd %llx\n", mpi_cfg.u);
+
 	/* Start by writing and reading 8 bytes at a time.  While we can support
 	 * up to 10, it's easier to just use 8 with the MPI_WIDE_DAT register.
 	 */
 	while (len > 8) {
 		if (tx_data) {
 			wide_dat = get_unaligned((uint64_t *)tx_data);
-			debug("  tx: %016llx\n", (unsigned long long)wide_dat);
+			debug("  tx: %016llx \t", (unsigned long long)wide_dat);
 			tx_data += 8;
-			if (priv->is_otx2 == true)
-				writeq(wide_dat, baseaddr + MPI_WIDE_BUF(0));
-			else
-				writeq(wide_dat, baseaddr + MPI_WIDE_DAT);
+			writeq(wide_dat, baseaddr + MPI_WIDE_DAT);
 		}
 
-		if (priv->is_otx2 == true) {
-			mpi_xmit.u = 0;
-			mpi_xmit.s.csid = cs;
-			mpi_xmit.s.leavecs = 1;
-			mpi_xmit.s.txnum = tx_data ? 8 : 0;
-			mpi_xmit.s.totnum = 8;
-			writeq(mpi_xmit.u, baseaddr + MPI_XMIT);
-		} else {
-			mpi_tx.u = 0;
-			mpi_tx.s.csid = cs;
-			mpi_tx.s.leavecs = 1;
-			mpi_tx.s.txnum = tx_data ? 8 : 0;
-			mpi_tx.s.totnum = 8;
-			writeq(mpi_tx.u, baseaddr + MPI_TX);
-		}
+		mpi_tx.u = 0;
+		mpi_tx.s.csid = cs;
+		mpi_tx.s.leavecs = 1;
+		mpi_tx.s.txnum = tx_data ? 8 : 0;
+		mpi_tx.s.totnum = 8;
+		writeq(mpi_tx.u, baseaddr + MPI_TX);
+
 		octeontx_spi_wait_ready(dev);
 
+		debug("\n ");
+
 		if (rx_data) {
-			if (priv->is_otx2 == true)
-				wide_dat = readq(baseaddr + MPI_WIDE_BUF(0));
-			else
-				wide_dat = readq(baseaddr + MPI_WIDE_DAT);
-			debug("  rx: %016llx\n", (unsigned long long)wide_dat);
+			wide_dat = readq(baseaddr + MPI_WIDE_DAT);
+			debug("  rx: %016llx\t", (unsigned long long)wide_dat);
 			*(uint64_t *)rx_data = wide_dat;
 			rx_data += 8;
 		}
 		len -= 8;
 	}
 
+	debug("\n ");
+
 	/* Write and read the rest of the data */
 	if (tx_data) {
-		if (priv->is_otx2 == true) {
-			memcpy(&wide_dat, tx_data, len);
-			debug("  tx: %016llx\n", wide_dat);
-			writeq(wide_dat, baseaddr + MPI_WIDE_BUF(0));
-		} else {
-			for (i = 0; i < len; i++) {
-				debug("  tx: %02x\n", *tx_data);
-				writeq(*tx_data++, baseaddr + MPI_DAT(i));
-			}
+		for (i = 0; i < len; i++) {
+			debug("  tx: %02x\n", *tx_data);
+			writeq(*tx_data++, baseaddr + MPI_DAT(i));
 		}
 	}
-	if (priv->is_otx2 == true) {
-		mpi_xmit.u = 0;
-		mpi_xmit.s.csid = cs;
-		mpi_xmit.s.leavecs = !(flags & SPI_XFER_END);
-		mpi_xmit.s.txnum = tx_data ? len : 0;
-		mpi_xmit.s.totnum = len;
-		writeq(mpi_xmit.u, baseaddr + MPI_XMIT);
-	} else {
-		mpi_tx.u = 0;
-		mpi_tx.s.csid = cs;
-		mpi_tx.s.leavecs = !(flags & SPI_XFER_END);
-		mpi_tx.s.txnum = tx_data ? len : 0;
-		mpi_tx.s.totnum = len;
-		writeq(mpi_tx.u, baseaddr + MPI_TX);
-	}
+	mpi_tx.u = 0;
+	mpi_tx.s.csid = cs;
+	mpi_tx.s.leavecs = !(flags & SPI_XFER_END);
+	mpi_tx.s.txnum = tx_data ? len : 0;
+	mpi_tx.s.totnum = len;
+	writeq(mpi_tx.u, baseaddr + MPI_TX);
+
 	octeontx_spi_wait_ready(dev);
 
+	debug("\n ");
+
 	if (rx_data) {
-		if (priv->is_otx2 == true) {
-			wide_dat = readq(baseaddr + MPI_WIDE_BUF(0));
-			debug("  tx: %016llx\n", wide_dat);
-			memcpy(rx_data, &wide_dat, len);
-			rx_data += len;
-		} else {
-			for (i = 0; i < len; i++) {
-				*rx_data = readq(baseaddr + MPI_DAT(i)) & 0xff;
-				debug("  rx: %02x\n", *rx_data);
-				rx_data++;
-			}
+		for (i = 0; i < len; i++) {
+			*rx_data = readq(baseaddr + MPI_DAT(i)) & 0xff;
+			debug("  rx: %02x\n", *rx_data);
+			rx_data++;
 		}
 	}
 
 	return 0;
 }
+#endif
+
+#if defined(CONFIG_ARCH_OCTEONTX2)
+static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+			     const void *dout, void *din, unsigned long flags)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct octeontx_spi *priv = dev_get_priv(bus);
+	void *baseaddr = priv->baseaddr;
+	union mpi_xmit mpi_xmit;
+	union mpi_cfg mpi_cfg;
+	u64 wide_dat = 0;
+	int len = bitlen / 8;
+	int rem;
+	int i;
+	const u8 *tx_data = dout;
+	u8 *rx_data = din;
+	int cs = spi_chip_select(dev);
+
+	if (!OCTEONTX_SPI_CS_VALID(cs))
+		return -EINVAL;
+
+	debug("\n %s(%s, %u, %p, %p, 0x%lx), cs: %d\n",
+	      __func__, dev->name, bitlen, dout, din, flags, cs);
+
+	mpi_cfg = octeontx_spi_set_mpicfg(dev);
+
+	mpi_cfg.s.legacy_dis = 1;
+	mpi_cfg.s.cs_sticky = 1;
+#ifdef USE_TBI_CLK
+	mpi_cfg.s.tb100_en = 1;
+#endif
+	mpi_cfg.s.iomode = (flags & SPI_XFER_QUAD) ? 3 : 0;
+
+	if (mpi_cfg.u != readq(baseaddr + MPI_CFG))
+		writeq(mpi_cfg.u, baseaddr + MPI_CFG);
+
+	debug("\n mpi_cfg upd %llx\n\n", mpi_cfg.u);
+
+	/* Start by writing or reading 1024 bytes at a time. */
+	while (len > 1024) {
+		if (tx_data) {
+			/* 8 bytes per iteration */
+			for (i = 0; i < 128; i++) {
+				wide_dat = get_unaligned((uint64_t *)tx_data);
+				debug("  tx: %016llx \t",
+				      (unsigned long long)wide_dat);
+				if ((i % 4) == 3)
+					debug("\n");
+				tx_data += 8;
+				writeq(wide_dat, baseaddr + MPI_WIDE_BUF(i));
+			}
+		}
+
+		mpi_xmit.u = 0;
+		mpi_xmit.s.csid = cs;
+		mpi_xmit.s.leavecs = 1;
+		mpi_xmit.s.txnum = tx_data ? 1024 : 0;
+		mpi_xmit.s.totnum = 1024;
+		writeq(mpi_xmit.u, baseaddr + MPI_XMIT);
+
+		octeontx_spi_wait_ready(dev);
+
+		debug("\n ");
+
+		if (rx_data) {
+			/* 8 bytes per iteration */
+			for (i = 0; i < 128; i++) {
+				wide_dat = readq(baseaddr + MPI_WIDE_BUF(i));
+				debug("  rx: %016llx\t",
+				      (unsigned long long)wide_dat);
+				if ((i % 4) == 3)
+					debug("\n");
+				*(uint64_t *)rx_data = wide_dat;
+				rx_data += 8;
+			}
+		}
+		len -= 1024;
+	}
+
+	if (tx_data) {
+		rem = len % 8;
+		/* 8 bytes per iteration */
+		for (i = 0; i < len / 8; i++) {
+			wide_dat = get_unaligned((uint64_t *)tx_data);
+			debug("  tx: %016llx \t",
+			      (unsigned long long)wide_dat);
+			if ((i % 4) == 3)
+				debug("\n");
+			tx_data += 8;
+			writeq(wide_dat, baseaddr + MPI_WIDE_BUF(i));
+		}
+		if (rem) {
+			memcpy(&wide_dat, tx_data, rem);
+			debug("  rtx: %016llx\t", wide_dat);
+			writeq(wide_dat, baseaddr + MPI_WIDE_BUF(i));
+		}
+	}
+
+	mpi_xmit.u = 0;
+	mpi_xmit.s.csid = cs;
+	mpi_xmit.s.leavecs = !(flags & SPI_XFER_END);
+	mpi_xmit.s.txnum = tx_data ? len : 0;
+	mpi_xmit.s.totnum = len;
+	writeq(mpi_xmit.u, baseaddr + MPI_XMIT);
+
+	octeontx_spi_wait_ready(dev);
+
+	debug("\n ");
+
+	if (rx_data) {
+		rem = len % 8;
+		/* 8 bytes per iteration */
+		for (i = 0; i < len / 8; i++) {
+			wide_dat = readq(baseaddr + MPI_WIDE_BUF(i));
+			debug("  rx: %016llx\t",
+			      (unsigned long long)wide_dat);
+			if ((i % 4) == 3)
+				debug("\n");
+			*(uint64_t *)rx_data = wide_dat;
+			rx_data += 8;
+		}
+		if (rem) {
+			wide_dat = readq(baseaddr + MPI_WIDE_BUF(i));
+			debug("  rrx: %016llx\t",
+			      (unsigned long long)wide_dat);
+			memcpy(rx_data, &wide_dat, rem);
+			rx_data += rem;
+		}
+	}
+
+	return 0;
+}
+#endif
 
 /**
  * Set the speed of the SPI bus
@@ -497,11 +599,18 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 static int octeontx_spi_set_speed(struct udevice *bus, uint max_hz)
 {
 	struct octeontx_spi *priv = dev_get_priv(bus);
+	u64 refclk = octeontx_get_io_clock();
 
-	debug("%s(%s, %u, %llu)\n", __func__, bus->name, max_hz, octeontx_get_io_clock());
+	debug("%s(%s, %u, %llu)\n", __func__, bus->name, max_hz, refclk);
+
 	if (max_hz > OCTEONTX_SPI_MAX_CLOCK_HZ)
 		max_hz = OCTEONTX_SPI_MAX_CLOCK_HZ;
-	priv->clkdiv = (octeontx_get_io_clock()) / (2 * max_hz);
+
+#ifdef USE_TBI_CLK
+	refclk = OCTEONTX2_TBI_CLK;
+#endif
+	priv->clkdiv = refclk / (2 * max_hz);
+
 	debug("%s %d\n", __func__, priv->clkdiv);
 
 	return 0;
@@ -518,14 +627,10 @@ static int octeontx_pci_spi_probe(struct udevice *dev)
 	struct octeontx_spi *priv = dev_get_priv(dev);
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	size_t size;
-	unsigned short ssid;
 
 	debug("SPI PCI device: %x\n", bdf);
 	dev->req_seq = PCI_FUNC(bdf);
 	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
-
-	dm_pci_read_config16(dev, PCI_SUBSYSTEM_ID, &ssid);
-	priv->is_otx2 = (((ssid >> 12) & 0xF) == 0xB) ? true : false;
 
 	debug("SPI bus %s %d at %p\n",dev->name, dev->seq, priv->baseaddr);
 
