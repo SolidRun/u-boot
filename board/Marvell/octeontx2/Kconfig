@@ -6,9 +6,13 @@ choice
 config	TARGET_OCTEONTX2_96XX
 	bool "OcteonTX2 CN96XX"
 
+config	TARGET_OCTEONTX2_95XX
+	bool "OcteonTX2 CN95XX"
+
 endchoice
 
 config SYS_CONFIG_NAME
 	default "octeontx2_96xx" if TARGET_OCTEONTX2_96XX
+	default "octeontx2_95xx" if TARGET_OCTEONTX2_95XX
 
 endif

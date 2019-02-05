@@ -87,13 +87,6 @@
 #define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-/** Enable long help support */
-#define CONFIG_SYS_LONGHELP
-/** Enable editing of the command line */
-#define CONFIG_CMDLINE_EDITING
-
-/** Enable tab autocomplete on command line */
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/** max command args */
 
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
