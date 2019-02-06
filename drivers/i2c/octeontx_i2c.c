@@ -11,6 +11,12 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 
+#if defined(CONFIG_ARCH_OCTEONTX)
+# define TWSI_THP		24
+#else
+# define TWSI_THP		3
+#endif
+
 /**
  * Slave address to use for Thunder when accessed by another master
  */
@@ -70,13 +76,6 @@
 #ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_11
 # define CONFIG_SYS_I2C_OCTEONTX_SPEED_11	CONFIG_SYS_I2C_OCTEONTX_SPEED_10
 #endif
-
-#if defined(TARGET_OCTEONTX_81XX) || defined(TARGET_OCTEONTX_83XX)
-# define TWSI_THP		24
-#else
-# define TWSI_THP		3
-#endif
-
 
 #define TWSI_SW_TWSI		0x1000
 #define TWSI_TWSI_SW		0x1008
@@ -776,46 +775,51 @@ static int twsi_read_data(void *baseaddr, u8 slave_addr,
 	return 0;
 }
 
-static int twsi_init(void *baseaddr, unsigned int speed, int slaveaddr)
+static void twsi_calc_div(unsigned int speed, int *m_div, int *n_div)
 {
 	int io_clock_hz;
-	int n_div;
-	int m_div;
+	int tclk, fsamp;
+	int ndiv, mdiv;
+
+#if defined(CONFIG_ARCH_OCTEONTX)
+	io_clock_hz = octeontx_get_io_clock();
+	tclk = io_clock_hz / 2 * (TWSI_THP + 1);
+#elif defined(CONFIG_ARCH_OCTEONTX2)
+	/* Refclk src in mode register defaults to 100MHz clock */
+	io_clock_hz = 100000000; /* 100 Mhz */
+	tclk = io_clock_hz / (TWSI_THP + 2);
+#endif
+	debug("%s( io_clock %u)\n", __func__, io_clock_hz);
+
+	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.
+	 * Compute the clocks M divider based on the SCLK.
+	 *
+	 * TWSI freq = (core freq) / (10 x (M+1) x 2 * (thp+1) x 2^N)
+	 * M = ((core freq) / (10 x (TWSI freq) x 2 * (thp+1) x 2^N)) - 1
+	 *
+	 * For OcteonTX2 -
+	 * TWSI freq = (core freq) / (10 x (M+1) x (thp+2) x 2^N)
+	 * M = ((core freq) / (10 x (TWSI freq) x (thp+2) x 2^N)) - 1
+	 */
+	for (ndiv = 0; ndiv < 8; ndiv++) {
+		fsamp = tclk / (1 << ndiv);
+		mdiv = fsamp / speed / 10;
+		mdiv -= 1;
+		if (mdiv < 16)
+			break;
+	}
+	*m_div = mdiv;
+	*n_div = ndiv;
+}
+
+static int twsi_init(void *baseaddr, unsigned int speed, int slaveaddr)
+{
+	int n_div, m_div;
 	union twsx_sw_twsi sw_twsi;
 
 	debug("%s(%p, %u, 0x%x)\n", __func__, baseaddr, speed, slaveaddr);
 
-	io_clock_hz = octeontx_get_io_clock();
-
-#if defined(TARGET_OCTEONTX_81XX) || defined(TARGET_OCTEONTX_83XX)
-	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.  Compute the
-	 * clocks M divider based on the SCLK.
-	 * TWSI freq = (core freq) / (20 x (M+1) x (thp+1) x 2^N)
-	 * M = ((core freq) / (20 x (TWSI freq) x (thp+1) x 2^N)) - 1
-	 */
-	for (n_div = 0; n_div < 8; n_div++) {
-		m_div = io_clock_hz / (20 * speed * (TWSI_THP + 1));
-		m_div /= 1 << n_div;
-		m_div -= 1;
-		if (m_div < 16)
-			break;
-	}
-#else
-	{
-		/* Set the TWSI clock to 100MHz derived from main reference clock */
-		int twsi_bus_freq = 100000;
-		int tclk;
-		tclk = io_clock_hz / (TWSI_THP + 2);
-
-		/* Set the TWSI clock to a conservative TWSI_BUS_FREQ. */
-		for (n_div = 0; n_div < 8; n_div++) {
-			int fsamp = tclk / (1 << n_div);
-			m_div = fsamp / twsi_bus_freq / 10 - 1;
-			if (m_div < 16)
-				break;
-		}
-	}
-#endif
+	twsi_calc_div(speed, &m_div, &n_div);
 	if (m_div >= 16)
 		return -1;
 
@@ -894,24 +898,12 @@ static int octeontx_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 {
 	struct octeontx_twsi *twsi = dev_get_priv(bus);
 	int m_div, n_div;
-	unsigned io_clock_hz;
 	union twsx_sw_twsi sw_twsi;
 	void *baseaddr = twsi->baseaddr;
 
-	io_clock_hz = octeontx_get_io_clock();
-	debug("%s(%p, %u) io clock: %u\n", __func__, bus, speed, io_clock_hz);
+	debug("%s(%p, %u)\n", __func__, bus, speed);
 
-	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.  Compute the
-	 * clocks M divider based on the SCLK.
-	 * TWSI freq = (core freq) / (20 x (M+1) x (thp+1) x 2^N)
-	 * M = ((core freq) / (20 x (TWSI freq) x (thp+1) x 2^N)) - 1 */
-	for (n_div = 0; n_div < 8; n_div++) {
-		m_div = io_clock_hz / (20 * speed * (TWSI_THP + 1));
-		m_div /= 1 << n_div;
-		m_div -= 1;
-		if (m_div < 16)
-			break;
-	}
+	twsi_calc_div(speed, &m_div, &n_div);
 	if (m_div >= 16)
 		return -1;
 
