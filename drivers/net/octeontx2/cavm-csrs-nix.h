@@ -3,7 +3,7 @@
 /* This file is auto-generated.  Do not edit */
 
 /***********************license start***********************************
-* Copyright (C) 2018 Marvell International Ltd.
+* Copyright (C) 2019 Marvell International Ltd.
 * SPDX-License-Identifier: BSD-3-Clause
 * https://spdx.org/licenses
 ***********************license end**************************************/
@@ -2844,8 +2844,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RQS_CFG(u64 a)
  * NIX AF Local Function Receive Size Scaling Table Base Address Register
  * This register specifies the base AF IOVA of the RSS table per LF. The
  * table is present when NIX_AF_LF()_RSS_CFG[ENA] is set and consists of
- * 2^(NIX_AF_LF()_RSS_CFG[SIZE]+8) contiguous NIX_RSSE_S structures,
- * where the size of each structure is 1 \<\<
+ * 1 \<\< (NIX_AF_LF()_RSS_CFG[SIZE] + 8) contiguous NIX_RSSE_S
+ * structures, where the size of each structure is 1 \<\<
  * NIX_AF_CONST3[RSSE_LOG2BYTES]. See NIX_AF_LF()_RSS_GRP().
  */
 union cavm_nixx_af_lfx_rss_base {
@@ -5018,11 +5018,11 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_WRR_CFG(u64 a)
  * NIX AF Receive Multicast/Mirror Table Base Address Register This
  * register specifies the base AF IOVA of the receive multicast/mirror
  * table in NDC/LLC/DRAM. The table consists of 1 \<\<
- * (NIX_AF_RX_MCAST_CFG[SIZE]+8) contiguous NIX_RX_MCE_S structures. The
- * size of each structure is 1 \<\< NIX_AF_CONST3[MCE_LOG2BYTES].  The
- * table contains multicast/mirror replication lists. Each list consists
- * of linked entries with NIX_RX_MCE_S[EOL] = 1 in the last entry. All
- * lists must reside within the table size specified by
+ * (NIX_AF_RX_MCAST_CFG[SIZE] + 8) contiguous NIX_RX_MCE_S structures.
+ * The size of each structure is 1 \<\< NIX_AF_CONST3[MCE_LOG2BYTES].
+ * The table contains multicast/mirror replication lists. Each list
+ * consists of linked entries with NIX_RX_MCE_S[EOL] = 1 in the last
+ * entry. All lists must reside within the table size specified by
  * NIX_AF_RX_MCAST_CFG[SIZE]. A mirror replication list will typically
  * consist of two entries, but that is not checked or enforced by
  * hardware.  A receive packet is multicast when the action returned by
@@ -5339,9 +5339,17 @@ union cavm_nixx_af_sdp_link_credit {
 		u64 cc_enable                        : 1;
 		u64 cc_packet_cnt                    : 10;
 		u64 cc_unit_cnt                      : 20;
-		u64 reserved_32_63                   : 32;
+		u64 reserved_32_62                   : 31;
+		u64 pse_pkt_id_lmt                   : 1;
 	} s;
-	/* struct cavm_nixx_af_sdp_link_credit_s cn; */
+	struct cavm_nixx_af_sdp_link_credit_cn96xx {
+		u64 reserved_0                       : 1;
+		u64 cc_enable                        : 1;
+		u64 cc_packet_cnt                    : 10;
+		u64 cc_unit_cnt                      : 20;
+		u64 reserved_32_63                   : 32;
+	} cn96xx;
+	/* struct cavm_nixx_af_sdp_link_credit_s cnf95xx; */
 };
 
 static inline u64 CAVM_NIXX_AF_SDP_LINK_CREDIT(void)

@@ -3,7 +3,7 @@
 /* This file is auto-generated.  Do not edit */
 
 /***********************license start***********************************
-* Copyright (C) 2018 Marvell International Ltd.
+* Copyright (C) 2019 Marvell International Ltd.
 * SPDX-License-Identifier: BSD-3-Clause
 * https://spdx.org/licenses
 ***********************license end**************************************/
@@ -791,7 +791,9 @@ static inline u64 CAVM_NPC_AF_KPUX_CFG(u64 a)
  *
  * NPC AF KPU Debug Registers This register contains information for the
  * last packet/lookup for which debug is enabled by
- * NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
+ * NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG]. The register contents are undefined
+ * and should be ignored for a software key lookup (NPC_AF_LKUP_CTL[OP] =
+ * NPC_LKUPOP_E::KEY)
  */
 union cavm_npc_af_kpux_dbg {
 	u64 u;
