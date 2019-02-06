@@ -18,7 +18,7 @@
 #include "cavm-csrs-cgx.h"
 #include "cgx.h"
 
-char lmac_type_to_str [][8] = {
+char lmac_type_to_str[][8] = {
 	"SGMII",
 	"XAUI",
 	"RXAUI",
@@ -30,6 +30,21 @@ char lmac_type_to_str [][8] = {
 	"50G_R",
 	"100G_R",
 	"USXGMII",
+};
+
+char lmac_speed_to_str[][8] = {
+	"0",
+	"10M",
+	"100M",
+	"1G",
+	"2.5G",
+	"5G",
+	"10G",
+	"20G",
+	"25G",
+	"40G",
+	"50G",
+	"100G",
 };
 
 /**
@@ -167,8 +182,8 @@ int cgx_lmac_link_status(struct lmac *lmac, int lmac_id, u64 *status)
 	ret = cgx_intf_get_link_sts(lmac->cgx->cgx_id,
 					lmac_id, status);
 	if (ret) {
-		printf("%s interface request failed for cgx%d lmac%d\n",
-			__func__, lmac->cgx->cgx_id, lmac->lmac_id);
+		debug("%s interface request failed for cgx%d lmac%d\n",
+		      __func__, lmac->cgx->cgx_id, lmac->lmac_id);
 		ret = -1;
 	}
 	return ret;
@@ -182,15 +197,22 @@ int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable)
 	ret = cgx_intf_link_up_dwn(lmac->cgx->cgx_id,
 					lmac_id, enable, &status);
 	if (ret) {
-		printf("%s interface request failed for cgx%d lmac%d\n",
-			__func__, lmac->cgx->cgx_id, lmac->lmac_id);
+		debug("%s interface request failed for cgx%d lmac%d\n",
+		      __func__, lmac->cgx->cgx_id, lmac->lmac_id);
 		ret = -1;
 	}
+
+	printf("%d    %d    %s", lmac->cgx->cgx_id, lmac->lmac_id,
+	       lmac_type_to_str[lmac->lmac_type]);
+	/* Print link speed */
+	printf("  \t%s", lmac_speed_to_str[(u8)((status >> 2) & 0xf)]);
 	status &= 0x1;
+	/* Print link status */
+	printf(" \t%s\n", status ? "Up" : "Down");
 	if (status != enable) {
-		printf("%s couldn't bring %s link cgx%d lmac%d\n",
-			__func__, enable ? "up" : "down",
-			lmac->cgx->cgx_id, lmac->lmac_id);
+		debug("%s couldn't bring %s link cgx%d lmac%d\n",
+		      __func__, enable ? "up" : "down",
+		      lmac->cgx->cgx_id, lmac->lmac_id);
 		ret = -1;
 	}
 	return ret;
@@ -244,13 +266,18 @@ static int cgx_lmac_init(struct cgx *cgx)
 {
 	struct lmac *lmac;
 	union cavm_cgxx_cmrx_config cmrx_cfg;
-	static int instance = 1;
+	static int instance = 1, printed;
 	int i, ret;
 
 	cgx->lmac_count = cgx_read(cgx, 0, CAVM_CGXX_CMR_RX_LMACS());
 	debug("%s: Found %d lmacs for cgx %d@%p\n", __func__, cgx->lmac_count,
 	      cgx->cgx_id, cgx->reg_base);
-
+	if (cgx->lmac_count && !printed) {
+		printf("=========================================\n");
+		printf("CGX LMAC  Mode        Speed\tLink\n");
+		printf("=========================================\n");
+		printed = 1;
+	}
 	for (i = 0; i < cgx->lmac_count; i++) {
 		lmac = calloc(1, sizeof(*lmac));
 		if (!lmac)
@@ -271,14 +298,12 @@ static int cgx_lmac_init(struct cgx *cgx)
 		cgx_intf_get_mac_addr(cgx->cgx_id, i, lmac->mac_addr);
 		debug("%s: cgx%d lmac%d mac_addr\n",__func__,cgx->cgx_id, i);
 		debug("%s: MAC %pM\n", __func__, lmac->mac_addr);
-		printf("CGX%d LMAC%d %s \n", cgx->cgx_id, lmac->lmac_id,
-					lmac_type_to_str[lmac->lmac_type]);
 
 		cgx_lmac_mac_filter_setup(lmac);
 		ret = cgx_lmac_link_enable(lmac, lmac->lmac_id, true);
 		if (ret)
-			printf("%s could not bring up cgx%d lmac%d\n",
-				__func__, lmac->cgx->cgx_id, lmac->lmac_id);
+			debug("%s could not bring up cgx%d lmac%d\n",
+			      __func__, lmac->cgx->cgx_id, lmac->lmac_id);
 		else
 			cgx_lmac_rx_tx_enable(lmac, lmac->lmac_id, false);
 	}
