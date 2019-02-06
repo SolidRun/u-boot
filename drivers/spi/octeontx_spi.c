@@ -487,7 +487,11 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 #ifdef USE_TBI_CLK
 	mpi_cfg.s.tb100_en = 1;
 #endif
-	mpi_cfg.s.iomode = (flags & SPI_XFER_QUAD) ? 3 : 0;
+	mpi_cfg.s.iomode = 0;
+	if (flags & SPI_XFER_DUAL)
+		mpi_cfg.s.iomode = 2;
+	if (flags & SPI_XFER_QUAD)
+		mpi_cfg.s.iomode = 3;
 
 	if (mpi_cfg.u != readq(baseaddr + MPI_CFG))
 		writeq(mpi_cfg.u, baseaddr + MPI_CFG);
@@ -600,6 +604,7 @@ static int octeontx_spi_set_speed(struct udevice *bus, uint max_hz)
 {
 	struct octeontx_spi *priv = dev_get_priv(bus);
 	u64 refclk = octeontx_get_io_clock();
+	u32 calc_hz;
 
 	debug("%s(%s, %u, %llu)\n", __func__, bus->name, max_hz, refclk);
 
@@ -610,6 +615,14 @@ static int octeontx_spi_set_speed(struct udevice *bus, uint max_hz)
 	refclk = OCTEONTX2_TBI_CLK;
 #endif
 	priv->clkdiv = refclk / (2 * max_hz);
+	while (1) {
+		calc_hz = refclk / (2 * priv->clkdiv);
+		if (calc_hz <= max_hz)
+			break;
+		priv->clkdiv += 1;
+	}
+	if (priv->clkdiv > 8191)
+		return -1;
 
 	debug("%s %d\n", __func__, priv->clkdiv);
 
