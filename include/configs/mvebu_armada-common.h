@@ -42,6 +42,7 @@
 					"hostname=marvell\0"		\
 					"ramdisk_addr_r=0x8000000\0"	\
 					"ramfs_name=-\0"		\
+					"cpuidle=cpuidle.off=1\0"	\
 					"fdt_name=fdt.dtb\0"		\
 					"netdev=eth0\0"			\
 					"ethaddr=00:51:82:11:22:00\0"	\
