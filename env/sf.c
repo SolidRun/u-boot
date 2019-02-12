@@ -42,8 +42,19 @@ static int setup_flash_device(void)
 	struct udevice *new;
 	int	ret;
 
+#ifdef CONFIG_ARCH_OCTEONTX2
+	int bus, cs;
+extern void board_get_env_spi_bus_cs(int *bus, int *cs);
+
+	board_get_env_spi_bus_cs(&bus, &cs);
+	if (bus < 0) {
+		/* Default to config */
+		bus = CONFIG_ENV_SPI_BUS;
+		cs = CONFIG_ENV_SPI_CS;
+	}
+
 	/* speed and mode will be read from DT */
-	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
+	ret = spi_flash_probe_bus_cs(bus, cs,
 				     CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE,
 				     &new);
 	if (ret) {
@@ -51,6 +62,16 @@ static int setup_flash_device(void)
 		return ret;
 	}
 
+#else
+	/* speed and mode will be read from DT */
+	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
+				     CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE,
+				     &new);
+	if (ret) {
+		set_default_env("!spi_flash_probe_bus_cs() failed");
+		return ret;
+	}
+#endif
 	env_flash = dev_get_uclass_priv(new);
 #else
 

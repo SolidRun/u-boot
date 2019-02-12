@@ -36,6 +36,39 @@ void octeontx2_cleanup_ethaddr(void)
 	}
 }
 
+void board_get_env_spi_bus_cs(int *bus, int *cs)
+{
+	const void *blob = gd->fdt_blob;
+	int env_bus, env_cs;
+	int node, preg;
+
+	env_bus = -1;
+	env_cs = -1;
+	node = fdt_node_offset_by_compatible(blob, -1, "spi-flash");
+	while (node > 0) {
+		if (fdtdec_get_bool(blob, node, "u-boot,env")) {
+			env_cs = fdtdec_get_int(blob, node, "reg", -1);
+			preg = fdtdec_get_int(blob,
+					      fdt_parent_offset(blob, node),
+					      "reg", -1);
+			/* SPI node will have PCI addr, so map it */
+			if (preg == 0x3000)
+				env_bus = 0;
+			if (preg == 0x3800)
+				env_bus = 1;
+			debug("\n Env SPI [bus:cs] [%d:%d]\n",
+			      env_bus, env_cs);
+			break;
+		}
+		node = fdt_node_offset_by_compatible(blob, node, "spi-flash");
+	}
+	if (env_bus == -1)
+		debug("\'u-boot,env\' property not found in fdt\n");
+
+	*bus = env_bus;
+	*cs = env_cs;
+}
+
 void octeontx_parse_board_info(void)
 {
 	const char *str;
