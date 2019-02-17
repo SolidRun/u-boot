@@ -7,4 +7,4 @@
 
 
 obj-$(CONFIG_NET_OCTEONTX) += octeontx_bgx.o nic_main.o nicvf_queues.o \
-		nicvf_main.o octeontx_smi.o octeontx_xcv.o
+		nicvf_main.o octeontx_xcv.o
