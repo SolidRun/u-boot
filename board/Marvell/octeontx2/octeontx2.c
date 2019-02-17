@@ -194,9 +194,9 @@ int misc_init_r(void)
 	 * Enumeration has the side-effect of probing them,
 	 * so CGX and RVU AF devices will get enumerated.
 	 */
-	for (uclass_first_device(UCLASS_MISC, &bus);
+	for (uclass_first_device_check(UCLASS_MISC, &bus);
 	     bus;
-	     uclass_next_device(&bus)) {
+	     uclass_next_device_check(&bus)) {
 		;
 	}
 	return 0;

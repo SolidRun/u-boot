@@ -145,9 +145,9 @@ int misc_init_r(void)
 	 * Enumerate all miscellaneous devices.
 	 * So BGX/NIC/vNIC devices will be enumerated too.
 	 */
-	for (uclass_first_device(UCLASS_MISC, &bus);
+	for (uclass_first_device_check(UCLASS_MISC, &bus);
 	     bus;
-	     uclass_next_device(&bus)) {
+	     uclass_next_device_check(&bus)) {
 		;
 	}
 	return 0;
