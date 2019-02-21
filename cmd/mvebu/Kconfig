@@ -11,7 +11,6 @@ config CMD_MVEBU_BUBT
 
 config MVEBU_UBOOT_DFLT_NAME
 	string "Default image name for bubt command"
-	depends on ENV_IS_ON_SELECTED_BOOT_DEVICE
 	default "u-boot-spl-mmc.kwb" if MVEBU_SPL_BOOT_DEVICE_MMC
 	default "u-boot-spl-nand.kwb" if MVEBU_SPL_BOOT_DEVICE_NAND
 	default "u-boot-spl-sata.kwb" if MVEBU_SPL_BOOT_DEVICE_SATA
