@@ -11,11 +11,6 @@
 #include <dm/lists.h>
 #include "mmc_private.h"
 
-#ifdef CONFIG_MMC_OCTEONTX
-# include <asm/gpio.h>
-# include <asm/arch/octeontx_mmc.h>
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
@@ -203,17 +198,9 @@ struct mmc *mmc_get_mmc_dev(struct udevice *dev)
 {
 	if (!device_active(dev))
 		return NULL;
-#ifdef CONFIG_MMC_OCTEONTX
-	struct octeontx_mmc_host *host = dev_get_priv(dev);
-	if (!host)
-		return NULL;
-	struct mmc *mmc = host->slots[host->cur_slotid].mmc;
-	return mmc;
-#else
 	struct mmc_uclass_priv *upriv;
 	upriv = dev_get_uclass_priv(dev);
 	return upriv->mmc;
-#endif
 }
 
 #if CONFIG_IS_ENABLED(BLK)
@@ -233,14 +220,6 @@ struct mmc *find_mmc_device(int dev_num)
 
 	mmc_dev = dev_get_parent(dev);
 
-#ifdef CONFIG_MMC_OCTEONTX
-	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
-
-	if (dev_num > OCTEONTX_MAX_MMC_SLOT && !host)
-		return NULL;
-
-	host->cur_slotid = dev_num;
-#endif
 	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
 
 	return mmc;
@@ -256,28 +235,11 @@ int mmc_get_next_devnum(void)
 	return blk_find_max_devnum(IF_TYPE_MMC);
 }
 
-#ifdef CONFIG_MMC_OCTEONTX
-struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum)
-{
-	struct blk_desc *desc;
-	struct udevice *dev;
-
-	for (device_find_first_child(mmc->dev, &dev);
-	     dev;
-	     device_find_next_child(&dev)) {
-		desc = dev_get_uclass_platdata(dev);
-		if (desc && desc->if_type == IF_TYPE_MMC &&
-		    desc->devnum == devnum)
-			return desc;
-	}
-	return NULL;
-}
-#else
 struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
 {
 	struct blk_desc *desc;
 	struct udevice *dev;
- 
+
 	device_find_first_child(mmc->dev, &dev);
 	if (!dev)
 		return NULL;
@@ -285,7 +247,6 @@ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
 
 	return desc;
 }
-#endif
 
 void mmc_do_preinit(void)
 {
@@ -319,40 +280,6 @@ void print_mmc_devices(char separator)
 	for (uclass_first_device(UCLASS_MMC, &dev);
 	     dev;
 	     uclass_next_device(&dev), first = false) {
-#ifdef CONFIG_MMC_OCTEONTX
-		/* The OcteonTX has multiple slots connected to a single
-		 * PCI device so each slot must be processed inside the
-		 * device.
-		 */
-		struct octeontx_mmc_host *host = dev_get_priv(dev);
-		struct mmc *m = NULL;
-
-		if (!host)
-			continue;
-
-		for (int devnum = 0; devnum < OCTEONTX_MAX_MMC_SLOT;
-			devnum++, m=NULL) {
-			if (!first) {
-				printf("%c", separator);
-				if (separator != '\n')
-					puts(" ");
-			}
-
-			if (!(host->slots[devnum].mmc))
-				continue;
-			m = host->slots[devnum].mmc;
-
-			if (m->has_init)
-				mmc_type = IS_SD(m) ? "SD" : "eMMC";
-			else
-				mmc_type = NULL;
-
-			printf("%s: %d ", m->cfg->name, devnum);
-
-			if (mmc_type)
-				printf("(%s)  ", mmc_type);
-		}
-#else
 		struct mmc *m = mmc_get_mmc_dev(dev);
 
 		if (!first) {
@@ -369,7 +296,6 @@ void print_mmc_devices(char separator)
 			mmc_get_blk_desc(m)->devnum);
 		if (mmc_type)
 			printf(" (%s)", mmc_type);
-#endif
 	}
 
 	printf("\n");
@@ -435,18 +361,7 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 {
 	struct udevice *mmc_dev = dev_get_parent(bdev);
 	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
-#ifdef CONFIG_MMC_OCTEONTX
-	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
-	struct mmc *mmc = host->slots[desc->devnum].mmc;
-
-	/* As octeontx mmc have multiple slots, switch the slot if it
-	 * is not current.
-	 */
-	if (host->cur_slotid != desc->devnum)
-		host->cur_slotid = desc->devnum;
-#else
 	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
-#endif
 	if (desc->hwpart == hwpart)
 		return 0;
 
@@ -463,14 +378,8 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 static int mmc_blk_probe(struct udevice *dev)
 {
 	struct udevice *mmc_dev = dev_get_parent(dev);
-#ifdef CONFIG_MMC_OCTEONTX
-	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
-	struct mmc *mmc = host->slots[desc->devnum].mmc;
-#else
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc_dev);
 	struct mmc *mmc = upriv->mmc;
-#endif
 	int ret;
 
 	ret = mmc_init(mmc);
