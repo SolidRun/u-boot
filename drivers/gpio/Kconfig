@@ -278,7 +278,7 @@ config PIC32_GPIO
 
 config OCTEONTX_GPIO
 	bool "OcteonTX GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && (ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	default y
 	help
 	  Say yes here to support OcteonTX GPIOs.
@@ -390,11 +390,15 @@ config MT7621_GPIO
 	help
 	  Say yes here to support MediaTek MT7621 compatible GPIOs.
 
-config THUNDERX_GPIO
-	bool "Cavium ThunderX GPIO driver"
+config I2C_GPIO
+	bool  "Generic I2C->GPIO no-irq expander"
 	depends on DM_GPIO
-	default y
 	help
-	  Say yes here to support Cavium ThunderX GPIOs.
+	  Select this option to enable GPIO for simple I2C devices,
+	  parameterized by device-tree, and having no interrupts.
+	  Developed to model a custom board's CPLD, but may be useful
+	  for various hardware where i2c-poking flips external pins.
+
+	  If unsure, say N.
 
 endmenu
