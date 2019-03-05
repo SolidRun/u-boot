@@ -122,7 +122,7 @@ void octeontx_parse_board_info(void)
 	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
 	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
 	if (str) {
-		strncpy(g_cavm_bdt.type, str, sizeof(g_cavm_bdt.type));
+		strlcpy(g_cavm_bdt.type, str, sizeof(g_cavm_bdt.type));
 		debug("fdt: BOARD-MODEL bdt.type %s \n", g_cavm_bdt.type);
 	} else {
 		printf("Error: cannot retrieve board type from fdt\n");
