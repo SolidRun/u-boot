@@ -64,6 +64,7 @@ enum device_errors {
 #define MDIO_DATA			49198
 #define MDIO_CHECKSUM			49199
 #define MDIO_WORDS_RCVD			49200
+#define MDIO_NUM_SECTIONS		49202 /*0xC032*/
 /* Host Commands */
 #define MDIO_CMD_ERASE_FLASH		0x1
 #define MDIO_CMD_FILL_BUFFER		0x2
@@ -185,8 +186,11 @@ static u32 mvebu_flash_transfer(struct mii_dev *bus, u16 port, u8 data[],
 		words_rcvd = bus->read(bus, port,
 				       MDIO_DEVICE_ADDRESS, MDIO_WORDS_RCVD);
 		if (tmp_checksum != buf_checksum ||
-		    words_rcvd != (u16)(max_buff_size / 2))
+		    words_rcvd != (u16)(max_buff_size / 2)) {
+			debug("ERROR: phy checksum=0x%x vs buf chksum 0x%x\n",
+			      tmp_checksum, buf_checksum);
 			return MVEBU_START_WRITE_DATA;
+		}
 	}
 
 	/* One full RAM buffer inside DSP is ready to write to flash now*/
@@ -194,9 +198,9 @@ static u32 mvebu_flash_transfer(struct mii_dev *bus, u16 port, u8 data[],
 	bus->write(bus, port, MDIO_DEVICE_ADDRESS,
 		   MDIO_COMMAND, MDIO_CMD_WRITE_BUFFER);
 	if (error == MVEBU_ERR_LAST_TRANSFER)
-		debug("Waiting for slave to programe last buffer to flash");
+		debug("Waiting for slave to programe last buffer to flash\n");
 	else
-		debug("Waiting for slave to finish programming flash");
+		debug("Waiting for slave to finish programming flash\n");
 
 	/* Wait for MDIO_CMD_SLV_OK */
 	do {
@@ -209,11 +213,18 @@ static u32 mvebu_flash_transfer(struct mii_dev *bus, u16 port, u8 data[],
 	} while (tmp == MDIO_CMD_WRITE_BUFFER ||
 		 tmp == MDIO_CMD_SLV_FLASH_BUSY);
 
-	if (tmp == MDIO_CMD_SLV_ERR)
-		return error;
+	if (tmp != MDIO_CMD_SLV_OK) {
+		debug("ERROR: slave returns error 0x%x\n", tmp);
 
-	if (tmp != MDIO_CMD_SLV_OK)
+		if (tmp == MDIO_CMD_SLV_VERIFY_ERR) {
+			tmp = bus->read(bus, port, MDIO_DEVICE_ADDRESS,
+					MDIO_NUM_SECTIONS);
+			debug("ERROR: Verification failed on section nr %d\n",
+			      tmp);
+		}
+
 		return error;
+	}
 
 	/* readback checksum of what was stored in flash */
 	reported_checksum = bus->read(bus, port,
@@ -226,7 +237,6 @@ static u32 mvebu_flash_transfer(struct mii_dev *bus, u16 port, u8 data[],
 	if (words_written != (max_buff_size / 2))
 		return MVEBU_ERR_SLAVE_WRITE_FULL;
 
-	debug("\n");
 	return 0;
 }
 
@@ -247,7 +257,7 @@ static u32 mvebu_mdio_flash_download(struct mii_dev *bus, u16 port,
 		return MVEBU_SIZE_NOT_EVEN;
 
 	/* first erase the flash*/
-	printf("Slave will now erase flash. This may take up to 6 seconds.\n");
+	printf("Slave will now erase flash. This may take up to 30 seconds.\n");
 	bus->write(bus, port, MDIO_DEVICE_ADDRESS,
 		   MDIO_COMMAND, MDIO_CMD_ERASE_FLASH);
 	do {
@@ -267,6 +277,9 @@ static u32 mvebu_mdio_flash_download(struct mii_dev *bus, u16 port,
 	max_buff_size *= 2;
 	num_trans = size / max_buff_size;
 	last_trans_size = size % max_buff_size;
+
+	debug("trans num %d, max_buff_size %d, size %d, last trans size %d\n",
+	      num_trans, max_buff_size, size, last_trans_size);
 
 	/* handle all the full transfers */
 	for (trans_index = 0; trans_index < num_trans; trans_index++)
