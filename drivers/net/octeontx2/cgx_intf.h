@@ -72,7 +72,7 @@ enum cgx_link_speed {
 
 /* REQUEST ID types. Input to firmware */
 enum cgx_cmd_id {
-	CGX_CMD_NONE,
+	CGX_CMD_NONE = 0,
 	CGX_CMD_GET_FW_VER,
 	CGX_CMD_GET_MAC_ADDR,
 	CGX_CMD_SET_MTU,
@@ -98,6 +98,8 @@ enum cgx_cmd_id {
 	CGX_CMD_GET_ADV_FEC,
 	CGX_CMD_GET_PHY_MOD_TYPE, /* line-side modulation type: NRZ or PAM4 */
 	CGX_CMD_SET_PHY_MOD_TYPE,
+	CGX_CMD_PRBS,
+	CGX_CMD_DISPLAY_EYE,
 };
 
 /* async event ids */
@@ -332,6 +334,20 @@ struct cgx_set_phy_mod_args {
 	uint64_t reserved2:55;
 };
 
+struct cgx_prbs_args {
+	uint64_t reserved1:8; /* start from bit 8 */
+	uint64_t qlm:8;
+	uint64_t stop_on_error:1;
+	uint64_t mode:8;
+	uint64_t time:39;
+};
+
+struct cgx_display_eye_args {
+	uint64_t reserved1:8; /* start from bit 8 */
+	uint64_t qlm:8;
+	uint64_t lane:47;
+};
+
 union cgx_cmd_s {
 	uint64_t own_status:2;			/* cgx_cmd_own */
 	struct cgx_cmd cmd;
@@ -342,6 +358,8 @@ union cgx_cmd_s {
 	struct cgx_set_fec_args fec_args;
 	struct cgx_set_phy_mod_args phy_mod_args;
 	/* any other arg for command id * like : mtu, dmac filtering control */
+	struct cgx_prbs_args prbs_args;
+	struct cgx_display_eye_args dsp_eye_args;
 };
 
 union cgx_scratchx1 {
