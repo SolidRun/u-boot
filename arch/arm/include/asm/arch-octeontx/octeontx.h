@@ -10,7 +10,7 @@
 
 #define CN81XX	0xA2
 #define CN83XX	0xA3
-#define is_board_model(model)	(g_cavm_bdt.prod_id == model)
+#define is_board_model(model)  (g_cavm_bdt.prod_id == (model))
 
 #define MAX_LMAC_PER_BGX 4
 
@@ -21,9 +21,6 @@
 #define CAVM_GTI_CWD_WDOGX	0x844000040000ULL
 
 /** Structure definitions */
-
-
-
 
 /** Function definitions */
 void octeontx_parse_board_info(void);
