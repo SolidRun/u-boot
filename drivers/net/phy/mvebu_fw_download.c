@@ -136,7 +136,7 @@ static u32 mvebu_flash_transfer(struct mii_dev *bus, u16 port, u8 data[],
 				u32 max_buff_size, u32 *byte_index, int error)
 {
 	u16 buf_checksum, tmp_checksum, reported_checksum;
-	u16 words_rcvd, words_written, tmp;
+	u16 words_rcvd, words_written, reg;
 	u32 stop_index;
 
 	/* Set the flash start address*/
@@ -154,18 +154,18 @@ static u32 mvebu_flash_transfer(struct mii_dev *bus, u16 port, u8 data[],
 	/* Wait for MDIO_CMD_SLV_OK*/
 	if (error == MVEBU_ERR_LAST_TRANSFER) {
 		do {
-			tmp = bus->read(bus, port,
+			reg = bus->read(bus, port,
 					MDIO_DEVICE_ADDRESS, MDIO_COMMAND);
-		} while (tmp == MDIO_CMD_FILL_BUFFER);
+		} while (reg == MDIO_CMD_FILL_BUFFER);
 	} else {
 		do {
-			tmp = bus->read(bus, port,
+			reg = bus->read(bus, port,
 					MDIO_DEVICE_ADDRESS, MDIO_COMMAND);
-		} while (tmp == MDIO_CMD_ERASE_FLASH ||
-			 tmp == MDIO_CMD_SLV_FLASH_BUSY);
+		} while (reg == MDIO_CMD_ERASE_FLASH ||
+			 reg == MDIO_CMD_SLV_FLASH_BUSY);
 	}
 
-	if (tmp != MDIO_CMD_SLV_OK)
+	if (reg != MDIO_CMD_SLV_OK)
 		return error;
 
 	/* Write a buffer of data to the slave RAM*/
@@ -208,19 +208,19 @@ static u32 mvebu_flash_transfer(struct mii_dev *bus, u16 port, u8 data[],
 		 * This can take several 2-3 seconds, don't poll phy too
 		 * frequently since every read causes an interrupt on the phy.
 		 */
-		tmp = bus->read(bus, port, MDIO_DEVICE_ADDRESS, MDIO_COMMAND);
+		reg = bus->read(bus, port, MDIO_DEVICE_ADDRESS, MDIO_COMMAND);
 		mdelay(500);
-	} while (tmp == MDIO_CMD_WRITE_BUFFER ||
-		 tmp == MDIO_CMD_SLV_FLASH_BUSY);
+	} while (reg == MDIO_CMD_WRITE_BUFFER ||
+		 reg == MDIO_CMD_SLV_FLASH_BUSY);
 
-	if (tmp != MDIO_CMD_SLV_OK) {
-		debug("ERROR: slave returns error 0x%x\n", tmp);
+	if (reg != MDIO_CMD_SLV_OK) {
+		debug("ERROR: slave returns error 0x%x\n", reg);
 
-		if (tmp == MDIO_CMD_SLV_VERIFY_ERR) {
-			tmp = bus->read(bus, port, MDIO_DEVICE_ADDRESS,
+		if (reg == MDIO_CMD_SLV_VERIFY_ERR) {
+			reg = bus->read(bus, port, MDIO_DEVICE_ADDRESS,
 					MDIO_NUM_SECTIONS);
 			debug("ERROR: Verification failed on section nr %d\n",
-			      tmp);
+			      reg);
 		}
 
 		return error;
@@ -250,7 +250,7 @@ static u32 mvebu_mdio_flash_download(struct mii_dev *bus, u16 port,
 {
 	u32 max_buff_size, num_trans, last_trans_size, trans_index;
 	u32 byte_index = 0;
-	u16 tmp;
+	u16 reg;
 
 	/* size must be an even number of bytes */
 	if (size % 2)
@@ -261,13 +261,13 @@ static u32 mvebu_mdio_flash_download(struct mii_dev *bus, u16 port,
 	bus->write(bus, port, MDIO_DEVICE_ADDRESS,
 		   MDIO_COMMAND, MDIO_CMD_ERASE_FLASH);
 	do {
-		tmp = bus->read(bus, port, MDIO_DEVICE_ADDRESS, MDIO_COMMAND);
-	} while (tmp == MDIO_CMD_ERASE_FLASH || tmp == MDIO_CMD_SLV_FLASH_BUSY);
+		reg = bus->read(bus, port, MDIO_DEVICE_ADDRESS, MDIO_COMMAND);
+	} while (reg == MDIO_CMD_ERASE_FLASH || reg == MDIO_CMD_SLV_FLASH_BUSY);
 
-	if (tmp == MDIO_CMD_SLV_ERR)
+	if (reg == MDIO_CMD_SLV_ERR)
 		return MVEBU_ERR_ERASING_FLASH;
 
-	if (tmp != MDIO_CMD_SLV_OK)
+	if (reg != MDIO_CMD_SLV_OK)
 		return MVEBU_ERR_VALUE_READ_BACK;
 	printf("Flash program have been erased.\n");
 
