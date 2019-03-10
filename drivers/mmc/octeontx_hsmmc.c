@@ -41,7 +41,9 @@
 
 static void octeontx_mmc_switch_to(struct mmc *mmc);
 static int octeontx_mmc_configure_delay(struct mmc *mmc);
+#if defined(CONFIG_MMC_SUPPORTS_TUNING) || defined(MMC_SUPPORTS_TUNING)
 static void octeontx_mmc_set_timing(struct mmc *mmc);
+#endif
 static void set_wdog(struct mmc *mmc, u64 us);
 static void do_switch(struct mmc *mmc, union cavm_mio_emm_switch emm_switch);
 static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
@@ -1701,13 +1703,11 @@ static int octeontx_mmc_get_wp(struct udevice *dev)
 	return val;
 }
 
+#if defined(CONFIG_MMC_SUPPORTS_TUNING) || defined(MMC_SUPPORTS_TUNING)
 static void octeontx_mmc_set_timing(struct mmc *mmc)
 {
 	union cavm_mio_emm_timing timing;
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
-
-	if (is_board_model(CN81XX) || is_board_model(CN83XX))
-		return;
 
 	timing = slot->taps;
 
@@ -1720,21 +1720,24 @@ static void octeontx_mmc_set_timing(struct mmc *mmc)
 	      timing.s.data_out_tap);
 	write_csr(mmc, CAVM_MIO_EMM_TIMING(), timing.u);
 }
+#endif
 
 static int octeontx_mmc_configure_delay(struct mmc *mmc)
 {
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 
 	debug("%s(%s)\n", __func__, mmc->dev->name);
-	if (is_board_model(CN81XX) || is_board_model(CN83XX)) {
+#if defined(CONFIG_ARCH_OCTEONTX)
+	{
 		union cavm_mio_emm_sample emm_sample;
 
 		emm_sample.u = 0;
 		emm_sample.s.cmd_cnt = slot->cmd_cnt;
 		emm_sample.s.dat_cnt = slot->dat_cnt;
 		write_csr(mmc, CAVM_MIO_EMM_SAMPLE(), emm_sample.u);
-	} else {
-#ifndef CONFIG_ARCH_OCTEONTX
+	}
+#else
+	{
 		if (!slot->tuned) {
 			int half = MAX_NO_OF_TAPS / 2;
 			int dout, cout;
@@ -1788,8 +1791,8 @@ static int octeontx_mmc_configure_delay(struct mmc *mmc)
 		      slot->taps.s.cmd_out_tap, slot->taps.s.data_in_tap,
 		      slot->taps.s.data_out_tap);
 		octeontx_mmc_set_timing(mmc);
-#endif
 	}
+#endif
 	return 0;
 }
 
@@ -1826,7 +1829,8 @@ static void octeontx_mmc_io_drive_setup(struct mmc *mmc)
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 	union cavm_mio_emm_io_ctl io_ctl;
 
-	if (!(is_board_model(CN81XX) || is_board_model(CN83XX))) {
+#if !defined(CONFIG_ARCH_OCTEONTX)
+	{
 		if ((slot->drive < 0) || (slot->slew < 0))
 			return;
 		io_ctl.u = 0;
@@ -1834,6 +1838,7 @@ static void octeontx_mmc_io_drive_setup(struct mmc *mmc)
 		io_ctl.s.slew = slot->slew;
 		write_csr(mmc, CAVM_MIO_EMM_IO_CTL(), io_ctl.u);
 	}
+#endif
 }
 
 /**
@@ -2237,7 +2242,8 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 	if (ofnode_read_bool(node, "sd-uhs-ddr50"))
 		slot->cfg.host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz |
 				       MMC_MODE_DDR_52MHz;
-	if (!(is_board_model(CN81XX) || is_board_model(CN83XX))) {
+#if !defined(CONFIG_ARCH_OCTEONTX)
+	{
 		if (ofnode_read_bool(node, "mmc-hs200-1_8v"))
 			slot->cfg.host_caps |= MMC_MODE_HS200 |
 					       MMC_MODE_HS_52MHz;
@@ -2247,6 +2253,7 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 					       MMC_MODE_HS200 |
 					       MMC_MODE_DDR_52MHz;
 	}
+#endif
 	slot->disable_ddr = ofnode_read_bool(node, "marvell,disable-ddr");
 	slot->non_removable = ofnode_read_bool(node, "non-removable");
 	slot->cmd_clk_skew = ofnode_read_u32_default(node,
