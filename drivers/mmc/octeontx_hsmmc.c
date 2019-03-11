@@ -1693,7 +1693,7 @@ static int octeontx_mmc_get_cd(struct udevice *dev)
 static int octeontx_mmc_get_wp(struct udevice *dev)
 {
 	struct octeontx_mmc_slot *slot = dev_to_mmc_slot(dev);
-	int val = 1;
+	int val = 0;
 
 	if (dm_gpio_is_valid(&slot->wp_gpio)) {
 		val = dm_gpio_get_value(&slot->wp_gpio);
