@@ -1516,6 +1516,9 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 
 	pr_info("%s re-tuning, opcode 0x%x\n", dev->name, opcode);
 
+	if (slot->is_asim)
+		return 0;
+
 	for (a = adj; a->name; a++) {
 		debug("%s(%s): Testing: %s, mode: %s, opcode: %u\n", __func__,
 		      dev->name, a->name, mmc_mode_name(mmc->selected_mode),
