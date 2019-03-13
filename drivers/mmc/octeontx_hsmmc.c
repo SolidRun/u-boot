@@ -2427,7 +2427,7 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	host->node = dev->node;
 	dev->req_seq = PCI_FUNC(bdf);
 	host->last_slotid = -1;
-	node = ofnode_path("/cavium/bdk");
+	node = ofnode_path("/cavium,bdk");
 	if (ofnode_valid(node)) {
 		board_model = ofnode_read_string(node, "BOARD-MODEL");
 		if (board_model && !strncmp(board_model, "ASIM-", 5))
