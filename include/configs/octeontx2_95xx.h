@@ -101,4 +101,9 @@
 #define CONFIG_CMD_BKOPS_ENABLE
 #define CONFIG_SUPPORT_EMMC_RPMB
 
+#define CONFIG_MMC_OCTEONTX
+#ifndef CONFIG_BLK
+# define CONFIG_BLK
+#endif
+
 #endif /* __OCTEONTX2_95XX_H__ */

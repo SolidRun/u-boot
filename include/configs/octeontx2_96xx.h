@@ -107,9 +107,14 @@
 #undef CONFIG_SYS_PROMPT
 #define CONFIG_SYS_PROMPT		env_get("prompt")
 
-#define CONFIG_MMC_SUPPORTS_TUNING
-#define MMC_SUPPORTS_TUNING
-#define CONFIG_CMD_BKOPS_ENABLE
+/** EMMC specific defines */
+#define CONFIG_SUPPORT_EMMC_BOOT
 #define CONFIG_SUPPORT_EMMC_RPMB
+#define CONFIG_CMD_BKOPS_ENABLE
+
+#define CONFIG_MMC_OCTEONTX
+#ifndef CONFIG_BLK
+# define CONFIG_BLK
+#endif
 
 #endif /* __OCTEONTX2_96XX_H__ */
