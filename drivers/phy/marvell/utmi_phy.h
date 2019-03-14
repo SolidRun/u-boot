@@ -20,6 +20,7 @@
 #define UTMI_PHY_CFG_PU_MASK			\
 	(0x1 << UTMI_PHY_CFG_PU_OFFSET)
 
+/* PLL and Calibration register are common for both UTMI ports */
 #define UTMI_PLL_CTRL_REG			0x0
 #define UTMI_PLL_CTRL_REFDIV_OFFSET		0
 #define UTMI_PLL_CTRL_REFDIV_MASK		\
@@ -45,6 +46,10 @@
 #define UTMI_CALIB_CTRL_PLLCAL_DONE_MASK	\
 	(0x1 << UTMI_CALIB_CTRL_PLLCAL_DONE_OFFSET)
 
+/* NOTE: all bellow are register used per UTMI port, which base address is
+ * 058x00C, so bellow offset may be misleading. E.g UTMI_TX_CH_CTRL_REG refers
+ * to 0x58x00c, UTMI_RX_CH_CTRL0_REG refers to 0x58x014 etc.
+ */
 #define UTMI_TX_CH_CTRL_REG			0x0
 #define UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET	12
 #define UTMI_TX_CH_CTRL_DRV_EN_LS_MASK		\
