@@ -71,7 +71,7 @@ static int octeontx_gpio_dir_input(struct udevice *dev, unsigned offset)
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 	debug("%s(%s, %u)\n", __func__, dev->name, offset);
 	clrbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
-		     (0x3ffUL << 16) | 4UL | 1UL);
+		     (0x3ffUL << 16) | 4UL | 2UL | 1UL);
 	return 0;
 }
 
