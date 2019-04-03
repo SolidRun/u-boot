@@ -158,6 +158,8 @@ int arch_early_init_r(void)
 	int ret;
 	int i;
 
+	printf("Running in RAM - U-Boot at: 0x%08lx\n", gd->relocaddr);
+	printf("                 Env at:    0x%08lx\n", gd->env_addr);
 	/*
 	 * Loop over all MISC uclass drivers to call the comphy code
 	 * and init all CP110 devices enabled in the DT
