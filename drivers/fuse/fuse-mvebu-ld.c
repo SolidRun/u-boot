@@ -62,12 +62,10 @@ int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
 	setbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
 
 	/* enable fuse prog */
-#ifndef DRY_RUN
 	setbits_le32(ctrl_reg, MVEBU_EFUSE_CTRL_PROGRAM_ENABLE);
 
 	/* enable security bit to lock LD efuse row for further programming */
 	setbits_le32(ctrl_reg, MVEBU_EFUSE_CTRL_LD_SEC_EN_MASK);
-#endif
 	/* read fuse row value before burn fuse */
 	for (i = 0; i < GET_LEN(row_widths); i++)
 		fuse_read_value[i] = readl(otp_mem + 4 * i);
@@ -84,15 +82,19 @@ int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
 	mdelay(1);
 
 	/* Disable efuse write */
-#ifndef DRY_RUN
 	clrbits_le32(ctrl_reg, MVEBU_EFUSE_CTRL_PROGRAM_ENABLE);
-#endif
+
 	return 0;
 }
 
 int mvebu_efuse_ld_prog(struct udevice *dev, int word, int row_id, u32 new_val)
 {
 	int res = 0;
+
+#ifdef EFUSE_READ_ONLY
+	dev_err(&dev->dev, "ERROR: fuse programming disabled!\n");
+	return -EPERM;
+#endif
 
 	if (word < ROW_WORDS_LEN - 1) {
 		prog_val[word] = new_val;

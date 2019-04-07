@@ -14,13 +14,11 @@ config MVEBU_EFUSE
 	  This efuse driver supports marvell
 	  a38x and a7k/8k SoC chips.
 
-config MVEBU_EFUSE_FAKE
-	bool "Fake eFuse access (dry run)"
+config MVEBU_EFUSE_READ_ONLY
+	bool "eFuse read only access"
 	default n
 	depends on MVEBU_EFUSE
 	help
-	  This enables a "dry run" mode where eFuses are not really programmed.
-	  Instead the eFuse accesses are emulated by writing to and reading
-	  from a memory block.
-	  This is can be used for testing prog scripts.
+	  This enables a "read only" mode. Write attempt
+          will result in an error message.
 endmenu

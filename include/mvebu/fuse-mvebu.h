@@ -9,10 +9,10 @@
 
 #include <common.h>
 
-#if defined(CONFIG_MVEBU_EFUSE_FAKE)
-#define DRY_RUN
+#if defined(CONFIG_MVEBU_EFUSE_READ_ONLY)
+#define EFUSE_READ_ONLY
 #else
-#undef DRY_RUN
+#undef EFUSE_READ_ONLY
 #endif
 
 #define MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER	BIT(6)

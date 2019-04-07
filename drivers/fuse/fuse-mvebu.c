@@ -169,15 +169,10 @@ static int fuse_probe(struct udevice *dev)
 
 	priv->pdata =
 		(struct mvebu_fuse_platform_data *)dev_get_driver_data(dev);
-#ifndef DRY_RUN
 	priv->target_otp_mem =
 		(void *)(((phys_addr_t)dev_read_addr(dev) & ~0x00ffffff) +
 		(((phys_addr_t)fdtdec_get_int(blob, node,
 			"otp-mem", 0)) & 0x00ffffff));
-
-#else
-	priv->target_otp_mem = NULL;
-#endif
 
 	if (device_is_compatible(dev, "marvell,mvebu-fuse-hd"))
 		priv->hd_ld_flag = true;
