@@ -60,3 +60,25 @@ ssize_t atf_configure_ooo(unsigned int val)
 
 	return regs.regs[0];
 }
+
+ssize_t atf_flsf_fw_booted(void)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = OCTEONTX2_FSAFE_PR_BOOT_SUCCESS;
+
+	smc_call(&regs);
+
+	return regs.regs[0];
+}
+
+ssize_t atf_flsf_clr_force_2ndry(void)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = OCTEONTX2_FSAFE_CLR_FORCE_SEC;
+
+	smc_call(&regs);
+
+	return regs.regs[0];
+}

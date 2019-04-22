@@ -11,4 +11,6 @@
 ssize_t atf_dram_size(unsigned int node);
 ssize_t atf_node_count(void);
 ssize_t atf_disable_rvu_lfs(unsigned int node);
+ssize_t atf_flsf_fw_booted(void);
+ssize_t atf_flsf_clr_force_2ndry(void);
 #endif

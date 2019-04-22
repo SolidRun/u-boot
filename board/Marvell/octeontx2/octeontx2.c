@@ -350,3 +350,11 @@ void hw_watchdog_disable(void)
 	writeq(0ULL, CAVM_GTI_CWD_WDOGX);
 }
 #endif
+
+#ifdef CONFIG_LAST_STAGE_INIT
+int last_stage_init(void)
+{
+	(void)atf_flsf_fw_booted();
+	return 0;
+}
+#endif
