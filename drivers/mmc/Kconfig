@@ -47,6 +47,14 @@ config MMC_OCTEONTX
 	  If you have an OcteonTX board with a Multimedia Card slot,
 	  say Y here.  If unsure, say N.
 
+config MMC_SUPPORTS_TUNING
+	depends on MMC_OCTEONTX
+	bool "Support for HW partitioning command(eMMC)"
+	default	y
+	help
+	  This adds support for tuning in OcteonTX MMC driver.
+
+
 config MMC_HW_PARTITIONING
 	bool "Support for HW partitioning command(eMMC)"
 	default y
