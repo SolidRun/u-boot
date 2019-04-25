@@ -56,6 +56,7 @@ struct lmac {
 	int			lmac_type;
 	u8			qlm_mode;
 	int			qlm;
+	bool			is_1gx;
 };
 
 struct bgx {
@@ -352,6 +353,12 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
 		cfg &= ~PCS_MISCX_CTL_DISP_EN;
 		bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL, cfg);
 		return 0; /* Skip checking AN_CPT */
+	}
+
+	if (lmac->is_1gx) {
+		cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL);
+		cfg |= PCS_MISC_CTL_MODE;
+		bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL, cfg);
 	}
 
 	if (lmac->qlm_mode == QLM_MODE_SGMII) {
@@ -1029,8 +1036,9 @@ static void bgx_init_hw(struct bgx *bgx)
 			lmac->lane_to_sds = lmacid;
 			lmac->lmac_type = 0;
 			snprintf(buf, sizeof(buf),
-				 "BGX%d QLM%d LMAC%d mode: SGMII\n",
-				 bgx->bgx_id, lmac->qlm, lmacid);
+				 "BGX%d QLM%d LMAC%d mode: %s\n",
+				 bgx->bgx_id, lmac->qlm, lmacid,
+				 lmac->is_1gx ? "1000Base-X" : "SGMII");
 			break;
 		}
 		case QLM_MODE_XAUI:
@@ -1225,6 +1233,8 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 				lmacid, lmac->lmac_type, is_altpkg);
 
 		train_en = (readq(CSR_PA(0, GSERX_SCRATCH(lmac->qlm))) & 0xf);
+		lmac->is_1gx = bgx_reg_read(bgx, index, BGX_GMP_PCS_MISCX_CTL)
+				& (PCS_MISC_CTL_MODE) ? true : false;
 
 		switch(lmac->lmac_type) {
 		case BGX_MODE_SGMII:
@@ -1241,8 +1251,9 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
 						continue;
 				}
 				lmac->qlm_mode = QLM_MODE_SGMII;
-				debug("BGX%d QLM%d LMAC%d mode: SGMII\n",
-						bgx->bgx_id, lmac->qlm, lmacid);
+				debug("BGX%d QLM%d LMAC%d mode: %s\n",
+				      bgx->bgx_id, lmac->qlm, lmacid,
+				      lmac->is_1gx ? "1000Base-X" : "SGMII");
 			}
 			break;
 		case BGX_MODE_XAUI:

@@ -154,6 +154,7 @@
 #define PCS_MISCX_CTL_DISP_EN			(1ull << 13)
 #define PCS_MISC_CTL_GMX_ENO			(1ull << 11)
 #define PCS_MISC_CTL_SAMP_PT_MASK		0x7Full
+#define PCS_MISC_CTL_MODE			(1ull << 8)
 #define BGX_GMP_GMI_PRTX_CFG		0x38020
 #define GMI_PORT_CFG_SPEED			(1ull << 1)
 #define GMI_PORT_CFG_DUPLEX			(1ull << 2)
