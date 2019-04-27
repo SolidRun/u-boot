@@ -208,6 +208,7 @@ int misc_init_r(void)
 int board_late_init(void)
 {
 	char boardname[20];
+	long val;
 
 	debug("%s()\n", __func__);
 
@@ -223,6 +224,8 @@ int board_late_init(void)
 	env_set("prompt", boardname);
 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
 
+	val = env_get_hex("disable_ooo", 0);
+	atf_configure_ooo(val);
 	return 0;
 }
 
