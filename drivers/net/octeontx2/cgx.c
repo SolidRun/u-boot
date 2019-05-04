@@ -180,40 +180,40 @@ int cgx_lmac_link_status(struct lmac *lmac, int lmac_id, u64 *status)
 {
 	int ret = 0;
 
-	ret = cgx_intf_get_link_sts(lmac->cgx->cgx_id,
-					lmac_id, status);
+	ret = cgx_intf_get_link_sts(lmac->cgx->cgx_id, lmac_id, status);
 	if (ret) {
-		debug("%s interface request failed for cgx%d lmac%d\n",
+		debug("%s request failed for cgx%d lmac%d\n",
 		      __func__, lmac->cgx->cgx_id, lmac->lmac_id);
 		ret = -1;
 	}
 	return ret;
 }
 
-int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable)
+int cgx_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable)
+{
+	struct cgx *cgx = lmac->cgx;
+	union cavm_cgxx_cmrx_config cmrx_config;
+
+	if (!cgx || lmac_id >= cgx->lmac_count)
+		return -ENODEV;
+
+	cmrx_config.u = cgx_read(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0));
+	cmrx_config.s.data_pkt_rx_en =
+	cmrx_config.s.data_pkt_tx_en = enable ? 1 : 0;
+	cgx_write(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0), cmrx_config.u);
+	return 0;
+}
+
+int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable,
+			 u64 *status)
 {
 	int ret = 0;
-	u64 status;
 
-	ret = cgx_intf_link_up_dwn(lmac->cgx->cgx_id,
-					lmac_id, enable, &status);
+	ret = cgx_intf_link_up_dwn(lmac->cgx->cgx_id, lmac_id, enable,
+				   status);
 	if (ret) {
-		debug("%s interface request failed for cgx%d lmac%d\n",
+		debug("%s request failed for cgx%d lmac%d\n",
 		      __func__, lmac->cgx->cgx_id, lmac->lmac_id);
-		ret = -1;
-	}
-
-	printf("%d    %d    %s", lmac->cgx->cgx_id, lmac->lmac_id,
-	       lmac_type_to_str[lmac->lmac_type]);
-	/* Print link speed */
-	printf("  \t%s", lmac_speed_to_str[(u8)((status >> 2) & 0xf)]);
-	status &= 0x1;
-	/* Print link status */
-	printf(" \t%s\n", status ? "Up" : "Down");
-	if (status != enable) {
-		debug("%s couldn't bring %s link cgx%d lmac%d\n",
-		      __func__, enable ? "up" : "down",
-		      lmac->cgx->cgx_id, lmac->lmac_id);
 		ret = -1;
 	}
 	return ret;
@@ -248,37 +248,17 @@ int cgx_lmac_internal_loopback(struct lmac *lmac, int lmac_id, bool enable)
 	return 0;
 }
 
-int cgx_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable)
-{
-	struct cgx *cgx = lmac->cgx;
-	union cavm_cgxx_cmrx_config cmrx_config;
-
-	if (!cgx || lmac_id >= cgx->lmac_count)
-		return -ENODEV;
-
-	cmrx_config.u = cgx_read(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0));
-	cmrx_config.s.data_pkt_rx_en =
-	cmrx_config.s.data_pkt_tx_en = enable ? 1 : 0;
-	cgx_write(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0), cmrx_config.u);
-	return 0;
-}
-
 static int cgx_lmac_init(struct cgx *cgx)
 {
 	struct lmac *lmac;
 	union cavm_cgxx_cmrx_config cmrx_cfg;
-	static int instance = 1, printed;
-	int i, ret;
+	static int instance = 1;
+	int i;
 
 	cgx->lmac_count = cgx_read(cgx, 0, CAVM_CGXX_CMR_RX_LMACS());
 	debug("%s: Found %d lmacs for cgx %d@%p\n", __func__, cgx->lmac_count,
 	      cgx->cgx_id, cgx->reg_base);
-	if (cgx->lmac_count && !printed) {
-		printf("=========================================\n");
-		printf("CGX LMAC  Mode        Speed\tLink\n");
-		printf("=========================================\n");
-		printed = 1;
-	}
+
 	for (i = 0; i < cgx->lmac_count; i++) {
 		lmac = calloc(1, sizeof(*lmac));
 		if (!lmac)
@@ -296,17 +276,13 @@ static int cgx_lmac_init(struct cgx *cgx)
 		debug("%s: mapping id %d to lmac %p (%s), lmac type: %d"
 			" lmac instance %d\n", __func__, i, lmac, lmac->name,
 			 lmac->lmac_type, lmac->instance);
-		cgx_intf_get_mac_addr(cgx->cgx_id, i, lmac->mac_addr);
-		debug("%s: cgx%d lmac%d mac_addr\n",__func__,cgx->cgx_id, i);
+		lmac->init_pend = 1;
+		printf("CGX%d LMAC%d [%s]\n", lmac->cgx->cgx_id,
+		       lmac->lmac_id, lmac_type_to_str[lmac->lmac_type]);
+		octeontx2_board_get_mac_addr((lmac->instance - 1),
+					     lmac->mac_addr);
 		debug("%s: MAC %pM\n", __func__, lmac->mac_addr);
-
 		cgx_lmac_mac_filter_setup(lmac);
-		ret = cgx_lmac_link_enable(lmac, lmac->lmac_id, true);
-		if (ret)
-			debug("%s could not bring up cgx%d lmac%d\n",
-			      __func__, lmac->cgx->cgx_id, lmac->lmac_id);
-		else
-			cgx_lmac_rx_tx_enable(lmac, lmac->lmac_id, false);
 	}
 	return 0;
 }

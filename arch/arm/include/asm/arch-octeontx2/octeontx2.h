@@ -49,6 +49,7 @@ union cavm_cpc_boot_ownerx {
 
 /** Function definitions */
 void octeontx2_parse_board_info(void);
+void octeontx2_board_get_mac_addr(u8 index, u8 *mac_addr);
 void acquire_flash_arb(bool acquire);
 
 /** Board data definitions */

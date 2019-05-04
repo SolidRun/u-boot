@@ -29,6 +29,10 @@ enum lmac_type {
 	LMAC_MODE_USXGMII	= 10,
 };
 
+extern char lmac_type_to_str[][8];
+
+extern char lmac_speed_to_str[][8];
+
 struct lmac_priv {
 	u8 enable:1;
 	u8 full_duplex:1;
@@ -47,7 +51,7 @@ struct lmac {
 	struct nix	*nix;
 	char		name[16];
 	enum lmac_type	lmac_type;
-	bool		cmd_pend;
+	bool		init_pend;
 	u8		instance;
 	u8		lmac_id;
 	u8		pknd;
@@ -88,7 +92,8 @@ struct lmac *nix_get_cgx_lmac(int lmac_instance);
 int cgx_lmac_set_pkind(struct lmac *lmac, u8 lmac_id, int pkind);
 int cgx_lmac_internal_loopback(struct lmac *lmac, int lmac_id, bool enable);
 int cgx_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable);
-int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable);
+int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable,
+			 u64 *status);
 int cgx_lmac_link_status(struct lmac *lmac, int lmac_id, u64 *status);
 void cgx_lmac_mac_filter_setup(struct lmac *lmac);
 

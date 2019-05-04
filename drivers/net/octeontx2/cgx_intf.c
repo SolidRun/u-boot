@@ -139,22 +139,21 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
 		goto error;
 
 	if (scr0.s.evt_sts.evt_type != CGX_EVT_CMD_RESP) {
-		printf("%s received async event instead of cmd resp event\n",
-			__func__);
+		debug("%s received async event instead of cmd resp event\n",
+		      __func__);
 		err = -1;
 		goto error;
 	}
 	if (scr0.s.evt_sts.id != cmd) {
-		printf("%s received resp for cmd %d expected cmd %d \n",
-				__func__, scr0.s.evt_sts.id, cmd);
+		debug("%s received resp for cmd %d expected cmd %d\n",
+		      __func__, scr0.s.evt_sts.id, cmd);
 		err = -1;
 		goto error;
 	}
 	if (scr0.s.evt_sts.stat != CGX_STAT_SUCCESS) {
-		debug("%s failure for cmd %d on cgx %u lmac %u with errcode"
-			" %d\n", __func__, cmd, cgx, lmac, scr0.s.link_sts.err_type);
+		debug("%s cmd%d failed on cgx%u lmac%u with errcode %d\n",
+		      __func__, cmd, cgx, lmac, scr0.s.link_sts.err_type);
 		err = -1;
-		goto error;
 	}
 
 error:

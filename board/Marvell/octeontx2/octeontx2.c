@@ -19,7 +19,10 @@
 #include <dm/util.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
 struct cavm_bdt g_cavm_bdt;
+static int board_mac_num;
+u8 board_mac_addr[6];
 
 extern unsigned long fdt_base_addr;
 extern void cgx_intf_shutdown(void);
@@ -34,6 +37,18 @@ void octeontx2_cleanup_ethaddr(void)
 		if (env_get(ename))
 			env_set_force(ename, NULL);
 	}
+}
+
+void octeontx2_board_get_mac_addr(u8 index, u8 *mac_addr)
+{
+	if ((!is_zero_ethaddr(board_mac_addr)) && board_mac_num) {
+		memcpy(mac_addr, board_mac_addr, ARP_HLEN);
+		*(mac_addr + 5) += index;
+		board_mac_num--;
+	} else {
+		memset(mac_addr, 0, ARP_HLEN);
+	}
+	debug("%s mac %pM\n", __func__, mac_addr);
 }
 
 void board_get_env_spi_bus_cs(int *bus, int *cs)
@@ -74,7 +89,7 @@ void octeontx_parse_board_info(void)
 	const char *str;
 	int node;
 	int ret = 0, len = 16;
-	u64 midr;
+	u64 midr, macaddr;
 
 	debug("%s: ENTER\n", __func__);
 
@@ -109,6 +124,34 @@ void octeontx_parse_board_info(void)
 	} else {
 		printf("Error: cannot retrieve board type from fdt\n");
 	}
+	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS-NUM", &len);
+	if (str) {
+		board_mac_num = simple_strtol(str, NULL, 10);
+		if (!board_mac_num)
+			board_mac_num = simple_strtol(str, NULL, 16);
+		debug("fdt: MAC_NUM %d\n", board_mac_num);
+	} else {
+		printf("Error: cannot retrieve mac num prop from fdt\n");
+	}
+	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS-NUM-OVERRIDE",
+			  &len);
+	if (str) {
+		if (simple_strtol(str, NULL, 10) >= 0)
+			board_mac_num = simple_strtol(str, NULL, 10);
+		debug("fdt: MAC_NUM %d\n", board_mac_num);
+	} else {
+		printf("Error: cannot retrieve macnum override prop\n");
+	}
+	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS", &len);
+	if (str) {
+		macaddr = simple_strtoul(str, NULL, 16);
+		macaddr = swab64(macaddr) >> 16;
+		memcpy(board_mac_addr, (u8 *)&macaddr, ARP_HLEN);
+		debug("%s mac %pM\n", __func__, board_mac_addr);
+	} else {
+		memset(board_mac_addr, 0, ARP_HLEN);
+	}
+	debug("%s mac %pM\n", __func__, board_mac_addr);
 }
 
 void board_quiesce_devices(void)

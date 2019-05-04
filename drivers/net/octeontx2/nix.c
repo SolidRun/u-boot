@@ -774,10 +774,6 @@ void nix_lf_halt(struct udevice *dev)
 	struct rvu_pf *rvu = dev_get_priv(dev);
 	struct nix *nix = rvu->nix;
 
-#if 0
-	/* Bring down LMAC */
-	cgx_lmac_link_enable(nix->lmac, nix->lmac->lmac_id, false);
-#endif
 	cgx_lmac_rx_tx_enable(nix->lmac, nix->lmac->lmac_id, false);
 
 	mdelay(1);
@@ -793,30 +789,43 @@ int nix_lf_init(struct udevice *dev)
 {
 	struct rvu_pf *rvu = dev_get_priv(dev);
 	struct nix *nix = rvu->nix;
+	struct lmac *lmac = nix->lmac;
 	int ret;
 	u64 link_sts;
+	u8 link, speed;
+	u16 errcode;
 
-#if 0
-	cgx_lmac_mac_filter_setup(nix->lmac);
-	/* Bring up LMAC */
-	cgx_lmac_link_enable(nix->lmac, nix->lmac->lmac_id, true);
-	cgx_lmac_mac_filter_setup(nix->lmac);
-#endif
-	ret = cgx_lmac_link_status(nix->lmac, nix->lmac->lmac_id, &link_sts);
+	printf("Waiting for CGX%d LMAC%d [%s] link status...",
+	       lmac->cgx->cgx_id, lmac->lmac_id,
+	       lmac_type_to_str[lmac->lmac_type]);
+
+	if (lmac->init_pend) {
+		/* Bring up LMAC */
+		ret = cgx_lmac_link_enable(lmac, lmac->lmac_id,
+					   true, &link_sts);
+		lmac->init_pend = 0;
+	} else {
+		ret = cgx_lmac_link_status(lmac, lmac->lmac_id, &link_sts);
+	}
+
 	if (ret) {
-		printf("%s failed to get link_sts for cgx%d lmac%d\n",
-			__func__, nix->lmac->cgx->cgx_id,
-			nix->lmac->lmac_id);
+		printf(" [Down]\n");
 		return -1;
 	}
 
-	if (!(link_sts & 0x1)) {
-		printf("%s cgx%d lmac%d link is down\n", __func__,
-			nix->lmac->cgx->cgx_id, nix->lmac->lmac_id);
-		return -1;
-	}
+	link = link_sts & 0x1;
+	speed = (link_sts >> 2) & 0xf;
+	errcode = (link_sts >> 6) & 0x2ff;
+	debug("%s: link %x speed %x errcode %x\n",
+	      __func__, link, speed, errcode);
 
-	cgx_lmac_rx_tx_enable(nix->lmac, nix->lmac->lmac_id, true);
+	/* Print link status */
+	printf(" [%s]\n", link ? lmac_speed_to_str[speed] : "Down");
+	if (!link)
+		return -1;
+
+	if (!lmac->init_pend)
+		cgx_lmac_rx_tx_enable(lmac, lmac->lmac_id, true);
 
 	return 0;
 }
