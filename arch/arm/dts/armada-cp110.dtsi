@@ -55,17 +55,17 @@
 				status = "okay";
 			};
 
-			CP110_LABEL(ld_efuse0): efuse0@400F00 {
+			CP110_LABEL(ld_efuse0): CP110_LABEL(efuse0)@400F00 {
 				compatible = "marvell,mvebu-fuse-ld-user";
 				reg = <0x400008 0x4>;
-				otp-mem = <0xF2400F00>;
+				otp-mem = <0x400F00>;
 				status = "disabled";
 			};
 
-			CP110_LABEL(ld_efuse1): efuse1@400F00 {
+			CP110_LABEL(ld_efuse1): CP110_LABEL(efuse1)@400F00 {
 				compatible = "marvell,mvebu-fuse-ld-prop";
 				reg = <0x400008 0x4>;
-				otp-mem = <0xF2400F00>;
+				otp-mem = <0x400F00>;
 				status = "disabled";
 			};
 
