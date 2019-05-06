@@ -78,6 +78,21 @@ config MVEBU_MMC_BOOT
 
 endchoice
 
+config MVEBU_BOOT_PART
+	int "boot partition"
+	default 0
+	help
+	  sets boot partition, and sets a specific
+	  partition as a target for "bubt" command.
+	  For details about bubt command please see the documentation
+	  in doc/mvebu/cmd/bubt.txt
+
+config MVEBU_BOOT_DEVICE
+	int "boot device id"
+	default 0
+	help
+	  Used for setting boot device id.
+
 config MVEBU_UBOOT_DFLT_NAME
 	string "Default image name for bubt command"
 	default "flash-image.bin"

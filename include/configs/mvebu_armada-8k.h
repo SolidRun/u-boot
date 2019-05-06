@@ -16,9 +16,6 @@
  */
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
-/* When runtime detection fails this is the default */
-#define CONFIG_SYS_MMC_ENV_DEV		0
-
 #define CONFIG_BOARD_EARLY_INIT_R
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
