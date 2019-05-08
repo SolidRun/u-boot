@@ -73,6 +73,7 @@ struct octeontx_mmc_slot {
 	bool			is_3_3v:1;
 	bool			is_ddr:1;
 	bool			is_asim:1;
+	bool			is_emul:1;
 	bool			cd_inverted:1;
 	bool			wp_inverted:1;
 	bool			disable_ddr:1;
@@ -112,6 +113,7 @@ struct octeontx_mmc_host {
 	uint		num_slots;
 	bool		initialized:1;
 	bool		is_asim:1;
+	bool		is_emul:1;
 };
 
 /*

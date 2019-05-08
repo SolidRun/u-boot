@@ -710,10 +710,12 @@ static void octeontx_mmc_track_switch(struct mmc *mmc, u32 cmd_arg)
 			slot->want_switch.s.hs_timing = 1;
 			break;
 		case 2:
-			slot->want_switch.s.hs200_timing = 1;
+			if (!slot->is_asim && !slot->is_emul)
+				slot->want_switch.s.hs200_timing = 1;
 			break;
 		case 3:
-			slot->want_switch.s.hs400_timing = 1;
+			if (!slot->is_asim && !slot->is_emul)
+				slot->want_switch.s.hs400_timing = 1;
 			break;
 		default:
 			pr_err("%s(%s): Unsupported timing mode 0x%x\n",
@@ -1509,6 +1511,9 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 	int err;
 	struct adj *a;
 
+	if (slot->is_asim || slot->is_emul)
+		return 0;
+
 	pr_info("%s re-tuning, opcode 0x%x\n", dev->name, opcode);
 
 	for (a = adj; a->name; a++) {
@@ -1906,6 +1911,9 @@ static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay)
 {
 	struct octeontx_mmc_host *host = mmc_to_host(mmc);
 
+	if (host->is_asim || host->is_emul)
+		return 63;
+
 	if (!host->timing_taps) {
 		pr_err("%s(%s): Error: host timing not calibrated\n",
 		       __func__, mmc->dev->name);
@@ -1935,7 +1943,7 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 	int bdelay;
 
 	debug("%s(%s)\n", __func__, mmc->dev->name);
-	if (slot->is_asim)
+	if (slot->is_asim || slot->is_emul)
 		return 0;
 	if (mmc->clock < 26000000)
 		bdelay = octeontx2_mmc_calc_delay(mmc, 5000);
@@ -2030,6 +2038,9 @@ static int octeontx_mmc_init_timing(struct mmc *mmc)
 {
 	union cavm_mio_emm_timing timing;
 
+	if (mmc_to_slot(mmc)->is_asim || mmc_to_slot(mmc)->is_emul)
+		return 0;
+
 	timing.u = 0;
 	timing.s.cmd_out_tap = 39;
 	timing.s.data_out_tap = 39;
@@ -2051,8 +2062,6 @@ static int octeontx_mmc_init_lowlevel(struct mmc *mmc)
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 	struct octeontx_mmc_host *host = slot->host;
 	union cavm_mio_emm_switch emm_switch;
-	struct mmc_cmd cmd;
-	int err;
 	u32 clk_period;
 
 	debug("%s(%s): lowlevel init for slot %d\n", __func__,
@@ -2083,15 +2092,6 @@ static int octeontx_mmc_init_lowlevel(struct mmc *mmc)
 	write_csr(mmc, CAVM_MIO_EMM_STS_MASK(), 0xe4390080ull);
 	write_csr(mmc, CAVM_MIO_EMM_RCA(), 1);
 	mdelay(10);
-	memset(&cmd, 0, sizeof(cmd));
-	cmd.cmdidx = 0;
-	cmd.cmdarg = 0xf0f0f0f0;
-	cmd.resp_type = MMC_RSP_NONE;
-	err = octeontx_mmc_send_cmd(mmc, &cmd, NULL);
-	if (err)
-		pr_warn("%s: Could n ot send pre-reset command\n", __func__);
-	else
-		mdelay(20);
 	debug("%s: done\n", __func__);
 	return 0;
 }
@@ -2243,7 +2243,7 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 		slot->cfg.host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz |
 				       MMC_MODE_DDR_52MHz;
 #if !defined(CONFIG_ARCH_OCTEONTX)
-	{
+	if (!slot->is_asim && !slot->is_emul) {
 		if (ofnode_read_bool(node, "mmc-hs200-1_8v"))
 			slot->cfg.host_caps |= MMC_MODE_HS200 |
 					       MMC_MODE_HS_52MHz;
@@ -2360,7 +2360,7 @@ static int octeontx_mmc_host_calibrate_delay(struct octeontx_mmc_host *host)
 	u8 rev;
 
 	debug("%s: Calibrating delay\n", __func__);
-	if (host->is_asim) {
+	if (host->is_asim || host->is_emul) {
 		debug("  No calibration for ASIM\n");
 		return 0;
 	}
@@ -2432,6 +2432,8 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 		board_model = ofnode_read_string(node, "BOARD-MODEL");
 		if (board_model && !strncmp(board_model, "ASIM-", 5))
 			host->is_asim = true;
+		if (board_model && !strncmp(board_model, "EMUL-", 5))
+			host->is_emul = true;
 	}
 	/* Force reset of eMMC */
 	writeq(0, host->base_addr + CAVM_MIO_EMM_CFG());
@@ -2531,6 +2533,7 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 	slot->dev = dev;
 	slot->base_addr = host->base_addr;
 	slot->is_asim = host->is_asim;
+	slot->is_emul = host->is_emul;
 
 	snprintf(name, sizeof(name), "octeontx-mmc%d", bus_id);
 	err = device_set_name(dev, name);
