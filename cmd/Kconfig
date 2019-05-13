@@ -2186,6 +2186,7 @@ config CMD_PSTORE_ECC_SIZE
 endif
 
 source "cmd/mvebu/Kconfig"
+source "cmd/marvell/Kconfig"
 
 config CMD_TERMINAL
 	bool "terminal - provides a way to attach a serial terminal"
