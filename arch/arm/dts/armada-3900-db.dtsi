@@ -17,6 +17,11 @@
 	aliases {
 		i2c0 = &cp0_i2c0;
 		spi0 = &ap_spi0;
+		fuse0 = &ap_hd_efuse0;	/* banks 0-63 RW */
+		fuse1 = &ap_ld_efuse0;	/* bank 64 RO */
+		fuse2 = &ap_ld_efuse1;	/* bank 65 RW */
+		fuse3 = &cp0_ld_efuse0;	/* bank 66 RO */
+		fuse4 = &cp0_ld_efuse1;	/* bank 67 RW */
 	};
 
 	memory@00000000 {
@@ -77,9 +82,29 @@
 	status = "okay";
 };
 
+&ap_hd_efuse0 {
+	status = "okay";
+};
+
+&ap_ld_efuse0 {
+	status = "okay";
+};
+
+&ap_ld_efuse1 {
+	status = "okay";
+};
+
 /*
  * CP related configuration
  */
+&cp0_ld_efuse0 {
+	status = "okay";
+};
+
+&cp0_ld_efuse1 {
+	status = "okay";
+};
+
 &cp0_nand {
 	nand-ecc-strength = <8>;
 };
