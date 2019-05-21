@@ -413,8 +413,6 @@ do {									\
 #define      MVPP22_XLG_CTRL3_MACMODESELECT_10GMAC	(1 << 13)
 /* Port Mac Control4 */
 #define MVPP22_XLG_CTRL4_REG			0x184
-#define      MVPP22_XLG_FORWARD_802_3X_FC_EN	BIT(5)
-#define      MVPP22_XLG_FORWARD_PFC_EN		BIT(6)
 #define      MVPP22_XLG_MODE_DMA_1G		BIT(12)
 #define      MVPP22_XLG_EN_IDLE_CHECK_FOR_LINK	BIT(14)
 
@@ -3260,8 +3258,6 @@ static int gop_xlg_mac_mode_cfg(struct mvpp2_port *port, int num_of_act_lanes)
 	/* read - modify - write */
 	val = readl(port->base + MVPP22_XLG_CTRL4_REG);
 	val &= ~MVPP22_XLG_MODE_DMA_1G;
-	val |= MVPP22_XLG_FORWARD_PFC_EN;
-	val |= MVPP22_XLG_FORWARD_802_3X_FC_EN;
 	val &= ~MVPP22_XLG_EN_IDLE_CHECK_FOR_LINK;
 	writel(val, port->base + MVPP22_XLG_CTRL4_REG);
 
