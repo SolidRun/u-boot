@@ -2181,6 +2181,31 @@ static u32 xlate_voltage(u32 voltage)
 	return volt;
 }
 
+/**
+ * Check if a slot is valid in the device tree
+ *
+ * @param	dev	slot device to check
+ *
+ * @return	true if status reports "ok" or "okay" or if no status,
+ *		false otherwise.
+ */
+static bool octeontx_mmc_get_valid(struct udevice *dev)
+{
+	const char *stat = ofnode_read_string(dev->node, "status");
+
+	if (!stat || !strncmp(stat, "ok", 2))
+		return true;
+	else
+		return false;
+}
+
+/**
+ * Reads slot configuration from the device tree
+ *
+ * @param	dev	slot device
+ *
+ * @return	0 on success, otherwise error
+ */
 static int octeontx_mmc_get_config(struct udevice *dev)
 {
 	struct octeontx_mmc_slot *slot = dev_to_mmc_slot(dev);
@@ -2193,6 +2218,7 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 
 	debug("%s(%s)", __func__, dev->name);
 	slot->cfg.name = dev->name;
+
 	slot->cfg.f_max = ofnode_read_s32_default(dev->node, "max-frequency",
 						  26000000);
 	snprintf(env_name, sizeof(env_name), "mmc_max_frequency%d",
@@ -2344,6 +2370,12 @@ static int octeontx_mmc_slot_probe(struct udevice *dev)
 	mmc = &slot->mmc;
 	mmc->dev = dev;
 
+	slot->valid = false;
+	if (!octeontx_mmc_get_valid(dev)) {
+		debug("%s(%s): slot is invalid\n", __func__, dev->name);
+		return -1;
+	}
+
 	debug("%s(%s): Getting config\n", __func__, dev->name);
 	err = octeontx_mmc_get_config(dev);
 	if (err) {
@@ -2467,6 +2499,11 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	int err;
 
 	debug("%s(%s): Entry host: %p\n", __func__, dev->name, host);
+
+	if (!octeontx_mmc_get_valid(dev)) {
+		debug("%s(%s): mmc host not valid\n", __func__, dev->name);
+		return -1;
+	}
 	memset(host, 0, sizeof(*host));
 	host->base_addr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 	if (!host->base_addr) {
