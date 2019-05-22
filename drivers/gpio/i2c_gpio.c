@@ -35,7 +35,7 @@ struct i2c_gpio_chip {
 
 static int i2c_gpio_write8(struct udevice *dev, uint offset, u8 byte)
 {
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 	int ret;
 
 	ret = dm_i2c_write(dev, offset, &byte, 1);
@@ -48,7 +48,7 @@ static int i2c_gpio_write8(struct udevice *dev, uint offset, u8 byte)
 
 static int i2c_gpio_read8(struct udevice *dev, uint offset)
 {
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 	u8 data;
 	int ret;
 
@@ -62,7 +62,7 @@ static int i2c_gpio_read8(struct udevice *dev, uint offset)
 
 static int i2c_gpio_get_value(struct udevice *dev, unsigned int offset)
 {
-	struct i2c_gpio_chip *chip = dev_get_platdata(dev);
+	struct i2c_gpio_chip *chip = dev_get_plat(dev);
 	int value;
 	int byte = (offset >> 3);
 	int bit = (offset & 7);
@@ -80,7 +80,7 @@ static int i2c_gpio_get_value(struct udevice *dev, unsigned int offset)
 static int i2c_gpio_set_value(struct udevice *dev, unsigned int offset,
 			      int value)
 {
-	struct i2c_gpio_chip *chip = dev_get_platdata(dev);
+	struct i2c_gpio_chip *chip = dev_get_plat(dev);
 	unsigned int byte = offset >> 3;
 	unsigned int bit = offset & 7;
 	unsigned int mask = (1 << bit);
@@ -107,7 +107,7 @@ static int i2c_gpio_set_value(struct udevice *dev, unsigned int offset,
 
 static int i2c_gpio_direction_input(struct udevice *dev, unsigned int offset)
 {
-	struct i2c_gpio_chip *chip = dev_get_platdata(dev);
+	struct i2c_gpio_chip *chip = dev_get_plat(dev);
 	int byte = offset >> 3;
 	u8 bit = offset & 7;
 	u8 mask = ~(1 << bit);
@@ -122,7 +122,7 @@ static int i2c_gpio_direction_input(struct udevice *dev, unsigned int offset)
 static int i2c_gpio_direction_output(struct udevice *dev, unsigned int offset,
 				     int value)
 {
-	struct i2c_gpio_chip *chip = dev_get_platdata(dev);
+	struct i2c_gpio_chip *chip = dev_get_plat(dev);
 	int byte = offset >> 3;
 	u8 bit = offset & 7;
 	u8 mask = (1 << bit);
@@ -134,7 +134,7 @@ static int i2c_gpio_direction_output(struct udevice *dev, unsigned int offset,
 
 static int i2c_gpio_get_function(struct udevice *dev, unsigned int offset)
 {
-	struct i2c_gpio_chip *chip = dev_get_platdata(dev);
+	struct i2c_gpio_chip *chip = dev_get_plat(dev);
 	int byte = offset >> 3;
 	u8 bit = offset & 7;
 	u8 mask = (1 << bit);
@@ -160,19 +160,29 @@ static int i2c_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 static int i2c_gpio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct i2c_gpio_chip *chip = dev_get_platdata(dev);
+	struct i2c_gpio_chip *chip = dev_get_plat(dev);
 	char name[32], label[16], *str;
 	const char *tmp;
 	int size;
+	const char *status;
 
 	debug("%s(%s)\n", __func__, dev->name);
-	chip->addr = ofnode_read_u32_default(dev->node, "reg", 0);
+
+	status = ofnode_read_string(dev_ofnode(dev), "status");
+	if (status && !strncmp(status, "ok", 2)) {
+		debug("%s(%s): GPIO device disabled in device tree\n",
+		      __func__, dev->name);
+		return -ENODEV;
+	}
+
+	chip->addr = ofnode_read_u32_default(dev_ofnode(dev), "reg", 0);
 	if (!chip->addr) {
 		pr_err("%s(%s): Missing reg property\n",
 		       __func__, dev->name);
 		return -ENODEV;
 	}
-	chip->gpio_count = ofnode_read_u32_default(dev->node, "ngpios", 0);
+	chip->gpio_count = ofnode_read_u32_default(dev_ofnode(dev), "ngpios",
+						   0);
 	if (!chip->gpio_count) {
 		pr_err("%s(%s): Missing ngpios property\n",
 		       __func__, dev->name);
@@ -222,6 +232,6 @@ U_BOOT_DRIVER(i2c_gpio) = {
 	.id		= UCLASS_GPIO,
 	.ops		= &i2c_gpio_ops,
 	.probe		= i2c_gpio_probe,
-	.platdata_auto_alloc_size = sizeof(struct i2c_gpio_chip),
+	.plat_auto	= sizeof(struct i2c_gpio_chip),
 	.of_match	= i2c_gpio_ids,
 };
