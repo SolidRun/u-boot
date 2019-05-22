@@ -2367,7 +2367,7 @@ static int octeontx_mmc_host_calibrate_delay(struct octeontx_mmc_host *host)
 	emm_tap.u = 0;
 	dm_pci_read_config8(host->dev, PCI_REVISION_ID, &rev);
 	/* MIO_EMM errata for T96 pass A0 */
-	if (is_board_model(CN96XX) && !rev) {
+	if ((is_board_model(CN95XX) || is_board_model(CN96XX)) && !rev) {
 		emm_tap.s.delay = 4;
 	} else {
 		emm_calb.u = 0;
