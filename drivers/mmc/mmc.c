@@ -2957,8 +2957,14 @@ static int mmc_probe(bd_t *bis)
 	}
 	uclass_foreach_dev(dev, uc) {
 		ret = device_probe(dev);
-		if (ret)
-			pr_err("%s - probe failed: %d\n", dev->name, ret);
+		if (ret) {
+			if (ret == -ENODEV || ret == -ENXIO)
+				pr_debug("%s: probe of %s rejects match %d\n",
+					 __func__, dev->name, ret);
+			else
+				pr_err("%s - probe failed: %d\n",
+				       dev->name, ret);
+		}
 	}
 
 	return 0;
