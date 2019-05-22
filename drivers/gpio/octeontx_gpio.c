@@ -160,6 +160,15 @@ static int octeontx_gpio_probe(struct udevice *dev)
 	union gpio_const gpio_const;
 	size_t size;
 	char *end;
+	const char *status;
+
+	status = ofnode_read_string(dev->node, "status");
+
+	if (status && !strncmp(status, "ok", 2)) {
+		debug("%s(%s): GPIO device disabled in device tree\n",
+		      __func__, dev->name);
+		return -1;
+	}
 
 	dev->req_seq = PCI_FUNC(bdf);
 	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);

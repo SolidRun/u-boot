@@ -2373,7 +2373,7 @@ static int octeontx_mmc_slot_probe(struct udevice *dev)
 	slot->valid = false;
 	if (!octeontx_mmc_get_valid(dev)) {
 		debug("%s(%s): slot is invalid\n", __func__, dev->name);
-		return -1;
+		return -ENODEV;
 	}
 
 	debug("%s(%s): Getting config\n", __func__, dev->name);
@@ -2502,7 +2502,7 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 
 	if (!octeontx_mmc_get_valid(dev)) {
 		debug("%s(%s): mmc host not valid\n", __func__, dev->name);
-		return -1;
+		return -ENODEV;
 	}
 	memset(host, 0, sizeof(*host));
 	host->base_addr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
