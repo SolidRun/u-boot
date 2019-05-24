@@ -1538,12 +1538,9 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 	int err;
 	struct adj *a;
 
-	if (slot->is_asim || slot->is_emul)
-		return 0;
-
 	pr_info("%s re-tuning, opcode 0x%x\n", dev->name, opcode);
 
-	if (slot->is_asim)
+	if (slot->is_asim || slot->is_emul)
 		return 0;
 
 	for (a = adj; a->name; a++) {
