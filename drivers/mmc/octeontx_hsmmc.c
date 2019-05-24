@@ -1802,13 +1802,13 @@ static int octeontx_mmc_configure_delay(struct mmc *mmc)
 			case MMC_HS_52:
 			case MMC_DDR_52:
 			case MMC_HS_200:
-				cout = is_board_model(CN95XX) ? 10 : 5;
+				cout = slot->hs200_taps.s.cmd_out_tap;
 				/*cout = 10;*/
-				dout = is_board_model(CN95XX) ? 10 : 5;
+				dout = slot->hs200_taps.s.data_out_tap;
 				break;
 			case MMC_HS_400:
-				cout = is_board_model(CN95XX) ? 10 : 5;
-				dout = is_board_model(CN95XX) ? 10 : 5;
+				cout = slot->hs400_taps.s.cmd_out_tap;
+				dout = slot->hs400_taps.s.data_out_tap;
 				break;
 			default:
 				pr_err("%s(%s): Invalid mode %d\n", __func__,
@@ -2297,6 +2297,29 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 						     "cavium,cmd-clk-skew", 0);
 	slot->dat_clk_skew = ofnode_read_u32_default(node,
 						     "cavium,dat-clk-skew", 0);
+#if !defined(CONFIG_ARCH_OCTEONTX)
+	/* Read the tap value overrides from the DT */
+	slot->hs200_cmd_out_tap_fdt =
+		ofnode_read_bool(node, "marvell,hs200_cmd_out");
+	slot->hs200_taps.s.cmd_out_tap =
+		ofnode_read_u32_default(node, "marvell,hs200_cmd_out",
+					is_board_model(CN95XX) ? 10 : 5);
+	slot->hs200_data_out_tap_fdt =
+		ofnode_read_bool(node, "marvell,hs200_data_out");
+	slot->hs200_taps.s.data_out_tap =
+		ofnode_read_u32_default(node, "marvell,hs200_data_out",
+					is_board_model(CN95XX) ? 10 : 5);
+	slot->hs400_cmd_out_tap_fdt =
+		ofnode_read_bool(node, "marvell,hs400_cmd_out");
+	slot->hs400_taps.s.cmd_out_tap =
+		ofnode_read_u32_default(node, "marvell,hs400_cmd_out",
+					is_board_model(CN95XX) ? 10 : 5);
+	slot->hs400_data_out_tap_fdt =
+		ofnode_read_bool(node, "marvell,hs400_data_out");
+	slot->hs400_taps.s.data_out_tap =
+		ofnode_read_u32_default(node, "marvell,hs400_data_out",
+					is_board_model(CN95XX) ? 10 : 5);
+#endif
 	debug("%s(%s): host caps: 0x%x\n", __func__,
 	      dev->name, slot->cfg.host_caps);
 	return 0;

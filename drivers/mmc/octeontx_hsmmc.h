@@ -57,6 +57,8 @@ struct octeontx_mmc_slot {
 	union cavm_mio_emm_switch	want_switch;
 	union cavm_mio_emm_rca		cached_rca;
 	union cavm_mio_emm_timing	taps;	/* otx2: MIO_EMM_TIMING */
+	union cavm_mio_emm_timing	hs200_taps;
+	union cavm_mio_emm_timing	hs400_taps;
 	u32			block_len;
 	u32			block_count;
 	int			cmd_clk_skew;
@@ -78,6 +80,10 @@ struct octeontx_mmc_slot {
 	bool			wp_inverted:1;
 	bool			disable_ddr:1;
 	bool			non_removable:1;
+	bool			hs200_cmd_out_tap_fdt:1;
+	bool			hs200_data_out_tap_fdt:1;
+	bool			hs400_cmd_out_tap_fdt:1;
+	bool			hs400_data_out_tap_fdt:1;
 };
 
 struct octeontx_mmc_cr_mods {
