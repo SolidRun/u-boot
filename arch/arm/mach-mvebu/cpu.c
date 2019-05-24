@@ -726,5 +726,10 @@ int arch_early_init_r(void)
 			break;
 	}
 
+#ifdef CONFIG_DM_PCI
+	/* Trigger PCIe devices detection */
+	pci_init();
+#endif
+
 	return 0;
 }
