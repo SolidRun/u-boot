@@ -1775,12 +1775,13 @@ static int octeontx_mmc_configure_delay(struct mmc *mmc)
 			case MMC_HS_52:
 			case MMC_DDR_52:
 			case MMC_HS_200:
-				cout = 10;
-				dout = 5;
+				cout = is_board_model(CN95XX) ? 10 : 5;
+				/*cout = 10;*/
+				dout = is_board_model(CN95XX) ? 10 : 5;
 				break;
 			case MMC_HS_400:
-				cout = 5;
-				dout = 5;
+				cout = is_board_model(CN95XX) ? 10 : 5;
+				dout = is_board_model(CN95XX) ? 10 : 5;
 				break;
 			default:
 				pr_err("%s(%s): Invalid mode %d\n", __func__,
