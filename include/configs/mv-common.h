@@ -75,4 +75,9 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
 #endif
 
+/*
+ * PCI
+ */
+#define CONFIG_PCIAUTO_SKIP_HOST_BRIDGE     1
+
 #endif /* _MV_COMMON_H */
