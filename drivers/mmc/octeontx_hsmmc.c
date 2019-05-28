@@ -2383,11 +2383,12 @@ static int octeontx_mmc_host_calibrate_delay(struct octeontx_mmc_host *host)
 			udelay(5);
 			emm_tap.u = readq(host->base_addr + CAVM_MIO_EMM_TAP());
 		} while (!emm_tap.s.delay && get_timer(start) < 10);
-	}
-	if (!emm_tap.s.delay) {
-		pr_err("%s: Error: delay calibration failed, timed out.\n",
-		       __func__);
-		return -1;
+
+		if (!emm_tap.s.delay) {
+			pr_err("%s: Error: delay calibration failed, timed out.\n",
+			       __func__);
+			return -1;
+		}
 	}
 
 	host->timing_taps = 10 * 1000 * emm_tap.s.delay / 512;
