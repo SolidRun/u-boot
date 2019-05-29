@@ -50,7 +50,9 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 				 struct mmc_data *data);
 #ifndef CONFIG_ARCH_OCTEONTX
 static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay);
+static int octeontx_mmc_host_calibrate_delay(struct octeontx_mmc_host *host);
 #endif
+static int octeontx_mmc_set_bus_timing(struct mmc *mmc);
 
 static bool host_probed;
 
@@ -239,14 +241,15 @@ static void mmc_print_status(u32 status)
 #endif
 
 /**
- * Print out all of the register values
+ * Print out all of the register values where mmc is optional
  *
- * @param mmc	MMC device
+ * @param mmc	MMC device (can be NULL)
+ * @param host	Pointer to host data structure
  */
-static void octeontx_mmc_print_registers(struct mmc *mmc)
+static void octeontx_mmc_print_registers2(struct mmc *mmc,
+					  struct octeontx_mmc_host *host)
 {
-#ifdef DEBUG_REGISTERS
-	struct octeontx_mmc_slot *slot = mmc->priv;
+	struct octeontx_mmc_slot *slot = mmc ? mmc->priv : NULL;
 	union cavm_mio_emm_dma_cfg emm_dma_cfg;
 	union cavm_mio_emm_dma_adr emm_dma_adr;
 	union cavm_mio_emm_dma_int emm_dma_int;
@@ -310,13 +313,9 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 		"Reserved 7"
 	};
 
-	if (!mmc) {
-		printf("%s: Error: MMC data structure required\n", __func__);
-		return;
-	}
-
-	printf("%s: bus id: %u\n", __func__, slot->bus_id);
-	emm_dma_cfg.u = read_csr(mmc, CAVM_MIO_EMM_DMA_CFG());
+	if (mmc)
+		printf("%s: bus id: %u\n", __func__, slot->bus_id);
+	emm_dma_cfg.u = readq(host->base_addr + CAVM_MIO_EMM_DMA_CFG());
 	printf("MIO_EMM_DMA_CFG:                0x%016llx\n",
 	       emm_dma_cfg.u);
 	printf("    63:    en:                  %s\n",
@@ -336,19 +335,19 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 	printf("    36-55: size:                %u\n",
 	       emm_dma_cfg.s.size);
 
-	emm_dma_adr.u = read_csr(mmc, CAVM_MIO_EMM_DMA_ADR());
+	emm_dma_adr.u = readq(host->base_addr + CAVM_MIO_EMM_DMA_ADR());
 	printf("MIO_EMM_DMA_ADR:        0x%016llx\n", emm_dma_adr.u);
 	printf("    0-49:  adr:                 0x%llx\n",
 	       (u64)emm_dma_adr.s.adr);
 
-	emm_dma_int.u = read_csr(mmc, CAVM_MIO_EMM_DMA_INT());
+	emm_dma_int.u = readq(host->base_addr + CAVM_MIO_EMM_DMA_INT());
 	printf("\nMIO_EMM_DMA_INT:              0x%016llx\n",
 	       emm_dma_int.u);
 	printf("    1:     FIFO:                %s\n",
 	       emm_dma_int.s.fifo ? "yes" : "no");
 	printf("    0:     Done:                %s\n",
 	       emm_dma_int.s.done ? "yes" : "no");
-		emm_cfg.u = read_csr(mmc, CAVM_MIO_EMM_CFG());
+		emm_cfg.u = readq(host->base_addr + CAVM_MIO_EMM_CFG());
 
 	printf("\nMIO_EMM_CFG:                  0x%016llx\n",
 	       emm_cfg.u);
@@ -361,7 +360,7 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 	printf("    0:     bus_ena0:            %s\n",
 	       emm_cfg.s.bus_ena & 0x01 ? "yes" : "no");
 	for (bus = 0; bus < 4; bus++) {
-		emm_mode.u = read_csr(mmc, CAVM_MIO_EMM_MODEX(bus));
+		emm_mode.u = readq(host->base_addr + CAVM_MIO_EMM_MODEX(bus));
 		printf("\nMIO_EMM_MODE%u:               0x%016llx\n",
 		       bus, emm_mode.u);
 		printf("    48:    hs_timing:           %s\n",
@@ -376,7 +375,7 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 		       emm_mode.s.clk_lo);
 	}
 
-	emm_switch.u = read_csr(mmc, CAVM_MIO_EMM_SWITCH());
+	emm_switch.u = readq(host->base_addr + CAVM_MIO_EMM_SWITCH());
 	printf("\nMIO_EMM_SWITCH:               0x%016llx\n", emm_switch.u);
 	printf("    60-61: bus_id:              %u\n", emm_switch.s.bus_id);
 	printf("    59:    switch_exe:          %s\n",
@@ -397,7 +396,7 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 	       emm_switch.s.clk_hi);
 	printf("    0-15:  clk_lo:              %u\n", emm_switch.s.clk_lo);
 
-	emm_dma.u = read_csr(mmc, CAVM_MIO_EMM_DMA());
+	emm_dma.u = readq(host->base_addr + CAVM_MIO_EMM_DMA());
 	printf("\nMIO_EMM_DMA:                  0x%016llx\n", emm_dma.u);
 	printf("    60-61: bus_id:              %u\n", emm_dma.s.bus_id);
 	printf("    59:    dma_val:             %s\n",
@@ -418,7 +417,7 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 	printf("    0-31:  card_addr:           0x%x\n",
 	       emm_dma.s.card_addr);
 
-	emm_cmd.u = read_csr(mmc, CAVM_MIO_EMM_CMD());
+	emm_cmd.u = readq(host->base_addr + CAVM_MIO_EMM_CMD());
 	printf("\nMIO_EMM_CMD:                  0x%016llx\n", emm_cmd.u);
 	printf("    60-61: bus_id:              %u\n", emm_cmd.s.bus_id);
 	printf("    59:    cmd_val:             %s\n",
@@ -432,7 +431,7 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 	printf("    32-37: cmd_idx:             %u\n", emm_cmd.s.cmd_idx);
 	printf("    0-31:  arg:                 0x%x\n", emm_cmd.s.arg);
 
-	emm_rsp_sts.u = read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
+	emm_rsp_sts.u = readq(host->base_addr + CAVM_MIO_EMM_RSP_STS());
 	printf("\nMIO_EMM_RSP_STS:              0x%016llx\n", emm_rsp_sts.u);
 	printf("    60-61: bus_id:              %u\n", emm_rsp_sts.s.bus_id);
 	printf("    59:    cmd_val:             %s\n",
@@ -477,13 +476,13 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 	printf("    0:     cmd_done:            %s\n",
 	       emm_rsp_sts.s.cmd_done ? "yes" : "no");
 
-	emm_rsp_lo.u = read_csr(mmc, CAVM_MIO_EMM_RSP_LO());
+	emm_rsp_lo.u = readq(host->base_addr + CAVM_MIO_EMM_RSP_LO());
 	printf("\nMIO_EMM_RSP_STS_LO:           0x%016llx\n", emm_rsp_lo.u);
 
-	emm_rsp_hi.u = read_csr(mmc, CAVM_MIO_EMM_RSP_HI());
+	emm_rsp_hi.u = readq(host->base_addr + CAVM_MIO_EMM_RSP_HI());
 	printf("\nMIO_EMM_RSP_STS_HI:           0x%016llx\n", emm_rsp_hi.u);
 
-	emm_int.u = read_csr(mmc, CAVM_MIO_EMM_INT());
+	emm_int.u = readq(host->base_addr + CAVM_MIO_EMM_INT());
 	printf("\nMIO_EMM_INT:                  0x%016llx\n", emm_int.u);
 	printf("    6:    switch_err:           %s\n",
 	       emm_int.s.switch_err ? "yes" : "no");
@@ -500,32 +499,32 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 	printf("    0:    buf_done:             %s\n",
 	       emm_int.s.buf_done ? "yes" : "no");
 
-	emm_wdog.u = read_csr(mmc, CAVM_MIO_EMM_WDOG());
+	emm_wdog.u = readq(host->base_addr + CAVM_MIO_EMM_WDOG());
 	printf("\nMIO_EMM_WDOG:                 0x%016llx (%u)\n",
 	       emm_wdog.u, emm_wdog.s.clk_cnt);
 
 #if defined(CONFIG_ARCH_OCTEONTX)
-	emm_sample.u = read_csr(mmc, CAVM_MIO_EMM_SAMPLE());
+	emm_sample.u = readq(host->base_addr + CAVM_MIO_EMM_SAMPLE());
 	printf("\nMIO_EMM_SAMPLE:               0x%016llx\n", emm_sample.u);
 	printf("    16-25: cmd_cnt:             %u\n", emm_sample.s.cmd_cnt);
 	printf("    0-9:   dat_cnt:             %u\n", emm_sample.s.dat_cnt);
 #endif
 
-	emm_sts_mask.u = read_csr(mmc, CAVM_MIO_EMM_STS_MASK());
+	emm_sts_mask.u = readq(host->base_addr + CAVM_MIO_EMM_STS_MASK());
 	printf("\nMIO_EMM_STS_MASK:             0x%016llx\n", emm_sts_mask.u);
 
-	emm_rca.u = read_csr(mmc, CAVM_MIO_EMM_RCA());
+	emm_rca.u = readq(host->base_addr + CAVM_MIO_EMM_RCA());
 	printf("\nMIO_EMM_RCA:                  0x%016llx\n", emm_rca.u);
 	printf("    0-15:  card_rca:            0x%04x\n",
 	       emm_rca.s.card_rca);
 #if !defined(CONFIG_ARCH_OCTEONTX)
-	emm_calb.u = read_csr(mmc, CAVM_MIO_EMM_CALB());
+	emm_calb.u = readq(host->base_addr + CAVM_MIO_EMM_CALB());
 	printf("\nMIO_EMM_CALB:                 0x%016llx\n", emm_calb.u);
 	printf("       0:  start:               %u\n", emm_calb.s.start);
-	emm_tap.u = read_csr(mmc, CAVM_MIO_EMM_TAP());
+	emm_tap.u = readq(host->base_addr + CAVM_MIO_EMM_TAP());
 	printf("\nMIO_EMM_TAP:                  0x%016llx\n", emm_tap.u);
 	printf("     7-0:  delay:               %u\n", emm_tap.s.delay);
-	emm_timing.u = read_csr(mmc, CAVM_MIO_EMM_TIMING());
+	emm_timing.u = readq(host->base_addr + CAVM_MIO_EMM_TIMING());
 	printf("\nMIO_EMM_TIMING:               0x%016llx\n", emm_timing.u);
 	printf("   53-48:  cmd_in_tap:          %u\n",
 	       emm_timing.s.cmd_in_tap);
@@ -535,13 +534,13 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 	       emm_timing.s.data_in_tap);
 	printf("     5-0:  data_out_tap:        %u\n",
 	       emm_timing.s.data_out_tap);
-	io_ctl.u = read_csr(mmc, CAVM_MIO_EMM_IO_CTL());
+	io_ctl.u = readq(host->base_addr + CAVM_MIO_EMM_IO_CTL());
 	printf("\nMIO_IO_CTL:                   0x%016llx\n", io_ctl.u);
 	printf("     3-2:  drive:               %u (%u mA)\n",
 	       io_ctl.s.drive, 2 << io_ctl.s.drive);
 	printf("       0:  slew:                %u %s\n", io_ctl.s.slew,
 	       io_ctl.s.slew ? "high" : "low");
-	emm_debug.u = read_csr(mmc, CAVM_MIO_EMM_DEBUG());
+	emm_debug.u = readq(host->base_addr + CAVM_MIO_EMM_DEBUG());
 	printf("\nMIO_EMM_DEBUG:                0x%016llx\n", emm_debug.u);
 	printf("   19-16: dma_sm:               0x%x\n", emm_debug.s.dma_sm);
 	printf("   15-12: data_sm:              0x%x\n", emm_debug.s.data_sm);
@@ -549,7 +548,22 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 	printf("       0: clk_on:               0x%x\n", emm_debug.s.clk_on);
 #endif
 	puts("\n");
-#endif /* DEBUG_REGISTERS */
+}
+
+/**
+ * Print out all of the register values
+ *
+ * @param mmc	MMC device
+ */
+static void octeontx_mmc_print_registers(struct mmc *mmc)
+{
+#ifdef DEBUG_REGISTERS
+	const int print = 1;
+#else
+	const int print = 0;
+#endif
+	if (print)
+		octeontx_mmc_print_registers2(mmc, mmc_to_host(mmc));
 }
 
 static const struct octeontx_sd_mods octeontx_cr_types[] = {
@@ -1469,9 +1483,10 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 	int run = 0;
 	int count;
 
-	/* The algorithm to find the optimal timing is to start at the end
-	 * and work backwards and select the second value that passes.  Each
-	 * test is repeated twice.
+	write_csr(mmc, CAVM_MIO_EMM_TIMING(), slot->taps.u);
+	/* The algorithm to find the optimal timing is to start
+	 * at the end and work backwards and select the second
+	 * value that passes.  Each test is repeated twice.
 	 */
 	for (tap = MAX_NO_OF_TAPS - 1; tap >= 0; tap--) {
 		timing.u = read_csr(mmc, CAVM_MIO_EMM_TIMING());
@@ -1488,19 +1503,31 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 			run = 0;
 		else
 			run++;
+
 		if (run == 2) {
 			slot->taps.u &= ~(0x3full << adj->mask_shift);
-			slot->taps.u |= (((u64)tap + 0ull) << adj->mask_shift);
-			debug("%s(%s): %s: Using tap %d, setting taps to 0x%llx\n",
-			      __func__, mmc->dev->name, adj->name, tap,
-			      slot->taps.u);
+			slot->taps.u |= (((u64)tap + 0ull) <<
+						adj->mask_shift);
+			pr_debug("%s(%s): tap: %d, do: %d, di: %d, co: %d, ci: %d\n",
+				 __func__, mmc->dev->name, tap,
+				 timing.s.data_out_tap,
+				 timing.s.data_in_tap,
+				 timing.s.cmd_out_tap,
+				 timing.s.cmd_in_tap);
 			octeontx_mmc_set_timing(mmc);
 
 			return 0;
 		}
 	}
+
 	pr_err("%s(%s): Failed to find compatibile timing tap for %s\n",
 	       __func__, mmc->dev->name, adj->name);
+	pr_err("%s(%s) Error: do: %d, di: %d, co: %d, ci: %d\n",
+	       __func__, mmc->dev->name,
+	       timing.s.data_out_tap,
+	       timing.s.data_in_tap,
+	       timing.s.cmd_out_tap,
+	       timing.s.cmd_in_tap);
 	return -1;
 }
 
@@ -1968,6 +1995,12 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 	timing.s.cmd_out_tap = bdelay;
 	timing.s.data_out_tap = bdelay;
 	write_csr(mmc, CAVM_MIO_EMM_TIMING(), timing.u);
+	debug("%s(%s): bdelay: %d, do: %d, di: %d, co: %d, ci: %d\n",
+	      __func__, mmc->dev->name, bdelay,
+	      timing.s.data_out_tap,
+	      timing.s.data_in_tap,
+	      timing.s.cmd_out_tap,
+	      timing.s.cmd_in_tap);
 	return 0;
 }
 #endif
@@ -2355,7 +2388,6 @@ U_BOOT_DRIVER(octeontx_hsmmc_slot) = {
  *
  * The slot drivers are pseudo drivers.
  */
-
 static int octeontx_mmc_host_calibrate_delay(struct octeontx_mmc_host *host)
 {
 	union cavm_mio_emm_calb emm_calb;
@@ -2390,7 +2422,6 @@ static int octeontx_mmc_host_calibrate_delay(struct octeontx_mmc_host *host)
 			return -1;
 		}
 	}
-
 	host->timing_taps = 10 * 1000 * emm_tap.s.delay / 512;
 	debug("%s: timing taps: %llu, delay: %u\n",
 	      __func__, host->timing_taps, emm_tap.s.delay);
