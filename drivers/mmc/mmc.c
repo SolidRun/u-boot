@@ -2630,7 +2630,7 @@ __weak void board_mmc_power_init(void)
 }
 #endif
 
-static int mmc_power_init(struct mmc *mmc)
+int mmc_power_init(struct mmc *mmc)
 {
 #if CONFIG_IS_ENABLED(DM_MMC)
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
