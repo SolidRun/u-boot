@@ -11,6 +11,7 @@
 
 #define CN96XX	0xB2
 #define CN95XX	0xB3
+#define LOKI	0xB4
 
 #define is_board_model(model)	(g_cavm_bdt.prod_id == (model))
 
