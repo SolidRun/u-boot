@@ -27,6 +27,7 @@ u8 board_mac_addr[6];
 extern unsigned long fdt_base_addr;
 extern void cgx_intf_shutdown(void);
 extern void eth_common_init(void);
+extern ssize_t atf_configure_ooo(unsigned int val);
 
 void octeontx2_cleanup_ethaddr(void)
 {
