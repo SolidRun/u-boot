@@ -120,6 +120,8 @@ struct octeontx_mmc_host {
 	bool		initialized:1;
 	bool		is_asim:1;
 	bool		is_emul:1;
+	bool		calibrate_glitch:1;
+	bool		cond_clock_glitch:1;
 };
 
 /*

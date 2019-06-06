@@ -50,7 +50,7 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 				 struct mmc_data *data);
 #ifndef CONFIG_ARCH_OCTEONTX
 static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay);
-static int octeontx_mmc_host_calibrate_delay(struct octeontx_mmc_host *host);
+static int octeontx_mmc_calibrate_delay(struct mmc *mmc);
 #endif
 static int octeontx_mmc_set_bus_timing(struct mmc *mmc);
 
@@ -1959,6 +1959,56 @@ static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay)
 	}
 	return min((int)(delay / host->timing_taps), 63);
 }
+
+/**
+ * Calibrates the delay based on the internal clock
+ *
+ * @param	mmc	Pointer to mmc data structure
+ *
+ * @return	0 for success or -ETIMEDOUT on error
+ *
+ * NOTE: On error a default value will be calculated.
+ */
+static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
+{
+	union cavm_mio_emm_calb emm_calb;
+	union cavm_mio_emm_tap emm_tap;
+	struct octeontx_mmc_host *host = mmc_to_host(mmc);
+	ulong start;
+
+	debug("%s: Calibrating delay\n", __func__);
+	if (host->is_asim || host->is_emul) {
+		debug("  No calibration for ASIM\n");
+		return 0;
+	}
+	emm_tap.u = 0;
+	if (host->calibrate_glitch) {
+		emm_tap.s.delay = 4;
+	} else {
+		emm_calb.u = 0;
+		write_csr(mmc, CAVM_MIO_EMM_CALB(), emm_calb.u);
+		emm_calb.s.start = 1;
+		write_csr(mmc, CAVM_MIO_EMM_CALB(), emm_calb.u);
+		start = get_timer(0);
+		/* This should only take 3 microseconds */
+		do {
+			udelay(5);
+			emm_tap.u = read_csr(mmc, CAVM_MIO_EMM_TAP());
+		} while (!emm_tap.s.delay && get_timer(start) < 10);
+
+		if (!emm_tap.s.delay) {
+			pr_err("%s: Error: delay calibration failed, timed out.\n",
+			       __func__);
+			/* Set to default value if timed out */
+			emm_tap.s.delay = 4;
+			return -ETIMEDOUT;
+		}
+	}
+	host->timing_taps = 10 * 1000 * emm_tap.s.delay / 512;
+	debug("%s(%s): timing taps: %llu, delay: %u\n",
+	      __func__, mmc->dev->name, host->timing_taps, emm_tap.s.delay);
+	return 0;
+}
 #endif
 
 #ifdef CONFIG_ARCH_OCTEONTX
@@ -1983,6 +2033,9 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 	debug("%s(%s)\n", __func__, mmc->dev->name);
 	if (slot->is_asim || slot->is_emul)
 		return 0;
+
+	octeontx_mmc_calibrate_delay(mmc);
+
 	if (mmc->clock < 26000000)
 		bdelay = octeontx2_mmc_calc_delay(mmc, 5000);
 	else if (mmc->clock <= 52000000)
@@ -2118,6 +2171,16 @@ static int octeontx_mmc_init_lowlevel(struct mmc *mmc)
 	udelay(10);
 	slot->clock = mmc->cfg->f_min;
 	octeontx_mmc_set_clock(&slot->mmc);
+#ifdef CONFIG_ARCH_OCTEONTX2
+	if (host->cond_clock_glitch) {
+		union cavm_mio_emm_debug emm_debug;
+
+		emm_debug.u = read_csr(mmc, CAVM_MIO_EMM_DEBUG());
+		emm_debug.s.clk_on = 1;
+		write_csr(mmc, CAVM_MIO_EMM_DEBUG(), emm_debug.u);
+	}
+	octeontx_mmc_calibrate_delay(&slot->mmc);
+#endif
 
 	clk_period = octeontx_mmc_calc_clk_period(mmc);
 	emm_switch.u = 0;
@@ -2441,7 +2504,6 @@ U_BOOT_DRIVER(octeontx_hsmmc_slot) = {
 	.ops = &octeontx_hsmmc_ops,
 };
 
-#ifndef CONFIG_ARCH_OCTEONTX
 /*****************************************************************
  * PCI host driver
  *
@@ -2450,46 +2512,6 @@ U_BOOT_DRIVER(octeontx_hsmmc_slot) = {
  *
  * The slot drivers are pseudo drivers.
  */
-static int octeontx_mmc_host_calibrate_delay(struct octeontx_mmc_host *host)
-{
-	union cavm_mio_emm_calb emm_calb;
-	union cavm_mio_emm_tap emm_tap;
-	ulong start;
-	u8 rev;
-
-	debug("%s: Calibrating delay\n", __func__);
-	if (host->is_asim || host->is_emul) {
-		debug("  No calibration for ASIM\n");
-		return 0;
-	}
-	emm_tap.u = 0;
-	dm_pci_read_config8(host->dev, PCI_REVISION_ID, &rev);
-	/* MIO_EMM errata for T96 pass A0 */
-	if ((is_board_model(CN95XX) || is_board_model(CN96XX)) && !rev) {
-		emm_tap.s.delay = 4;
-	} else {
-		emm_calb.u = 0;
-		emm_calb.s.start = 1;
-		writeq(emm_calb.u, host->base_addr + CAVM_MIO_EMM_CALB());
-		start = get_timer(0);
-		/* This should only take 3 microseconds */
-		do {
-			udelay(5);
-			emm_tap.u = readq(host->base_addr + CAVM_MIO_EMM_TAP());
-		} while (!emm_tap.s.delay && get_timer(start) < 10);
-
-		if (!emm_tap.s.delay) {
-			pr_err("%s: Error: delay calibration failed, timed out.\n",
-			       __func__);
-			return -1;
-		}
-	}
-	host->timing_taps = 10 * 1000 * emm_tap.s.delay / 512;
-	debug("%s: timing taps: %llu, delay: %u\n",
-	      __func__, host->timing_taps, emm_tap.s.delay);
-	return 0;
-}
-#endif
 
 /**
  * Probe the MMC host controller
@@ -2506,7 +2528,9 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	union cavm_mio_emm_int emm_int;
 	const char *board_model;
 	ofnode node;
-	int err;
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	u8 rev;
+#endif
 
 	debug("%s(%s): Entry host: %p\n", __func__, dev->name, host);
 
@@ -2549,14 +2573,31 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	debug("%s(%s): Getting I/O clock\n", __func__, dev->name);
 	host->sys_freq = octeontx_get_io_clock();
 	debug("%s(%s): I/O clock %llu\n", __func__, dev->name, host->sys_freq);
-#ifndef CONFIG_ARCH_OCTEONTX
-	err = octeontx_mmc_host_calibrate_delay(host);
-#else
-	err = 0;
+
+	#ifdef CONFIG_ARCH_OCTEONTX2
+	/* Flags for issues to work around */
+	dm_pci_read_config8(dev, PCI_REVISION_ID, &rev);
+	if (is_board_model(CN96XX)) {
+		switch (rev) {
+		case 0:
+			host->calibrate_glitch = true;
+			host->cond_clock_glitch = true;
+			break;
+		case 1:
+			host->cond_clock_glitch = true;
+			break;
+		default:
+			break;
+		}
+	} else if (is_board_model(CN95XX)) {
+		if (!rev)
+			host->cond_clock_glitch = true;
+	}
 #endif
+
 	host_probed = true;
 
-	return err;
+	return 0;
 }
 
 static int octeontx_mmc_host_bind(struct udevice *parent)
