@@ -959,8 +959,6 @@ static int octeontx_mmc_read_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 	      read_csr(mmc, CAVM_MIO_EMM_RSP_STS()));
 	timeout = 1000 + blkcnt * 10;
 
-	set_wdog(mmc, 0);
-
 	/* If we have a valid SD card in the slot, we set the response bit
 	 * mask to check for CRC errors and timeouts only.
 	 * Otherwise, use the default power on reset value.
@@ -1072,7 +1070,6 @@ static ulong octeontx_mmc_write_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 	emm_sts_mask.u = 0;
 	emm_sts_mask.s.sts_msk = R1_BLOCK_WRITE_MASK;
 	write_csr(mmc, CAVM_MIO_EMM_STS_MASK(), emm_sts_mask.u);
-	set_wdog(mmc, 0);
 
 	if (octeontx_mmc_poll_ready(mmc, 10000)) {
 		pr_err("%s(%s): Ready timed out\n", __func__, mmc->dev->name);
@@ -1844,7 +1841,7 @@ static int octeontx_mmc_configure_delay(struct mmc *mmc)
  * Sets the MMC watchdog timer in microseconds
  *
  * @param	mmc	mmc device
- * @param	us	timeout in microseconds
+ * @param	us	timeout in microseconds, 0 for maximum timeout
  */
 static void set_wdog(struct mmc *mmc, u64 us)
 {
@@ -1852,10 +1849,12 @@ static void set_wdog(struct mmc *mmc, u64 us)
 	u64 val;
 
 	val = (us * mmc->clock) / 1000000;
-	if (val >= (1 << 26)) {
-		debug("%s: warning: timeout %llu exceeds max value %llu, truncating\n",
-		      __func__, us,
-		     (u64)(((1ULL << 26) - 1) * 1000000ULL) / mmc->clock);
+	if (val >= (1 << 26) || !us) {
+		if (us)
+			pr_debug("%s: warning: timeout %llu exceeds max value %llu, truncating\n",
+				 __func__, us,
+				 (u64)(((1ULL << 26) - 1) * 1000000ULL) /
+					mmc->clock);
 		val = (1 << 26) - 1;
 	}
 	wdog.u = 0;
