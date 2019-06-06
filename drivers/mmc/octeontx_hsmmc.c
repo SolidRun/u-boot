@@ -244,7 +244,7 @@ static void mmc_print_status(u32 status)
  * Print out all of the register values where mmc is optional
  *
  * @param mmc	MMC device (can be NULL)
- * @param host	Pointer to host data structure
+ * @param host	Pointer to host data structure (can be NULL if mmc is !NULL)
  */
 static void octeontx_mmc_print_registers2(struct mmc *mmc,
 					  struct octeontx_mmc_host *host)
@@ -313,6 +313,9 @@ static void octeontx_mmc_print_registers2(struct mmc *mmc,
 		"Reserved 7"
 	};
 
+	if (!host && mmc)
+		host = mmc_to_host(mmc);
+
 	if (mmc)
 		printf("%s: bus id: %u\n", __func__, slot->bus_id);
 	emm_dma_cfg.u = readq(host->base_addr + CAVM_MIO_EMM_DMA_CFG());
@@ -363,6 +366,12 @@ static void octeontx_mmc_print_registers2(struct mmc *mmc,
 		emm_mode.u = readq(host->base_addr + CAVM_MIO_EMM_MODEX(bus));
 		printf("\nMIO_EMM_MODE%u:               0x%016llx\n",
 		       bus, emm_mode.u);
+#ifndef CONFIG_ARCH_OCTEONTX
+		printf("    50:    hs400_timing:        %s\n",
+		       emm_mode.s.hs400_timing ? "yes" : "no");
+		printf("    49:    hs200_timing:        %s\n",
+		       emm_mode.s.hs200_timing ? "yes" : "no");
+#endif
 		printf("    48:    hs_timing:           %s\n",
 		       emm_mode.s.hs_timing ? "yes" : "no");
 		printf("    40-42: bus_width:           %s\n",
@@ -419,6 +428,8 @@ static void octeontx_mmc_print_registers2(struct mmc *mmc,
 
 	emm_cmd.u = readq(host->base_addr + CAVM_MIO_EMM_CMD());
 	printf("\nMIO_EMM_CMD:                  0x%016llx\n", emm_cmd.u);
+	printf("\n  62:    skip_busy:           %s\n",
+	       emm_cmd.s.skip_busy ? "yes" : "no");
 	printf("    60-61: bus_id:              %u\n", emm_cmd.s.bus_id);
 	printf("    59:    cmd_val:             %s\n",
 	       emm_cmd.s.cmd_val ? "yes" : "no");
