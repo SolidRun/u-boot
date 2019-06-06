@@ -23,6 +23,7 @@
 #include <linux/list.h>
 #include <div64.h>
 #include <watchdog.h>
+#include <power/regulator.h>
 #include <console.h>	/* for ctrlc */
 #include "octeontx_hsmmc.h"
 #if defined(CONFIG_ARCH_OCTEONTX)
@@ -2186,6 +2187,86 @@ static void octeontx_mmc_set_clock(struct mmc *mmc)
 }
 
 /**
+ * This switches I/O power as needed when switching between slots.
+ *
+ * @param	mmc	mmc data structure
+ */
+static void octeontx_mmc_switch_io(struct mmc *mmc)
+{
+	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
+	struct octeontx_mmc_host *host = slot->host;
+	struct mmc *last_mmc = host->last_mmc;
+	static struct udevice *last_reg;
+	int bus;
+	static bool initialized;
+
+	/* First time? */
+	if (!initialized || (mmc != host->last_mmc)) {
+		struct mmc *ommc;
+
+		/* Turn off all other I/O interfaces with first initialization
+		 * if at least one supply was found.
+		 */
+		for (bus = 0; bus <= OCTEONTX_MAX_MMC_SLOT; bus++) {
+			ommc = &host->slots[bus].mmc;
+
+			/* Handle self case later */
+			if ((ommc == mmc) || !ommc->vqmmc_supply)
+				continue;
+
+			/* Skip if we're not switching regulators */
+			if (last_reg == mmc->vqmmc_supply)
+				continue;
+
+			/* Turn off other regulators */
+			if (ommc->vqmmc_supply != mmc->vqmmc_supply)
+				regulator_set_enable(ommc->vqmmc_supply, false);
+		}
+		/* Turn ourself on */
+		if (mmc->vqmmc_supply && last_reg != mmc->vqmmc_supply)
+			regulator_set_enable(mmc->vqmmc_supply, true);
+
+		last_reg = mmc->vqmmc_supply;
+		initialized = true;
+		return;
+	}
+
+	/* No change in device */
+	if (last_mmc == mmc)
+		return;
+
+	if (!last_mmc) {
+		pr_warn("%s(%s): No previous slot detected in IO slot switch!\n",
+			__func__, mmc->dev->name);
+		return;
+	}
+
+	debug("%s(%s): last: %s, supply: %p\n", __func__, mmc->dev->name,
+	      last_mmc->dev->name, mmc->vqmmc_supply);
+
+	/* The supply is the same so we do nothing */
+	if (last_mmc->vqmmc_supply == mmc->vqmmc_supply)
+		return;
+
+	/* Turn off the old slot I/O supply */
+	if (last_mmc->vqmmc_supply) {
+		debug("%s(%s): Turning off IO to %s, supply: %s\n",
+		      __func__, mmc->dev->name, last_mmc->dev->name,
+		      last_mmc->vqmmc_supply->name);
+		regulator_set_enable(last_mmc->vqmmc_supply, false);
+	}
+	/* Turn on the new slot I/O supply */
+	if (mmc->vqmmc_supply)  {
+		debug("%s(%s): Turning on IO to slot %d, supply: %s\n",
+		      __func__, mmc->dev->name, slot->bus_id,
+		      mmc->vqmmc_supply->name);
+		regulator_set_enable(mmc->vqmmc_supply, true);
+	}
+	/* Allow power to settle */
+	mdelay(1);
+}
+
+/**
  * Called to switch between mmc devices
  *
  * @param	mmc	new mmc device
@@ -2204,6 +2285,7 @@ static void octeontx_mmc_switch_to(struct mmc *mmc)
 
 	debug("%s(%s) switching from slot %d to slot %d\n", __func__,
 	      mmc->dev->name, host->last_slotid, slot->bus_id);
+	octeontx_mmc_switch_io(mmc);
 
 	if (host->last_slotid >= 0 && slot->valid) {
 		old_slot = &host->slots[host->last_slotid];
@@ -2229,6 +2311,7 @@ static void octeontx_mmc_switch_to(struct mmc *mmc)
 	emm_sts_mask.s.sts_msk = 1 << 7 | 1 << 22 | 1 << 23 | 1 << 19;
 	write_csr(mmc, CAVM_MIO_EMM_STS_MASK(), emm_sts_mask.u);
 	host->last_slotid = slot->bus_id;
+	host->last_mmc = mmc;
 	mdelay(10);
 }
 
@@ -2562,6 +2645,16 @@ static int octeontx_mmc_slot_probe(struct udevice *dev)
 		return err;
 	}
 	slot->valid = true;
+
+	if (!err) {
+		/* Initialize each device regulator */
+		err = mmc_power_init(&slot->mmc);
+		debug("%s: Initialized %s\n", __func__, dev->name);
+		/* Turn off all I/O supplies */
+		if (!err && slot->mmc.vqmmc_supply)
+			regulator_set_enable(slot->mmc.vqmmc_supply, false);
+	}
+
 	debug("%s(%s):\n"
 	      "  base address : %p\n"
 	      "  bus id       : %d\n", __func__, dev->name,
