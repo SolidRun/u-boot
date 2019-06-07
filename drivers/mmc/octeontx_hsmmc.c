@@ -1561,6 +1561,10 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 	int err;
 	int run = 0;
 	int count;
+	int num_runs = (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200) ?
+			env_get_ulong("mmc_hs200_tuning_offset", 10,
+				      adj->num_runs) :
+			adj->num_runs;
 
 	octeontx_mmc_set_emm_timing(mmc, slot->taps);
 
@@ -1585,12 +1589,18 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 		for (count = 0; count < 2; count++) {
 			err = adj->test(mmc, opcode, NULL);
 			if (err) {
-				pr_debug("%s(%s, %s): tap %d failed, count: %d, rsp_sts: 0x%llx, rsp_lo: 0x%llx\n",
-					 __func__, mmc->dev->name,
-					 adj->name, tap, count,
-					 read_csr(mmc, CAVM_MIO_EMM_RSP_STS()),
-					 read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
+				debug("%s(%s, %s): tap %d failed, count: %d, rsp_sts: 0x%llx, rsp_lo: 0x%llx\n",
+				      __func__, mmc->dev->name,
+				      adj->name, tap, count,
+				      read_csr(mmc, CAVM_MIO_EMM_RSP_STS()),
+				      read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
 				break;
+			} else {
+				debug("%s(%s, %s): tap %d passed, count: %d, rsp_sts: 0x%llx, rsp_lo: 0x%llx\n",
+				      __func__, mmc->dev->name,
+				      adj->name, tap, count,
+				      read_csr(mmc, CAVM_MIO_EMM_RSP_STS()),
+				      read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
 			}
 		}
 		if (err)
@@ -1598,39 +1608,25 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 		else
 			run++;
 
-		if (run == adj->num_runs) {
+		if (run == num_runs) {
 			slot->taps.u &= ~(0x3full << adj->mask_shift);
 			slot->taps.u |= (((u64)tap + 0ull) << adj->mask_shift);
 #ifdef DEBUG
 			if (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200) {
-				pr_debug("%s(%s): After successful tuning\n",
-					 __func__, mmc->dev->name);
-				pr_debug("%s(%s): tap: %d, do: %d, di: %d, co: %d, ci: %d\n",
-					 __func__, mmc->dev->name, tap,
-					 timing.s.data_out_tap,
-					 timing.s.data_in_tap,
-					 timing.s.cmd_out_tap,
-					 timing.s.cmd_in_tap);
+				debug("%s(%s): After successful tuning\n",
+				      __func__, mmc->dev->name);
+				debug("%s(%s): tap: %d, do: %d, di: %d, co: %d, ci: %d\n",
+				      __func__, mmc->dev->name, tap,
+				      timing.s.data_out_tap,
+				      timing.s.data_in_tap,
+				      timing.s.cmd_out_tap,
+				      timing.s.cmd_in_tap);
 			}
 #endif
 			octeontx_mmc_set_timing(mmc);
 
 			return 0;
 		}
-#ifdef DEBUG
-		ret = octeontx_mmc_test_cmd(mmc, MMC_CMD_SEND_STATUS, NULL);
-		pr_debug("%s(%s): send status %s before reset: rsp_sts: 0x%llx, rsp_lo: 0x%llx\n",
-			 __func__, mmc->dev->name, ret ? "failed" : "passed",
-			 read_csr(mmc, CAVM_MIO_EMM_RSP_STS()),
-			 read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
-		pr_debug("%s(%s): tuning failed, resetting and trying again.  try: %d\n",
-			 __func__, mmc->dev->name, try);
-		ret = octeontx_mmc_test_cmd(mmc, MMC_CMD_SEND_STATUS, NULL);
-		pr_debug("%s(%s): send status %s after reset: rsp_sts: 0x%llx, rsp_lo: 0x%llx\n",
-			 __func__, mmc->dev->name, ret ? "failed" : "passed",
-			 read_csr(mmc, CAVM_MIO_EMM_RSP_STS()),
-			 read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
-#endif
 	}
 
 	pr_err("MMC tuning failed.  Please re-init %s\n", mmc->dev->name);
