@@ -1585,11 +1585,11 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 		for (count = 0; count < 2; count++) {
 			err = adj->test(mmc, opcode, NULL);
 			if (err) {
-				pr_err("%s(%s, %s): tap %d failed, count: %d, rsp_sts: 0x%llx, rsp_lo: 0x%llx\n",
-				       __func__, mmc->dev->name,
-				       adj->name, tap, count,
-				       read_csr(mmc, CAVM_MIO_EMM_RSP_STS()),
-				       read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
+				pr_debug("%s(%s, %s): tap %d failed, count: %d, rsp_sts: 0x%llx, rsp_lo: 0x%llx\n",
+					 __func__, mmc->dev->name,
+					 adj->name, tap, count,
+					 read_csr(mmc, CAVM_MIO_EMM_RSP_STS()),
+					 read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
 				break;
 			}
 		}
