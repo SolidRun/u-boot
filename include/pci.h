@@ -412,80 +412,6 @@
 #define PCI_MSI_DATA_32		8	/* 16 bits of data for 32-bit devices */
 #define PCI_MSI_DATA_64		12	/* 16 bits of data for 64-bit devices */
 
-/* PCI Enhanced Allocation registers */
-
-#define PCI_EA_NUM_ENT		2	/* Number of Capability Entries */
-#define PCI_EA_NUM_ENT_MASK	0x3f	/* Num Entries Mask */
-#define PCI_EA_FIRST_ENT	4	/* First EA Entry in List */
-#define PCI_EA_FIRST_ENT_BRIDGE	8	/* First EA Entry for Bridges */
-#define PCI_EA_ES		0x7	/* Entry Size */
-#define PCI_EA_BEI(x)  (((x) >> 4) & 0xf) /* BAR Equivalent Indicator */
-/* 0-5 map to BARs 0-5 respectively */
-#define  PCI_EA_BEI_BAR0	0
-#define  PCI_EA_BEI_BAR5	5
-#define  PCI_EA_BEI_BRIDGE	6	/* Resource behind bridge */
-#define  PCI_EA_BEI_ENI		7	/* Equivalent Not Indicated */
-#define  PCI_EA_BEI_ROM		8	/* Expansion ROM */
-/* 9-14 map to VF BARs 0-5 respectively */
-#define  PCI_EA_BEI_VF_BAR0	9
-#define  PCI_EA_BEI_VF_BAR5	14
-#define  PCI_EA_BEI_RESERVED	15	/* Reserved - Treat like ENI */
-
-#define PCI_EA_PP(x)   (((x) >>  8) & 0xff)	/* Primary Properties */
-#define PCI_EA_SP(x)   (((x) >> 16) & 0xff)	/* Secondary Properties */
-#define  PCI_EA_P_MEM			0x00	/* Non-Prefetch Memory */
-#define  PCI_EA_P_MEM_PREFETCH		0x01	/* Prefetchable Memory */
-#define  PCI_EA_P_IO			0x02	/* I/O Space */
-#define  PCI_EA_P_VIRT_MEM_PREFETCH	0x03	/* VF Prefetchable Memory */
-#define  PCI_EA_P_VIRT_MEM		0x04	/* VF Non-Prefetch Memory */
-#define  PCI_EA_P_BRIDGE_MEM		0x05	/* Bridge Non-Prefetch Memory */
-#define  PCI_EA_P_BRIDGE_MEM_PREFETCH	0x06	/* Bridge Prefetchable Memory */
-#define  PCI_EA_P_BRIDGE_IO		0x07	/* Bridge I/O Space */
-/* 0x08-0xfc reserved */
-#define  PCI_EA_P_MEM_RESERVED		0xfd	/* Reserved Memory */
-#define  PCI_EA_P_IO_RESERVED		0xfe	/* Reserved I/O Space */
-#define  PCI_EA_P_UNAVAILABLE		0xff	/* Entry Unavailable */
-#define PCI_EA_WRITEABLE		(1 << 30) /* Writable, 1 = RW, 0 = HwInit */
-#define PCI_EA_ENABLE			(1 << 31) /* Enable for this entry */
-#define PCI_EA_BASE			4	/* Base Address Offset */
-#define PCI_EA_MAX_OFFSET		8	/* MaxOffset (resource length) */
-/* bit 0 is reserved */
-#define PCI_EA_IS_64			(1 << 1)	/* 64-bit field flag */
-#define PCI_EA_FIELD_MASK		0xfffffffc	/* For Base & Max Offset */
-
-/* Single Root I/O Virtualization */
-#define PCI_SRIOV_CAP		0x04	/* SR-IOV Capabilities */
-#define  PCI_SRIOV_CAP_VFM	0x01	/* VF Migration Capable */
-#define  PCI_SRIOV_CAP_INTR(x)	((x) >> 21) /* Interrupt Message Number */
-#define PCI_SRIOV_CTRL		0x08	/* SR-IOV Control */
-#define  PCI_SRIOV_CTRL_VFE	0x01	/* VF Enable */
-#define  PCI_SRIOV_CTRL_VFM	0x02	/* VF Migration Enable */
-#define  PCI_SRIOV_CTRL_INTR	0x04	/* VF Migration Interrupt Enable */
-#define  PCI_SRIOV_CTRL_MSE	0x08	/* VF Memory Space Enable */
-#define  PCI_SRIOV_CTRL_ARI	0x10	/* ARI Capable Hierarchy */
-#define PCI_SRIOV_STATUS	0x0a	/* SR-IOV Status */
-#define  PCI_SRIOV_STATUS_VFM	0x01	/* VF Migration Status */
-#define PCI_SRIOV_INITIAL_VF	0x0c	/* Initial VFs */
-#define PCI_SRIOV_TOTAL_VF	0x0e	/* Total VFs */
-#define PCI_SRIOV_NUM_VF	0x10	/* Number of VFs */
-#define PCI_SRIOV_FUNC_LINK	0x12	/* Function Dependency Link */
-#define PCI_SRIOV_VF_OFFSET	0x14	/* First VF Offset */
-#define PCI_SRIOV_VF_STRIDE	0x16	/* Following VF Stride */
-#define PCI_SRIOV_VF_DID	0x1a	/* VF Device ID */
-#define PCI_SRIOV_SUP_PGSIZE	0x1c	/* Supported Page Sizes */
-#define PCI_SRIOV_SYS_PGSIZE	0x20	/* System Page Size */
-#define PCI_SRIOV_BAR		0x24	/* VF BAR0 */
-#define  PCI_SRIOV_NUM_BARS	6	/* Number of VF BARs */
-#define PCI_SRIOV_VFM		0x3c	/* VF Migration State Array Offset*/
-#define  PCI_SRIOV_VFM_BIR(x)	((x) & 7)	/* State BIR */
-#define  PCI_SRIOV_VFM_OFFSET(x) ((x) & ~7)	/* State Offset */
-#define  PCI_SRIOV_VFM_UA	0x0	/* Inactive.Unavailable */
-#define  PCI_SRIOV_VFM_MI	0x1	/* Dormant.MigrateIn */
-#define  PCI_SRIOV_VFM_MO	0x2	/* Active.MigrateOut */
-#define  PCI_SRIOV_VFM_AV	0x3	/* Active.Available */
-#define PCI_EXT_CAP_SRIOV_SIZEOF 64
-
-
 #define PCI_MAX_PCI_DEVICES	32
 #define PCI_MAX_PCI_FUNCTIONS	8
 
@@ -545,6 +471,37 @@
 #define  PCI_EXP_DEVCAP_FLR     0x10000000 /* Function Level Reset */
 #define PCI_EXP_DEVCTL		8	/* Device Control */
 #define  PCI_EXP_DEVCTL_BCR_FLR 0x8000  /* Bridge Configuration Retry / FLR */
+
+/* Enhanced Allocation Registers */
+#define PCI_EA_NUM_ENT		2	/* Number of Capability Entries */
+#define  PCI_EA_NUM_ENT_MASK	0x3f	/* Num Entries Mask */
+#define PCI_EA_FIRST_ENT	4	/* First EA Entry in List */
+#define  PCI_EA_ES		0x00000007 /* Entry Size */
+#define  PCI_EA_BEI		0x000000f0 /* BAR Equivalent Indicator */
+/* 9-14 map to VF BARs 0-5 respectively */
+#define  PCI_EA_BEI_VF_BAR0	9
+#define  PCI_EA_BEI_VF_BAR5	14
+/* Base, MaxOffset registers */
+/* bit 0 is reserved */
+#define  PCI_EA_IS_64		0x00000002	/* 64-bit field flag */
+#define  PCI_EA_FIELD_MASK	0xfffffffc	/* For Base & Max Offset */
+
+/* Single Root I/O Virtualization */
+#define PCI_SRIOV_CAP		0x04	/* SR-IOV Capabilities */
+#define PCI_SRIOV_CTRL		0x08	/* SR-IOV Control */
+#define  PCI_SRIOV_CTRL_VFE	0x01	/* VF Enable */
+#define  PCI_SRIOV_CTRL_VFM	0x02	/* VF Migration Enable */
+#define  PCI_SRIOV_CTRL_MSE	0x08	/* VF Memory Space Enable */
+#define PCI_SRIOV_STATUS	0x0a	/* SR-IOV Status */
+#define  PCI_SRIOV_STATUS_VFM	0x01	/* VF Migration Status */
+#define PCI_SRIOV_INITIAL_VF	0x0c	/* Initial VFs */
+#define PCI_SRIOV_TOTAL_VF	0x0e	/* Total VFs */
+#define PCI_SRIOV_NUM_VF	0x10	/* Number of VFs */
+#define PCI_SRIOV_VF_OFFSET	0x14	/* First VF Offset */
+#define PCI_SRIOV_VF_STRIDE	0x16	/* Following VF Stride */
+#define PCI_SRIOV_VF_DID	0x1a	/* VF Device ID */
+#define PCI_SRIOV_BAR		0x24	/* VF BAR0 */
+#define  PCI_SRIOV_NUM_BARS	6	/* Number of VF BARs */
 
 /* Include the ID list */
 

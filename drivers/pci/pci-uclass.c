@@ -1353,168 +1353,96 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
 	return bus_addr;
 }
 
-/* Read an Enhanced Allocation (EA) entry */
-static int dm_pci_ea_entry_read(struct udevice *dev, int offset, int *bei,
-				pci_addr_t *start, size_t *size)
+static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
+			       int ea_off, struct pci_child_platdata *pdata)
 {
-	u32 base;
-	u32 max_offset;
-	u8  prop;
-	int ent_offset = offset;
-	int ent_size;
-	u32 dw0;
+	int ea_cnt, i, entry_size;
+	int bar_id = (bar - PCI_BASE_ADDRESS_0) >> 2;
+	u32 ea_entry;
+	phys_addr_t addr;
 
-	dm_pci_read_config32(dev, ent_offset, &dw0);
+	/* In case of Virtual Function devices, device is Physical function,
+	 * so pdata will point to required VF specific info
+	 */
+	if (pdata->is_virtfn)
+		bar_id += PCI_EA_BEI_VF_BAR0;
 
-	debug("%s: %d: dw0: %lx\n", __func__, __LINE__, (unsigned long)dw0);
+	/* EA capability structure header */
+	dm_pci_read_config32(dev, ea_off, &ea_entry);
+	ea_cnt = (ea_entry >> 16) & PCI_EA_NUM_ENT_MASK;
+	ea_off += PCI_EA_FIRST_ENT;
 
-	ent_offset += sizeof(u32);
+	for (i = 0; i < ea_cnt; i++, ea_off += entry_size) {
+		/* Entry header */
+		dm_pci_read_config32(dev, ea_off, &ea_entry);
+		entry_size = ((ea_entry & PCI_EA_ES) + 1) << 2;
 
-	/* Entry size field indicates DWORDs after 1st */
-	ent_size = ((dw0 & PCI_EA_ES) + 1) * sizeof(u32);
+		if (((ea_entry & PCI_EA_BEI) >> 4) != bar_id)
+			continue;
 
-	if (!(dw0 & PCI_EA_ENABLE))
-		goto out;
-	*bei = PCI_EA_BEI(dw0);
+		/* Base address, 1st DW */
+		dm_pci_read_config32(dev, ea_off + 4, &ea_entry);
+		addr = ea_entry & PCI_EA_FIELD_MASK;
+		if (ea_entry & PCI_EA_IS_64) {
+			/* Base address, 2nd DW, skip over 4B MaxOffset */
+			dm_pci_read_config32(dev, ea_off + 12, &ea_entry);
+			addr |= ((u64)ea_entry) << 32;
+		}
 
-	prop = PCI_EA_PP(dw0);
+		/* In case of Virtual Function devices using VF0 BAR
+		 * base and size, add offset for VFn BAR(1, 2, 3...n)
+		 */
+		if (pdata->is_virtfn) {
+			size_t sz;
 
-	debug("EA property: %x\n", prop);
+			/* MaxOffset, 1st DW */
+			dm_pci_read_config32(dev, ea_off + 8, &ea_entry);
+			sz = ea_entry & PCI_EA_FIELD_MASK;
+			/* Fill up lower 2 bits */
+			sz |= (~PCI_EA_FIELD_MASK);
+			if (ea_entry & PCI_EA_IS_64) {
+				/* Offset 2nd DW */
+				dm_pci_read_config32(dev, ea_off + 16,
+						     &ea_entry);
+				sz |= ((u64)ea_entry) << 32;
+			}
+			addr += (pdata->virtid - 1) * (sz + 1);
+		}
 
-	/*
-	* If the Property is in the reserved range, try the Secondary
-	* Property instead.
-	*/
-	if (prop > PCI_EA_P_BRIDGE_IO && prop < PCI_EA_P_MEM_RESERVED)
-		prop = PCI_EA_SP(dw0);
-	if (prop > PCI_EA_P_BRIDGE_IO)
-		goto out;
-
-	debug("EA property: %x\n", prop);
-
-	/* Read Base */
-	dm_pci_read_config32(dev, ent_offset, &base);
-	ent_offset += sizeof(u32);
-	*start = (pci_addr_t)base & PCI_EA_FIELD_MASK;
-
-	/* Read MaxOffset */
-	dm_pci_read_config32(dev, ent_offset, &max_offset);
-	ent_offset += sizeof(u32);
-
-	/* Read Base MSBs (if 64-bit entry) */
-	if (base & PCI_EA_IS_64) {
-		dm_pci_read_config32(dev, ent_offset, &base);
-		ent_offset += sizeof(u32);
-
-		*start |= (pci_addr_t)base << 32;
+		/* size ignored for now */
+		return map_physmem(addr, 0, flags);
 	}
 
-	debug("EA (%u,%u) start = %lx\n", PCI_EA_BEI(dw0), prop,
-	      (unsigned long)*start);
-
-	*size = ((size_t)max_offset | 0x03) + 1;
-
-	/* Read MaxOffset MSBs (if 64-bit entry) */
-	if (max_offset & PCI_EA_IS_64) {
-		dm_pci_read_config32(dev, ent_offset, &max_offset);
-		ent_offset += sizeof(u32);
-
-		*size |= (size_t)max_offset << 32;
-	}
-
-	debug("EA (%u,%u) size = %lx\n", PCI_EA_BEI(dw0), prop,
-	      (unsigned long)*size);
-
-	if (*start + *size < *start) {
-		*size = 0;
-		*start = 0;
-		printf("EA Entry crosses address boundary\n");
-		goto out;
-	}
-
-	if (ent_size != ent_offset - offset) {
-		printf("EA Entry Size (%d) does not match length read (%d)\n",
-			ent_size, ent_offset - offset);
-		goto out;
-	}
-
-out:
-	return offset + ent_size;
-}
-
-/* Read an Enhanced Allocation (EA) BAR */
-int dm_pci_ea_bar_read(struct udevice *dev, int bar, pci_addr_t *start,
-		       size_t *size)
-{
-	int ea;
-	int offset;
-	u8  num_ent;
-	u8  hdr_type;
-	int i, bei = -1;
-
-	ea = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
-
-	dm_pci_read_config8(dev, ea + PCI_EA_NUM_ENT, &num_ent);
-	num_ent &= PCI_EA_NUM_ENT_MASK;
-
-	offset = ea + PCI_EA_FIRST_ENT;
-
-	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &hdr_type);
-
-	/* Skip DWORD 2 for type 1 functions */
-	if (hdr_type == PCI_HEADER_TYPE_BRIDGE)
-		offset += sizeof(u32);
-
-	for (i = 0; (i < num_ent) && (bar != bei); i++) {
-		offset = dm_pci_ea_entry_read(dev, offset, &bei, start, size);
-	}
-
-	return (bar == bei);
-}
-
-static pci_addr_t dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
-				    int ea_off, size_t *size)
-{
-	pci_addr_t addr;
-
-	dm_pci_ea_bar_read(dev, bar, &addr, size);
-
-	return addr;
+	return 0;
 }
 
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 {
-	int pos;
-	int bar_id = (bar - PCI_BASE_ADDRESS_0) >> 2;
-	pci_addr_t pci_bus_start;
+	pci_addr_t pci_bus_addr;
 	u32 bar_response;
-	size_t sz;
+	int ea_off;
 	struct udevice *udev = dev;
 	struct pci_child_platdata *pdata = dev_get_parent_platdata(dev);
 
-	/* In case of Virtual Function devices, use PF device,
-	 * also add offset of VF BAR0
-	 */
-	if (pdata->is_virtfn) {
-		udev = pdata->pfdev;
-		bar_id += PCI_EA_BEI_VF_BAR0;
-	}
-
-	pos = dm_pci_find_capability(udev, PCI_CAP_ID_EA);
-	if (pos) {
-		pci_bus_start = dm_pci_map_ea_bar(udev, bar_id, flags, pos,
-						  &sz);
-	} else {
-		dm_pci_read_config32(udev, bar, &bar_response);
-		pci_bus_start = (pci_addr_t)(bar_response & ~0xf);
-	}
-
-	/* In case of Virtual Function devices
-	 * add VFn (1, 2...) size offset to VF BAR0
-	 * using VF BAR0 as base and size of VF BAR0 to shift to VFn index
+	/* In case of Virtual Function devices, use PF udevice
+	 * as EA capability is defined in Physical Function
 	 */
 	if (pdata->is_virtfn)
-		pci_bus_start += (pdata->virtid - 1) * sz;
+		udev = pdata->pfdev;
+
+	/*
+	 * if the function supports Enhanced Allocation use that instead of
+	 * BARs
+	 * Incase of virtual functions, pdata will help read VF BEI
+	 * and EA entry size.
+	 */
+	ea_off = dm_pci_find_capability(udev, PCI_CAP_ID_EA);
+	if (ea_off)
+		return dm_pci_map_ea_bar(udev, bar, flags, ea_off, pdata);
+
+	/* read BAR address */
+	dm_pci_read_config32(udev, bar, &bar_response);
+	pci_bus_addr = (pci_addr_t)(bar_response & ~0xf);
 
 	/*
 	 * Pass "0" as the length argument to pci_bus_to_virt.  The arg
@@ -1522,7 +1450,7 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 	 * linear mapping.  In the future, this could read the BAR size
 	 * and pass that as the size if needed.
 	 */
-	return dm_pci_bus_to_virt(udev, pci_bus_start, flags, 0, MAP_NOCACHE);
+	return dm_pci_bus_to_virt(udev, pci_bus_addr, flags, 0, MAP_NOCACHE);
 }
 
 static int _dm_pci_find_next_capability(struct udevice *dev, u8 pos, int cap)
