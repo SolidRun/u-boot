@@ -40,6 +40,22 @@
 #define MMC_TIMEOUT_LONG	1000
 #define MMC_TIMEOUT_ERASE	10000
 
+#define MMC_DEFAULT_DATA_IN_TAP			10
+#define MMC_DEFAULT_CMD_IN_TAP			10
+#define MMC_DEFAULT_CMD_OUT_TAP			39
+#define MMC_DEFAULT_DATA_OUT_TAP		39
+#define MMC_DEFAULT_HS200_CMD_OUT_TAP	(is_board_model(CN95XX) ? 10 : 5)
+#define MMC_DEFAULT_HS200_DATA_OUT_TAP	(is_board_model(CN95XX) ? 10 : 5)
+#define MMC_LEGACY_DEFAULT_CMD_OUT_TAP		63
+#define MMC_LEGACY_DEFAULT_DATA_OUT_TAP		63
+#define MMC_SD_LEGACY_DEFAULT_CMD_OUT_TAP	63
+#define MMC_SD_LEGACY_DEFAULT_DATA_OUT_TAP	63
+#define MMC_HS_CMD_OUT_TAP			32
+#define MMC_HS_DATA_OUT_TAP			32
+#define MMC_SD_HS_CMD_OUT_TAP			26
+#define MMC_SD_HS_DATA_OUT_TAP			26
+#define MMC_DEFAULT_TAP_DELAY			4
+
 static void octeontx_mmc_switch_to(struct mmc *mmc);
 static int octeontx_mmc_configure_delay(struct mmc *mmc);
 #if defined(CONFIG_MMC_SUPPORTS_TUNING) || defined(MMC_SUPPORTS_TUNING)
@@ -146,8 +162,7 @@ const char *mmc_reg_str(u64 reg)
 #endif
 static inline u64 read_csr(struct mmc *mmc, u64 reg)
 {
-	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
-	struct octeontx_mmc_host *host = slot->host;
+	const struct octeontx_mmc_host *host = mmc_to_host(mmc);
 	u64 value = readq(host->base_addr + reg);
 #ifdef DEBUG_CSR
 	printf("        %s: %s(0x%p) => 0x%llx\n", __func__,
@@ -164,10 +179,9 @@ static inline u64 read_csr(struct mmc *mmc, u64 reg)
  * @param	reg	register offset
  * @param	value	value to write to register
  */
-static inline void write_csr(const struct mmc *mmc, u64 reg, u64 value)
+static inline void write_csr(struct mmc *mmc, u64 reg, u64 value)
 {
-	struct octeontx_mmc_slot *slot = mmc->priv;
-	struct octeontx_mmc_host *host = slot->host;
+	const struct octeontx_mmc_host *host = mmc_to_host(mmc);
 	void *addr = host->base_addr + reg;
 
 #ifdef DEBUG_CSR
@@ -1592,8 +1606,16 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 				debug("%s(%s, %s): tap %d failed, count: %d, rsp_sts: 0x%llx, rsp_lo: 0x%llx\n",
 				      __func__, mmc->dev->name,
 				      adj->name, tap, count,
-				      read_csr(mmc, CAVM_MIO_EMM_RSP_STS()),
-				      read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
+				      read_csr(mmc,
+					       CAVM_MIO_EMM_RSP_STS()),
+				      read_csr(mmc,
+					       CAVM_MIO_EMM_RSP_LO()));
+				pr_debug("%s(%s): tap: %d, do: %d, di: %d, co: %d, ci: %d\n",
+					 __func__, mmc->dev->name, tap,
+					 timing.s.data_out_tap,
+					 timing.s.data_in_tap,
+					 timing.s.cmd_out_tap,
+					 timing.s.cmd_in_tap);
 				break;
 			} else {
 				debug("%s(%s, %s): tap %d passed, count: %d, rsp_sts: 0x%llx, rsp_lo: 0x%llx\n",
@@ -1610,7 +1632,8 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 
 		if (run == num_runs) {
 			slot->taps.u &= ~(0x3full << adj->mask_shift);
-			slot->taps.u |= (((u64)tap + 0ull) << adj->mask_shift);
+			slot->taps.u |= (((u64)tap + 0ull) <<
+						adj->mask_shift);
 #ifdef DEBUG
 			if (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200) {
 				debug("%s(%s): After successful tuning\n",
@@ -1704,14 +1727,14 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
  * Calculate the clock period with rounding up
  *
  * @param	mmc	mmc device
- * @return	clock period in system clocks for clk_lo/clk_hi
+ * @return	clock period in system clocks for clk_lo + clk_hi
  */
 u32 octeontx_mmc_calc_clk_period(struct mmc *mmc)
 {
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 	struct octeontx_mmc_host *host = slot->host;
 
-	return (host->sys_freq + (mmc->clock * 2) - 1) / (2 * mmc->clock);
+	return (host->sys_freq + (mmc->clock * 2) - 1) / mmc->clock;
 }
 
 static int octeontx_mmc_set_ios(struct udevice *dev)
@@ -1764,8 +1787,8 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 	emm_switch.u = 0;
 	emm_switch.s.bus_width = bus_width;
 	emm_switch.s.power_class = power_class;
-	emm_switch.s.clk_hi = clk_period;
-	emm_switch.s.clk_lo = clk_period;
+	emm_switch.s.clk_hi = clk_period / 2;
+	emm_switch.s.clk_lo = clk_period / 2;
 
 	switch (mmc->selected_mode) {
 	case MMC_LEGACY:
@@ -1892,36 +1915,35 @@ static int octeontx_mmc_configure_delay(struct mmc *mmc)
 
 			switch (mmc->selected_mode) {
 			case MMC_LEGACY:
-				cout = 63;
-				dout = 63;
+				cout = MMC_LEGACY_DEFAULT_CMD_OUT_TAP;
+				dout = MMC_LEGACY_DEFAULT_DATA_OUT_TAP;
 				break;
 			case SD_LEGACY:
-				cout = 63;
-				dout = 63;
+				cout = MMC_SD_LEGACY_DEFAULT_CMD_OUT_TAP;
+				dout = MMC_SD_LEGACY_DEFAULT_DATA_OUT_TAP;
 				break;
 			case MMC_HS:
-				cout = 32;
-				dout = 32;
+				cout = MMC_HS_CMD_OUT_TAP;
+				dout = MMC_HS_DATA_OUT_TAP;
 				break;
 			case SD_HS:
 			case UHS_SDR12:
 			case UHS_SDR25:
 			case UHS_SDR50:
-				cout = 26;
-				dout = 26;
+				cout = MMC_SD_HS_CMD_OUT_TAP;
+				dout = MMC_SD_HS_DATA_OUT_TAP;
 				break;
 			case UHS_SDR104:
 			case UHS_DDR50:
 			case MMC_HS_52:
 			case MMC_DDR_52:
 			case MMC_HS_200:
-				cout = is_board_model(CN95XX) ? 10 : 5;
-				/*cout = 10;*/
-				dout = is_board_model(CN95XX) ? 10 : 5;
+				cout = MMC_DEFAULT_HS200_CMD_OUT_TAP;
+				dout = MMC_DEFAULT_HS200_DATA_OUT_TAP;
 				break;
 			case MMC_HS_400:
-				cout = is_board_model(CN95XX) ? 10 : 5;
-				dout = is_board_model(CN95XX) ? 10 : 5;
+				cout = MMC_DEFAULT_HS200_CMD_OUT_TAP;
+				dout = MMC_DEFAULT_HS200_DATA_OUT_TAP;
 				break;
 			default:
 				pr_err("%s(%s): Invalid mode %d\n", __func__,
@@ -2089,7 +2111,7 @@ static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
 	}
 	emm_tap.u = 0;
 	if (host->calibrate_glitch) {
-		emm_tap.s.delay = 4;
+		emm_tap.s.delay = MMC_DEFAULT_TAP_DELAY;
 	} else {
 		emm_calb.u = 0;
 		write_csr(mmc, CAVM_MIO_EMM_CALB(), emm_calb.u);
@@ -2106,7 +2128,7 @@ static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
 			pr_err("%s: Error: delay calibration failed, timed out.\n",
 			       __func__);
 			/* Set to default value if timed out */
-			emm_tap.s.delay = 4;
+			emm_tap.s.delay = MMC_DEFAULT_TAP_DELAY;
 			return -ETIMEDOUT;
 		}
 	}
@@ -2156,8 +2178,8 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 		return -1;
 	}
 	timing.u = 0;
-	timing.s.cmd_in_tap = 4;
-	timing.s.data_in_tap = 4;
+	timing.s.cmd_in_tap = MMC_DEFAULT_CMD_IN_TAP;
+	timing.s.data_in_tap = MMC_DEFAULT_DATA_IN_TAP;
 	timing.s.cmd_out_tap = bdelay;
 	timing.s.data_out_tap = bdelay;
 	octeontx_mmc_set_emm_timing(mmc, timing);
@@ -2329,10 +2351,10 @@ static int octeontx_mmc_init_timing(struct mmc *mmc)
 		return 0;
 
 	timing.u = 0;
-	timing.s.cmd_out_tap = 39;
-	timing.s.data_out_tap = 39;
-	timing.s.cmd_in_tap = 4;
-	timing.s.data_in_tap = 4;
+	timing.s.cmd_out_tap = MMC_DEFAULT_CMD_OUT_TAP;
+	timing.s.data_out_tap = MMC_DEFAULT_DATA_OUT_TAP;
+	timing.s.cmd_in_tap = MMC_DEFAULT_CMD_IN_TAP;
+	timing.s.data_in_tap = MMC_DEFAULT_DATA_IN_TAP;
 	octeontx_mmc_set_emm_timing(mmc, timing);
 	return 0;
 }
@@ -2376,8 +2398,8 @@ static int octeontx_mmc_init_lowlevel(struct mmc *mmc)
 	clk_period = octeontx_mmc_calc_clk_period(mmc);
 	emm_switch.u = 0;
 	emm_switch.s.power_class = 10;
-	emm_switch.s.clk_lo = clk_period;
-	emm_switch.s.clk_hi = clk_period;
+	emm_switch.s.clk_lo = clk_period / 2;
+	emm_switch.s.clk_hi = clk_period / 2;
 
 	emm_switch.s.bus_id = slot->bus_id;
 	debug("%s: Performing switch\n", __func__);
