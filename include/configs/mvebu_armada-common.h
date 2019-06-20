@@ -49,6 +49,7 @@
 					"eth1addr=00:51:82:11:22:01\0"	\
 					"eth2addr=00:51:82:11:22:02\0"	\
 					"eth3addr=00:51:82:11:22:03\0"	\
+					"eth4addr=00:51:82:11:22:04\0"	\
 					"image_name=Image\0"		\
 					"get_ramfs=if test \"${ramfs_name}\"" \
 						" != \"-\"; then setenv " \
