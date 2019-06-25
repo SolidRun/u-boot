@@ -18,6 +18,7 @@
 
 #include "cgx_intf.h"
 #include "cgx.h"
+#include "nix.h"
 
 static u64 cgx_rd_scrx(u8 cgx, u8 lmac, u8 index)
 {
@@ -102,7 +103,7 @@ static int wait_for_ownership(u8 cgx, u8 lmac)
 	return 0;
 }
 
-int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
+int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u8 type, u64 *rsp)
 {
 	union cgx_scratchx1 scr1;
 	union cgx_scratchx0 scr0;
@@ -118,6 +119,10 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
 	/* send command */
 	scr1.u = cgx_rd_scr1(cgx, lmac);
 	scr1.s.cmd.id = cmd;
+	if (cmd == CGX_CMD_SET_PHY_MOD_TYPE)
+		scr1.s.phy_mod_args.mod = type;
+	if (cmd == CGX_CMD_SET_FEC)
+		scr1.s.fec_args.fec = type;
 	cgx_wr_scr1(cgx, lmac, scr1.u);
 
 	set_ownership(cgx, lmac, CGX_OWN_FIRMWARE);
@@ -178,7 +183,7 @@ int cgx_intf_get_mac_addr(u8 cgx, u8 lmac, u8 *mac)
 	int ret;
 
 	ret = cgx_intf_req(cgx, lmac,
-				CGX_CMD_GET_MAC_ADDR, &scr0.u);
+				CGX_CMD_GET_MAC_ADDR, 0, &scr0.u);
 	if (ret)
 		return -1;
 
@@ -194,7 +199,7 @@ int cgx_intf_get_ver(u8 cgx, u8 lmac, u8 *ver)
 	int ret;
 
 	ret = cgx_intf_req(cgx, lmac,
-				CGX_CMD_GET_FW_VER, &scr0.u);
+				CGX_CMD_GET_FW_VER, 0, &scr0.u);
 	if (ret)
 		return -1;
 
@@ -210,7 +215,7 @@ int cgx_intf_get_link_sts(u8 cgx, u8 lmac, u64 *lnk_sts)
 	int ret;
 
 	ret = cgx_intf_req(cgx, lmac,
-				CGX_CMD_GET_LINK_STS, &scr0.u);
+				CGX_CMD_GET_LINK_STS, 0, &scr0.u);
 	if (ret)
 		return -1;
 
@@ -230,7 +235,7 @@ int cgx_intf_link_up_dwn(u8 cgx, u8 lmac, u8 up_dwn, u64 *lnk_sts)
 
 	cmd = up_dwn ? CGX_CMD_LINK_BRING_UP : CGX_CMD_LINK_BRING_DOWN;
 
-	ret = cgx_intf_req(cgx, lmac, cmd, &scr0.u);
+	ret = cgx_intf_req(cgx, lmac, cmd, 0, &scr0.u);
 	if (ret)
 		return -1;
 
@@ -246,6 +251,90 @@ void cgx_intf_shutdown(void)
 {
 	union cgx_scratchx0 scr0;
 
-	cgx_intf_req(0, 0, CGX_CMD_INTF_SHUTDOWN, &scr0.u);
+	cgx_intf_req(0, 0, CGX_CMD_INTF_SHUTDOWN, 0, &scr0.u);
+}
+
+int cgx_intf_get_fec(struct udevice *ethdev)
+{
+	struct rvu_pf *rvu = dev_get_priv(ethdev);
+	struct nix *nix = rvu->nix;
+	union cgx_scratchx0 scr0;
+	int ret;
+
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   CGX_CMD_GET_SUPPORTED_FEC, 0, &scr0.u);
+	if (ret) {
+		printf("Get FEC type failed for %s\n", ethdev->name);
+		return -1;
+	}
+
+	printf("Supported FEC type: ");
+	switch (scr0.s.supported_fec.fec) {
+	case 0:
+		printf("FEC_NONE\n");
+		break;
+	case 1:
+		printf("FEC_BASE_R\n");
+		break;
+	case 2:
+		printf("FEC_RS\n");
+		break;
+	case 3:
+		printf("FEC_BASE_R FEC_RS\n");
+		break;
+	}
+	return 0;
+}
+
+int cgx_intf_set_fec(struct udevice *ethdev, int type)
+{
+	struct rvu_pf *rvu = dev_get_priv(ethdev);
+	struct nix *nix = rvu->nix;
+	union cgx_scratchx0 scr0;
+	int ret;
+
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   CGX_CMD_SET_FEC, type, &scr0.u);
+	if (ret) {
+		printf("Set FEC type %d failed for %s\n", type, ethdev->name);
+		return -1;
+	}
+	return 0;
+}
+
+int cgx_intf_get_phy_mod_type(struct udevice *ethdev)
+{
+	struct rvu_pf *rvu = dev_get_priv(ethdev);
+	struct nix *nix = rvu->nix;
+	union cgx_scratchx0 scr0;
+	int ret;
+
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   CGX_CMD_GET_PHY_MOD_TYPE, 0, &scr0.u);
+	if (ret) {
+		printf("Get PHYMOD type failed for %s\n", ethdev->name);
+		return -1;
+	}
+	printf("Current phy mod type %s\n",
+	       scr0.s.phy_mod_type.mod ? "PAM4" : "NRZ");
+	return 0;
+}
+
+int cgx_intf_set_phy_mod_type(struct udevice *ethdev, int type)
+{
+	struct rvu_pf *rvu = dev_get_priv(ethdev);
+	struct nix *nix = rvu->nix;
+	union cgx_scratchx0 scr0;
+	int ret;
+
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   CGX_CMD_SET_PHY_MOD_TYPE, type, &scr0.u);
+	if (ret) {
+		printf("Set PHYMOD type %d failed for %s\n", type,
+		       ethdev->name);
+		return -1;
+	}
+
+	return 0;
 }
 

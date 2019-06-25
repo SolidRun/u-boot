@@ -5,7 +5,6 @@
  * https://spdx.org/licenses
  */
 
-
 #ifndef __CGX_INTF_H__
 #define __CGX_INTF_H__
 
@@ -40,12 +39,16 @@ enum cgx_error_type {
 	CGX_ERR_SPUX_AN_RESET_FAIL,
 	CGX_ERR_SPUX_USX_AN_RESET_FAIL,
 	CGX_ERR_SMUX_RX_LINK_NOT_OK,
-	CGX_ERR_PCS_RECV_LINK_FAIL,
+	CGX_ERR_PCS_LINK_FAIL,
 	CGX_ERR_TRAINING_FAIL,
 	CGX_ERR_RX_EQU_FAIL,
 	CGX_ERR_SPUX_BER_FAIL,
 	CGX_ERR_SPUX_RSFEC_ALGN_FAIL,
-	CGX_ERR_SPUX_MARKER_LOCK_FAIL,	/* = 23 */
+	CGX_ERR_SPUX_MARKER_LOCK_FAIL,
+	CGX_ERR_SET_FEC_INVALID,
+	CGX_ERR_SET_FEC_FAIL,
+	CGX_ERR_MODULE_INVALID,
+	CGX_ERR_MODULE_NOT_PRESENT,	/* = 27 */
 	/* FIXME : add more error types when adding support for new modes */
 };
 
@@ -81,7 +84,20 @@ enum cgx_cmd_id {
 	CGX_CMD_HIGIG,
 	CGX_CMD_LINK_STAT_CHANGE,
 	CGX_CMD_MODE_CHANGE,		/* hot plug support */
-	CGX_CMD_INTF_SHUTDOWN
+	CGX_CMD_INTF_SHUTDOWN,
+	CGX_CMD_GET_MKEX_SIZE,
+	CGX_CMD_GET_MKEX_PROFILE,
+	CGX_CMD_GET_FWD_BASE,		/* get base address of shared FW data */
+	CGX_CMD_GET_LINK_MODES,		/* Supported Link Modes */
+	CGX_CMD_SET_LINK_MODE,
+	CGX_CMD_GET_SUPPORTED_FEC,
+	CGX_CMD_SET_FEC,
+	CGX_CMD_GET_AN,
+	CGX_CMD_SET_AN,
+	CGX_CMD_GET_ADV_LINK_MODES,
+	CGX_CMD_GET_ADV_FEC,
+	CGX_CMD_GET_PHY_MOD_TYPE, /* line-side modulation type: NRZ or PAM4 */
+	CGX_CMD_SET_PHY_MOD_TYPE,
 };
 
 /* async event ids */
@@ -173,9 +189,50 @@ struct cgx_lnk_sts_s {
 	uint64_t reserved1:9;
 	uint64_t link_up:1;
 	uint64_t full_duplex:1;
-	uint64_t speed:4;		/* cgx_link_speed */
+	uint64_t speed:4;	/* cgx_link_speed */
 	uint64_t err_type:10;
-	uint64_t reserved2:39;
+	uint64_t an:1;		/* Current AN state : enabled/disabled */
+	uint64_t fec:2;		/* Current FEC type if enabled, if not 0 */
+	uint64_t port:8;	/* Share the current port info if required */
+	uint64_t reserved2:28;
+};
+
+struct sh_fwd_base_s {
+	uint64_t reserved1:9;
+	uint64_t addr:55;
+};
+
+struct cgx_link_modes_s {
+	uint64_t reserved1:9;
+	uint64_t modes:55;
+};
+
+/* Resp to cmd ID - CGX_CMD_GET_ADV_FEC/CGX_CMD_GET_SUPPORTED_FEC
+ * fec : 2 bits
+ * typedef enum cgx_fec_type {
+ *     CGX_FEC_NONE,
+ *     CGX_FEC_BASE_R,
+ *     CGX_FEC_RS
+ * } fec_type_t;
+ */
+struct cgx_fec_types_s {
+	uint64_t reserved1:9;
+	uint64_t fec:2;
+	uint64_t reserved2:53;
+};
+
+/* Resp to cmd ID - CGX_CMD_GET_AN */
+struct cgx_get_an_s {
+	uint64_t reserved1:9;
+	uint64_t an:1;
+	uint64_t reserved2:54;
+};
+
+/* Resp to cmd ID - CGX_CMD_GET_PHY_MOD_TYPE */
+struct cgx_get_phy_mod_type_s {
+	uint64_t reserved1:9;
+	uint64_t mod:1;		/* 0=NRZ, 1=PAM4 */
+	uint64_t reserved2:54;
 };
 
 union cgx_rsp_sts {
@@ -187,8 +244,28 @@ union cgx_rsp_sts {
 	struct cgx_ver_s ver;
 	/* response to CGX_CMD_GET_MAC_ADDR */
 	struct cgx_mac_addr_s mac_s;
+	/* response to CGX_CMD_GET_FWD_BASE */
+	struct sh_fwd_base_s fwd_base_s;
 	/* response if evt_status = CMD_FAIL */
 	struct cgx_err_sts_s err;
+	/* response to CGX_CMD_GET_SUPPORTED_FEC */
+	struct cgx_fec_types_s supported_fec;
+	/* response to CGX_CMD_GET_LINK_MODES */
+	struct cgx_link_modes_s supported_modes;
+	/* response to CGX_CMD_GET_ADV_LINK_MODES */
+	struct cgx_link_modes_s adv_modes;
+	/* response to CGX_CMD_GET_ADV_FEC */
+	struct cgx_fec_types_s adv_fec;
+	/* response to CGX_CMD_GET_AN */
+	struct cgx_get_an_s an;
+	/* response to CGX_CMD_GET_PHY_MOD_TYPE */
+	struct cgx_get_phy_mod_type_s phy_mod_type;
+#ifdef NT_FW_CONFIG
+	/* response to CGX_CMD_GET_MKEX_SIZE */
+	struct cgx_mcam_profile_sz_s prfl_sz;
+	/* response to CGX_CMD_GET_MKEX_PROFILE */
+	struct cgx_mcam_profile_addr_s prfl_addr;
+#endif
 };
 
 union cgx_scratchx0 {
@@ -235,12 +312,35 @@ struct cgx_link_change_args {		/* start from bit 8 */
 	uint64_t reserved2:50;
 };
 
+/* command argument to be passed for cmd ID - CGX_CMD_SET_LINK_MODE */
+struct cgx_set_mode_args {
+	uint64_t reserved1:8;
+	uint64_t mode:56;
+};
+
+/* command argument to be passed for cmd ID - CGX_CMD_SET_FEC */
+struct cgx_set_fec_args {
+	uint64_t reserved1:8;
+	uint64_t fec:2;
+	uint64_t reserved2:54;
+};
+
+/* command argument to be passed for cmd ID - CGX_CMD_SET_PHY_MOD_TYPE */
+struct cgx_set_phy_mod_args {
+	uint64_t reserved1:8;
+	uint64_t mod:1;		/* 0=NRZ, 1=PAM4 */
+	uint64_t reserved2:55;
+};
+
 union cgx_cmd_s {
 	uint64_t own_status:2;			/* cgx_cmd_own */
 	struct cgx_cmd cmd;
 	struct cgx_ctl_args cmd_args;
 	struct cgx_mtu_args mtu_size;
 	struct cgx_link_change_args lnk_args;	/* Input to CGX_CMD_LINK_CHANGE */
+	struct cgx_set_mode_args mode_args;
+	struct cgx_set_fec_args fec_args;
+	struct cgx_set_phy_mod_args phy_mod_args;
 	/* any other arg for command id * like : mtu, dmac filtering control */
 };
 
