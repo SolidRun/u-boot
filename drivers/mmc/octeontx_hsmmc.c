@@ -737,7 +737,7 @@ static void octeontx_mmc_track_switch(struct mmc *mmc, u32 cmd_arg)
 		slot->want_switch.s.bus_width = val;
 		break;
 	case EXT_CSD_POWER_CLASS:
-		slot->want_switch.s. power_class = val;
+		slot->want_switch.s.power_class = val;
 		break;
 	case EXT_CSD_HS_TIMING:
 		slot->want_switch.s.hs_timing = 0;
