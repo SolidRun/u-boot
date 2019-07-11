@@ -23,7 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct cavm_bdt g_cavm_bdt;
 static int board_mac_num;
-u8 board_mac_addr[6];
+u64 board_mac_addr;
 
 extern unsigned long fdt_base_addr;
 extern void cgx_intf_shutdown(void);
@@ -43,9 +43,12 @@ void octeontx2_cleanup_ethaddr(void)
 
 void octeontx2_board_get_mac_addr(u8 index, u8 *mac_addr)
 {
-	if ((!is_zero_ethaddr(board_mac_addr)) && board_mac_num) {
-		memcpy(mac_addr, board_mac_addr, ARP_HLEN);
-		*(mac_addr + 5) += index;
+	u64 tmp_mac = board_mac_addr;
+
+	if ((!is_zero_ethaddr((u8 *)&board_mac_addr)) && board_mac_num) {
+		tmp_mac += index;
+		tmp_mac = swab64(tmp_mac) >> 16;
+		memcpy(mac_addr, (u8 *)&tmp_mac, ARP_HLEN);
 		board_mac_num--;
 	} else {
 		memset(mac_addr, 0, ARP_HLEN);
@@ -91,7 +94,7 @@ void octeontx_parse_board_info(void)
 	const char *str;
 	int node;
 	int ret = 0, len = 16;
-	u64 midr, macaddr;
+	u64 midr;
 
 	debug("%s: ENTER\n", __func__);
 
@@ -146,14 +149,11 @@ void octeontx_parse_board_info(void)
 	}
 	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS", &len);
 	if (str) {
-		macaddr = simple_strtoul(str, NULL, 16);
-		macaddr = swab64(macaddr) >> 16;
-		memcpy(board_mac_addr, (u8 *)&macaddr, ARP_HLEN);
-		debug("%s mac %pM\n", __func__, board_mac_addr);
+		board_mac_addr = simple_strtoul(str, NULL, 16);
+		debug("%s mac %llx\n", __func__, board_mac_addr);
 	} else {
-		memset(board_mac_addr, 0, ARP_HLEN);
+		board_mac_addr = 0;
 	}
-	debug("%s mac %pM\n", __func__, board_mac_addr);
 }
 
 void board_quiesce_devices(void)
