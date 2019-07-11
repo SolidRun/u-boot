@@ -1218,6 +1218,16 @@ struct xhci_ctrl {
 	u16 hci_version;
 	u32 quirks;
 #define XHCI_MTK_HOST		BIT(0)
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	/* The Marvell OcteonTX2 SOCs have a problem where if the receive
+	 * buffer crosses a 64K boundary then the response events get
+	 * corrupted.  In this case, a 64K bounce buffer is used instead,
+	 * guaranteeing that this case will never happen.  It introduces
+	 * a slight performance penalty since all received data must be
+	 * copied from the bounce buffer to the user-supplied buffer.
+	 */
+	void *rx_bounce_buffer;
+#endif
 };
 
 #if CONFIG_IS_ENABLED(DM_USB)

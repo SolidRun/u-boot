@@ -612,6 +612,10 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	u64 val_64 = xhci_virt_to_bus(ctrl, buffer);
 	void *last_transfer_trb_addr;
 	int available_length;
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	void *orig_buffer = buffer;
+	bool use_rx_bounce = false;
+#endif
 
 	debug("dev=%p, pipe=%lx, buffer=%p, length=%d\n",
 		udev, pipe, buffer, length);
@@ -648,6 +652,12 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	while (running_total < length) {
 		num_trbs++;
 		running_total += TRB_MAX_BUFF_SIZE;
+#if defined(CONFIG_ARCH_OCTEONTX2)
+		if (usb_pipein(pipe) && (length <= 65536)) {
+			buffer = ctrl->rx_bounce_buffer;
+			use_rx_bounce = true;
+		}
+#endif
 	}
 
 	/*
@@ -768,6 +778,11 @@ again:
 	record_transfer_result(udev, event, available_length);
 	xhci_acknowledge_event(ctrl);
 	xhci_inval_cache((uintptr_t)buffer, length);
+
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	if (use_rx_bounce)
+		memcpy(orig_buffer, buffer, udev->act_len);
+#endif
 
 	return (udev->status != USB_ST_NOT_PROC) ? 0 : -1;
 }
