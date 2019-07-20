@@ -354,6 +354,8 @@ static int nicvf_free_pkt(struct udevice *dev, uchar *pkt, int pkt_len)
 {
 	struct nicvf *nic = dev_get_priv(dev);
 
+	if (pkt && pkt_len)
+		free(pkt);
 	nicvf_refill_rbdr(nic);
 	return 0;
 }

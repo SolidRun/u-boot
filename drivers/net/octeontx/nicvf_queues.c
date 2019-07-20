@@ -832,8 +832,8 @@ static unsigned frag_num(unsigned i)
 void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
 {
 	int frag;
-	int payload_len = 0;
-	void *pkt = NULL;
+	int payload_len = 0, tot_len;
+	void *pkt = NULL, *pkt_buf = NULL, *buffer;
 	struct cqe_rx_t *cqe_rx;
 	struct rbdr *rbdr;
 	struct rcv_queue *rq;
@@ -858,6 +858,22 @@ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
 	else
 		rb_ptrs = (void *)cqe_rx + (7 * sizeof(u64));
 
+	/*
+	 * Figure out packet length to create packet buffer
+	 */
+	for (frag = 0; frag < cqe_rx->rb_cnt; frag++)
+		payload_len += rb_lens[frag_num(frag)];
+	*pkt_len = payload_len;
+	/* round up size to 8 byte multiple */
+	tot_len = (payload_len & (~0x7)) + 8;
+	buffer = calloc(1, tot_len);
+	if (!buffer) {
+		printf("%s - Failed to allocate packet buffer\n", __func__);
+		return NULL;
+	}
+	pkt_buf = buffer;
+	debug("total pkt buf %p len %ld tot_len %d\n", pkt_buf, *pkt_len,
+	      tot_len);
 	for (frag = 0; frag < cqe_rx->rb_cnt; frag++) {
 		payload_len = rb_lens[frag_num(frag)];
 
@@ -875,12 +891,14 @@ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
 		if (cqe_rx->align_pad) {
 			pkt += cqe_rx->align_pad;
 		}
+		debug("pkt_buf %p, pkt %p payload_len %d\n", pkt_buf, pkt,
+		      payload_len);
+		memcpy(buffer, pkt, payload_len);
+		buffer += payload_len;
 		/* Next buffer pointer */
 		rb_ptrs++;
-
-		*pkt_len = payload_len;
 	}
-	return pkt;
+	return pkt_buf;
 }
 
 /* Clear interrupt */
