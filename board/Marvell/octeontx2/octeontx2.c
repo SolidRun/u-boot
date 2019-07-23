@@ -340,6 +340,8 @@ int show_board_info(void)
 		printf("OcteonTX2 CN95XX ARM V8 Core\n");
 	if (prod_id == LOKI)
 		printf("OcteonTX2 LOKI ARM V8 Core\n");
+	if (prod_id == CN98XX)
+		printf("OcteonTX2 CN98XX ARM V8 Core\n");
 
 	printf("Board: %s\n", str);
 	return 0;
