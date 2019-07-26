@@ -69,7 +69,8 @@
 						":$netdev:none nfsroot="\
 						"$serverip:$rootpath,tcp,v3 " \
 						"$extra_params " \
-						"$cpuidle"
+						"$cpuidle\0" \
+					"usb_pgood_delay=5000"
 
 /*
  * For booting Linux, the board info and command line data
