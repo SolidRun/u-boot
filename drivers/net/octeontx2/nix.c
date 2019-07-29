@@ -830,6 +830,16 @@ int nix_lf_init(struct udevice *dev)
 	return 0;
 }
 
+void nix_get_cgx_lmac_id(struct udevice *dev, int *cgxid, int *lmacid)
+{
+	struct rvu_pf *rvu = dev_get_priv(dev);
+	struct nix *nix = rvu->nix;
+	struct lmac *lmac = nix->lmac;
+
+	*cgxid = lmac->cgx->cgx_id;
+	*lmacid = lmac->lmac_id;
+}
+
 void nix_print_mac_info(struct udevice *dev)
 {
 	struct rvu_pf *rvu = dev_get_priv(dev);

@@ -42,6 +42,7 @@
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_LAST_STAGE_INIT
+/* #define CONFIG_CMD_MDIO_DBG */
 
 /**
  * Only allow the Ethernet MAC address environment variable to be
