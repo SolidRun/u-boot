@@ -264,7 +264,7 @@ int cgx_intf_get_fec(struct udevice *ethdev)
 	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
 			   CGX_CMD_GET_SUPPORTED_FEC, 0, &scr0.u);
 	if (ret) {
-		printf("Get FEC type failed for %s\n", ethdev->name);
+		printf("Get supported FEC failed for %s\n", ethdev->name);
 		return -1;
 	}
 
@@ -281,6 +281,24 @@ int cgx_intf_get_fec(struct udevice *ethdev)
 		break;
 	case 3:
 		printf("FEC_BASE_R FEC_RS\n");
+		break;
+	}
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   CGX_CMD_GET_LINK_STS, 0, &scr0.u);
+	if (ret) {
+		printf("Get active fec failed for %s\n", ethdev->name);
+		return -1;
+	}
+	printf("Active FEC type: ");
+	switch (scr0.s.link_sts.fec) {
+	case 0:
+		printf("FEC_NONE\n");
+		break;
+	case 1:
+		printf("FEC_BASE_R\n");
+		break;
+	case 2:
+		printf("FEC_RS\n");
 		break;
 	}
 	return 0;
