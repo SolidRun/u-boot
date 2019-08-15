@@ -44,6 +44,8 @@
 #define MMC_DEFAULT_CMD_IN_TAP			10
 #define MMC_DEFAULT_CMD_OUT_TAP			39
 #define MMC_DEFAULT_DATA_OUT_TAP		39
+#define MMC_DEFAULT_HS200_CMD_IN_TAP		24
+#define MMC_DEFAULT_HS200_DATA_IN_TAP		24
 #define MMC_DEFAULT_HS200_CMD_OUT_TAP	(is_board_model(CN95XX) ? 10 : 5)
 #define MMC_DEFAULT_HS200_DATA_OUT_TAP	(is_board_model(CN95XX) ? 10 : 5)
 #define MMC_DEFAULT_SD_UHS_SDR104_CMD_OUT_TAP	MMC_DEFAULT_HS200_CMD_OUT_TAP
@@ -75,7 +77,8 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay);
 static int octeontx_mmc_calibrate_delay(struct mmc *mmc);
 #endif
-static int octeontx_mmc_set_bus_timing(struct mmc *mmc);
+static int octeontx_mmc_set_input_bus_timing(struct mmc *mmc);
+static int octeontx_mmc_set_output_bus_timing(struct mmc *mmc);
 
 static bool host_probed;
 
@@ -166,6 +169,77 @@ const char *mmc_reg_str(u64 reg)
 	return "UNKNOWN";
 }
 #endif
+
+static void octeontx_print_rsp_sts(struct mmc *mmc)
+{
+#ifdef DEBUG
+	union cavm_mio_emm_rsp_sts emm_rsp_sts;
+	const struct octeontx_mmc_host *host = mmc_to_host(mmc);
+	static const char * const ctype_xor_str[] = {
+		"No data",
+		"Read data into Dbuf",
+		"Write data from Dbuf",
+		"Reserved"
+	};
+
+	static const char * const rtype_xor_str[] = {
+		"No response",
+		"R1, 48 bits",
+		"R2, 136 bits",
+		"R3, 48 bits",
+		"R4, 48 bits",
+		"R5, 48 bits",
+		"Reserved 6",
+		"Reserved 7"
+	};
+
+	emm_rsp_sts.u = readq(host->base_addr + CAVM_MIO_EMM_RSP_STS());
+	printf("\nMIO_EMM_RSP_STS:              0x%016llx\n", emm_rsp_sts.u);
+	printf("    60-61: bus_id:              %u\n", emm_rsp_sts.s.bus_id);
+	printf("    59:    cmd_val:             %s\n",
+	       emm_rsp_sts.s.cmd_val ? "yes" : "no");
+	printf("    58:    switch_val:          %s\n",
+	       emm_rsp_sts.s.switch_val ? "yes" : "no");
+	printf("    57:    dma_val:             %s\n",
+	       emm_rsp_sts.s.dma_val ? "yes" : "no");
+	printf("    56:    dma_pend:            %s\n",
+	       emm_rsp_sts.s.dma_pend ? "yes" : "no");
+	printf("    28:    dbuf_err:            %s\n",
+	       emm_rsp_sts.s.dbuf_err ? "yes" : "no");
+	printf("    23:    dbuf:                %u\n", emm_rsp_sts.s.dbuf);
+	printf("    22:    blk_timeout:         %s\n",
+	       emm_rsp_sts.s.blk_timeout ? "yes" : "no");
+	printf("    21:    blk_crc_err:         %s\n",
+	       emm_rsp_sts.s.blk_crc_err ? "yes" : "no");
+	printf("    20:    rsp_busybit:         %s\n",
+	       emm_rsp_sts.s.rsp_busybit ? "yes" : "no");
+	printf("    19:    stp_timeout:         %s\n",
+	       emm_rsp_sts.s.stp_timeout ? "yes" : "no");
+	printf("    18:    stp_crc_err:         %s\n",
+	       emm_rsp_sts.s.stp_crc_err ? "yes" : "no");
+	printf("    17:    stp_bad_sts:         %s\n",
+	       emm_rsp_sts.s.stp_bad_sts ? "yes" : "no");
+	printf("    16:    stp_val:             %s\n",
+	       emm_rsp_sts.s.stp_val ? "yes" : "no");
+	printf("    15:    rsp_timeout:         %s\n",
+	       emm_rsp_sts.s.rsp_timeout ? "yes" : "no");
+	printf("    14:    rsp_crc_err:         %s\n",
+	       emm_rsp_sts.s.rsp_crc_err ? "yes" : "no");
+	printf("    13:    rsp_bad_sts:         %s\n",
+	       emm_rsp_sts.s.rsp_bad_sts ? "yes" : "no");
+	printf("    12:    rsp_val:             %s\n",
+	       emm_rsp_sts.s.rsp_val ? "yes" : "no");
+	printf("    9-11:  rsp_type:            %s\n",
+	       rtype_xor_str[emm_rsp_sts.s.rsp_type]);
+	printf("    7-8:   cmd_type:            %s\n",
+	       ctype_xor_str[emm_rsp_sts.s.cmd_type]);
+	printf("    1-6:   cmd_idx:             %u\n",
+	       emm_rsp_sts.s.cmd_idx);
+	printf("    0:     cmd_done:            %s\n",
+	       emm_rsp_sts.s.cmd_done ? "yes" : "no");
+#endif
+}
+
 static inline u64 read_csr(struct mmc *mmc, u64 reg)
 {
 	const struct octeontx_mmc_host *host = mmc_to_host(mmc);
@@ -315,7 +389,6 @@ static void octeontx_mmc_print_registers2(struct mmc *mmc,
 		"invalid (14)",
 		"invalid (15)",
 	};
-
 	static const char * const ctype_xor_str[] = {
 		"No data",
 		"Read data into Dbuf",
@@ -884,60 +957,6 @@ static void octeontx_mmc_start_dma(struct mmc *mmc, bool write,
  *
  * @return	0 for success (could be DMA errors), -ETIMEDOUT on timeout
  */
-static int octeontx_mmc_wait_dma(struct mmc *mmc, ulong timeout)
-{
-	ulong start_time = get_timer(0);
-	union cavm_mio_emm_dma_int emm_dma_int;
-	union cavm_mio_emm_rsp_sts rsp_sts;
-	union cavm_mio_emm_dma emm_dma;
-	bool timed_out = false;
-	debug("%s(%s, %lu)\n", __func__, mmc->dev->name, timeout);
-
-	do {
-		emm_dma_int.u = read_csr(mmc, CAVM_MIO_EMM_DMA_INT());
-		rsp_sts.u = read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
-		if (rsp_sts.s.dma_pend) {
-			emm_dma.u = read_csr(mmc, CAVM_MIO_EMM_DMA());
-			pr_err("%s(%s): DMA pending error: rsp_sts: 0x%llx, dma_int: 0x%llx, emm_dma: 0x%llx\n",
-			       __func__, mmc->dev->name, rsp_sts.u,
-			       emm_dma_int.u, emm_dma.u);
-			pr_err("%s: Trying DMA resume...\n", __func__);
-			emm_dma.s.dma_val = 1;
-			write_csr(mmc, CAVM_MIO_EMM_DMA(), emm_dma.u);
-		} else if (!rsp_sts.s.dma_val && emm_dma_int.s.done) {
-			break;
-		}
-		WATCHDOG_RESET();
-		timed_out = (get_timer(start_time) > timeout);
-	} while (!timed_out);
-
-	if (timed_out) {
-		pr_err("%s(%s): MMC DMA timed out after %lu ms, rsp_sts: 0x%llx, dma_int: 0x%llx, rsp_sts_lo: 0x%llx, emm_dma: 0x%llx\n",
-		       __func__, mmc->dev->name, timeout, rsp_sts.u,
-		       emm_dma_int.u,
-		       read_csr(mmc, CAVM_MIO_EMM_RSP_LO()),
-		       read_csr(mmc, CAVM_MIO_EMM_DMA()));
-		if (rsp_sts.s.dma_pend) {
-			emm_dma.s.dma_val = 1;
-			emm_dma.s.dat_null = 1;
-			start_time = get_timer(0);
-			do {
-				emm_dma_int.u = read_csr(mmc,
-							CAVM_MIO_EMM_DMA_INT());
-				timed_out = (get_timer(start_time) > timeout);
-			} while (!emm_dma_int.s.done && !timed_out);
-			if (timed_out)
-				pr_err("%s(%s): DMA not done, dma int: 0x%llx, rsp sts: 0x%llx\n",
-				       __func__, mmc->dev->name, emm_dma_int.u,
-				       read_csr(mmc, CAVM_MIO_EMM_RSP_STS()));
-		}
-	} else {
-		write_csr(mmc, CAVM_MIO_EMM_DMA_INT(),
-			  read_csr(mmc, CAVM_MIO_EMM_DMA_INT()));
-	}
-
-	return timed_out ? -ETIMEDOUT : 0;
-}
 
 /**
  * Cleanup DMA engine after a failure
@@ -971,6 +990,91 @@ static void octeontx_mmc_cleanup_dma(struct mmc *mmc,
 		       __func__, mmc->dev->name, rsp_sts.u,
 		       read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
 	}
+	debug("  rsp_sts after clearing up DMA: 0x%llx\n",
+	      read_csr(mmc, CAVM_MIO_EMM_RSP_STS()));
+}
+
+/**
+ * Waits for a DMA operation to complete
+ *
+ * @param	mmc	mmc device
+ * @param	timeout	timeout in ms
+ *
+ * @return	0 for success (could be DMA errors), -ETIMEDOUT on timeout
+ *		or -EIO if IO error.
+ */
+static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout)
+{
+	ulong start_time = get_timer(0);
+	union cavm_mio_emm_dma_int emm_dma_int;
+	union cavm_mio_emm_rsp_sts rsp_sts;
+	union cavm_mio_emm_dma emm_dma;
+	bool timed_out = false;
+	bool err = false;
+	debug("%s(%s, %lu)\n", __func__, mmc->dev->name, timeout);
+
+	do {
+		emm_dma_int.u = read_csr(mmc, CAVM_MIO_EMM_DMA_INT());
+		rsp_sts.u = read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
+		if (write) {
+			if ((rsp_sts.s.dma_pend && !rsp_sts.s.dma_val) ||
+			    rsp_sts.s.blk_timeout ||
+			    rsp_sts.s.stp_timeout ||
+			    rsp_sts.s.rsp_timeout) {
+				err = true;
+#ifdef DEBUG
+				debug("%s: f1\n", __func__);
+				octeontx_mmc_print_rsp_errors(mmc, rsp_sts);
+#endif
+				break;
+			}
+		} else {
+			if (rsp_sts.s.blk_crc_err ||
+			    (rsp_sts.s.dma_pend && !rsp_sts.s.dma_val)) {
+#ifdef DEBUG
+				octeontx_mmc_print_rsp_errors(mmc, rsp_sts);
+#endif
+				break;
+			}
+		}
+		if (rsp_sts.s.dma_pend) {
+			/* If this is set then an error has occurred.
+			 * Try and restart the DMA operation.
+			 */
+			emm_dma.u = read_csr(mmc, CAVM_MIO_EMM_DMA());
+			pr_err("%s(%s): DMA pending error: rsp_sts: 0x%llx, dma_int: 0x%llx, emm_dma: 0x%llx\n",
+			       __func__, mmc->dev->name, rsp_sts.u,
+			       emm_dma_int.u, emm_dma.u);
+			octeontx_print_rsp_sts(mmc);
+			debug("  MIO_EMM_DEBUG: 0x%llx\n",
+			      read_csr(mmc, CAVM_MIO_EMM_DEBUG()));
+			pr_err("%s: Trying DMA resume...\n", __func__);
+			emm_dma.s.dma_val = 1;
+			write_csr(mmc, CAVM_MIO_EMM_DMA(), emm_dma.u);
+		} else if (!rsp_sts.s.dma_val && emm_dma_int.s.done) {
+			break;
+		}
+		WATCHDOG_RESET();
+		timed_out = (get_timer(start_time) > timeout);
+	} while (!timed_out);
+
+	if (timed_out || err) {
+		pr_err("%s(%s): MMC DMA %s after %lu ms, rsp_sts: 0x%llx, dma_int: 0x%llx, rsp_sts_lo: 0x%llx, emm_dma: 0x%llx\n",
+		       __func__, mmc->dev->name,
+			timed_out ? "timed out" : "error",
+			get_timer(start_time), rsp_sts.u,
+		       emm_dma_int.u,
+		       read_csr(mmc, CAVM_MIO_EMM_RSP_LO()),
+		       read_csr(mmc, CAVM_MIO_EMM_DMA()));
+		octeontx_print_rsp_sts(mmc);
+		if (rsp_sts.s.dma_pend)
+			octeontx_mmc_cleanup_dma(mmc, rsp_sts);
+	} else {
+		write_csr(mmc, CAVM_MIO_EMM_DMA_INT(),
+			  read_csr(mmc, CAVM_MIO_EMM_DMA_INT()));
+	}
+
+	return timed_out ? -ETIMEDOUT : (err ? -EIO : 0);
 }
 
 /**
@@ -987,7 +1091,6 @@ static int octeontx_mmc_read_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 {
 	struct octeontx_mmc_host *host = mmc_to_host(mmc);
 	union cavm_mio_emm_rsp_sts rsp_sts;
-	union cavm_mio_emm_int emm_int;
 	dma_addr_t dma_addr = (dma_addr_t)dm_pci_virt_to_mem(host->dev,
 							     data->dest);
 	ulong count;
@@ -1016,15 +1119,12 @@ static int octeontx_mmc_read_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (multi_xfer) {
 		octeontx_mmc_start_dma(mmc, false, false, start, dma_addr,
 				       blkcnt, timeout);
-		timed_out = !!octeontx_mmc_wait_dma(mmc, timeout);
+		timed_out = !!octeontx_mmc_wait_dma(mmc, false, timeout);
 		rsp_sts.u = read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
 		if (timed_out || rsp_sts.s.dma_val || rsp_sts.s.dma_pend) {
-			emm_int.u = read_csr(mmc, CAVM_MIO_EMM_INT());
-			if (rsp_sts.s.dma_pend || emm_int.s.dma_err ||
-			    timed_out)
-				octeontx_mmc_cleanup_dma(mmc, rsp_sts);
 			pr_err("%s(%s): Error: DMA timed out.  rsp_sts: 0x%llx, emm_int: 0x%llx, dma_int: 0x%llx, rsp_lo: 0x%llx\n",
-			       __func__, mmc->dev->name, rsp_sts.u, emm_int.u,
+			       __func__, mmc->dev->name, rsp_sts.u,
+			       read_csr(mmc, CAVM_MIO_EMM_INT()),
 			       read_csr(mmc, CAVM_MIO_EMM_DMA_INT()),
 			       read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
 			pr_err("%s: block count: %lu, start: 0x%lx\n",
@@ -1041,15 +1141,14 @@ static int octeontx_mmc_read_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 			dma_addr += mmc->read_bl_len;
 			start++;
 
-			timed_out = !!octeontx_mmc_wait_dma(mmc, timeout);
+			timed_out = !!octeontx_mmc_wait_dma(mmc, false,
+							    timeout);
 			rsp_sts.u = read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
 			if (timed_out || rsp_sts.s.dma_val ||
 			    rsp_sts.s.dma_pend) {
-				emm_int.u = read_csr(mmc, CAVM_MIO_EMM_INT());
-				if (rsp_sts.s.dma_pend || emm_int.s.dma_err)
-					octeontx_mmc_cleanup_dma(mmc, rsp_sts);
 				pr_err("%s: Error: DMA timed out.  rsp_sts: 0x%llx, emm_int: 0x%llx, dma_int: 0x%llx, rsp_lo: 0x%llx\n",
-				       __func__, rsp_sts.u, emm_int.u,
+				       __func__, rsp_sts.u,
+				       read_csr(mmc, CAVM_MIO_EMM_INT()),
 				       read_csr(mmc, CAVM_MIO_EMM_DMA_INT()),
 				       read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
 				pr_err("%s: block count: 1, start: 0x%lx\n",
@@ -1108,7 +1207,6 @@ static ulong octeontx_mmc_write_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 	ulong blkcnt = data->blocks;
 	dma_addr_t dma_addr;
 	union cavm_mio_emm_rsp_sts rsp_sts;
-	union cavm_mio_emm_int emm_int;
 	union cavm_mio_emm_sts_mask emm_sts_mask;
 	ulong timeout;
 	int count;
@@ -1132,19 +1230,16 @@ static ulong octeontx_mmc_write_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 		timeout = 5000 + 100 * blkcnt;
 		octeontx_mmc_start_dma(mmc, true, false, start, dma_addr,
 				       blkcnt, timeout);
-		timed_out = !!octeontx_mmc_wait_dma(mmc, timeout);
+		timed_out = !!octeontx_mmc_wait_dma(mmc, true, timeout);
 		rsp_sts.u = read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
 		if (timed_out || rsp_sts.s.dma_val || rsp_sts.s.dma_pend) {
-			emm_int.u = read_csr(mmc, CAVM_MIO_EMM_INT());
 			pr_err("%s(%s): Error: multi-DMA timed out after %lums.  rsp_sts: 0x%llx, emm_int: 0x%llx, emm_dma_int: 0x%llx, rsp_sts_lo: 0x%llx, emm_dma: 0x%llx\n",
 			       __func__, mmc->dev->name, timeout,
-			       rsp_sts.u, emm_int.u,
+			       rsp_sts.u,
+			       read_csr(mmc, CAVM_MIO_EMM_INT()),
 			       read_csr(mmc, CAVM_MIO_EMM_DMA_INT()),
 			       read_csr(mmc, CAVM_MIO_EMM_RSP_LO()),
 			       read_csr(mmc, CAVM_MIO_EMM_DMA()));
-			if (rsp_sts.s.dma_pend || emm_int.s.dma_err ||
-			    timed_out)
-				octeontx_mmc_cleanup_dma(mmc, rsp_sts);
 			return 0;
 		}
 	} else {
@@ -1156,19 +1251,16 @@ static ulong octeontx_mmc_write_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 			dma_addr += mmc->read_bl_len;
 			start++;
 
-			timed_out = !!octeontx_mmc_wait_dma(mmc, timeout);
-			rsp_sts.u = read_csr(mmc, CAVM_MIO_EMM_RSP_STS());
+			timed_out = !!octeontx_mmc_wait_dma(mmc, true, timeout);
 			if (timed_out || rsp_sts.s.dma_val ||
 			    rsp_sts.s.dma_pend) {
-				emm_int.u = read_csr(mmc, CAVM_MIO_EMM_INT());
 				pr_err("%s(%s): Error: single-DMA timed out after %lums.  rsp_sts: 0x%llx, emm_int: 0x%llx, emm_dma_int: 0x%llx, rsp_sts_lo: 0x%llx, emm_dma: 0x%llx\n",
 				       __func__, mmc->dev->name, timeout,
-				       rsp_sts.u, emm_int.u,
+				       rsp_sts.u,
+				       read_csr(mmc, CAVM_MIO_EMM_RSP_STS()),
 				       read_csr(mmc, CAVM_MIO_EMM_DMA_INT()),
 				       read_csr(mmc, CAVM_MIO_EMM_RSP_LO()),
 				       read_csr(mmc, CAVM_MIO_EMM_DMA()));
-				if (rsp_sts.s.dma_pend || emm_int.s.dma_err)
-					octeontx_mmc_cleanup_dma(mmc, rsp_sts);
 				return blkcnt - count;
 			}
 			WATCHDOG_RESET();
@@ -1212,6 +1304,14 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	static const u64 timeout_short = 0xFFFFFFA4FCF9FFDFull;
 	uint timeout;
 
+	if (cmd->cmdidx == MMC_CMD_SEND_EXT_CSD) {
+		union cavm_mio_emm_rca emm_rca;
+
+		emm_rca.u = 0;
+		emm_rca.s.card_rca = mmc->rca;
+		write_csr(mmc, CAVM_MIO_EMM_RCA(), emm_rca.u);
+	}
+
 	if (timeout_short & (1ull << cmd->cmdidx))
 		timeout = MMC_TIMEOUT_SHORT;
 	else if (cmd->cmdidx == MMC_CMD_SWITCH && IS_SD(mmc))
@@ -1240,6 +1340,10 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	/* Handle block read/write/stop operations */
 	switch (cmd->cmdidx) {
+	case MMC_CMD_GO_IDLE_STATE:
+		slot->tuned = false;
+		slot->hs200_tuned = false;
+		break;
 	case MMC_CMD_STOP_TRANSMISSION:
 		return 0;
 	case MMC_CMD_READ_MULTIPLE_BLOCK:
@@ -1309,6 +1413,8 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 				  cpu_to_be64(emm_buf_dat.u));
 			src += sizeof(emm_buf_dat.u);
 		}
+		write_csr(mmc, CAVM_MIO_EMM_BUF_IDX(), 0);
+
 	}
 	debug("%s(%s): Sending command %u (emm_cmd: 0x%llx)\n", __func__,
 	      name, cmd->cmdidx, emm_cmd.u);
@@ -1364,6 +1470,10 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (rsp_sts.s.cmd_idx != cmd->cmdidx) {
 		debug("%s(%s): Command response index %d does not match command index %d\n",
 		      __func__, name, rsp_sts.s.cmd_idx, cmd->cmdidx);
+		octeontx_print_rsp_sts(mmc);
+		debug("%s: rsp_lo: 0x%llx\n", __func__,
+		      read_csr(mmc, CAVM_MIO_EMM_RSP_LO()));
+
 		goto error;
 	}
 
@@ -1433,6 +1543,7 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			memcpy(dest, &emm_buf_dat.u, sizeof(emm_buf_dat.u));
 			dest += sizeof(emm_buf_dat.u);
 		}
+		write_csr(mmc, CAVM_MIO_EMM_BUF_IDX(), 0);
 #ifdef DEBUG
 		debug("%s: Received %d bytes data\n", __func__,
 		      data->blocksize);
@@ -1511,7 +1622,7 @@ static int octeontx_mmc_test_get_ext_csd(struct mmc *mmc, u32 opcode,
  *
  * On some devices it is possible that changing the data out value can
  * cause a glitch on an internal fifo.  This works around this problem
- * by performing a soft-reset.
+ * by performing a soft-reset immediately before setting the timing register.
  *
  * Note: this function should not be called from any function that
  * performs DMA or block operations since not all registers are
@@ -1520,9 +1631,19 @@ static int octeontx_mmc_test_get_ext_csd(struct mmc *mmc, u32 opcode,
 static void octeontx_mmc_set_emm_timing(struct mmc *mmc,
 					union cavm_mio_emm_timing emm_timing)
 {
+	union cavm_mio_emm_cfg emm_cfg;
+
 	pr_debug("%s(%s, 0x%llx) din: %u\n", __func__, mmc->dev->name,
 		 emm_timing.u, emm_timing.s.data_in_tap);
+
+	emm_cfg.u = read_csr(mmc, CAVM_MIO_EMM_CFG());
+	emm_cfg.s.bus_ena = 1 << 3;
+	write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
+	udelay(1);
 	write_csr(mmc, CAVM_MIO_EMM_TIMING(), emm_timing.u);
+	udelay(1);
+	emm_cfg.s.bus_ena = 1 << mmc_to_slot(mmc)->bus_id;
+	write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
 }
 
 struct adj {
@@ -1572,8 +1693,10 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 #ifdef DEBUG
 	char how[MAX_NO_OF_TAPS + 1] = "";
 #endif
+	bool is_hs200 = mmc->selected_mode == MMC_HS_200;
 
-	octeontx_mmc_set_emm_timing(mmc, slot->taps);
+	octeontx_mmc_set_emm_timing(mmc,
+				    is_hs200 ? slot->taps : slot->hs200_taps);
 
 #ifdef DEBUG
 	if (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200) {
@@ -1665,6 +1788,29 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 	debug("%s/%s %d/%d/%d %s\n", mmc->dev->name,
 	      adj->name, best_start, tap, best_start + best_run, how);
 #endif
+	if (is_hs200) {
+		slot->hs200_taps.u &= ~(0x3full << adj->mask_shift);
+		slot->hs200_taps.u |= (u64)tap << adj->mask_shift;
+	} else {
+		slot->taps.u &= ~(0x3full << adj->mask_shift);
+		slot->taps.u |= (u64)tap << adj->mask_shift;
+	}
+#ifdef DEBUG
+	how[tap - 1] = '\0';
+#endif
+	if (best_start < 0) {
+		printf("%s(%s, %s): %lldMHz tuning %s failed\n", __func__,
+		       mmc->dev->name, adj->name, slot->clock / 1000000,
+		       adj->name);
+		return -EINVAL;
+	}
+
+	tap = best_start + best_run / 2;
+#ifdef DEBUG
+	how[tap] = '@';
+	debug("%s/%s %d/%d/%d %s\n", mmc->dev->name,
+	      adj->name, best_start, tap, best_start + best_run, how);
+#endif
 	slot->taps.u &= ~(0x3full << adj->mask_shift);
 	slot->taps.u |= (u64)tap << adj->mask_shift;
 
@@ -1682,7 +1828,6 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 	}
 #endif
 	octeontx_mmc_set_timing(mmc);
-	slot->tuned = true;
 
 	return 0;
 }
@@ -1694,16 +1839,31 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 	union cavm_mio_emm_timing emm_timing;
 	int err;
 	struct adj *a;
+	bool is_hs200;
 
 	pr_info("%s re-tuning, opcode 0x%x\n", dev->name, opcode);
 
 	if (slot->is_asim || slot->is_emul)
 		return 0;
 
-	octeontx_mmc_set_bus_timing(mmc);
+	is_hs200 = ((mmc->selected_mode == MMC_HS_200) ||
+		    (mmc->selected_mode == MMC_HS_400));
+	if (is_hs200)
+		slot->hs200_tuned = false;
+	else
+		slot->tuned = false;
+	octeontx_mmc_set_output_bus_timing(mmc);
+	octeontx_mmc_set_input_bus_timing(mmc);
 	emm_timing.u = read_csr(mmc, CAVM_MIO_EMM_TIMING());
-	slot->taps.s.cmd_out_tap = emm_timing.s.cmd_out_tap;
-	slot->taps.s.data_out_tap = emm_timing.s.data_out_tap;
+	if (mmc->selected_mode == MMC_HS_200) {
+		slot->hs200_taps.s.cmd_out_tap = emm_timing.s.cmd_out_tap;
+		slot->hs200_taps.s.data_out_tap = emm_timing.s.data_out_tap;
+	} else {
+		slot->taps.s.cmd_out_tap = emm_timing.s.cmd_out_tap;
+		slot->taps.s.data_out_tap = emm_timing.s.data_out_tap;
+	}
+	octeontx_mmc_set_input_bus_timing(mmc);
+	octeontx_mmc_set_output_bus_timing(mmc);
 
 	for (a = adj; a->name; a++) {
 		debug("%s(%s): Testing: %s, mode: %s, opcode: %u\n", __func__,
@@ -1718,7 +1878,7 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 		/* Skip hs200 tests in non-hs200 mode and
 		 * non-hs200 tests in hs200 mode
 		 */
-		if (mmc->selected_mode == MMC_HS_200) {
+		if (is_hs200) {
 			if (a->not_hs200_only) {
 				debug("%s(%s): Skipping %s\n", __func__,
 				      dev->name, a->name);
@@ -1742,7 +1902,11 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 	}
 
 	octeontx_mmc_set_timing(mmc);
-	slot->tuned = true;
+	if (is_hs200)
+		slot->hs200_tuned = true;
+	else
+		slot->tuned = true;
+
 	return 0;
 }
 #endif /* defined(CONFIG_MMC_SUPPORTS_TUNING) || defined(MMC_SUPPORTS_TUNING) */
@@ -1773,6 +1937,7 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 	int clk_period = 0;
 	int power_class = 10;
 	int err = 0;
+	bool is_hs200 = false;
 
 	debug("%s(%s): Entry\n", __func__, dev->name);
 	debug("  clock: %u, bus width: %u, mode: %u\n", mmc->clock,
@@ -1814,6 +1979,9 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 	emm_switch.s.clk_hi = clk_period / 2;
 	emm_switch.s.clk_lo = clk_period / 2;
 
+	debug("%s: last mode: %d, mode: %d, last clock: %u, clock: %u, ddr: %d\n",
+	      __func__, slot->last_mode, mmc->selected_mode,
+	      slot->last_clock, mmc->clock, mmc->ddr_mode);
 	switch (mmc->selected_mode) {
 	case MMC_LEGACY:
 	case SD_LEGACY:
@@ -1823,16 +1991,20 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 	case MMC_HS_52:
 		emm_switch.s.hs_timing = 1;
 		break;
+	case MMC_HS_200:
+		is_hs200 = true;
+		/* fall through */
 	case UHS_SDR12:
 	case UHS_SDR25:
 	case UHS_SDR50:
 	case UHS_SDR104:
-	case MMC_HS_200:
 		emm_switch.s.hs200_timing = 1;
 		break;
+	case MMC_HS_400:
+		is_hs200 = true;
+		/* fall through */
 	case UHS_DDR50:
 	case MMC_DDR_52:
-	case MMC_HS_400:
 		emm_switch.s.hs400_timing = 1;
 		break;
 	default:
@@ -1841,6 +2013,15 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 		return -1;
 	}
 	emm_switch.s.bus_id = slot->bus_id;
+
+	if (!is_hs200 &&
+	    (mmc->selected_mode != slot->last_mode ||
+	     mmc->clock != slot->last_clock) &&
+	    !mmc->ddr_mode) {
+		slot->tuned = false;
+		slot->last_mode = mmc->selected_mode;
+		slot->last_clock = mmc->clock;
+	}
 
 #if CONFIG_IS_ENABLED(MMC_VERBOSE) || defined(debug)
 	debug("%s(%s): Setting bus mode to %s\n", __func__, dev->name,
@@ -1904,7 +2085,11 @@ static void octeontx_mmc_set_timing(struct mmc *mmc)
 	union cavm_mio_emm_timing timing;
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 
-	timing = slot->taps;
+	if (mmc->selected_mode == MMC_HS_200 ||
+	    mmc->selected_mode == MMC_HS_400)
+		timing = slot->hs200_taps;
+	else
+		timing = slot->taps;
 
 	debug("%s(%s):\n  cmd_in_tap: %u\n  cmd_out_tap: %u\n  data_in_tap: %u\n  data_out_tap: %u\n",
 	      __func__, mmc->dev->name, timing.s.cmd_in_tap,
@@ -1918,6 +2103,7 @@ static void octeontx_mmc_set_timing(struct mmc *mmc)
 static int octeontx_mmc_configure_delay(struct mmc *mmc)
 {
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
+	bool __maybe_unused is_hs200;
 
 	debug("%s(%s)\n", __func__, mmc->dev->name);
 #if defined(CONFIG_ARCH_OCTEONTX)
@@ -1930,61 +2116,84 @@ static int octeontx_mmc_configure_delay(struct mmc *mmc)
 		write_csr(mmc, CAVM_MIO_EMM_SAMPLE(), emm_sample.u);
 	}
 #else
-	{
-		if (!slot->tuned) {
-			int half = MAX_NO_OF_TAPS / 2;
-			int dout, cout;
+	is_hs200 = ((mmc->selected_mode == MMC_HS_200) ||
+		    (mmc->selected_mode == MMC_HS_400));
 
-			switch (mmc->selected_mode) {
-			case MMC_LEGACY:
-				cout = MMC_LEGACY_DEFAULT_CMD_OUT_TAP;
-				dout = MMC_LEGACY_DEFAULT_DATA_OUT_TAP;
-				break;
-			case SD_LEGACY:
-				cout = MMC_SD_LEGACY_DEFAULT_CMD_OUT_TAP;
-				dout = MMC_SD_LEGACY_DEFAULT_DATA_OUT_TAP;
-				break;
-			case MMC_HS:
-				cout = MMC_HS_CMD_OUT_TAP;
-				dout = MMC_HS_DATA_OUT_TAP;
-				break;
-			case SD_HS:
-			case UHS_SDR12:
-			case UHS_SDR25:
-			case UHS_SDR50:
-				cout = MMC_SD_HS_CMD_OUT_TAP;
-				dout = MMC_SD_HS_DATA_OUT_TAP;
-				break;
-			case UHS_SDR104:
-			case UHS_DDR50:
-			case MMC_HS_52:
-			case MMC_DDR_52:
-			case MMC_HS_200:
-				cout = MMC_DEFAULT_HS200_CMD_OUT_TAP;
-				dout = MMC_DEFAULT_HS200_DATA_OUT_TAP;
-				break;
-			case MMC_HS_400:
-				cout = MMC_DEFAULT_HS200_CMD_OUT_TAP;
-				dout = MMC_DEFAULT_HS200_DATA_OUT_TAP;
-				break;
-			default:
-				pr_err("%s(%s): Invalid mode %d\n", __func__,
-				       mmc->dev->name, mmc->selected_mode);
-				return -1;
-			}
-			debug("%s(%s): Not tuned\n", __func__, mmc->dev->name);
+	if ((is_hs200 && slot->hs200_tuned) || (!is_hs200 && slot->tuned)) {
+		octeontx_mmc_set_output_bus_timing(mmc);
+	} else {
+		int half = MAX_NO_OF_TAPS / 2;
+		int dout, cout;
+
+		switch (mmc->selected_mode) {
+		case MMC_LEGACY:
+			cout = MMC_LEGACY_DEFAULT_CMD_OUT_TAP;
+			dout = MMC_LEGACY_DEFAULT_DATA_OUT_TAP;
+			break;
+		case SD_LEGACY:
+			cout = MMC_SD_LEGACY_DEFAULT_CMD_OUT_TAP;
+			dout = MMC_SD_LEGACY_DEFAULT_DATA_OUT_TAP;
+			break;
+		case MMC_HS:
+			cout = MMC_HS_CMD_OUT_TAP;
+			dout = MMC_HS_DATA_OUT_TAP;
+			break;
+		case SD_HS:
+		case UHS_SDR12:
+		case UHS_SDR25:
+		case UHS_SDR50:
+			cout = MMC_SD_HS_CMD_OUT_TAP;
+			dout = MMC_SD_HS_DATA_OUT_TAP;
+			break;
+		case UHS_SDR104:
+		case UHS_DDR50:
+		case MMC_HS_52:
+		case MMC_DDR_52:
+			cout = MMC_DEFAULT_CMD_OUT_TAP;
+			dout = MMC_DEFAULT_DATA_OUT_TAP;
+			break;
+		case MMC_HS_200:
+		case MMC_HS_400:
+			cout = MMC_DEFAULT_HS200_CMD_OUT_TAP;
+			dout = MMC_DEFAULT_HS200_DATA_OUT_TAP;
+			is_hs200 = true;
+			break;
+		default:
+			pr_err("%s(%s): Invalid mode %d\n", __func__,
+			       mmc->dev->name, mmc->selected_mode);
+			return -1;
+		}
+		debug("%s(%s): Not tuned, hs200: %d, hs200 tuned: %d, tuned: %d\n",
+		      __func__, mmc->dev->name, is_hs200, slot->hs200_tuned,
+		      slot->tuned);
+		if (!is_hs200) {
 			slot->taps.u = 0;
 			slot->taps.s.cmd_out_tap = cout;
 			slot->taps.s.data_out_tap = dout;
 			slot->taps.s.cmd_in_tap = half;
 			slot->taps.s.data_in_tap = half;
+		} else {
+			slot->hs200_taps.u = 0;
+			slot->hs200_taps.s.cmd_out_tap = cout;
+			slot->hs200_taps.s.data_out_tap = dout;
+			slot->hs200_taps.s.cmd_in_tap = half;
+			slot->hs200_taps.s.data_in_tap = half;
 		}
+	}
+
+	if (is_hs200)
+		debug("%s(%s): taps: ci: %u, co: %u, di: %u, do: %u\n",
+		      __func__, mmc->dev->name,
+		      slot->hs200_taps.s.cmd_in_tap,
+		      slot->hs200_taps.s.cmd_out_tap,
+		      slot->hs200_taps.s.data_in_tap,
+		      slot->hs200_taps.s.data_out_tap);
+	else
 		debug("%s(%s): taps: ci: %u, co: %u, di: %u, do: %u\n",
 		      __func__, mmc->dev->name, slot->taps.s.cmd_in_tap,
 		      slot->taps.s.cmd_out_tap, slot->taps.s.data_in_tap,
 		      slot->taps.s.data_out_tap);
-		octeontx_mmc_set_timing(mmc);
-	}
+	octeontx_mmc_set_timing(mmc);
 #endif
 	return 0;
 }
@@ -2107,6 +2316,8 @@ static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay)
 		       __func__, mmc->dev->name);
 		return -1;
 	}
+	debug("%s(%s, %d) timing taps: %llu\n", __func__, mmc->dev->name,
+	      delay, host->timing_taps);
 	return min((int)((delay + host->timing_taps - 1) / host->timing_taps),
 		   63);
 }
@@ -2129,7 +2340,6 @@ static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
 	union cavm_mio_emm_switch emm_switch;
 	union cavm_mio_emm_wdog emm_wdog;
 	union cavm_mio_emm_sts_mask emm_sts_mask;
-	union cavm_mio_emm_rca emm_rca;
 	union cavm_mio_emm_debug emm_debug;
 	union cavm_mio_emm_timing emm_timing;
 	struct octeontx_mmc_host *host = mmc_to_host(mmc);
@@ -2151,14 +2361,13 @@ static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
 		emm_switch.u = read_csr(mmc, CAVM_MIO_EMM_SWITCH());
 		emm_wdog.u = read_csr(mmc, CAVM_MIO_EMM_WDOG());
 		emm_sts_mask.u = read_csr(mmc, CAVM_MIO_EMM_STS_MASK());
-		emm_rca.u = read_csr(mmc, CAVM_MIO_EMM_RCA());
 		emm_debug.u = read_csr(mmc, CAVM_MIO_EMM_DEBUG());
 		emm_timing.u = read_csr(mmc, CAVM_MIO_EMM_TIMING());
 		bus_ena = emm_cfg.s.bus_ena;
 		bus_id = emm_switch.s.bus_id;
 		emm_cfg.s.bus_ena = 0;
 		write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
-		udelay(20);
+		udelay(1);
 		emm_cfg.s.bus_ena = 1ULL << 3;
 		write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
 		mdelay(1);
@@ -2173,13 +2382,17 @@ static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
 			emm_tap.u = read_csr(mmc, CAVM_MIO_EMM_TAP());
 		} while (!emm_tap.s.delay && get_timer(start) < 10);
 
-		mdelay(1);
+		emm_calb.s.start = 0;
+		write_csr(mmc, CAVM_MIO_EMM_CALB(), emm_calb.u);
+
+		emm_cfg.s.bus_ena = 0;
+		write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
+		udelay(1);
 		/* Restore registers */
 		emm_cfg.s.bus_ena = bus_ena;
 		write_csr(mmc, CAVM_MIO_EMM_CFG(), emm_cfg.u);
-		udelay(20);
 		write_csr(mmc, CAVM_MIO_EMM_TIMING(), emm_timing.u);
-		udelay(20);
+		udelay(1);
 		write_csr(mmc, CAVM_MIO_EMM_IO_CTL(), emm_io_ctl.u);
 		bus_id = emm_switch.s.bus_id;
 		emm_switch.s.bus_id = 0;
@@ -2188,7 +2401,7 @@ static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
 		write_csr(mmc, CAVM_MIO_EMM_SWITCH(), emm_switch.u);
 		write_csr(mmc, CAVM_MIO_EMM_WDOG(), emm_wdog.u);
 		write_csr(mmc, CAVM_MIO_EMM_STS_MASK(), emm_sts_mask.u);
-		write_csr(mmc, CAVM_MIO_EMM_RCA(), emm_rca.u);
+		write_csr(mmc, CAVM_MIO_EMM_RCA(), mmc->rca);
 		write_csr(mmc, CAVM_MIO_EMM_DEBUG(), emm_debug.u);
 
 		if (!emm_tap.s.delay) {
@@ -2207,24 +2420,62 @@ static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
 }
 #endif
 
-#ifdef CONFIG_ARCH_OCTEONTX
-static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
+static int octeontx_mmc_set_input_bus_timing(struct mmc *mmc)
 {
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
+
+#ifdef CONFIG_ARCH_OCTEONTX
 	union cavm_mio_emm_sample sample;
 
 	sample.u = 0;
 	sample.s.cmd_cnt = slot->cmd_clk_skew;
 	sample.s.dat_cnt = slot->dat_clk_skew;
 	write_csr(mmc, CAVM_MIO_EMM_SAMPLE(), sample.u);
+
+#else
+	union cavm_mio_emm_timing timing;
+
+	timing.u = read_csr(mmc, CAVM_MIO_EMM_TIMING());
+	if (mmc->selected_mode == MMC_HS_200 ||
+	    mmc->selected_mode == MMC_HS_400) {
+		if (slot->hs200_tuned) {
+			timing.s.cmd_in_tap = slot->hs200_taps.s.cmd_in_tap;
+			timing.s.data_in_tap = slot->hs200_taps.s.data_in_tap;
+		} else {
+			pr_warn("%s(%s): Warning: hs200 timing not tuned\n",
+				__func__, mmc->dev->name);
+			timing.s.cmd_in_tap = MMC_DEFAULT_HS200_CMD_IN_TAP;
+			timing.s.data_in_tap = MMC_DEFAULT_HS200_DATA_IN_TAP;
+		}
+	} else if (slot->tuned) {
+		timing.s.cmd_in_tap = slot->taps.s.cmd_in_tap;
+		timing.s.data_in_tap = slot->taps.s.data_in_tap;
+	} else {
+		timing.s.cmd_in_tap = MMC_DEFAULT_CMD_IN_TAP;
+		timing.s.data_in_tap = MMC_DEFAULT_DATA_IN_TAP;
+	}
+	octeontx_mmc_set_emm_timing(mmc, timing);
+#endif
 	return 0;
 }
-#else
-static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
+
+/**
+ * Sets the default bus timing for the current mode.
+ *
+ * @param	mmc	mmc data structure
+ *
+ * @return	0 for success, error otherwise
+ */
+static int octeontx_mmc_set_output_bus_timing(struct mmc *mmc)
 {
+#ifdef CONFIG_ARCH_OCTEONTX
+	return 0;
+#else
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 	union cavm_mio_emm_timing timing;
-	int bdelay;
+	int cout_bdelay, dout_bdelay;
+	unsigned int cout_delay, dout_delay;
+	char env_name[32];
 
 	debug("%s(%s)\n", __func__, mmc->dev->name);
 	if (slot->is_asim || slot->is_emul)
@@ -2232,37 +2483,59 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
 
 	octeontx_mmc_calibrate_delay(mmc);
 
-	if (mmc->clock < 26000000)
-		bdelay = octeontx2_mmc_calc_delay(mmc, 5000);
-	else if (mmc->clock <= 52000000)
-		bdelay = octeontx2_mmc_calc_delay(mmc, 2500);
-	else if (!mmc->ddr_mode)
-		bdelay = octeontx2_mmc_calc_delay(mmc, 800);
-	else
-		bdelay = octeontx2_mmc_calc_delay(mmc, 400);
+	if (mmc->clock < 26000000) {
+		cout_delay = 5000;
+		dout_delay = 5000;
+	} else if (mmc->clock <= 52000000) {
+		cout_delay = 2500;
+		dout_delay = 2500;
+	} else if (!mmc->ddr_mode) {
+		cout_delay = 2000;
+		dout_delay = 2000;
+	} else {
+		cout_delay = 2000;
+		dout_delay = 2000;
+	}
 
-	debug("%s: bdelay: %d, clock: %d\n", __func__, bdelay, mmc->clock);
-	if (bdelay < 0) {
+	snprintf(env_name, sizeof(env_name), "mmc%d_hs200_dout_delay_ps",
+		 slot->bus_id);
+	dout_delay = env_get_ulong(env_name, 10, dout_delay);
+	debug("%s: dout_delay: %u\n", __func__, dout_delay);
+
+	cout_bdelay = octeontx2_mmc_calc_delay(mmc, cout_delay);
+	dout_bdelay = octeontx2_mmc_calc_delay(mmc, dout_delay);
+
+	debug("%s: cmd output delay: %u, data output delay: %u, cmd bdelay: %d, data bdelay: %d, clock: %d\n",
+	      __func__, cout_delay, dout_delay, cout_bdelay, dout_bdelay,
+	      mmc->clock);
+	if (cout_bdelay < 0 || dout_bdelay < 0) {
 		pr_err("%s: Error: could not calculate command and/or data clock skew\n",
 		       __func__);
 		return -1;
 	}
-	timing.u = 0;
-	timing.s.cmd_in_tap = MMC_DEFAULT_CMD_IN_TAP;
-	timing.s.data_in_tap = MMC_DEFAULT_DATA_IN_TAP;
-	timing.s.cmd_out_tap = bdelay;
-	timing.s.data_out_tap = bdelay;
-
+	timing.u = read_csr(mmc, CAVM_MIO_EMM_TIMING());
+	timing.s.cmd_out_tap = cout_bdelay;
+	timing.s.data_out_tap = dout_bdelay;
+	if (mmc->selected_mode == MMC_HS_200 ||
+	    mmc->selected_mode == MMC_HS_400) {
+		slot->hs200_taps.s.cmd_out_tap = cout_bdelay;
+		slot->hs200_taps.s.data_out_tap = dout_bdelay;
+	} else {
+		slot->taps.s.cmd_out_tap = cout_bdelay;
+		slot->taps.s.data_out_tap = dout_bdelay;
+	}
 	octeontx_mmc_set_emm_timing(mmc, timing);
-	debug("%s(%s): bdelay: %d, do: %d, di: %d, co: %d, ci: %d\n",
-	      __func__, mmc->dev->name, bdelay,
+	debug("%s(%s): bdelay: %d/%d, clock: %d, ddr: %s, timing taps: %llu, do: %d, di: %d, co: %d, ci: %d\n",
+	      __func__, mmc->dev->name, cout_bdelay, dout_bdelay, mmc->clock,
+	      mmc->ddr_mode ? "yes" : "no",
+	      mmc_to_host(mmc)->timing_taps,
 	      timing.s.data_out_tap,
 	      timing.s.data_in_tap,
 	      timing.s.cmd_out_tap,
 	      timing.s.cmd_in_tap);
 	return 0;
-}
 #endif
+}
 
 static void octeontx_mmc_set_clock(struct mmc *mmc)
 {
@@ -2271,6 +2544,8 @@ static void octeontx_mmc_set_clock(struct mmc *mmc)
 
 	clock = min(mmc->cfg->f_max, (uint)slot->clock);
 	clock = max(mmc->cfg->f_min, clock);
+	debug("%s(%s): f_min: %u, f_max: %u, clock: %u\n", __func__,
+	      mmc->dev->name, mmc->cfg->f_min, mmc->cfg->f_max, clock);
 	slot->clock = clock;
 	mmc->clock = clock;
 }
@@ -2400,7 +2675,8 @@ static void octeontx_mmc_switch_to(struct mmc *mmc)
 	mdelay(100);
 
 	set_wdog(mmc, 100000);
-	if (octeontx_mmc_set_bus_timing(mmc))
+	if (octeontx_mmc_set_output_bus_timing(mmc) ||
+	    octeontx_mmc_set_input_bus_timing(mmc))
 		pr_err("%s(%s): Error setting bus timing\n", __func__,
 		       mmc->dev->name);
 	octeontx_mmc_io_drive_setup(mmc);
@@ -2430,6 +2706,7 @@ static int octeontx_mmc_init_timing(struct mmc *mmc)
 	if (mmc_to_slot(mmc)->is_asim || mmc_to_slot(mmc)->is_emul)
 		return 0;
 
+	debug("%s(%s)\n", __func__, mmc->dev->name);
 	timing.u = 0;
 	timing.s.cmd_out_tap = MMC_DEFAULT_CMD_OUT_TAP;
 	timing.s.data_out_tap = MMC_DEFAULT_DATA_OUT_TAP;
@@ -2863,9 +3140,6 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 		switch (rev) {
 		case 0:
 			host->calibrate_glitch = true;
-			host->cond_clock_glitch = true;
-			break;
-		case 1:
 			host->cond_clock_glitch = true;
 			break;
 		default:

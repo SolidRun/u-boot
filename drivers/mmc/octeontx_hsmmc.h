@@ -58,7 +58,9 @@ struct octeontx_mmc_slot {
 	union cavm_mio_emm_rca		cached_rca;
 	union cavm_mio_emm_timing	taps;	/* otx2: MIO_EMM_TIMING */
 	union cavm_mio_emm_timing	hs200_taps;
-	union cavm_mio_emm_timing	hs400_taps;
+	/* These are used to see if our tuning is still valid or not */
+	enum bus_mode		last_mode;
+	u32			last_clock;
 	u32			block_len;
 	u32			block_count;
 	int			cmd_clk_skew;
@@ -71,6 +73,7 @@ struct octeontx_mmc_slot {
 	bool			valid:1;
 	bool			is_acmd:1;
 	bool			tuned:1;
+	bool			hs200_tuned:1;
 	bool			is_1_8v:1;
 	bool			is_3_3v:1;
 	bool			is_ddr:1;
@@ -80,10 +83,6 @@ struct octeontx_mmc_slot {
 	bool			wp_inverted:1;
 	bool			disable_ddr:1;
 	bool			non_removable:1;
-	bool			hs200_cmd_out_tap_fdt:1;
-	bool			hs200_data_out_tap_fdt:1;
-	bool			hs400_cmd_out_tap_fdt:1;
-	bool			hs400_data_out_tap_fdt:1;
 };
 
 struct octeontx_mmc_cr_mods {
@@ -123,7 +122,6 @@ struct octeontx_mmc_host {
 	bool		is_emul:1;
 	bool		calibrate_glitch:1;
 	bool		cond_clock_glitch:1;
-	bool		timing_glitch:1;
 };
 
 /*
