@@ -678,7 +678,8 @@ static const struct octeontx_sd_mods octeontx_cr_types[] = {
 { {0, 1}, {0, 3}, {0, 0} },	/* CMD3 SD_CMD_SEND_RELATIVE_ADDR 0, 2 */
 { {0, 0}, {0, 0}, {0, 0} },	/* CMD4 */
 { {0, 1}, {0, 1}, {0, 0} },	/* CMD5 */
-{ {0, 1}, {1, 1}, {0, 1} },	/* CMD6 SD_CMD_SWITCH_FUNC 1,0
+{ {0, 1}, {1, 1}, {0, 1} },	/*
+				 * CMD6 SD_CMD_SWITCH_FUNC 1,0
 				 * (ACMD) SD_APP_SET_BUS_WIDTH
 				 */
 { {0, 1}, {0, 1}, {0, 0} },	/* CMD7 */
@@ -1038,7 +1039,8 @@ static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout)
 			}
 		}
 		if (rsp_sts.s.dma_pend) {
-			/* If this is set then an error has occurred.
+			/*
+			 * If this is set then an error has occurred.
 			 * Try and restart the DMA operation.
 			 */
 			emm_dma.u = read_csr(mmc, CAVM_MIO_EMM_DMA());
@@ -1107,7 +1109,8 @@ static int octeontx_mmc_read_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 	/* use max timeout for multi-block transfers */
 	/* timeout = 0; */
 
-	/* If we have a valid SD card in the slot, we set the response bit
+	/*
+	 * If we have a valid SD card in the slot, we set the response bit
 	 * mask to check for CRC errors and timeouts only.
 	 * Otherwise, use the default power on reset value.
 	 */
@@ -1333,7 +1336,8 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	/* Clear any interrupts */
 	write_csr(mmc, CAVM_MIO_EMM_INT(), read_csr(mmc, CAVM_MIO_EMM_INT()));
 
-	/* We need to override the default command types and response types
+	/*
+	 * We need to override the default command types and response types
 	 * when dealing with SD cards.
 	 */
 	mods = octeontx_mmc_get_cr_mods(mmc, cmd, data);
@@ -1706,7 +1710,8 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 	}
 #endif
 
-	/* The algorithm to find the optimal timing is to start
+	/*
+	 * The algorithm to find the optimal timing is to start
 	 * at the end and work backwards and select the second
 	 * value that passes.  Each test is repeated twice.
 	 */
@@ -1750,14 +1755,16 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 			how[tap] = "-+"[!err];
 #endif
 		} else {
-			/* Putting the end+1 case in the loop simplifies
+			/*
+			 * Putting the end+1 case in the loop simplifies
 			 * logic, allowing 'prev_ok' to process a sweet
 			 * spot in tuning which extends to the wall.
 			 */
 			err = -EINVAL;
 		}
 		if (!err) {
-			/* If no CRC/etc errors in the response, but previous
+			/*
+			 * If no CRC/etc errors in the response, but previous
 			 * failed, note the start of a new run.
 			 */
 			debug("  prev_ok: %d\n", prev_ok);
