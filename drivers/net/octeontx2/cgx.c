@@ -123,12 +123,12 @@ void cgx_lmac_mac_filter_setup(struct lmac *lmac)
 	dmac_cam0.s.id = lmac->lmac_id;
 	dmac_cam0.s.adr = mac;
 	dmac_cam0.s.en = 1;
-	reg_addr = lmac->cgx->reg_base + 
+	reg_addr = lmac->cgx->reg_base +
 			CAVM_CGXX_CMR_RX_DMACX_CAM0(lmac->lmac_id * 8);
 	writeq(dmac_cam0.u, reg_addr);
 	debug("%s: reg %p dmac_cam0 %llx\n", __func__, reg_addr, dmac_cam0.u);
 	dmac_ctl0.u = 0x0;
-	dmac_ctl0.s.bcst_accept = 0;
+	dmac_ctl0.s.bcst_accept = 1;
 	dmac_ctl0.s.mcst_mode = 0;
 	dmac_ctl0.s.cam_accept = 1;
 	reg_addr = lmac->cgx->reg_base +
