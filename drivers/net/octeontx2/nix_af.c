@@ -569,13 +569,13 @@ static int nix_attach_send_queue(struct nix *nix)
 	sq_req.sq.s.default_chan = nix->lmac->chan_num;
 	sq_req.sq.s.sqe_stype = CAVM_NIX_STYPE_E_STP;
 	sq_req.sq.s.qint_idx = 0;
-	sq_req.sq.s.sqb_aura = NPA_POOL_TX;
+	sq_req.sq.s.sqb_aura = NPA_POOL_SQB;
 
 	err = nix_aq_issue_command(nix_af, nix->lf,
 				   CAVM_NIX_AQ_INSTOP_E_INIT,
 				   CAVM_NIX_AQ_CTYPE_E_SQ,
 				   0, &sq_req.resp);
-	if (err) { 
+	if (err) {
 		printf("%s: Error requesting send queue\n", __func__);
 		return err;
 	}

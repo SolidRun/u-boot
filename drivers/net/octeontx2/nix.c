@@ -92,7 +92,6 @@ static int npa_setup_pool(struct npa *npa, u32 pool_id,
 		 */
 		aura_descr.f0.s.addr = (u64)buffers[index];
 		aura_descr.f1.u = 0;
-		aura_descr.f1.s.fabs = 1;
 		aura_descr.f1.s.aura = pool_id;
 		cavm_st128(npa->npa_base + CAVM_NPA_LF_AURA_OP_FREE0(),
 			   aura_descr.f0.u, aura_descr.f1.u);
@@ -134,16 +133,17 @@ int npa_lf_setup(struct nix *nix)
 							stack_page_pointers;
 	npa->stack_pages[NPA_POOL_TX] = (SQ_QLEN + stack_page_pointers - 1) /
 							stack_page_pointers;
+	npa->stack_pages[NPA_POOL_SQB] = (SQB_QLEN + stack_page_pointers - 1) /
+							stack_page_pointers;
 	npa->pool_stack_pointers = stack_page_pointers;
 
 	npa->q_len[NPA_POOL_RX] = RQ_QLEN;
 	npa->q_len[NPA_POOL_TX] = SQ_QLEN;
+	npa->q_len[NPA_POOL_SQB] = SQB_QLEN;
 
 	npa->buf_size[NPA_POOL_RX] = MAX_MTU + CONFIG_SYS_CACHELINE_SIZE;
-	npa->buf_size[NPA_POOL_TX] = nix_af->sqb_size;
-
-	npa->rx_pool_stack_pages = npa->stack_pages[NPA_POOL_RX];
-	npa->tx_pool_stack_pages = npa->stack_pages[NPA_POOL_TX];
+	npa->buf_size[NPA_POOL_TX] = MAX_MTU + CONFIG_SYS_CACHELINE_SIZE;
+	npa->buf_size[NPA_POOL_SQB] = nix_af->sqb_size;
 
 	npa->aura_ctx = nix_memalloc(NPA_POOL_COUNT, sizeof(union cavm_npa_aura_s),
 					"aura context");
@@ -213,24 +213,19 @@ int npa_lf_setup(struct nix *nix)
 			return err;
 	}
 
-	npa->rx_buffers = nix_memalloc(npa->q_len[NPA_POOL_RX], sizeof(void *),
-					"rx_buffers");
-	if (!npa->rx_buffers) {
-		printf("%s: Out of memory\n", __func__);
-		return -ENOMEM;
-	}
-
-	npa->tx_buffers = nix_memalloc(npa->q_len[NPA_POOL_TX], sizeof(void *),
-					"tx_buffers");
-	if (!npa->tx_buffers) {
-		printf("%s: Out of memory\n", __func__);
-		return -ENOMEM;
+	for (idx = 0; idx < NPA_POOL_COUNT; idx++) {
+		npa->buffers[idx] = nix_memalloc(npa->q_len[idx],
+						 sizeof(void *),
+						 "buffers");
+		if (!npa->buffers[idx]) {
+			printf("%s: Out of memory\n", __func__);
+			return -ENOMEM;
+		}
 	}
 
 	for (idx = 0; idx < NPA_POOL_COUNT; idx++) {
 		err = npa_setup_pool(npa, idx, npa->buf_size[idx],
-				     npa->q_len[idx], idx == NPA_POOL_RX ?
-				     npa->rx_buffers : npa->tx_buffers);
+				     npa->q_len[idx], npa->buffers[idx]);
 		if (err) {
 			printf("%s: Error setting up pool %d\n",
 			       __func__, idx);
@@ -260,12 +255,9 @@ int npa_lf_shutdown(struct nix *nix)
 		npa->pool_ctx[pool] = NULL;
 		free(npa->pool_stack[pool]);
 		npa->pool_stack[pool] = NULL;
+		free(npa->buffers[pool]);
+		npa->buffers[pool] = NULL;
 	}
-
-	free(npa->rx_buffers);
-	npa->rx_buffers = NULL;
-	free(npa->tx_buffers);
-	npa->tx_buffers = NULL;
 
 	return 0;
 }
@@ -457,6 +449,15 @@ struct nix *nix_lf_alloc(struct udevice *dev)
 	return nix;
 }
 
+u64 npa_aura_op_alloc(struct npa *npa, u64 aura_id)
+{
+	union cavm_npa_lf_aura_op_allocx op_allocx;
+
+	op_allocx.u = cavm_atomic_fetch_and_add64_nosync(npa->npa_base +
+			CAVM_NPA_LF_AURA_OP_ALLOCX(0), aura_id);
+	return op_allocx.s.addr;
+}
+
 u64 nix_cq_op_status(struct nix *nix, u64 cq_id)
 {
 	union cavm_nixx_lf_cq_op_status op_status;
@@ -506,8 +507,6 @@ static inline void nix_write_lmt(struct nix *nix, void *buffer,
 void nix_cqe_tx_pkt_handler(struct nix *nix, void *cqe)
 {
 	union cavm_nix_cqe_hdr_s *txcqe = (union cavm_nix_cqe_hdr_s *)cqe;
-	union cavm_nix_send_comp_s *send_comp;
-
 	debug("%s: txcqe: %p\n", __func__, txcqe);
 
 	if (txcqe->s.cqe_type != CAVM_NIX_XQE_TYPE_E_SEND) {
@@ -515,51 +514,72 @@ void nix_cqe_tx_pkt_handler(struct nix *nix, void *cqe)
 		       __func__, txcqe->s.cqe_type);
 		return;
 	}
-
-	send_comp = (union cavm_nix_send_comp_s *)(txcqe + 1);
-
-	debug("%s: tx descriptor id: %d\n", __func__, send_comp->s.sqe_id);
-
-	nix_free_tx_dr(nix, send_comp->s.sqe_id);
-
 	nix_pf_reg_write(nix, CAVM_NIXX_LF_CQ_OP_DOOR(),
 			 (NIX_CQ_TX << 32) | 1);
+}
+
+void nix_lf_flush_tx(struct udevice *dev)
+{
+	struct rvu_pf *rvu = dev_get_priv(dev);
+	struct nix *nix = rvu->nix;
+	union cavm_nixx_lf_cq_op_status op_status;
+	u32 head, tail;
+	void *cq_tx_base = nix->cq[NIX_CQ_TX].base;
+	union cavm_nix_cqe_hdr_s *cqe;
+
+	/* ack tx cqe entries */
+	op_status.u = nix_cq_op_status(nix, NIX_CQ_TX);
+	head = op_status.s.head;
+	tail = op_status.s.tail;
+	head &= (nix->cq[NIX_CQ_TX].qsize - 1);
+	tail &= (nix->cq[NIX_CQ_TX].qsize - 1);
+
+	debug("%s cq tx head %d tail %d\n", __func__, head, tail);
+	while (head != tail) {
+		cqe = cq_tx_base + head * nix->cq[NIX_CQ_TX].entry_sz;
+		nix_cqe_tx_pkt_handler(nix, cqe);
+		op_status.u = nix_cq_op_status(nix, NIX_CQ_TX);
+		head = op_status.s.head;
+		tail = op_status.s.tail;
+		head &= (nix->cq[NIX_CQ_TX].qsize - 1);
+		tail &= (nix->cq[NIX_CQ_TX].qsize - 1);
+		debug("%s cq tx head %d tail %d\n", __func__, head, tail);
+	}
 }
 
 int nix_lf_xmit(struct udevice *dev, void *pkt, int pkt_len)
 {
 	struct rvu_pf *rvu = dev_get_priv(dev);
 	struct nix *nix = rvu->nix;
-	struct nix_tx_dr *tx_dr;
+	struct nix_tx_dr tx_dr;
 	int dr_sz = (sizeof(struct nix_tx_dr) + 15) / 16 - 1;
 	s64 result;
-	int sqe_id;
+	void *packet;
 
-	sqe_id = nix_alloc_tx_dr(nix);
-	if (sqe_id < 0) {
-		printf("%s: Error: out of tx descriptors\n", __func__);
+	nix_lf_flush_tx(dev);
+	memset((void *)&tx_dr, 0, sizeof(struct nix_tx_dr));
+	/* Dump TX packet in to NPA buffer */
+	packet = (void *)npa_aura_op_alloc(nix->npa, NPA_POOL_TX);
+	if (!packet) {
+		printf("%s TX buffers unavailable\n", __func__);
 		return -1;
 	}
-	tx_dr = &nix->tx_desc[sqe_id];
-	debug("%s sqe_id %d tx_dr %p\n", __func__, sqe_id, tx_dr);
-	memset((void *)tx_dr, 0, sizeof(struct nix_tx_dr));
+	memcpy(packet, pkt, pkt_len);
+	debug("%s TX buffer %p\n", __func__, packet);
 
-	tx_dr->hdr.s.aura = 0xa5a5;
-	tx_dr->hdr.s.df = 1;
-	tx_dr->hdr.s.pnc = 1;
-	tx_dr->hdr.s.sq = 0;
-	tx_dr->hdr.s.sqe_id = sqe_id;
-	tx_dr->hdr.s.total = pkt_len;
-	tx_dr->hdr.s.sizem1 = dr_sz - 2; /* FIXME - for now hdr+sg+sg1addr */
+	tx_dr.hdr.s.aura = NPA_POOL_TX;
+	tx_dr.hdr.s.df = 0;
+	tx_dr.hdr.s.pnc = 1;
+	tx_dr.hdr.s.sq = 0;
+	tx_dr.hdr.s.total = pkt_len;
+	tx_dr.hdr.s.sizem1 = dr_sz - 2; /* FIXME - for now hdr+sg+sg1addr */
 	debug("%s dr_sz %d \n", __func__, dr_sz);
 
-	tx_dr->tx_sg.s.segs = 1;
-	tx_dr->tx_sg.s.subdc = CAVM_NIX_SUBDC_E_SG;
-	tx_dr->tx_sg.s.seg1_size = pkt_len;
-	tx_dr->tx_sg.s.ld_type = CAVM_NIX_SENDLDTYPE_E_LDT;
-
-	tx_dr->sg1_addr = (dma_addr_t)pkt;
-	tx_dr->in_use = 0x1;
+	tx_dr.tx_sg.s.segs = 1;
+	tx_dr.tx_sg.s.subdc = CAVM_NIX_SUBDC_E_SG;
+	tx_dr.tx_sg.s.seg1_size = pkt_len;
+	tx_dr.tx_sg.s.ld_type = CAVM_NIX_SENDLDTYPE_E_LDT;
+	tx_dr.sg1_addr = (dma_addr_t)packet;
 
 #define DEBUG_PKT
 #ifdef DEBUG_PKT
@@ -572,13 +592,13 @@ int nix_lf_xmit(struct udevice *dev, void *pkt, int pkt_len)
 	debug("\n");
 #endif
 	do {
-		nix_write_lmt(nix, tx_dr, (dr_sz - 1) * 2);
+		nix_write_lmt(nix, &tx_dr, (dr_sz - 1) * 2);
 		__iowmb();
 		result = cavm_lmt_submit((u64)(nix->nix_base +
 					       CAVM_NIXX_LF_OP_SENDX(0)));
 		WATCHDOG_RESET();
 	} while (result == 0);
-	
+
 	return 0;
 }
 
@@ -633,10 +653,6 @@ int nix_lf_free_pkt(struct udevice *dev, uchar *pkt, int pkt_len)
 {
 	struct rvu_pf *rvu = dev_get_priv(dev);
 	struct nix *nix = rvu->nix;
-	union cavm_nixx_lf_cq_op_status op_status;
-	u32 head, tail;
-	void *cq_tx_base = nix->cq[NIX_CQ_TX].base;
-	union cavm_nix_cqe_hdr_s *cqe;
 
 	/* Return rx packet to NPA */
 	debug("%s return %p to NPA \n", __func__, pkt);
@@ -645,26 +661,7 @@ int nix_lf_free_pkt(struct udevice *dev, uchar *pkt, int pkt_len)
 	nix_pf_reg_write(nix, CAVM_NIXX_LF_CQ_OP_DOOR(),
 			 (NIX_CQ_RX << 32) | 1);
 
-	/* ack tx cqe entries */
-	op_status.u = nix_cq_op_status(nix, NIX_CQ_TX);
-	head = op_status.s.head;
-	tail = op_status.s.tail;
-	head &= (nix->cq[NIX_CQ_TX].qsize - 1);
-	tail &= (nix->cq[NIX_CQ_TX].qsize - 1);
-
-	debug("%s cq tx head %d tail %d\n", __func__, head, tail);
-	while (head != tail) {
-		cqe = cq_tx_base + head * nix->cq[NIX_CQ_TX].entry_sz;
-		nix_cqe_tx_pkt_handler(nix, cqe);
-
-		op_status.u = nix_cq_op_status(nix, NIX_CQ_TX);
-		head = op_status.s.head;
-		tail = op_status.s.tail;
-		head &= (nix->cq[NIX_CQ_TX].qsize - 1);
-		tail &= (nix->cq[NIX_CQ_TX].qsize - 1);
-		debug("%s cq tx head %d tail %d\n", __func__, head, tail);
-	}
-
+	nix_lf_flush_tx(dev);
 	return 0;
 }
 
@@ -780,9 +777,7 @@ void nix_lf_halt(struct udevice *dev)
 
 	/* Flush tx and rx descriptors */
 	nix_lf_flush_rx(dev);
-	for (int i = 0; i < (SQ_QLEN * 2); i++)
-		if (nix->tx_desc[i].in_use)
-			nix_free_tx_dr(nix, i);
+	nix_lf_flush_tx(dev);
 }
 
 int nix_lf_init(struct udevice *dev)

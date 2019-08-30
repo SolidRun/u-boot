@@ -39,12 +39,14 @@
 #define NIX_MIN_HW_MTU			40
 #define MAX_MTU				1536
 
-#define NPA_POOL_COUNT			2
+#define NPA_POOL_COUNT			3
 #define NPA_AURA_COUNT(x)		(1ULL << ((x) + 6))
 #define NPA_POOL_RX			0ULL
 #define NPA_POOL_TX			1ULL
+#define NPA_POOL_SQB			2ULL
 #define RQ_QLEN				Q_COUNT(Q_SIZE_1K)
-#define SQ_QLEN				Q_COUNT(Q_SIZE_16)
+#define SQ_QLEN				Q_COUNT(Q_SIZE_1K)
+#define SQB_QLEN			Q_COUNT(Q_SIZE_16)
 
 #define NIX_CQ_RX			0ULL
 #define NIX_CQ_TX			1ULL
@@ -134,10 +136,8 @@ struct npa {
 	/** Hardware pool context */
 	void			*pool_ctx[NPA_POOL_COUNT];
 	void			*pool_stack[NPA_POOL_COUNT];
-	void			**rx_buffers;
-	void			**tx_buffers;
-	u32			rx_pool_stack_pages;
-	u32			tx_pool_stack_pages;
+	void                    **buffers[NPA_POOL_COUNT];
+	u32                     pool_stack_pages[NPA_POOL_COUNT];
 	u32			pool_stack_pointers;
 	u32			q_len[NPA_POOL_COUNT];
 	u32			buf_size[NPA_POOL_COUNT];
