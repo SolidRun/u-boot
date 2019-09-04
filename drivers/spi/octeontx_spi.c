@@ -40,48 +40,28 @@
 #define MPI_CLKEN			0x2080
 
 union mpi_cfg {
-	uint64_t u;
+	u64 u;
 	struct mpi_cfg_s {
-#if __BYTE_ORDER == __BIG_ENDIAN /* Word 0 - Big Endian */
-		uint64_t		:14;
-		uint64_t tb100_en	:1;
-		uint64_t		:1;
-		uint64_t cs_espi_en	:4;
-		uint64_t		:8;
-		uint64_t iomode		:2;
-		uint64_t		:2;
-		uint64_t legacy_dis	:1;
-		uint64_t		:2;
-		uint64_t clkdiv		:13;	/** clock divisor */
-		uint64_t csena3		:1;	/** cs enable 3. */
-		uint64_t csena2		:1;	/** cs enable 2 */
-		uint64_t csena1		:1;	/** cs enable 1 */
-		uint64_t csena0		:1;	/** cs enable 0 */
+		/** MPI/SPI enable, 0 = pins are tristated, 1 = pins driven */
+		u64 enable	:1;
 		/**
-		 * 0 = SPI_CSn asserts 1/2 coprocessor-clock cycle before
-		 *     transaction
-		 * 1 = SPI_CSn asserts coincident with transaction
+		 * Clock idle low/clock invert
+		 * 0 = SPI_CLK idles high, first transition is high-to-low.
+		 *     This correspondes to SPI Block Guide options CPOL = 1,
+		 *     CPHA = 0.
+		 * 1 = SPI_CLK idles low, first transition is low-to-high.  This
+		 *     corresponds to SPI Block Guide options CPOL = 0,
+		 *     CPHA = 0.
 		 */
-		uint64_t cslate		:1;
+		u64 idlelo	:1;
 		/**
-		 * Tristate TX.  Set to 1 to tristate SPI_DO when not
-		 * transmitting.
+		 * Clock control.
+		 * 0 = Clock idles to value given by IDLELO after completion of
+		 *     MPI/SPI transaction.
+		 * 1 = Clock never idles, requires SPI_CSn_L
+		 *     deassertion/assertion between commands.
 		 */
-		uint64_t tritx		:1;
-		/**
-		 * When set, guarantees idle coprocessor-clock cycles between
-		 * commands.
-		 */
-		uint64_t idleclks	:2;
-		/**
-		 * SPI_CSn_L high.  1 = SPI_CSn_L is asserted high,
-		 * 0 = SPI_CS_n asserted low.
-		 */
-		uint64_t cshi		:1;
-		uint64_t rsvd		:1;	/** Reserved */
-		uint64_t cs_sticky	:1;	/** cs sticky bit */
-		/** 0 = shift MSB first, 1 = shift LSB first */
-		uint64_t lsbfirst	:1;
+		u64 clk_cont	:1;
 		/**
 		 * Wire-or DO and DI.
 		 * 0 = SPI_DO and SPI_DI are separate wires (SPI).  SPI_DO pin
@@ -90,53 +70,76 @@ union mpi_cfg {
 		 *     tristated when not transmitting.  If WIREOR = 1, SPI_DI
 		 *     pin is not used by the MPI/SPI engine.
 		 */
-		uint64_t wireor		:1;
+		u64 wireor	:1;
+		/** 0 = shift MSB first, 1 = shift LSB first */
+		u64 lsbfirst	:1;
+		u64 cs_sticky	:1;	/** cs sticky bit */
+		u64 rsvd		:1;	/** Reserved */
 		/**
-		 * Clock control.
-		 * 0 = Clock idles to value given by IDLELO after completion of
-		 *     MPI/SPI transaction.
-		 * 1 = Clock never idles, requires SPI_CSn_L
-		 *     deassertion/assertion between commands.
+		 * SPI_CSn_L high.  1 = SPI_CSn_L is asserted high,
+		 * 0 = SPI_CS_n asserted low.
 		 */
-		uint64_t clk_cont	:1;
+		u64 cshi	:1;
 		/**
-		 * Clock idle low/clock invert
-		 * 0 = SPI_CLK idles high, first transition is high-to-low.
-		 *     This correspondes to SPI Block Guide options CPOL = 1,
-		 *     CPHA = 0.
-		 * 1 = SPI_CLK idles low, first transition is low-to-high.  This
-		 *     corresponds to SPI Block Guide options CPOL = 0, CPHA = 0.
+		 * When set, guarantees idle coprocessor-clock cycles between
+		 * commands.
 		 */
-		uint64_t idlelo		:1;
-		/** MPI/SPI enable, 0 = pins are tristated, 1 = pins driven */
-		uint64_t enable		:1;
-#else /* Word 0 - Little Endian */
-		uint64_t enable		:1;
-		uint64_t idlelo		:1;
-		uint64_t clk_cont	:1;
-		uint64_t wireor		:1;
-		uint64_t lsbfirst	:1;
-		uint64_t cs_sticky	:1;
-		uint64_t rsvd		:1;
-		uint64_t cshi		:1;
-		uint64_t idleclks	:2;
-		uint64_t tritx		:1;
-		uint64_t cslate		:1;
-		uint64_t csena0		:1;
-		uint64_t csena1		:1;
-		uint64_t csena2		:1;
-		uint64_t csena3		:1;
-		uint64_t clkdiv		:13;
-		uint64_t		:2;
-		uint64_t legacy_dis	:1;
-		uint64_t		:2;
-		uint64_t iomode		:2;
-		uint64_t		:8;
-		uint64_t cs_espi_en	:4;
-		uint64_t		:1;
-		uint64_t tb100_en	:1;
-		uint64_t		:14;
-#endif /* Word 0 - End */
+		u64 idleclks	:2;
+		/**
+		 * Tristate TX.  Set to 1 to tristate SPI_DO when not
+		 * transmitting.
+		 */
+		u64 tritx	:1;
+		/**
+		 * 0 = SPI_CSn asserts 1/2 coprocessor-clock cycle before
+		 *     transaction
+		 * 1 = SPI_CSn asserts coincident with transaction
+		 */
+		u64 cslate	:1;
+		u64 csena0	:1;	/** cs enable 0 */
+		u64 csena1	:1;	/** cs enable 1 */
+		u64 csena2	:1;	/** cs enable 2 */
+		u64 csena3	:1;	/** cs enable 3 */
+		u64 clkdiv	:13;	/** clock divisor */
+		u64		:2;
+		u64 legacy_dis	:1;	/** Disable legacy mode */
+		u64		:2;
+		/**
+		 * I/O Mode (legacy_dis must be 1):
+		 *   0x0	One-lane unidirectional mode.
+		 *   0x1	One-lane bidirectional mode.
+		 *   0x2	Two-lane bidirectional mode.
+		 *   0x3	Four-lane bidirectional mode.
+		 */
+		u64 iomode	:2;
+		u64		:8;
+		/**
+		 * Enable ESPI mode per slave.  Each bit corresponds to each
+		 * of the four possible CS's.
+		 * If 0, CRC hardware is disabled, turn-around time is the
+		 * default for SPI and no special parsing in hardware.
+		 * If 1, CRC hardware is enabled and the hardware will
+		 * automatically calculate the CRC for one transaction and then
+		 * apply it to the end of the transaction and then check the
+		 * CRC on the reponse and if there is an error the
+		 * MPI(0..1)_STS[CRC_ERR] bit will be set. The turn around
+		 * time (TAR in the ESPI spec) is set to two cicles and parsing
+		 * for special state is enabled.
+		 */
+		u64 cs_espi_en	:4;
+		u64		:1;
+		/**
+		 * SPI 100MHz clock enable.
+		 *
+		 * 0	Use the system clock (sclk) as the base frequency.
+		 *	This provides higher granularity but may require
+		 *	changing clkdiv if the system clock is changed.
+		 * 1	Use a 100MHz clock as the base frequency.  This is
+		 *	the reset value to enable the boot frequency to be
+		 *	sclk agnostic.
+		 */
+		u64 tb100_en	:1;
+		u64		:14;
 	} s;
 	/* struct mpi_cfg_s cn; */
 };
@@ -147,16 +150,10 @@ union mpi_cfg {
  * MPI/SPI Data Registers
  */
 union mpi_dat {
-	uint64_t u;
+	u64 u;
 	struct mpi_datx_s {
-#if __BYTE_ORDER == __BIG_ENDIAN /* Word 0 - Big Endian */
-		uint64_t reserved_8_63	:56;
-		/**< [  7:  0](R/W/H) Data to transmit/receive. */
-		uint64_t data		:8;
-#else /* Word 0 - Little Endian */
-		uint64_t data		:8;
-		uint64_t reserved_8_63	:56;
-#endif /* Word 0 - End */
+		u64 data		:8;	/** Data to transmit/receive. */
+		u64 reserved_8_63	:56;
 	} s;
 	/* struct mpi_datx_s cn; */
 };
@@ -167,29 +164,17 @@ union mpi_dat {
  * MPI/SPI STS Register
  */
 union mpi_sts {
-	uint64_t u;
+	u64 u;
 	struct mpi_sts_s {
-#if __BYTE_ORDER == __BIG_ENDIAN /* Word 0 - Big Endian */
-		uint64_t reserved_40_63	:24;
-		uint64_t crc		:8;
-		uint64_t		:5;
-		uint64_t crc_err	:1;
-		uint64_t		:6;
-		uint64_t rxnum		:5;	/** Number of bytes */
-		uint64_t reserved_2_7	:6;
-		uint64_t mpi_intr	:1;	/** Transaction done int */
-		uint64_t busy		:1;	/** SPI engine busy */
-#else /* Word 0 - Little Endian */
-		uint64_t busy		:1;
-		uint64_t mpi_intr	:1;
-		uint64_t reserved_2_7	:6;
-		uint64_t rxnum		:5;
-		uint64_t		:6;
-		uint64_t crc_err	:1;
-		uint64_t		:5;
-		uint64_t crc		:8;
-		uint64_t reserved_40_63	:24;
-#endif /* Word 0 - End */
+		u64 busy	:1;	/** SPI engine busy */
+		u64 mpi_intr	:1;	/** Transaction done int */
+		u64 reserved_2_7:6;
+		u64 rxnum	:5;	/** ESPI number of rx bytes */
+		u64		:6;
+		u64 crc_err	:1;	/** CRC error from ESPI */
+		u64		:5;
+		u64 crc		:8;	/** ESPI CRC received */
+		u64 reserved_40_63	:24;
 	} s;
 	/* struct mpi_sts_s cn; */
 };
@@ -200,32 +185,21 @@ union mpi_sts {
  * MPI/SPI Transmit Register
  */
 union mpi_tx {
-	uint64_t u;
+	u64 u;
 	struct mpi_tx_s {
-#if __BYTE_ORDER == __BIG_ENDIAN /* Word 0 - Big Endian */
-		uint64_t		:42;	/* Reserved */
-		uint64_t csid 		:2;	/** Which CS to assert */
-		uint64_t		:3;	/* Reserved */
-		uint64_t leavecs	:1;	/** Leave CSn asserted */
-		uint64_t 		:3;	/* Reserved */
-		uint64_t txnum		:5;	/** Number of words to tx */
-		uint64_t		:3;	/* Reserved */
-		uint64_t totnum		:5;	/** Total bytes to shift */
-#else /* Word 0 - Little Endian */
-		uint64_t totnum		:5;
-		uint64_t 		:3;
-		uint64_t txnum		:5;
-		uint64_t		:3;
-		uint64_t leavecs	:1;
-		uint64_t		:3;
-		uint64_t csid		:2;
-		uint64_t		:42;
-#endif /* Word 0 - End */
+		u64 totnum	:5;	/** Total bytes to shift */
+		u64 		:3;
+		u64 txnum	:5;	/** Number of words to tx */
+		u64		:3;
+		u64 leavecs	:1;	/** Leave CS asserted */
+		u64		:3;
+		u64 csid	:2;	/** Which CS to assert */
+		u64		:42;
 	} s;
 	/* struct mpi_tx_s cn; */
 };
 
-#if defined(CONFIG_ARCH_OCTEONTX2)
+#if !defined(CONFIG_ARCH_OCTEONTX)
 /**
  * Register (NCB) mpi#_xmit
  *
@@ -234,12 +208,14 @@ union mpi_tx {
 union mpi_xmit {
 	u64 u;
 	struct mpi_xmit_s {
+		/** Total number of bytes for transmit and receive. */
 		u64 totnum		: 11;
 		u64 reserved_11_19	: 9;
+		/** Number of bytes to transmit (max 1152) */
 		u64 txnum		: 11;
 		u64 reserved_31_59	: 29;
-		u64 leavecs		: 1;
-		u64 csid		: 2;
+		u64 leavecs		: 1;	/** Leave SPI_CSn_L asserted */
+		u64 csid		: 2;	/** Which CS to assert */
 		u64 reserved_63		: 1;
 	} s;
 };
@@ -324,7 +300,7 @@ static int octeontx_spi_claim_bus(struct udevice *dev)
 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
 		return -EINVAL;
 
-#if defined(CONFIG_ARCH_OCTEONTX2)
+#if !defined(CONFIG_ARCH_OCTEONTX)
 	acquire_flash_arb(true);
 #endif
 
@@ -354,7 +330,7 @@ static int octeontx_spi_release_bus(struct udevice *dev)
 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
 		return -EINVAL;
 
-#if defined(CONFIG_ARCH_OCTEONTX2)
+#if !defined(CONFIG_ARCH_OCTEONTX)
 	acquire_flash_arb(false);
 #endif
 
@@ -374,7 +350,7 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	void *baseaddr = priv->baseaddr;
 	union mpi_tx mpi_tx;
 	union mpi_cfg mpi_cfg;
-	uint64_t wide_dat = 0;
+	u64 wide_dat = 0;
 	int len = bitlen / 8;
 	int i;
 	const uint8_t *tx_data = dout;
@@ -394,12 +370,13 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	debug("\n mpi_cfg upd %llx\n", mpi_cfg.u);
 
-	/* Start by writing and reading 8 bytes at a time.  While we can support
+	/*
+	 * Start by writing and reading 8 bytes at a time.  While we can support
 	 * up to 10, it's easier to just use 8 with the MPI_WIDE_DAT register.
 	 */
 	while (len > 8) {
 		if (tx_data) {
-			wide_dat = get_unaligned((uint64_t *)tx_data);
+			wide_dat = get_unaligned((u64 *)tx_data);
 			debug("  tx: %016llx \t", (unsigned long long)wide_dat);
 			tx_data += 8;
 			writeq(wide_dat, baseaddr + MPI_WIDE_DAT);
@@ -419,7 +396,7 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		if (rx_data) {
 			wide_dat = readq(baseaddr + MPI_WIDE_DAT);
 			debug("  rx: %016llx\t", (unsigned long long)wide_dat);
-			*(uint64_t *)rx_data = wide_dat;
+			*(u64 *)rx_data = wide_dat;
 			rx_data += 8;
 		}
 		len -= 8;
@@ -455,9 +432,9 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	return 0;
 }
-#endif
 
-#if defined(CONFIG_ARCH_OCTEONTX2)
+#else
+
 static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			     const void *dout, void *din, unsigned long flags)
 {
@@ -503,7 +480,7 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		if (tx_data) {
 			/* 8 bytes per iteration */
 			for (i = 0; i < 128; i++) {
-				wide_dat = get_unaligned((uint64_t *)tx_data);
+				wide_dat = get_unaligned((u64 *)tx_data);
 				debug("  tx: %016llx \t",
 				      (unsigned long long)wide_dat);
 				if ((i % 4) == 3)
@@ -532,7 +509,7 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 				      (unsigned long long)wide_dat);
 				if ((i % 4) == 3)
 					debug("\n");
-				*(uint64_t *)rx_data = wide_dat;
+				*(u64 *)rx_data = wide_dat;
 				rx_data += 8;
 			}
 		}
@@ -543,7 +520,7 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		rem = len % 8;
 		/* 8 bytes per iteration */
 		for (i = 0; i < len / 8; i++) {
-			wide_dat = get_unaligned((uint64_t *)tx_data);
+			wide_dat = get_unaligned((u64 *)tx_data);
 			debug("  tx: %016llx \t",
 			      (unsigned long long)wide_dat);
 			if ((i % 4) == 3)
@@ -578,7 +555,7 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			      (unsigned long long)wide_dat);
 			if ((i % 4) == 3)
 				debug("\n");
-			*(uint64_t *)rx_data = wide_dat;
+			*(u64 *)rx_data = wide_dat;
 			rx_data += 8;
 		}
 		if (rem) {
@@ -672,4 +649,3 @@ U_BOOT_DRIVER(octeontx_pci_spi) = {
 	.priv_auto_alloc_size 	= sizeof(struct octeontx_spi),
 	.ops			= &octeontx_spi_ops,
 };
-
