@@ -308,6 +308,7 @@ static int octeontx_spi_claim_bus(struct udevice *dev)
 	mpi_cfg.s.tritx = 0;
 	mpi_cfg.s.enable = 1;
 	writeq(mpi_cfg.u, baseaddr + MPI_CFG);
+	udelay(5);	/** Wait for bus to settle */
 
 	return 0;
 }
@@ -337,6 +338,7 @@ static int octeontx_spi_release_bus(struct udevice *dev)
 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
 	mpi_cfg.s.enable = 0;
 	writeq(mpi_cfg.u, baseaddr + MPI_CFG);
+	udelay(1);
 
 	return 0;
 }
@@ -365,8 +367,10 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	mpi_cfg = octeontx_spi_set_mpicfg(dev);
 
-	if (mpi_cfg.u != readq(baseaddr + MPI_CFG))
+	if (mpi_cfg.u != readq(baseaddr + MPI_CFG)) {
 		writeq(mpi_cfg.u, baseaddr + MPI_CFG);
+		udelay(10);
+	}
 
 	debug("\n mpi_cfg upd %llx\n", mpi_cfg.u);
 
@@ -470,8 +474,10 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (flags & SPI_XFER_QUAD)
 		mpi_cfg.s.iomode = 3;
 
-	if (mpi_cfg.u != readq(baseaddr + MPI_CFG))
+	if (mpi_cfg.u != readq(baseaddr + MPI_CFG)) {
 		writeq(mpi_cfg.u, baseaddr + MPI_CFG);
+		udelay(10);
+	}
 
 	debug("\n mpi_cfg upd %llx\n\n", mpi_cfg.u);
 
