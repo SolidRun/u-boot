@@ -1,10 +1,9 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 /**
  * Atomically adds a signed value to a 64 bit (aligned) memory location,
@@ -33,13 +32,13 @@ static inline s64 cavm_atomic_fetch_and_add64_nosync(s64 *ptr, s64 incr)
 
 static inline void cavm_lmt_cancel(const struct nix *nix)
 {
-	writeq(0, nix->lmt_base + CAVM_LMT_LF_LMTCANCEL());
+	writeq(0, nix->lmt_base + LMT_LF_LMTCANCEL());
 }
 
-static inline volatile u64 *cavm_lmt_store_ptr(struct nix *nix)
+static inline u64 *cavm_lmt_store_ptr(struct nix *nix)
 {
-	return (volatile u64 *)((u8 *)(nix->lmt_base) +
-				       CAVM_LMT_LF_LMTLINEX(0));
+	return (u64 *)((u8 *)(nix->lmt_base) +
+				       LMT_LF_LMTLINEX(0));
 }
 
 static inline s64 cavm_lmt_submit(u64 io_address)

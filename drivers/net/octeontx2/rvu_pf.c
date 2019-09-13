@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <common.h>
 #include <net.h>
@@ -51,7 +50,6 @@ static const struct eth_ops nix_eth_ops = {
 	.free_pkt		= nix_lf_free_pkt,
 	.stop			= nix_lf_halt,
 	.write_hwaddr		= nix_lf_setup_mac,
-	.read_rom_hwaddr	= nix_lf_read_rom_mac,
 };
 
 int rvu_pf_probe(struct udevice *dev)
@@ -75,8 +73,7 @@ int rvu_pf_probe(struct udevice *dev)
 
 	debug("RVU PF %u BAR2 %p\n", rvu->pfid, rvu->pf_base);
 
-	rvu_get_lfid_for_pf(rvu->pfid, &rvu->nix_lfid,
-				 &rvu->npa_lfid);
+	rvu_get_lfid_for_pf(rvu->pfid, &rvu->nix_lfid, &rvu->npa_lfid);
 
 	err = rvu_pf_init(rvu);
 	if (err)
@@ -99,31 +96,30 @@ int rvu_pf_remove(struct udevice *dev)
 	nix_lf_shutdown(rvu->nix);
 	npa_lf_shutdown(rvu->nix);
 
-	debug("%s: rvu pf%d down -- \n", __func__,  rvu->pfid);
+	debug("%s: rvu pf%d down --\n", __func__,  rvu->pfid);
 
 	return 0;
 }
 
 static const struct udevice_id rvu_pf_ids[] = {
-        { .compatible = "cavium,rvu-pf" },
-        {}
+	{ .compatible = "cavium,rvu-pf" },
+	{}
 };
 
 U_BOOT_DRIVER(rvu_pf) = {
-        .name   = "rvu_pf",
-        .id     = UCLASS_ETH,
-        .of_match = rvu_pf_ids,
-        .probe  = rvu_pf_probe,
-        .remove = rvu_pf_remove,
+	.name   = "rvu_pf",
+	.id     = UCLASS_ETH,
+	.of_match = rvu_pf_ids,
+	.probe	= rvu_pf_probe,
+	.remove = rvu_pf_remove,
 	.ops    = &nix_eth_ops,
-        .priv_auto_alloc_size = sizeof(struct rvu_pf),
+	.priv_auto_alloc_size = sizeof(struct rvu_pf),
 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
 };
 
 static struct pci_device_id rvu_pf_supported[] = {
-        { PCI_VDEVICE(CAVIUM, PCI_DEVID_OCTEONTX2_RVU_PF) },
-        {}
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVID_OCTEONTX2_RVU_PF) },
+	{}
 };
 
 U_BOOT_PCI_DEVICE(rvu_pf, rvu_pf_supported);
-

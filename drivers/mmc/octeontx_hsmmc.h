@@ -1,7 +1,7 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2019 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 #ifndef __OCTEONTX_HSMMC_H__
@@ -14,7 +14,7 @@
 /** Maximum supported MMC slots */
 #define OCTEONTX_MAX_MMC_SLOT		3
 
-#define POWER_ON_TIME			40	/** See SD 4.1 spec figure 6-5 */
+#define POWER_ON_TIME			40 /** See SD 4.1 spec figure 6-5 */
 
 /**
  * Timeout used when waiting for commands to complete.  We need to keep this
@@ -53,11 +53,11 @@ struct octeontx_mmc_slot {
 	struct gpio_desc	wp_gpio;
 	struct gpio_desc	power_gpio;
 	enum bus_mode		mode;
-	union cavm_mio_emm_switch	cached_switch;
-	union cavm_mio_emm_switch	want_switch;
-	union cavm_mio_emm_rca		cached_rca;
-	union cavm_mio_emm_timing	taps;	/* otx2: MIO_EMM_TIMING */
-	union cavm_mio_emm_timing	hs200_taps;
+	union mio_emm_switch	cached_switch;
+	union mio_emm_switch	want_switch;
+	union mio_emm_rca		cached_rca;
+	union mio_emm_timing	taps;	/* otx2: MIO_EMM_TIMING */
+	union mio_emm_timing	hs200_taps;
 	/* These are used to see if our tuning is still valid or not */
 	enum bus_mode		last_mode;
 	u32			last_clock;
@@ -108,7 +108,7 @@ struct octeontx_mmc_host {
 	struct octeontx_mmc_slot slots[OCTEONTX_MAX_MMC_SLOT + 1];
 	pci_dev_t	pdev;
 	u64		sys_freq;
-	union cavm_mio_emm_cfg emm_cfg;
+	union mio_emm_cfg emm_cfg;
 	u64		timing_taps;
 	struct mmc	*last_mmc;	/** Last mmc used */
 	ofnode		node;
@@ -159,8 +159,8 @@ struct octeontx_mmc_host {
 #define R1_WP_ERASE_SKIP	BIT(15)		/* sx, c */
 #define R1_CARD_ECC_DISABLED	BIT(14)		/* sx, a */
 #define R1_ERASE_RESET		BIT(13)		/* sr, c */
-#define R1_STATUS(x)		(x & 0xFFFFE000)
-#define R1_CURRENT_STATE(x)	((x & 0x00001E00) >> 9) /* sx, b (4 bits) */
+#define R1_STATUS(x)		((x) & 0xFFFFE000)
+#define R1_CURRENT_STATE(x)	(((x) & 0x00001E00) >> 9) /* sx, b (4 bits) */
 #define R1_READY_FOR_DATA	BIT(8)		/* sx, a */
 #define R1_SWITCH_ERROR		BIT(7)		/* sx, c */
 

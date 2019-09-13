@@ -1,10 +1,9 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #ifndef NIC_H
 #define	NIC_H
@@ -15,7 +14,7 @@
 /**
  * Macro to get the physical address of a CSR on a node
  */
-#define CSR_PA(node, csr) ((csr) | ((uint64_t)(node) << 44))
+#define CSR_PA(node, csr) ((csr) | ((u64)(node) << 44))
 
 /* PCI device IDs */
 #define	PCI_DEVICE_ID_OCTEONTX_NIC_PF	0xA01E
@@ -48,8 +47,8 @@
 #define	NIC_TNS_MODE			1
 
 /* NIC priv flags */
-#define	NIC_SRIOV_ENABLED		(1 << 0)
-#define	NIC_TNS_ENABLED			(1 << 1)
+#define	NIC_SRIOV_ENABLED		BIT(0)
+#define	NIC_TNS_ENABLED			BIT(1)
 
 /* VNIC HW optimiation features */
 #define	VNIC_RX_CSUM_OFFLOAD_SUPPORT
@@ -98,10 +97,10 @@
 #define	NICVF_INTR_CQ_MASK		(0xFF << NICVF_INTR_CQ_SHIFT)
 #define	NICVF_INTR_SQ_MASK		(0xFF << NICVF_INTR_SQ_SHIFT)
 #define	NICVF_INTR_RBDR_MASK		(0x03 << NICVF_INTR_RBDR_SHIFT)
-#define	NICVF_INTR_PKT_DROP_MASK	(1 << NICVF_INTR_PKT_DROP_SHIFT)
-#define	NICVF_INTR_TCP_TIMER_MASK	(1 << NICVF_INTR_TCP_TIMER_SHIFT)
-#define	NICVF_INTR_MBOX_MASK		(1 << NICVF_INTR_MBOX_SHIFT)
-#define	NICVF_INTR_QS_ERR_MASK		(1 << NICVF_INTR_QS_ERR_SHIFT)
+#define	NICVF_INTR_PKT_DROP_MASK	BIT(NICVF_INTR_PKT_DROP_SHIFT)
+#define	NICVF_INTR_TCP_TIMER_MASK	BIT(NICVF_INTR_TCP_TIMER_SHIFT)
+#define	NICVF_INTR_MBOX_MASK		BIT(NICVF_INTR_MBOX_SHIFT)
+#define	NICVF_INTR_QS_ERR_MASK		BIT(NICVF_INTR_QS_ERR_SHIFT)
 
 /* MSI-X interrupts */
 #define	NIC_PF_MSIX_VECTORS		10
@@ -127,30 +126,30 @@
 #define NICPF_CLK_PER_INT_TICK		43750
 
 struct nicvf_cq_poll {
-	uint8_t	cq_idx;		/* Completion queue index */
+	u8	cq_idx;		/* Completion queue index */
 };
 
 #define NIC_MAX_RSS_HASH_BITS		8
-#define NIC_MAX_RSS_IDR_TBL_SIZE	(1 << NIC_MAX_RSS_HASH_BITS)
+#define NIC_MAX_RSS_IDR_TBL_SIZE	BIT(NIC_MAX_RSS_HASH_BITS)
 #define RSS_HASH_KEY_SIZE		5 /* 320 bit key */
 
 #ifdef VNIC_RSS_SUPPORT
 struct nicvf_rss_info {
 	bool enable;
-#define	RSS_L2_EXTENDED_HASH_ENA	(1 << 0)
-#define	RSS_IP_HASH_ENA			(1 << 1)
-#define	RSS_TCP_HASH_ENA		(1 << 2)
-#define	RSS_TCP_SYN_DIS			(1 << 3)
-#define	RSS_UDP_HASH_ENA		(1 << 4)
-#define RSS_L4_EXTENDED_HASH_ENA	(1 << 5)
-#define	RSS_ROCE_ENA			(1 << 6)
-#define	RSS_L3_BI_DIRECTION_ENA		(1 << 7)
-#define	RSS_L4_BI_DIRECTION_ENA		(1 << 8)
-	uint64_t cfg;
-	uint8_t  hash_bits;
-	uint16_t rss_size;
-	uint8_t  ind_tbl[NIC_MAX_RSS_IDR_TBL_SIZE];
-	uint64_t key[RSS_HASH_KEY_SIZE];
+#define	RSS_L2_EXTENDED_HASH_ENA	BIT(0)
+#define	RSS_IP_HASH_ENA			BIT(1)
+#define	RSS_TCP_HASH_ENA		BIT(2)
+#define	RSS_TCP_SYN_DIS			BIT(3)
+#define	RSS_UDP_HASH_ENA		BIT(4)
+#define RSS_L4_EXTENDED_HASH_ENA	BIT(5)
+#define	RSS_ROCE_ENA			BIT(6)
+#define	RSS_L3_BI_DIRECTION_ENA		BIT(7)
+#define	RSS_L4_BI_DIRECTION_ENA		BIT(8)
+	u64 cfg;
+	u8  hash_bits;
+	u16 rss_size;
+	u8  ind_tbl[NIC_MAX_RSS_IDR_TBL_SIZE];
+	u64 key[RSS_HASH_KEY_SIZE];
 };
 #endif
 
@@ -240,23 +239,23 @@ struct hw_info {
 
 struct nicvf {
 	struct udevice		*dev;
-	uint8_t			vf_id;
+	u8			vf_id;
 	bool			sqs_mode:1;
 	bool			loopback_supported:1;
-	uint8_t			tns_mode;
-	uint8_t			node;
-	uint16_t		mtu;
+	u8			tns_mode;
+	u8			node;
+	u16		mtu;
 	struct queue_set	*qs;
 #define		MAX_SQS_PER_VF_SINGLE_NODE	5
 #define		MAX_SQS_PER_VF			11
-	uint8_t			num_qs;
+	u8			num_qs;
 	void			*addnl_qs;
-	uint16_t		vf_mtu;
+	u16		vf_mtu;
 	void __iomem		*reg_base;
 #define	MAX_QUEUES_PER_QSET			8
 	struct nicvf_cq_poll	*napi[8];
 
-	uint8_t			cpi_alg;
+	u8			cpi_alg;
 
 	struct nicvf_hw_stats	stats;
 	struct nicvf_drv_stats	drv_stats;
@@ -269,11 +268,11 @@ struct nicvf {
 	bool			set_mac_pending;
 
 	bool			link_up;
-	uint8_t			duplex;
-	uint32_t		speed;
-	uint8_t			rev_id;
-	uint8_t			rx_queues;
-	uint8_t			tx_queues;
+	u8			duplex;
+	u32		speed;
+	u8			rev_id;
+	u8			rx_queues;
+	u8			tx_queues;
 
 	bool			open;
 	bool			rb_alloc_fail;
@@ -289,10 +288,10 @@ static inline int node_id(void *addr)
 struct nicpf {
 	struct udevice		*udev;
 	struct hw_info		*hw;
-	uint8_t			node;
+	u8			node;
 	unsigned int		flags;
-	uint16_t		total_vf_cnt;	/* Total num of VF supported */
-	uint16_t		num_vf_en;	/* No of VF enabled */
+	u16			total_vf_cnt;	/* Total num of VF supported */
+	u16			num_vf_en;	/* No of VF enabled */
 	void __iomem		*reg_base;	/* Register start address */
 	u16			rss_ind_tbl_size;
 	u8			num_sqs_en;	/* Secondary qsets enabled */
@@ -301,21 +300,21 @@ struct nicpf {
 	u8			pqs_vf[MAX_NUM_VFS_SUPPORTED];
 	bool			sqs_used[MAX_NUM_VFS_SUPPORTED];
 	struct pkind_cfg	pkind;
-	uint8_t			bgx_cnt;
-	uint8_t			rev_id;
-#define	NIC_SET_VF_LMAC_MAP(bgx, lmac)	(((bgx & 0xF) << 4) | (lmac & 0xF))
-#define	NIC_GET_BGX_FROM_VF_LMAC_MAP(map)	((map >> 4) & 0xF)
-#define	NIC_GET_LMAC_FROM_VF_LMAC_MAP(map)	(map & 0xF)
-	uint8_t			vf_lmac_map[MAX_LMAC];
-	uint16_t		cpi_base[MAX_NUM_VFS_SUPPORTED];
-	uint64_t		mac[MAX_NUM_VFS_SUPPORTED];
+	u8			bgx_cnt;
+	u8			rev_id;
+#define	NIC_SET_VF_LMAC_MAP(bgx, lmac)	((((bgx) & 0xF) << 4) | ((lmac) & 0xF))
+#define	NIC_GET_BGX_FROM_VF_LMAC_MAP(map)	(((map) >> 4) & 0xF)
+#define	NIC_GET_LMAC_FROM_VF_LMAC_MAP(map)	((map) & 0xF)
+	u8			vf_lmac_map[MAX_LMAC];
+	u16			cpi_base[MAX_NUM_VFS_SUPPORTED];
+	u64			mac[MAX_NUM_VFS_SUPPORTED];
 	bool			mbx_lock[MAX_NUM_VFS_SUPPORTED];
-	uint8_t			link[MAX_LMAC];
-	uint8_t			duplex[MAX_LMAC];
-	uint32_t		speed[MAX_LMAC];
+	u8			link[MAX_LMAC];
+	u8			duplex[MAX_LMAC];
+	u32			speed[MAX_LMAC];
 	bool			vf_enabled[MAX_NUM_VFS_SUPPORTED];
-	uint16_t		rssi_base[MAX_NUM_VFS_SUPPORTED];
-	uint8_t			lmac_cnt;
+	u16			rssi_base[MAX_NUM_VFS_SUPPORTED];
+	u8			lmac_cnt;
 };
 
 /* PF <--> VF Mailbox communication
@@ -468,6 +467,7 @@ struct set_loopback {
 	u8    vf_id;
 	bool  enable;
 };
+
 /* 128 bit shared memory between PF and each VF */
 union nic_mbx {
 	struct { u8 msg; }	msg;

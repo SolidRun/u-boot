@@ -1,10 +1,9 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #ifndef OCTEONT_BGX_H
 #define OCTEONT_BGX_H
@@ -19,28 +18,30 @@
 #define    MAX_LMAC	(CONFIG_MAX_BGX_PER_NODE * MAX_LMAC_PER_BGX)
 
 #define    NODE_ID_MASK				0x300000000000
-#define    NODE_ID(x)				((x & NODE_ID_MASK) >> 44)
+#define    NODE_ID(x)				(((x) & NODE_ID_MASK) >> 44)
 
 /* Registers */
-#define GSERX_CFG(x)		(0x000087E090000080ull + (x) * 0x1000000ull)
-#define GSERX_SCRATCH(x)	(0x000087E090000020ull + (x) * 0x1000000ull)
-#define GSERX_PHY_CTL(x)	(0x000087E090000000ull + (x) * 0x1000000ull)
-#define GSERX_CFG_BGX		(1 << 2)
-#define GSER_RX_EIE_DETSTS(x)	(0x000087e090000150ull + (x) * 0x1000000ull)
+#define GSERX_CFG(x)		(0x87E090000080ull + (x) * 0x1000000ull)
+#define GSERX_SCRATCH(x)	(0x87E090000020ull + (x) * 0x1000000ull)
+#define GSERX_PHY_CTL(x)	(0x87E090000000ull + (x) * 0x1000000ull)
+#define GSERX_CFG_BGX		BIT(2)
+#define GSER_RX_EIE_DETSTS(x)	(0x87E090000150ull + (x) * 0x1000000ull)
 #define GSER_CDRLOCK		(8)
-#define GSER_BR_RXX_CTL(x,y)	(0x000087e090000400ull + (x) * 0x1000000ull + (y) * 0x80) 
-#define GSER_BR_RXX_CTL_RXT_SWM	(1 << 2)
-#define GSER_BR_RXX_EER(x,y)	(0x000087e090000418ull + (x) * 0x1000000ull + (y) * 0x80)
-#define GSER_BR_RXX_EER_RXT_ESV (1 << 14)
-#define GSER_BR_RXX_EER_RXT_EER (1 << 15)
+#define GSER_BR_RXX_CTL(x, y)	(0x87E090000400ull + (x) * 0x1000000ull + \
+				(y) * 0x80)
+#define GSER_BR_RXX_CTL_RXT_SWM	BIT(2)
+#define GSER_BR_RXX_EER(x, y)	(0x87E090000418ull + (x) * 0x1000000ull + \
+				(y) * 0x80)
+#define GSER_BR_RXX_EER_RXT_ESV BIT(14)
+#define GSER_BR_RXX_EER_RXT_EER BIT(15)
 #define EER_RXT_ESV		(14)
 
 #define BGX_CMRX_CFG			0x00
-#define CMR_PKT_TX_EN				(1ull << 13)
-#define CMR_PKT_RX_EN				(1ull << 14)
-#define CMR_EN					(1ull << 15)
+#define CMR_PKT_TX_EN				BIT_ULL(13)
+#define CMR_PKT_RX_EN				BIT_ULL(14)
+#define CMR_EN					BIT_ULL(15)
 #define BGX_CMR_GLOBAL_CFG		0x08
-#define CMR_GLOBAL_CFG_FCS_STRIP		(1ull << 6)
+#define CMR_GLOBAL_CFG_FCS_STRIP		BIT_ULL(6)
 #define BGX_CMRX_RX_ID_MAP		0x60
 #define BGX_CMRX_RX_STAT0		0x70
 #define BGX_CMRX_RX_STAT1		0x78
@@ -56,11 +57,11 @@
 #define BGX_CMRX_RX_BP_DROP		0xC8
 #define BGX_CMRX_RX_DMAC_CTL		0x0E8
 #define BGX_CMR_RX_DMACX_CAM		0x200
-#define RX_DMACX_CAM_EN				(1ull << 48)
-#define RX_DMACX_CAM_LMACID(x)			(x << 49)
-#define RX_DMAC_COUNT				32
+#define RX_DMACX_CAM_EN				BIT_ULL(48)
+#define RX_DMACX_CAM_LMACID(x)			((x) << 49)
+#define RX_DMAC_COUNT			32
 #define BGX_CMR_RX_STREERING		0x300
-#define RX_TRAFFIC_STEER_RULE_COUNT		8
+#define RX_TRAFFIC_STEER_RULE_COUNT	8
 #define BGX_CMR_CHAN_MSK_AND		0x450
 #define BGX_CMR_BIST_STATUS		0x460
 #define BGX_CMR_RX_LMACS		0x468
@@ -85,81 +86,81 @@
 #define BGX_CMR_TX_LMACS		0x1000
 
 #define BGX_SPUX_CONTROL1		0x10000
-#define SPU_CTL_LOW_POWER			(1ull << 11)
-#define SPU_CTL_LOOPBACK                        (1ull << 14)
-#define SPU_CTL_RESET				(1ull << 15)
+#define SPU_CTL_LOW_POWER			BIT_ULL(11)
+#define SPU_CTL_LOOPBACK                        BIT_ULL(14)
+#define SPU_CTL_RESET				BIT_ULL(15)
 #define BGX_SPUX_STATUS1		0x10008
-#define SPU_STATUS1_RCV_LNK			(1ull << 2)
+#define SPU_STATUS1_RCV_LNK			BIT_ULL(2)
 #define BGX_SPUX_STATUS2		0x10020
-#define SPU_STATUS2_RCVFLT			(1ull << 10)
+#define SPU_STATUS2_RCVFLT			BIT_ULL(10)
 #define BGX_SPUX_BX_STATUS		0x10028
-#define SPU_BX_STATUS_RX_ALIGN                  (1ull << 12)
+#define SPU_BX_STATUS_RX_ALIGN                  BIT_ULL(12)
 #define BGX_SPUX_BR_STATUS1		0x10030
-#define SPU_BR_STATUS_BLK_LOCK			(1ull << 0)
-#define SPU_BR_STATUS_RCV_LNK			(1ull << 12)
+#define SPU_BR_STATUS_BLK_LOCK			BIT_ULL(0)
+#define SPU_BR_STATUS_RCV_LNK			BIT_ULL(12)
 #define BGX_SPUX_BR_PMD_CRTL		0x10068
-#define SPU_PMD_CRTL_TRAIN_EN			(1ull << 1)
+#define SPU_PMD_CRTL_TRAIN_EN			BIT_ULL(1)
 #define BGX_SPUX_BR_PMD_LP_CUP		0x10078
 #define BGX_SPUX_BR_PMD_LD_CUP		0x10088
 #define BGX_SPUX_BR_PMD_LD_REP		0x10090
 #define BGX_SPUX_FEC_CONTROL		0x100A0
-#define SPU_FEC_CTL_FEC_EN			(1ull << 0)
-#define SPU_FEC_CTL_ERR_EN			(1ull << 1)
+#define SPU_FEC_CTL_FEC_EN			BIT_ULL(0)
+#define SPU_FEC_CTL_ERR_EN			BIT_ULL(1)
 #define BGX_SPUX_AN_CONTROL		0x100C8
-#define SPU_AN_CTL_AN_EN			(1ull << 12)
-#define SPU_AN_CTL_XNP_EN			(1ull << 13)
-#define SPU_AN_CTL_AN_RESTART			(1ull << 15)
+#define SPU_AN_CTL_AN_EN			BIT_ULL(12)
+#define SPU_AN_CTL_XNP_EN			BIT_ULL(13)
+#define SPU_AN_CTL_AN_RESTART			BIT_ULL(15)
 #define BGX_SPUX_AN_STATUS		0x100D0
-#define SPU_AN_STS_AN_COMPLETE			(1ull << 5)
+#define SPU_AN_STS_AN_COMPLETE			BIT_ULL(5)
 #define BGX_SPUX_AN_ADV			0x100D8
 #define BGX_SPUX_MISC_CONTROL		0x10218
-#define SPU_MISC_CTL_INTLV_RDISP		(1ull << 10)
-#define SPU_MISC_CTL_RX_DIS			(1ull << 12)
+#define SPU_MISC_CTL_INTLV_RDISP		BIT_ULL(10)
+#define SPU_MISC_CTL_RX_DIS			BIT_ULL(12)
 #define BGX_SPUX_INT			0x10220	/* +(0..3) << 20 */
 #define BGX_SPUX_INT_W1S		0x10228
 #define BGX_SPUX_INT_ENA_W1C		0x10230
 #define BGX_SPUX_INT_ENA_W1S		0x10238
 #define BGX_SPU_DBG_CONTROL		0x10300
-#define SPU_DBG_CTL_AN_ARB_LINK_CHK_EN		(1ull << 18)
-#define SPU_DBG_CTL_AN_NONCE_MCT_DIS		(1ull << 29)
+#define SPU_DBG_CTL_AN_ARB_LINK_CHK_EN		BIT_ULL(18)
+#define SPU_DBG_CTL_AN_NONCE_MCT_DIS		BIT_ULL(29)
 
 #define BGX_SMUX_RX_INT			0x20000
 #define BGX_SMUX_RX_JABBER		0x20030
 #define BGX_SMUX_RX_CTL			0x20048
 #define SMU_RX_CTL_STATUS			(3ull << 0)
 #define BGX_SMUX_TX_APPEND		0x20100
-#define SMU_TX_APPEND_FCS_D			(1ull << 2)
+#define SMU_TX_APPEND_FCS_D			BIT_ULL(2)
 #define BGX_SMUX_TX_MIN_PKT		0x20118
 #define BGX_SMUX_TX_INT			0x20140
 #define BGX_SMUX_TX_CTL			0x20178
-#define SMU_TX_CTL_DIC_EN			(1ull << 0)
-#define SMU_TX_CTL_UNI_EN			(1ull << 1)
+#define SMU_TX_CTL_DIC_EN			BIT_ULL(0)
+#define SMU_TX_CTL_UNI_EN			BIT_ULL(1)
 #define SMU_TX_CTL_LNK_STATUS			(3ull << 4)
 #define BGX_SMUX_TX_THRESH		0x20180
 #define BGX_SMUX_CTL			0x20200
-#define SMU_CTL_RX_IDLE				(1ull << 0)
-#define SMU_CTL_TX_IDLE				(1ull << 1)
+#define SMU_CTL_RX_IDLE				BIT_ULL(0)
+#define SMU_CTL_TX_IDLE				BIT_ULL(1)
 
 #define BGX_GMP_PCS_MRX_CTL		0x30000
-#define	PCS_MRX_CTL_RST_AN			(1ull << 9)
-#define	PCS_MRX_CTL_PWR_DN			(1ull << 11)
-#define	PCS_MRX_CTL_AN_EN			(1ull << 12)
-#define PCS_MRX_CTL_LOOPBACK1                   (1ull << 14)
-#define	PCS_MRX_CTL_RESET			(1ull << 15)
+#define	PCS_MRX_CTL_RST_AN			BIT_ULL(9)
+#define	PCS_MRX_CTL_PWR_DN			BIT_ULL(11)
+#define	PCS_MRX_CTL_AN_EN			BIT_ULL(12)
+#define PCS_MRX_CTL_LOOPBACK1                   BIT_ULL(14)
+#define	PCS_MRX_CTL_RESET			BIT_ULL(15)
 #define BGX_GMP_PCS_MRX_STATUS		0x30008
-#define	PCS_MRX_STATUS_AN_CPT			(1ull << 5)
+#define	PCS_MRX_STATUS_AN_CPT			BIT_ULL(5)
 #define BGX_GMP_PCS_ANX_AN_RESULTS	0x30020
 #define BGX_GMP_PCS_SGM_AN_ADV		0x30068
 #define BGX_GMP_PCS_MISCX_CTL		0x30078
-#define PCS_MISCX_CTL_DISP_EN			(1ull << 13)
-#define PCS_MISC_CTL_GMX_ENO			(1ull << 11)
+#define PCS_MISCX_CTL_DISP_EN			BIT_ULL(13)
+#define PCS_MISC_CTL_GMX_ENO			BIT_ULL(11)
 #define PCS_MISC_CTL_SAMP_PT_MASK		0x7Full
-#define PCS_MISC_CTL_MODE			(1ull << 8)
+#define PCS_MISC_CTL_MODE			BIT_ULL(8)
 #define BGX_GMP_GMI_PRTX_CFG		0x38020
-#define GMI_PORT_CFG_SPEED			(1ull << 1)
-#define GMI_PORT_CFG_DUPLEX			(1ull << 2)
-#define GMI_PORT_CFG_SLOT_TIME			(1ull << 3)
-#define GMI_PORT_CFG_SPEED_MSB			(1ull << 8)
+#define GMI_PORT_CFG_SPEED			BIT_ULL(1)
+#define GMI_PORT_CFG_DUPLEX			BIT_ULL(2)
+#define GMI_PORT_CFG_SLOT_TIME			BIT_ULL(3)
+#define GMI_PORT_CFG_SPEED_MSB			BIT_ULL(8)
 #define BGX_GMP_GMI_RXX_JABBER		0x38038
 #define BGX_GMP_GMI_TXX_THRESH		0x38210
 #define BGX_GMP_GMI_TXX_APPEND		0x38218
@@ -187,8 +188,8 @@
 #define CMR_MEM_INT		28
 #define SPU_MEM_INT		29
 
-#define LMAC_INTR_LINK_UP	(1 << 0)
-#define LMAC_INTR_LINK_DOWN	(1 << 1)
+#define LMAC_INTR_LINK_UP	BIT(0)
+#define LMAC_INTR_LINK_DOWN	BIT(1)
 
 /*  RX_DMAC_CTL configuration*/
 enum MCAST_MODE {
@@ -202,7 +203,7 @@ enum MCAST_MODE {
 #define CAM_ACCEPT	1
 
 int octeontx_bgx_initialize(unsigned int bgx_idx, unsigned int node);
-void bgx_add_dmac_addr(uint64_t dmac, int node, int bgx_idx, int lmac);
+void bgx_add_dmac_addr(u64 dmac, int node, int bgx_idx, int lmac);
 void bgx_get_count(int node, int *bgx_count);
 int bgx_get_lmac_count(int node, int bgx);
 void bgx_print_stats(int bgx_idx, int lmac);

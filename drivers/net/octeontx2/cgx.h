@@ -1,10 +1,9 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #ifndef __CGX_H__
 #define __CGX_H__
@@ -14,7 +13,7 @@
 #define PCI_DEVICE_ID_OCTEONTX2_CGX	0xA059
 
 #define MAX_LMAC_PER_CGX		4
-#define CGX_PER_NODE 			3
+#define CGX_PER_NODE			3
 
 enum lmac_type {
 	LMAC_MODE_SGMII		= 0,

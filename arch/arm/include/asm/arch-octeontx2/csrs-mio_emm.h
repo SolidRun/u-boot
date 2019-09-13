@@ -1,21 +1,19 @@
-#ifndef __CAVM_CSRS_MIO_EMM_H__
-#define __CAVM_CSRS_MIO_EMM_H__
-/* This file is auto-generated. Do not edit */
-
-/*
- * Copyright (C) 2018 Marvell International Ltd.
+/* SPDX-License-Identifier:    GPL-2.0
  *
- * SPDX-License-Identifier:    GPL-2.0
+ * Copyright (C) 2019 Marvell International Ltd.
+ *
  * https://spdx.org/licenses
  */
+#ifndef __CSRS_MIO_EMM_H__
+#define __CSRS_MIO_EMM_H__
 
 /**
  * @file
  *
  * Configuration and status register (CSR) address and type definitions for
- * Cavium MIO_EMM.
+ * MIO_EMM.
  *
- * This file is auto generated. Do not edit.
+ * This file is auto generated.  Do not edit.
  *
  */
 
@@ -25,47 +23,47 @@
  * eMMC Base Address Register Enumeration Enumerates the base address
  * registers.
  */
-#define CAVM_MIO_EMM_BAR_E_MIO_EMM_PF_BAR0_CN8 (0x87e009000000ll)
-#define CAVM_MIO_EMM_BAR_E_MIO_EMM_PF_BAR0_CN8_SIZE 0x800000ull
-#define CAVM_MIO_EMM_BAR_E_MIO_EMM_PF_BAR0_CN9 (0x87e009000000ll)
-#define CAVM_MIO_EMM_BAR_E_MIO_EMM_PF_BAR0_CN9_SIZE 0x10000ull
-#define CAVM_MIO_EMM_BAR_E_MIO_EMM_PF_BAR4 (0x87e009f00000ll)
-#define CAVM_MIO_EMM_BAR_E_MIO_EMM_PF_BAR4_SIZE 0x100000ull
+#define MIO_EMM_BAR_E_MIO_EMM_PF_BAR0_CN8 (0x87e009000000ll)
+#define MIO_EMM_BAR_E_MIO_EMM_PF_BAR0_CN8_SIZE 0x800000ull
+#define MIO_EMM_BAR_E_MIO_EMM_PF_BAR0_CN9 (0x87e009000000ll)
+#define MIO_EMM_BAR_E_MIO_EMM_PF_BAR0_CN9_SIZE 0x10000ull
+#define MIO_EMM_BAR_E_MIO_EMM_PF_BAR4 (0x87e009f00000ll)
+#define MIO_EMM_BAR_E_MIO_EMM_PF_BAR4_SIZE 0x100000ull
 
 /**
  * Enumeration mio_emm_int_vec_e
  *
  * eMMC MSI-X Vector Enumeration Enumerates the MSI-X interrupt vectors.
  */
-#define CAVM_MIO_EMM_INT_VEC_E_DMA_INT_DONE (8)
-#define CAVM_MIO_EMM_INT_VEC_E_DMA_INT_FIFO (7)
-#define CAVM_MIO_EMM_INT_VEC_E_EMM_BUF_DONE (0)
-#define CAVM_MIO_EMM_INT_VEC_E_EMM_CMD_DONE (1)
-#define CAVM_MIO_EMM_INT_VEC_E_EMM_CMD_ERR (3)
-#define CAVM_MIO_EMM_INT_VEC_E_EMM_DMA_DONE (2)
-#define CAVM_MIO_EMM_INT_VEC_E_EMM_DMA_ERR (4)
-#define CAVM_MIO_EMM_INT_VEC_E_EMM_SWITCH_DONE (5)
-#define CAVM_MIO_EMM_INT_VEC_E_EMM_SWITCH_ERR (6)
-#define CAVM_MIO_EMM_INT_VEC_E_NCB_FLT (9)
-#define CAVM_MIO_EMM_INT_VEC_E_NCB_RAS (0xa)
+#define MIO_EMM_INT_VEC_E_DMA_INT_DONE (8)
+#define MIO_EMM_INT_VEC_E_DMA_INT_FIFO (7)
+#define MIO_EMM_INT_VEC_E_EMM_BUF_DONE (0)
+#define MIO_EMM_INT_VEC_E_EMM_CMD_DONE (1)
+#define MIO_EMM_INT_VEC_E_EMM_CMD_ERR (3)
+#define MIO_EMM_INT_VEC_E_EMM_DMA_DONE (2)
+#define MIO_EMM_INT_VEC_E_EMM_DMA_ERR (4)
+#define MIO_EMM_INT_VEC_E_EMM_SWITCH_DONE (5)
+#define MIO_EMM_INT_VEC_E_EMM_SWITCH_ERR (6)
+#define MIO_EMM_INT_VEC_E_NCB_FLT (9)
+#define MIO_EMM_INT_VEC_E_NCB_RAS (0xa)
 
 /**
  * Register (RSL) mio_emm_access_wdog
  *
  * eMMC Access Watchdog Register
  */
-union cavm_mio_emm_access_wdog {
+union mio_emm_access_wdog {
 	u64 u;
-	struct cavm_mio_emm_access_wdog_s {
+	struct mio_emm_access_wdog_s {
 		u64 clk_cnt                          : 32;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_mio_emm_access_wdog_s cn; */
+	/* struct mio_emm_access_wdog_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_ACCESS_WDOG(void)
+static inline u64 MIO_EMM_ACCESS_WDOG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_ACCESS_WDOG(void)
+static inline u64 MIO_EMM_ACCESS_WDOG(void)
 {
 	return 0x20f0;
 }
@@ -75,17 +73,17 @@ static inline u64 CAVM_MIO_EMM_ACCESS_WDOG(void)
  *
  * eMMC Data Buffer Access Register
  */
-union cavm_mio_emm_buf_dat {
+union mio_emm_buf_dat {
 	u64 u;
-	struct cavm_mio_emm_buf_dat_s {
+	struct mio_emm_buf_dat_s {
 		u64 dat                              : 64;
 	} s;
-	/* struct cavm_mio_emm_buf_dat_s cn; */
+	/* struct mio_emm_buf_dat_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_BUF_DAT(void)
+static inline u64 MIO_EMM_BUF_DAT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_BUF_DAT(void)
+static inline u64 MIO_EMM_BUF_DAT(void)
 {
 	return 0x20e8;
 }
@@ -95,21 +93,21 @@ static inline u64 CAVM_MIO_EMM_BUF_DAT(void)
  *
  * eMMC Data Buffer Address Register
  */
-union cavm_mio_emm_buf_idx {
+union mio_emm_buf_idx {
 	u64 u;
-	struct cavm_mio_emm_buf_idx_s {
+	struct mio_emm_buf_idx_s {
 		u64 offset                           : 6;
 		u64 buf_num                          : 1;
 		u64 reserved_7_15                    : 9;
 		u64 inc                              : 1;
 		u64 reserved_17_63                   : 47;
 	} s;
-	/* struct cavm_mio_emm_buf_idx_s cn; */
+	/* struct mio_emm_buf_idx_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_BUF_IDX(void)
+static inline u64 MIO_EMM_BUF_IDX(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_BUF_IDX(void)
+static inline u64 MIO_EMM_BUF_IDX(void)
 {
 	return 0x20e0;
 }
@@ -120,18 +118,18 @@ static inline u64 CAVM_MIO_EMM_BUF_IDX(void)
  * eMMC Calbration Register This register initiates delay line
  * characterization.
  */
-union cavm_mio_emm_calb {
+union mio_emm_calb {
 	u64 u;
-	struct cavm_mio_emm_calb_s {
+	struct mio_emm_calb_s {
 		u64 start                            : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_mio_emm_calb_s cn; */
+	/* struct mio_emm_calb_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_CALB(void)
+static inline u64 MIO_EMM_CALB(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_CALB(void)
+static inline u64 MIO_EMM_CALB(void)
 {
 	return 0x20c0;
 }
@@ -141,18 +139,18 @@ static inline u64 CAVM_MIO_EMM_CALB(void)
  *
  * eMMC Configuration Register
  */
-union cavm_mio_emm_cfg {
+union mio_emm_cfg {
 	u64 u;
-	struct cavm_mio_emm_cfg_s {
+	struct mio_emm_cfg_s {
 		u64 bus_ena                          : 4;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_mio_emm_cfg_s cn; */
+	/* struct mio_emm_cfg_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_CFG(void)
+static inline u64 MIO_EMM_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_CFG(void)
+static inline u64 MIO_EMM_CFG(void)
 {
 	return 0x2000;
 }
@@ -162,9 +160,9 @@ static inline u64 CAVM_MIO_EMM_CFG(void)
  *
  * eMMC Command Register
  */
-union cavm_mio_emm_cmd {
+union mio_emm_cmd {
 	u64 u;
-	struct cavm_mio_emm_cmd_s {
+	struct mio_emm_cmd_s {
 		u64 arg                              : 32;
 		u64 cmd_idx                          : 6;
 		u64 rtype_xor                        : 3;
@@ -178,12 +176,12 @@ union cavm_mio_emm_cmd {
 		u64 skip_busy                        : 1;
 		u64 reserved_63                      : 1;
 	} s;
-	/* struct cavm_mio_emm_cmd_s cn; */
+	/* struct mio_emm_cmd_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_CMD(void)
+static inline u64 MIO_EMM_CMD(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_CMD(void)
+static inline u64 MIO_EMM_CMD(void)
 {
 	return 0x2058;
 }
@@ -193,20 +191,20 @@ static inline u64 CAVM_MIO_EMM_CMD(void)
  *
  * eMMC Compensation Register
  */
-union cavm_mio_emm_comp {
+union mio_emm_comp {
 	u64 u;
-	struct cavm_mio_emm_comp_s {
+	struct mio_emm_comp_s {
 		u64 nctl                             : 3;
 		u64 reserved_3_7                     : 5;
 		u64 pctl                             : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_mio_emm_comp_s cn; */
+	/* struct mio_emm_comp_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_COMP(void)
+static inline u64 MIO_EMM_COMP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_COMP(void)
+static inline u64 MIO_EMM_COMP(void)
 {
 	return 0x2040;
 }
@@ -216,22 +214,35 @@ static inline u64 CAVM_MIO_EMM_COMP(void)
  *
  * eMMC Debug Register
  */
-union cavm_mio_emm_debug {
+union mio_emm_debug {
 	u64 u;
-	struct cavm_mio_emm_debug_s {
+	struct mio_emm_debug_s {
+		u64 clk_on                           : 1;
+		u64 reserved_1_7                     : 7;
+		u64 cmd_sm                           : 4;
+		u64 data_sm                          : 4;
+		u64 dma_sm                           : 4;
+		u64 emmc_clk_disable                 : 1;
+		u64 rdsync_rst                       : 1;
+		u64 reserved_22_63                   : 42;
+	} s;
+	struct mio_emm_debug_cn96xxp1 {
 		u64 clk_on                           : 1;
 		u64 reserved_1_7                     : 7;
 		u64 cmd_sm                           : 4;
 		u64 data_sm                          : 4;
 		u64 dma_sm                           : 4;
 		u64 reserved_20_63                   : 44;
-	} s;
-	/* struct cavm_mio_emm_debug_s cn; */
+	} cn96xxp1;
+	/* struct mio_emm_debug_s cn96xxp3; */
+	/* struct mio_emm_debug_s cn98xx; */
+	/* struct mio_emm_debug_cn96xxp1 cnf95xx; */
+	/* struct mio_emm_debug_s loki; */
 };
 
-static inline u64 CAVM_MIO_EMM_DEBUG(void)
+static inline u64 MIO_EMM_DEBUG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DEBUG(void)
+static inline u64 MIO_EMM_DEBUG(void)
 {
 	return 0x20f8;
 }
@@ -241,9 +252,9 @@ static inline u64 CAVM_MIO_EMM_DEBUG(void)
  *
  * eMMC External DMA Configuration Register
  */
-union cavm_mio_emm_dma {
+union mio_emm_dma {
 	u64 u;
-	struct cavm_mio_emm_dma_s {
+	struct mio_emm_dma_s {
 		u64 card_addr                        : 32;
 		u64 block_cnt                        : 16;
 		u64 multi                            : 1;
@@ -257,7 +268,7 @@ union cavm_mio_emm_dma {
 		u64 skip_busy                        : 1;
 		u64 extra_args                       : 1;
 	} s;
-	struct cavm_mio_emm_dma_cn8 {
+	struct mio_emm_dma_cn8 {
 		u64 card_addr                        : 32;
 		u64 block_cnt                        : 16;
 		u64 multi                            : 1;
@@ -271,7 +282,7 @@ union cavm_mio_emm_dma {
 		u64 skip_busy                        : 1;
 		u64 reserved_63                      : 1;
 	} cn8;
-	struct cavm_mio_emm_dma_cn9 {
+	struct mio_emm_dma_cn9 {
 		u64 card_addr                        : 32;
 		u64 block_cnt                        : 16;
 		u64 multi                            : 1;
@@ -287,9 +298,9 @@ union cavm_mio_emm_dma {
 	} cn9;
 };
 
-static inline u64 CAVM_MIO_EMM_DMA(void)
+static inline u64 MIO_EMM_DMA(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA(void)
+static inline u64 MIO_EMM_DMA(void)
 {
 	return 0x2050;
 }
@@ -302,22 +313,22 @@ static inline u64 CAVM_MIO_EMM_DMA(void)
  * to access this register. This register is updated by the DMA hardware
  * and can be reloaded by the values placed in the MIO_EMM_DMA_FIFO_ADR.
  */
-union cavm_mio_emm_dma_adr {
+union mio_emm_dma_adr {
 	u64 u;
-	struct cavm_mio_emm_dma_adr_s {
+	struct mio_emm_dma_adr_s {
 		u64 adr                              : 53;
 		u64 reserved_53_63                   : 11;
 	} s;
-	struct cavm_mio_emm_dma_adr_cn8 {
+	struct mio_emm_dma_adr_cn8 {
 		u64 adr                              : 49;
 		u64 reserved_49_63                   : 15;
 	} cn8;
-	/* struct cavm_mio_emm_dma_adr_s cn9; */
+	/* struct mio_emm_dma_adr_s cn9; */
 };
 
-static inline u64 CAVM_MIO_EMM_DMA_ADR(void)
+static inline u64 MIO_EMM_DMA_ADR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA_ADR(void)
+static inline u64 MIO_EMM_DMA_ADR(void)
 {
 	return 0x188;
 }
@@ -327,9 +338,9 @@ static inline u64 CAVM_MIO_EMM_DMA_ADR(void)
  *
  * eMMC External DMA Extra Arguments Register
  */
-union cavm_mio_emm_dma_arg {
+union mio_emm_dma_arg {
 	u64 u;
-	struct cavm_mio_emm_dma_arg_s {
+	struct mio_emm_dma_arg_s {
 		u64 cmd23_args                       : 8;
 		u64 force_pgm                        : 1;
 		u64 context_id                       : 4;
@@ -341,12 +352,12 @@ union cavm_mio_emm_dma_arg {
 		u64 reserved_23_31                   : 9;
 		u64 alt_cmd_arg                      : 32;
 	} s;
-	/* struct cavm_mio_emm_dma_arg_s cn; */
+	/* struct mio_emm_dma_arg_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_DMA_ARG(void)
+static inline u64 MIO_EMM_DMA_ARG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA_ARG(void)
+static inline u64 MIO_EMM_DMA_ARG(void)
 {
 	return 0x2090;
 }
@@ -360,9 +371,9 @@ static inline u64 CAVM_MIO_EMM_DMA_ARG(void)
  * updated by the hardware DMA engine and can also be reloaded by writes
  * to the MIO_EMM_DMA_FIFO_CMD register.
  */
-union cavm_mio_emm_dma_cfg {
+union mio_emm_dma_cfg {
 	u64 u;
-	struct cavm_mio_emm_dma_cfg_s {
+	struct mio_emm_dma_cfg_s {
 		u64 reserved_0_35                    : 36;
 		u64 size                             : 20;
 		u64 endian                           : 1;
@@ -374,12 +385,12 @@ union cavm_mio_emm_dma_cfg {
 		u64 rw                               : 1;
 		u64 en                               : 1;
 	} s;
-	/* struct cavm_mio_emm_dma_cfg_s cn; */
+	/* struct mio_emm_dma_cfg_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_DMA_CFG(void)
+static inline u64 MIO_EMM_DMA_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA_CFG(void)
+static inline u64 MIO_EMM_DMA_CFG(void)
 {
 	return 0x180;
 }
@@ -392,24 +403,24 @@ static inline u64 CAVM_MIO_EMM_DMA_CFG(void)
  * FIFO is used to queue up operations for the
  * MIO_EMM_DMA_CFG/MIO_EMM_DMA_ADR when the DMA completes successfully.
  */
-union cavm_mio_emm_dma_fifo_adr {
+union mio_emm_dma_fifo_adr {
 	u64 u;
-	struct cavm_mio_emm_dma_fifo_adr_s {
+	struct mio_emm_dma_fifo_adr_s {
 		u64 reserved_0_2                     : 3;
 		u64 adr                              : 50;
 		u64 reserved_53_63                   : 11;
 	} s;
-	struct cavm_mio_emm_dma_fifo_adr_cn8 {
+	struct mio_emm_dma_fifo_adr_cn8 {
 		u64 reserved_0_2                     : 3;
 		u64 adr                              : 46;
 		u64 reserved_49_63                   : 15;
 	} cn8;
-	/* struct cavm_mio_emm_dma_fifo_adr_s cn9; */
+	/* struct mio_emm_dma_fifo_adr_s cn9; */
 };
 
-static inline u64 CAVM_MIO_EMM_DMA_FIFO_ADR(void)
+static inline u64 MIO_EMM_DMA_FIFO_ADR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA_FIFO_ADR(void)
+static inline u64 MIO_EMM_DMA_FIFO_ADR(void)
 {
 	return 0x170;
 }
@@ -420,9 +431,9 @@ static inline u64 CAVM_MIO_EMM_DMA_FIFO_ADR(void)
  * eMMC Internal DMA FIFO Configuration Register This register controls
  * DMA FIFO operations.
  */
-union cavm_mio_emm_dma_fifo_cfg {
+union mio_emm_dma_fifo_cfg {
 	u64 u;
-	struct cavm_mio_emm_dma_fifo_cfg_s {
+	struct mio_emm_dma_fifo_cfg_s {
 		u64 count                            : 5;
 		u64 reserved_5_7                     : 3;
 		u64 int_lvl                          : 5;
@@ -430,12 +441,12 @@ union cavm_mio_emm_dma_fifo_cfg {
 		u64 clr                              : 1;
 		u64 reserved_17_63                   : 47;
 	} s;
-	/* struct cavm_mio_emm_dma_fifo_cfg_s cn; */
+	/* struct mio_emm_dma_fifo_cfg_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_DMA_FIFO_CFG(void)
+static inline u64 MIO_EMM_DMA_FIFO_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA_FIFO_CFG(void)
+static inline u64 MIO_EMM_DMA_FIFO_CFG(void)
 {
 	return 0x160;
 }
@@ -453,9 +464,9 @@ static inline u64 CAVM_MIO_EMM_DMA_FIFO_CFG(void)
  * exception that the EN and CLR fields are absent. These are supported
  * in MIO_EMM_DMA_FIFO_CFG.
  */
-union cavm_mio_emm_dma_fifo_cmd {
+union mio_emm_dma_fifo_cmd {
 	u64 u;
-	struct cavm_mio_emm_dma_fifo_cmd_s {
+	struct mio_emm_dma_fifo_cmd_s {
 		u64 reserved_0_35                    : 36;
 		u64 size                             : 20;
 		u64 endian                           : 1;
@@ -467,27 +478,12 @@ union cavm_mio_emm_dma_fifo_cmd {
 		u64 rw                               : 1;
 		u64 reserved_63                      : 1;
 	} s;
-	/* struct cavm_mio_emm_dma_fifo_cmd_s cn81xx; */
-	/* struct cavm_mio_emm_dma_fifo_cmd_s cn83xx; */
-	struct cavm_mio_emm_dma_fifo_cmd_cn88xxp1 {
-		u64 reserved_0_35                    : 36;
-		u64 size                             : 20;
-		u64 endian                           : 1;
-		u64 swap8                            : 1;
-		u64 swap16                           : 1;
-		u64 swap32                           : 1;
-		u64 reserved_60                      : 1;
-		u64 reserved_61                      : 1;
-		u64 rw                               : 1;
-		u64 reserved_63                      : 1;
-	} cn88xxp1;
-	/* struct cavm_mio_emm_dma_fifo_cmd_s cn88xxp2; */
-	/* struct cavm_mio_emm_dma_fifo_cmd_s cn9; */
+	/* struct mio_emm_dma_fifo_cmd_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_DMA_FIFO_CMD(void)
+static inline u64 MIO_EMM_DMA_FIFO_CMD(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA_FIFO_CMD(void)
+static inline u64 MIO_EMM_DMA_FIFO_CMD(void)
 {
 	return 0x178;
 }
@@ -498,19 +494,19 @@ static inline u64 CAVM_MIO_EMM_DMA_FIFO_CMD(void)
  * eMMC DMA Interrupt Register Sixty-four-bit operations must be used to
  * access this register.
  */
-union cavm_mio_emm_dma_int {
+union mio_emm_dma_int {
 	u64 u;
-	struct cavm_mio_emm_dma_int_s {
+	struct mio_emm_dma_int_s {
 		u64 done                             : 1;
 		u64 fifo                             : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_mio_emm_dma_int_s cn; */
+	/* struct mio_emm_dma_int_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_DMA_INT(void)
+static inline u64 MIO_EMM_DMA_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA_INT(void)
+static inline u64 MIO_EMM_DMA_INT(void)
 {
 	return 0x190;
 }
@@ -521,19 +517,19 @@ static inline u64 CAVM_MIO_EMM_DMA_INT(void)
  * eMMC DMA Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_mio_emm_dma_int_ena_w1c {
+union mio_emm_dma_int_ena_w1c {
 	u64 u;
-	struct cavm_mio_emm_dma_int_ena_w1c_s {
+	struct mio_emm_dma_int_ena_w1c_s {
 		u64 done                             : 1;
 		u64 fifo                             : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_mio_emm_dma_int_ena_w1c_s cn; */
+	/* struct mio_emm_dma_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_DMA_INT_ENA_W1C(void)
+static inline u64 MIO_EMM_DMA_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA_INT_ENA_W1C(void)
+static inline u64 MIO_EMM_DMA_INT_ENA_W1C(void)
 {
 	return 0x1a8;
 }
@@ -544,19 +540,19 @@ static inline u64 CAVM_MIO_EMM_DMA_INT_ENA_W1C(void)
  * eMMC DMA Interrupt Enable Set Register This register sets interrupt
  * enable bits.
  */
-union cavm_mio_emm_dma_int_ena_w1s {
+union mio_emm_dma_int_ena_w1s {
 	u64 u;
-	struct cavm_mio_emm_dma_int_ena_w1s_s {
+	struct mio_emm_dma_int_ena_w1s_s {
 		u64 done                             : 1;
 		u64 fifo                             : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_mio_emm_dma_int_ena_w1s_s cn; */
+	/* struct mio_emm_dma_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_DMA_INT_ENA_W1S(void)
+static inline u64 MIO_EMM_DMA_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA_INT_ENA_W1S(void)
+static inline u64 MIO_EMM_DMA_INT_ENA_W1S(void)
 {
 	return 0x1a0;
 }
@@ -566,19 +562,19 @@ static inline u64 CAVM_MIO_EMM_DMA_INT_ENA_W1S(void)
  *
  * eMMC DMA Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_mio_emm_dma_int_w1s {
+union mio_emm_dma_int_w1s {
 	u64 u;
-	struct cavm_mio_emm_dma_int_w1s_s {
+	struct mio_emm_dma_int_w1s_s {
 		u64 done                             : 1;
 		u64 fifo                             : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_mio_emm_dma_int_w1s_s cn; */
+	/* struct mio_emm_dma_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_DMA_INT_W1S(void)
+static inline u64 MIO_EMM_DMA_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_DMA_INT_W1S(void)
+static inline u64 MIO_EMM_DMA_INT_W1S(void)
 {
 	return 0x198;
 }
@@ -588,9 +584,9 @@ static inline u64 CAVM_MIO_EMM_DMA_INT_W1S(void)
  *
  * eMMC Interrupt Register
  */
-union cavm_mio_emm_int {
+union mio_emm_int {
 	u64 u;
-	struct cavm_mio_emm_int_s {
+	struct mio_emm_int_s {
 		u64 buf_done                         : 1;
 		u64 cmd_done                         : 1;
 		u64 dma_done                         : 1;
@@ -602,7 +598,7 @@ union cavm_mio_emm_int {
 		u64 ncb_ras                          : 1;
 		u64 reserved_9_63                    : 55;
 	} s;
-	struct cavm_mio_emm_int_cn8 {
+	struct mio_emm_int_cn8 {
 		u64 buf_done                         : 1;
 		u64 cmd_done                         : 1;
 		u64 dma_done                         : 1;
@@ -612,12 +608,12 @@ union cavm_mio_emm_int {
 		u64 switch_err                       : 1;
 		u64 reserved_7_63                    : 57;
 	} cn8;
-	/* struct cavm_mio_emm_int_s cn9; */
+	/* struct mio_emm_int_s cn9; */
 };
 
-static inline u64 CAVM_MIO_EMM_INT(void)
+static inline u64 MIO_EMM_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_INT(void)
+static inline u64 MIO_EMM_INT(void)
 {
 	return 0x2078;
 }
@@ -628,9 +624,9 @@ static inline u64 CAVM_MIO_EMM_INT(void)
  * eMMC Interrupt Enable Clear Register This register clears interrupt
  * enable bits.
  */
-union cavm_mio_emm_int_ena_w1c {
+union mio_emm_int_ena_w1c {
 	u64 u;
-	struct cavm_mio_emm_int_ena_w1c_s {
+	struct mio_emm_int_ena_w1c_s {
 		u64 buf_done                         : 1;
 		u64 cmd_done                         : 1;
 		u64 dma_done                         : 1;
@@ -642,7 +638,7 @@ union cavm_mio_emm_int_ena_w1c {
 		u64 ncb_ras                          : 1;
 		u64 reserved_9_63                    : 55;
 	} s;
-	struct cavm_mio_emm_int_ena_w1c_cn8 {
+	struct mio_emm_int_ena_w1c_cn8 {
 		u64 buf_done                         : 1;
 		u64 cmd_done                         : 1;
 		u64 dma_done                         : 1;
@@ -652,12 +648,12 @@ union cavm_mio_emm_int_ena_w1c {
 		u64 switch_err                       : 1;
 		u64 reserved_7_63                    : 57;
 	} cn8;
-	/* struct cavm_mio_emm_int_ena_w1c_s cn9; */
+	/* struct mio_emm_int_ena_w1c_s cn9; */
 };
 
-static inline u64 CAVM_MIO_EMM_INT_ENA_W1C(void)
+static inline u64 MIO_EMM_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_INT_ENA_W1C(void)
+static inline u64 MIO_EMM_INT_ENA_W1C(void)
 {
 	return 0x20b8;
 }
@@ -668,9 +664,9 @@ static inline u64 CAVM_MIO_EMM_INT_ENA_W1C(void)
  * eMMC Interrupt Enable Set Register This register sets interrupt enable
  * bits.
  */
-union cavm_mio_emm_int_ena_w1s {
+union mio_emm_int_ena_w1s {
 	u64 u;
-	struct cavm_mio_emm_int_ena_w1s_s {
+	struct mio_emm_int_ena_w1s_s {
 		u64 buf_done                         : 1;
 		u64 cmd_done                         : 1;
 		u64 dma_done                         : 1;
@@ -682,7 +678,7 @@ union cavm_mio_emm_int_ena_w1s {
 		u64 ncb_ras                          : 1;
 		u64 reserved_9_63                    : 55;
 	} s;
-	struct cavm_mio_emm_int_ena_w1s_cn8 {
+	struct mio_emm_int_ena_w1s_cn8 {
 		u64 buf_done                         : 1;
 		u64 cmd_done                         : 1;
 		u64 dma_done                         : 1;
@@ -692,12 +688,12 @@ union cavm_mio_emm_int_ena_w1s {
 		u64 switch_err                       : 1;
 		u64 reserved_7_63                    : 57;
 	} cn8;
-	/* struct cavm_mio_emm_int_ena_w1s_s cn9; */
+	/* struct mio_emm_int_ena_w1s_s cn9; */
 };
 
-static inline u64 CAVM_MIO_EMM_INT_ENA_W1S(void)
+static inline u64 MIO_EMM_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_INT_ENA_W1S(void)
+static inline u64 MIO_EMM_INT_ENA_W1S(void)
 {
 	return 0x20b0;
 }
@@ -707,9 +703,9 @@ static inline u64 CAVM_MIO_EMM_INT_ENA_W1S(void)
  *
  * eMMC Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_mio_emm_int_w1s {
+union mio_emm_int_w1s {
 	u64 u;
-	struct cavm_mio_emm_int_w1s_s {
+	struct mio_emm_int_w1s_s {
 		u64 buf_done                         : 1;
 		u64 cmd_done                         : 1;
 		u64 dma_done                         : 1;
@@ -721,7 +717,7 @@ union cavm_mio_emm_int_w1s {
 		u64 ncb_ras                          : 1;
 		u64 reserved_9_63                    : 55;
 	} s;
-	struct cavm_mio_emm_int_w1s_cn8 {
+	struct mio_emm_int_w1s_cn8 {
 		u64 buf_done                         : 1;
 		u64 cmd_done                         : 1;
 		u64 dma_done                         : 1;
@@ -731,12 +727,12 @@ union cavm_mio_emm_int_w1s {
 		u64 switch_err                       : 1;
 		u64 reserved_7_63                    : 57;
 	} cn8;
-	/* struct cavm_mio_emm_int_w1s_s cn9; */
+	/* struct mio_emm_int_w1s_s cn9; */
 };
 
-static inline u64 CAVM_MIO_EMM_INT_W1S(void)
+static inline u64 MIO_EMM_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_INT_W1S(void)
+static inline u64 MIO_EMM_INT_W1S(void)
 {
 	return 0x2080;
 }
@@ -746,20 +742,20 @@ static inline u64 CAVM_MIO_EMM_INT_W1S(void)
  *
  * eMMC I/O Control Register
  */
-union cavm_mio_emm_io_ctl {
+union mio_emm_io_ctl {
 	u64 u;
-	struct cavm_mio_emm_io_ctl_s {
+	struct mio_emm_io_ctl_s {
 		u64 slew                             : 1;
 		u64 reserved_1                       : 1;
 		u64 drive                            : 2;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_mio_emm_io_ctl_s cn; */
+	/* struct mio_emm_io_ctl_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_IO_CTL(void)
+static inline u64 MIO_EMM_IO_CTL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_IO_CTL(void)
+static inline u64 MIO_EMM_IO_CTL(void)
 {
 	return 0x2040;
 }
@@ -769,9 +765,32 @@ static inline u64 CAVM_MIO_EMM_IO_CTL(void)
  *
  * eMMC Operating Mode Register
  */
-union cavm_mio_emm_modex {
+union mio_emm_modex {
 	u64 u;
-	struct cavm_mio_emm_modex_s {
+	struct mio_emm_modex_s {
+		u64 clk_lo                           : 16;
+		u64 clk_hi                           : 16;
+		u64 power_class                      : 4;
+		u64 clk_swap                         : 1;
+		u64 reserved_37_39                   : 3;
+		u64 bus_width                        : 3;
+		u64 reserved_43_47                   : 5;
+		u64 hs_timing                        : 1;
+		u64 hs200_timing                     : 1;
+		u64 hs400_timing                     : 1;
+		u64 reserved_51_63                   : 13;
+	} s;
+	struct mio_emm_modex_cn8 {
+		u64 clk_lo                           : 16;
+		u64 clk_hi                           : 16;
+		u64 power_class                      : 4;
+		u64 reserved_36_39                   : 4;
+		u64 bus_width                        : 3;
+		u64 reserved_43_47                   : 5;
+		u64 hs_timing                        : 1;
+		u64 reserved_49_63                   : 15;
+	} cn8;
+	struct mio_emm_modex_cn96xxp1 {
 		u64 clk_lo                           : 16;
 		u64 clk_hi                           : 16;
 		u64 power_class                      : 4;
@@ -782,23 +801,16 @@ union cavm_mio_emm_modex {
 		u64 hs200_timing                     : 1;
 		u64 hs400_timing                     : 1;
 		u64 reserved_51_63                   : 13;
-	} s;
-	struct cavm_mio_emm_modex_cn8 {
-		u64 clk_lo                           : 16;
-		u64 clk_hi                           : 16;
-		u64 power_class                      : 4;
-		u64 reserved_36_39                   : 4;
-		u64 bus_width                        : 3;
-		u64 reserved_43_47                   : 5;
-		u64 hs_timing                        : 1;
-		u64 reserved_49_63                   : 15;
-	} cn8;
-	/* struct cavm_mio_emm_modex_s cn9; */
+	} cn96xxp1;
+	/* struct mio_emm_modex_s cn96xxp3; */
+	/* struct mio_emm_modex_s cn98xx; */
+	/* struct mio_emm_modex_s cnf95xx; */
+	/* struct mio_emm_modex_s loki; */
 };
 
-static inline u64 CAVM_MIO_EMM_MODEX(u64 a)
+static inline u64 MIO_EMM_MODEX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_MODEX(u64 a)
+static inline u64 MIO_EMM_MODEX(u64 a)
 {
 	return 0x2008 + 8 * a;
 }
@@ -809,17 +821,17 @@ static inline u64 CAVM_MIO_EMM_MODEX(u64 a)
  * eMMC MSI-X Pending Bit Array Registers This register is the MSI-X PBA
  * table; the bit number is indexed by the MIO_EMM_INT_VEC_E enumeration.
  */
-union cavm_mio_emm_msix_pbax {
+union mio_emm_msix_pbax {
 	u64 u;
-	struct cavm_mio_emm_msix_pbax_s {
+	struct mio_emm_msix_pbax_s {
 		u64 pend                             : 64;
 	} s;
-	/* struct cavm_mio_emm_msix_pbax_s cn; */
+	/* struct mio_emm_msix_pbax_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_MSIX_PBAX(u64 a)
+static inline u64 MIO_EMM_MSIX_PBAX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_MSIX_PBAX(u64 a)
+static inline u64 MIO_EMM_MSIX_PBAX(u64 a)
 {
 	return 0xf0000 + 8 * a;
 }
@@ -830,26 +842,26 @@ static inline u64 CAVM_MIO_EMM_MSIX_PBAX(u64 a)
  * eMMC MSI-X Vector-Table Address Register This register is the MSI-X
  * vector table, indexed by the MIO_EMM_INT_VEC_E enumeration.
  */
-union cavm_mio_emm_msix_vecx_addr {
+union mio_emm_msix_vecx_addr {
 	u64 u;
-	struct cavm_mio_emm_msix_vecx_addr_s {
+	struct mio_emm_msix_vecx_addr_s {
 		u64 secvec                           : 1;
 		u64 reserved_1                       : 1;
 		u64 addr                             : 51;
 		u64 reserved_53_63                   : 11;
 	} s;
-	struct cavm_mio_emm_msix_vecx_addr_cn8 {
+	struct mio_emm_msix_vecx_addr_cn8 {
 		u64 secvec                           : 1;
 		u64 reserved_1                       : 1;
 		u64 addr                             : 47;
 		u64 reserved_49_63                   : 15;
 	} cn8;
-	/* struct cavm_mio_emm_msix_vecx_addr_s cn9; */
+	/* struct mio_emm_msix_vecx_addr_s cn9; */
 };
 
-static inline u64 CAVM_MIO_EMM_MSIX_VECX_ADDR(u64 a)
+static inline u64 MIO_EMM_MSIX_VECX_ADDR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_MSIX_VECX_ADDR(u64 a)
+static inline u64 MIO_EMM_MSIX_VECX_ADDR(u64 a)
 {
 	return 0 + 0x10 * a;
 }
@@ -860,25 +872,25 @@ static inline u64 CAVM_MIO_EMM_MSIX_VECX_ADDR(u64 a)
  * eMMC MSI-X Vector-Table Control and Data Register This register is the
  * MSI-X vector table, indexed by the MIO_EMM_INT_VEC_E enumeration.
  */
-union cavm_mio_emm_msix_vecx_ctl {
+union mio_emm_msix_vecx_ctl {
 	u64 u;
-	struct cavm_mio_emm_msix_vecx_ctl_s {
+	struct mio_emm_msix_vecx_ctl_s {
 		u64 data                             : 32;
 		u64 mask                             : 1;
 		u64 reserved_33_63                   : 31;
 	} s;
-	struct cavm_mio_emm_msix_vecx_ctl_cn8 {
+	struct mio_emm_msix_vecx_ctl_cn8 {
 		u64 data                             : 20;
 		u64 reserved_20_31                   : 12;
 		u64 mask                             : 1;
 		u64 reserved_33_63                   : 31;
 	} cn8;
-	/* struct cavm_mio_emm_msix_vecx_ctl_s cn9; */
+	/* struct mio_emm_msix_vecx_ctl_s cn9; */
 };
 
-static inline u64 CAVM_MIO_EMM_MSIX_VECX_CTL(u64 a)
+static inline u64 MIO_EMM_MSIX_VECX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_MSIX_VECX_CTL(u64 a)
+static inline u64 MIO_EMM_MSIX_VECX_CTL(u64 a)
 {
 	return 8 + 0x10 * a;
 }
@@ -888,18 +900,18 @@ static inline u64 CAVM_MIO_EMM_MSIX_VECX_CTL(u64 a)
  *
  * eMMC Relative Card Address Register
  */
-union cavm_mio_emm_rca {
+union mio_emm_rca {
 	u64 u;
-	struct cavm_mio_emm_rca_s {
+	struct mio_emm_rca_s {
 		u64 card_rca                         : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_mio_emm_rca_s cn; */
+	/* struct mio_emm_rca_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_RCA(void)
+static inline u64 MIO_EMM_RCA(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_RCA(void)
+static inline u64 MIO_EMM_RCA(void)
 {
 	return 0x20a0;
 }
@@ -909,17 +921,17 @@ static inline u64 CAVM_MIO_EMM_RCA(void)
  *
  * eMMC Response Data High Register
  */
-union cavm_mio_emm_rsp_hi {
+union mio_emm_rsp_hi {
 	u64 u;
-	struct cavm_mio_emm_rsp_hi_s {
+	struct mio_emm_rsp_hi_s {
 		u64 dat                              : 64;
 	} s;
-	/* struct cavm_mio_emm_rsp_hi_s cn; */
+	/* struct mio_emm_rsp_hi_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_RSP_HI(void)
+static inline u64 MIO_EMM_RSP_HI(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_RSP_HI(void)
+static inline u64 MIO_EMM_RSP_HI(void)
 {
 	return 0x2070;
 }
@@ -929,17 +941,17 @@ static inline u64 CAVM_MIO_EMM_RSP_HI(void)
  *
  * eMMC Response Data Low Register
  */
-union cavm_mio_emm_rsp_lo {
+union mio_emm_rsp_lo {
 	u64 u;
-	struct cavm_mio_emm_rsp_lo_s {
+	struct mio_emm_rsp_lo_s {
 		u64 dat                              : 64;
 	} s;
-	/* struct cavm_mio_emm_rsp_lo_s cn; */
+	/* struct mio_emm_rsp_lo_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_RSP_LO(void)
+static inline u64 MIO_EMM_RSP_LO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_RSP_LO(void)
+static inline u64 MIO_EMM_RSP_LO(void)
 {
 	return 0x2068;
 }
@@ -949,9 +961,9 @@ static inline u64 CAVM_MIO_EMM_RSP_LO(void)
  *
  * eMMC Response Status Register
  */
-union cavm_mio_emm_rsp_sts {
+union mio_emm_rsp_sts {
 	u64 u;
-	struct cavm_mio_emm_rsp_sts_s {
+	struct mio_emm_rsp_sts_s {
 		u64 cmd_done                         : 1;
 		u64 cmd_idx                          : 6;
 		u64 cmd_type                         : 2;
@@ -979,12 +991,12 @@ union cavm_mio_emm_rsp_sts {
 		u64 bus_id                           : 2;
 		u64 reserved_62_63                   : 2;
 	} s;
-	/* struct cavm_mio_emm_rsp_sts_s cn; */
+	/* struct mio_emm_rsp_sts_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_RSP_STS(void)
+static inline u64 MIO_EMM_RSP_STS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_RSP_STS(void)
+static inline u64 MIO_EMM_RSP_STS(void)
 {
 	return 0x2060;
 }
@@ -994,20 +1006,20 @@ static inline u64 CAVM_MIO_EMM_RSP_STS(void)
  *
  * eMMC Sampling Register
  */
-union cavm_mio_emm_sample {
+union mio_emm_sample {
 	u64 u;
-	struct cavm_mio_emm_sample_s {
+	struct mio_emm_sample_s {
 		u64 dat_cnt                          : 10;
 		u64 reserved_10_15                   : 6;
 		u64 cmd_cnt                          : 10;
 		u64 reserved_26_63                   : 38;
 	} s;
-	/* struct cavm_mio_emm_sample_s cn; */
+	/* struct mio_emm_sample_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_SAMPLE(void)
+static inline u64 MIO_EMM_SAMPLE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_SAMPLE(void)
+static inline u64 MIO_EMM_SAMPLE(void)
 {
 	return 0x2090;
 }
@@ -1017,18 +1029,18 @@ static inline u64 CAVM_MIO_EMM_SAMPLE(void)
  *
  * eMMC Status Mask Register
  */
-union cavm_mio_emm_sts_mask {
+union mio_emm_sts_mask {
 	u64 u;
-	struct cavm_mio_emm_sts_mask_s {
+	struct mio_emm_sts_mask_s {
 		u64 sts_msk                          : 32;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_mio_emm_sts_mask_s cn; */
+	/* struct mio_emm_sts_mask_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_STS_MASK(void)
+static inline u64 MIO_EMM_STS_MASK(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_STS_MASK(void)
+static inline u64 MIO_EMM_STS_MASK(void)
 {
 	return 0x2098;
 }
@@ -1043,9 +1055,44 @@ static inline u64 CAVM_MIO_EMM_STS_MASK(void)
  * settings associated with the common EMMC_CLK.  These settings can only
  * be changed when [BUS_ID] = 0.
  */
-union cavm_mio_emm_switch {
+union mio_emm_switch {
 	u64 u;
-	struct cavm_mio_emm_switch_s {
+	struct mio_emm_switch_s {
+		u64 clk_lo                           : 16;
+		u64 clk_hi                           : 16;
+		u64 power_class                      : 4;
+		u64 clk_swap                         : 1;
+		u64 reserved_37_39                   : 3;
+		u64 bus_width                        : 3;
+		u64 reserved_43_47                   : 5;
+		u64 hs_timing                        : 1;
+		u64 hs200_timing                     : 1;
+		u64 hs400_timing                     : 1;
+		u64 reserved_51_55                   : 5;
+		u64 switch_err2                      : 1;
+		u64 switch_err1                      : 1;
+		u64 switch_err0                      : 1;
+		u64 switch_exe                       : 1;
+		u64 bus_id                           : 2;
+		u64 reserved_62_63                   : 2;
+	} s;
+	struct mio_emm_switch_cn8 {
+		u64 clk_lo                           : 16;
+		u64 clk_hi                           : 16;
+		u64 power_class                      : 4;
+		u64 reserved_36_39                   : 4;
+		u64 bus_width                        : 3;
+		u64 reserved_43_47                   : 5;
+		u64 hs_timing                        : 1;
+		u64 reserved_49_55                   : 7;
+		u64 switch_err2                      : 1;
+		u64 switch_err1                      : 1;
+		u64 switch_err0                      : 1;
+		u64 switch_exe                       : 1;
+		u64 bus_id                           : 2;
+		u64 reserved_62_63                   : 2;
+	} cn8;
+	struct mio_emm_switch_cn96xxp1 {
 		u64 clk_lo                           : 16;
 		u64 clk_hi                           : 16;
 		u64 power_class                      : 4;
@@ -1062,29 +1109,16 @@ union cavm_mio_emm_switch {
 		u64 switch_exe                       : 1;
 		u64 bus_id                           : 2;
 		u64 reserved_62_63                   : 2;
-	} s;
-	struct cavm_mio_emm_switch_cn8 {
-		u64 clk_lo                           : 16;
-		u64 clk_hi                           : 16;
-		u64 power_class                      : 4;
-		u64 reserved_36_39                   : 4;
-		u64 bus_width                        : 3;
-		u64 reserved_43_47                   : 5;
-		u64 hs_timing                        : 1;
-		u64 reserved_49_55                   : 7;
-		u64 switch_err2                      : 1;
-		u64 switch_err1                      : 1;
-		u64 switch_err0                      : 1;
-		u64 switch_exe                       : 1;
-		u64 bus_id                           : 2;
-		u64 reserved_62_63                   : 2;
-	} cn8;
-	/* struct cavm_mio_emm_switch_s cn9; */
+	} cn96xxp1;
+	/* struct mio_emm_switch_s cn96xxp3; */
+	/* struct mio_emm_switch_s cn98xx; */
+	/* struct mio_emm_switch_s cnf95xx; */
+	/* struct mio_emm_switch_s loki; */
 };
 
-static inline u64 CAVM_MIO_EMM_SWITCH(void)
+static inline u64 MIO_EMM_SWITCH(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_SWITCH(void)
+static inline u64 MIO_EMM_SWITCH(void)
 {
 	return 0x2048;
 }
@@ -1095,18 +1129,18 @@ static inline u64 CAVM_MIO_EMM_SWITCH(void)
  * eMMC TAP Delay Register This register indicates the delay line
  * characteristics.
  */
-union cavm_mio_emm_tap {
+union mio_emm_tap {
 	u64 u;
-	struct cavm_mio_emm_tap_s {
+	struct mio_emm_tap_s {
 		u64 delay                            : 8;
 		u64 reserved_8_63                    : 56;
 	} s;
-	/* struct cavm_mio_emm_tap_s cn; */
+	/* struct mio_emm_tap_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_TAP(void)
+static inline u64 MIO_EMM_TAP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_TAP(void)
+static inline u64 MIO_EMM_TAP(void)
 {
 	return 0x20c8;
 }
@@ -1119,9 +1153,9 @@ static inline u64 CAVM_MIO_EMM_TAP(void)
  * relation to EMM_CLK. These values should only be changed when the eMMC
  * bus is idle.
  */
-union cavm_mio_emm_timing {
+union mio_emm_timing {
 	u64 u;
-	struct cavm_mio_emm_timing_s {
+	struct mio_emm_timing_s {
 		u64 data_out_tap                     : 6;
 		u64 reserved_6_15                    : 10;
 		u64 data_in_tap                      : 6;
@@ -1131,12 +1165,12 @@ union cavm_mio_emm_timing {
 		u64 cmd_in_tap                       : 6;
 		u64 reserved_54_63                   : 10;
 	} s;
-	/* struct cavm_mio_emm_timing_s cn; */
+	/* struct mio_emm_timing_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_TIMING(void)
+static inline u64 MIO_EMM_TIMING(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_TIMING(void)
+static inline u64 MIO_EMM_TIMING(void)
 {
 	return 0x20d0;
 }
@@ -1146,20 +1180,20 @@ static inline u64 CAVM_MIO_EMM_TIMING(void)
  *
  * eMMC Watchdog Register
  */
-union cavm_mio_emm_wdog {
+union mio_emm_wdog {
 	u64 u;
-	struct cavm_mio_emm_wdog_s {
+	struct mio_emm_wdog_s {
 		u64 clk_cnt                          : 26;
 		u64 reserved_26_63                   : 38;
 	} s;
-	/* struct cavm_mio_emm_wdog_s cn; */
+	/* struct mio_emm_wdog_s cn; */
 };
 
-static inline u64 CAVM_MIO_EMM_WDOG(void)
+static inline u64 MIO_EMM_WDOG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_MIO_EMM_WDOG(void)
+static inline u64 MIO_EMM_WDOG(void)
 {
 	return 0x2088;
 }
 
-#endif /* __CAVM_CSRS_MIO_EMM_H__ */
+#endif /* __CSRS_MIO_EMM_H__ */

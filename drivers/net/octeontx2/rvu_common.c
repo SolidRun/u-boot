@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <common.h>
 #include <net.h>
@@ -26,7 +25,7 @@ int qmem_alloc(struct qmem *q, u32 qsize, size_t entry_sz)
 	q->alloc_sz = (size_t)qsize * entry_sz;
 	q->iova = (dma_addr_t)(q->base);
 	debug("NIX: qmem alloc for (%d * %d = %ld bytes) at %p\n",
-	       q->qsize, q->entry_sz, q->alloc_sz, q->base);
+	      q->qsize, q->entry_sz, q->alloc_sz, q->base);
 	return 0;
 }
 
@@ -47,8 +46,8 @@ void qmem_free(struct qmem *q)
  *
  * @return	-ENOMEM on error, 0 on success
  */
-int rvu_aq_alloc(struct admin_queue *aq, unsigned qsize,
-		      size_t inst_size, size_t res_size)
+int rvu_aq_alloc(struct admin_queue *aq, unsigned int qsize,
+		 size_t inst_size, size_t res_size)
 {
 	int err;
 
@@ -73,4 +72,3 @@ void rvu_aq_free(struct admin_queue *aq)
 	qmem_free(&aq->res);
 	memset(aq, 0, sizeof(*aq));
 }
-

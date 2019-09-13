@@ -1,14 +1,12 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
-
 #ifndef NIC_REG_H
 #define NIC_REG_H
-
 
 #define   NIC_PF_REG_COUNT			29573
 #define   NIC_VF_REG_COUNT			249
@@ -228,24 +226,27 @@ struct pkind_cfg {
 #endif
 };
 
-static inline uint64_t BGXX_PF_BAR0(unsigned long param1) __attribute__ ((pure, always_inline));
+static inline uint64_t BGXX_PF_BAR0(unsigned long param1)
+				     __attribute__ ((pure, always_inline));
 static inline uint64_t BGXX_PF_BAR0(unsigned long param1)
 {
 	assert(param1 <= 1);
 	return 0x87E0E0000000 + (param1 << 24);
 }
-#define BGXX_PF_BAR0_SIZE 0x400000
 
+#define BGXX_PF_BAR0_SIZE 0x400000
 #define NIC_PF_BAR0 0x843000000000
 #define NIC_PF_BAR0_SIZE 0x40000000
 
-static inline uint64_t NIC_VFX_BAR0(unsigned long param1) __attribute__ ((pure, always_inline));
+static inline uint64_t NIC_VFX_BAR0(unsigned long param1)
+				     __attribute__ ((pure, always_inline));
 static inline uint64_t NIC_VFX_BAR0(unsigned long param1)
 {
 	assert(param1 <= 127);
 
 	return 0x8430A0000000 + (param1 << 21);
 }
+
 #define NIC_VFX_BAR0_SIZE 0x200000
 
 #endif /* NIC_REG_H */

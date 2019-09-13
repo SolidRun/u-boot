@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <config.h>
 #include <common.h>
@@ -18,10 +17,10 @@
 #include "nicvf_queues.h"
 
 static int nicvf_poll_reg(struct nicvf *nic, int qidx,
-			  uint64_t reg, int bit_pos, int bits, int val)
+			  u64 reg, int bit_pos, int bits, int val)
 {
-	uint64_t bit_mask;
-	uint64_t reg_val;
+	u64 bit_mask;
+	u64 reg_val;
 	int timeout = 10;
 
 	bit_mask = (1ULL << bits) - 1;
@@ -68,14 +67,13 @@ static void nicvf_free_q_desc_mem(struct nicvf *nic, struct q_desc_mem *dmem)
 	dmem->base = NULL;
 }
 
-
 static void *nicvf_rb_ptr_to_pkt(struct nicvf *nic, uintptr_t rb_ptr)
 {
 	return (void *)rb_ptr;
 }
 
 static int nicvf_init_rbdr(struct nicvf *nic, struct rbdr *rbdr,
-			    int ring_len, int buf_size)
+			   int ring_len, int buf_size)
 {
 	int idx;
 	uintptr_t rbuf;
@@ -95,7 +93,7 @@ static int nicvf_init_rbdr(struct nicvf *nic, struct rbdr *rbdr,
 	rbdr->thresh = RBDR_THRESH;
 
 	debug("%s: %d: allocating %lld bytes for rcv buffers\n",
-	      __FUNCTION__, __LINE__,
+	      __func__, __LINE__,
 	      ring_len * buf_size + NICVF_RCV_BUF_ALIGN_BYTES);
 	rbdr->buf_mem = (uintptr_t)calloc(1, ring_len * buf_size
 						+ NICVF_RCV_BUF_ALIGN_BYTES);
@@ -105,16 +103,18 @@ static int nicvf_init_rbdr(struct nicvf *nic, struct rbdr *rbdr,
 		return -1;
 	}
 
-	rbdr->buffers = NICVF_ALIGNED_ADDR(rbdr->buf_mem, NICVF_RCV_BUF_ALIGN_BYTES);
+	rbdr->buffers = NICVF_ALIGNED_ADDR(rbdr->buf_mem,
+					   NICVF_RCV_BUF_ALIGN_BYTES);
 
 	debug("%s: %d: rbdr->buf_mem: %lx, rbdr->buffers: %lx\n",
-		__FUNCTION__, __LINE__, rbdr->buf_mem, rbdr->buffers);
+	      __func__, __LINE__, rbdr->buf_mem, rbdr->buffers);
 
 	for (idx = 0; idx < ring_len; idx++) {
 		rbuf = rbdr->buffers + DMA_BUFFER_LEN * idx;
 		desc = GET_RBDR_DESC(rbdr, idx);
 		desc->buf_addr = rbuf >> NICVF_RCV_BUF_ALIGN;
-		flush_dcache_range((uintptr_t)desc, (uintptr_t)desc + sizeof(desc));
+		flush_dcache_range((uintptr_t)desc,
+				   (uintptr_t)desc + sizeof(desc));
 	}
 	return 0;
 }
@@ -128,7 +128,7 @@ static void nicvf_free_rbdr(struct nicvf *nic, struct rbdr *rbdr)
 	if (!rbdr->dmem.base)
 		return;
 
-	debug("%s: %d: rbdr->buf_mem: %p\n", __FUNCTION__,
+	debug("%s: %d: rbdr->buf_mem: %p\n", __func__,
 	      __LINE__, (void *)rbdr->buf_mem);
 	free((void *)rbdr->buf_mem);
 
@@ -166,15 +166,13 @@ void nicvf_refill_rbdr(struct nicvf *nic)
 	rb_cnt = qs->rbdr_len - qcount - 1;
 
 	debug("%s: %d: qcount: %lu, head: %lx, tail: %lx, rb_cnt: %lu\n",
-	      __FUNCTION__, __LINE__, qcount, head, tail, rb_cnt);
-
+	      __func__, __LINE__, qcount, head, tail, rb_cnt);
 
 	/* Notify HW */
 	nicvf_queue_reg_write(nic, NIC_QSET_RBDR_0_1_DOOR, rbdr_idx, rb_cnt);
 
 	asm volatile ("dsb sy");
 }
-
 
 /* TBD: how to handle full packets received in CQ
  * i.e conversion of buffers into SKBs
@@ -219,7 +217,7 @@ static int nicvf_init_snd_queue(struct nicvf *nic,
 	}
 
 	sq->desc = sq->dmem.base;
-	sq->skbuff = calloc(q_len, sizeof(uint64_t));
+	sq->skbuff = calloc(q_len, sizeof(u64));
 	sq->head = 0;
 	sq->tail = 0;
 	sq->free_cnt = q_len - 1;
@@ -235,7 +233,7 @@ static void nicvf_free_snd_queue(struct nicvf *nic, struct snd_queue *sq)
 	if (!sq->dmem.base)
 		return;
 
-	debug("%s: %d\n", __FUNCTION__, __LINE__);
+	debug("%s: %d\n", __func__, __LINE__);
 	free(sq->skbuff);
 
 	nicvf_free_q_desc_mem(nic, &sq->dmem);
@@ -323,7 +321,6 @@ static void nicvf_reclaim_rbdr(struct nicvf *nic,
 		return;
 }
 
-
 /* Configures receive queue */
 static void nicvf_rcv_queue_config(struct nicvf *nic, struct queue_set *qs,
 				   int qidx, bool enable)
@@ -388,7 +385,7 @@ void nicvf_cmp_queue_config(struct nicvf *nic, struct queue_set *qs,
 {
 	struct cmp_queue *cq;
 	union {
-		uint64_t u;
+		u64 u;
 		struct cq_cfg s;
 	} cq_cfg;
 
@@ -408,7 +405,7 @@ void nicvf_cmp_queue_config(struct nicvf *nic, struct queue_set *qs,
 
 	/* Set completion queue base address */
 	nicvf_queue_reg_write(nic, NIC_QSET_CQ_0_7_BASE,
-			      qidx, (uint64_t)(cq->dmem.phys_base));
+			      qidx, (u64)(cq->dmem.phys_base));
 
 	/* Enable Completion queue */
 	cq_cfg.s.ena = 1;
@@ -420,7 +417,8 @@ void nicvf_cmp_queue_config(struct nicvf *nic, struct queue_set *qs,
 
 	/* Set threshold value for interrupt generation */
 	nicvf_queue_reg_write(nic, NIC_QSET_CQ_0_7_THRESH, qidx, cq->thresh);
-	nicvf_queue_reg_write(nic, NIC_QSET_CQ_0_7_CFG2, qidx, cq->intr_timer_thresh);
+	nicvf_queue_reg_write(nic, NIC_QSET_CQ_0_7_CFG2, qidx,
+			      cq->intr_timer_thresh);
 }
 
 /* Configures transmit queue */
@@ -689,7 +687,7 @@ static int nicvf_get_nxt_sqentry(struct snd_queue *sq, int qentry)
 
 void nicvf_sq_enable(struct nicvf *nic, struct snd_queue *sq, int qidx)
 {
-	uint64_t sq_cfg;
+	u64 sq_cfg;
 
 	sq_cfg = nicvf_queue_reg_read(nic, NIC_QSET_SQ_0_7_CFG, qidx);
 	sq_cfg |= NICVF_SQ_EN;
@@ -700,7 +698,7 @@ void nicvf_sq_enable(struct nicvf *nic, struct snd_queue *sq, int qidx)
 
 void nicvf_sq_disable(struct nicvf *nic, int qidx)
 {
-	uint64_t sq_cfg;
+	u64 sq_cfg;
 
 	sq_cfg = nicvf_queue_reg_read(nic, NIC_QSET_SQ_0_7_CFG, qidx);
 	sq_cfg &= ~NICVF_SQ_EN;
@@ -708,9 +706,9 @@ void nicvf_sq_disable(struct nicvf *nic, int qidx)
 }
 
 void nicvf_sq_free_used_descs(struct udevice *dev, struct snd_queue *sq,
-								int qidx)
+			      int qidx)
 {
-	uint64_t head;
+	u64 head;
 	struct nicvf *nic = dev_get_priv(dev);
 	struct sq_hdr_subdesc *hdr;
 
@@ -820,7 +818,7 @@ append_fail:
 	return 0;
 }
 
-static unsigned frag_num(unsigned i)
+static unsigned int frag_num(unsigned int i)
 {
 #ifdef __BIG_ENDIAN
 	return (i & ~3) + 3 - (i & 3);
@@ -838,14 +836,14 @@ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
 	struct rbdr *rbdr;
 	struct rcv_queue *rq;
 	struct queue_set *qs = nic->qs;
-	uint16_t *rb_lens = NULL;
-	uint64_t *rb_ptrs = NULL;
+	u16 *rb_lens = NULL;
+	u64 *rb_ptrs = NULL;
 
 	cqe_rx = (struct cqe_rx_t *)cq_desc;
 
 	rq = &qs->rq[cqe_rx->rq_idx];
 	rbdr = &qs->rbdr[rq->start_qs_rbdr_idx];
-	rb_lens = cq_desc + (3 * sizeof(uint64_t)); /* Use offsetof */
+	rb_lens = cq_desc + (3 * sizeof(u64)); /* Use offsetof */
 	/* Except 88xx pass1 on all other chips CQE_RX2_S is added to
 	 * CQE_RX at word6, hence buffer pointers move by word
 	 *
@@ -888,9 +886,8 @@ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
 		invalidate_dcache_range((uintptr_t)pkt,
 					(uintptr_t)pkt + payload_len);
 
-		if (cqe_rx->align_pad) {
+		if (cqe_rx->align_pad)
 			pkt += cqe_rx->align_pad;
-		}
 		debug("pkt_buf %p, pkt %p payload_len %d\n", pkt_buf, pkt,
 		      payload_len);
 		memcpy(buffer, pkt, payload_len);
@@ -904,7 +901,7 @@ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
 /* Clear interrupt */
 void nicvf_clear_intr(struct nicvf *nic, int int_type, int q_idx)
 {
-	uint64_t reg_val = 0;
+	u64 reg_val = 0;
 
 	switch (int_type) {
 	case NICVF_INTR_CQ:
@@ -942,7 +939,7 @@ void nicvf_update_rq_stats(struct nicvf *nic, int rq_idx)
 
 #define GET_RQ_STATS(reg) \
 	nicvf_reg_read(nic, NIC_QSET_RQ_0_7_STAT_0_1 |\
-			    (rq_idx << NIC_Q_NUM_SHIFT) | (reg << 3))
+			    (rq_idx << NIC_Q_NUM_SHIFT) | ((reg) << 3))
 
 	rq = &nic->qs->rq[rq_idx];
 	rq->stats.bytes = GET_RQ_STATS(RQ_SQ_STATS_OCTS);
@@ -955,7 +952,7 @@ void nicvf_update_sq_stats(struct nicvf *nic, int sq_idx)
 
 #define GET_SQ_STATS(reg) \
 	nicvf_reg_read(nic, NIC_QSET_SQ_0_7_STAT_0_1 |\
-			    (sq_idx << NIC_Q_NUM_SHIFT) | (reg << 3))
+			    (sq_idx << NIC_Q_NUM_SHIFT) | ((reg) << 3))
 
 	sq = &nic->qs->sq[sq_idx];
 	sq->stats.bytes = GET_SQ_STATS(RQ_SQ_STATS_OCTS);

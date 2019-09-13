@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <common.h>
 #include <dm.h>
@@ -167,7 +166,6 @@ int octeontx_phy_read(struct mii_dev *bus, int addr, int devad, int regnum)
 	smix_cmd.u = 0;
 	smix_cmd.s.phy_adr = addr;
 
-
 	if (mode == CLAUSE45) {
 		smix_cmd.s.reg_adr = devad;
 		smix_cmd.s.phy_op = SMI_OP_C45_READ;
@@ -271,40 +269,39 @@ int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr)
 	phy_id1 = octeontx_phy_read(bus, phy_addr, 1, 0x2);
 	phy_id2 = octeontx_phy_read(bus, phy_addr, 1, 0x3);
 	model_number = (phy_id2 >> 4) & 0x3F;
-	debug("%s model %x\n", __func__,model_number);
+	debug("%s model %x\n", __func__, model_number);
 	oui = phy_id1;
 	oui <<= 6;
 	oui |= (phy_id2 >> 10) & 0x3F;
-	debug("%s oui %x\n", __func__,oui);
-	switch (oui)
-	{
-		case 0x5016:
-			if (model_number == 9)
-			{
-				debug("%s +\n", __func__);
-				/* Perform hardware reset in XGXS control */
+	debug("%s oui %x\n", __func__, oui);
+	switch (oui) {
+	case 0x5016:
+		if (model_number == 9) {
+			debug("%s +\n", __func__);
+			/* Perform hardware reset in XGXS control */
+			reg = octeontx_phy_read(bus, phy_addr, 4, 0x0);
+			if ((reg & 0xffff) < 0)
+				goto read_error;
+			reg |= 0x8000;
+			octeontx_phy_write(bus, phy_addr, 4, 0x0, reg);
+
+			start_time = get_timer(0);
+			do {
 				reg = octeontx_phy_read(bus, phy_addr, 4, 0x0);
 				if ((reg & 0xffff) < 0)
-				       goto read_error;
-				reg |= 0x8000;
-				octeontx_phy_write(bus, phy_addr, 4, 0x0, reg);
-
-				start_time = get_timer(0);
-				do {
-				       reg = octeontx_phy_read(bus, phy_addr, 4, 0x0);
-				       if ((reg & 0xffff) < 0)
-					       goto read_error;
-				} while ((reg & 0x8000) && get_timer(start_time) < 500);
-				if (reg & 0x8000) {
-				       printf("Hardware reset for M88X3120 PHY failed, MII_BMCR: 0x%x\n", reg);
-				       return -1;
-				}
-				/* program 4.49155 with 0x5 */
-				octeontx_phy_write(bus, phy_addr, 4, 0xc003, 0x5);
+					goto read_error;
+			} while ((reg & 0x8000) && get_timer(start_time) < 500);
+			if (reg & 0x8000) {
+				printf("HW reset for M88X3120 PHY failed");
+				printf("MII_BMCR: 0x%x\n", reg);
+				return -1;
 			}
-			break;
-			default:
-				break;
+			/* program 4.49155 with 0x5 */
+			octeontx_phy_write(bus, phy_addr, 4, 0xc003, 0x5);
+		}
+		break;
+	default:
+		break;
 	}
 
 	return 0;
@@ -322,9 +319,9 @@ int octeontx_smi_probe(struct udevice *dev)
 	struct octeontx_smi_priv *priv;
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
 
-        debug("SMI PCI device: %x\n", bdf);
-        dev->req_seq = PCI_FUNC(bdf);
-        if ( !dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM)) {
+	debug("SMI PCI device: %x\n", bdf);
+	dev->req_seq = PCI_FUNC(bdf);
+	if (!dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM)) {
 		printf("Failed to map PCI region for bdf %x\n", bdf);
 		return -1;
 	}
@@ -339,7 +336,7 @@ int octeontx_smi_probe(struct udevice *dev)
 		priv = malloc(sizeof(*priv));
 		if (!bus || !priv) {
 			printf("Failed to allocate OcteonTX MDIO bus # %u\n",
-				dev->seq);
+			       dev->seq);
 			return -1;
 		}
 
@@ -350,16 +347,16 @@ int octeontx_smi_probe(struct udevice *dev)
 
 		priv->mode = CLAUSE22;
 		priv->baseaddr = (void __iomem *)fdtdec_get_addr(gd->fdt_blob,
-							 subnode, "reg");
+								 subnode,
+								 "reg");
 		debug("mdio base addr %p\n", priv->baseaddr);
 
 		/* use given name or generate its own unique name */
 		snprintf(bus->name, MDIO_NAME_LEN, "smi%d", cnt++);
 
 		ret = mdio_register(bus);
-		if (ret) {
+		if (ret)
 			return ret;
-		}
 	}
 	return 0;
 }

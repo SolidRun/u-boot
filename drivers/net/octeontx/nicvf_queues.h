@@ -1,10 +1,9 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #ifndef NICVF_QUEUES_H
 #define NICVF_QUEUES_H
@@ -23,13 +22,6 @@
 #define	NICVF_INTR_ID_RBDR		16
 #define	NICVF_INTR_ID_MISC		18
 #define	NICVF_INTR_ID_QS_ERR		19
-
-#define	for_each_cq_irq(irq)	\
-	for (irq = NICVF_INTR_ID_CQ; irq < NICVF_INTR_ID_SQ; irq++)
-#define	for_each_sq_irq(irq)	\
-	for (irq = NICVF_INTR_ID_SQ; irq < NICVF_INTR_ID_RBDR; irq++)
-#define	for_each_rbdr_irq(irq)	\
-	for (irq = NICVF_INTR_ID_RBDR; irq < NICVF_INTR_ID_MISC; irq++)
 
 #define RBDR_SIZE0		0ULL /* 8K entries */
 #define RBDR_SIZE1		1ULL /* 16K entries */
@@ -62,21 +54,21 @@
 #define CMP_QUEUE_CNT		1 /* Max of RCV and SND qcount */
 
 #define SND_QSIZE		SND_QUEUE_SIZE0
-#define SND_QUEUE_LEN		(1ULL << (SND_QSIZE + 10))
+#define SND_QUEUE_LEN		BIT_ULL((SND_QSIZE + 10))
 #define SND_QUEUE_THRESH	2ULL
 #define MIN_SQ_DESC_PER_PKT_XMIT	2
 #define MAX_CQE_PER_PKT_XMIT		2
 
 #define CMP_QSIZE		CMP_QUEUE_SIZE0
-#define CMP_QUEUE_LEN		(1ULL << (CMP_QSIZE + 10))
+#define CMP_QUEUE_LEN		BIT_ULL((CMP_QSIZE + 10))
 #define CMP_QUEUE_CQE_THRESH	0
 #define CMP_QUEUE_TIMER_THRESH	1 /* 1 ms */
 
 #define RBDR_SIZE		RBDR_SIZE0
-#define RCV_BUF_COUNT		(1ULL << (RBDR_SIZE + 13))
+#define RCV_BUF_COUNT		BIT_ULL((RBDR_SIZE + 13))
 #define RBDR_THRESH		(RCV_BUF_COUNT / 2)
 #define DMA_BUFFER_LEN		2048 /* In multiples of 128bytes */
-#define RCV_FRAG_LEN	 	DMA_BUFFER_LEN
+#define RCV_FRAG_LEN		DMA_BUFFER_LEN
 
 #define MAX_CQES_FOR_TX		((SND_QUEUE_LEN / MIN_SQ_DESC_PER_PKT_XMIT) *\
 				 MAX_CQE_PER_PKT_XMIT)
@@ -88,23 +80,19 @@
 
 /* Buffer / descriptor alignments */
 #define NICVF_RCV_BUF_ALIGN		7
-#define NICVF_RCV_BUF_ALIGN_BYTES	(1ULL << NICVF_RCV_BUF_ALIGN)
+#define NICVF_RCV_BUF_ALIGN_BYTES	BIT_ULL(NICVF_RCV_BUF_ALIGN)
 #define NICVF_CQ_BASE_ALIGN_BYTES	512  /* 9 bits */
 #define NICVF_SQ_BASE_ALIGN_BYTES	128  /* 7 bits */
 
 #define NICVF_ALIGNED_ADDR(ADDR, ALIGN_BYTES)	ALIGN(ADDR, ALIGN_BYTES)
-#define NICVF_ADDR_ALIGN_LEN(ADDR, BYTES)\
-	(NICVF_ALIGNED_ADDR(ADDR, BYTES) - BYTES)
-#define NICVF_RCV_BUF_ALIGN_LEN(X)\
-	(NICVF_ALIGNED_ADDR(X, NICVF_RCV_BUF_ALIGN_BYTES) - X)
 
 /* Queue enable/disable */
-#define NICVF_SQ_EN            (1ULL << 19)
+#define NICVF_SQ_EN            BIT_ULL(19)
 
 /* Queue reset */
-#define NICVF_CQ_RESET		(1ULL << 41)
-#define NICVF_SQ_RESET		(1ULL << 17)
-#define NICVF_RBDR_RESET	(1ULL << 43)
+#define NICVF_CQ_RESET		BIT_ULL(41)
+#define NICVF_SQ_RESET		BIT_ULL(17)
+#define NICVF_RBDR_RESET	BIT_ULL(43)
 
 enum CQ_RX_ERRLVL_E {
 	CQ_ERRLVL_MAC,
@@ -237,8 +225,8 @@ struct rx_tx_queue_stats {
 
 struct q_desc_mem {
 	uintptr_t	dma;
-	uint64_t	size;
-	uint16_t	q_len;
+	u64	size;
+	u16	q_len;
 	uintptr_t	phys_base;
 	void		*base;
 	void		*unalign_base;
@@ -247,11 +235,11 @@ struct q_desc_mem {
 
 struct rbdr {
 	bool		enable;
-	uint32_t	dma_size;
-	uint32_t	thresh;      /* Threshold level for interrupt */
+	u32	dma_size;
+	u32	thresh;      /* Threshold level for interrupt */
 	void		*desc;
-	uint32_t	head;
-	uint32_t	tail;
+	u32	head;
+	u32	tail;
 	struct		q_desc_mem   dmem;
 	uintptr_t	buf_mem;
 	uintptr_t	buffers;
@@ -262,20 +250,20 @@ struct rcv_queue {
 	struct	rbdr	*rbdr_start;
 	struct	rbdr	*rbdr_cont;
 	bool		en_tcp_reassembly;
-	uint8_t		cq_qs;  /* CQ's QS to which this RQ is assigned */
-	uint8_t		cq_idx; /* CQ index (0 to 7) in the QS */
-	uint8_t		cont_rbdr_qs;      /* Continue buffer ptrs - QS num */
-	uint8_t		cont_qs_rbdr_idx;  /* RBDR idx in the cont QS */
-	uint8_t		start_rbdr_qs;     /* First buffer ptrs - QS num */
-	uint8_t		start_qs_rbdr_idx; /* RBDR idx in the above QS */
-	uint8_t         caching;
+	u8		cq_qs;  /* CQ's QS to which this RQ is assigned */
+	u8		cq_idx; /* CQ index (0 to 7) in the QS */
+	u8		cont_rbdr_qs;      /* Continue buffer ptrs - QS num */
+	u8		cont_qs_rbdr_idx;  /* RBDR idx in the cont QS */
+	u8		start_rbdr_qs;     /* First buffer ptrs - QS num */
+	u8		start_qs_rbdr_idx; /* RBDR idx in the above QS */
+	u8         caching;
 	struct		rx_tx_queue_stats stats;
 };
 
 struct cmp_queue {
 	bool		enable;
-	uint16_t	intr_timer_thresh;
-	uint16_t	thresh;
+	u16	intr_timer_thresh;
+	u16	thresh;
 	void		*desc;
 	struct q_desc_mem   dmem;
 	struct cmp_queue_stats	stats;
@@ -283,13 +271,13 @@ struct cmp_queue {
 
 struct snd_queue {
 	bool		enable;
-	uint8_t		cq_qs;  /* CQ's QS to which this SQ is pointing */
-	uint8_t		cq_idx; /* CQ index (0 to 7) in the above QS */
-	uint16_t	thresh;
-	uint32_t	free_cnt;
-	uint32_t	head;
-	uint32_t	tail;
-	uint64_t	*skbuff;
+	u8		cq_qs;  /* CQ's QS to which this SQ is pointing */
+	u8		cq_idx; /* CQ index (0 to 7) in the above QS */
+	u16	thresh;
+	u32	free_cnt;
+	u32	head;
+	u32	tail;
+	u64	*skbuff;
 	void		*desc;
 	struct q_desc_mem   dmem;
 	struct rx_tx_queue_stats stats;
@@ -298,14 +286,14 @@ struct snd_queue {
 struct queue_set {
 	bool		enable;
 	bool		be_en;
-	uint8_t		vnic_id;
-	uint8_t		rq_cnt;
-	uint8_t		cq_cnt;
-	uint64_t	cq_len;
-	uint8_t		sq_cnt;
-	uint64_t	sq_len;
-	uint8_t		rbdr_cnt;
-	uint64_t	rbdr_len;
+	u8		vnic_id;
+	u8		rq_cnt;
+	u8		cq_cnt;
+	u64	cq_len;
+	u8		sq_cnt;
+	u64	sq_len;
+	u8		rbdr_cnt;
+	u64	rbdr_len;
 	struct	rcv_queue	rq[MAX_RCV_QUEUES_PER_QS];
 	struct	cmp_queue	cq[MAX_CMP_QUEUES_PER_QS];
 	struct	snd_queue	sq[MAX_SND_QUEUES_PER_QS];
@@ -320,9 +308,9 @@ struct queue_set {
 		(&(((union cq_desc_t *)((RING)->desc))[idx]))
 
 /* CQ status bits */
-#define	CQ_WR_FULL	(1 << 26)
-#define	CQ_WR_DISABLE	(1 << 25)
-#define	CQ_WR_FAULT	(1 << 24)
+#define	CQ_WR_FULL	BIT(26)
+#define	CQ_WR_DISABLE	BIT(25)
+#define	CQ_WR_FAULT	BIT(24)
 #define	CQ_CQE_COUNT	(0xFFFF << 0)
 
 #define	CQ_ERR_MASK	(CQ_WR_FULL | CQ_WR_DISABLE | CQ_WR_FAULT)
@@ -337,7 +325,7 @@ void nicvf_sq_enable(struct nicvf *nic, struct snd_queue *sq, int qidx);
 void nicvf_sq_disable(struct nicvf *nic, int qidx);
 void nicvf_put_sq_desc(struct snd_queue *sq, int desc_cnt);
 void nicvf_sq_free_used_descs(struct udevice *dev,
-					struct snd_queue *sq, int qidx);
+			      struct snd_queue *sq, int qidx);
 int nicvf_sq_append_pkt(struct nicvf *nic, void *pkt, size_t pkt_len);
 
 void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len);
@@ -349,14 +337,13 @@ void nicvf_clear_intr(struct nicvf *nic, int int_type, int q_idx);
 int nicvf_is_intr_enabled(struct nicvf *nic, int int_type, int q_idx);
 
 /* Register access APIs */
-void nicvf_reg_write(struct nicvf *nic, uint64_t offset, uint64_t val);
-uint64_t nicvf_reg_read(struct nicvf *nic, uint64_t offset);
-void nicvf_qset_reg_write(struct nicvf *nic, uint64_t offset, uint64_t val);
-uint64_t nicvf_qset_reg_read(struct nicvf *nic, uint64_t offset);
-void nicvf_queue_reg_write(struct nicvf *nic, uint64_t offset,
-			   uint64_t qidx, uint64_t val);
-uint64_t nicvf_queue_reg_read(struct nicvf *nic,
-			      uint64_t offset, uint64_t qidx);
+void nicvf_reg_write(struct nicvf *nic, u64 offset, u64 val);
+u64 nicvf_reg_read(struct nicvf *nic, u64 offset);
+void nicvf_qset_reg_write(struct nicvf *nic, u64 offset, u64 val);
+u64 nicvf_qset_reg_read(struct nicvf *nic, u64 offset);
+void nicvf_queue_reg_write(struct nicvf *nic, u64 offset,
+			   u64 qidx, u64 val);
+u64 nicvf_queue_reg_read(struct nicvf *nic, u64 offset, u64 qidx);
 
 /* Stats */
 void nicvf_update_rq_stats(struct nicvf *nic, int rq_idx);

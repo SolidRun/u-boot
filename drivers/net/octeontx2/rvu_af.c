@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <common.h>
 #include <net.h>
@@ -15,10 +14,10 @@
 #include <linux/list.h>
 #include <asm/io.h>
 #include <asm/arch/octeontx2.h>
-#include "cavm-csrs-npa.h"
+#include <asm/arch/csrs/csrs-npa.h>
 #include "nix.h"
 
-struct udevice *rvu_af_dev=NULL;
+struct udevice *rvu_af_dev;
 
 inline struct rvu_af *get_af(void)
 {
@@ -27,9 +26,9 @@ inline struct rvu_af *get_af(void)
 
 void rvu_get_lfid_for_pf(int pf, int *nixid, int *npaid)
 {
-	union cavm_nixx_af_rvu_lf_cfg_debug nix_lf_dbg;
-	union cavm_npa_af_rvu_lf_cfg_debug npa_lf_dbg;
-	union cavm_rvu_pf_func_s pf_func;
+	union nixx_af_rvu_lf_cfg_debug nix_lf_dbg;
+	union npa_af_rvu_lf_cfg_debug npa_lf_dbg;
+	union rvu_pf_func_s pf_func;
 	struct rvu_af *af = dev_get_priv(rvu_af_dev);
 	struct nix_af *nix_af = af->nix_af;
 
@@ -39,40 +38,39 @@ void rvu_get_lfid_for_pf(int pf, int *nixid, int *npaid)
 	nix_lf_dbg.u = 0;
 	nix_lf_dbg.s.pf_func = pf_func.u & 0xFFFF;
 	nix_lf_dbg.s.exec = 1;
-	nix_af_reg_write(nix_af, CAVM_NIXX_AF_RVU_LF_CFG_DEBUG(),
+	nix_af_reg_write(nix_af, NIXX_AF_RVU_LF_CFG_DEBUG(),
 			 nix_lf_dbg.u);
 	do {
 		nix_lf_dbg.u = nix_af_reg_read(nix_af,
-				CAVM_NIXX_AF_RVU_LF_CFG_DEBUG());
+					       NIXX_AF_RVU_LF_CFG_DEBUG());
 	} while (nix_lf_dbg.s.exec);
 
 	if (nix_lf_dbg.s.lf_valid)
-		*nixid = nix_lf_dbg.s.lf; 
+		*nixid = nix_lf_dbg.s.lf;
 
 	debug("%s: nix lf_valid %d lf %d nixid %d\n", __func__,
-		nix_lf_dbg.s.lf_valid,nix_lf_dbg.s.lf,*nixid);
+	      nix_lf_dbg.s.lf_valid, nix_lf_dbg.s.lf, *nixid);
 
 	npa_lf_dbg.u = 0;
 	npa_lf_dbg.s.pf_func = pf_func.u & 0xFFFF;
 	npa_lf_dbg.s.exec = 1;
-	npa_af_reg_write(nix_af->npa_af, CAVM_NPA_AF_RVU_LF_CFG_DEBUG(),
+	npa_af_reg_write(nix_af->npa_af, NPA_AF_RVU_LF_CFG_DEBUG(),
 			 npa_lf_dbg.u);
 	do {
 		npa_lf_dbg.u = npa_af_reg_read(nix_af->npa_af,
-				CAVM_NPA_AF_RVU_LF_CFG_DEBUG());
+					       NPA_AF_RVU_LF_CFG_DEBUG());
 	} while (npa_lf_dbg.s.exec);
 
 	if (npa_lf_dbg.s.lf_valid)
-		*npaid = npa_lf_dbg.s.lf; 
+		*npaid = npa_lf_dbg.s.lf;
 	debug("%s: npa lf_valid %d lf %d npaid %d\n", __func__,
-		npa_lf_dbg.s.lf_valid,npa_lf_dbg.s.lf,*npaid);
-
+	      npa_lf_dbg.s.lf_valid, npa_lf_dbg.s.lf, *npaid);
 }
 
 struct nix_af *rvu_af_init(struct rvu_af *rvu_af)
 {
 	struct nix_af *nix_af;
-	union cavm_rvu_af_addr_s block_addr;
+	union rvu_af_addr_s block_addr;
 	int err;
 
 	nix_af = (struct nix_af *)calloc(1, sizeof(struct nix_af));
@@ -84,7 +82,7 @@ struct nix_af *rvu_af_init(struct rvu_af *rvu_af)
 	nix_af->dev = rvu_af->dev;
 
 	block_addr.u = 0;
-	block_addr.s.block = CAVM_RVU_BLOCK_ADDR_E_NIXX(0);
+	block_addr.s.block = RVU_BLOCK_ADDR_E_NIXX(0);
 	nix_af->nix_af_base = rvu_af->af_base + block_addr.u;
 
 	nix_af->npa_af = (struct npa_af *)calloc(1, sizeof(struct npa_af));
@@ -94,11 +92,11 @@ struct nix_af *rvu_af_init(struct rvu_af *rvu_af)
 	}
 
 	block_addr.u = 0;
-	block_addr.s.block = CAVM_RVU_BLOCK_ADDR_E_NPA;
+	block_addr.s.block = RVU_BLOCK_ADDR_E_NPA;
 	nix_af->npa_af->npa_af_base = rvu_af->af_base + block_addr.u;
 
 	block_addr.u = 0;
-	block_addr.s.block = CAVM_RVU_BLOCK_ADDR_E_NPC;
+	block_addr.s.block = RVU_BLOCK_ADDR_E_NPC;
 	nix_af->npc_af_base = rvu_af->af_base + block_addr.u;
 
 	debug("%s: Setting up npa admin\n", __func__);
@@ -121,9 +119,8 @@ error:
 		free(nix_af->npa_af);
 		memset(nix_af, 0, sizeof(*nix_af));
 	}
-	if (nix_af) {
+	if (nix_af)
 		free(nix_af);
-	}
 	return NULL;
 }
 
@@ -133,11 +130,12 @@ int rvu_af_probe(struct udevice *dev)
 	size_t size;
 
 	af_ptr->af_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
-	debug("%s RVU AF BAR %p \n", __func__, af_ptr->af_base);
-	af_ptr->dev = rvu_af_dev = dev;
+	debug("%s RVU AF BAR %p\n", __func__, af_ptr->af_base);
+	af_ptr->dev = dev;
+	rvu_af_dev = dev;
 
 	af_ptr->nix_af = rvu_af_init(af_ptr);
-	if ( !af_ptr->nix_af) {
+	if (!af_ptr->nix_af) {
 		printf("%s: Error: could not initialize NIX AF\n", __func__);
 		return -1;
 	}
@@ -154,27 +152,27 @@ int rvu_af_remove(struct udevice *dev)
 	npa_af_shutdown(rvu_af->nix_af->npa_af);
 	npc_af_shutdown(rvu_af->nix_af);
 
-	debug("%s: rvu af down -- \n", __func__);
+	debug("%s: rvu af down --\n", __func__);
 	return 0;
 }
 
 static const struct udevice_id rvu_af_ids[] = {
-        { .compatible = "cavium,rvu-af" },
-        {}
+	{ .compatible = "cavium,rvu-af" },
+	{}
 };
 
 U_BOOT_DRIVER(rvu_af) = {
-        .name   = "rvu_af",
-        .id     = UCLASS_MISC,
-        .probe  = rvu_af_probe,
-        .remove = rvu_af_remove,
-        .of_match = rvu_af_ids,
-        .priv_auto_alloc_size = sizeof(struct rvu_af),
+	.name   = "rvu_af",
+	.id     = UCLASS_MISC,
+	.probe  = rvu_af_probe,
+	.remove = rvu_af_remove,
+	.of_match = rvu_af_ids,
+	.priv_auto_alloc_size = sizeof(struct rvu_af),
 };
 
 static struct pci_device_id rvu_af_supported[] = {
-        { PCI_VDEVICE(CAVIUM, PCI_DEVID_OCTEONTX2_RVU_AF) },
-        {}
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVID_OCTEONTX2_RVU_AF) },
+	{}
 };
 
 U_BOOT_PCI_DEVICE(rvu_af, rvu_af_supported);

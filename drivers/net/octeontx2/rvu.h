@@ -1,15 +1,14 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #ifndef __RVU_H__
 #define __RVU_H__
 
-#include "cavm-csrs-rvu.h"
+#include <asm/arch/csrs/csrs-rvu.h>
 
 #define ALIGNED		__aligned(CONFIG_SYS_CACHELINE_SIZE)
 
@@ -31,7 +30,7 @@
 #define Q_SIZE_MIN		Q_SIZE_16
 #define Q_SIZE_MAX		Q_SIZE_1M
 
-#define Q_COUNT(x)		(16ULL << (2 * x))
+#define Q_COUNT(x)		(16ULL << (2 * (x)))
 #define Q_SIZE(x, n)		((ilog2(x) - (n)) / 2)
 
 /* Admin queue info */
@@ -81,9 +80,7 @@ struct rvu_pf {
  */
 static inline void cavm_st128(void *dest, u64 val0, u64 val1)
 {
-	__asm__ __volatile__(
-		"stp %x[x0], %x[x1], [%[pm]]"
-		:
+	__asm__ __volatile__("stp %x[x0], %x[x1], [%[pm]]" :
 		: [x0]"r"(val0), [x1]"r"(val1), [pm]"r"(dest)
 		: "memory");
 }
@@ -97,10 +94,8 @@ static inline void cavm_st128(void *dest, u64 val0, u64 val1)
  */
 static inline void cavm_ld128(const u64 *src, u64 *val0, u64 *val1)
 {
-	__asm__ __volatile__ (
-		"ldp %x[x0], %x[x1], [%[pm]]"
-		:
-		: [x0]"r"(*val0), [x1]"r"(*val1), [pm]"r"(src));
+	__asm__ __volatile__ ("ldp %x[x0], %x[x1], [%[pm]]" :
+		 : [x0]"r"(*val0), [x1]"r"(*val1), [pm]"r"(src));
 }
 
 void qmem_free(struct qmem *q);
@@ -116,8 +111,8 @@ int qmem_alloc(struct qmem *q, u32 qsize, size_t entry_sz);
  *
  * @return	-ENOMEM on error, 0 on success
  */
-int rvu_aq_alloc(struct admin_queue *aq, unsigned qsize,
-		      size_t inst_size, size_t res_size);
+int rvu_aq_alloc(struct admin_queue *aq, unsigned int qsize,
+		 size_t inst_size, size_t res_size);
 
 /**
  * Frees an admin queue

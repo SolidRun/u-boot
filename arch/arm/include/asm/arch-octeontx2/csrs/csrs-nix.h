@@ -1,18 +1,17 @@
-#ifndef __CAVM_CSRS_NIX_H__
-#define __CAVM_CSRS_NIX_H__
-/* This file is auto-generated.  Do not edit */
-
-/***********************license start***********************************
-* Copyright (C) 2019 Marvell International Ltd.
-* SPDX-License-Identifier: BSD-3-Clause
-* https://spdx.org/licenses
-***********************license end**************************************/
+/* SPDX-License-Identifier:    GPL-2.0
+ *
+ * Copyright (C) 2019 Marvell International Ltd.
+ *
+ * https://spdx.org/licenses
+ */
+#ifndef __CSRS_NIX_H__
+#define __CSRS_NIX_H__
 
 /**
  * @file
  *
  * Configuration and status register (CSR) address and type definitions for
- * Cavium NIX.
+ * NIX.
  *
  * This file is auto generated.  Do not edit.
  *
@@ -24,11 +23,11 @@
  * NIX Admin Function Interrupt Vector Enumeration Enumerates the NIX AF
  * MSI-X interrupt vectors.
  */
-#define CAVM_NIX_AF_INT_VEC_E_AF_ERR (3)
-#define CAVM_NIX_AF_INT_VEC_E_AQ_DONE (2)
-#define CAVM_NIX_AF_INT_VEC_E_GEN (1)
-#define CAVM_NIX_AF_INT_VEC_E_POISON (4)
-#define CAVM_NIX_AF_INT_VEC_E_RVU (0)
+#define NIX_AF_INT_VEC_E_AF_ERR (3)
+#define NIX_AF_INT_VEC_E_AQ_DONE (2)
+#define NIX_AF_INT_VEC_E_GEN (1)
+#define NIX_AF_INT_VEC_E_POISON (4)
+#define NIX_AF_INT_VEC_E_RVU (0)
 
 /**
  * Enumeration nix_aq_comp_e
@@ -36,25 +35,25 @@
  * NIX Completion Enumeration Enumerates the values of
  * NIX_AQ_RES_S[COMPCODE].
  */
-#define CAVM_NIX_AQ_COMP_E_CTX_FAULT (4)
-#define CAVM_NIX_AQ_COMP_E_CTX_POISON (3)
-#define CAVM_NIX_AQ_COMP_E_GOOD (1)
-#define CAVM_NIX_AQ_COMP_E_LOCKERR (5)
-#define CAVM_NIX_AQ_COMP_E_NOTDONE (0)
-#define CAVM_NIX_AQ_COMP_E_SQB_ALLOC_FAIL (6)
-#define CAVM_NIX_AQ_COMP_E_SWERR (2)
+#define NIX_AQ_COMP_E_CTX_FAULT (4)
+#define NIX_AQ_COMP_E_CTX_POISON (3)
+#define NIX_AQ_COMP_E_GOOD (1)
+#define NIX_AQ_COMP_E_LOCKERR (5)
+#define NIX_AQ_COMP_E_NOTDONE (0)
+#define NIX_AQ_COMP_E_SQB_ALLOC_FAIL (6)
+#define NIX_AQ_COMP_E_SWERR (2)
 
 /**
  * Enumeration nix_aq_ctype_e
  *
  * NIX Context Type Enumeration Enumerates NIX_AQ_INST_S[CTYPE] values.
  */
-#define CAVM_NIX_AQ_CTYPE_E_CQ (2)
-#define CAVM_NIX_AQ_CTYPE_E_DYNO (5)
-#define CAVM_NIX_AQ_CTYPE_E_MCE (3)
-#define CAVM_NIX_AQ_CTYPE_E_RQ (0)
-#define CAVM_NIX_AQ_CTYPE_E_RSS (4)
-#define CAVM_NIX_AQ_CTYPE_E_SQ (1)
+#define NIX_AQ_CTYPE_E_CQ (2)
+#define NIX_AQ_CTYPE_E_DYNO (5)
+#define NIX_AQ_CTYPE_E_MCE (3)
+#define NIX_AQ_CTYPE_E_RQ (0)
+#define NIX_AQ_CTYPE_E_RSS (4)
+#define NIX_AQ_CTYPE_E_SQ (1)
 
 /**
  * Enumeration nix_aq_instop_e
@@ -62,12 +61,12 @@
  * NIX Admin Queue Opcode Enumeration Enumerates NIX_AQ_INST_S[OP]
  * values.
  */
-#define CAVM_NIX_AQ_INSTOP_E_INIT (1)
-#define CAVM_NIX_AQ_INSTOP_E_LOCK (4)
-#define CAVM_NIX_AQ_INSTOP_E_NOP (0)
-#define CAVM_NIX_AQ_INSTOP_E_READ (3)
-#define CAVM_NIX_AQ_INSTOP_E_UNLOCK (5)
-#define CAVM_NIX_AQ_INSTOP_E_WRITE (2)
+#define NIX_AQ_INSTOP_E_INIT (1)
+#define NIX_AQ_INSTOP_E_LOCK (4)
+#define NIX_AQ_INSTOP_E_NOP (0)
+#define NIX_AQ_INSTOP_E_READ (3)
+#define NIX_AQ_INSTOP_E_UNLOCK (5)
+#define NIX_AQ_INSTOP_E_WRITE (2)
 
 /**
  * Enumeration nix_chan_e
@@ -79,11 +78,11 @@
  * NIX_LINK_E are implemented.  Internal: P2X/X2P channel enumeration for
  * t9x.
  */
-#define CAVM_NIX_CHAN_E_CGXX_LMACX_CHX(a, b, c)	\
+#define NIX_CHAN_E_CGXX_LMACX_CHX(a, b, c)	\
 	(0x800 + 0x100 * (a) + 0x10 * (b) + (c))
-#define CAVM_NIX_CHAN_E_LBKX_CHX(a, b) (0 + 0x100 * (a) + (b))
-#define CAVM_NIX_CHAN_E_RX(a) (0 + 0x100 * (a))
-#define CAVM_NIX_CHAN_E_SDP_CHX(a) (0x700 + (a))
+#define NIX_CHAN_E_LBKX_CHX(a, b) (0 + 0x100 * (a) + (b))
+#define NIX_CHAN_E_RX(a) (0 + 0x100 * (a))
+#define NIX_CHAN_E_SDP_CHX(a) (0x700 + (a))
 
 /**
  * Enumeration nix_colorresult_e
@@ -92,10 +91,10 @@
  * NIX_MEM_RESULT_S[COLOR], NIX_AF_TL1()_MD_DEBUG1[COLOR] and
  * NIX_AF_TL1()_MD_DEBUG1[COLOR].
  */
-#define CAVM_NIX_COLORRESULT_E_GREEN (0)
-#define CAVM_NIX_COLORRESULT_E_RED_DROP (3)
-#define CAVM_NIX_COLORRESULT_E_RED_SEND (2)
-#define CAVM_NIX_COLORRESULT_E_YELLOW (1)
+#define NIX_COLORRESULT_E_GREEN (0)
+#define NIX_COLORRESULT_E_RED_DROP (3)
+#define NIX_COLORRESULT_E_RED_SEND (2)
+#define NIX_COLORRESULT_E_YELLOW (1)
 
 /**
  * Enumeration nix_cqerrint_e
@@ -103,9 +102,9 @@
  * NIX Completion Queue Interrupt Enumeration Enumerates the bit index of
  * NIX_CQ_CTX_S[CQ_ERR_INT,CQ_ERR_INT_ENA].
  */
-#define CAVM_NIX_CQERRINT_E_CQE_FAULT (2)
-#define CAVM_NIX_CQERRINT_E_DOOR_ERR (0)
-#define CAVM_NIX_CQERRINT_E_WR_FULL (1)
+#define NIX_CQERRINT_E_CQE_FAULT (2)
+#define NIX_CQERRINT_E_DOOR_ERR (0)
+#define NIX_CQERRINT_E_WR_FULL (1)
 
 /**
  * Enumeration nix_intf_e
@@ -113,9 +112,15 @@
  * NIX Interface Number Enumeration Enumerates the bit index of
  * NIX_AF_STATUS[CALIBRATE_STATUS].
  */
-#define CAVM_NIX_INTF_E_CGXX(a) (0 + (a))
-#define CAVM_NIX_INTF_E_LBKX(a) (3 + (a))
-#define CAVM_NIX_INTF_E_SDP (4)
+#define NIX_INTF_E_CGXX(a) (0 + (a))
+#define NIX_INTF_E_LBKX_CN96XX(a) (3 + (a))
+#define NIX_INTF_E_LBKX_CN98XX(a) (5 + (a))
+#define NIX_INTF_E_LBKX_CNF95XX(a) (3 + (a))
+#define NIX_INTF_E_LBKX_LOKI(a) (3 + (a))
+#define NIX_INTF_E_SDP_CN96XX (4)
+#define NIX_INTF_E_SDP_CN98XX (7)
+#define NIX_INTF_E_SDP_CNF95XX (4)
+#define NIX_INTF_E_SDP_LOKI (4)
 
 /**
  * Enumeration nix_lf_int_vec_e
@@ -123,25 +128,33 @@
  * NIX Local Function Interrupt Vector Enumeration Enumerates the NIX
  * MSI-X interrupt vectors per LF.
  */
-#define CAVM_NIX_LF_INT_VEC_E_CINTX(a) (0x40 + (a))
-#define CAVM_NIX_LF_INT_VEC_E_ERR_INT (0x81)
-#define CAVM_NIX_LF_INT_VEC_E_GINT (0x80)
-#define CAVM_NIX_LF_INT_VEC_E_POISON (0x82)
-#define CAVM_NIX_LF_INT_VEC_E_QINTX(a) (0 + (a))
+#define NIX_LF_INT_VEC_E_CINTX(a) (0x40 + (a))
+#define NIX_LF_INT_VEC_E_ERR_INT (0x81)
+#define NIX_LF_INT_VEC_E_GINT (0x80)
+#define NIX_LF_INT_VEC_E_POISON (0x82)
+#define NIX_LF_INT_VEC_E_QINTX(a) (0 + (a))
 
 /**
  * Enumeration nix_link_e
  *
  * NIX Link Number Enumeration Enumerates the receive and transmit links,
  * and LINK index of NIX_AF_RX_LINK()_CFG, NIX_AF_RX_LINK()_WRR_CFG,
- * NIX_AF_TX_LINK()_NORM_CREDIT, NIX_AF_TX_LINK()_EXPR_CREDIT,
- * NIX_AF_TX_LINK()_HW_XOFF and NIX_AF_TX_LINK()_SW_XOFF,
+ * NIX_AF_TX_LINK()_NORM_CREDIT, NIX_AF_TX_LINK()_HW_XOFF and
  * NIX_AF_TL3_TL2()_LINK()_CFG.
  */
-#define CAVM_NIX_LINK_E_CGXX_LMACX(a, b) (0 + 4 * (a) + (b))
-#define CAVM_NIX_LINK_E_LBKX(a) (0xc + (a))
-#define CAVM_NIX_LINK_E_MC (0xe)
-#define CAVM_NIX_LINK_E_SDP (0xd)
+#define NIX_LINK_E_CGXX_LMACX(a, b) (0 + 4 * (a) + (b))
+#define NIX_LINK_E_LBKX_CN96XX(a) (0xc + (a))
+#define NIX_LINK_E_LBKX_CN98XX(a) (0x14 + (a))
+#define NIX_LINK_E_LBKX_CNF95XX(a) (0xc + (a))
+#define NIX_LINK_E_LBKX_LOKI(a) (0xc + (a))
+#define NIX_LINK_E_MC_CN96XX (0xe)
+#define NIX_LINK_E_MC_CN98XX (0x17)
+#define NIX_LINK_E_MC_CNF95XX (0xe)
+#define NIX_LINK_E_MC_LOKI (0xe)
+#define NIX_LINK_E_SDP_CN96XX (0xd)
+#define NIX_LINK_E_SDP_CN98XX (0x16)
+#define NIX_LINK_E_SDP_CNF95XX (0xd)
+#define NIX_LINK_E_SDP_LOKI (0xd)
 
 /**
  * Enumeration nix_lsoalg_e
@@ -150,11 +163,11 @@
  * NIX_AF_LSO_FORMAT()_FIELD()[ALG] values. Specifies algorithm for
  * modifying the associated LSO packet field.
  */
-#define CAVM_NIX_LSOALG_E_ADD_OFFSET (3)
-#define CAVM_NIX_LSOALG_E_ADD_PAYLEN (2)
-#define CAVM_NIX_LSOALG_E_ADD_SEGNUM (1)
-#define CAVM_NIX_LSOALG_E_NOP (0)
-#define CAVM_NIX_LSOALG_E_TCP_FLAGS (4)
+#define NIX_LSOALG_E_ADD_OFFSET (3)
+#define NIX_LSOALG_E_ADD_PAYLEN (2)
+#define NIX_LSOALG_E_ADD_SEGNUM (1)
+#define NIX_LSOALG_E_NOP (0)
+#define NIX_LSOALG_E_TCP_FLAGS (4)
 
 /**
  * Enumeration nix_maxsqesz_e
@@ -162,8 +175,8 @@
  * NIX Maximum SQE Size Enumeration Enumerates the values of
  * NIX_SQ_CTX_S[MAX_SQE_SIZE].
  */
-#define CAVM_NIX_MAXSQESZ_E_W16 (0)
-#define CAVM_NIX_MAXSQESZ_E_W8 (1)
+#define NIX_MAXSQESZ_E_W16 (0)
+#define NIX_MAXSQESZ_E_W8 (1)
 
 /**
  * Enumeration nix_mdtype_e
@@ -171,9 +184,9 @@
  * NIX Meta Descriptor Type Enumeration Enumerates values of
  * NIX_AF_MDQ()_MD_DEBUG[MD_TYPE].
  */
-#define CAVM_NIX_MDTYPE_E_FLUSH (1)
-#define CAVM_NIX_MDTYPE_E_PMD (2)
-#define CAVM_NIX_MDTYPE_E_RSVD (0)
+#define NIX_MDTYPE_E_FLUSH (1)
+#define NIX_MDTYPE_E_PMD (2)
+#define NIX_MDTYPE_E_RSVD (0)
 
 /**
  * Enumeration nix_mnqerr_e
@@ -181,16 +194,16 @@
  * NIX Meta-Descriptor Enqueue Error Enumeration Enumerates
  * NIX_LF_MNQ_ERR_DBG[ERRCODE] values.
  */
-#define CAVM_NIX_MNQERR_E_CQ_QUERY_ERR (6)
-#define CAVM_NIX_MNQERR_E_LSO_ERR (5)
-#define CAVM_NIX_MNQERR_E_MAXLEN_ERR (8)
-#define CAVM_NIX_MNQERR_E_MAX_SQE_SIZE_ERR (7)
-#define CAVM_NIX_MNQERR_E_SQB_FAULT (2)
-#define CAVM_NIX_MNQERR_E_SQB_POISON (3)
-#define CAVM_NIX_MNQERR_E_SQE_SIZEM1_ZERO (9)
-#define CAVM_NIX_MNQERR_E_SQ_CTX_FAULT (0)
-#define CAVM_NIX_MNQERR_E_SQ_CTX_POISON (1)
-#define CAVM_NIX_MNQERR_E_TOTAL_ERR (4)
+#define NIX_MNQERR_E_CQ_QUERY_ERR (6)
+#define NIX_MNQERR_E_LSO_ERR (5)
+#define NIX_MNQERR_E_MAXLEN_ERR (8)
+#define NIX_MNQERR_E_MAX_SQE_SIZE_ERR (7)
+#define NIX_MNQERR_E_SQB_FAULT (2)
+#define NIX_MNQERR_E_SQB_POISON (3)
+#define NIX_MNQERR_E_SQE_SIZEM1_ZERO (9)
+#define NIX_MNQERR_E_SQ_CTX_FAULT (0)
+#define NIX_MNQERR_E_SQ_CTX_POISON (1)
+#define NIX_MNQERR_E_TOTAL_ERR (4)
 
 /**
  * Enumeration nix_ndc_rx_port_e
@@ -199,12 +212,12 @@
  * (NDC_IDX_E::NIX()_RX) ports and the PORT index of
  * NDC_AF_PORT()_RT()_RW()_REQ_PC and NDC_AF_PORT()_RT()_RW()_LAT_PC.
  */
-#define CAVM_NIX_NDC_RX_PORT_E_AQ (0)
-#define CAVM_NIX_NDC_RX_PORT_E_CINT (2)
-#define CAVM_NIX_NDC_RX_PORT_E_CQ (1)
-#define CAVM_NIX_NDC_RX_PORT_E_MC (3)
-#define CAVM_NIX_NDC_RX_PORT_E_PKT (4)
-#define CAVM_NIX_NDC_RX_PORT_E_RQ (5)
+#define NIX_NDC_RX_PORT_E_AQ (0)
+#define NIX_NDC_RX_PORT_E_CINT (2)
+#define NIX_NDC_RX_PORT_E_CQ (1)
+#define NIX_NDC_RX_PORT_E_MC (3)
+#define NIX_NDC_RX_PORT_E_PKT (4)
+#define NIX_NDC_RX_PORT_E_RQ (5)
 
 /**
  * Enumeration nix_ndc_tx_port_e
@@ -213,12 +226,12 @@
  * (NDC_IDX_E::NIX()_TX) ports and the PORT index of
  * NDC_AF_PORT()_RT()_RW()_REQ_PC and NDC_AF_PORT()_RT()_RW()_LAT_PC.
  */
-#define CAVM_NIX_NDC_TX_PORT_E_DEQ (3)
-#define CAVM_NIX_NDC_TX_PORT_E_DMA (4)
-#define CAVM_NIX_NDC_TX_PORT_E_ENQ (1)
-#define CAVM_NIX_NDC_TX_PORT_E_LMT (0)
-#define CAVM_NIX_NDC_TX_PORT_E_MNQ (2)
-#define CAVM_NIX_NDC_TX_PORT_E_XQE (5)
+#define NIX_NDC_TX_PORT_E_DEQ (3)
+#define NIX_NDC_TX_PORT_E_DMA (4)
+#define NIX_NDC_TX_PORT_E_ENQ (1)
+#define NIX_NDC_TX_PORT_E_LMT (0)
+#define NIX_NDC_TX_PORT_E_MNQ (2)
+#define NIX_NDC_TX_PORT_E_XQE (5)
 
 /**
  * Enumeration nix_re_opcode_e
@@ -227,18 +240,18 @@
  * NIX_RX_PARSE_S[ERRCODE] values when NIX_RX_PARSE_S[ERRLEV] =
  * NPC_ERRLEV_E::RE.
  */
-#define CAVM_NIX_RE_OPCODE_E_OL2_LENMISM (0x12)
-#define CAVM_NIX_RE_OPCODE_E_OVERSIZE (0x11)
-#define CAVM_NIX_RE_OPCODE_E_RE_DMAPKT (0xf)
-#define CAVM_NIX_RE_OPCODE_E_RE_FCS (7)
-#define CAVM_NIX_RE_OPCODE_E_RE_FCS_RCV (8)
-#define CAVM_NIX_RE_OPCODE_E_RE_JABBER (2)
-#define CAVM_NIX_RE_OPCODE_E_RE_NONE (0)
-#define CAVM_NIX_RE_OPCODE_E_RE_PARTIAL (1)
-#define CAVM_NIX_RE_OPCODE_E_RE_RX_CTL (0xb)
-#define CAVM_NIX_RE_OPCODE_E_RE_SKIP (0xc)
-#define CAVM_NIX_RE_OPCODE_E_RE_TERMINATE (9)
-#define CAVM_NIX_RE_OPCODE_E_UNDERSIZE (0x10)
+#define NIX_RE_OPCODE_E_OL2_LENMISM (0x12)
+#define NIX_RE_OPCODE_E_OVERSIZE (0x11)
+#define NIX_RE_OPCODE_E_RE_DMAPKT (0xf)
+#define NIX_RE_OPCODE_E_RE_FCS (7)
+#define NIX_RE_OPCODE_E_RE_FCS_RCV (8)
+#define NIX_RE_OPCODE_E_RE_JABBER (2)
+#define NIX_RE_OPCODE_E_RE_NONE (0)
+#define NIX_RE_OPCODE_E_RE_PARTIAL (1)
+#define NIX_RE_OPCODE_E_RE_RX_CTL (0xb)
+#define NIX_RE_OPCODE_E_RE_SKIP (0xc)
+#define NIX_RE_OPCODE_E_RE_TERMINATE (9)
+#define NIX_RE_OPCODE_E_UNDERSIZE (0x10)
 
 /**
  * Enumeration nix_redalg_e
@@ -246,10 +259,10 @@
  * NIX Red Algorithm Enumeration Enumerates the different algorithms of
  * NIX_SEND_EXT_S[SHP_RA].
  */
-#define CAVM_NIX_REDALG_E_DISCARD (3)
-#define CAVM_NIX_REDALG_E_SEND (1)
-#define CAVM_NIX_REDALG_E_STALL (2)
-#define CAVM_NIX_REDALG_E_STD (0)
+#define NIX_REDALG_E_DISCARD (3)
+#define NIX_REDALG_E_SEND (1)
+#define NIX_REDALG_E_STALL (2)
+#define NIX_REDALG_E_STD (0)
 
 /**
  * Enumeration nix_rqint_e
@@ -257,9 +270,9 @@
  * NIX Receive Queue Interrupt Enumeration Enumerates the bit index of
  * NIX_RQ_CTX_S[RQ_INT,RQ_INT_ENA].
  */
-#define CAVM_NIX_RQINT_E_DROP (0)
-#define CAVM_NIX_RQINT_E_RX(a) (0 + (a))
-#define CAVM_NIX_RQINT_E_RED (1)
+#define NIX_RQINT_E_DROP (0)
+#define NIX_RQINT_E_RX(a) (0 + (a))
+#define NIX_RQINT_E_RED (1)
 
 /**
  * Enumeration nix_rx_actionop_e
@@ -267,13 +280,13 @@
  * NIX Receive Action Opcode Enumeration Enumerates the values of
  * NIX_RX_ACTION_S[OP].
  */
-#define CAVM_NIX_RX_ACTIONOP_E_DROP (0)
-#define CAVM_NIX_RX_ACTIONOP_E_MCAST (3)
-#define CAVM_NIX_RX_ACTIONOP_E_MIRROR (6)
-#define CAVM_NIX_RX_ACTIONOP_E_PF_FUNC_DROP (5)
-#define CAVM_NIX_RX_ACTIONOP_E_RSS (4)
-#define CAVM_NIX_RX_ACTIONOP_E_UCAST (1)
-#define CAVM_NIX_RX_ACTIONOP_E_UCAST_IPSEC (2)
+#define NIX_RX_ACTIONOP_E_DROP (0)
+#define NIX_RX_ACTIONOP_E_MCAST (3)
+#define NIX_RX_ACTIONOP_E_MIRROR (6)
+#define NIX_RX_ACTIONOP_E_PF_FUNC_DROP (5)
+#define NIX_RX_ACTIONOP_E_RSS (4)
+#define NIX_RX_ACTIONOP_E_UCAST (1)
+#define NIX_RX_ACTIONOP_E_UCAST_IPSEC (2)
 
 /**
  * Enumeration nix_rx_mcop_e
@@ -281,8 +294,8 @@
  * NIX Receive Multicast/Mirror Opcode Enumeration Enumerates the values
  * of NIX_RX_MCE_S[OP].
  */
-#define CAVM_NIX_RX_MCOP_E_RQ (0)
-#define CAVM_NIX_RX_MCOP_E_RSS (1)
+#define NIX_RX_MCOP_E_RQ (0)
+#define NIX_RX_MCOP_E_RSS (1)
 
 /**
  * Enumeration nix_rx_perrcode_e
@@ -291,22 +304,22 @@
  * NIX_RX_PARSE_S[ERRCODE] values when NIX_RX_PARSE_S[ERRLEV] =
  * NPC_ERRLEV_E::NIX.
  */
-#define CAVM_NIX_RX_PERRCODE_E_BUFS_OFLOW (0xa)
-#define CAVM_NIX_RX_PERRCODE_E_DATA_FAULT (8)
-#define CAVM_NIX_RX_PERRCODE_E_IL3_LEN (0x20)
-#define CAVM_NIX_RX_PERRCODE_E_IL4_CHK (0x22)
-#define CAVM_NIX_RX_PERRCODE_E_IL4_LEN (0x21)
-#define CAVM_NIX_RX_PERRCODE_E_IL4_PORT (0x23)
-#define CAVM_NIX_RX_PERRCODE_E_MCAST_FAULT (4)
-#define CAVM_NIX_RX_PERRCODE_E_MCAST_POISON (6)
-#define CAVM_NIX_RX_PERRCODE_E_MEMOUT (9)
-#define CAVM_NIX_RX_PERRCODE_E_MIRROR_FAULT (5)
-#define CAVM_NIX_RX_PERRCODE_E_MIRROR_POISON (7)
-#define CAVM_NIX_RX_PERRCODE_E_NPC_RESULT_ERR (2)
-#define CAVM_NIX_RX_PERRCODE_E_OL3_LEN (0x10)
-#define CAVM_NIX_RX_PERRCODE_E_OL4_CHK (0x12)
-#define CAVM_NIX_RX_PERRCODE_E_OL4_LEN (0x11)
-#define CAVM_NIX_RX_PERRCODE_E_OL4_PORT (0x13)
+#define NIX_RX_PERRCODE_E_BUFS_OFLOW (0xa)
+#define NIX_RX_PERRCODE_E_DATA_FAULT (8)
+#define NIX_RX_PERRCODE_E_IL3_LEN (0x20)
+#define NIX_RX_PERRCODE_E_IL4_CHK (0x22)
+#define NIX_RX_PERRCODE_E_IL4_LEN (0x21)
+#define NIX_RX_PERRCODE_E_IL4_PORT (0x23)
+#define NIX_RX_PERRCODE_E_MCAST_FAULT (4)
+#define NIX_RX_PERRCODE_E_MCAST_POISON (6)
+#define NIX_RX_PERRCODE_E_MEMOUT (9)
+#define NIX_RX_PERRCODE_E_MIRROR_FAULT (5)
+#define NIX_RX_PERRCODE_E_MIRROR_POISON (7)
+#define NIX_RX_PERRCODE_E_NPC_RESULT_ERR (2)
+#define NIX_RX_PERRCODE_E_OL3_LEN (0x10)
+#define NIX_RX_PERRCODE_E_OL4_CHK (0x12)
+#define NIX_RX_PERRCODE_E_OL4_LEN (0x11)
+#define NIX_RX_PERRCODE_E_OL4_PORT (0x13)
 
 /**
  * Enumeration nix_send_status_e
@@ -314,31 +327,31 @@
  * NIX Send Completion Status Enumeration Enumerates values of
  * NIX_SEND_COMP_S[STATUS] and NIX_LF_SEND_ERR_DBG[ERRCODE].
  */
-#define CAVM_NIX_SEND_STATUS_E_DATA_FAULT (0x16)
-#define CAVM_NIX_SEND_STATUS_E_DATA_POISON (0x17)
-#define CAVM_NIX_SEND_STATUS_E_GOOD (0)
-#define CAVM_NIX_SEND_STATUS_E_INVALID_SUBDC (0x14)
-#define CAVM_NIX_SEND_STATUS_E_JUMP_FAULT (7)
-#define CAVM_NIX_SEND_STATUS_E_JUMP_POISON (8)
-#define CAVM_NIX_SEND_STATUS_E_LOCK_VIOL (0x21)
-#define CAVM_NIX_SEND_STATUS_E_NPC_DROP_ACTION (0x20)
-#define CAVM_NIX_SEND_STATUS_E_NPC_MCAST_ABORT (0x24)
-#define CAVM_NIX_SEND_STATUS_E_NPC_MCAST_CHAN_ERR (0x23)
-#define CAVM_NIX_SEND_STATUS_E_NPC_UCAST_CHAN_ERR (0x22)
-#define CAVM_NIX_SEND_STATUS_E_NPC_VTAG_PTR_ERR (0x25)
-#define CAVM_NIX_SEND_STATUS_E_NPC_VTAG_SIZE_ERR (0x26)
-#define CAVM_NIX_SEND_STATUS_E_SEND_CRC_ERR (0x10)
-#define CAVM_NIX_SEND_STATUS_E_SEND_EXT_ERR (6)
-#define CAVM_NIX_SEND_STATUS_E_SEND_HDR_ERR (5)
-#define CAVM_NIX_SEND_STATUS_E_SEND_IMM_ERR (0x11)
-#define CAVM_NIX_SEND_STATUS_E_SEND_MEM_ERR (0x13)
-#define CAVM_NIX_SEND_STATUS_E_SEND_MEM_FAULT (0x27)
-#define CAVM_NIX_SEND_STATUS_E_SEND_SG_ERR (0x12)
-#define CAVM_NIX_SEND_STATUS_E_SQB_FAULT (3)
-#define CAVM_NIX_SEND_STATUS_E_SQB_POISON (4)
-#define CAVM_NIX_SEND_STATUS_E_SQ_CTX_FAULT (1)
-#define CAVM_NIX_SEND_STATUS_E_SQ_CTX_POISON (2)
-#define CAVM_NIX_SEND_STATUS_E_SUBDC_ORDER_ERR (0x15)
+#define NIX_SEND_STATUS_E_DATA_FAULT (0x16)
+#define NIX_SEND_STATUS_E_DATA_POISON (0x17)
+#define NIX_SEND_STATUS_E_GOOD (0)
+#define NIX_SEND_STATUS_E_INVALID_SUBDC (0x14)
+#define NIX_SEND_STATUS_E_JUMP_FAULT (7)
+#define NIX_SEND_STATUS_E_JUMP_POISON (8)
+#define NIX_SEND_STATUS_E_LOCK_VIOL (0x21)
+#define NIX_SEND_STATUS_E_NPC_DROP_ACTION (0x20)
+#define NIX_SEND_STATUS_E_NPC_MCAST_ABORT (0x24)
+#define NIX_SEND_STATUS_E_NPC_MCAST_CHAN_ERR (0x23)
+#define NIX_SEND_STATUS_E_NPC_UCAST_CHAN_ERR (0x22)
+#define NIX_SEND_STATUS_E_NPC_VTAG_PTR_ERR (0x25)
+#define NIX_SEND_STATUS_E_NPC_VTAG_SIZE_ERR (0x26)
+#define NIX_SEND_STATUS_E_SEND_CRC_ERR (0x10)
+#define NIX_SEND_STATUS_E_SEND_EXT_ERR (6)
+#define NIX_SEND_STATUS_E_SEND_HDR_ERR (5)
+#define NIX_SEND_STATUS_E_SEND_IMM_ERR (0x11)
+#define NIX_SEND_STATUS_E_SEND_MEM_ERR (0x13)
+#define NIX_SEND_STATUS_E_SEND_MEM_FAULT (0x27)
+#define NIX_SEND_STATUS_E_SEND_SG_ERR (0x12)
+#define NIX_SEND_STATUS_E_SQB_FAULT (3)
+#define NIX_SEND_STATUS_E_SQB_POISON (4)
+#define NIX_SEND_STATUS_E_SQ_CTX_FAULT (1)
+#define NIX_SEND_STATUS_E_SQ_CTX_POISON (2)
+#define NIX_SEND_STATUS_E_SUBDC_ORDER_ERR (0x15)
 
 /**
  * Enumeration nix_sendcrcalg_e
@@ -346,9 +359,9 @@
  * NIX Send CRC Algorithm Enumeration Enumerates the CRC algorithm used,
  * see NIX_SEND_CRC_S[ALG].
  */
-#define CAVM_NIX_SENDCRCALG_E_CRC32 (0)
-#define CAVM_NIX_SENDCRCALG_E_CRC32C (1)
-#define CAVM_NIX_SENDCRCALG_E_ONES16 (2)
+#define NIX_SENDCRCALG_E_CRC32 (0)
+#define NIX_SENDCRCALG_E_CRC32C (1)
+#define NIX_SENDCRCALG_E_ONES16 (2)
 
 /**
  * Enumeration nix_sendl3type_e
@@ -360,10 +373,10 @@
  * 56)  PKT_TX_OUTER_IP_CKSUM(1ULL \<\< 58) PKT_TX_OUTER_IPV4    (1ULL
  * \<\< 59) PKT_TX_OUTER_IPV6    (1ULL \<\< 60) \</pre\>
  */
-#define CAVM_NIX_SENDL3TYPE_E_IP4 (2)
-#define CAVM_NIX_SENDL3TYPE_E_IP4_CKSUM (3)
-#define CAVM_NIX_SENDL3TYPE_E_IP6 (4)
-#define CAVM_NIX_SENDL3TYPE_E_NONE (0)
+#define NIX_SENDL3TYPE_E_IP4 (2)
+#define NIX_SENDL3TYPE_E_IP4_CKSUM (3)
+#define NIX_SENDL3TYPE_E_IP6 (4)
+#define NIX_SENDL3TYPE_E_NONE (0)
 
 /**
  * Enumeration nix_sendl4type_e
@@ -376,10 +389,10 @@
  * 52)  // SCTP cksum of TX pkt. computed by nic. PKT_TX_UDP_CKSUM
  * (3ULL \<\< 52)  // UDP cksum of TX pkt. computed by nic. \</pre\>
  */
-#define CAVM_NIX_SENDL4TYPE_E_NONE (0)
-#define CAVM_NIX_SENDL4TYPE_E_SCTP_CKSUM (2)
-#define CAVM_NIX_SENDL4TYPE_E_TCP_CKSUM (1)
-#define CAVM_NIX_SENDL4TYPE_E_UDP_CKSUM (3)
+#define NIX_SENDL4TYPE_E_NONE (0)
+#define NIX_SENDL4TYPE_E_SCTP_CKSUM (2)
+#define NIX_SENDL4TYPE_E_TCP_CKSUM (1)
+#define NIX_SENDL4TYPE_E_UDP_CKSUM (3)
 
 /**
  * Enumeration nix_sendldtype_e
@@ -389,9 +402,9 @@
  * NIX_SEND_JUMP_S[LD_TYPE].  Internal: The hardware implementation
  * treats undefined encodings as LDD load type.
  */
-#define CAVM_NIX_SENDLDTYPE_E_LDD (0)
-#define CAVM_NIX_SENDLDTYPE_E_LDT (1)
-#define CAVM_NIX_SENDLDTYPE_E_LDWB (2)
+#define NIX_SENDLDTYPE_E_LDD (0)
+#define NIX_SENDLDTYPE_E_LDT (1)
+#define NIX_SENDLDTYPE_E_LDWB (2)
 
 /**
  * Enumeration nix_sendmemalg_e
@@ -401,15 +414,15 @@
  * is the number of gather buffers freed to NPA for the send descriptor.
  * See NIX_SEND_HDR_S[DF] and NIX_SEND_SG_S[I*].
  */
-#define CAVM_NIX_SENDMEMALG_E_ADD (8)
-#define CAVM_NIX_SENDMEMALG_E_ADDLEN (0xa)
-#define CAVM_NIX_SENDMEMALG_E_ADDMBUF (0xc)
-#define CAVM_NIX_SENDMEMALG_E_SET (0)
-#define CAVM_NIX_SENDMEMALG_E_SETRSLT (2)
-#define CAVM_NIX_SENDMEMALG_E_SETTSTMP (1)
-#define CAVM_NIX_SENDMEMALG_E_SUB (9)
-#define CAVM_NIX_SENDMEMALG_E_SUBLEN (0xb)
-#define CAVM_NIX_SENDMEMALG_E_SUBMBUF (0xd)
+#define NIX_SENDMEMALG_E_ADD (8)
+#define NIX_SENDMEMALG_E_ADDLEN (0xa)
+#define NIX_SENDMEMALG_E_ADDMBUF (0xc)
+#define NIX_SENDMEMALG_E_SET (0)
+#define NIX_SENDMEMALG_E_SETRSLT (2)
+#define NIX_SENDMEMALG_E_SETTSTMP (1)
+#define NIX_SENDMEMALG_E_SUB (9)
+#define NIX_SENDMEMALG_E_SUBLEN (0xb)
+#define NIX_SENDMEMALG_E_SUBMBUF (0xd)
 
 /**
  * Enumeration nix_sendmemdsz_e
@@ -417,10 +430,10 @@
  * NIX Memory Data Size Enumeration Enumerates the datum size for
  * modifying memory; see NIX_SEND_MEM_S[DSZ].
  */
-#define CAVM_NIX_SENDMEMDSZ_E_B16 (2)
-#define CAVM_NIX_SENDMEMDSZ_E_B32 (1)
-#define CAVM_NIX_SENDMEMDSZ_E_B64 (0)
-#define CAVM_NIX_SENDMEMDSZ_E_B8 (3)
+#define NIX_SENDMEMDSZ_E_B16 (2)
+#define NIX_SENDMEMDSZ_E_B32 (1)
+#define NIX_SENDMEMDSZ_E_B64 (0)
+#define NIX_SENDMEMDSZ_E_B8 (3)
 
 /**
  * Enumeration nix_sqint_e
@@ -428,10 +441,10 @@
  * NIX Send Queue Interrupt Enumeration Enumerates the bit index of
  * NIX_SQ_CTX_S[SQ_INT,SQ_INT_ENA].
  */
-#define CAVM_NIX_SQINT_E_LMT_ERR (0)
-#define CAVM_NIX_SQINT_E_MNQ_ERR (1)
-#define CAVM_NIX_SQINT_E_SEND_ERR (2)
-#define CAVM_NIX_SQINT_E_SQB_ALLOC_FAIL (3)
+#define NIX_SQINT_E_LMT_ERR (0)
+#define NIX_SQINT_E_MNQ_ERR (1)
+#define NIX_SQINT_E_SEND_ERR (2)
+#define NIX_SQINT_E_SQB_ALLOC_FAIL (3)
 
 /**
  * Enumeration nix_sqoperr_e
@@ -439,15 +452,15 @@
  * NIX SQ Operation Error Enumeration Enumerates
  * NIX_LF_SQ_OP_ERR_DBG[ERRCODE] values.
  */
-#define CAVM_NIX_SQOPERR_E_MAX_SQE_SIZE_ERR (4)
-#define CAVM_NIX_SQOPERR_E_SQB_FAULT (7)
-#define CAVM_NIX_SQOPERR_E_SQB_NULL (6)
-#define CAVM_NIX_SQOPERR_E_SQE_OFLOW (5)
-#define CAVM_NIX_SQOPERR_E_SQE_SIZEM1_ZERO (8)
-#define CAVM_NIX_SQOPERR_E_SQ_CTX_FAULT (1)
-#define CAVM_NIX_SQOPERR_E_SQ_CTX_POISON (2)
-#define CAVM_NIX_SQOPERR_E_SQ_DISABLED (3)
-#define CAVM_NIX_SQOPERR_E_SQ_OOR (0)
+#define NIX_SQOPERR_E_MAX_SQE_SIZE_ERR (4)
+#define NIX_SQOPERR_E_SQB_FAULT (7)
+#define NIX_SQOPERR_E_SQB_NULL (6)
+#define NIX_SQOPERR_E_SQE_OFLOW (5)
+#define NIX_SQOPERR_E_SQE_SIZEM1_ZERO (8)
+#define NIX_SQOPERR_E_SQ_CTX_FAULT (1)
+#define NIX_SQOPERR_E_SQ_CTX_POISON (2)
+#define NIX_SQOPERR_E_SQ_DISABLED (3)
+#define NIX_SQOPERR_E_SQ_OOR (0)
 
 /**
  * Enumeration nix_stat_lf_rx_e
@@ -455,18 +468,18 @@
  * NIX Local Function Receive Statistics Enumeration Enumerates the last
  * index of NIX_AF_LF()_RX_STAT() and NIX_LF_RX_STAT().
  */
-#define CAVM_NIX_STAT_LF_RX_E_RX_BCAST (2)
-#define CAVM_NIX_STAT_LF_RX_E_RX_DROP (4)
-#define CAVM_NIX_STAT_LF_RX_E_RX_DROP_OCTS (5)
-#define CAVM_NIX_STAT_LF_RX_E_RX_DRP_BCAST (8)
-#define CAVM_NIX_STAT_LF_RX_E_RX_DRP_L3BCAST (0xa)
-#define CAVM_NIX_STAT_LF_RX_E_RX_DRP_L3MCAST (0xb)
-#define CAVM_NIX_STAT_LF_RX_E_RX_DRP_MCAST (9)
-#define CAVM_NIX_STAT_LF_RX_E_RX_ERR (7)
-#define CAVM_NIX_STAT_LF_RX_E_RX_FCS (6)
-#define CAVM_NIX_STAT_LF_RX_E_RX_MCAST (3)
-#define CAVM_NIX_STAT_LF_RX_E_RX_OCTS (0)
-#define CAVM_NIX_STAT_LF_RX_E_RX_UCAST (1)
+#define NIX_STAT_LF_RX_E_RX_BCAST (2)
+#define NIX_STAT_LF_RX_E_RX_DROP (4)
+#define NIX_STAT_LF_RX_E_RX_DROP_OCTS (5)
+#define NIX_STAT_LF_RX_E_RX_DRP_BCAST (8)
+#define NIX_STAT_LF_RX_E_RX_DRP_L3BCAST (0xa)
+#define NIX_STAT_LF_RX_E_RX_DRP_L3MCAST (0xb)
+#define NIX_STAT_LF_RX_E_RX_DRP_MCAST (9)
+#define NIX_STAT_LF_RX_E_RX_ERR (7)
+#define NIX_STAT_LF_RX_E_RX_FCS (6)
+#define NIX_STAT_LF_RX_E_RX_MCAST (3)
+#define NIX_STAT_LF_RX_E_RX_OCTS (0)
+#define NIX_STAT_LF_RX_E_RX_UCAST (1)
 
 /**
  * Enumeration nix_stat_lf_tx_e
@@ -476,11 +489,11 @@
  * do not account for packet replication due to NIX_TX_ACTION_S[OP] =
  * NIX_TX_ACTIONOP_E::MCAST.
  */
-#define CAVM_NIX_STAT_LF_TX_E_TX_BCAST (1)
-#define CAVM_NIX_STAT_LF_TX_E_TX_DROP (3)
-#define CAVM_NIX_STAT_LF_TX_E_TX_MCAST (2)
-#define CAVM_NIX_STAT_LF_TX_E_TX_OCTS (4)
-#define CAVM_NIX_STAT_LF_TX_E_TX_UCAST (0)
+#define NIX_STAT_LF_TX_E_TX_BCAST (1)
+#define NIX_STAT_LF_TX_E_TX_DROP (3)
+#define NIX_STAT_LF_TX_E_TX_MCAST (2)
+#define NIX_STAT_LF_TX_E_TX_OCTS (4)
+#define NIX_STAT_LF_TX_E_TX_UCAST (0)
 
 /**
  * Enumeration nix_stype_e
@@ -488,9 +501,9 @@
  * NIX SQB Caching Type Enumeration Enumerates the values of
  * NIX_SQ_CTX_S[SQE_STYPE].
  */
-#define CAVM_NIX_STYPE_E_STF (0)
-#define CAVM_NIX_STYPE_E_STP (2)
-#define CAVM_NIX_STYPE_E_STT (1)
+#define NIX_STYPE_E_STF (0)
+#define NIX_STYPE_E_STP (2)
+#define NIX_STYPE_E_STT (1)
 
 /**
  * Enumeration nix_subdc_e
@@ -502,15 +515,15 @@
  * position as the first subdescriptor, and NIX_RX_PARSE_S, which is
  * determined by its position as the second subdescriptor.
  */
-#define CAVM_NIX_SUBDC_E_CRC (2)
-#define CAVM_NIX_SUBDC_E_EXT (1)
-#define CAVM_NIX_SUBDC_E_IMM (3)
-#define CAVM_NIX_SUBDC_E_JUMP (6)
-#define CAVM_NIX_SUBDC_E_MEM (5)
-#define CAVM_NIX_SUBDC_E_NOP (0)
-#define CAVM_NIX_SUBDC_E_SG (4)
-#define CAVM_NIX_SUBDC_E_SOD (0xf)
-#define CAVM_NIX_SUBDC_E_WORK (7)
+#define NIX_SUBDC_E_CRC (2)
+#define NIX_SUBDC_E_EXT (1)
+#define NIX_SUBDC_E_IMM (3)
+#define NIX_SUBDC_E_JUMP (6)
+#define NIX_SUBDC_E_MEM (5)
+#define NIX_SUBDC_E_NOP (0)
+#define NIX_SUBDC_E_SG (4)
+#define NIX_SUBDC_E_SOD (0xf)
+#define NIX_SUBDC_E_WORK (7)
 
 /**
  * Enumeration nix_tx_actionop_e
@@ -518,11 +531,11 @@
  * NIX Transmit Action Opcode Enumeration Enumerates the values of
  * NIX_TX_ACTION_S[OP].
  */
-#define CAVM_NIX_TX_ACTIONOP_E_DROP (0)
-#define CAVM_NIX_TX_ACTIONOP_E_DROP_VIOL (5)
-#define CAVM_NIX_TX_ACTIONOP_E_MCAST (3)
-#define CAVM_NIX_TX_ACTIONOP_E_UCAST_CHAN (2)
-#define CAVM_NIX_TX_ACTIONOP_E_UCAST_DEFAULT (1)
+#define NIX_TX_ACTIONOP_E_DROP (0)
+#define NIX_TX_ACTIONOP_E_DROP_VIOL (5)
+#define NIX_TX_ACTIONOP_E_MCAST (3)
+#define NIX_TX_ACTIONOP_E_UCAST_CHAN (2)
+#define NIX_TX_ACTIONOP_E_UCAST_DEFAULT (1)
 
 /**
  * Enumeration nix_tx_vtagop_e
@@ -530,9 +543,9 @@
  * NIX Transmit Vtag Opcode Enumeration Enumerates the values of
  * NIX_TX_VTAG_ACTION_S[VTAG0_OP,VTAG1_OP].
  */
-#define CAVM_NIX_TX_VTAGOP_E_INSERT (1)
-#define CAVM_NIX_TX_VTAGOP_E_NOP (0)
-#define CAVM_NIX_TX_VTAGOP_E_REPLACE (2)
+#define NIX_TX_VTAGOP_E_INSERT (1)
+#define NIX_TX_VTAGOP_E_NOP (0)
+#define NIX_TX_VTAGOP_E_REPLACE (2)
 
 /**
  * Enumeration nix_txlayer_e
@@ -540,10 +553,10 @@
  * NIX Transmit Layer Enumeration Enumerates the values of
  * NIX_AF_LSO_FORMAT()_FIELD()[LAYER].
  */
-#define CAVM_NIX_TXLAYER_E_IL3 (2)
-#define CAVM_NIX_TXLAYER_E_IL4 (3)
-#define CAVM_NIX_TXLAYER_E_OL3 (0)
-#define CAVM_NIX_TXLAYER_E_OL4 (1)
+#define NIX_TXLAYER_E_IL3 (2)
+#define NIX_TXLAYER_E_IL4 (3)
+#define NIX_TXLAYER_E_OL3 (0)
+#define NIX_TXLAYER_E_OL4 (1)
 
 /**
  * Enumeration nix_vtagsize_e
@@ -551,8 +564,8 @@
  * NIX Vtag Size Enumeration Enumerates the values of
  * NIX_AF_TX_VTAG_DEF()_CTL[SIZE] and NIX_AF_LF()_RX_VTAG_TYPE()[SIZE].
  */
-#define CAVM_NIX_VTAGSIZE_E_T4 (0)
-#define CAVM_NIX_VTAGSIZE_E_T8 (1)
+#define NIX_VTAGSIZE_E_T4 (0)
+#define NIX_VTAGSIZE_E_T8 (1)
 
 /**
  * Enumeration nix_xqe_type_e
@@ -560,12 +573,12 @@
  * NIX WQE/CQE Type Enumeration Enumerates the values of
  * NIX_WQE_HDR_S[WQE_TYPE], NIX_CQE_HDR_S[CQE_TYPE].
  */
-#define CAVM_NIX_XQE_TYPE_E_INVALID (0)
-#define CAVM_NIX_XQE_TYPE_E_RX (1)
-#define CAVM_NIX_XQE_TYPE_E_RX_IPSECD (4)
-#define CAVM_NIX_XQE_TYPE_E_RX_IPSECH (3)
-#define CAVM_NIX_XQE_TYPE_E_RX_IPSECS (2)
-#define CAVM_NIX_XQE_TYPE_E_SEND (8)
+#define NIX_XQE_TYPE_E_INVALID (0)
+#define NIX_XQE_TYPE_E_RX (1)
+#define NIX_XQE_TYPE_E_RX_IPSECD (4)
+#define NIX_XQE_TYPE_E_RX_IPSECH (3)
+#define NIX_XQE_TYPE_E_RX_IPSECS (2)
+#define NIX_XQE_TYPE_E_SEND (8)
 
 /**
  * Enumeration nix_xqesz_e
@@ -573,8 +586,8 @@
  * NIX WQE/CQE Size Enumeration Enumerates the values of
  * NIX_AF_LF()_CFG[XQE_SIZE].
  */
-#define CAVM_NIX_XQESZ_E_W16 (1)
-#define CAVM_NIX_XQESZ_E_W64 (0)
+#define NIX_XQESZ_E_W16 (1)
+#define NIX_XQESZ_E_W64 (0)
 
 /**
  * Structure nix_aq_inst_s
@@ -590,9 +603,9 @@
  * [CTYPE] = NIX_AQ_CTYPE_E::MCE: use NIX_AF_RX_MCAST_CFG[CACHING] and
  * NIX_AF_RX_MCAST_CFG[WAY_MASK].
  */
-union cavm_nix_aq_inst_s {
+union nix_aq_inst_s {
 	u64 u[2];
-	struct cavm_nix_aq_inst_s_s {
+	struct nix_aq_inst_s_s {
 		u64 op                               : 4;
 		u64 ctype                            : 4;
 		u64 lf                               : 7;
@@ -602,7 +615,7 @@ union cavm_nix_aq_inst_s {
 		u64 doneint                          : 1;
 		u64 res_addr                         : 64;
 	} s;
-	/* struct cavm_nix_aq_inst_s_s cn; */
+	/* struct nix_aq_inst_s_s cn; */
 };
 
 /**
@@ -619,9 +632,9 @@ union cavm_nix_aq_inst_s {
  * always allocate into LLC. Hardware reads of context data do not
  * allocate into LLC.
  */
-union cavm_nix_aq_res_s {
+union nix_aq_res_s {
 	u64 u[2];
-	struct cavm_nix_aq_res_s_s {
+	struct nix_aq_res_s_s {
 		u64 op                               : 4;
 		u64 ctype                            : 4;
 		u64 compcode                         : 8;
@@ -629,7 +642,7 @@ union cavm_nix_aq_res_s {
 		u64 reserved_17_63                   : 47;
 		u64 reserved_64_127                  : 64;
 	} s;
-	/* struct cavm_nix_aq_res_s_s cn; */
+	/* struct nix_aq_res_s_s cn; */
 };
 
 /**
@@ -643,9 +656,9 @@ union cavm_nix_aq_res_s {
  * starting at AF IOVA NIX_AF_LF()_CINTS_BASE. Always stored in byte
  * invariant little-endian format (LE8).
  */
-union cavm_nix_cint_hw_s {
+union nix_cint_hw_s {
 	u64 u[2];
-	struct cavm_nix_cint_hw_s_s {
+	struct nix_cint_hw_s_s {
 		u64 ecount                           : 32;
 		u64 qcount                           : 16;
 		u64 intr                             : 1;
@@ -657,7 +670,7 @@ union cavm_nix_cint_hw_s {
 		u64 time_wait                        : 8;
 		u64 reserved_120_127                 : 8;
 	} s;
-	/* struct cavm_nix_cint_hw_s_s cn; */
+	/* struct nix_cint_hw_s_s cn; */
 };
 
 /**
@@ -668,9 +681,9 @@ union cavm_nix_cint_hw_s {
  * uses the same structure format to read and write an CQ context with
  * the NIX admin queue.
  */
-union cavm_nix_cq_ctx_s {
+union nix_cq_ctx_s {
 	u64 u[4];
-	struct cavm_nix_cq_ctx_s_s {
+	struct nix_cq_ctx_s_s {
 		u64 base                             : 64;
 		u64 reserved_64_67                   : 4;
 		u64 bp_ena                           : 1;
@@ -698,7 +711,7 @@ union cavm_nix_cq_ctx_s {
 		u64 cq_err_int                       : 8;
 		u64 cq_err_int_ena                   : 8;
 	} s;
-	/* struct cavm_nix_cq_ctx_s_s cn; */
+	/* struct nix_cq_ctx_s_s cn; */
 };
 
 /**
@@ -710,16 +723,16 @@ union cavm_nix_cq_ctx_s {
  * completion CQE. Stored in memory as little-endian unless
  * NIX_AF_LF()_CFG[BE] is set.
  */
-union cavm_nix_cqe_hdr_s {
+union nix_cqe_hdr_s {
 	u64 u;
-	struct cavm_nix_cqe_hdr_s_s {
+	struct nix_cqe_hdr_s_s {
 		u64 tag                              : 32;
 		u64 q                                : 20;
 		u64 reserved_52_57                   : 6;
 		u64 node                             : 2;
 		u64 cqe_type                         : 4;
 	} s;
-	/* struct cavm_nix_cqe_hdr_s_s cn; */
+	/* struct nix_cqe_hdr_s_s cn; */
 };
 
 /**
@@ -729,14 +742,14 @@ union cavm_nix_cqe_hdr_s {
  * instruction header that precedes the packet header supplied to NPC for
  * packets to be transmitted by NIX.
  */
-union cavm_nix_inst_hdr_s {
+union nix_inst_hdr_s {
 	u64 u;
-	struct cavm_nix_inst_hdr_s_s {
+	struct nix_inst_hdr_s_s {
 		u64 pf_func                          : 16;
 		u64 sq                               : 20;
 		u64 reserved_36_63                   : 28;
 	} s;
-	/* struct cavm_nix_inst_hdr_s_s cn; */
+	/* struct nix_inst_hdr_s_s cn; */
 };
 
 /**
@@ -744,12 +757,12 @@ union cavm_nix_inst_hdr_s {
  *
  * NIX I/O Virtual Address Structure
  */
-union cavm_nix_iova_s {
+union nix_iova_s {
 	u64 u;
-	struct cavm_nix_iova_s_s {
+	struct nix_iova_s_s {
 		u64 addr                             : 64;
 	} s;
-	/* struct cavm_nix_iova_s_s cn; */
+	/* struct nix_iova_s_s cn; */
 };
 
 /**
@@ -758,12 +771,12 @@ union cavm_nix_iova_s {
  * INTERNAL: NIX IPSEC Dynamic Ordering Counter Structure  Internal: Not
  * used; no IPSEC fast-path.
  */
-union cavm_nix_ipsec_dyno_s {
+union nix_ipsec_dyno_s {
 	u32 u;
-	struct cavm_nix_ipsec_dyno_s_s {
+	struct nix_ipsec_dyno_s_s {
 		u32 count                            : 32;
 	} s;
-	/* struct cavm_nix_ipsec_dyno_s_s cn; */
+	/* struct nix_ipsec_dyno_s_s cn; */
 };
 
 /**
@@ -773,14 +786,14 @@ union cavm_nix_ipsec_dyno_s {
  * NIX_SEND_MEM_S[ALG]=NIX_SENDMEMALG_E::SETRSLT, the value written to
  * memory is formed with this structure.
  */
-union cavm_nix_mem_result_s {
+union nix_mem_result_s {
 	u64 u;
-	struct cavm_nix_mem_result_s_s {
+	struct nix_mem_result_s_s {
 		u64 v                                : 1;
 		u64 color                            : 2;
 		u64 reserved_3_63                    : 61;
 	} s;
-	/* struct cavm_nix_mem_result_s_s cn; */
+	/* struct nix_mem_result_s_s cn; */
 };
 
 /**
@@ -790,14 +803,14 @@ union cavm_nix_mem_result_s {
  * the write data format of an atomic 64-bit load-and-add of some
  * NIX_LF_RQ_OP_*, NIX_LF_SQ_OP* and NIX_LF_CQ_OP* registers.
  */
-union cavm_nix_op_q_wdata_s {
+union nix_op_q_wdata_s {
 	u64 u;
-	struct cavm_nix_op_q_wdata_s_s {
+	struct nix_op_q_wdata_s_s {
 		u64 reserved_0_31                    : 32;
 		u64 q                                : 20;
 		u64 reserved_52_63                   : 12;
 	} s;
-	/* struct cavm_nix_op_q_wdata_s_s cn; */
+	/* struct nix_op_q_wdata_s_s cn; */
 };
 
 /**
@@ -811,14 +824,14 @@ union cavm_nix_op_q_wdata_s {
  * starting at IOVA NIX_AF_LF()_QINTS_BASE. Always stored in byte
  * invariant little-endian format (LE8).
  */
-union cavm_nix_qint_hw_s {
+union nix_qint_hw_s {
 	u32 u;
-	struct cavm_nix_qint_hw_s_s {
+	struct nix_qint_hw_s_s {
 		u32 count                            : 22;
 		u32 reserved_22_30                   : 9;
 		u32 ena                              : 1;
 	} s;
-	/* struct cavm_nix_qint_hw_s_s cn; */
+	/* struct nix_qint_hw_s_s cn; */
 };
 
 /**
@@ -830,9 +843,9 @@ union cavm_nix_qint_hw_s {
  * RQ context with the NIX admin queue. Always stored in byte invariant
  * little-endian format (LE8).
  */
-union cavm_nix_rq_ctx_hw_s {
+union nix_rq_ctx_hw_s {
 	u64 u[16];
-	struct cavm_nix_rq_ctx_hw_s_s {
+	struct nix_rq_ctx_hw_s_s {
 		u64 ena                              : 1;
 		u64 sso_ena                          : 1;
 		u64 ipsech_ena                       : 1;
@@ -902,7 +915,7 @@ union cavm_nix_rq_ctx_hw_s {
 		u64 reserved_896_959                 : 64;
 		u64 reserved_960_1023                : 64;
 	} s;
-	/* struct cavm_nix_rq_ctx_hw_s_s cn; */
+	/* struct nix_rq_ctx_hw_s_s cn; */
 };
 
 /**
@@ -912,9 +925,9 @@ union cavm_nix_rq_ctx_hw_s {
  * format used by software to read and write an RQ context with the NIX
  * admin queue.
  */
-union cavm_nix_rq_ctx_s {
+union nix_rq_ctx_s {
 	u64 u[16];
-	struct cavm_nix_rq_ctx_s_s {
+	struct nix_rq_ctx_s_s {
 		u64 ena                              : 1;
 		u64 sso_ena                          : 1;
 		u64 ipsech_ena                       : 1;
@@ -983,7 +996,7 @@ union cavm_nix_rq_ctx_s {
 		u64 reserved_896_959                 : 64;
 		u64 reserved_960_1023                : 64;
 	} s;
-	/* struct cavm_nix_rq_ctx_s_s cn; */
+	/* struct nix_rq_ctx_s_s cn; */
 };
 
 /**
@@ -995,13 +1008,13 @@ union cavm_nix_rq_ctx_s {
  * same structure format to read and write an RSS table entry with the
  * NIX admin queue.
  */
-union cavm_nix_rsse_s {
+union nix_rsse_s {
 	u32 u;
-	struct cavm_nix_rsse_s_s {
+	struct nix_rsse_s_s {
 		u32 rq                               : 20;
 		u32 reserved_20_31                   : 12;
 	} s;
-	/* struct cavm_nix_rsse_s_s cn; */
+	/* struct nix_rsse_s_s cn; */
 };
 
 /**
@@ -1010,9 +1023,9 @@ union cavm_nix_rsse_s {
  * NIX Receive Action Structure This structure defines the format of
  * NPC_RESULT_S[ACTION] for a receive packet.
  */
-union cavm_nix_rx_action_s {
+union nix_rx_action_s {
 	u64 u;
-	struct cavm_nix_rx_action_s_s {
+	struct nix_rx_action_s_s {
 		u64 op                               : 4;
 		u64 pf_func                          : 16;
 		u64 index                            : 20;
@@ -1020,7 +1033,7 @@ union cavm_nix_rx_action_s {
 		u64 flow_key_alg                     : 5;
 		u64 reserved_61_63                   : 3;
 	} s;
-	/* struct cavm_nix_rx_action_s_s cn; */
+	/* struct nix_rx_action_s_s cn; */
 };
 
 /**
@@ -1033,15 +1046,15 @@ union cavm_nix_rx_action_s {
  * (when one exists) will follow the immediate bytes, after rounding up
  * the address to a multiple of 16 bytes.
  */
-union cavm_nix_rx_imm_s {
+union nix_rx_imm_s {
 	u64 u;
-	struct cavm_nix_rx_imm_s_s {
+	struct nix_rx_imm_s_s {
 		u64 size                             : 16;
 		u64 apad                             : 3;
 		u64 reserved_19_59                   : 41;
 		u64 subdc                            : 4;
 	} s;
-	/* struct cavm_nix_rx_imm_s_s cn; */
+	/* struct nix_rx_imm_s_s cn; */
 };
 
 /**
@@ -1055,9 +1068,9 @@ union cavm_nix_rx_imm_s {
  * read and write a multicast/mirror table entry with the NIX admin
  * queue.
  */
-union cavm_nix_rx_mce_s {
+union nix_rx_mce_s {
 	u64 u;
-	struct cavm_nix_rx_mce_s_s {
+	struct nix_rx_mce_s_s {
 		u64 op                               : 2;
 		u64 reserved_2                       : 1;
 		u64 eol                              : 1;
@@ -1066,7 +1079,7 @@ union cavm_nix_rx_mce_s {
 		u64 pf_func                          : 16;
 		u64 next                             : 16;
 	} s;
-	/* struct cavm_nix_rx_mce_s_s cn; */
+	/* struct nix_rx_mce_s_s cn; */
 };
 
 /**
@@ -1079,9 +1092,64 @@ union cavm_nix_rx_mce_s {
  * aligned, so all header pointers in this structure ([EOH_PTR], [LAPTR]
  * through [LHPTR], [VTAG*_PTR]) are even.
  */
-union cavm_nix_rx_parse_s {
+union nix_rx_parse_s {
 	u64 u[7];
-	struct cavm_nix_rx_parse_s_s {
+	struct nix_rx_parse_s_s {
+		u64 chan                             : 12;
+		u64 desc_sizem1                      : 5;
+		u64 imm_copy                         : 1;
+		u64 express                          : 1;
+		u64 wqwd                             : 1;
+		u64 errlev                           : 4;
+		u64 errcode                          : 8;
+		u64 latype                           : 4;
+		u64 lbtype                           : 4;
+		u64 lctype                           : 4;
+		u64 ldtype                           : 4;
+		u64 letype                           : 4;
+		u64 lftype                           : 4;
+		u64 lgtype                           : 4;
+		u64 lhtype                           : 4;
+		u64 pkt_lenm1                        : 16;
+		u64 l2m                              : 1;
+		u64 l2b                              : 1;
+		u64 l3m                              : 1;
+		u64 l3b                              : 1;
+		u64 vtag0_valid                      : 1;
+		u64 vtag0_gone                       : 1;
+		u64 vtag1_valid                      : 1;
+		u64 vtag1_gone                       : 1;
+		u64 pkind                            : 6;
+		u64 nix_idx                          : 2;
+		u64 vtag0_tci                        : 16;
+		u64 vtag1_tci                        : 16;
+		u64 laflags                          : 8;
+		u64 lbflags                          : 8;
+		u64 lcflags                          : 8;
+		u64 ldflags                          : 8;
+		u64 leflags                          : 8;
+		u64 lfflags                          : 8;
+		u64 lgflags                          : 8;
+		u64 lhflags                          : 8;
+		u64 eoh_ptr                          : 8;
+		u64 wqe_aura                         : 20;
+		u64 pb_aura                          : 20;
+		u64 match_id                         : 16;
+		u64 laptr                            : 8;
+		u64 lbptr                            : 8;
+		u64 lcptr                            : 8;
+		u64 ldptr                            : 8;
+		u64 leptr                            : 8;
+		u64 lfptr                            : 8;
+		u64 lgptr                            : 8;
+		u64 lhptr                            : 8;
+		u64 vtag0_ptr                        : 8;
+		u64 vtag1_ptr                        : 8;
+		u64 flow_key_alg                     : 5;
+		u64 reserved_341_383                 : 43;
+		u64 reserved_384_447                 : 64;
+	} s;
+	struct nix_rx_parse_s_cn96xx {
 		u64 chan                             : 12;
 		u64 desc_sizem1                      : 5;
 		u64 imm_copy                         : 1;
@@ -1135,8 +1203,10 @@ union cavm_nix_rx_parse_s {
 		u64 flow_key_alg                     : 5;
 		u64 reserved_341_383                 : 43;
 		u64 reserved_384_447                 : 64;
-	} s;
-	/* struct cavm_nix_rx_parse_s_s cn; */
+	} cn96xx;
+	/* struct nix_rx_parse_s_s cn98xx; */
+	/* struct nix_rx_parse_s_cn96xx cnf95xx; */
+	/* struct nix_rx_parse_s_cn96xx loki; */
 };
 
 /**
@@ -1152,9 +1222,9 @@ union cavm_nix_rx_parse_s {
  * word for segment 2, third word for segment 3. Note the third word is
  * present when [SEGS] \>= 2 but only valid when [SEGS] = 3.
  */
-union cavm_nix_rx_sg_s {
+union nix_rx_sg_s {
 	u64 u;
-	struct cavm_nix_rx_sg_s_s {
+	struct nix_rx_sg_s_s {
 		u64 seg1_size                        : 16;
 		u64 seg2_size                        : 16;
 		u64 seg3_size                        : 16;
@@ -1162,7 +1232,7 @@ union cavm_nix_rx_sg_s {
 		u64 reserved_50_59                   : 10;
 		u64 subdc                            : 4;
 	} s;
-	/* struct cavm_nix_rx_sg_s_s cn; */
+	/* struct nix_rx_sg_s_s cn; */
 };
 
 /**
@@ -1173,9 +1243,9 @@ union cavm_nix_rx_sg_s {
  * Vtags (e.g. C-VLAN/S-VLAN tags, 802.1BR E-TAG) for optional capture
  * and/or stripping.
  */
-union cavm_nix_rx_vtag_action_s {
+union nix_rx_vtag_action_s {
 	u64 u;
-	struct cavm_nix_rx_vtag_action_s_s {
+	struct nix_rx_vtag_action_s_s {
 		u64 vtag0_relptr                     : 8;
 		u64 vtag0_lid                        : 3;
 		u64 reserved_11                      : 1;
@@ -1189,7 +1259,7 @@ union cavm_nix_rx_vtag_action_s {
 		u64 vtag1_valid                      : 1;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nix_rx_vtag_action_s_s cn; */
+	/* struct nix_rx_vtag_action_s_s cn; */
 };
 
 /**
@@ -1198,14 +1268,14 @@ union cavm_nix_rx_vtag_action_s {
  * NIX Send Completion Structure This structure immediately follows
  * NIX_CQE_HDR_S in a send completion CQE.
  */
-union cavm_nix_send_comp_s {
+union nix_send_comp_s {
 	u64 u;
-	struct cavm_nix_send_comp_s_s {
+	struct nix_send_comp_s_s {
 		u64 status                           : 8;
 		u64 sqe_id                           : 16;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_nix_send_comp_s_s cn; */
+	/* struct nix_send_comp_s_s cn; */
 };
 
 /**
@@ -1235,9 +1305,9 @@ union cavm_nix_send_comp_s {
  * [SIZE] and [INSERT] as needed to account for any VLAN inserted by
  * NIX_SEND_EXT_S[VLAN*] or Vtag inserted by NIX_TX_VTAG_ACTION_S.
  */
-union cavm_nix_send_crc_s {
+union nix_send_crc_s {
 	u64 u[2];
-	struct cavm_nix_send_crc_s_s {
+	struct nix_send_crc_s_s {
 		u64 size                             : 16;
 		u64 start                            : 16;
 		u64 insert                           : 16;
@@ -1247,7 +1317,7 @@ union cavm_nix_send_crc_s {
 		u64 iv                               : 32;
 		u64 reserved_96_127                  : 32;
 	} s;
-	/* struct cavm_nix_send_crc_s_s cn; */
+	/* struct nix_send_crc_s_s cn; */
 };
 
 /**
@@ -1259,9 +1329,9 @@ union cavm_nix_send_crc_s {
  * NIX_SEND_HDR_S. All fields are assumed to be zero when this
  * subdescriptor is not present.
  */
-union cavm_nix_send_ext_s {
+union nix_send_ext_s {
 	u64 u[2];
-	struct cavm_nix_send_ext_s_s {
+	struct nix_send_ext_s_s {
 		u64 lso_mps                          : 14;
 		u64 lso                              : 1;
 		u64 tstmp                            : 1;
@@ -1283,7 +1353,7 @@ union cavm_nix_send_ext_s {
 		u64 vlan1_ins_ena                    : 1;
 		u64 reserved_114_127                 : 14;
 	} s;
-	/* struct cavm_nix_send_ext_s_s cn; */
+	/* struct nix_send_ext_s_s cn; */
 };
 
 /**
@@ -1292,9 +1362,9 @@ union cavm_nix_send_ext_s {
  * NIX Send Header Subdescriptor Structure The send header is the first
  * subdescriptor of every send descriptor.
  */
-union cavm_nix_send_hdr_s {
+union nix_send_hdr_s {
 	u64 u[2];
-	struct cavm_nix_send_hdr_s_s {
+	struct nix_send_hdr_s_s {
 		u64 total                            : 18;
 		u64 reserved_18                      : 1;
 		u64 df                               : 1;
@@ -1312,7 +1382,7 @@ union cavm_nix_send_hdr_s {
 		u64 il4type                          : 4;
 		u64 sqe_id                           : 16;
 	} s;
-	/* struct cavm_nix_send_hdr_s_s cn; */
+	/* struct nix_send_hdr_s_s cn; */
 };
 
 /**
@@ -1331,15 +1401,15 @@ union cavm_nix_send_hdr_s {
  * descriptor, all NIX_SEND_IMM_S bytes must be included in the first
  * NIX_SEND_EXT_S[LSO_SB] bytes of the source packet.
  */
-union cavm_nix_send_imm_s {
+union nix_send_imm_s {
 	u64 u;
-	struct cavm_nix_send_imm_s_s {
+	struct nix_send_imm_s_s {
 		u64 size                             : 16;
 		u64 apad                             : 3;
 		u64 reserved_19_59                   : 41;
 		u64 subdc                            : 4;
 	} s;
-	/* struct cavm_nix_send_imm_s_s cn; */
+	/* struct nix_send_imm_s_s cn; */
 };
 
 /**
@@ -1354,9 +1424,9 @@ union cavm_nix_send_imm_s {
  * is not present, else it must immediately follow NIX_SEND_EXT_S. In
  * either case, it must terminate the SQE enqueued by software.
  */
-union cavm_nix_send_jump_s {
+union nix_send_jump_s {
 	u64 u[2];
-	struct cavm_nix_send_jump_s_s {
+	struct nix_send_jump_s_s {
 		u64 sizem1                           : 7;
 		u64 reserved_7_13                    : 7;
 		u64 ld_type                          : 2;
@@ -1366,7 +1436,7 @@ union cavm_nix_send_jump_s {
 		u64 subdc                            : 4;
 		u64 addr                             : 64;
 	} s;
-	/* struct cavm_nix_send_jump_s_s cn; */
+	/* struct nix_send_jump_s_s cn; */
 };
 
 /**
@@ -1386,9 +1456,9 @@ union cavm_nix_send_jump_s {
  * set in the descriptor, NIX executes the memory update only while
  * processing the last LSO segment, after processing prior segments.
  */
-union cavm_nix_send_mem_s {
+union nix_send_mem_s {
 	u64 u[2];
-	struct cavm_nix_send_mem_s_s {
+	struct nix_send_mem_s_s {
 		u64 offset                           : 16;
 		u64 reserved_16_52                   : 37;
 		u64 wmem                             : 1;
@@ -1397,7 +1467,7 @@ union cavm_nix_send_mem_s {
 		u64 subdc                            : 4;
 		u64 addr                             : 64;
 	} s;
-	/* struct cavm_nix_send_mem_s_s cn; */
+	/* struct nix_send_mem_s_s cn; */
 };
 
 /**
@@ -1417,9 +1487,9 @@ union cavm_nix_send_mem_s {
  * subdescriptor will not contribute any packet data but may free buffers
  * to NPA (see [I1]).
  */
-union cavm_nix_send_sg_s {
+union nix_send_sg_s {
 	u64 u;
-	struct cavm_nix_send_sg_s_s {
+	struct nix_send_sg_s_s {
 		u64 seg1_size                        : 16;
 		u64 seg2_size                        : 16;
 		u64 seg3_size                        : 16;
@@ -1431,7 +1501,7 @@ union cavm_nix_send_sg_s {
 		u64 ld_type                          : 2;
 		u64 subdc                            : 4;
 	} s;
-	/* struct cavm_nix_send_sg_s_s cn; */
+	/* struct nix_send_sg_s_s cn; */
 };
 
 /**
@@ -1458,9 +1528,9 @@ union cavm_nix_send_sg_s {
  * after processing prior segments.  Hardware ignores NIX_SEND_WORK_S
  * when NIX_SQ_CTX_S[SSO_ENA] is clear.
  */
-union cavm_nix_send_work_s {
+union nix_send_work_s {
 	u64 u[2];
-	struct cavm_nix_send_work_s_s {
+	struct nix_send_work_s_s {
 		u64 tag                              : 32;
 		u64 tt                               : 2;
 		u64 grp                              : 10;
@@ -1468,7 +1538,7 @@ union cavm_nix_send_work_s {
 		u64 subdc                            : 4;
 		u64 addr                             : 64;
 	} s;
-	/* struct cavm_nix_send_work_s_s cn; */
+	/* struct nix_send_work_s_s cn; */
 };
 
 /**
@@ -1480,9 +1550,9 @@ union cavm_nix_send_work_s {
  * SQ context with the NIX admin queue. Always stored in byte invariant
  * little-endian format (LE8).
  */
-union cavm_nix_sq_ctx_hw_s {
+union nix_sq_ctx_hw_s {
 	u64 u[16];
-	struct cavm_nix_sq_ctx_hw_s_s {
+	struct nix_sq_ctx_hw_s_s {
 		u64 ena                              : 1;
 		u64 substream                        : 20;
 		u64 max_sqe_size                     : 2;
@@ -1543,7 +1613,7 @@ union cavm_nix_sq_ctx_hw_s {
 		u64 pkts_msw                         : 16;
 		u64 octs                             : 48;
 	} s;
-	/* struct cavm_nix_sq_ctx_hw_s_s cn; */
+	/* struct nix_sq_ctx_hw_s_s cn; */
 };
 
 /**
@@ -1556,9 +1626,9 @@ union cavm_nix_sq_ctx_hw_s {
  * [DROP_PKTS]) do not account for packet replication due to
  * NIX_TX_ACTION_S[OP] = NIX_TX_ACTIONOP_E::MCAST.
  */
-union cavm_nix_sq_ctx_s {
+union nix_sq_ctx_s {
 	u64 u[16];
-	struct cavm_nix_sq_ctx_s_s {
+	struct nix_sq_ctx_s_s {
 		u64 ena                              : 1;
 		u64 qint_idx                         : 6;
 		u64 substream                        : 20;
@@ -1617,7 +1687,7 @@ union cavm_nix_sq_ctx_s {
 		u64 drop_pkts                        : 48;
 		u64 reserved_1008_1023               : 16;
 	} s;
-	/* struct cavm_nix_sq_ctx_s_s cn; */
+	/* struct nix_sq_ctx_s_s cn; */
 };
 
 /**
@@ -1626,16 +1696,16 @@ union cavm_nix_sq_ctx_s {
  * NIX Transmit Action Structure This structure defines the format of
  * NPC_RESULT_S[ACTION] for a transmit packet.
  */
-union cavm_nix_tx_action_s {
+union nix_tx_action_s {
 	u64 u;
-	struct cavm_nix_tx_action_s_s {
+	struct nix_tx_action_s_s {
 		u64 op                               : 4;
 		u64 reserved_4_11                    : 8;
 		u64 index                            : 20;
 		u64 match_id                         : 16;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nix_tx_action_s_s cn; */
+	/* struct nix_tx_action_s_s cn; */
 };
 
 /**
@@ -1654,9 +1724,9 @@ union cavm_nix_tx_action_s {
  * or replaced within an outer or inner L3/L4 header, but may be inserted
  * or replaced within an outer L4 payload.
  */
-union cavm_nix_tx_vtag_action_s {
+union nix_tx_vtag_action_s {
 	u64 u;
-	struct cavm_nix_tx_vtag_action_s_s {
+	struct nix_tx_vtag_action_s_s {
 		u64 vtag0_relptr                     : 8;
 		u64 vtag0_lid                        : 3;
 		u64 reserved_11                      : 1;
@@ -1672,7 +1742,7 @@ union cavm_nix_tx_vtag_action_s {
 		u64 vtag1_def                        : 10;
 		u64 reserved_58_63                   : 6;
 	} s;
-	/* struct cavm_nix_tx_vtag_action_s_s cn; */
+	/* struct nix_tx_vtag_action_s_s cn; */
 };
 
 /**
@@ -1683,9 +1753,9 @@ union cavm_nix_tx_vtag_action_s {
  * immediately followed by NIX_RX_PARSE_S. Stored in memory as little-
  * endian unless NIX_AF_LF()_CFG[BE] is set.
  */
-union cavm_nix_wqe_hdr_s {
+union nix_wqe_hdr_s {
 	u64 u;
-	struct cavm_nix_wqe_hdr_s_s {
+	struct nix_wqe_hdr_s_s {
 		u64 tag                              : 32;
 		u64 tt                               : 2;
 		u64 grp                              : 10;
@@ -1693,7 +1763,7 @@ union cavm_nix_wqe_hdr_s {
 		u64 q                                : 14;
 		u64 wqe_type                         : 4;
 	} s;
-	/* struct cavm_nix_wqe_hdr_s_s cn; */
+	/* struct nix_wqe_hdr_s_s cn; */
 };
 
 /**
@@ -1701,19 +1771,19 @@ union cavm_nix_wqe_hdr_s {
  *
  * NIX AF Admin Queue Base Address Register
  */
-union cavm_nixx_af_aq_base {
+union nixx_af_aq_base {
 	u64 u;
-	struct cavm_nixx_af_aq_base_s {
+	struct nixx_af_aq_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 base_addr                        : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_aq_base_s cn; */
+	/* struct nixx_af_aq_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_BASE(void)
+static inline u64 NIXX_AF_AQ_BASE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_BASE(void)
+static inline u64 NIXX_AF_AQ_BASE(void)
 {
 	return 0x410;
 }
@@ -1723,18 +1793,18 @@ static inline u64 CAVM_NIXX_AF_AQ_BASE(void)
  *
  * NIX AF Admin Queue Configuration Register
  */
-union cavm_nixx_af_aq_cfg {
+union nixx_af_aq_cfg {
 	u64 u;
-	struct cavm_nixx_af_aq_cfg_s {
+	struct nixx_af_aq_cfg_s {
 		u64 qsize                            : 4;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_nixx_af_aq_cfg_s cn; */
+	/* struct nixx_af_aq_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_CFG(void)
+static inline u64 NIXX_AF_AQ_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_CFG(void)
+static inline u64 NIXX_AF_AQ_CFG(void)
 {
 	return 0x400;
 }
@@ -1744,18 +1814,18 @@ static inline u64 CAVM_NIXX_AF_AQ_CFG(void)
  *
  * NIX AF Admin Queue Done Count Register
  */
-union cavm_nixx_af_aq_done {
+union nixx_af_aq_done {
 	u64 u;
-	struct cavm_nixx_af_aq_done_s {
+	struct nixx_af_aq_done_s {
 		u64 done                             : 20;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_nixx_af_aq_done_s cn; */
+	/* struct nixx_af_aq_done_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_DONE(void)
+static inline u64 NIXX_AF_AQ_DONE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_DONE(void)
+static inline u64 NIXX_AF_AQ_DONE(void)
 {
 	return 0x450;
 }
@@ -1766,18 +1836,18 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE(void)
  * NIX AF Admin Queue Done Count Ack Register This register is written by
  * software to acknowledge interrupts.
  */
-union cavm_nixx_af_aq_done_ack {
+union nixx_af_aq_done_ack {
 	u64 u;
-	struct cavm_nixx_af_aq_done_ack_s {
+	struct nixx_af_aq_done_ack_s {
 		u64 done_ack                         : 20;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_nixx_af_aq_done_ack_s cn; */
+	/* struct nixx_af_aq_done_ack_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_DONE_ACK(void)
+static inline u64 NIXX_AF_AQ_DONE_ACK(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_DONE_ACK(void)
+static inline u64 NIXX_AF_AQ_DONE_ACK(void)
 {
 	return 0x460;
 }
@@ -1787,18 +1857,18 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_ACK(void)
  *
  * NIX AF Admin Queue Done Interrupt Enable Clear Register
  */
-union cavm_nixx_af_aq_done_ena_w1c {
+union nixx_af_aq_done_ena_w1c {
 	u64 u;
-	struct cavm_nixx_af_aq_done_ena_w1c_s {
+	struct nixx_af_aq_done_ena_w1c_s {
 		u64 done                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_aq_done_ena_w1c_s cn; */
+	/* struct nixx_af_aq_done_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1C(void)
+static inline u64 NIXX_AF_AQ_DONE_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1C(void)
+static inline u64 NIXX_AF_AQ_DONE_ENA_W1C(void)
 {
 	return 0x498;
 }
@@ -1808,18 +1878,18 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1C(void)
  *
  * NIX AF Admin Queue Done Interrupt Enable Set Register
  */
-union cavm_nixx_af_aq_done_ena_w1s {
+union nixx_af_aq_done_ena_w1s {
 	u64 u;
-	struct cavm_nixx_af_aq_done_ena_w1s_s {
+	struct nixx_af_aq_done_ena_w1s_s {
 		u64 done                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_aq_done_ena_w1s_s cn; */
+	/* struct nixx_af_aq_done_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1S(void)
+static inline u64 NIXX_AF_AQ_DONE_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1S(void)
+static inline u64 NIXX_AF_AQ_DONE_ENA_W1S(void)
 {
 	return 0x490;
 }
@@ -1829,18 +1899,18 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_ENA_W1S(void)
  *
  * INTERNAL: NIX AF Admin Queue Done Interrupt Register
  */
-union cavm_nixx_af_aq_done_int {
+union nixx_af_aq_done_int {
 	u64 u;
-	struct cavm_nixx_af_aq_done_int_s {
+	struct nixx_af_aq_done_int_s {
 		u64 done                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_aq_done_int_s cn; */
+	/* struct nixx_af_aq_done_int_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_DONE_INT(void)
+static inline u64 NIXX_AF_AQ_DONE_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_DONE_INT(void)
+static inline u64 NIXX_AF_AQ_DONE_INT(void)
 {
 	return 0x480;
 }
@@ -1850,18 +1920,18 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_INT(void)
  *
  * INTERNAL: NIX AF Admin Queue Done Interrupt Set Register
  */
-union cavm_nixx_af_aq_done_int_w1s {
+union nixx_af_aq_done_int_w1s {
 	u64 u;
-	struct cavm_nixx_af_aq_done_int_w1s_s {
+	struct nixx_af_aq_done_int_w1s_s {
 		u64 done                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_aq_done_int_w1s_s cn; */
+	/* struct nixx_af_aq_done_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_DONE_INT_W1S(void)
+static inline u64 NIXX_AF_AQ_DONE_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_DONE_INT_W1S(void)
+static inline u64 NIXX_AF_AQ_DONE_INT_W1S(void)
 {
 	return 0x488;
 }
@@ -1871,18 +1941,18 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_INT_W1S(void)
  *
  * NIX AF Admin Queue Done Interrupt Timer Register
  */
-union cavm_nixx_af_aq_done_timer {
+union nixx_af_aq_done_timer {
 	u64 u;
-	struct cavm_nixx_af_aq_done_timer_s {
+	struct nixx_af_aq_done_timer_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_nixx_af_aq_done_timer_s cn; */
+	/* struct nixx_af_aq_done_timer_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_DONE_TIMER(void)
+static inline u64 NIXX_AF_AQ_DONE_TIMER(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_DONE_TIMER(void)
+static inline u64 NIXX_AF_AQ_DONE_TIMER(void)
 {
 	return 0x470;
 }
@@ -1893,20 +1963,20 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_TIMER(void)
  * NIX AF Admin Queue Done Interrupt Coalescing Wait Register Specifies
  * the queue interrupt coalescing settings.
  */
-union cavm_nixx_af_aq_done_wait {
+union nixx_af_aq_done_wait {
 	u64 u;
-	struct cavm_nixx_af_aq_done_wait_s {
+	struct nixx_af_aq_done_wait_s {
 		u64 num_wait                         : 20;
 		u64 reserved_20_31                   : 12;
 		u64 time_wait                        : 16;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_aq_done_wait_s cn; */
+	/* struct nixx_af_aq_done_wait_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_DONE_WAIT(void)
+static inline u64 NIXX_AF_AQ_DONE_WAIT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_DONE_WAIT(void)
+static inline u64 NIXX_AF_AQ_DONE_WAIT(void)
 {
 	return 0x440;
 }
@@ -1917,18 +1987,18 @@ static inline u64 CAVM_NIXX_AF_AQ_DONE_WAIT(void)
  * NIX AF Admin Queue Doorbell Register Software writes to this register
  * to enqueue entries to AQ.
  */
-union cavm_nixx_af_aq_door {
+union nixx_af_aq_door {
 	u64 u;
-	struct cavm_nixx_af_aq_door_s {
+	struct nixx_af_aq_door_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_nixx_af_aq_door_s cn; */
+	/* struct nixx_af_aq_door_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_DOOR(void)
+static inline u64 NIXX_AF_AQ_DOOR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_DOOR(void)
+static inline u64 NIXX_AF_AQ_DOOR(void)
 {
 	return 0x430;
 }
@@ -1938,9 +2008,9 @@ static inline u64 CAVM_NIXX_AF_AQ_DOOR(void)
  *
  * NIX AF Admin Queue Status Register
  */
-union cavm_nixx_af_aq_status {
+union nixx_af_aq_status {
 	u64 u;
-	struct cavm_nixx_af_aq_status_s {
+	struct nixx_af_aq_status_s {
 		u64 reserved_0_3                     : 4;
 		u64 head_ptr                         : 20;
 		u64 reserved_24_35                   : 12;
@@ -1949,7 +2019,7 @@ union cavm_nixx_af_aq_status {
 		u64 aq_busy                          : 1;
 		u64 aq_err                           : 1;
 	} s;
-	struct cavm_nixx_af_aq_status_cn {
+	struct nixx_af_aq_status_cn {
 		u64 reserved_0_3                     : 4;
 		u64 head_ptr                         : 20;
 		u64 reserved_24_31                   : 8;
@@ -1961,9 +2031,9 @@ union cavm_nixx_af_aq_status {
 	} cn;
 };
 
-static inline u64 CAVM_NIXX_AF_AQ_STATUS(void)
+static inline u64 NIXX_AF_AQ_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AQ_STATUS(void)
+static inline u64 NIXX_AF_AQ_STATUS(void)
 {
 	return 0x420;
 }
@@ -1973,20 +2043,20 @@ static inline u64 CAVM_NIXX_AF_AQ_STATUS(void)
  *
  * NIX AF Queue Average Delay Register
  */
-union cavm_nixx_af_avg_delay {
+union nixx_af_avg_delay {
 	u64 u;
-	struct cavm_nixx_af_avg_delay_s {
+	struct nixx_af_avg_delay_s {
 		u64 avg_dly                          : 19;
 		u64 reserved_19_23                   : 5;
 		u64 avg_timer                        : 16;
 		u64 reserved_40_63                   : 24;
 	} s;
-	/* struct cavm_nixx_af_avg_delay_s cn; */
+	/* struct nixx_af_avg_delay_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_AVG_DELAY(void)
+static inline u64 NIXX_AF_AVG_DELAY(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_AVG_DELAY(void)
+static inline u64 NIXX_AF_AVG_DELAY(void)
 {
 	return 0xe0;
 }
@@ -1994,22 +2064,22 @@ static inline u64 CAVM_NIXX_AF_AVG_DELAY(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_bar2_alias#
  *
- * INTERNAL: NIX Admin Function  BAR2 Alias Registers  These registers
- * alias to the NIX BAR2 registers for the PF and function selected by
+ * NIX Admin Function  BAR2 Alias Registers These registers alias to the
+ * NIX BAR2 registers for the PF and function selected by
  * NIX_AF_BAR2_SEL[PF_FUNC].  Internal: Not implemented. Placeholder for
  * bug33464.
  */
-union cavm_nixx_af_bar2_aliasx {
+union nixx_af_bar2_aliasx {
 	u64 u;
-	struct cavm_nixx_af_bar2_aliasx_s {
+	struct nixx_af_bar2_aliasx_s {
 		u64 data                             : 64;
 	} s;
-	/* struct cavm_nixx_af_bar2_aliasx_s cn; */
+	/* struct nixx_af_bar2_aliasx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_BAR2_ALIASX(u64 a)
+static inline u64 NIXX_AF_BAR2_ALIASX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_BAR2_ALIASX(u64 a)
+static inline u64 NIXX_AF_BAR2_ALIASX(u64 a)
 {
 	return 0x9100000 + 8 * a;
 }
@@ -2017,23 +2087,23 @@ static inline u64 CAVM_NIXX_AF_BAR2_ALIASX(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_bar2_sel
  *
- * INTERNAL: NIX Admin Function BAR2 Select Register  This register
- * configures BAR2 accesses from the NIX_AF_BAR2_ALIAS() registers in
- * BAR0. Internal: Not implemented. Placeholder for bug33464.
+ * NIX Admin Function BAR2 Select Register This register configures BAR2
+ * accesses from the NIX_AF_BAR2_ALIAS() registers in BAR0. Internal: Not
+ * implemented. Placeholder for bug33464.
  */
-union cavm_nixx_af_bar2_sel {
+union nixx_af_bar2_sel {
 	u64 u;
-	struct cavm_nixx_af_bar2_sel_s {
+	struct nixx_af_bar2_sel_s {
 		u64 alias_pf_func                    : 16;
 		u64 alias_ena                        : 1;
 		u64 reserved_17_63                   : 47;
 	} s;
-	/* struct cavm_nixx_af_bar2_sel_s cn; */
+	/* struct nixx_af_bar2_sel_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_BAR2_SEL(void)
+static inline u64 NIXX_AF_BAR2_SEL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_BAR2_SEL(void)
+static inline u64 NIXX_AF_BAR2_SEL(void)
 {
 	return 0x9000000;
 }
@@ -2043,19 +2113,19 @@ static inline u64 CAVM_NIXX_AF_BAR2_SEL(void)
  *
  * NIX AF Block Reset Register
  */
-union cavm_nixx_af_blk_rst {
+union nixx_af_blk_rst {
 	u64 u;
-	struct cavm_nixx_af_blk_rst_s {
+	struct nixx_af_blk_rst_s {
 		u64 rst                              : 1;
 		u64 reserved_1_62                    : 62;
 		u64 busy                             : 1;
 	} s;
-	/* struct cavm_nixx_af_blk_rst_s cn; */
+	/* struct nixx_af_blk_rst_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_BLK_RST(void)
+static inline u64 NIXX_AF_BLK_RST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_BLK_RST(void)
+static inline u64 NIXX_AF_BLK_RST(void)
 {
 	return 0xb0;
 }
@@ -2065,9 +2135,9 @@ static inline u64 CAVM_NIXX_AF_BLK_RST(void)
  *
  * NIX AF General Configuration Register
  */
-union cavm_nixx_af_cfg {
+union nixx_af_cfg {
 	u64 u;
-	struct cavm_nixx_af_cfg_s {
+	struct nixx_af_cfg_s {
 		u64 force_cond_clk_en                : 1;
 		u64 force_rx_gbl_clk_en              : 1;
 		u64 force_rx_strm_clk_en             : 1;
@@ -2081,12 +2151,12 @@ union cavm_nixx_af_cfg {
 		u64 force_intf_clk_en                : 1;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_cfg_s cn; */
+	/* struct nixx_af_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CFG(void)
+static inline u64 NIXX_AF_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CFG(void)
+static inline u64 NIXX_AF_CFG(void)
 {
 	return 0;
 }
@@ -2096,20 +2166,20 @@ static inline u64 CAVM_NIXX_AF_CFG(void)
  *
  * NIX AF Completion Interrupt Delay Register
  */
-union cavm_nixx_af_cint_delay {
+union nixx_af_cint_delay {
 	u64 u;
-	struct cavm_nixx_af_cint_delay_s {
+	struct nixx_af_cint_delay_s {
 		u64 cint_dly                         : 10;
 		u64 reserved_10_15                   : 6;
 		u64 cint_timer                       : 16;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_nixx_af_cint_delay_s cn; */
+	/* struct nixx_af_cint_delay_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CINT_DELAY(void)
+static inline u64 NIXX_AF_CINT_DELAY(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CINT_DELAY(void)
+static inline u64 NIXX_AF_CINT_DELAY(void)
 {
 	return 0xf0;
 }
@@ -2119,9 +2189,9 @@ static inline u64 CAVM_NIXX_AF_CINT_DELAY(void)
  *
  * NIX AF Completion Interrupt Timer Registers
  */
-union cavm_nixx_af_cint_timerx {
+union nixx_af_cint_timerx {
 	u64 u;
-	struct cavm_nixx_af_cint_timerx_s {
+	struct nixx_af_cint_timerx_s {
 		u64 expir_time                       : 16;
 		u64 cint                             : 7;
 		u64 reserved_23                      : 1;
@@ -2129,12 +2199,12 @@ union cavm_nixx_af_cint_timerx {
 		u64 active                           : 1;
 		u64 reserved_33_63                   : 31;
 	} s;
-	/* struct cavm_nixx_af_cint_timerx_s cn; */
+	/* struct nixx_af_cint_timerx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CINT_TIMERX(u64 a)
+static inline u64 NIXX_AF_CINT_TIMERX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CINT_TIMERX(u64 a)
+static inline u64 NIXX_AF_CINT_TIMERX(u64 a)
 {
 	return 0x1a40 + 0x40000 * a;
 }
@@ -2145,9 +2215,9 @@ static inline u64 CAVM_NIXX_AF_CINT_TIMERX(u64 a)
  * NIX AF Constants Register This register contains constants for
  * software discovery.
  */
-union cavm_nixx_af_const {
+union nixx_af_const {
 	u64 u;
-	struct cavm_nixx_af_const_s {
+	struct nixx_af_const_s {
 		u64 cgx_lmac_channels                : 8;
 		u64 cgx_lmacs                        : 4;
 		u64 num_cgx                          : 4;
@@ -2159,12 +2229,12 @@ union cavm_nixx_af_const {
 		u64 intfs                            : 4;
 		u64 reserved_60_63                   : 4;
 	} s;
-	/* struct cavm_nixx_af_const_s cn; */
+	/* struct nixx_af_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CONST(void)
+static inline u64 NIXX_AF_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CONST(void)
+static inline u64 NIXX_AF_CONST(void)
 {
 	return 0x20;
 }
@@ -2175,9 +2245,9 @@ static inline u64 CAVM_NIXX_AF_CONST(void)
  * NIX AF Constants 1 Register This register contains constants for
  * software discovery.
  */
-union cavm_nixx_af_const1 {
+union nixx_af_const1 {
 	u64 u;
-	struct cavm_nixx_af_const1_s {
+	struct nixx_af_const1_s {
 		u64 sdp_channels                     : 12;
 		u64 rx_bpids                         : 12;
 		u64 lf_tx_stats                      : 8;
@@ -2186,12 +2256,12 @@ union cavm_nixx_af_const1 {
 		u64 lso_formats                      : 8;
 		u64 reserved_56_63                   : 8;
 	} s;
-	/* struct cavm_nixx_af_const1_s cn; */
+	/* struct nixx_af_const1_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CONST1(void)
+static inline u64 NIXX_AF_CONST1(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CONST1(void)
+static inline u64 NIXX_AF_CONST1(void)
 {
 	return 0x28;
 }
@@ -2202,20 +2272,20 @@ static inline u64 CAVM_NIXX_AF_CONST1(void)
  * NIX AF Constants 2 Register This register contains constants for
  * software discovery.
  */
-union cavm_nixx_af_const2 {
+union nixx_af_const2 {
 	u64 u;
-	struct cavm_nixx_af_const2_s {
+	struct nixx_af_const2_s {
 		u64 lfs                              : 12;
 		u64 qints                            : 12;
 		u64 cints                            : 12;
 		u64 reserved_36_63                   : 28;
 	} s;
-	/* struct cavm_nixx_af_const2_s cn; */
+	/* struct nixx_af_const2_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CONST2(void)
+static inline u64 NIXX_AF_CONST2(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CONST2(void)
+static inline u64 NIXX_AF_CONST2(void)
 {
 	return 0x30;
 }
@@ -2226,9 +2296,9 @@ static inline u64 CAVM_NIXX_AF_CONST2(void)
  * NIX AF Constants 2 Register This register contains constants for
  * software discovery.
  */
-union cavm_nixx_af_const3 {
+union nixx_af_const3 {
 	u64 u;
-	struct cavm_nixx_af_const3_s {
+	struct nixx_af_const3_s {
 		u64 sq_ctx_log2bytes                 : 4;
 		u64 rq_ctx_log2bytes                 : 4;
 		u64 cq_ctx_log2bytes                 : 4;
@@ -2239,12 +2309,12 @@ union cavm_nixx_af_const3 {
 		u64 dyno_log2bytes                   : 4;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_nixx_af_const3_s cn; */
+	/* struct nixx_af_const3_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CONST3(void)
+static inline u64 NIXX_AF_CONST3(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CONST3(void)
+static inline u64 NIXX_AF_CONST3(void)
 {
 	return 0x38;
 }
@@ -2255,18 +2325,18 @@ static inline u64 CAVM_NIXX_AF_CONST3(void)
  * NIX AF CQ Constants Register This register contains constants for
  * software discovery.
  */
-union cavm_nixx_af_cq_const {
+union nixx_af_cq_const {
 	u64 u;
-	struct cavm_nixx_af_cq_const_s {
+	struct nixx_af_cq_const_s {
 		u64 queues_per_lf                    : 24;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_nixx_af_cq_const_s cn; */
+	/* struct nixx_af_cq_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CQ_CONST(void)
+static inline u64 NIXX_AF_CQ_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CQ_CONST(void)
+static inline u64 NIXX_AF_CQ_CONST(void)
 {
 	return 0x48;
 }
@@ -2276,21 +2346,21 @@ static inline u64 CAVM_NIXX_AF_CQ_CONST(void)
  *
  * INTERNAL: NIX AF CQM Backpressure Test Registers
  */
-union cavm_nixx_af_cqm_bp_test {
+union nixx_af_cqm_bp_test {
 	u64 u;
-	struct cavm_nixx_af_cqm_bp_test_s {
+	struct nixx_af_cqm_bp_test_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 24;
 		u64 enable                           : 12;
 		u64 reserved_52_63                   : 12;
 	} s;
-	/* struct cavm_nixx_af_cqm_bp_test_s cn; */
+	/* struct nixx_af_cqm_bp_test_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CQM_BP_TEST(void)
+static inline u64 NIXX_AF_CQM_BP_TEST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CQM_BP_TEST(void)
+static inline u64 NIXX_AF_CQM_BP_TEST(void)
 {
 	return 0x48c0;
 }
@@ -2300,17 +2370,17 @@ static inline u64 CAVM_NIXX_AF_CQM_BP_TEST(void)
  *
  * INTERNAL: AF CQM ECO Register
  */
-union cavm_nixx_af_cqm_eco {
+union nixx_af_cqm_eco {
 	u64 u;
-	struct cavm_nixx_af_cqm_eco_s {
+	struct nixx_af_cqm_eco_s {
 		u64 eco_rw                           : 64;
 	} s;
-	/* struct cavm_nixx_af_cqm_eco_s cn; */
+	/* struct nixx_af_cqm_eco_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CQM_ECO(void)
+static inline u64 NIXX_AF_CQM_ECO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CQM_ECO(void)
+static inline u64 NIXX_AF_CQM_ECO(void)
 {
 	return 0x590;
 }
@@ -2320,17 +2390,17 @@ static inline u64 CAVM_NIXX_AF_CQM_ECO(void)
  *
  * INTERNAL: AF CSI ECO Register
  */
-union cavm_nixx_af_csi_eco {
+union nixx_af_csi_eco {
 	u64 u;
-	struct cavm_nixx_af_csi_eco_s {
+	struct nixx_af_csi_eco_s {
 		u64 eco_rw                           : 64;
 	} s;
-	/* struct cavm_nixx_af_csi_eco_s cn; */
+	/* struct nixx_af_csi_eco_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_CSI_ECO(void)
+static inline u64 NIXX_AF_CSI_ECO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_CSI_ECO(void)
+static inline u64 NIXX_AF_CSI_ECO(void)
 {
 	return 0x580;
 }
@@ -2340,9 +2410,9 @@ static inline u64 CAVM_NIXX_AF_CSI_ECO(void)
  *
  * NIX Admin Function Error Interrupt Register
  */
-union cavm_nixx_af_err_int {
+union nixx_af_err_int {
 	u64 u;
-	struct cavm_nixx_af_err_int_s {
+	struct nixx_af_err_int_s {
 		u64 rx_mcast_data_fault              : 1;
 		u64 rx_mirror_data_fault             : 1;
 		u64 rx_mcast_wqe_fault               : 1;
@@ -2356,12 +2426,12 @@ union cavm_nixx_af_err_int {
 		u64 aq_inst_fault                    : 1;
 		u64 reserved_15_63                   : 49;
 	} s;
-	/* struct cavm_nixx_af_err_int_s cn; */
+	/* struct nixx_af_err_int_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_ERR_INT(void)
+static inline u64 NIXX_AF_ERR_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_ERR_INT(void)
+static inline u64 NIXX_AF_ERR_INT(void)
 {
 	return 0x180;
 }
@@ -2372,9 +2442,9 @@ static inline u64 CAVM_NIXX_AF_ERR_INT(void)
  * NIX Admin Function Error Interrupt Enable Clear Register This register
  * clears interrupt enable bits.
  */
-union cavm_nixx_af_err_int_ena_w1c {
+union nixx_af_err_int_ena_w1c {
 	u64 u;
-	struct cavm_nixx_af_err_int_ena_w1c_s {
+	struct nixx_af_err_int_ena_w1c_s {
 		u64 rx_mcast_data_fault              : 1;
 		u64 rx_mirror_data_fault             : 1;
 		u64 rx_mcast_wqe_fault               : 1;
@@ -2388,12 +2458,12 @@ union cavm_nixx_af_err_int_ena_w1c {
 		u64 aq_inst_fault                    : 1;
 		u64 reserved_15_63                   : 49;
 	} s;
-	/* struct cavm_nixx_af_err_int_ena_w1c_s cn; */
+	/* struct nixx_af_err_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1C(void)
+static inline u64 NIXX_AF_ERR_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1C(void)
+static inline u64 NIXX_AF_ERR_INT_ENA_W1C(void)
 {
 	return 0x198;
 }
@@ -2404,9 +2474,9 @@ static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1C(void)
  * NIX Admin Function Error Interrupt Enable Set Register This register
  * sets interrupt enable bits.
  */
-union cavm_nixx_af_err_int_ena_w1s {
+union nixx_af_err_int_ena_w1s {
 	u64 u;
-	struct cavm_nixx_af_err_int_ena_w1s_s {
+	struct nixx_af_err_int_ena_w1s_s {
 		u64 rx_mcast_data_fault              : 1;
 		u64 rx_mirror_data_fault             : 1;
 		u64 rx_mcast_wqe_fault               : 1;
@@ -2420,12 +2490,12 @@ union cavm_nixx_af_err_int_ena_w1s {
 		u64 aq_inst_fault                    : 1;
 		u64 reserved_15_63                   : 49;
 	} s;
-	/* struct cavm_nixx_af_err_int_ena_w1s_s cn; */
+	/* struct nixx_af_err_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1S(void)
+static inline u64 NIXX_AF_ERR_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1S(void)
+static inline u64 NIXX_AF_ERR_INT_ENA_W1S(void)
 {
 	return 0x190;
 }
@@ -2436,9 +2506,9 @@ static inline u64 CAVM_NIXX_AF_ERR_INT_ENA_W1S(void)
  * NIX Admin Function Error Interrupt Set Register This register sets
  * interrupt bits.
  */
-union cavm_nixx_af_err_int_w1s {
+union nixx_af_err_int_w1s {
 	u64 u;
-	struct cavm_nixx_af_err_int_w1s_s {
+	struct nixx_af_err_int_w1s_s {
 		u64 rx_mcast_data_fault              : 1;
 		u64 rx_mirror_data_fault             : 1;
 		u64 rx_mcast_wqe_fault               : 1;
@@ -2452,12 +2522,12 @@ union cavm_nixx_af_err_int_w1s {
 		u64 aq_inst_fault                    : 1;
 		u64 reserved_15_63                   : 49;
 	} s;
-	/* struct cavm_nixx_af_err_int_w1s_s cn; */
+	/* struct nixx_af_err_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_ERR_INT_W1S(void)
+static inline u64 NIXX_AF_ERR_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_ERR_INT_W1S(void)
+static inline u64 NIXX_AF_ERR_INT_W1S(void)
 {
 	return 0x188;
 }
@@ -2465,21 +2535,22 @@ static inline u64 CAVM_NIXX_AF_ERR_INT_W1S(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_expr_tx_fifo_status
  *
- * NIX AF Express Transmit FIFO Status Register Status of FIFO which
- * transmits express packets to CGX and LBK.
+ * INTERNAL: NIX AF Express Transmit FIFO Status Register  Internal:
+ * 802.3br frame preemption/express path is defeatured. Old definition:
+ * Status of FIFO which transmits express packets to CGX and LBK.
  */
-union cavm_nixx_af_expr_tx_fifo_status {
+union nixx_af_expr_tx_fifo_status {
 	u64 u;
-	struct cavm_nixx_af_expr_tx_fifo_status_s {
+	struct nixx_af_expr_tx_fifo_status_s {
 		u64 count                            : 12;
 		u64 reserved_12_63                   : 52;
 	} s;
-	/* struct cavm_nixx_af_expr_tx_fifo_status_s cn; */
+	/* struct nixx_af_expr_tx_fifo_status_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_EXPR_TX_FIFO_STATUS(void)
+static inline u64 NIXX_AF_EXPR_TX_FIFO_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_EXPR_TX_FIFO_STATUS(void)
+static inline u64 NIXX_AF_EXPR_TX_FIFO_STATUS(void)
 {
 	return 0x640;
 }
@@ -2489,9 +2560,9 @@ static inline u64 CAVM_NIXX_AF_EXPR_TX_FIFO_STATUS(void)
  *
  * NIX AF General Interrupt Register
  */
-union cavm_nixx_af_gen_int {
+union nixx_af_gen_int {
 	u64 u;
-	struct cavm_nixx_af_gen_int_s {
+	struct nixx_af_gen_int_s {
 		u64 rx_mcast_drop                    : 1;
 		u64 rx_mirror_drop                   : 1;
 		u64 reserved_2                       : 1;
@@ -2499,12 +2570,12 @@ union cavm_nixx_af_gen_int {
 		u64 smq_flush_done                   : 1;
 		u64 reserved_5_63                    : 59;
 	} s;
-	/* struct cavm_nixx_af_gen_int_s cn; */
+	/* struct nixx_af_gen_int_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_GEN_INT(void)
+static inline u64 NIXX_AF_GEN_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_GEN_INT(void)
+static inline u64 NIXX_AF_GEN_INT(void)
 {
 	return 0x160;
 }
@@ -2515,9 +2586,9 @@ static inline u64 CAVM_NIXX_AF_GEN_INT(void)
  * NIX AF General Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_nixx_af_gen_int_ena_w1c {
+union nixx_af_gen_int_ena_w1c {
 	u64 u;
-	struct cavm_nixx_af_gen_int_ena_w1c_s {
+	struct nixx_af_gen_int_ena_w1c_s {
 		u64 rx_mcast_drop                    : 1;
 		u64 rx_mirror_drop                   : 1;
 		u64 reserved_2                       : 1;
@@ -2525,12 +2596,12 @@ union cavm_nixx_af_gen_int_ena_w1c {
 		u64 smq_flush_done                   : 1;
 		u64 reserved_5_63                    : 59;
 	} s;
-	/* struct cavm_nixx_af_gen_int_ena_w1c_s cn; */
+	/* struct nixx_af_gen_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1C(void)
+static inline u64 NIXX_AF_GEN_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1C(void)
+static inline u64 NIXX_AF_GEN_INT_ENA_W1C(void)
 {
 	return 0x178;
 }
@@ -2541,9 +2612,9 @@ static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1C(void)
  * NIX AF General Interrupt Enable Set Register This register sets
  * interrupt enable bits.
  */
-union cavm_nixx_af_gen_int_ena_w1s {
+union nixx_af_gen_int_ena_w1s {
 	u64 u;
-	struct cavm_nixx_af_gen_int_ena_w1s_s {
+	struct nixx_af_gen_int_ena_w1s_s {
 		u64 rx_mcast_drop                    : 1;
 		u64 rx_mirror_drop                   : 1;
 		u64 reserved_2                       : 1;
@@ -2551,12 +2622,12 @@ union cavm_nixx_af_gen_int_ena_w1s {
 		u64 smq_flush_done                   : 1;
 		u64 reserved_5_63                    : 59;
 	} s;
-	/* struct cavm_nixx_af_gen_int_ena_w1s_s cn; */
+	/* struct nixx_af_gen_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1S(void)
+static inline u64 NIXX_AF_GEN_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1S(void)
+static inline u64 NIXX_AF_GEN_INT_ENA_W1S(void)
 {
 	return 0x170;
 }
@@ -2567,9 +2638,9 @@ static inline u64 CAVM_NIXX_AF_GEN_INT_ENA_W1S(void)
  * NIX AF General Interrupt Set Register This register sets interrupt
  * bits.
  */
-union cavm_nixx_af_gen_int_w1s {
+union nixx_af_gen_int_w1s {
 	u64 u;
-	struct cavm_nixx_af_gen_int_w1s_s {
+	struct nixx_af_gen_int_w1s_s {
 		u64 rx_mcast_drop                    : 1;
 		u64 rx_mirror_drop                   : 1;
 		u64 reserved_2                       : 1;
@@ -2577,12 +2648,12 @@ union cavm_nixx_af_gen_int_w1s {
 		u64 smq_flush_done                   : 1;
 		u64 reserved_5_63                    : 59;
 	} s;
-	/* struct cavm_nixx_af_gen_int_w1s_s cn; */
+	/* struct nixx_af_gen_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_GEN_INT_W1S(void)
+static inline u64 NIXX_AF_GEN_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_GEN_INT_W1S(void)
+static inline u64 NIXX_AF_GEN_INT_W1S(void)
 {
 	return 0x168;
 }
@@ -2592,21 +2663,21 @@ static inline u64 CAVM_NIXX_AF_GEN_INT_W1S(void)
  *
  * NIX AF Local Function Configuration Registers
  */
-union cavm_nixx_af_lfx_cfg {
+union nixx_af_lfx_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_cfg_s {
+	struct nixx_af_lfx_cfg_s {
 		u64 npa_pf_func                      : 16;
 		u64 sso_pf_func                      : 16;
 		u64 be                               : 1;
 		u64 xqe_size                         : 2;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_nixx_af_lfx_cfg_s cn; */
+	/* struct nixx_af_lfx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_CFG(u64 a)
 {
 	return 0x4000 + 0x20000 * a;
 }
@@ -2619,19 +2690,19 @@ static inline u64 CAVM_NIXX_AF_LFX_CFG(u64 a)
  * context table in NDC/LLC/DRAM. The table consists of
  * NIX_AF_CONST2[CINTS] contiguous NIX_CINT_HW_S structures.
  */
-union cavm_nixx_af_lfx_cints_base {
+union nixx_af_lfx_cints_base {
 	u64 u;
-	struct cavm_nixx_af_lfx_cints_base_s {
+	struct nixx_af_lfx_cints_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_lfx_cints_base_s cn; */
+	/* struct nixx_af_lfx_cints_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_CINTS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_CINTS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_CINTS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_CINTS_BASE(u64 a)
 {
 	return 0x4130 + 0x20000 * a;
 }
@@ -2645,20 +2716,20 @@ static inline u64 CAVM_NIXX_AF_LFX_CINTS_BASE(u64 a)
  * contiguous NIX_CINT_HW_S structures. The size of each structure is 1
  * \<\< NIX_AF_CONST3[CINT_LOG2BYTES].
  */
-union cavm_nixx_af_lfx_cints_cfg {
+union nixx_af_lfx_cints_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_cints_cfg_s {
+	struct nixx_af_lfx_cints_cfg_s {
 		u64 reserved_0_19                    : 20;
 		u64 way_mask                         : 16;
 		u64 caching                          : 1;
 		u64 reserved_37_63                   : 27;
 	} s;
-	/* struct cavm_nixx_af_lfx_cints_cfg_s cn; */
+	/* struct nixx_af_lfx_cints_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_CINTS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_CINTS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_CINTS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_CINTS_CFG(u64 a)
 {
 	return 0x4120 + 0x20000 * a;
 }
@@ -2671,19 +2742,19 @@ static inline u64 CAVM_NIXX_AF_LFX_CINTS_CFG(u64 a)
  * table consists of NIX_AF_LF()_CQS_CFG[MAX_QUEUESM1]+1 contiguous
  * NIX_CQ_CTX_S structures.
  */
-union cavm_nixx_af_lfx_cqs_base {
+union nixx_af_lfx_cqs_base {
 	u64 u;
-	struct cavm_nixx_af_lfx_cqs_base_s {
+	struct nixx_af_lfx_cqs_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_lfx_cqs_base_s cn; */
+	/* struct nixx_af_lfx_cqs_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_CQS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_CQS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_CQS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_CQS_BASE(u64 a)
 {
 	return 0x4070 + 0x20000 * a;
 }
@@ -2694,20 +2765,20 @@ static inline u64 CAVM_NIXX_AF_LFX_CQS_BASE(u64 a)
  * NIX AF Local Function Completion Queues Configuration Register This
  * register configures completion queues in the LF.
  */
-union cavm_nixx_af_lfx_cqs_cfg {
+union nixx_af_lfx_cqs_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_cqs_cfg_s {
+	struct nixx_af_lfx_cqs_cfg_s {
 		u64 max_queuesm1                     : 20;
 		u64 way_mask                         : 16;
 		u64 caching                          : 1;
 		u64 reserved_37_63                   : 27;
 	} s;
-	/* struct cavm_nixx_af_lfx_cqs_cfg_s cn; */
+	/* struct nixx_af_lfx_cqs_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_CQS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_CQS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_CQS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_CQS_CFG(u64 a)
 {
 	return 0x4060 + 0x20000 * a;
 }
@@ -2721,18 +2792,18 @@ static inline u64 CAVM_NIXX_AF_LFX_CQS_CFG(u64 a)
  * skip bytes). NPC's MCAM can be used for deeper protocol-aware
  * lockdown.
  */
-union cavm_nixx_af_lfx_lockx {
+union nixx_af_lfx_lockx {
 	u64 u;
-	struct cavm_nixx_af_lfx_lockx_s {
+	struct nixx_af_lfx_lockx_s {
 		u64 data                             : 32;
 		u64 bit_ena                          : 32;
 	} s;
-	/* struct cavm_nixx_af_lfx_lockx_s cn; */
+	/* struct nixx_af_lfx_lockx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_LOCKX(u64 a, u64 b)
+static inline u64 NIXX_AF_LFX_LOCKX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_LOCKX(u64 a, u64 b)
+static inline u64 NIXX_AF_LFX_LOCKX(u64 a, u64 b)
 {
 	return 0x4300 + 0x20000 * a + 8 * b;
 }
@@ -2745,19 +2816,19 @@ static inline u64 CAVM_NIXX_AF_LFX_LOCKX(u64 a, u64 b)
  * table in NDC/LLC/DRAM. The table consists of NIX_AF_CONST2[QINTS]
  * contiguous NIX_QINT_HW_S structures.
  */
-union cavm_nixx_af_lfx_qints_base {
+union nixx_af_lfx_qints_base {
 	u64 u;
-	struct cavm_nixx_af_lfx_qints_base_s {
+	struct nixx_af_lfx_qints_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_lfx_qints_base_s cn; */
+	/* struct nixx_af_lfx_qints_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_QINTS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_QINTS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_QINTS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_QINTS_BASE(u64 a)
 {
 	return 0x4110 + 0x20000 * a;
 }
@@ -2771,20 +2842,20 @@ static inline u64 CAVM_NIXX_AF_LFX_QINTS_BASE(u64 a)
  * NIX_QINT_HW_S structures. The size of each structure is 1 \<\<
  * NIX_AF_CONST3[QINT_LOG2BYTES].
  */
-union cavm_nixx_af_lfx_qints_cfg {
+union nixx_af_lfx_qints_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_qints_cfg_s {
+	struct nixx_af_lfx_qints_cfg_s {
 		u64 reserved_0_19                    : 20;
 		u64 way_mask                         : 16;
 		u64 caching                          : 1;
 		u64 reserved_37_63                   : 27;
 	} s;
-	/* struct cavm_nixx_af_lfx_qints_cfg_s cn; */
+	/* struct nixx_af_lfx_qints_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_QINTS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_QINTS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_QINTS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_QINTS_CFG(u64 a)
 {
 	return 0x4100 + 0x20000 * a;
 }
@@ -2797,19 +2868,19 @@ static inline u64 CAVM_NIXX_AF_LFX_QINTS_CFG(u64 a)
  * table consists of NIX_AF_LF()_RQS_CFG[MAX_QUEUESM1]+1 contiguous
  * NIX_RQ_CTX_S structures.
  */
-union cavm_nixx_af_lfx_rqs_base {
+union nixx_af_lfx_rqs_base {
 	u64 u;
-	struct cavm_nixx_af_lfx_rqs_base_s {
+	struct nixx_af_lfx_rqs_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_lfx_rqs_base_s cn; */
+	/* struct nixx_af_lfx_rqs_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RQS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_RQS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RQS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_RQS_BASE(u64 a)
 {
 	return 0x4050 + 0x20000 * a;
 }
@@ -2820,20 +2891,20 @@ static inline u64 CAVM_NIXX_AF_LFX_RQS_BASE(u64 a)
  * NIX AF Local Function Receive Queues Configuration Register This
  * register configures receive queues in the LF.
  */
-union cavm_nixx_af_lfx_rqs_cfg {
+union nixx_af_lfx_rqs_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_rqs_cfg_s {
+	struct nixx_af_lfx_rqs_cfg_s {
 		u64 max_queuesm1                     : 20;
 		u64 way_mask                         : 16;
 		u64 caching                          : 1;
 		u64 reserved_37_63                   : 27;
 	} s;
-	/* struct cavm_nixx_af_lfx_rqs_cfg_s cn; */
+	/* struct nixx_af_lfx_rqs_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RQS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_RQS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RQS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_RQS_CFG(u64 a)
 {
 	return 0x4040 + 0x20000 * a;
 }
@@ -2848,19 +2919,19 @@ static inline u64 CAVM_NIXX_AF_LFX_RQS_CFG(u64 a)
  * structures, where the size of each structure is 1 \<\<
  * NIX_AF_CONST3[RSSE_LOG2BYTES]. See NIX_AF_LF()_RSS_GRP().
  */
-union cavm_nixx_af_lfx_rss_base {
+union nixx_af_lfx_rss_base {
 	u64 u;
-	struct cavm_nixx_af_lfx_rss_base_s {
+	struct nixx_af_lfx_rss_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_lfx_rss_base_s cn; */
+	/* struct nixx_af_lfx_rss_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RSS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_RSS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RSS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_RSS_BASE(u64 a)
 {
 	return 0x40d0 + 0x20000 * a;
 }
@@ -2871,22 +2942,34 @@ static inline u64 CAVM_NIXX_AF_LFX_RSS_BASE(u64 a)
  * NIX AF Local Function Receive Size Scaling Table Configuration
  * Register See NIX_AF_LF()_RSS_BASE and NIX_AF_LF()_RSS_GRP().
  */
-union cavm_nixx_af_lfx_rss_cfg {
+union nixx_af_lfx_rss_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_rss_cfg_s {
+	struct nixx_af_lfx_rss_cfg_s {
+		u64 size                             : 4;
+		u64 ena                              : 1;
+		u64 adder_is_tag_lsb                 : 1;
+		u64 reserved_6_19                    : 14;
+		u64 way_mask                         : 16;
+		u64 caching                          : 1;
+		u64 reserved_37_63                   : 27;
+	} s;
+	struct nixx_af_lfx_rss_cfg_cn96xxp1 {
 		u64 size                             : 4;
 		u64 ena                              : 1;
 		u64 reserved_5_19                    : 15;
 		u64 way_mask                         : 16;
 		u64 caching                          : 1;
 		u64 reserved_37_63                   : 27;
-	} s;
-	/* struct cavm_nixx_af_lfx_rss_cfg_s cn; */
+	} cn96xxp1;
+	/* struct nixx_af_lfx_rss_cfg_s cn96xxp3; */
+	/* struct nixx_af_lfx_rss_cfg_s cn98xx; */
+	/* struct nixx_af_lfx_rss_cfg_cn96xxp1 cnf95xx; */
+	/* struct nixx_af_lfx_rss_cfg_s loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RSS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_RSS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RSS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_RSS_CFG(u64 a)
 {
 	return 0x40c0 + 0x20000 * a;
 }
@@ -2904,20 +2987,20 @@ static inline u64 CAVM_NIXX_AF_LFX_RSS_CFG(u64 a)
  * select a NIX_RSSE_S entry in the LF's RSS table (see [SIZEM1]). *
  * NIX_RSSE_S selects the packet's destination RQ.
  */
-union cavm_nixx_af_lfx_rss_grpx {
+union nixx_af_lfx_rss_grpx {
 	u64 u;
-	struct cavm_nixx_af_lfx_rss_grpx_s {
+	struct nixx_af_lfx_rss_grpx_s {
 		u64 offset                           : 11;
 		u64 reserved_11_15                   : 5;
 		u64 sizem1                           : 3;
 		u64 reserved_19_63                   : 45;
 	} s;
-	/* struct cavm_nixx_af_lfx_rss_grpx_s cn; */
+	/* struct nixx_af_lfx_rss_grpx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RSS_GRPX(u64 a, u64 b)
+static inline u64 NIXX_AF_LFX_RSS_GRPX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RSS_GRPX(u64 a, u64 b)
+static inline u64 NIXX_AF_LFX_RSS_GRPX(u64 a, u64 b)
 {
 	return 0x4600 + 0x20000 * a + 8 * b;
 }
@@ -2927,9 +3010,9 @@ static inline u64 CAVM_NIXX_AF_LFX_RSS_GRPX(u64 a, u64 b)
  *
  * NIX AF Local Function Receive Configuration Register
  */
-union cavm_nixx_af_lfx_rx_cfg {
+union nixx_af_lfx_rx_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_rx_cfg_s {
+	struct nixx_af_lfx_rx_cfg_s {
 		u64 reserved_0_31                    : 32;
 		u64 drop_re                          : 1;
 		u64 lenerr_en                        : 1;
@@ -2943,7 +3026,7 @@ union cavm_nixx_af_lfx_rx_cfg {
 		u64 len_ol3                          : 1;
 		u64 reserved_42_63                   : 22;
 	} s;
-	struct cavm_nixx_af_lfx_rx_cfg_cn96xx {
+	struct nixx_af_lfx_rx_cfg_cn96xxp1 {
 		u64 reserved_0_31                    : 32;
 		u64 reserved_32                      : 1;
 		u64 lenerr_en                        : 1;
@@ -2956,13 +3039,16 @@ union cavm_nixx_af_lfx_rx_cfg {
 		u64 len_ol4                          : 1;
 		u64 len_ol3                          : 1;
 		u64 reserved_42_63                   : 22;
-	} cn96xx;
-	/* struct cavm_nixx_af_lfx_rx_cfg_s cnf95xx; */
+	} cn96xxp1;
+	/* struct nixx_af_lfx_rx_cfg_s cn96xxp3; */
+	/* struct nixx_af_lfx_rx_cfg_s cn98xx; */
+	/* struct nixx_af_lfx_rx_cfg_s cnf95xx; */
+	/* struct nixx_af_lfx_rx_cfg_s loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RX_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_RX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RX_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_RX_CFG(u64 a)
 {
 	return 0x40a0 + 0x20000 * a;
 }
@@ -2973,9 +3059,9 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_CFG(u64 a)
  * INTERNAL: NIX AF LF Receive IPSEC Configuration Registers  Internal:
  * Not used; no IPSEC fast-path.
  */
-union cavm_nixx_af_lfx_rx_ipsec_cfg0 {
+union nixx_af_lfx_rx_ipsec_cfg0 {
 	u64 u;
-	struct cavm_nixx_af_lfx_rx_ipsec_cfg0_s {
+	struct nixx_af_lfx_rx_ipsec_cfg0_s {
 		u64 lenm1_max                        : 14;
 		u64 reserved_14_15                   : 2;
 		u64 sa_pow2_size                     : 4;
@@ -2985,12 +3071,12 @@ union cavm_nixx_af_lfx_rx_ipsec_cfg0 {
 		u64 hshcpt                           : 1;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_lfx_rx_ipsec_cfg0_s cn; */
+	/* struct nixx_af_lfx_rx_ipsec_cfg0_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG0(u64 a)
+static inline u64 NIXX_AF_LFX_RX_IPSEC_CFG0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG0(u64 a)
+static inline u64 NIXX_AF_LFX_RX_IPSEC_CFG0(u64 a)
 {
 	return 0x4140 + 0x20000 * a;
 }
@@ -3001,19 +3087,19 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG0(u64 a)
  * INTERNAL: NIX AF LF Receive IPSEC Security Association Configuration
  * Register  Internal: Not used; no IPSEC fast-path.
  */
-union cavm_nixx_af_lfx_rx_ipsec_cfg1 {
+union nixx_af_lfx_rx_ipsec_cfg1 {
 	u64 u;
-	struct cavm_nixx_af_lfx_rx_ipsec_cfg1_s {
+	struct nixx_af_lfx_rx_ipsec_cfg1_s {
 		u64 sa_idx_max                       : 32;
 		u64 sa_idx_w                         : 5;
 		u64 reserved_37_63                   : 27;
 	} s;
-	/* struct cavm_nixx_af_lfx_rx_ipsec_cfg1_s cn; */
+	/* struct nixx_af_lfx_rx_ipsec_cfg1_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG1(u64 a)
+static inline u64 NIXX_AF_LFX_RX_IPSEC_CFG1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG1(u64 a)
+static inline u64 NIXX_AF_LFX_RX_IPSEC_CFG1(u64 a)
 {
 	return 0x4148 + 0x20000 * a;
 }
@@ -3024,19 +3110,19 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG1(u64 a)
  * INTERNAL: NIX AF LF Receive IPSEC Dynamic Ordering Base Address
  * Registers  Internal: Not used; no IPSEC fast-path.
  */
-union cavm_nixx_af_lfx_rx_ipsec_dyno_base {
+union nixx_af_lfx_rx_ipsec_dyno_base {
 	u64 u;
-	struct cavm_nixx_af_lfx_rx_ipsec_dyno_base_s {
+	struct nixx_af_lfx_rx_ipsec_dyno_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_lfx_rx_ipsec_dyno_base_s cn; */
+	/* struct nixx_af_lfx_rx_ipsec_dyno_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_RX_IPSEC_DYNO_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_RX_IPSEC_DYNO_BASE(u64 a)
 {
 	return 0x4158 + 0x20000 * a;
 }
@@ -3047,9 +3133,9 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_BASE(u64 a)
  * INTERNAL: NIX AF LF Receive IPSEC Dynamic Ordering Base Address
  * Registers  Internal: Not used; no IPSEC fast-path.
  */
-union cavm_nixx_af_lfx_rx_ipsec_dyno_cfg {
+union nixx_af_lfx_rx_ipsec_dyno_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_rx_ipsec_dyno_cfg_s {
+	struct nixx_af_lfx_rx_ipsec_dyno_cfg_s {
 		u64 dyno_idx_w                       : 4;
 		u64 dyno_ena                         : 1;
 		u64 reserved_5_19                    : 15;
@@ -3057,12 +3143,12 @@ union cavm_nixx_af_lfx_rx_ipsec_dyno_cfg {
 		u64 caching                          : 1;
 		u64 reserved_37_63                   : 27;
 	} s;
-	/* struct cavm_nixx_af_lfx_rx_ipsec_dyno_cfg_s cn; */
+	/* struct nixx_af_lfx_rx_ipsec_dyno_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_RX_IPSEC_DYNO_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_RX_IPSEC_DYNO_CFG(u64 a)
 {
 	return 0x4150 + 0x20000 * a;
 }
@@ -3073,19 +3159,19 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_CFG(u64 a)
  * INTERNAL: NIX AF LF Receive IPSEC Security Association Base Address
  * Register  Internal: Not used; no IPSEC fast-path.
  */
-union cavm_nixx_af_lfx_rx_ipsec_sa_base {
+union nixx_af_lfx_rx_ipsec_sa_base {
 	u64 u;
-	struct cavm_nixx_af_lfx_rx_ipsec_sa_base_s {
+	struct nixx_af_lfx_rx_ipsec_sa_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_lfx_rx_ipsec_sa_base_s cn; */
+	/* struct nixx_af_lfx_rx_ipsec_sa_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_SA_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_RX_IPSEC_SA_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_SA_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_RX_IPSEC_SA_BASE(u64 a)
 {
 	return 0x4170 + 0x20000 * a;
 }
@@ -3096,18 +3182,18 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_SA_BASE(u64 a)
  * NIX AF Local Function Receive Statistics Registers The last dimension
  * indicates which statistic, and is enumerated by NIX_STAT_LF_RX_E.
  */
-union cavm_nixx_af_lfx_rx_statx {
+union nixx_af_lfx_rx_statx {
 	u64 u;
-	struct cavm_nixx_af_lfx_rx_statx_s {
+	struct nixx_af_lfx_rx_statx_s {
 		u64 stat                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_lfx_rx_statx_s cn; */
+	/* struct nixx_af_lfx_rx_statx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RX_STATX(u64 a, u64 b)
+static inline u64 NIXX_AF_LFX_RX_STATX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RX_STATX(u64 a, u64 b)
+static inline u64 NIXX_AF_LFX_RX_STATX(u64 a, u64 b)
 {
 	return 0x4500 + 0x20000 * a + 8 * b;
 }
@@ -3119,21 +3205,21 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_STATX(u64 a, u64 b)
  * specify optional Vtag (e.g. VLAN, E-TAG) actions for received packets.
  * Indexed by NIX_RX_VTAG_ACTION_S[VTAG*_TYPE].
  */
-union cavm_nixx_af_lfx_rx_vtag_typex {
+union nixx_af_lfx_rx_vtag_typex {
 	u64 u;
-	struct cavm_nixx_af_lfx_rx_vtag_typex_s {
+	struct nixx_af_lfx_rx_vtag_typex_s {
 		u64 size                             : 1;
 		u64 reserved_1_3                     : 3;
 		u64 strip                            : 1;
 		u64 capture                          : 1;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_nixx_af_lfx_rx_vtag_typex_s cn; */
+	/* struct nixx_af_lfx_rx_vtag_typex_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_RX_VTAG_TYPEX(u64 a, u64 b)
+static inline u64 NIXX_AF_LFX_RX_VTAG_TYPEX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_RX_VTAG_TYPEX(u64 a, u64 b)
+static inline u64 NIXX_AF_LFX_RX_VTAG_TYPEX(u64 a, u64 b)
 {
 	return 0x4200 + 0x20000 * a + 8 * b;
 }
@@ -3146,19 +3232,19 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_VTAG_TYPEX(u64 a, u64 b)
  * consists of NIX_AF_LF()_SQS_CFG[MAX_QUEUESM1]+1 contiguous
  * NIX_SQ_CTX_HW_S structures.
  */
-union cavm_nixx_af_lfx_sqs_base {
+union nixx_af_lfx_sqs_base {
 	u64 u;
-	struct cavm_nixx_af_lfx_sqs_base_s {
+	struct nixx_af_lfx_sqs_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_lfx_sqs_base_s cn; */
+	/* struct nixx_af_lfx_sqs_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_SQS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_SQS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_SQS_BASE(u64 a)
+static inline u64 NIXX_AF_LFX_SQS_BASE(u64 a)
 {
 	return 0x4030 + 0x20000 * a;
 }
@@ -3169,20 +3255,20 @@ static inline u64 CAVM_NIXX_AF_LFX_SQS_BASE(u64 a)
  * NIX AF Local Function Send Queues Configuration Register This register
  * configures send queues in the LF.
  */
-union cavm_nixx_af_lfx_sqs_cfg {
+union nixx_af_lfx_sqs_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_sqs_cfg_s {
+	struct nixx_af_lfx_sqs_cfg_s {
 		u64 max_queuesm1                     : 20;
 		u64 way_mask                         : 16;
 		u64 caching                          : 1;
 		u64 reserved_37_63                   : 27;
 	} s;
-	/* struct cavm_nixx_af_lfx_sqs_cfg_s cn; */
+	/* struct nixx_af_lfx_sqs_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_SQS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_SQS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_SQS_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_SQS_CFG(u64 a)
 {
 	return 0x4020 + 0x20000 * a;
 }
@@ -3192,9 +3278,9 @@ static inline u64 CAVM_NIXX_AF_LFX_SQS_CFG(u64 a)
  *
  * NIX AF Local Function Transmit Configuration Register
  */
-union cavm_nixx_af_lfx_tx_cfg {
+union nixx_af_lfx_tx_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_tx_cfg_s {
+	struct nixx_af_lfx_tx_cfg_s {
 		u64 vlan0_ins_etype                  : 16;
 		u64 vlan1_ins_etype                  : 16;
 		u64 send_tstmp_ena                   : 1;
@@ -3202,12 +3288,12 @@ union cavm_nixx_af_lfx_tx_cfg {
 		u64 lock_ena                         : 1;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_nixx_af_lfx_tx_cfg_s cn; */
+	/* struct nixx_af_lfx_tx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_TX_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_TX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_TX_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_TX_CFG(u64 a)
 {
 	return 0x4080 + 0x20000 * a;
 }
@@ -3217,18 +3303,18 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_CFG(u64 a)
  *
  * NIX AF Local Function Transmit Configuration Register
  */
-union cavm_nixx_af_lfx_tx_cfg2 {
+union nixx_af_lfx_tx_cfg2 {
 	u64 u;
-	struct cavm_nixx_af_lfx_tx_cfg2_s {
+	struct nixx_af_lfx_tx_cfg2_s {
 		u64 lmt_ena                          : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_lfx_tx_cfg2_s cn; */
+	/* struct nixx_af_lfx_tx_cfg2_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_TX_CFG2(u64 a)
+static inline u64 NIXX_AF_LFX_TX_CFG2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_TX_CFG2(u64 a)
+static inline u64 NIXX_AF_LFX_TX_CFG2(u64 a)
 {
 	return 0x4028 + 0x20000 * a;
 }
@@ -3238,18 +3324,18 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_CFG2(u64 a)
  *
  * NIX AF Local Function Transmit Parse Configuration Register
  */
-union cavm_nixx_af_lfx_tx_parse_cfg {
+union nixx_af_lfx_tx_parse_cfg {
 	u64 u;
-	struct cavm_nixx_af_lfx_tx_parse_cfg_s {
+	struct nixx_af_lfx_tx_parse_cfg_s {
 		u64 pkind                            : 6;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_nixx_af_lfx_tx_parse_cfg_s cn; */
+	/* struct nixx_af_lfx_tx_parse_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_TX_PARSE_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_TX_PARSE_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_TX_PARSE_CFG(u64 a)
+static inline u64 NIXX_AF_LFX_TX_PARSE_CFG(u64 a)
 {
 	return 0x4090 + 0x20000 * a;
 }
@@ -3260,18 +3346,18 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_PARSE_CFG(u64 a)
  * NIX AF Local Function Transmit Statistics Registers The last dimension
  * indicates which statistic, and is enumerated by NIX_STAT_LF_TX_E.
  */
-union cavm_nixx_af_lfx_tx_statx {
+union nixx_af_lfx_tx_statx {
 	u64 u;
-	struct cavm_nixx_af_lfx_tx_statx_s {
+	struct nixx_af_lfx_tx_statx_s {
 		u64 stat                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_lfx_tx_statx_s cn; */
+	/* struct nixx_af_lfx_tx_statx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_TX_STATX(u64 a, u64 b)
+static inline u64 NIXX_AF_LFX_TX_STATX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_TX_STATX(u64 a, u64 b)
+static inline u64 NIXX_AF_LFX_TX_STATX(u64 a, u64 b)
 {
 	return 0x4400 + 0x20000 * a + 8 * b;
 }
@@ -3281,18 +3367,18 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_STATX(u64 a, u64 b)
  *
  * NIX AF LF Transmit Status Register
  */
-union cavm_nixx_af_lfx_tx_status {
+union nixx_af_lfx_tx_status {
 	u64 u;
-	struct cavm_nixx_af_lfx_tx_status_s {
+	struct nixx_af_lfx_tx_status_s {
 		u64 sq_ctx_err                       : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_lfx_tx_status_s cn; */
+	/* struct nixx_af_lfx_tx_status_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LFX_TX_STATUS(u64 a)
+static inline u64 NIXX_AF_LFX_TX_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LFX_TX_STATUS(u64 a)
+static inline u64 NIXX_AF_LFX_TX_STATUS(u64 a)
 {
 	return 0x4180 + 0x20000 * a;
 }
@@ -3302,20 +3388,20 @@ static inline u64 CAVM_NIXX_AF_LFX_TX_STATUS(u64 a)
  *
  * NIX Admin Function LF Reset Register
  */
-union cavm_nixx_af_lf_rst {
+union nixx_af_lf_rst {
 	u64 u;
-	struct cavm_nixx_af_lf_rst_s {
+	struct nixx_af_lf_rst_s {
 		u64 lf                               : 8;
 		u64 reserved_8_11                    : 4;
 		u64 exec                             : 1;
 		u64 reserved_13_63                   : 51;
 	} s;
-	/* struct cavm_nixx_af_lf_rst_s cn; */
+	/* struct nixx_af_lf_rst_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LF_RST(void)
+static inline u64 NIXX_AF_LF_RST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LF_RST(void)
+static inline u64 NIXX_AF_LF_RST(void)
 {
 	return 0x150;
 }
@@ -3325,21 +3411,21 @@ static inline u64 CAVM_NIXX_AF_LF_RST(void)
  *
  * NIX AF Large Send Offload Configuration Register
  */
-union cavm_nixx_af_lso_cfg {
+union nixx_af_lso_cfg {
 	u64 u;
-	struct cavm_nixx_af_lso_cfg_s {
+	struct nixx_af_lso_cfg_s {
 		u64 tcp_lsf                          : 16;
 		u64 tcp_msf                          : 16;
 		u64 tcp_fsf                          : 16;
 		u64 reserved_48_62                   : 15;
 		u64 enable                           : 1;
 	} s;
-	/* struct cavm_nixx_af_lso_cfg_s cn; */
+	/* struct nixx_af_lso_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LSO_CFG(void)
+static inline u64 NIXX_AF_LSO_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LSO_CFG(void)
+static inline u64 NIXX_AF_LSO_CFG(void)
 {
 	return 0xa8;
 }
@@ -3357,9 +3443,9 @@ static inline u64 CAVM_NIXX_AF_LSO_CFG(void)
  * [LAYER] value must be specified in ascending [OFFSET] order. * Fields
  * in different layers must be specified in ascending [LAYER] order.
  */
-union cavm_nixx_af_lso_formatx_fieldx {
+union nixx_af_lso_formatx_fieldx {
 	u64 u;
-	struct cavm_nixx_af_lso_formatx_fieldx_s {
+	struct nixx_af_lso_formatx_fieldx_s {
 		u64 offset                           : 8;
 		u64 layer                            : 2;
 		u64 reserved_10_11                   : 2;
@@ -3368,12 +3454,12 @@ union cavm_nixx_af_lso_formatx_fieldx {
 		u64 alg                              : 3;
 		u64 reserved_19_63                   : 45;
 	} s;
-	/* struct cavm_nixx_af_lso_formatx_fieldx_s cn; */
+	/* struct nixx_af_lso_formatx_fieldx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_LSO_FORMATX_FIELDX(u64 a, u64 b)
+static inline u64 NIXX_AF_LSO_FORMATX_FIELDX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_LSO_FORMATX_FIELDX(u64 a, u64 b)
+static inline u64 NIXX_AF_LSO_FORMATX_FIELDX(u64 a, u64 b)
 {
 	return 0x1b00 + 0x10000 * a + 8 * b;
 }
@@ -3395,9 +3481,9 @@ static inline u64 CAVM_NIXX_AF_LSO_FORMATX_FIELDX(u64 a, u64 b)
  * NIX_COLORRESULT_E::RED_SEND,  _   byte[3]\<7:4\> |=   [R_VAL]\<3:0\> _
  * byte[3]\<7:4\> &= ~[R_MASK]\<3:0\>
  */
-union cavm_nixx_af_mark_formatx_ctl {
+union nixx_af_mark_formatx_ctl {
 	u64 u;
-	struct cavm_nixx_af_mark_formatx_ctl_s {
+	struct nixx_af_mark_formatx_ctl_s {
 		u64 r_val                            : 4;
 		u64 r_mask                           : 4;
 		u64 y_val                            : 4;
@@ -3405,12 +3491,12 @@ union cavm_nixx_af_mark_formatx_ctl {
 		u64 offset                           : 3;
 		u64 reserved_19_63                   : 45;
 	} s;
-	/* struct cavm_nixx_af_mark_formatx_ctl_s cn; */
+	/* struct nixx_af_mark_formatx_ctl_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MARK_FORMATX_CTL(u64 a)
+static inline u64 NIXX_AF_MARK_FORMATX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MARK_FORMATX_CTL(u64 a)
+static inline u64 NIXX_AF_MARK_FORMATX_CTL(u64 a)
 {
 	return 0x900 + 0x40000 * a;
 }
@@ -3421,18 +3507,18 @@ static inline u64 CAVM_NIXX_AF_MARK_FORMATX_CTL(u64 a)
  * NIX AF Multicast/Mirror Constants Register This register contains
  * constants for software discovery.
  */
-union cavm_nixx_af_mc_mirror_const {
+union nixx_af_mc_mirror_const {
 	u64 u;
-	struct cavm_nixx_af_mc_mirror_const_s {
+	struct nixx_af_mc_mirror_const_s {
 		u64 buf_size                         : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_nixx_af_mc_mirror_const_s cn; */
+	/* struct nixx_af_mc_mirror_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MC_MIRROR_CONST(void)
+static inline u64 NIXX_AF_MC_MIRROR_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MC_MIRROR_CONST(void)
+static inline u64 NIXX_AF_MC_MIRROR_CONST(void)
 {
 	return 0x98;
 }
@@ -3443,9 +3529,9 @@ static inline u64 CAVM_NIXX_AF_MC_MIRROR_CONST(void)
  * NIX AF Meta Descriptor Queue Committed Information Rate Registers This
  * register has the same bit fields as NIX_AF_TL1()_CIR.
  */
-union cavm_nixx_af_mdqx_cir {
+union nixx_af_mdqx_cir {
 	u64 u;
-	struct cavm_nixx_af_mdqx_cir_s {
+	struct nixx_af_mdqx_cir_s {
 		u64 enable                           : 1;
 		u64 rate_mantissa                    : 8;
 		u64 rate_exponent                    : 4;
@@ -3455,12 +3541,12 @@ union cavm_nixx_af_mdqx_cir {
 		u64 burst_exponent                   : 4;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_mdqx_cir_s cn; */
+	/* struct nixx_af_mdqx_cir_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_CIR(u64 a)
+static inline u64 NIXX_AF_MDQX_CIR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_CIR(u64 a)
+static inline u64 NIXX_AF_MDQX_CIR(u64 a)
 {
 	return 0x1420 + 0x10000 * a;
 }
@@ -3473,9 +3559,9 @@ static inline u64 CAVM_NIXX_AF_MDQX_CIR(u64 a)
  * the MDQ. An MDQ can hold up to 8 packet meta descriptors (PMD) and one
  * flush meta descriptor (FMD).
  */
-union cavm_nixx_af_mdqx_md_debug {
+union nixx_af_mdqx_md_debug {
 	u64 u;
-	struct cavm_nixx_af_mdqx_md_debug_s {
+	struct nixx_af_mdqx_md_debug_s {
 		u64 pkt_len                          : 16;
 		u64 red_algo_override                : 2;
 		u64 shp_dis                          : 1;
@@ -3487,12 +3573,12 @@ union cavm_nixx_af_mdqx_md_debug {
 		u64 md_type                          : 2;
 		u64 reserved_63                      : 1;
 	} s;
-	/* struct cavm_nixx_af_mdqx_md_debug_s cn; */
+	/* struct nixx_af_mdqx_md_debug_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_MD_DEBUG(u64 a)
+static inline u64 NIXX_AF_MDQX_MD_DEBUG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_MD_DEBUG(u64 a)
+static inline u64 NIXX_AF_MDQX_MD_DEBUG(u64 a)
 {
 	return 0x14c0 + 0x10000 * a;
 }
@@ -3502,19 +3588,19 @@ static inline u64 CAVM_NIXX_AF_MDQX_MD_DEBUG(u64 a)
  *
  * NIX AF Meta Descriptor Queue Topology Registers
  */
-union cavm_nixx_af_mdqx_parent {
+union nixx_af_mdqx_parent {
 	u64 u;
-	struct cavm_nixx_af_mdqx_parent_s {
+	struct nixx_af_mdqx_parent_s {
 		u64 reserved_0_15                    : 16;
 		u64 parent                           : 9;
 		u64 reserved_25_63                   : 39;
 	} s;
-	/* struct cavm_nixx_af_mdqx_parent_s cn; */
+	/* struct nixx_af_mdqx_parent_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_PARENT(u64 a)
+static inline u64 NIXX_AF_MDQX_PARENT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_PARENT(u64 a)
+static inline u64 NIXX_AF_MDQX_PARENT(u64 a)
 {
 	return 0x1480 + 0x10000 * a;
 }
@@ -3525,9 +3611,9 @@ static inline u64 CAVM_NIXX_AF_MDQX_PARENT(u64 a)
  * NIX AF Meta Descriptor Queue Peak Information Rate Registers This
  * register has the same bit fields as NIX_AF_TL1()_CIR.
  */
-union cavm_nixx_af_mdqx_pir {
+union nixx_af_mdqx_pir {
 	u64 u;
-	struct cavm_nixx_af_mdqx_pir_s {
+	struct nixx_af_mdqx_pir_s {
 		u64 enable                           : 1;
 		u64 rate_mantissa                    : 8;
 		u64 rate_exponent                    : 4;
@@ -3537,12 +3623,12 @@ union cavm_nixx_af_mdqx_pir {
 		u64 burst_exponent                   : 4;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_mdqx_pir_s cn; */
+	/* struct nixx_af_mdqx_pir_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_PIR(u64 a)
+static inline u64 NIXX_AF_MDQX_PIR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_PIR(u64 a)
+static inline u64 NIXX_AF_MDQX_PIR(u64 a)
 {
 	return 0x1430 + 0x10000 * a;
 }
@@ -3553,20 +3639,20 @@ static inline u64 CAVM_NIXX_AF_MDQX_PIR(u64 a)
  * INTERNAL: NIX AF Meta Descriptor 4 Linked List Pointers Debug Register
  * This register has the same bit fields as NIX_AF_TL4()_POINTERS.
  */
-union cavm_nixx_af_mdqx_pointers {
+union nixx_af_mdqx_pointers {
 	u64 u;
-	struct cavm_nixx_af_mdqx_pointers_s {
+	struct nixx_af_mdqx_pointers_s {
 		u64 next                             : 9;
 		u64 reserved_9_15                    : 7;
 		u64 prev                             : 9;
 		u64 reserved_25_63                   : 39;
 	} s;
-	/* struct cavm_nixx_af_mdqx_pointers_s cn; */
+	/* struct nixx_af_mdqx_pointers_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_POINTERS(u64 a)
+static inline u64 NIXX_AF_MDQX_POINTERS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_POINTERS(u64 a)
+static inline u64 NIXX_AF_MDQX_POINTERS(u64 a)
 {
 	return 0x1460 + 0x10000 * a;
 }
@@ -3576,20 +3662,20 @@ static inline u64 CAVM_NIXX_AF_MDQX_POINTERS(u64 a)
  *
  * INTERNAL: NIX Meta Descriptor Queue Pointer FIFO State Debug Registers
  */
-union cavm_nixx_af_mdqx_ptr_fifo {
+union nixx_af_mdqx_ptr_fifo {
 	u64 u;
-	struct cavm_nixx_af_mdqx_ptr_fifo_s {
+	struct nixx_af_mdqx_ptr_fifo_s {
 		u64 tail                             : 4;
 		u64 head                             : 4;
 		u64 p_con                            : 1;
 		u64 reserved_9_63                    : 55;
 	} s;
-	/* struct cavm_nixx_af_mdqx_ptr_fifo_s cn; */
+	/* struct nixx_af_mdqx_ptr_fifo_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_PTR_FIFO(u64 a)
+static inline u64 NIXX_AF_MDQX_PTR_FIFO(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_PTR_FIFO(u64 a)
+static inline u64 NIXX_AF_MDQX_PTR_FIFO(u64 a)
 {
 	return 0x14d0 + 0x10000 * a;
 }
@@ -3600,18 +3686,18 @@ static inline u64 CAVM_NIXX_AF_MDQX_PTR_FIFO(u64 a)
  * NIX AF Meta Descriptor Queue Scheduling Control State Registers This
  * register has the same bit fields as NIX_AF_TL2()_SCHED_STATE.
  */
-union cavm_nixx_af_mdqx_sched_state {
+union nixx_af_mdqx_sched_state {
 	u64 u;
-	struct cavm_nixx_af_mdqx_sched_state_s {
+	struct nixx_af_mdqx_sched_state_s {
 		u64 rr_count                         : 25;
 		u64 reserved_25_63                   : 39;
 	} s;
-	/* struct cavm_nixx_af_mdqx_sched_state_s cn; */
+	/* struct nixx_af_mdqx_sched_state_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_SCHED_STATE(u64 a)
+static inline u64 NIXX_AF_MDQX_SCHED_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_SCHED_STATE(u64 a)
+static inline u64 NIXX_AF_MDQX_SCHED_STATE(u64 a)
 {
 	return 0x1440 + 0x10000 * a;
 }
@@ -3622,19 +3708,19 @@ static inline u64 CAVM_NIXX_AF_MDQX_SCHED_STATE(u64 a)
  * NIX AF Meta Descriptor Queue Scheduling Control Registers This
  * register has the same bit fields as NIX_AF_TL2()_SCHEDULE.
  */
-union cavm_nixx_af_mdqx_schedule {
+union nixx_af_mdqx_schedule {
 	u64 u;
-	struct cavm_nixx_af_mdqx_schedule_s {
+	struct nixx_af_mdqx_schedule_s {
 		u64 rr_quantum                       : 24;
 		u64 prio                             : 4;
 		u64 reserved_28_63                   : 36;
 	} s;
-	/* struct cavm_nixx_af_mdqx_schedule_s cn; */
+	/* struct nixx_af_mdqx_schedule_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_SCHEDULE(u64 a)
+static inline u64 NIXX_AF_MDQX_SCHEDULE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_SCHEDULE(u64 a)
+static inline u64 NIXX_AF_MDQX_SCHEDULE(u64 a)
 {
 	return 0x1400 + 0x10000 * a;
 }
@@ -3645,9 +3731,9 @@ static inline u64 CAVM_NIXX_AF_MDQX_SCHEDULE(u64 a)
  * NIX AF Meta Descriptor Queue Shaping Control Registers This register
  * has the same bit fields as NIX_AF_TL3()_SHAPE.
  */
-union cavm_nixx_af_mdqx_shape {
+union nixx_af_mdqx_shape {
 	u64 u;
-	struct cavm_nixx_af_mdqx_shape_s {
+	struct nixx_af_mdqx_shape_s {
 		u64 adjust                           : 9;
 		u64 red_algo                         : 2;
 		u64 red_disable                      : 1;
@@ -3657,12 +3743,12 @@ union cavm_nixx_af_mdqx_shape {
 		u64 schedule_list                    : 2;
 		u64 reserved_27_63                   : 37;
 	} s;
-	/* struct cavm_nixx_af_mdqx_shape_s cn; */
+	/* struct nixx_af_mdqx_shape_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_SHAPE(u64 a)
+static inline u64 NIXX_AF_MDQX_SHAPE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_SHAPE(u64 a)
+static inline u64 NIXX_AF_MDQX_SHAPE(u64 a)
 {
 	return 0x1410 + 0x10000 * a;
 }
@@ -3674,20 +3760,20 @@ static inline u64 CAVM_NIXX_AF_MDQX_SHAPE(u64 a)
  * the same bit fields as NIX_AF_TL2()_SHAPE_STATE. This register must
  * not be written during normal operation.
  */
-union cavm_nixx_af_mdqx_shape_state {
+union nixx_af_mdqx_shape_state {
 	u64 u;
-	struct cavm_nixx_af_mdqx_shape_state_s {
+	struct nixx_af_mdqx_shape_state_s {
 		u64 cir_accum                        : 26;
 		u64 pir_accum                        : 26;
 		u64 color                            : 2;
 		u64 reserved_54_63                   : 10;
 	} s;
-	/* struct cavm_nixx_af_mdqx_shape_state_s cn; */
+	/* struct nixx_af_mdqx_shape_state_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_SHAPE_STATE(u64 a)
+static inline u64 NIXX_AF_MDQX_SHAPE_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_SHAPE_STATE(u64 a)
+static inline u64 NIXX_AF_MDQX_SHAPE_STATE(u64 a)
 {
 	return 0x1450 + 0x10000 * a;
 }
@@ -3698,21 +3784,21 @@ static inline u64 CAVM_NIXX_AF_MDQX_SHAPE_STATE(u64 a)
  * NIX AF Meta Descriptor Controlled XOFF Registers This register has the
  * same bit fields as NIX_AF_TL1()_SW_XOFF
  */
-union cavm_nixx_af_mdqx_sw_xoff {
+union nixx_af_mdqx_sw_xoff {
 	u64 u;
-	struct cavm_nixx_af_mdqx_sw_xoff_s {
+	struct nixx_af_mdqx_sw_xoff_s {
 		u64 xoff                             : 1;
 		u64 drain                            : 1;
 		u64 reserved_2                       : 1;
 		u64 drain_irq                        : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_nixx_af_mdqx_sw_xoff_s cn; */
+	/* struct nixx_af_mdqx_sw_xoff_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQX_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_MDQX_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQX_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_MDQX_SW_XOFF(u64 a)
 {
 	return 0x1470 + 0x10000 * a;
 }
@@ -3723,20 +3809,40 @@ static inline u64 CAVM_NIXX_AF_MDQX_SW_XOFF(u64 a)
  * NIX AF Meta Descriptor Queue Constants Register This register contains
  * constants for software discovery.
  */
-union cavm_nixx_af_mdq_const {
+union nixx_af_mdq_const {
 	u64 u;
-	struct cavm_nixx_af_mdq_const_s {
+	struct nixx_af_mdq_const_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_nixx_af_mdq_const_s cn; */
+	/* struct nixx_af_mdq_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_MDQ_CONST(void)
+static inline u64 NIXX_AF_MDQ_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_MDQ_CONST(void)
+static inline u64 NIXX_AF_MDQ_CONST(void)
 {
 	return 0x90;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_mdq_md_count
+ *
+ * NIX AF MDQ MD COUNT Registers
+ */
+union nixx_af_mdq_md_count {
+	u64 u;
+	struct nixx_af_mdq_md_count_s {
+		u64 count                            : 64;
+	} s;
+	/* struct nixx_af_mdq_md_count_s cn; */
+};
+
+static inline u64 NIXX_AF_MDQ_MD_COUNT(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_MDQ_MD_COUNT(void)
+{
+	return 0xda0;
 }
 
 /**
@@ -3744,9 +3850,9 @@ static inline u64 CAVM_NIXX_AF_MDQ_CONST(void)
  *
  * NIX AF General Configuration Register
  */
-union cavm_nixx_af_ndc_cfg {
+union nixx_af_ndc_cfg {
 	u64 u;
-	struct cavm_nixx_af_ndc_cfg_s {
+	struct nixx_af_ndc_cfg_s {
 		u64 ndc_ign_pois                     : 1;
 		u64 byp_sq                           : 1;
 		u64 byp_sqb                          : 1;
@@ -3763,12 +3869,12 @@ union cavm_nixx_af_ndc_cfg {
 		u64 byp_qints                        : 1;
 		u64 reserved_14_63                   : 50;
 	} s;
-	/* struct cavm_nixx_af_ndc_cfg_s cn; */
+	/* struct nixx_af_ndc_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_NDC_CFG(void)
+static inline u64 NIXX_AF_NDC_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_NDC_CFG(void)
+static inline u64 NIXX_AF_NDC_CFG(void)
 {
 	return 0x18;
 }
@@ -3779,20 +3885,20 @@ static inline u64 CAVM_NIXX_AF_NDC_CFG(void)
  * NIX AF Receive NDC Sync Register Used to synchronize the NIX receive
  * NDC (NDC_IDX_E::NIX()_RX).
  */
-union cavm_nixx_af_ndc_rx_sync {
+union nixx_af_ndc_rx_sync {
 	u64 u;
-	struct cavm_nixx_af_ndc_rx_sync_s {
+	struct nixx_af_ndc_rx_sync_s {
 		u64 lf                               : 8;
 		u64 reserved_8_11                    : 4;
 		u64 exec                             : 1;
 		u64 reserved_13_63                   : 51;
 	} s;
-	/* struct cavm_nixx_af_ndc_rx_sync_s cn; */
+	/* struct nixx_af_ndc_rx_sync_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_NDC_RX_SYNC(void)
+static inline u64 NIXX_AF_NDC_RX_SYNC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_NDC_RX_SYNC(void)
+static inline u64 NIXX_AF_NDC_RX_SYNC(void)
 {
 	return 0x3e0;
 }
@@ -3803,20 +3909,20 @@ static inline u64 CAVM_NIXX_AF_NDC_RX_SYNC(void)
  * NIX AF NDC_TX Sync Register Used to synchronize the NIX transmit NDC
  * (NDC_IDX_E::NIX()_TX).
  */
-union cavm_nixx_af_ndc_tx_sync {
+union nixx_af_ndc_tx_sync {
 	u64 u;
-	struct cavm_nixx_af_ndc_tx_sync_s {
+	struct nixx_af_ndc_tx_sync_s {
 		u64 lf                               : 8;
 		u64 reserved_8_11                    : 4;
 		u64 exec                             : 1;
 		u64 reserved_13_63                   : 51;
 	} s;
-	/* struct cavm_nixx_af_ndc_tx_sync_s cn; */
+	/* struct nixx_af_ndc_tx_sync_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_NDC_TX_SYNC(void)
+static inline u64 NIXX_AF_NDC_TX_SYNC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_NDC_TX_SYNC(void)
+static inline u64 NIXX_AF_NDC_TX_SYNC(void)
 {
 	return 0x3f0;
 }
@@ -3825,22 +3931,246 @@ static inline u64 CAVM_NIXX_AF_NDC_TX_SYNC(void)
  * Register (RVU_PF_BAR0) nix#_af_norm_tx_fifo_status
  *
  * NIX AF Normal Transmit FIFO Status Register Status of FIFO which
- * transmits normal (potentially preemptable) packets to CGX and LBK.
+ * transmits normal packets to CGX and LBK.
  */
-union cavm_nixx_af_norm_tx_fifo_status {
+union nixx_af_norm_tx_fifo_status {
 	u64 u;
-	struct cavm_nixx_af_norm_tx_fifo_status_s {
+	struct nixx_af_norm_tx_fifo_status_s {
 		u64 count                            : 12;
 		u64 reserved_12_63                   : 52;
 	} s;
-	/* struct cavm_nixx_af_norm_tx_fifo_status_s cn; */
+	/* struct nixx_af_norm_tx_fifo_status_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_NORM_TX_FIFO_STATUS(void)
+static inline u64 NIXX_AF_NORM_TX_FIFO_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_NORM_TX_FIFO_STATUS(void)
+static inline u64 NIXX_AF_NORM_TX_FIFO_STATUS(void)
 {
 	return 0x648;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pq#_dbg_arb_link_exp
+ *
+ * INTERNAL: NIX AF PQ Arb Link EXPRESS Debug Register
+ */
+union nixx_af_pqx_dbg_arb_link_exp {
+	u64 u;
+	struct nixx_af_pqx_dbg_arb_link_exp_s {
+		u64 req                              : 1;
+		u64 act_c_con                        : 1;
+		u64 cnt                              : 2;
+		u64 reserved_4_5                     : 2;
+		u64 rr_mask                          : 1;
+		u64 reserved_7_63                    : 57;
+	} s;
+	/* struct nixx_af_pqx_dbg_arb_link_exp_s cn; */
+};
+
+static inline u64 NIXX_AF_PQX_DBG_ARB_LINK_EXP(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_PQX_DBG_ARB_LINK_EXP(u64 a)
+{
+	return 0xce8 + 0x10000 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pq#_dbg_arb_link_nrm
+ *
+ * INTERNAL: NIX AF PQ Arb Link NORMAL Debug Register
+ */
+union nixx_af_pqx_dbg_arb_link_nrm {
+	u64 u;
+	struct nixx_af_pqx_dbg_arb_link_nrm_s {
+		u64 req                              : 1;
+		u64 act_c_con                        : 1;
+		u64 cnt                              : 2;
+		u64 reserved_4_5                     : 2;
+		u64 rr_mask                          : 1;
+		u64 reserved_7_63                    : 57;
+	} s;
+	/* struct nixx_af_pqx_dbg_arb_link_nrm_s cn; */
+};
+
+static inline u64 NIXX_AF_PQX_DBG_ARB_LINK_NRM(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_PQX_DBG_ARB_LINK_NRM(u64 a)
+{
+	return 0xce0 + 0x10000 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pq#_dbg_arb_link_sdp
+ *
+ * INTERNAL: NIX AF PQ Arb Link SDP Debug Register
+ */
+union nixx_af_pqx_dbg_arb_link_sdp {
+	u64 u;
+	struct nixx_af_pqx_dbg_arb_link_sdp_s {
+		u64 req                              : 1;
+		u64 act_c_con                        : 1;
+		u64 cnt                              : 2;
+		u64 reserved_4_5                     : 2;
+		u64 rr_mask                          : 1;
+		u64 reserved_7_63                    : 57;
+	} s;
+	/* struct nixx_af_pqx_dbg_arb_link_sdp_s cn; */
+};
+
+static inline u64 NIXX_AF_PQX_DBG_ARB_LINK_SDP(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_PQX_DBG_ARB_LINK_SDP(u64 a)
+{
+	return 0xcf0 + 0x10000 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pq_arb_crd_rdy_debug
+ *
+ * INTERNAL: NIX AF PQ_ARB Node Credit Ready Registers  NIX AF PQ ARB
+ * Credit ready register
+ */
+union nixx_af_pq_arb_crd_rdy_debug {
+	u64 u;
+	struct nixx_af_pq_arb_crd_rdy_debug_s {
+		u64 node_crd_rdy                     : 28;
+		u64 reserved_28_63                   : 36;
+	} s;
+	/* struct nixx_af_pq_arb_crd_rdy_debug_s cn; */
+};
+
+static inline u64 NIXX_AF_PQ_ARB_CRD_RDY_DEBUG(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_PQ_ARB_CRD_RDY_DEBUG(void)
+{
+	return 0xf10;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pq_arb_dwrr_msk_debug
+ *
+ * INTERNAL: NIX AF PQ_ARB DWRR mask set read only debug Registers
+ */
+union nixx_af_pq_arb_dwrr_msk_debug {
+	u64 u;
+	struct nixx_af_pq_arb_dwrr_msk_debug_s {
+		u64 node_dwrr_mask_set               : 28;
+		u64 reserved_28_63                   : 36;
+	} s;
+	/* struct nixx_af_pq_arb_dwrr_msk_debug_s cn; */
+};
+
+static inline u64 NIXX_AF_PQ_ARB_DWRR_MSK_DEBUG(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_PQ_ARB_DWRR_MSK_DEBUG(void)
+{
+	return 0xf30;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pq_arb_node_gnt_debug
+ *
+ * INTERNAL: NIX AF PQ_ARB Node Grant vector Registers
+ */
+union nixx_af_pq_arb_node_gnt_debug {
+	u64 u;
+	struct nixx_af_pq_arb_node_gnt_debug_s {
+		u64 node_grant_vec                   : 28;
+		u64 reserved_28_63                   : 36;
+	} s;
+	/* struct nixx_af_pq_arb_node_gnt_debug_s cn; */
+};
+
+static inline u64 NIXX_AF_PQ_ARB_NODE_GNT_DEBUG(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_PQ_ARB_NODE_GNT_DEBUG(void)
+{
+	return 0xf20;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pq_arb_node_req_debug
+ *
+ * INTERNAL: NIX AF PQ_ARB Node Request Debug Registers  NIX AF PQ ARB
+ * Node Request Debug register
+ */
+union nixx_af_pq_arb_node_req_debug {
+	u64 u;
+	struct nixx_af_pq_arb_node_req_debug_s {
+		u64 node_req                         : 28;
+		u64 reserved_28_63                   : 36;
+	} s;
+	/* struct nixx_af_pq_arb_node_req_debug_s cn; */
+};
+
+static inline u64 NIXX_AF_PQ_ARB_NODE_REQ_DEBUG(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_PQ_ARB_NODE_REQ_DEBUG(void)
+{
+	return 0xf00;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pq_arb_shape_vld_dbg
+ *
+ * INTERNAL: NIX AF PQ_ARB shape valid set Register
+ */
+union nixx_af_pq_arb_shape_vld_dbg {
+	u64 u;
+	struct nixx_af_pq_arb_shape_vld_dbg_s {
+		u64 node_shape_vld_set               : 28;
+		u64 reserved_28_63                   : 36;
+	} s;
+	/* struct nixx_af_pq_arb_shape_vld_dbg_s cn; */
+};
+
+static inline u64 NIXX_AF_PQ_ARB_SHAPE_VLD_DBG(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_PQ_ARB_SHAPE_VLD_DBG(void)
+{
+	return 0xf40;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pq_dbg_arb_0
+ *
+ * INTERNAL: NIX AF PQ Arb Debug 0 Register
+ */
+union nixx_af_pq_dbg_arb_0 {
+	u64 u;
+	struct nixx_af_pq_dbg_arb_0_s {
+		u64 rr_mask_clr                      : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct nixx_af_pq_dbg_arb_0_s cn; */
+};
+
+static inline u64 NIXX_AF_PQ_DBG_ARB_0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_PQ_DBG_ARB_0(void)
+{
+	return 0xcf8;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_pq_lnk_#_dwrr_msk_dbg
+ *
+ * INTERNAL: NIX AF PQ_ARB Physical Link DWRR MASK Registers
+ */
+union nixx_af_pq_lnk_x_dwrr_msk_dbg {
+	u64 u;
+	struct nixx_af_pq_lnk_x_dwrr_msk_dbg_s {
+		u64 link_dwrr_mask_set               : 28;
+		u64 reserved_28_63                   : 36;
+	} s;
+	/* struct nixx_af_pq_lnk_x_dwrr_msk_dbg_s cn; */
+};
+
+static inline u64 NIXX_AF_PQ_LNK_X_DWRR_MSK_DBG(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_PQ_LNK_X_DWRR_MSK_DBG(u64 a)
+{
+	return 0x1100 + 0x10000 * a;
 }
 
 /**
@@ -3848,18 +4178,18 @@ static inline u64 CAVM_NIXX_AF_NORM_TX_FIFO_STATUS(void)
  *
  * INTERNAL: NIX AF PSE 400 Rate Divider Register
  */
-union cavm_nixx_af_pse_400_rate_divider {
+union nixx_af_pse_400_rate_divider {
 	u64 u;
-	struct cavm_nixx_af_pse_400_rate_divider_s {
+	struct nixx_af_pse_400_rate_divider_s {
 		u64 rate_div_cfg                     : 9;
 		u64 reserved_9_63                    : 55;
 	} s;
-	/* struct cavm_nixx_af_pse_400_rate_divider_s cn; */
+	/* struct nixx_af_pse_400_rate_divider_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_400_RATE_DIVIDER(void)
+static inline u64 NIXX_AF_PSE_400_RATE_DIVIDER(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_400_RATE_DIVIDER(void)
+static inline u64 NIXX_AF_PSE_400_RATE_DIVIDER(void)
 {
 	return 0x830;
 }
@@ -3870,17 +4200,17 @@ static inline u64 CAVM_NIXX_AF_PSE_400_RATE_DIVIDER(void)
  * NIX AF Active Cycles Register These registers are indexed by the
  * conditional clock domain number.
  */
-union cavm_nixx_af_pse_active_cycles_pc {
+union nixx_af_pse_active_cycles_pc {
 	u64 u;
-	struct cavm_nixx_af_pse_active_cycles_pc_s {
+	struct nixx_af_pse_active_cycles_pc_s {
 		u64 act_cyc                          : 64;
 	} s;
-	/* struct cavm_nixx_af_pse_active_cycles_pc_s cn; */
+	/* struct nixx_af_pse_active_cycles_pc_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_ACTIVE_CYCLES_PC(void)
+static inline u64 NIXX_AF_PSE_ACTIVE_CYCLES_PC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_ACTIVE_CYCLES_PC(void)
+static inline u64 NIXX_AF_PSE_ACTIVE_CYCLES_PC(void)
 {
 	return 0x8c0;
 }
@@ -3890,21 +4220,45 @@ static inline u64 CAVM_NIXX_AF_PSE_ACTIVE_CYCLES_PC(void)
  *
  * INTERNAL: NIX AF PSE Backpressure Test 0 Register
  */
-union cavm_nixx_af_pse_bp_test0 {
+union nixx_af_pse_bp_test0 {
 	u64 u;
-	struct cavm_nixx_af_pse_bp_test0_s {
+	struct nixx_af_pse_bp_test0_s {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_63                   : 52;
+	} s;
+	struct nixx_af_pse_bp_test0_cn96xxp1 {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 8;
 		u64 reserved_24_59                   : 36;
 		u64 enable                           : 4;
-	} s;
-	/* struct cavm_nixx_af_pse_bp_test0_s cn; */
+	} cn96xxp1;
+	struct nixx_af_pse_bp_test0_cn96xxp3 {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 reserved_16_19                   : 4;
+		u64 bp_cfg                           : 12;
+		u64 reserved_32_55                   : 24;
+		u64 reserved_56_57                   : 2;
+		u64 enable                           : 6;
+	} cn96xxp3;
+	/* struct nixx_af_pse_bp_test0_cn96xxp3 cn98xx; */
+	/* struct nixx_af_pse_bp_test0_cn96xxp1 cnf95xxp1; */
+	struct nixx_af_pse_bp_test0_cnf95xxp2 {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 8;
+		u64 reserved_24_31                   : 8;
+		u64 reserved_32_55                   : 24;
+		u64 reserved_56_59                   : 4;
+		u64 enable                           : 4;
+	} cnf95xxp2;
+	/* struct nixx_af_pse_bp_test0_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_BP_TEST0(void)
+static inline u64 NIXX_AF_PSE_BP_TEST0(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_BP_TEST0(void)
+static inline u64 NIXX_AF_PSE_BP_TEST0(void)
 {
 	return 0x840;
 }
@@ -3914,21 +4268,47 @@ static inline u64 CAVM_NIXX_AF_PSE_BP_TEST0(void)
  *
  * INTERNAL: NIX AF PSE Backpressure Test 1 Register
  */
-union cavm_nixx_af_pse_bp_test1 {
+union nixx_af_pse_bp_test1 {
 	u64 u;
-	struct cavm_nixx_af_pse_bp_test1_s {
+	struct nixx_af_pse_bp_test1_s {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 10;
+		u64 reserved_26_63                   : 38;
+	} s;
+	struct nixx_af_pse_bp_test1_cn96xxp1 {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 8;
 		u64 reserved_24_59                   : 36;
 		u64 enable                           : 4;
-	} s;
-	/* struct cavm_nixx_af_pse_bp_test1_s cn; */
+	} cn96xxp1;
+	struct nixx_af_pse_bp_test1_cn96xxp3 {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 10;
+		u64 reserved_26_31                   : 6;
+		u64 reserved_32_55                   : 24;
+		u64 reserved_56_58                   : 3;
+		u64 enable                           : 5;
+	} cn96xxp3;
+	/* struct nixx_af_pse_bp_test1_cn96xxp3 cn98xx; */
+	/* struct nixx_af_pse_bp_test1_cn96xxp1 cnf95xxp1; */
+	struct nixx_af_pse_bp_test1_cnf95xxp2 {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 8;
+		u64 reserved_24_31                   : 8;
+		u64 reserved_32_55                   : 24;
+		u64 reserved_56_59                   : 4;
+		u64 enable                           : 4;
+	} cnf95xxp2;
+	/* struct nixx_af_pse_bp_test1_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_BP_TEST1(void)
+static inline u64 NIXX_AF_PSE_BP_TEST1(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_BP_TEST1(void)
+static inline u64 NIXX_AF_PSE_BP_TEST1(void)
 {
 	return 0x850;
 }
@@ -3938,21 +4318,47 @@ static inline u64 CAVM_NIXX_AF_PSE_BP_TEST1(void)
  *
  * INTERNAL: NIX AF PSE Backpressure Test 2 Register
  */
-union cavm_nixx_af_pse_bp_test2 {
+union nixx_af_pse_bp_test2 {
 	u64 u;
-	struct cavm_nixx_af_pse_bp_test2_s {
+	struct nixx_af_pse_bp_test2_s {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 10;
+		u64 reserved_26_63                   : 38;
+	} s;
+	struct nixx_af_pse_bp_test2_cn96xxp1 {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 8;
 		u64 reserved_24_59                   : 36;
 		u64 enable                           : 4;
-	} s;
-	/* struct cavm_nixx_af_pse_bp_test2_s cn; */
+	} cn96xxp1;
+	struct nixx_af_pse_bp_test2_cn96xxp3 {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 10;
+		u64 reserved_26_31                   : 6;
+		u64 reserved_32_55                   : 24;
+		u64 reserved_56_58                   : 3;
+		u64 enable                           : 5;
+	} cn96xxp3;
+	/* struct nixx_af_pse_bp_test2_cn96xxp3 cn98xx; */
+	/* struct nixx_af_pse_bp_test2_cn96xxp1 cnf95xxp1; */
+	struct nixx_af_pse_bp_test2_cnf95xxp2 {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 8;
+		u64 reserved_24_31                   : 8;
+		u64 reserved_32_55                   : 24;
+		u64 reserved_56_59                   : 4;
+		u64 enable                           : 4;
+	} cnf95xxp2;
+	/* struct nixx_af_pse_bp_test2_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_BP_TEST2(void)
+static inline u64 NIXX_AF_PSE_BP_TEST2(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_BP_TEST2(void)
+static inline u64 NIXX_AF_PSE_BP_TEST2(void)
 {
 	return 0x860;
 }
@@ -3962,21 +4368,47 @@ static inline u64 CAVM_NIXX_AF_PSE_BP_TEST2(void)
  *
  * INTERNAL: NIX AF PSE Backpressure Test 3 Register
  */
-union cavm_nixx_af_pse_bp_test3 {
+union nixx_af_pse_bp_test3 {
 	u64 u;
-	struct cavm_nixx_af_pse_bp_test3_s {
+	struct nixx_af_pse_bp_test3_s {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 10;
+		u64 reserved_26_63                   : 38;
+	} s;
+	struct nixx_af_pse_bp_test3_cn96xxp1 {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 8;
 		u64 reserved_24_59                   : 36;
 		u64 enable                           : 4;
-	} s;
-	/* struct cavm_nixx_af_pse_bp_test3_s cn; */
+	} cn96xxp1;
+	struct nixx_af_pse_bp_test3_cn96xxp3 {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 10;
+		u64 reserved_26_31                   : 6;
+		u64 reserved_32_55                   : 24;
+		u64 reserved_56_58                   : 3;
+		u64 enable                           : 5;
+	} cn96xxp3;
+	/* struct nixx_af_pse_bp_test3_cn96xxp3 cn98xx; */
+	/* struct nixx_af_pse_bp_test3_cn96xxp1 cnf95xxp1; */
+	struct nixx_af_pse_bp_test3_cnf95xxp2 {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 8;
+		u64 reserved_24_31                   : 8;
+		u64 reserved_32_55                   : 24;
+		u64 reserved_56_59                   : 4;
+		u64 enable                           : 4;
+	} cnf95xxp2;
+	/* struct nixx_af_pse_bp_test3_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_BP_TEST3(void)
+static inline u64 NIXX_AF_PSE_BP_TEST3(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_BP_TEST3(void)
+static inline u64 NIXX_AF_PSE_BP_TEST3(void)
 {
 	return 0x870;
 }
@@ -3986,18 +4418,18 @@ static inline u64 CAVM_NIXX_AF_PSE_BP_TEST3(void)
  *
  * NIX AF PSE Channel Level Register
  */
-union cavm_nixx_af_pse_channel_level {
+union nixx_af_pse_channel_level {
 	u64 u;
-	struct cavm_nixx_af_pse_channel_level_s {
+	struct nixx_af_pse_channel_level_s {
 		u64 bp_level                         : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_pse_channel_level_s cn; */
+	/* struct nixx_af_pse_channel_level_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_CHANNEL_LEVEL(void)
+static inline u64 NIXX_AF_PSE_CHANNEL_LEVEL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_CHANNEL_LEVEL(void)
+static inline u64 NIXX_AF_PSE_CHANNEL_LEVEL(void)
 {
 	return 0x800;
 }
@@ -4008,20 +4440,20 @@ static inline u64 CAVM_NIXX_AF_PSE_CHANNEL_LEVEL(void)
  * NIX AF PSE Constants Register This register contains constants for
  * software discovery.
  */
-union cavm_nixx_af_pse_const {
+union nixx_af_pse_const {
 	u64 u;
-	struct cavm_nixx_af_pse_const_s {
+	struct nixx_af_pse_const_s {
 		u64 levels                           : 4;
 		u64 reserved_4_7                     : 4;
 		u64 mark_formats                     : 8;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_nixx_af_pse_const_s cn; */
+	/* struct nixx_af_pse_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_CONST(void)
+static inline u64 NIXX_AF_PSE_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_CONST(void)
+static inline u64 NIXX_AF_PSE_CONST(void)
 {
 	return 0x60;
 }
@@ -4031,17 +4463,17 @@ static inline u64 CAVM_NIXX_AF_PSE_CONST(void)
  *
  * INTERNAL: AF PSE ECO Register
  */
-union cavm_nixx_af_pse_eco {
+union nixx_af_pse_eco {
 	u64 u;
-	struct cavm_nixx_af_pse_eco_s {
+	struct nixx_af_pse_eco_s {
 		u64 eco_rw                           : 64;
 	} s;
-	/* struct cavm_nixx_af_pse_eco_s cn; */
+	/* struct nixx_af_pse_eco_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_ECO(void)
+static inline u64 NIXX_AF_PSE_ECO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_ECO(void)
+static inline u64 NIXX_AF_PSE_ECO(void)
 {
 	return 0x5d0;
 }
@@ -4049,22 +4481,23 @@ static inline u64 CAVM_NIXX_AF_PSE_ECO(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_pse_expr_bp_test
  *
- * INTERNAL: NIX AF PSE Express Backpressure Test Register
+ * INTERNAL: NIX AF PSE Express Backpressure Test Register  Internal:
+ * 802.3br frame preemption/express path is defeatured.
  */
-union cavm_nixx_af_pse_expr_bp_test {
+union nixx_af_pse_expr_bp_test {
 	u64 u;
-	struct cavm_nixx_af_pse_expr_bp_test_s {
+	struct nixx_af_pse_expr_bp_test_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 32;
 		u64 enable                           : 16;
 	} s;
-	/* struct cavm_nixx_af_pse_expr_bp_test_s cn; */
+	/* struct nixx_af_pse_expr_bp_test_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_EXPR_BP_TEST(void)
+static inline u64 NIXX_AF_PSE_EXPR_BP_TEST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_EXPR_BP_TEST(void)
+static inline u64 NIXX_AF_PSE_EXPR_BP_TEST(void)
 {
 	return 0x890;
 }
@@ -4074,20 +4507,35 @@ static inline u64 CAVM_NIXX_AF_PSE_EXPR_BP_TEST(void)
  *
  * INTERNAL: NIX AF PSE Normal Backpressure Test Register
  */
-union cavm_nixx_af_pse_norm_bp_test {
+union nixx_af_pse_norm_bp_test {
 	u64 u;
-	struct cavm_nixx_af_pse_norm_bp_test_s {
+	struct nixx_af_pse_norm_bp_test_s {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 32;
+		u64 reserved_48_63                   : 16;
+	} s;
+	struct nixx_af_pse_norm_bp_test_cn96xxp1 {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 32;
 		u64 enable                           : 16;
-	} s;
-	/* struct cavm_nixx_af_pse_norm_bp_test_s cn; */
+	} cn96xxp1;
+	struct nixx_af_pse_norm_bp_test_cn96xxp3 {
+		u64 lfsr_freq                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 bp_cfg                           : 12;
+		u64 reserved_28_57                   : 30;
+		u64 enable                           : 6;
+	} cn96xxp3;
+	/* struct nixx_af_pse_norm_bp_test_cn96xxp3 cn98xx; */
+	/* struct nixx_af_pse_norm_bp_test_cn96xxp1 cnf95xx; */
+	/* struct nixx_af_pse_norm_bp_test_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_NORM_BP_TEST(void)
+static inline u64 NIXX_AF_PSE_NORM_BP_TEST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_NORM_BP_TEST(void)
+static inline u64 NIXX_AF_PSE_NORM_BP_TEST(void)
 {
 	return 0x880;
 }
@@ -4097,19 +4545,19 @@ static inline u64 CAVM_NIXX_AF_PSE_NORM_BP_TEST(void)
  *
  * NIX AF PSE Shaper Configuration Register
  */
-union cavm_nixx_af_pse_shaper_cfg {
+union nixx_af_pse_shaper_cfg {
 	u64 u;
-	struct cavm_nixx_af_pse_shaper_cfg_s {
+	struct nixx_af_pse_shaper_cfg_s {
 		u64 red_send_as_yellow               : 1;
 		u64 color_aware                      : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_nixx_af_pse_shaper_cfg_s cn; */
+	/* struct nixx_af_pse_shaper_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_PSE_SHAPER_CFG(void)
+static inline u64 NIXX_AF_PSE_SHAPER_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_PSE_SHAPER_CFG(void)
+static inline u64 NIXX_AF_PSE_SHAPER_CFG(void)
 {
 	return 0x810;
 }
@@ -4120,9 +4568,9 @@ static inline u64 CAVM_NIXX_AF_PSE_SHAPER_CFG(void)
  * NIX AF RAS Interrupt Register This register is intended for delivery
  * of RAS events to the SCP, so should be ignored by OS drivers.
  */
-union cavm_nixx_af_ras {
+union nixx_af_ras {
 	u64 u;
-	struct cavm_nixx_af_ras_s {
+	struct nixx_af_ras_s {
 		u64 rx_mce_poison                    : 1;
 		u64 rx_mcast_wqe_poison              : 1;
 		u64 rx_mirror_wqe_poison             : 1;
@@ -4134,12 +4582,12 @@ union cavm_nixx_af_ras {
 		u64 aq_inst_poison                   : 1;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_nixx_af_ras_s cn; */
+	/* struct nixx_af_ras_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RAS(void)
+static inline u64 NIXX_AF_RAS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RAS(void)
+static inline u64 NIXX_AF_RAS(void)
 {
 	return 0x1a0;
 }
@@ -4150,9 +4598,9 @@ static inline u64 CAVM_NIXX_AF_RAS(void)
  * NIX AF RAS Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_nixx_af_ras_ena_w1c {
+union nixx_af_ras_ena_w1c {
 	u64 u;
-	struct cavm_nixx_af_ras_ena_w1c_s {
+	struct nixx_af_ras_ena_w1c_s {
 		u64 rx_mce_poison                    : 1;
 		u64 rx_mcast_wqe_poison              : 1;
 		u64 rx_mirror_wqe_poison             : 1;
@@ -4164,12 +4612,12 @@ union cavm_nixx_af_ras_ena_w1c {
 		u64 aq_inst_poison                   : 1;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_nixx_af_ras_ena_w1c_s cn; */
+	/* struct nixx_af_ras_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RAS_ENA_W1C(void)
+static inline u64 NIXX_AF_RAS_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RAS_ENA_W1C(void)
+static inline u64 NIXX_AF_RAS_ENA_W1C(void)
 {
 	return 0x1b8;
 }
@@ -4180,9 +4628,9 @@ static inline u64 CAVM_NIXX_AF_RAS_ENA_W1C(void)
  * NIX AF RAS Interrupt Enable Set Register This register sets interrupt
  * enable bits.
  */
-union cavm_nixx_af_ras_ena_w1s {
+union nixx_af_ras_ena_w1s {
 	u64 u;
-	struct cavm_nixx_af_ras_ena_w1s_s {
+	struct nixx_af_ras_ena_w1s_s {
 		u64 rx_mce_poison                    : 1;
 		u64 rx_mcast_wqe_poison              : 1;
 		u64 rx_mirror_wqe_poison             : 1;
@@ -4194,12 +4642,12 @@ union cavm_nixx_af_ras_ena_w1s {
 		u64 aq_inst_poison                   : 1;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_nixx_af_ras_ena_w1s_s cn; */
+	/* struct nixx_af_ras_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RAS_ENA_W1S(void)
+static inline u64 NIXX_AF_RAS_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RAS_ENA_W1S(void)
+static inline u64 NIXX_AF_RAS_ENA_W1S(void)
 {
 	return 0x1b0;
 }
@@ -4209,9 +4657,9 @@ static inline u64 CAVM_NIXX_AF_RAS_ENA_W1S(void)
  *
  * NIX AF RAS Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_nixx_af_ras_w1s {
+union nixx_af_ras_w1s {
 	u64 u;
-	struct cavm_nixx_af_ras_w1s_s {
+	struct nixx_af_ras_w1s_s {
 		u64 rx_mce_poison                    : 1;
 		u64 rx_mcast_wqe_poison              : 1;
 		u64 rx_mirror_wqe_poison             : 1;
@@ -4223,12 +4671,12 @@ union cavm_nixx_af_ras_w1s {
 		u64 aq_inst_poison                   : 1;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_nixx_af_ras_w1s_s cn; */
+	/* struct nixx_af_ras_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RAS_W1S(void)
+static inline u64 NIXX_AF_RAS_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RAS_W1S(void)
+static inline u64 NIXX_AF_RAS_W1S(void)
 {
 	return 0x1a8;
 }
@@ -4238,9 +4686,9 @@ static inline u64 CAVM_NIXX_AF_RAS_W1S(void)
  *
  * INTERNAL: NIX AF REB Backpressure Test Registers
  */
-union cavm_nixx_af_reb_bp_testx {
+union nixx_af_reb_bp_testx {
 	u64 u;
-	struct cavm_nixx_af_reb_bp_testx_s {
+	struct nixx_af_reb_bp_testx_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 8;
@@ -4248,12 +4696,12 @@ union cavm_nixx_af_reb_bp_testx {
 		u64 enable                           : 4;
 		u64 reserved_52_63                   : 12;
 	} s;
-	/* struct cavm_nixx_af_reb_bp_testx_s cn; */
+	/* struct nixx_af_reb_bp_testx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_REB_BP_TESTX(u64 a)
+static inline u64 NIXX_AF_REB_BP_TESTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_REB_BP_TESTX(u64 a)
+static inline u64 NIXX_AF_REB_BP_TESTX(u64 a)
 {
 	return 0x4840 + 0x10000 * a;
 }
@@ -4264,18 +4712,18 @@ static inline u64 CAVM_NIXX_AF_REB_BP_TESTX(u64 a)
  * NIX AF RQ Constants Register This register contains constants for
  * software discovery.
  */
-union cavm_nixx_af_rq_const {
+union nixx_af_rq_const {
 	u64 u;
-	struct cavm_nixx_af_rq_const_s {
+	struct nixx_af_rq_const_s {
 		u64 queues_per_lf                    : 24;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_nixx_af_rq_const_s cn; */
+	/* struct nixx_af_rq_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RQ_CONST(void)
+static inline u64 NIXX_AF_RQ_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RQ_CONST(void)
+static inline u64 NIXX_AF_RQ_CONST(void)
 {
 	return 0x50;
 }
@@ -4285,9 +4733,9 @@ static inline u64 CAVM_NIXX_AF_RQ_CONST(void)
  *
  * INTERNAL: NIX AF REB Backpressure Test Registers
  */
-union cavm_nixx_af_rqm_bp_test {
+union nixx_af_rqm_bp_test {
 	u64 u;
-	struct cavm_nixx_af_rqm_bp_test_s {
+	struct nixx_af_rqm_bp_test_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 16;
@@ -4295,12 +4743,12 @@ union cavm_nixx_af_rqm_bp_test {
 		u64 enable                           : 8;
 		u64 reserved_56_63                   : 8;
 	} s;
-	/* struct cavm_nixx_af_rqm_bp_test_s cn; */
+	/* struct nixx_af_rqm_bp_test_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RQM_BP_TEST(void)
+static inline u64 NIXX_AF_RQM_BP_TEST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RQM_BP_TEST(void)
+static inline u64 NIXX_AF_RQM_BP_TEST(void)
 {
 	return 0x4880;
 }
@@ -4310,17 +4758,17 @@ static inline u64 CAVM_NIXX_AF_RQM_BP_TEST(void)
  *
  * INTERNAL: AF RQM ECO Register
  */
-union cavm_nixx_af_rqm_eco {
+union nixx_af_rqm_eco {
 	u64 u;
-	struct cavm_nixx_af_rqm_eco_s {
+	struct nixx_af_rqm_eco_s {
 		u64 eco_rw                           : 64;
 	} s;
-	/* struct cavm_nixx_af_rqm_eco_s cn; */
+	/* struct nixx_af_rqm_eco_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RQM_ECO(void)
+static inline u64 NIXX_AF_RQM_ECO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RQM_ECO(void)
+static inline u64 NIXX_AF_RQM_ECO(void)
 {
 	return 0x5a0;
 }
@@ -4331,18 +4779,18 @@ static inline u64 CAVM_NIXX_AF_RQM_ECO(void)
  * NIX AF RVU Interrupt Register This register contains RVU error
  * interrupt summary bits.
  */
-union cavm_nixx_af_rvu_int {
+union nixx_af_rvu_int {
 	u64 u;
-	struct cavm_nixx_af_rvu_int_s {
+	struct nixx_af_rvu_int_s {
 		u64 unmapped_slot                    : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_rvu_int_s cn; */
+	/* struct nixx_af_rvu_int_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RVU_INT(void)
+static inline u64 NIXX_AF_RVU_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RVU_INT(void)
+static inline u64 NIXX_AF_RVU_INT(void)
 {
 	return 0x1c0;
 }
@@ -4353,18 +4801,18 @@ static inline u64 CAVM_NIXX_AF_RVU_INT(void)
  * NIX AF RVU Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_nixx_af_rvu_int_ena_w1c {
+union nixx_af_rvu_int_ena_w1c {
 	u64 u;
-	struct cavm_nixx_af_rvu_int_ena_w1c_s {
+	struct nixx_af_rvu_int_ena_w1c_s {
 		u64 unmapped_slot                    : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_rvu_int_ena_w1c_s cn; */
+	/* struct nixx_af_rvu_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1C(void)
+static inline u64 NIXX_AF_RVU_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1C(void)
+static inline u64 NIXX_AF_RVU_INT_ENA_W1C(void)
 {
 	return 0x1d8;
 }
@@ -4375,18 +4823,18 @@ static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1C(void)
  * NIX AF RVU Interrupt Enable Set Register This register sets interrupt
  * enable bits.
  */
-union cavm_nixx_af_rvu_int_ena_w1s {
+union nixx_af_rvu_int_ena_w1s {
 	u64 u;
-	struct cavm_nixx_af_rvu_int_ena_w1s_s {
+	struct nixx_af_rvu_int_ena_w1s_s {
 		u64 unmapped_slot                    : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_rvu_int_ena_w1s_s cn; */
+	/* struct nixx_af_rvu_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1S(void)
+static inline u64 NIXX_AF_RVU_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1S(void)
+static inline u64 NIXX_AF_RVU_INT_ENA_W1S(void)
 {
 	return 0x1d0;
 }
@@ -4396,18 +4844,18 @@ static inline u64 CAVM_NIXX_AF_RVU_INT_ENA_W1S(void)
  *
  * NIX AF RVU Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_nixx_af_rvu_int_w1s {
+union nixx_af_rvu_int_w1s {
 	u64 u;
-	struct cavm_nixx_af_rvu_int_w1s_s {
+	struct nixx_af_rvu_int_w1s_s {
 		u64 unmapped_slot                    : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_rvu_int_w1s_s cn; */
+	/* struct nixx_af_rvu_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RVU_INT_W1S(void)
+static inline u64 NIXX_AF_RVU_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RVU_INT_W1S(void)
+static inline u64 NIXX_AF_RVU_INT_W1S(void)
 {
 	return 0x1c8;
 }
@@ -4419,9 +4867,9 @@ static inline u64 CAVM_NIXX_AF_RVU_INT_W1S(void)
  * allows software to lookup the reverse mapping from VF/PF slot to LF.
  * The forward mapping is programmed with NIX_PRIV_LF()_CFG.
  */
-union cavm_nixx_af_rvu_lf_cfg_debug {
+union nixx_af_rvu_lf_cfg_debug {
 	u64 u;
-	struct cavm_nixx_af_rvu_lf_cfg_debug_s {
+	struct nixx_af_rvu_lf_cfg_debug_s {
 		u64 lf                               : 12;
 		u64 lf_valid                         : 1;
 		u64 exec                             : 1;
@@ -4430,12 +4878,12 @@ union cavm_nixx_af_rvu_lf_cfg_debug {
 		u64 pf_func                          : 16;
 		u64 reserved_40_63                   : 24;
 	} s;
-	/* struct cavm_nixx_af_rvu_lf_cfg_debug_s cn; */
+	/* struct nixx_af_rvu_lf_cfg_debug_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RVU_LF_CFG_DEBUG(void)
+static inline u64 NIXX_AF_RVU_LF_CFG_DEBUG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RVU_LF_CFG_DEBUG(void)
+static inline u64 NIXX_AF_RVU_LF_CFG_DEBUG(void)
 {
 	return 0x8000030;
 }
@@ -4446,17 +4894,17 @@ static inline u64 CAVM_NIXX_AF_RVU_LF_CFG_DEBUG(void)
  * NIX AF Active Cycles Register These registers are indexed by the
  * conditional clock domain number.
  */
-union cavm_nixx_af_rx_active_cycles_pcx {
+union nixx_af_rx_active_cycles_pcx {
 	u64 u;
-	struct cavm_nixx_af_rx_active_cycles_pcx_s {
+	struct nixx_af_rx_active_cycles_pcx_s {
 		u64 act_cyc                          : 64;
 	} s;
-	/* struct cavm_nixx_af_rx_active_cycles_pcx_s cn; */
+	/* struct nixx_af_rx_active_cycles_pcx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_ACTIVE_CYCLES_PCX(u64 a)
+static inline u64 NIXX_AF_RX_ACTIVE_CYCLES_PCX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_ACTIVE_CYCLES_PCX(u64 a)
+static inline u64 NIXX_AF_RX_ACTIVE_CYCLES_PCX(u64 a)
 {
 	return 0x4800 + 0x10000 * a;
 }
@@ -4466,18 +4914,18 @@ static inline u64 CAVM_NIXX_AF_RX_ACTIVE_CYCLES_PCX(u64 a)
  *
  * NIX AF Receive Backpressure ID Status Registers
  */
-union cavm_nixx_af_rx_bpidx_status {
+union nixx_af_rx_bpidx_status {
 	u64 u;
-	struct cavm_nixx_af_rx_bpidx_status_s {
+	struct nixx_af_rx_bpidx_status_s {
 		u64 aura_cnt                         : 32;
 		u64 cq_cnt                           : 32;
 	} s;
-	/* struct cavm_nixx_af_rx_bpidx_status_s cn; */
+	/* struct nixx_af_rx_bpidx_status_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_BPIDX_STATUS(u64 a)
+static inline u64 NIXX_AF_RX_BPIDX_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_BPIDX_STATUS(u64 a)
+static inline u64 NIXX_AF_RX_BPIDX_STATUS(u64 a)
 {
 	return 0x1a20 + 0x20000 * a;
 }
@@ -4487,18 +4935,18 @@ static inline u64 CAVM_NIXX_AF_RX_BPIDX_STATUS(u64 a)
  *
  * NIX AF Receive Configuration Register
  */
-union cavm_nixx_af_rx_cfg {
+union nixx_af_rx_cfg {
 	u64 u;
-	struct cavm_nixx_af_rx_cfg_s {
+	struct nixx_af_rx_cfg_s {
 		u64 cbp_ena                          : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_rx_cfg_s cn; */
+	/* struct nixx_af_rx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_CFG(void)
+static inline u64 NIXX_AF_RX_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_CFG(void)
+static inline u64 NIXX_AF_RX_CFG(void)
 {
 	return 0xd0;
 }
@@ -4508,9 +4956,9 @@ static inline u64 CAVM_NIXX_AF_RX_CFG(void)
  *
  * NIX AF Receive Channel Configuration Registers
  */
-union cavm_nixx_af_rx_chanx_cfg {
+union nixx_af_rx_chanx_cfg {
 	u64 u;
-	struct cavm_nixx_af_rx_chanx_cfg_s {
+	struct nixx_af_rx_chanx_cfg_s {
 		u64 bpid                             : 9;
 		u64 reserved_9_15                    : 7;
 		u64 bp_ena                           : 1;
@@ -4518,12 +4966,12 @@ union cavm_nixx_af_rx_chanx_cfg {
 		u64 imp                              : 1;
 		u64 reserved_19_63                   : 45;
 	} s;
-	/* struct cavm_nixx_af_rx_chanx_cfg_s cn; */
+	/* struct nixx_af_rx_chanx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_CHANX_CFG(u64 a)
+static inline u64 NIXX_AF_RX_CHANX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_CHANX_CFG(u64 a)
+static inline u64 NIXX_AF_RX_CHANX_CFG(u64 a)
 {
 	return 0x1a30 + 0x8000 * a;
 }
@@ -4533,18 +4981,18 @@ static inline u64 CAVM_NIXX_AF_RX_CHANX_CFG(u64 a)
  *
  * NIX AF Receive CPT Credit Register
  */
-union cavm_nixx_af_rx_cptx_credit {
+union nixx_af_rx_cptx_credit {
 	u64 u;
-	struct cavm_nixx_af_rx_cptx_credit_s {
+	struct nixx_af_rx_cptx_credit_s {
 		u64 inst_cred_cnt                    : 22;
 		u64 reserved_22_63                   : 42;
 	} s;
-	/* struct cavm_nixx_af_rx_cptx_credit_s cn; */
+	/* struct nixx_af_rx_cptx_credit_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_CPTX_CREDIT(u64 a)
+static inline u64 NIXX_AF_RX_CPTX_CREDIT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_CPTX_CREDIT(u64 a)
+static inline u64 NIXX_AF_RX_CPTX_CREDIT(u64 a)
 {
 	return 0x360 + 8 * a;
 }
@@ -4563,19 +5011,19 @@ static inline u64 CAVM_NIXX_AF_RX_CPTX_CREDIT(u64 a)
  * ncbi_cmd.paddr = 1; // Physical address ncbi_cmd.addr = cpt_addr;
  * \</pre\>
  */
-union cavm_nixx_af_rx_cptx_inst_qsel {
+union nixx_af_rx_cptx_inst_qsel {
 	u64 u;
-	struct cavm_nixx_af_rx_cptx_inst_qsel_s {
+	struct nixx_af_rx_cptx_inst_qsel_s {
 		u64 slot                             : 8;
 		u64 pf_func                          : 16;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_nixx_af_rx_cptx_inst_qsel_s cn; */
+	/* struct nixx_af_rx_cptx_inst_qsel_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_CPTX_INST_QSEL(u64 a)
+static inline u64 NIXX_AF_RX_CPTX_INST_QSEL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_CPTX_INST_QSEL(u64 a)
+static inline u64 NIXX_AF_RX_CPTX_INST_QSEL(u64 a)
 {
 	return 0x320 + 8 * a;
 }
@@ -4587,20 +5035,20 @@ static inline u64 CAVM_NIXX_AF_RX_CPTX_INST_QSEL(u64 a)
  * information in NPC_RESULT_S to identify an inner IPv4 header.
  * Typically the same as NPC_PCK_DEF_IIP4.
  */
-union cavm_nixx_af_rx_def_iip4 {
+union nixx_af_rx_def_iip4 {
 	u64 u;
-	struct cavm_nixx_af_rx_def_iip4_s {
+	struct nixx_af_rx_def_iip4_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_iip4_s cn; */
+	/* struct nixx_af_rx_def_iip4_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_IIP4(void)
+static inline u64 NIXX_AF_RX_DEF_IIP4(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_IIP4(void)
+static inline u64 NIXX_AF_RX_DEF_IIP4(void)
 {
 	return 0x220;
 }
@@ -4611,20 +5059,20 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IIP4(void)
  * NIX AF Receive Inner IPv6 Header Definition Register Defines layer
  * information in NPC_RESULT_S to identify an inner IPv6 header.
  */
-union cavm_nixx_af_rx_def_iip6 {
+union nixx_af_rx_def_iip6 {
 	u64 u;
-	struct cavm_nixx_af_rx_def_iip6_s {
+	struct nixx_af_rx_def_iip6_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_iip6_s cn; */
+	/* struct nixx_af_rx_def_iip6_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_IIP6(void)
+static inline u64 NIXX_AF_RX_DEF_IIP6(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_IIP6(void)
+static inline u64 NIXX_AF_RX_DEF_IIP6(void)
 {
 	return 0x240;
 }
@@ -4635,9 +5083,9 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IIP6(void)
  * INTERNAL: NIX AF Receive IPSEC Header Definition Registers  Internal:
  * Not used; no IPSEC fast-path.
  */
-union cavm_nixx_af_rx_def_ipsecx {
+union nixx_af_rx_def_ipsecx {
 	u64 u;
-	struct cavm_nixx_af_rx_def_ipsecx_s {
+	struct nixx_af_rx_def_ipsecx_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
@@ -4646,12 +5094,12 @@ union cavm_nixx_af_rx_def_ipsecx {
 		u64 spi_nz                           : 1;
 		u64 reserved_17_63                   : 47;
 	} s;
-	/* struct cavm_nixx_af_rx_def_ipsecx_s cn; */
+	/* struct nixx_af_rx_def_ipsecx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_IPSECX(u64 a)
+static inline u64 NIXX_AF_RX_DEF_IPSECX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_IPSECX(u64 a)
+static inline u64 NIXX_AF_RX_DEF_IPSECX(u64 a)
 {
 	return 0x2b0 + 8 * a;
 }
@@ -4662,20 +5110,20 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IPSECX(u64 a)
  * NIX AF Receive Inner SCTP Header Definition Register Defines layer
  * information in NPC_RESULT_S to identify an inner SCTP header.
  */
-union cavm_nixx_af_rx_def_isctp {
+union nixx_af_rx_def_isctp {
 	u64 u;
-	struct cavm_nixx_af_rx_def_isctp_s {
+	struct nixx_af_rx_def_isctp_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_isctp_s cn; */
+	/* struct nixx_af_rx_def_isctp_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_ISCTP(void)
+static inline u64 NIXX_AF_RX_DEF_ISCTP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_ISCTP(void)
+static inline u64 NIXX_AF_RX_DEF_ISCTP(void)
 {
 	return 0x2a0;
 }
@@ -4686,20 +5134,20 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_ISCTP(void)
  * NIX AF Receive Inner TCP Header Definition Register Defines layer
  * information in NPC_RESULT_S to identify an inner TCP header.
  */
-union cavm_nixx_af_rx_def_itcp {
+union nixx_af_rx_def_itcp {
 	u64 u;
-	struct cavm_nixx_af_rx_def_itcp_s {
+	struct nixx_af_rx_def_itcp_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_itcp_s cn; */
+	/* struct nixx_af_rx_def_itcp_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_ITCP(void)
+static inline u64 NIXX_AF_RX_DEF_ITCP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_ITCP(void)
+static inline u64 NIXX_AF_RX_DEF_ITCP(void)
 {
 	return 0x260;
 }
@@ -4710,20 +5158,20 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_ITCP(void)
  * NIX AF Receive Inner UDP Header Definition Register Defines layer
  * information in NPC_RESULT_S to identify an inner UDP header.
  */
-union cavm_nixx_af_rx_def_iudp {
+union nixx_af_rx_def_iudp {
 	u64 u;
-	struct cavm_nixx_af_rx_def_iudp_s {
+	struct nixx_af_rx_def_iudp_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_iudp_s cn; */
+	/* struct nixx_af_rx_def_iudp_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_IUDP(void)
+static inline u64 NIXX_AF_RX_DEF_IUDP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_IUDP(void)
+static inline u64 NIXX_AF_RX_DEF_IUDP(void)
 {
 	return 0x280;
 }
@@ -4735,20 +5183,20 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IUDP(void)
  * information in NPC_RESULT_S to identify an outer IPv4 L3 header.
  * Typically the same as NPC_PCK_DEF_OIP4.
  */
-union cavm_nixx_af_rx_def_oip4 {
+union nixx_af_rx_def_oip4 {
 	u64 u;
-	struct cavm_nixx_af_rx_def_oip4_s {
+	struct nixx_af_rx_def_oip4_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_oip4_s cn; */
+	/* struct nixx_af_rx_def_oip4_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_OIP4(void)
+static inline u64 NIXX_AF_RX_DEF_OIP4(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_OIP4(void)
+static inline u64 NIXX_AF_RX_DEF_OIP4(void)
 {
 	return 0x210;
 }
@@ -4760,20 +5208,20 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OIP4(void)
  * information in NPC_RESULT_S to identify an outer IPv6 header.
  * Typically the same as NPC_PCK_DEF_OIP6.
  */
-union cavm_nixx_af_rx_def_oip6 {
+union nixx_af_rx_def_oip6 {
 	u64 u;
-	struct cavm_nixx_af_rx_def_oip6_s {
+	struct nixx_af_rx_def_oip6_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_oip6_s cn; */
+	/* struct nixx_af_rx_def_oip6_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_OIP6(void)
+static inline u64 NIXX_AF_RX_DEF_OIP6(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_OIP6(void)
+static inline u64 NIXX_AF_RX_DEF_OIP6(void)
 {
 	return 0x230;
 }
@@ -4785,20 +5233,20 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OIP6(void)
  * information in NPC_RESULT_S to identify an outer L2/Ethernet header.
  * Typically the same as NPC_PCK_DEF_OL2.
  */
-union cavm_nixx_af_rx_def_ol2 {
+union nixx_af_rx_def_ol2 {
 	u64 u;
-	struct cavm_nixx_af_rx_def_ol2_s {
+	struct nixx_af_rx_def_ol2_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_ol2_s cn; */
+	/* struct nixx_af_rx_def_ol2_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_OL2(void)
+static inline u64 NIXX_AF_RX_DEF_OL2(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_OL2(void)
+static inline u64 NIXX_AF_RX_DEF_OL2(void)
 {
 	return 0x200;
 }
@@ -4809,20 +5257,20 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OL2(void)
  * NIX AF Receive Outer SCTP Header Definition Register Defines layer
  * information in NPC_RESULT_S to identify an outer SCTP header.
  */
-union cavm_nixx_af_rx_def_osctp {
+union nixx_af_rx_def_osctp {
 	u64 u;
-	struct cavm_nixx_af_rx_def_osctp_s {
+	struct nixx_af_rx_def_osctp_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_osctp_s cn; */
+	/* struct nixx_af_rx_def_osctp_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_OSCTP(void)
+static inline u64 NIXX_AF_RX_DEF_OSCTP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_OSCTP(void)
+static inline u64 NIXX_AF_RX_DEF_OSCTP(void)
 {
 	return 0x290;
 }
@@ -4833,20 +5281,20 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OSCTP(void)
  * NIX AF Receive Outer TCP Header Definition Register Defines layer
  * information in NPC_RESULT_S to identify an outer TCP header.
  */
-union cavm_nixx_af_rx_def_otcp {
+union nixx_af_rx_def_otcp {
 	u64 u;
-	struct cavm_nixx_af_rx_def_otcp_s {
+	struct nixx_af_rx_def_otcp_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_otcp_s cn; */
+	/* struct nixx_af_rx_def_otcp_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_OTCP(void)
+static inline u64 NIXX_AF_RX_DEF_OTCP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_OTCP(void)
+static inline u64 NIXX_AF_RX_DEF_OTCP(void)
 {
 	return 0x250;
 }
@@ -4857,20 +5305,20 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OTCP(void)
  * NIX AF Receive Outer UDP Header Definition Register Defines layer
  * information in NPC_RESULT_S to identify an outer UDP header.
  */
-union cavm_nixx_af_rx_def_oudp {
+union nixx_af_rx_def_oudp {
 	u64 u;
-	struct cavm_nixx_af_rx_def_oudp_s {
+	struct nixx_af_rx_def_oudp_s {
 		u64 ltype_mask                       : 4;
 		u64 ltype_match                      : 4;
 		u64 lid                              : 3;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_af_rx_def_oudp_s cn; */
+	/* struct nixx_af_rx_def_oudp_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_DEF_OUDP(void)
+static inline u64 NIXX_AF_RX_DEF_OUDP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_DEF_OUDP(void)
+static inline u64 NIXX_AF_RX_DEF_OUDP(void)
 {
 	return 0x270;
 }
@@ -4889,9 +5337,9 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_OUDP(void)
  * Dest IP: 16B. _ Source port: 2B. _ Dest port: 2B. _ Tunnel VNI/VSI:
  * 3B. _ Total: 39B.
  */
-union cavm_nixx_af_rx_flow_key_algx_fieldx {
+union nixx_af_rx_flow_key_algx_fieldx {
 	u64 u;
-	struct cavm_nixx_af_rx_flow_key_algx_fieldx_s {
+	struct nixx_af_rx_flow_key_algx_fieldx_s {
 		u64 key_offset                       : 6;
 		u64 ln_mask                          : 1;
 		u64 fn_mask                          : 1;
@@ -4905,12 +5353,12 @@ union cavm_nixx_af_rx_flow_key_algx_fieldx {
 		u64 ltype_match                      : 4;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_nixx_af_rx_flow_key_algx_fieldx_s cn; */
+	/* struct nixx_af_rx_flow_key_algx_fieldx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_FLOW_KEY_ALGX_FIELDX(u64 a, u64 b)
+static inline u64 NIXX_AF_RX_FLOW_KEY_ALGX_FIELDX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_FLOW_KEY_ALGX_FIELDX(u64 a, u64 b)
+static inline u64 NIXX_AF_RX_FLOW_KEY_ALGX_FIELDX(u64 a, u64 b)
 {
 	return 0x1800 + 0x40000 * a + 8 * b;
 }
@@ -4921,21 +5369,21 @@ static inline u64 CAVM_NIXX_AF_RX_FLOW_KEY_ALGX_FIELDX(u64 a, u64 b)
  * INTERNAL: NIX AF Receive IPSEC General Configuration Register
  * Internal: Not used; no IPSEC fast-path.
  */
-union cavm_nixx_af_rx_ipsec_gen_cfg {
+union nixx_af_rx_ipsec_gen_cfg {
 	u64 u;
-	struct cavm_nixx_af_rx_ipsec_gen_cfg_s {
+	struct nixx_af_rx_ipsec_gen_cfg_s {
 		u64 param2                           : 16;
 		u64 param1                           : 16;
 		u64 opcode                           : 16;
 		u64 egrp                             : 3;
 		u64 reserved_51_63                   : 13;
 	} s;
-	/* struct cavm_nixx_af_rx_ipsec_gen_cfg_s cn; */
+	/* struct nixx_af_rx_ipsec_gen_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_IPSEC_GEN_CFG(void)
+static inline u64 NIXX_AF_RX_IPSEC_GEN_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_IPSEC_GEN_CFG(void)
+static inline u64 NIXX_AF_RX_IPSEC_GEN_CFG(void)
 {
 	return 0x300;
 }
@@ -4946,19 +5394,19 @@ static inline u64 CAVM_NIXX_AF_RX_IPSEC_GEN_CFG(void)
  * NIX AF Receive Link Configuration Registers Index enumerated by
  * NIX_LINK_E.
  */
-union cavm_nixx_af_rx_linkx_cfg {
+union nixx_af_rx_linkx_cfg {
 	u64 u;
-	struct cavm_nixx_af_rx_linkx_cfg_s {
+	struct nixx_af_rx_linkx_cfg_s {
 		u64 minlen                           : 16;
 		u64 maxlen                           : 16;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_nixx_af_rx_linkx_cfg_s cn; */
+	/* struct nixx_af_rx_linkx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_LINKX_CFG(u64 a)
+static inline u64 NIXX_AF_RX_LINKX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_LINKX_CFG(u64 a)
+static inline u64 NIXX_AF_RX_LINKX_CFG(u64 a)
 {
 	return 0x540 + 0x10000 * a;
 }
@@ -4968,24 +5416,28 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_CFG(u64 a)
  *
  * INTERNAL: NIX Receive Software Sync Link Packet Count Registers  For
  * diagnostic use only for debug of NIX_AF_RX_SW_SYNC[ENA] function. LINK
- * index is enumerated by NIX_LINK_E. SL index is zero for non-express
- * packets, one for express packets. For the internal NIX_LINK_E::MC, SL
- * index is zero for multicast replay, one for mirror replay.
+ * index is enumerated by NIX_LINK_E. For the internal multicast/mirror
+ * link (NIX_LINK_E::MC), SL index is zero for multicast replay, one for
+ * mirror replay. SL index one is reserved for all other links.
+ * Internal: 802.3br frame preemption/express path is defeatured. Old
+ * definition of SL index: SL index is zero for non-express packets, one
+ * for express packets. For the internal NIX_LINK_E::MC, SL index is zero
+ * for multicast replay, one for mirror replay.
  */
-union cavm_nixx_af_rx_linkx_slx_spkt_cnt {
+union nixx_af_rx_linkx_slx_spkt_cnt {
 	u64 u;
-	struct cavm_nixx_af_rx_linkx_slx_spkt_cnt_s {
+	struct nixx_af_rx_linkx_slx_spkt_cnt_s {
 		u64 in_cnt                           : 20;
 		u64 reserved_20_31                   : 12;
 		u64 out_cnt                          : 20;
 		u64 reserved_52_63                   : 12;
 	} s;
-	/* struct cavm_nixx_af_rx_linkx_slx_spkt_cnt_s cn; */
+	/* struct nixx_af_rx_linkx_slx_spkt_cnt_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_LINKX_SLX_SPKT_CNT(u64 a, u64 b)
+static inline u64 NIXX_AF_RX_LINKX_SLX_SPKT_CNT(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_LINKX_SLX_SPKT_CNT(u64 a, u64 b)
+static inline u64 NIXX_AF_RX_LINKX_SLX_SPKT_CNT(u64 a, u64 b)
 {
 	return 0x500 + 0x10000 * a + 8 * b;
 }
@@ -4996,18 +5448,18 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_SLX_SPKT_CNT(u64 a, u64 b)
  * NIX AF Receive Link Weighted Round Robin Configuration Registers Index
  * enumerated by NIX_LINK_E.
  */
-union cavm_nixx_af_rx_linkx_wrr_cfg {
+union nixx_af_rx_linkx_wrr_cfg {
 	u64 u;
-	struct cavm_nixx_af_rx_linkx_wrr_cfg_s {
+	struct nixx_af_rx_linkx_wrr_cfg_s {
 		u64 weight                           : 8;
 		u64 reserved_8_63                    : 56;
 	} s;
-	/* struct cavm_nixx_af_rx_linkx_wrr_cfg_s cn; */
+	/* struct nixx_af_rx_linkx_wrr_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_LINKX_WRR_CFG(u64 a)
+static inline u64 NIXX_AF_RX_LINKX_WRR_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_LINKX_WRR_CFG(u64 a)
+static inline u64 NIXX_AF_RX_LINKX_WRR_CFG(u64 a)
 {
 	return 0x560 + 0x10000 * a;
 }
@@ -5036,19 +5488,19 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_WRR_CFG(u64 a)
  * two mirror entries in that list.  Internal: A multicast list may have
  * multiple entries for the same LF (e.g. for future RoCE/IB multicast).
  */
-union cavm_nixx_af_rx_mcast_base {
+union nixx_af_rx_mcast_base {
 	u64 u;
-	struct cavm_nixx_af_rx_mcast_base_s {
+	struct nixx_af_rx_mcast_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_rx_mcast_base_s cn; */
+	/* struct nixx_af_rx_mcast_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_MCAST_BASE(void)
+static inline u64 NIXX_AF_RX_MCAST_BASE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_MCAST_BASE(void)
+static inline u64 NIXX_AF_RX_MCAST_BASE(void)
 {
 	return 0x100;
 }
@@ -5066,19 +5518,19 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_BASE(void)
  * packet and sets NIX_AF_GEN_INT[RX_MCAST_DROP].  Hardware prioritizes
  * the processing of RX mirror packets over RX multicast packets.
  */
-union cavm_nixx_af_rx_mcast_buf_base {
+union nixx_af_rx_mcast_buf_base {
 	u64 u;
-	struct cavm_nixx_af_rx_mcast_buf_base_s {
+	struct nixx_af_rx_mcast_buf_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_rx_mcast_buf_base_s cn; */
+	/* struct nixx_af_rx_mcast_buf_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_BASE(void)
+static inline u64 NIXX_AF_RX_MCAST_BUF_BASE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_BASE(void)
+static inline u64 NIXX_AF_RX_MCAST_BUF_BASE(void)
 {
 	return 0x120;
 }
@@ -5089,9 +5541,35 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_BASE(void)
  * NIX AF Receive Multicast Buffer Configuration Register See
  * NIX_AF_RX_MCAST_BUF_BASE.
  */
-union cavm_nixx_af_rx_mcast_buf_cfg {
+union nixx_af_rx_mcast_buf_cfg {
 	u64 u;
-	struct cavm_nixx_af_rx_mcast_buf_cfg_s {
+	struct nixx_af_rx_mcast_buf_cfg_s {
+		u64 size                             : 4;
+		u64 way_mask                         : 16;
+		u64 caching                          : 1;
+		u64 reserved_21_23                   : 3;
+		u64 npc_replay_pkind                 : 6;
+		u64 reserved_30_31                   : 2;
+		u64 free_buf_level                   : 11;
+		u64 reserved_43_61                   : 19;
+		u64 busy                             : 1;
+		u64 ena                              : 1;
+	} s;
+	struct nixx_af_rx_mcast_buf_cfg_cn96xxp1 {
+		u64 size                             : 4;
+		u64 way_mask                         : 16;
+		u64 caching                          : 1;
+		u64 reserved_21_23                   : 3;
+		u64 npc_replay_pkind                 : 6;
+		u64 reserved_30_31                   : 2;
+		u64 free_buf_level                   : 11;
+		u64 reserved_43_61                   : 19;
+		u64 reserved_62                      : 1;
+		u64 ena                              : 1;
+	} cn96xxp1;
+	/* struct nixx_af_rx_mcast_buf_cfg_s cn96xxp3; */
+	/* struct nixx_af_rx_mcast_buf_cfg_s cn98xx; */
+	struct nixx_af_rx_mcast_buf_cfg_cnf95xxp1 {
 		u64 size                             : 4;
 		u64 way_mask                         : 16;
 		u64 caching                          : 1;
@@ -5101,13 +5579,14 @@ union cavm_nixx_af_rx_mcast_buf_cfg {
 		u64 free_buf_level                   : 11;
 		u64 reserved_43_62                   : 20;
 		u64 ena                              : 1;
-	} s;
-	/* struct cavm_nixx_af_rx_mcast_buf_cfg_s cn; */
+	} cnf95xxp1;
+	/* struct nixx_af_rx_mcast_buf_cfg_s cnf95xxp2; */
+	/* struct nixx_af_rx_mcast_buf_cfg_s loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_CFG(void)
+static inline u64 NIXX_AF_RX_MCAST_BUF_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_CFG(void)
+static inline u64 NIXX_AF_RX_MCAST_BUF_CFG(void)
 {
 	return 0x130;
 }
@@ -5118,9 +5597,9 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_BUF_CFG(void)
  * NIX AF Receive Multicast/Mirror Table Configuration Register See
  * NIX_AF_RX_MCAST_BASE.
  */
-union cavm_nixx_af_rx_mcast_cfg {
+union nixx_af_rx_mcast_cfg {
 	u64 u;
-	struct cavm_nixx_af_rx_mcast_cfg_s {
+	struct nixx_af_rx_mcast_cfg_s {
 		u64 size                             : 4;
 		u64 max_list_lenm1                   : 8;
 		u64 reserved_12_19                   : 8;
@@ -5128,12 +5607,12 @@ union cavm_nixx_af_rx_mcast_cfg {
 		u64 caching                          : 1;
 		u64 reserved_37_63                   : 27;
 	} s;
-	/* struct cavm_nixx_af_rx_mcast_cfg_s cn; */
+	/* struct nixx_af_rx_mcast_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_MCAST_CFG(void)
+static inline u64 NIXX_AF_RX_MCAST_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_MCAST_CFG(void)
+static inline u64 NIXX_AF_RX_MCAST_CFG(void)
 {
 	return 0x110;
 }
@@ -5151,19 +5630,19 @@ static inline u64 CAVM_NIXX_AF_RX_MCAST_CFG(void)
  * packet and sets NIX_AF_GEN_INT[RX_MIRROR_DROP].  Hardware prioritizes
  * the processing of RX mirror packets over RX multicast packets.
  */
-union cavm_nixx_af_rx_mirror_buf_base {
+union nixx_af_rx_mirror_buf_base {
 	u64 u;
-	struct cavm_nixx_af_rx_mirror_buf_base_s {
+	struct nixx_af_rx_mirror_buf_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_rx_mirror_buf_base_s cn; */
+	/* struct nixx_af_rx_mirror_buf_base_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_BASE(void)
+static inline u64 NIXX_AF_RX_MIRROR_BUF_BASE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_BASE(void)
+static inline u64 NIXX_AF_RX_MIRROR_BUF_BASE(void)
 {
 	return 0x140;
 }
@@ -5174,9 +5653,35 @@ static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_BASE(void)
  * NIX AF Receive Mirror Buffer Configuration Register See
  * NIX_AF_RX_MIRROR_BUF_BASE.
  */
-union cavm_nixx_af_rx_mirror_buf_cfg {
+union nixx_af_rx_mirror_buf_cfg {
 	u64 u;
-	struct cavm_nixx_af_rx_mirror_buf_cfg_s {
+	struct nixx_af_rx_mirror_buf_cfg_s {
+		u64 size                             : 4;
+		u64 way_mask                         : 16;
+		u64 caching                          : 1;
+		u64 reserved_21_23                   : 3;
+		u64 npc_replay_pkind                 : 6;
+		u64 reserved_30_31                   : 2;
+		u64 free_buf_level                   : 11;
+		u64 reserved_43_61                   : 19;
+		u64 busy                             : 1;
+		u64 ena                              : 1;
+	} s;
+	struct nixx_af_rx_mirror_buf_cfg_cn96xxp1 {
+		u64 size                             : 4;
+		u64 way_mask                         : 16;
+		u64 caching                          : 1;
+		u64 reserved_21_23                   : 3;
+		u64 npc_replay_pkind                 : 6;
+		u64 reserved_30_31                   : 2;
+		u64 free_buf_level                   : 11;
+		u64 reserved_43_61                   : 19;
+		u64 reserved_62                      : 1;
+		u64 ena                              : 1;
+	} cn96xxp1;
+	/* struct nixx_af_rx_mirror_buf_cfg_s cn96xxp3; */
+	/* struct nixx_af_rx_mirror_buf_cfg_s cn98xx; */
+	struct nixx_af_rx_mirror_buf_cfg_cnf95xxp1 {
 		u64 size                             : 4;
 		u64 way_mask                         : 16;
 		u64 caching                          : 1;
@@ -5186,13 +5691,14 @@ union cavm_nixx_af_rx_mirror_buf_cfg {
 		u64 free_buf_level                   : 11;
 		u64 reserved_43_62                   : 20;
 		u64 ena                              : 1;
-	} s;
-	/* struct cavm_nixx_af_rx_mirror_buf_cfg_s cn; */
+	} cnf95xxp1;
+	/* struct nixx_af_rx_mirror_buf_cfg_s cnf95xxp2; */
+	/* struct nixx_af_rx_mirror_buf_cfg_s loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_CFG(void)
+static inline u64 NIXX_AF_RX_MIRROR_BUF_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_CFG(void)
+static inline u64 NIXX_AF_RX_MIRROR_BUF_CFG(void)
 {
 	return 0x148;
 }
@@ -5203,18 +5709,18 @@ static inline u64 CAVM_NIXX_AF_RX_MIRROR_BUF_CFG(void)
  * NIX AF Multicast Drop Statistics Register The counter increments for
  * every dropped MC packet marked by the NPC.
  */
-union cavm_nixx_af_rx_npc_mc_drop {
+union nixx_af_rx_npc_mc_drop {
 	u64 u;
-	struct cavm_nixx_af_rx_npc_mc_drop_s {
+	struct nixx_af_rx_npc_mc_drop_s {
 		u64 stat                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_rx_npc_mc_drop_s cn; */
+	/* struct nixx_af_rx_npc_mc_drop_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_NPC_MC_DROP(void)
+static inline u64 NIXX_AF_RX_NPC_MC_DROP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_NPC_MC_DROP(void)
+static inline u64 NIXX_AF_RX_NPC_MC_DROP(void)
 {
 	return 0x4710;
 }
@@ -5225,18 +5731,18 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MC_DROP(void)
  * NIX AF Multicast Receive Statistics Register The counter increments
  * for every received MC packet marked by the NPC.
  */
-union cavm_nixx_af_rx_npc_mc_rcv {
+union nixx_af_rx_npc_mc_rcv {
 	u64 u;
-	struct cavm_nixx_af_rx_npc_mc_rcv_s {
+	struct nixx_af_rx_npc_mc_rcv_s {
 		u64 stat                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_rx_npc_mc_rcv_s cn; */
+	/* struct nixx_af_rx_npc_mc_rcv_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_NPC_MC_RCV(void)
+static inline u64 NIXX_AF_RX_NPC_MC_RCV(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_NPC_MC_RCV(void)
+static inline u64 NIXX_AF_RX_NPC_MC_RCV(void)
 {
 	return 0x4700;
 }
@@ -5247,18 +5753,18 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MC_RCV(void)
  * NIX AF Mirror Drop Statistics Register The counter increments for
  * every dropped MIRROR packet marked by the NPC.
  */
-union cavm_nixx_af_rx_npc_mirror_drop {
+union nixx_af_rx_npc_mirror_drop {
 	u64 u;
-	struct cavm_nixx_af_rx_npc_mirror_drop_s {
+	struct nixx_af_rx_npc_mirror_drop_s {
 		u64 stat                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_rx_npc_mirror_drop_s cn; */
+	/* struct nixx_af_rx_npc_mirror_drop_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_DROP(void)
+static inline u64 NIXX_AF_RX_NPC_MIRROR_DROP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_DROP(void)
+static inline u64 NIXX_AF_RX_NPC_MIRROR_DROP(void)
 {
 	return 0x4730;
 }
@@ -5269,18 +5775,18 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_DROP(void)
  * NIX AF Mirror Receive Statistics Register The counter increments for
  * every received MIRROR packet marked by the NPC.
  */
-union cavm_nixx_af_rx_npc_mirror_rcv {
+union nixx_af_rx_npc_mirror_rcv {
 	u64 u;
-	struct cavm_nixx_af_rx_npc_mirror_rcv_s {
+	struct nixx_af_rx_npc_mirror_rcv_s {
 		u64 stat                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_rx_npc_mirror_rcv_s cn; */
+	/* struct nixx_af_rx_npc_mirror_rcv_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_RCV(void)
+static inline u64 NIXX_AF_RX_NPC_MIRROR_RCV(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_RCV(void)
+static inline u64 NIXX_AF_RX_NPC_MIRROR_RCV(void)
 {
 	return 0x4720;
 }
@@ -5290,18 +5796,18 @@ static inline u64 CAVM_NIXX_AF_RX_NPC_MIRROR_RCV(void)
  *
  * NIX AF Receive Software Sync Register
  */
-union cavm_nixx_af_rx_sw_sync {
+union nixx_af_rx_sw_sync {
 	u64 u;
-	struct cavm_nixx_af_rx_sw_sync_s {
+	struct nixx_af_rx_sw_sync_s {
 		u64 ena                              : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_rx_sw_sync_s cn; */
+	/* struct nixx_af_rx_sw_sync_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_RX_SW_SYNC(void)
+static inline u64 NIXX_AF_RX_SW_SYNC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_RX_SW_SYNC(void)
+static inline u64 NIXX_AF_RX_SW_SYNC(void)
 {
 	return 0x550;
 }
@@ -5311,17 +5817,17 @@ static inline u64 CAVM_NIXX_AF_RX_SW_SYNC(void)
  *
  * NIX AF SDP Transmit Link Hardware Controlled XOFF Registers .
  */
-union cavm_nixx_af_sdp_hw_xoffx {
+union nixx_af_sdp_hw_xoffx {
 	u64 u;
-	struct cavm_nixx_af_sdp_hw_xoffx_s {
+	struct nixx_af_sdp_hw_xoffx_s {
 		u64 chan_xoff                        : 64;
 	} s;
-	/* struct cavm_nixx_af_sdp_hw_xoffx_s cn; */
+	/* struct nixx_af_sdp_hw_xoffx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SDP_HW_XOFFX(u64 a)
+static inline u64 NIXX_AF_SDP_HW_XOFFX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SDP_HW_XOFFX(u64 a)
+static inline u64 NIXX_AF_SDP_HW_XOFFX(u64 a)
 {
 	return 0xac0 + 8 * a;
 }
@@ -5332,9 +5838,9 @@ static inline u64 CAVM_NIXX_AF_SDP_HW_XOFFX(u64 a)
  * NIX AF Transmit Link SDP Credit Register This register tracks SDP link
  * credits.
  */
-union cavm_nixx_af_sdp_link_credit {
+union nixx_af_sdp_link_credit {
 	u64 u;
-	struct cavm_nixx_af_sdp_link_credit_s {
+	struct nixx_af_sdp_link_credit_s {
 		u64 reserved_0                       : 1;
 		u64 cc_enable                        : 1;
 		u64 cc_packet_cnt                    : 10;
@@ -5342,19 +5848,22 @@ union cavm_nixx_af_sdp_link_credit {
 		u64 reserved_32_62                   : 31;
 		u64 pse_pkt_id_lmt                   : 1;
 	} s;
-	struct cavm_nixx_af_sdp_link_credit_cn96xx {
+	struct nixx_af_sdp_link_credit_cn96xx {
 		u64 reserved_0                       : 1;
 		u64 cc_enable                        : 1;
 		u64 cc_packet_cnt                    : 10;
 		u64 cc_unit_cnt                      : 20;
-		u64 reserved_32_63                   : 32;
+		u64 reserved_32_62                   : 31;
+		u64 reserved_63                      : 1;
 	} cn96xx;
-	/* struct cavm_nixx_af_sdp_link_credit_s cnf95xx; */
+	/* struct nixx_af_sdp_link_credit_cn96xx cn98xx; */
+	/* struct nixx_af_sdp_link_credit_s cnf95xx; */
+	/* struct nixx_af_sdp_link_credit_cn96xx loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_SDP_LINK_CREDIT(void)
+static inline u64 NIXX_AF_SDP_LINK_CREDIT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SDP_LINK_CREDIT(void)
+static inline u64 NIXX_AF_SDP_LINK_CREDIT(void)
 {
 	return 0xa40;
 }
@@ -5362,19 +5871,21 @@ static inline u64 CAVM_NIXX_AF_SDP_LINK_CREDIT(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_sdp_sw_xoff#
  *
- * NIX AF SDP Transmit Link Software Controlled XOFF Registers
+ * INTERNAL: NIX AF SDP Transmit Link Software Controlled XOFF Registers
+ * Internal: Defeatured registers. Software should use
+ * NIX_AF_TL4()_SW_XOFF registers instead.
  */
-union cavm_nixx_af_sdp_sw_xoffx {
+union nixx_af_sdp_sw_xoffx {
 	u64 u;
-	struct cavm_nixx_af_sdp_sw_xoffx_s {
+	struct nixx_af_sdp_sw_xoffx_s {
 		u64 chan_xoff                        : 64;
 	} s;
-	/* struct cavm_nixx_af_sdp_sw_xoffx_s cn; */
+	/* struct nixx_af_sdp_sw_xoffx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SDP_SW_XOFFX(u64 a)
+static inline u64 NIXX_AF_SDP_SW_XOFFX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SDP_SW_XOFFX(u64 a)
+static inline u64 NIXX_AF_SDP_SW_XOFFX(u64 a)
 {
 	return 0xa60 + 8 * a;
 }
@@ -5385,18 +5896,18 @@ static inline u64 CAVM_NIXX_AF_SDP_SW_XOFFX(u64 a)
  * NIX AF SDP Transmit FIFO Status Register Status of FIFO which
  * transmits packets to SDP.
  */
-union cavm_nixx_af_sdp_tx_fifo_status {
+union nixx_af_sdp_tx_fifo_status {
 	u64 u;
-	struct cavm_nixx_af_sdp_tx_fifo_status_s {
+	struct nixx_af_sdp_tx_fifo_status_s {
 		u64 count                            : 12;
 		u64 reserved_12_63                   : 52;
 	} s;
-	/* struct cavm_nixx_af_sdp_tx_fifo_status_s cn; */
+	/* struct nixx_af_sdp_tx_fifo_status_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SDP_TX_FIFO_STATUS(void)
+static inline u64 NIXX_AF_SDP_TX_FIFO_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SDP_TX_FIFO_STATUS(void)
+static inline u64 NIXX_AF_SDP_TX_FIFO_STATUS(void)
 {
 	return 0x650;
 }
@@ -5407,17 +5918,17 @@ static inline u64 CAVM_NIXX_AF_SDP_TX_FIFO_STATUS(void)
  * NIX AF Active Cycles Register These registers are indexed by the
  * conditional clock domain number.
  */
-union cavm_nixx_af_seb_active_cycles_pcx {
+union nixx_af_seb_active_cycles_pcx {
 	u64 u;
-	struct cavm_nixx_af_seb_active_cycles_pcx_s {
+	struct nixx_af_seb_active_cycles_pcx_s {
 		u64 act_cyc                          : 64;
 	} s;
-	/* struct cavm_nixx_af_seb_active_cycles_pcx_s cn; */
+	/* struct nixx_af_seb_active_cycles_pcx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SEB_ACTIVE_CYCLES_PCX(u64 a)
+static inline u64 NIXX_AF_SEB_ACTIVE_CYCLES_PCX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SEB_ACTIVE_CYCLES_PCX(u64 a)
+static inline u64 NIXX_AF_SEB_ACTIVE_CYCLES_PCX(u64 a)
 {
 	return 0x6c0 + 8 * a;
 }
@@ -5427,9 +5938,9 @@ static inline u64 CAVM_NIXX_AF_SEB_ACTIVE_CYCLES_PCX(u64 a)
  *
  * INTERNAL: NIX AF SEB Backpressure Test Register
  */
-union cavm_nixx_af_seb_bp_test {
+union nixx_af_seb_bp_test {
 	u64 u;
-	struct cavm_nixx_af_seb_bp_test_s {
+	struct nixx_af_seb_bp_test_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 14;
@@ -5437,14 +5948,35 @@ union cavm_nixx_af_seb_bp_test {
 		u64 enable                           : 7;
 		u64 reserved_55_63                   : 9;
 	} s;
-	/* struct cavm_nixx_af_seb_bp_test_s cn; */
+	/* struct nixx_af_seb_bp_test_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SEB_BP_TEST(void)
+static inline u64 NIXX_AF_SEB_BP_TEST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SEB_BP_TEST(void)
+static inline u64 NIXX_AF_SEB_BP_TEST(void)
 {
 	return 0x630;
+}
+
+/**
+ * Register (RVU_PF_BAR0) nix#_af_seb_cfg
+ *
+ * NIX SEB Configuration Register
+ */
+union nixx_af_seb_cfg {
+	u64 u;
+	struct nixx_af_seb_cfg_s {
+		u64 sg_ndc_sel                       : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct nixx_af_seb_cfg_s cn; */
+};
+
+static inline u64 NIXX_AF_SEB_CFG(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 NIXX_AF_SEB_CFG(void)
+{
+	return 0x5f0;
 }
 
 /**
@@ -5452,17 +5984,17 @@ static inline u64 CAVM_NIXX_AF_SEB_BP_TEST(void)
  *
  * INTERNAL: AF SEB ECO Register
  */
-union cavm_nixx_af_seb_eco {
+union nixx_af_seb_eco {
 	u64 u;
-	struct cavm_nixx_af_seb_eco_s {
+	struct nixx_af_seb_eco_s {
 		u64 eco_rw                           : 64;
 	} s;
-	/* struct cavm_nixx_af_seb_eco_s cn; */
+	/* struct nixx_af_seb_eco_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SEB_ECO(void)
+static inline u64 NIXX_AF_SEB_ECO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SEB_ECO(void)
+static inline u64 NIXX_AF_SEB_ECO(void)
 {
 	return 0x5c0;
 }
@@ -5472,9 +6004,9 @@ static inline u64 CAVM_NIXX_AF_SEB_ECO(void)
  *
  * INTERNAL: NIX AF SEB Pipe Backpressure Test Registers
  */
-union cavm_nixx_af_seb_pipe_bp_testx {
+union nixx_af_seb_pipe_bp_testx {
 	u64 u;
-	struct cavm_nixx_af_seb_pipe_bp_testx_s {
+	struct nixx_af_seb_pipe_bp_testx_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 24;
@@ -5482,12 +6014,12 @@ union cavm_nixx_af_seb_pipe_bp_testx {
 		u64 enable                           : 12;
 		u64 reserved_60_63                   : 4;
 	} s;
-	/* struct cavm_nixx_af_seb_pipe_bp_testx_s cn; */
+	/* struct nixx_af_seb_pipe_bp_testx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SEB_PIPE_BP_TESTX(u64 a)
+static inline u64 NIXX_AF_SEB_PIPE_BP_TESTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SEB_PIPE_BP_TESTX(u64 a)
+static inline u64 NIXX_AF_SEB_PIPE_BP_TESTX(u64 a)
 {
 	return 0x600 + 0x10 * a;
 }
@@ -5497,9 +6029,9 @@ static inline u64 CAVM_NIXX_AF_SEB_PIPE_BP_TESTX(u64 a)
  *
  * INTERNAL: NIX AF SEB Pipe Backpressure Test Registers
  */
-union cavm_nixx_af_seb_pipeb_bp_testx {
+union nixx_af_seb_pipeb_bp_testx {
 	u64 u;
-	struct cavm_nixx_af_seb_pipeb_bp_testx_s {
+	struct nixx_af_seb_pipeb_bp_testx_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 18;
@@ -5507,12 +6039,12 @@ union cavm_nixx_af_seb_pipeb_bp_testx {
 		u64 enable                           : 9;
 		u64 reserved_57_63                   : 7;
 	} s;
-	/* struct cavm_nixx_af_seb_pipeb_bp_testx_s cn; */
+	/* struct nixx_af_seb_pipeb_bp_testx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SEB_PIPEB_BP_TESTX(u64 a)
+static inline u64 NIXX_AF_SEB_PIPEB_BP_TESTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SEB_PIPEB_BP_TESTX(u64 a)
+static inline u64 NIXX_AF_SEB_PIPEB_BP_TESTX(u64 a)
 {
 	return 0x608 + 0x10 * a;
 }
@@ -5522,18 +6054,18 @@ static inline u64 CAVM_NIXX_AF_SEB_PIPEB_BP_TESTX(u64 a)
  *
  * INTERNAL: NIX AF SEB TSTMP Watchdog Tick Divider Register
  */
-union cavm_nixx_af_seb_wd_tick_divider {
+union nixx_af_seb_wd_tick_divider {
 	u64 u;
-	struct cavm_nixx_af_seb_wd_tick_divider_s {
+	struct nixx_af_seb_wd_tick_divider_s {
 		u64 tick_div_cfg                     : 7;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_nixx_af_seb_wd_tick_divider_s cn; */
+	/* struct nixx_af_seb_wd_tick_divider_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SEB_WD_TICK_DIVIDER(void)
+static inline u64 NIXX_AF_SEB_WD_TICK_DIVIDER(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SEB_WD_TICK_DIVIDER(void)
+static inline u64 NIXX_AF_SEB_WD_TICK_DIVIDER(void)
 {
 	return 0x6f0;
 }
@@ -5543,9 +6075,9 @@ static inline u64 CAVM_NIXX_AF_SEB_WD_TICK_DIVIDER(void)
  *
  * NIX AF SQM PSE Queue Configuration Registers
  */
-union cavm_nixx_af_smqx_cfg {
+union nixx_af_smqx_cfg {
 	u64 u;
-	struct cavm_nixx_af_smqx_cfg_s {
+	struct nixx_af_smqx_cfg_s {
 		u64 minlen                           : 7;
 		u64 desc_shp_ctl_dis                 : 1;
 		u64 maxlen                           : 16;
@@ -5559,12 +6091,12 @@ union cavm_nixx_af_smqx_cfg {
 		u64 pri_thr                          : 6;
 		u64 reserved_57_63                   : 7;
 	} s;
-	/* struct cavm_nixx_af_smqx_cfg_s cn; */
+	/* struct nixx_af_smqx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SMQX_CFG(u64 a)
+static inline u64 NIXX_AF_SMQX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SMQX_CFG(u64 a)
+static inline u64 NIXX_AF_SMQX_CFG(u64 a)
 {
 	return 0x700 + 0x10000 * a;
 }
@@ -5575,19 +6107,19 @@ static inline u64 CAVM_NIXX_AF_SMQX_CFG(u64 a)
  * NIX AF SQM SMQ Head Register These registers track the head of the SMQ
  * linked list.
  */
-union cavm_nixx_af_smqx_head {
+union nixx_af_smqx_head {
 	u64 u;
-	struct cavm_nixx_af_smqx_head_s {
+	struct nixx_af_smqx_head_s {
 		u64 sq_idx                           : 20;
 		u64 valid                            : 1;
 		u64 reserved_21_63                   : 43;
 	} s;
-	/* struct cavm_nixx_af_smqx_head_s cn; */
+	/* struct nixx_af_smqx_head_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SMQX_HEAD(u64 a)
+static inline u64 NIXX_AF_SMQX_HEAD(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SMQX_HEAD(u64 a)
+static inline u64 NIXX_AF_SMQX_HEAD(u64 a)
 {
 	return 0x710 + 0x10000 * a;
 }
@@ -5598,19 +6130,19 @@ static inline u64 CAVM_NIXX_AF_SMQX_HEAD(u64 a)
  * NIX AF SQM SMQ Next Head Register These registers track the next head
  * of the SMQ linked list.
  */
-union cavm_nixx_af_smqx_nxt_head {
+union nixx_af_smqx_nxt_head {
 	u64 u;
-	struct cavm_nixx_af_smqx_nxt_head_s {
+	struct nixx_af_smqx_nxt_head_s {
 		u64 sq_idx                           : 20;
 		u64 valid                            : 1;
 		u64 reserved_21_63                   : 43;
 	} s;
-	/* struct cavm_nixx_af_smqx_nxt_head_s cn; */
+	/* struct nixx_af_smqx_nxt_head_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SMQX_NXT_HEAD(u64 a)
+static inline u64 NIXX_AF_SMQX_NXT_HEAD(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SMQX_NXT_HEAD(u64 a)
+static inline u64 NIXX_AF_SMQX_NXT_HEAD(u64 a)
 {
 	return 0x740 + 0x10000 * a;
 }
@@ -5621,18 +6153,18 @@ static inline u64 CAVM_NIXX_AF_SMQX_NXT_HEAD(u64 a)
  * NIX AF SQM SMQ Status Register These registers track the status of the
  * SMQ FIFO.
  */
-union cavm_nixx_af_smqx_status {
+union nixx_af_smqx_status {
 	u64 u;
-	struct cavm_nixx_af_smqx_status_s {
+	struct nixx_af_smqx_status_s {
 		u64 level                            : 7;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_nixx_af_smqx_status_s cn; */
+	/* struct nixx_af_smqx_status_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SMQX_STATUS(u64 a)
+static inline u64 NIXX_AF_SMQX_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SMQX_STATUS(u64 a)
+static inline u64 NIXX_AF_SMQX_STATUS(u64 a)
 {
 	return 0x730 + 0x10000 * a;
 }
@@ -5643,19 +6175,19 @@ static inline u64 CAVM_NIXX_AF_SMQX_STATUS(u64 a)
  * NIX AF SQM SMQ Head Register These registers track the tail of SMQ
  * linked list.
  */
-union cavm_nixx_af_smqx_tail {
+union nixx_af_smqx_tail {
 	u64 u;
-	struct cavm_nixx_af_smqx_tail_s {
+	struct nixx_af_smqx_tail_s {
 		u64 sq_idx                           : 20;
 		u64 valid                            : 1;
 		u64 reserved_21_63                   : 43;
 	} s;
-	/* struct cavm_nixx_af_smqx_tail_s cn; */
+	/* struct nixx_af_smqx_tail_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SMQX_TAIL(u64 a)
+static inline u64 NIXX_AF_SMQX_TAIL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SMQX_TAIL(u64 a)
+static inline u64 NIXX_AF_SMQX_TAIL(u64 a)
 {
 	return 0x720 + 0x10000 * a;
 }
@@ -5666,20 +6198,20 @@ static inline u64 CAVM_NIXX_AF_SMQX_TAIL(u64 a)
  * NIX AF SQ Constants Register This register contains constants for
  * software discovery.
  */
-union cavm_nixx_af_sq_const {
+union nixx_af_sq_const {
 	u64 u;
-	struct cavm_nixx_af_sq_const_s {
+	struct nixx_af_sq_const_s {
 		u64 queues_per_lf                    : 24;
 		u64 smq_depth                        : 10;
 		u64 sqb_size                         : 16;
 		u64 reserved_50_63                   : 14;
 	} s;
-	/* struct cavm_nixx_af_sq_const_s cn; */
+	/* struct nixx_af_sq_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SQ_CONST(void)
+static inline u64 NIXX_AF_SQ_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SQ_CONST(void)
+static inline u64 NIXX_AF_SQ_CONST(void)
 {
 	return 0x40;
 }
@@ -5690,17 +6222,17 @@ static inline u64 CAVM_NIXX_AF_SQ_CONST(void)
  * NIX AF SQM Active Cycles Register These registers are indexed by the
  * conditional clock domain number.
  */
-union cavm_nixx_af_sqm_active_cycles_pc {
+union nixx_af_sqm_active_cycles_pc {
 	u64 u;
-	struct cavm_nixx_af_sqm_active_cycles_pc_s {
+	struct nixx_af_sqm_active_cycles_pc_s {
 		u64 act_cyc                          : 64;
 	} s;
-	/* struct cavm_nixx_af_sqm_active_cycles_pc_s cn; */
+	/* struct nixx_af_sqm_active_cycles_pc_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SQM_ACTIVE_CYCLES_PC(void)
+static inline u64 NIXX_AF_SQM_ACTIVE_CYCLES_PC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SQM_ACTIVE_CYCLES_PC(void)
+static inline u64 NIXX_AF_SQM_ACTIVE_CYCLES_PC(void)
 {
 	return 0x770;
 }
@@ -5710,21 +6242,21 @@ static inline u64 CAVM_NIXX_AF_SQM_ACTIVE_CYCLES_PC(void)
  *
  * INTERNAL: NIX AF SQM Backpressure Test Register
  */
-union cavm_nixx_af_sqm_bp_testx {
+union nixx_af_sqm_bp_testx {
 	u64 u;
-	struct cavm_nixx_af_sqm_bp_testx_s {
+	struct nixx_af_sqm_bp_testx_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 8;
 		u64 reserved_24_59                   : 36;
 		u64 enable                           : 4;
 	} s;
-	/* struct cavm_nixx_af_sqm_bp_testx_s cn; */
+	/* struct nixx_af_sqm_bp_testx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SQM_BP_TESTX(u64 a)
+static inline u64 NIXX_AF_SQM_BP_TESTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SQM_BP_TESTX(u64 a)
+static inline u64 NIXX_AF_SQM_BP_TESTX(u64 a)
 {
 	return 0x760 + 0x10000 * a;
 }
@@ -5735,9 +6267,25 @@ static inline u64 CAVM_NIXX_AF_SQM_BP_TESTX(u64 a)
  * INTERNAL: NIX AF SQM Debug Register  This register is for SQM
  * diagnostic use only.
  */
-union cavm_nixx_af_sqm_dbg_ctl_status {
+union nixx_af_sqm_dbg_ctl_status {
 	u64 u;
-	struct cavm_nixx_af_sqm_dbg_ctl_status_s {
+	struct nixx_af_sqm_dbg_ctl_status_s {
+		u64 tm1                              : 8;
+		u64 tm2                              : 1;
+		u64 tm3                              : 4;
+		u64 tm4                              : 1;
+		u64 tm5                              : 1;
+		u64 tm6                              : 1;
+		u64 tm7                              : 4;
+		u64 tm8                              : 1;
+		u64 tm9                              : 1;
+		u64 tm10                             : 1;
+		u64 tm11                             : 1;
+		u64 tm12                             : 1;
+		u64 tm13                             : 1;
+		u64 reserved_26_63                   : 38;
+	} s;
+	struct nixx_af_sqm_dbg_ctl_status_cn96xxp1 {
 		u64 tm1                              : 8;
 		u64 tm2                              : 1;
 		u64 tm3                              : 4;
@@ -5748,13 +6296,32 @@ union cavm_nixx_af_sqm_dbg_ctl_status {
 		u64 tm8                              : 1;
 		u64 tm9                              : 1;
 		u64 reserved_22_63                   : 42;
-	} s;
-	/* struct cavm_nixx_af_sqm_dbg_ctl_status_s cn; */
+	} cn96xxp1;
+	/* struct nixx_af_sqm_dbg_ctl_status_s cn96xxp3; */
+	/* struct nixx_af_sqm_dbg_ctl_status_s cn98xx; */
+	/* struct nixx_af_sqm_dbg_ctl_status_cn96xxp1 cnf95xxp1; */
+	struct nixx_af_sqm_dbg_ctl_status_cnf95xxp2 {
+		u64 tm1                              : 8;
+		u64 tm2                              : 1;
+		u64 tm3                              : 4;
+		u64 tm4                              : 1;
+		u64 tm5                              : 1;
+		u64 tm6                              : 1;
+		u64 tm7                              : 4;
+		u64 tm8                              : 1;
+		u64 tm9                              : 1;
+		u64 reserved_22                      : 1;
+		u64 reserved_23                      : 1;
+		u64 reserved_24                      : 1;
+		u64 reserved_25                      : 1;
+		u64 reserved_26_63                   : 38;
+	} cnf95xxp2;
+	/* struct nixx_af_sqm_dbg_ctl_status_s loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_SQM_DBG_CTL_STATUS(void)
+static inline u64 NIXX_AF_SQM_DBG_CTL_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SQM_DBG_CTL_STATUS(void)
+static inline u64 NIXX_AF_SQM_DBG_CTL_STATUS(void)
 {
 	return 0x750;
 }
@@ -5764,17 +6331,17 @@ static inline u64 CAVM_NIXX_AF_SQM_DBG_CTL_STATUS(void)
  *
  * INTERNAL: AF SQM ECO Register
  */
-union cavm_nixx_af_sqm_eco {
+union nixx_af_sqm_eco {
 	u64 u;
-	struct cavm_nixx_af_sqm_eco_s {
+	struct nixx_af_sqm_eco_s {
 		u64 eco_rw                           : 64;
 	} s;
-	/* struct cavm_nixx_af_sqm_eco_s cn; */
+	/* struct nixx_af_sqm_eco_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_SQM_ECO(void)
+static inline u64 NIXX_AF_SQM_ECO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_SQM_ECO(void)
+static inline u64 NIXX_AF_SQM_ECO(void)
 {
 	return 0x5b0;
 }
@@ -5784,21 +6351,21 @@ static inline u64 CAVM_NIXX_AF_SQM_ECO(void)
  *
  * NIX AF General Status Register
  */
-union cavm_nixx_af_status {
+union nixx_af_status {
 	u64 u;
-	struct cavm_nixx_af_status_s {
+	struct nixx_af_status_s {
 		u64 blk_busy                         : 10;
 		u64 calibrate_done                   : 1;
 		u64 reserved_11_15                   : 5;
 		u64 calibrate_status                 : 15;
 		u64 reserved_31_63                   : 33;
 	} s;
-	/* struct cavm_nixx_af_status_s cn; */
+	/* struct nixx_af_status_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_STATUS(void)
+static inline u64 NIXX_AF_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_STATUS(void)
+static inline u64 NIXX_AF_STATUS(void)
 {
 	return 0x10;
 }
@@ -5808,9 +6375,9 @@ static inline u64 CAVM_NIXX_AF_STATUS(void)
  *
  * NIX TCP Timer Register
  */
-union cavm_nixx_af_tcp_timer {
+union nixx_af_tcp_timer {
 	u64 u;
-	struct cavm_nixx_af_tcp_timer_s {
+	struct nixx_af_tcp_timer_s {
 		u64 dur_counter                      : 16;
 		u64 lf_counter                       : 8;
 		u64 reserved_24_31                   : 8;
@@ -5818,12 +6385,12 @@ union cavm_nixx_af_tcp_timer {
 		u64 reserved_48_62                   : 15;
 		u64 ena                              : 1;
 	} s;
-	/* struct cavm_nixx_af_tcp_timer_s cn; */
+	/* struct nixx_af_tcp_timer_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TCP_TIMER(void)
+static inline u64 NIXX_AF_TCP_TIMER(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TCP_TIMER(void)
+static inline u64 NIXX_AF_TCP_TIMER(void)
 {
 	return 0x1e0;
 }
@@ -5833,9 +6400,9 @@ static inline u64 CAVM_NIXX_AF_TCP_TIMER(void)
  *
  * NIX AF Transmit Level 1 Committed Information Rate Register
  */
-union cavm_nixx_af_tl1x_cir {
+union nixx_af_tl1x_cir {
 	u64 u;
-	struct cavm_nixx_af_tl1x_cir_s {
+	struct nixx_af_tl1x_cir_s {
 		u64 enable                           : 1;
 		u64 rate_mantissa                    : 8;
 		u64 rate_exponent                    : 4;
@@ -5845,12 +6412,12 @@ union cavm_nixx_af_tl1x_cir {
 		u64 burst_exponent                   : 4;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl1x_cir_s cn; */
+	/* struct nixx_af_tl1x_cir_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_CIR(u64 a)
+static inline u64 NIXX_AF_TL1X_CIR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_CIR(u64 a)
+static inline u64 NIXX_AF_TL1X_CIR(u64 a)
 {
 	return 0xc20 + 0x10000 * a;
 }
@@ -5861,18 +6428,18 @@ static inline u64 CAVM_NIXX_AF_TL1X_CIR(u64 a)
  * NIX AF Transmit Level 1 Dropped Bytes Registers This register has the
  * same bit fields as NIX_AF_TL1()_GREEN_BYTES.
  */
-union cavm_nixx_af_tl1x_dropped_bytes {
+union nixx_af_tl1x_dropped_bytes {
 	u64 u;
-	struct cavm_nixx_af_tl1x_dropped_bytes_s {
+	struct nixx_af_tl1x_dropped_bytes_s {
 		u64 count                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_tl1x_dropped_bytes_s cn; */
+	/* struct nixx_af_tl1x_dropped_bytes_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_BYTES(u64 a)
+static inline u64 NIXX_AF_TL1X_DROPPED_BYTES(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_BYTES(u64 a)
+static inline u64 NIXX_AF_TL1X_DROPPED_BYTES(u64 a)
 {
 	return 0xd30 + 0x10000 * a;
 }
@@ -5883,18 +6450,18 @@ static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_BYTES(u64 a)
  * NIX AF Transmit Level 1 Dropped Packets Registers This register has
  * the same bit fields as NIX_AF_TL1()_GREEN_PACKETS.
  */
-union cavm_nixx_af_tl1x_dropped_packets {
+union nixx_af_tl1x_dropped_packets {
 	u64 u;
-	struct cavm_nixx_af_tl1x_dropped_packets_s {
+	struct nixx_af_tl1x_dropped_packets_s {
 		u64 count                            : 40;
 		u64 reserved_40_63                   : 24;
 	} s;
-	/* struct cavm_nixx_af_tl1x_dropped_packets_s cn; */
+	/* struct nixx_af_tl1x_dropped_packets_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_PACKETS(u64 a)
+static inline u64 NIXX_AF_TL1X_DROPPED_PACKETS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_PACKETS(u64 a)
+static inline u64 NIXX_AF_TL1X_DROPPED_PACKETS(u64 a)
 {
 	return 0xd20 + 0x10000 * a;
 }
@@ -5904,9 +6471,9 @@ static inline u64 CAVM_NIXX_AF_TL1X_DROPPED_PACKETS(u64 a)
  *
  * INTERNAL: NIX Transmit Level 1 Green State Debug Register
  */
-union cavm_nixx_af_tl1x_green {
+union nixx_af_tl1x_green {
 	u64 u;
-	struct cavm_nixx_af_tl1x_green_s {
+	struct nixx_af_tl1x_green_s {
 		u64 tail                             : 8;
 		u64 reserved_8_9                     : 2;
 		u64 head                             : 8;
@@ -5915,12 +6482,12 @@ union cavm_nixx_af_tl1x_green {
 		u64 rr_active                        : 1;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl1x_green_s cn; */
+	/* struct nixx_af_tl1x_green_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_GREEN(u64 a)
+static inline u64 NIXX_AF_TL1X_GREEN(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_GREEN(u64 a)
+static inline u64 NIXX_AF_TL1X_GREEN(u64 a)
 {
 	return 0xc90 + 0x10000 * a;
 }
@@ -5930,18 +6497,18 @@ static inline u64 CAVM_NIXX_AF_TL1X_GREEN(u64 a)
  *
  * NIX AF Transmit Level 1 Green Sent Bytes Registers
  */
-union cavm_nixx_af_tl1x_green_bytes {
+union nixx_af_tl1x_green_bytes {
 	u64 u;
-	struct cavm_nixx_af_tl1x_green_bytes_s {
+	struct nixx_af_tl1x_green_bytes_s {
 		u64 count                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_tl1x_green_bytes_s cn; */
+	/* struct nixx_af_tl1x_green_bytes_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_GREEN_BYTES(u64 a)
+static inline u64 NIXX_AF_TL1X_GREEN_BYTES(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_GREEN_BYTES(u64 a)
+static inline u64 NIXX_AF_TL1X_GREEN_BYTES(u64 a)
 {
 	return 0xd90 + 0x10000 * a;
 }
@@ -5951,18 +6518,18 @@ static inline u64 CAVM_NIXX_AF_TL1X_GREEN_BYTES(u64 a)
  *
  * NIX AF Transmit Level 1 Green Sent Packets Registers
  */
-union cavm_nixx_af_tl1x_green_packets {
+union nixx_af_tl1x_green_packets {
 	u64 u;
-	struct cavm_nixx_af_tl1x_green_packets_s {
+	struct nixx_af_tl1x_green_packets_s {
 		u64 count                            : 40;
 		u64 reserved_40_63                   : 24;
 	} s;
-	/* struct cavm_nixx_af_tl1x_green_packets_s cn; */
+	/* struct nixx_af_tl1x_green_packets_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_GREEN_PACKETS(u64 a)
+static inline u64 NIXX_AF_TL1X_GREEN_PACKETS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_GREEN_PACKETS(u64 a)
+static inline u64 NIXX_AF_TL1X_GREEN_PACKETS(u64 a)
 {
 	return 0xd80 + 0x10000 * a;
 }
@@ -5979,9 +6546,9 @@ static inline u64 CAVM_NIXX_AF_TL1X_GREEN_PACKETS(u64 a)
  * accessed with [PMD1_VLD], [PMD1_LENGTH] and NIX_AF_TL1()_MD_DEBUG2. *
  * FMD is accessed with NIX_AF_TL1()_MD_DEBUG3.
  */
-union cavm_nixx_af_tl1x_md_debug0 {
+union nixx_af_tl1x_md_debug0 {
 	u64 u;
-	struct cavm_nixx_af_tl1x_md_debug0_s {
+	struct nixx_af_tl1x_md_debug0_s {
 		u64 pmd0_length                      : 16;
 		u64 pmd1_length                      : 16;
 		u64 pmd0_vld                         : 1;
@@ -5996,12 +6563,30 @@ union cavm_nixx_af_tl1x_md_debug0 {
 		u64 reserved_62                      : 1;
 		u64 pmd_count                        : 1;
 	} s;
-	/* struct cavm_nixx_af_tl1x_md_debug0_s cn; */
+	/* struct nixx_af_tl1x_md_debug0_s cn96xxp1; */
+	struct nixx_af_tl1x_md_debug0_cn96xxp3 {
+		u64 pmd0_length                      : 16;
+		u64 reserved_16_31                   : 16;
+		u64 pmd0_vld                         : 1;
+		u64 reserved_33                      : 1;
+		u64 reserved_34_45                   : 12;
+		u64 reserved_46                      : 1;
+		u64 reserved_47                      : 1;
+		u64 c_con                            : 1;
+		u64 p_con                            : 1;
+		u64 reserved_50_51                   : 2;
+		u64 child                            : 10;
+		u64 reserved_62                      : 1;
+		u64 reserved_63                      : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl1x_md_debug0_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl1x_md_debug0_s cnf95xx; */
+	/* struct nixx_af_tl1x_md_debug0_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG0(u64 a)
+static inline u64 NIXX_AF_TL1X_MD_DEBUG0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG0(u64 a)
+static inline u64 NIXX_AF_TL1X_MD_DEBUG0(u64 a)
 {
 	return 0xcc0 + 0x10000 * a;
 }
@@ -6012,9 +6597,27 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG0(u64 a)
  * NIX AF Transmit Level 1 Meta Descriptor Debug 1 Registers Packet meta
  * descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl1x_md_debug1 {
+union nixx_af_tl1x_md_debug1 {
 	u64 u;
-	struct cavm_nixx_af_tl1x_md_debug1_s {
+	struct nixx_af_tl1x_md_debug1_s {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 uid                              : 4;
+		u64 reserved_23                      : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} s;
+	struct nixx_af_tl1x_md_debug1_cn96xxp1 {
 		u64 reserved_0_5                     : 6;
 		u64 red_algo_override                : 2;
 		u64 cir_dis                          : 1;
@@ -6031,13 +6634,33 @@ union cavm_nixx_af_tl1x_md_debug1 {
 		u64 mdq_idx                          : 10;
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
-	} s;
-	/* struct cavm_nixx_af_tl1x_md_debug1_s cn; */
+	} cn96xxp1;
+	struct nixx_af_tl1x_md_debug1_cn96xxp3 {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 reserved_19_22                   : 4;
+		u64 flush                            : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl1x_md_debug1_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl1x_md_debug1_cn96xxp1 cnf95xx; */
+	/* struct nixx_af_tl1x_md_debug1_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG1(u64 a)
+static inline u64 NIXX_AF_TL1X_MD_DEBUG1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG1(u64 a)
+static inline u64 NIXX_AF_TL1X_MD_DEBUG1(u64 a)
 {
 	return 0xcc8 + 0x10000 * a;
 }
@@ -6048,9 +6671,27 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG1(u64 a)
  * NIX AF Transmit Level 1 Meta Descriptor Debug 2 Registers Packet meta
  * descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl1x_md_debug2 {
+union nixx_af_tl1x_md_debug2 {
 	u64 u;
-	struct cavm_nixx_af_tl1x_md_debug2_s {
+	struct nixx_af_tl1x_md_debug2_s {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 uid                              : 4;
+		u64 reserved_23                      : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} s;
+	struct nixx_af_tl1x_md_debug2_cn96xxp1 {
 		u64 reserved_0_5                     : 6;
 		u64 red_algo_override                : 2;
 		u64 cir_dis                          : 1;
@@ -6067,13 +6708,33 @@ union cavm_nixx_af_tl1x_md_debug2 {
 		u64 mdq_idx                          : 10;
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
-	} s;
-	/* struct cavm_nixx_af_tl1x_md_debug2_s cn; */
+	} cn96xxp1;
+	struct nixx_af_tl1x_md_debug2_cn96xxp3 {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 reserved_19_22                   : 4;
+		u64 flush                            : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl1x_md_debug2_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl1x_md_debug2_cn96xxp1 cnf95xx; */
+	/* struct nixx_af_tl1x_md_debug2_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG2(u64 a)
+static inline u64 NIXX_AF_TL1X_MD_DEBUG2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG2(u64 a)
+static inline u64 NIXX_AF_TL1X_MD_DEBUG2(u64 a)
 {
 	return 0xcd0 + 0x10000 * a;
 }
@@ -6084,9 +6745,9 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG2(u64 a)
  * NIX AF Transmit Level 1 Meta Descriptor Debug 3 Registers Flush meta
  * descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl1x_md_debug3 {
+union nixx_af_tl1x_md_debug3 {
 	u64 u;
-	struct cavm_nixx_af_tl1x_md_debug3_s {
+	struct nixx_af_tl1x_md_debug3_s {
 		u64 reserved_0_36                    : 37;
 		u64 tx_pkt_p2x                       : 2;
 		u64 sqm_pkt_id                       : 13;
@@ -6094,12 +6755,23 @@ union cavm_nixx_af_tl1x_md_debug3 {
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
 	} s;
-	/* struct cavm_nixx_af_tl1x_md_debug3_s cn; */
+	/* struct nixx_af_tl1x_md_debug3_s cn96xxp1; */
+	struct nixx_af_tl1x_md_debug3_cn96xxp3 {
+		u64 reserved_0_36                    : 37;
+		u64 reserved_37_38                   : 2;
+		u64 reserved_39_51                   : 13;
+		u64 reserved_52_61                   : 10;
+		u64 reserved_62                      : 1;
+		u64 reserved_63                      : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl1x_md_debug3_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl1x_md_debug3_s cnf95xx; */
+	/* struct nixx_af_tl1x_md_debug3_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG3(u64 a)
+static inline u64 NIXX_AF_TL1X_MD_DEBUG3(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG3(u64 a)
+static inline u64 NIXX_AF_TL1X_MD_DEBUG3(u64 a)
 {
 	return 0xcd8 + 0x10000 * a;
 }
@@ -6110,20 +6782,20 @@ static inline u64 CAVM_NIXX_AF_TL1X_MD_DEBUG3(u64 a)
  * INTERNAL: NIX Transmit Level 1 Red State Debug Register  This register
  * has the same bit fields as NIX_AF_TL1()_YELLOW.
  */
-union cavm_nixx_af_tl1x_red {
+union nixx_af_tl1x_red {
 	u64 u;
-	struct cavm_nixx_af_tl1x_red_s {
+	struct nixx_af_tl1x_red_s {
 		u64 tail                             : 8;
 		u64 reserved_8_9                     : 2;
 		u64 head                             : 8;
 		u64 reserved_18_63                   : 46;
 	} s;
-	/* struct cavm_nixx_af_tl1x_red_s cn; */
+	/* struct nixx_af_tl1x_red_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_RED(u64 a)
+static inline u64 NIXX_AF_TL1X_RED(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_RED(u64 a)
+static inline u64 NIXX_AF_TL1X_RED(u64 a)
 {
 	return 0xcb0 + 0x10000 * a;
 }
@@ -6134,18 +6806,18 @@ static inline u64 CAVM_NIXX_AF_TL1X_RED(u64 a)
  * NIX AF Transmit Level 1 Red Sent Bytes Registers This register has the
  * same bit fields as NIX_AF_TL1()_GREEN_BYTES.
  */
-union cavm_nixx_af_tl1x_red_bytes {
+union nixx_af_tl1x_red_bytes {
 	u64 u;
-	struct cavm_nixx_af_tl1x_red_bytes_s {
+	struct nixx_af_tl1x_red_bytes_s {
 		u64 count                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_tl1x_red_bytes_s cn; */
+	/* struct nixx_af_tl1x_red_bytes_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_RED_BYTES(u64 a)
+static inline u64 NIXX_AF_TL1X_RED_BYTES(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_RED_BYTES(u64 a)
+static inline u64 NIXX_AF_TL1X_RED_BYTES(u64 a)
 {
 	return 0xd50 + 0x10000 * a;
 }
@@ -6156,18 +6828,18 @@ static inline u64 CAVM_NIXX_AF_TL1X_RED_BYTES(u64 a)
  * NIX AF Transmit Level 1 Red Sent Packets Registers This register has
  * the same bit fields as NIX_AF_TL1()_GREEN_PACKETS.
  */
-union cavm_nixx_af_tl1x_red_packets {
+union nixx_af_tl1x_red_packets {
 	u64 u;
-	struct cavm_nixx_af_tl1x_red_packets_s {
+	struct nixx_af_tl1x_red_packets_s {
 		u64 count                            : 40;
 		u64 reserved_40_63                   : 24;
 	} s;
-	/* struct cavm_nixx_af_tl1x_red_packets_s cn; */
+	/* struct nixx_af_tl1x_red_packets_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_RED_PACKETS(u64 a)
+static inline u64 NIXX_AF_TL1X_RED_PACKETS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_RED_PACKETS(u64 a)
+static inline u64 NIXX_AF_TL1X_RED_PACKETS(u64 a)
 {
 	return 0xd40 + 0x10000 * a;
 }
@@ -6177,18 +6849,18 @@ static inline u64 CAVM_NIXX_AF_TL1X_RED_PACKETS(u64 a)
  *
  * NIX AF Transmit Level 1 Scheduling Control Register
  */
-union cavm_nixx_af_tl1x_schedule {
+union nixx_af_tl1x_schedule {
 	u64 u;
-	struct cavm_nixx_af_tl1x_schedule_s {
+	struct nixx_af_tl1x_schedule_s {
 		u64 rr_quantum                       : 24;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_nixx_af_tl1x_schedule_s cn; */
+	/* struct nixx_af_tl1x_schedule_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_SCHEDULE(u64 a)
+static inline u64 NIXX_AF_TL1X_SCHEDULE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_SCHEDULE(u64 a)
+static inline u64 NIXX_AF_TL1X_SCHEDULE(u64 a)
 {
 	return 0xc00 + 0x10000 * a;
 }
@@ -6198,15 +6870,15 @@ static inline u64 CAVM_NIXX_AF_TL1X_SCHEDULE(u64 a)
  *
  * NIX AF Transmit Level 1 Shaping Control Register
  */
-union cavm_nixx_af_tl1x_shape {
+union nixx_af_tl1x_shape {
 	u64 u;
-	struct cavm_nixx_af_tl1x_shape_s {
+	struct nixx_af_tl1x_shape_s {
 		u64 adjust                           : 9;
 		u64 reserved_9_23                    : 15;
 		u64 length_disable                   : 1;
 		u64 reserved_25_63                   : 39;
 	} s;
-	struct cavm_nixx_af_tl1x_shape_cn {
+	struct nixx_af_tl1x_shape_cn {
 		u64 adjust                           : 9;
 		u64 reserved_9_17                    : 9;
 		u64 reserved_18_23                   : 6;
@@ -6215,9 +6887,9 @@ union cavm_nixx_af_tl1x_shape {
 	} cn;
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_SHAPE(u64 a)
+static inline u64 NIXX_AF_TL1X_SHAPE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_SHAPE(u64 a)
+static inline u64 NIXX_AF_TL1X_SHAPE(u64 a)
 {
 	return 0xc10 + 0x10000 * a;
 }
@@ -6228,20 +6900,20 @@ static inline u64 CAVM_NIXX_AF_TL1X_SHAPE(u64 a)
  * NIX AF Transmit Level 1 Shape State Register This register must not be
  * written during normal operation.
  */
-union cavm_nixx_af_tl1x_shape_state {
+union nixx_af_tl1x_shape_state {
 	u64 u;
-	struct cavm_nixx_af_tl1x_shape_state_s {
+	struct nixx_af_tl1x_shape_state_s {
 		u64 cir_accum                        : 26;
 		u64 reserved_26_51                   : 26;
 		u64 color                            : 1;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_nixx_af_tl1x_shape_state_s cn; */
+	/* struct nixx_af_tl1x_shape_state_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_SHAPE_STATE(u64 a)
+static inline u64 NIXX_AF_TL1X_SHAPE_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_SHAPE_STATE(u64 a)
+static inline u64 NIXX_AF_TL1X_SHAPE_STATE(u64 a)
 {
 	return 0xc50 + 0x10000 * a;
 }
@@ -6251,21 +6923,21 @@ static inline u64 CAVM_NIXX_AF_TL1X_SHAPE_STATE(u64 a)
  *
  * NIX AF Transmit Level 1 Software Controlled XOFF Registers
  */
-union cavm_nixx_af_tl1x_sw_xoff {
+union nixx_af_tl1x_sw_xoff {
 	u64 u;
-	struct cavm_nixx_af_tl1x_sw_xoff_s {
+	struct nixx_af_tl1x_sw_xoff_s {
 		u64 xoff                             : 1;
 		u64 drain                            : 1;
 		u64 reserved_2                       : 1;
 		u64 drain_irq                        : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_nixx_af_tl1x_sw_xoff_s cn; */
+	/* struct nixx_af_tl1x_sw_xoff_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_TL1X_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_TL1X_SW_XOFF(u64 a)
 {
 	return 0xc70 + 0x10000 * a;
 }
@@ -6275,21 +6947,21 @@ static inline u64 CAVM_NIXX_AF_TL1X_SW_XOFF(u64 a)
  *
  * NIX AF Transmit Level 1 Topology Registers
  */
-union cavm_nixx_af_tl1x_topology {
+union nixx_af_tl1x_topology {
 	u64 u;
-	struct cavm_nixx_af_tl1x_topology_s {
+	struct nixx_af_tl1x_topology_s {
 		u64 reserved_0                       : 1;
 		u64 rr_prio                          : 4;
 		u64 reserved_5_31                    : 27;
 		u64 prio_anchor                      : 8;
 		u64 reserved_40_63                   : 24;
 	} s;
-	/* struct cavm_nixx_af_tl1x_topology_s cn; */
+	/* struct nixx_af_tl1x_topology_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_TOPOLOGY(u64 a)
+static inline u64 NIXX_AF_TL1X_TOPOLOGY(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_TOPOLOGY(u64 a)
+static inline u64 NIXX_AF_TL1X_TOPOLOGY(u64 a)
 {
 	return 0xc80 + 0x10000 * a;
 }
@@ -6299,20 +6971,20 @@ static inline u64 CAVM_NIXX_AF_TL1X_TOPOLOGY(u64 a)
  *
  * INTERNAL: NIX Transmit Level 1 Yellow State Debug Register
  */
-union cavm_nixx_af_tl1x_yellow {
+union nixx_af_tl1x_yellow {
 	u64 u;
-	struct cavm_nixx_af_tl1x_yellow_s {
+	struct nixx_af_tl1x_yellow_s {
 		u64 tail                             : 8;
 		u64 reserved_8_9                     : 2;
 		u64 head                             : 8;
 		u64 reserved_18_63                   : 46;
 	} s;
-	/* struct cavm_nixx_af_tl1x_yellow_s cn; */
+	/* struct nixx_af_tl1x_yellow_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_YELLOW(u64 a)
+static inline u64 NIXX_AF_TL1X_YELLOW(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_YELLOW(u64 a)
+static inline u64 NIXX_AF_TL1X_YELLOW(u64 a)
 {
 	return 0xca0 + 0x10000 * a;
 }
@@ -6323,18 +6995,18 @@ static inline u64 CAVM_NIXX_AF_TL1X_YELLOW(u64 a)
  * NIX AF Transmit Level 1 Yellow Sent Bytes Registers This register has
  * the same bit fields as NIX_AF_TL1()_GREEN_BYTES.
  */
-union cavm_nixx_af_tl1x_yellow_bytes {
+union nixx_af_tl1x_yellow_bytes {
 	u64 u;
-	struct cavm_nixx_af_tl1x_yellow_bytes_s {
+	struct nixx_af_tl1x_yellow_bytes_s {
 		u64 count                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_af_tl1x_yellow_bytes_s cn; */
+	/* struct nixx_af_tl1x_yellow_bytes_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_BYTES(u64 a)
+static inline u64 NIXX_AF_TL1X_YELLOW_BYTES(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_BYTES(u64 a)
+static inline u64 NIXX_AF_TL1X_YELLOW_BYTES(u64 a)
 {
 	return 0xd70 + 0x10000 * a;
 }
@@ -6345,18 +7017,18 @@ static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_BYTES(u64 a)
  * NIX AF Transmit Level 1 Yellow Sent Packets Registers This register
  * has the same bit fields as NIX_AF_TL1()_GREEN_PACKETS.
  */
-union cavm_nixx_af_tl1x_yellow_packets {
+union nixx_af_tl1x_yellow_packets {
 	u64 u;
-	struct cavm_nixx_af_tl1x_yellow_packets_s {
+	struct nixx_af_tl1x_yellow_packets_s {
 		u64 count                            : 40;
 		u64 reserved_40_63                   : 24;
 	} s;
-	/* struct cavm_nixx_af_tl1x_yellow_packets_s cn; */
+	/* struct nixx_af_tl1x_yellow_packets_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_PACKETS(u64 a)
+static inline u64 NIXX_AF_TL1X_YELLOW_PACKETS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_PACKETS(u64 a)
+static inline u64 NIXX_AF_TL1X_YELLOW_PACKETS(u64 a)
 {
 	return 0xd60 + 0x10000 * a;
 }
@@ -6367,18 +7039,18 @@ static inline u64 CAVM_NIXX_AF_TL1X_YELLOW_PACKETS(u64 a)
  * NIX AF Transmit Level 1 Constants Register This register contains
  * constants for software discovery.
  */
-union cavm_nixx_af_tl1_const {
+union nixx_af_tl1_const {
 	u64 u;
-	struct cavm_nixx_af_tl1_const_s {
+	struct nixx_af_tl1_const_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_nixx_af_tl1_const_s cn; */
+	/* struct nixx_af_tl1_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL1_CONST(void)
+static inline u64 NIXX_AF_TL1_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL1_CONST(void)
+static inline u64 NIXX_AF_TL1_CONST(void)
 {
 	return 0x70;
 }
@@ -6389,9 +7061,9 @@ static inline u64 CAVM_NIXX_AF_TL1_CONST(void)
  * NIX AF Transmit Level 2 Committed Information Rate Registers This
  * register has the same bit fields as NIX_AF_TL1()_CIR.
  */
-union cavm_nixx_af_tl2x_cir {
+union nixx_af_tl2x_cir {
 	u64 u;
-	struct cavm_nixx_af_tl2x_cir_s {
+	struct nixx_af_tl2x_cir_s {
 		u64 enable                           : 1;
 		u64 rate_mantissa                    : 8;
 		u64 rate_exponent                    : 4;
@@ -6401,12 +7073,12 @@ union cavm_nixx_af_tl2x_cir {
 		u64 burst_exponent                   : 4;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl2x_cir_s cn; */
+	/* struct nixx_af_tl2x_cir_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_CIR(u64 a)
+static inline u64 NIXX_AF_TL2X_CIR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_CIR(u64 a)
+static inline u64 NIXX_AF_TL2X_CIR(u64 a)
 {
 	return 0xe20 + 0x10000 * a;
 }
@@ -6417,9 +7089,9 @@ static inline u64 CAVM_NIXX_AF_TL2X_CIR(u64 a)
  * INTERNAL: NIX Transmit Level 2 Green State Debug Register  This
  * register has the same bit fields as NIX_AF_TL1()_GREEN.
  */
-union cavm_nixx_af_tl2x_green {
+union nixx_af_tl2x_green {
 	u64 u;
-	struct cavm_nixx_af_tl2x_green_s {
+	struct nixx_af_tl2x_green_s {
 		u64 tail                             : 8;
 		u64 reserved_8_9                     : 2;
 		u64 head                             : 8;
@@ -6428,12 +7100,12 @@ union cavm_nixx_af_tl2x_green {
 		u64 rr_active                        : 1;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl2x_green_s cn; */
+	/* struct nixx_af_tl2x_green_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_GREEN(u64 a)
+static inline u64 NIXX_AF_TL2X_GREEN(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_GREEN(u64 a)
+static inline u64 NIXX_AF_TL2X_GREEN(u64 a)
 {
 	return 0xe90 + 0x10000 * a;
 }
@@ -6444,9 +7116,9 @@ static inline u64 CAVM_NIXX_AF_TL2X_GREEN(u64 a)
  * NIX AF Transmit Level 2 Meta Descriptor Debug 0 Registers See
  * NIX_AF_TL1()_MD_DEBUG0
  */
-union cavm_nixx_af_tl2x_md_debug0 {
+union nixx_af_tl2x_md_debug0 {
 	u64 u;
-	struct cavm_nixx_af_tl2x_md_debug0_s {
+	struct nixx_af_tl2x_md_debug0_s {
 		u64 pmd0_length                      : 16;
 		u64 pmd1_length                      : 16;
 		u64 pmd0_vld                         : 1;
@@ -6461,12 +7133,30 @@ union cavm_nixx_af_tl2x_md_debug0 {
 		u64 reserved_62                      : 1;
 		u64 pmd_count                        : 1;
 	} s;
-	/* struct cavm_nixx_af_tl2x_md_debug0_s cn; */
+	/* struct nixx_af_tl2x_md_debug0_s cn96xxp1; */
+	struct nixx_af_tl2x_md_debug0_cn96xxp3 {
+		u64 pmd0_length                      : 16;
+		u64 reserved_16_31                   : 16;
+		u64 pmd0_vld                         : 1;
+		u64 reserved_33                      : 1;
+		u64 reserved_34_45                   : 12;
+		u64 reserved_46                      : 1;
+		u64 reserved_47                      : 1;
+		u64 c_con                            : 1;
+		u64 p_con                            : 1;
+		u64 reserved_50_51                   : 2;
+		u64 child                            : 10;
+		u64 reserved_62                      : 1;
+		u64 reserved_63                      : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl2x_md_debug0_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl2x_md_debug0_s cnf95xx; */
+	/* struct nixx_af_tl2x_md_debug0_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG0(u64 a)
+static inline u64 NIXX_AF_TL2X_MD_DEBUG0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG0(u64 a)
+static inline u64 NIXX_AF_TL2X_MD_DEBUG0(u64 a)
 {
 	return 0xec0 + 0x10000 * a;
 }
@@ -6477,9 +7167,27 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG0(u64 a)
  * NIX AF Transmit Level 2 Meta Descriptor Debug 1 Registers Packet meta
  * descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl2x_md_debug1 {
+union nixx_af_tl2x_md_debug1 {
 	u64 u;
-	struct cavm_nixx_af_tl2x_md_debug1_s {
+	struct nixx_af_tl2x_md_debug1_s {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 uid                              : 4;
+		u64 reserved_23                      : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} s;
+	struct nixx_af_tl2x_md_debug1_cn96xxp1 {
 		u64 reserved_0_5                     : 6;
 		u64 red_algo_override                : 2;
 		u64 cir_dis                          : 1;
@@ -6496,13 +7204,33 @@ union cavm_nixx_af_tl2x_md_debug1 {
 		u64 mdq_idx                          : 10;
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
-	} s;
-	/* struct cavm_nixx_af_tl2x_md_debug1_s cn; */
+	} cn96xxp1;
+	struct nixx_af_tl2x_md_debug1_cn96xxp3 {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 reserved_19_22                   : 4;
+		u64 flush                            : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl2x_md_debug1_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl2x_md_debug1_cn96xxp1 cnf95xx; */
+	/* struct nixx_af_tl2x_md_debug1_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG1(u64 a)
+static inline u64 NIXX_AF_TL2X_MD_DEBUG1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG1(u64 a)
+static inline u64 NIXX_AF_TL2X_MD_DEBUG1(u64 a)
 {
 	return 0xec8 + 0x10000 * a;
 }
@@ -6513,9 +7241,27 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG1(u64 a)
  * NIX AF Transmit Level 2 Meta Descriptor Debug 2 Registers Packet meta
  * descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl2x_md_debug2 {
+union nixx_af_tl2x_md_debug2 {
 	u64 u;
-	struct cavm_nixx_af_tl2x_md_debug2_s {
+	struct nixx_af_tl2x_md_debug2_s {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 uid                              : 4;
+		u64 reserved_23                      : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} s;
+	struct nixx_af_tl2x_md_debug2_cn96xxp1 {
 		u64 reserved_0_5                     : 6;
 		u64 red_algo_override                : 2;
 		u64 cir_dis                          : 1;
@@ -6532,13 +7278,33 @@ union cavm_nixx_af_tl2x_md_debug2 {
 		u64 mdq_idx                          : 10;
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
-	} s;
-	/* struct cavm_nixx_af_tl2x_md_debug2_s cn; */
+	} cn96xxp1;
+	struct nixx_af_tl2x_md_debug2_cn96xxp3 {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 reserved_19_22                   : 4;
+		u64 flush                            : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl2x_md_debug2_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl2x_md_debug2_cn96xxp1 cnf95xx; */
+	/* struct nixx_af_tl2x_md_debug2_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG2(u64 a)
+static inline u64 NIXX_AF_TL2X_MD_DEBUG2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG2(u64 a)
+static inline u64 NIXX_AF_TL2X_MD_DEBUG2(u64 a)
 {
 	return 0xed0 + 0x10000 * a;
 }
@@ -6549,9 +7315,9 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG2(u64 a)
  * NIX AF Transmit Level 2 Meta Descriptor Debug 3 Registers Flush meta
  * descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl2x_md_debug3 {
+union nixx_af_tl2x_md_debug3 {
 	u64 u;
-	struct cavm_nixx_af_tl2x_md_debug3_s {
+	struct nixx_af_tl2x_md_debug3_s {
 		u64 reserved_0_36                    : 37;
 		u64 tx_pkt_p2x                       : 2;
 		u64 sqm_pkt_id                       : 13;
@@ -6559,12 +7325,23 @@ union cavm_nixx_af_tl2x_md_debug3 {
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
 	} s;
-	/* struct cavm_nixx_af_tl2x_md_debug3_s cn; */
+	/* struct nixx_af_tl2x_md_debug3_s cn96xxp1; */
+	struct nixx_af_tl2x_md_debug3_cn96xxp3 {
+		u64 reserved_0_36                    : 37;
+		u64 reserved_37_38                   : 2;
+		u64 reserved_39_51                   : 13;
+		u64 reserved_52_61                   : 10;
+		u64 reserved_62                      : 1;
+		u64 reserved_63                      : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl2x_md_debug3_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl2x_md_debug3_s cnf95xx; */
+	/* struct nixx_af_tl2x_md_debug3_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG3(u64 a)
+static inline u64 NIXX_AF_TL2X_MD_DEBUG3(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG3(u64 a)
+static inline u64 NIXX_AF_TL2X_MD_DEBUG3(u64 a)
 {
 	return 0xed8 + 0x10000 * a;
 }
@@ -6574,19 +7351,19 @@ static inline u64 CAVM_NIXX_AF_TL2X_MD_DEBUG3(u64 a)
  *
  * NIX AF Transmit Level 2 Parent Registers
  */
-union cavm_nixx_af_tl2x_parent {
+union nixx_af_tl2x_parent {
 	u64 u;
-	struct cavm_nixx_af_tl2x_parent_s {
+	struct nixx_af_tl2x_parent_s {
 		u64 reserved_0_15                    : 16;
 		u64 parent                           : 5;
 		u64 reserved_21_63                   : 43;
 	} s;
-	/* struct cavm_nixx_af_tl2x_parent_s cn; */
+	/* struct nixx_af_tl2x_parent_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_PARENT(u64 a)
+static inline u64 NIXX_AF_TL2X_PARENT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_PARENT(u64 a)
+static inline u64 NIXX_AF_TL2X_PARENT(u64 a)
 {
 	return 0xe88 + 0x10000 * a;
 }
@@ -6597,9 +7374,9 @@ static inline u64 CAVM_NIXX_AF_TL2X_PARENT(u64 a)
  * NIX AF Transmit Level 2 Peak Information Rate Registers This register
  * has the same bit fields as NIX_AF_TL1()_CIR.
  */
-union cavm_nixx_af_tl2x_pir {
+union nixx_af_tl2x_pir {
 	u64 u;
-	struct cavm_nixx_af_tl2x_pir_s {
+	struct nixx_af_tl2x_pir_s {
 		u64 enable                           : 1;
 		u64 rate_mantissa                    : 8;
 		u64 rate_exponent                    : 4;
@@ -6609,12 +7386,12 @@ union cavm_nixx_af_tl2x_pir {
 		u64 burst_exponent                   : 4;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl2x_pir_s cn; */
+	/* struct nixx_af_tl2x_pir_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_PIR(u64 a)
+static inline u64 NIXX_AF_TL2X_PIR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_PIR(u64 a)
+static inline u64 NIXX_AF_TL2X_PIR(u64 a)
 {
 	return 0xe30 + 0x10000 * a;
 }
@@ -6624,20 +7401,20 @@ static inline u64 CAVM_NIXX_AF_TL2X_PIR(u64 a)
  *
  * INTERNAL: NIX Transmit Level 2 Linked List Pointers Debug Register
  */
-union cavm_nixx_af_tl2x_pointers {
+union nixx_af_tl2x_pointers {
 	u64 u;
-	struct cavm_nixx_af_tl2x_pointers_s {
+	struct nixx_af_tl2x_pointers_s {
 		u64 next                             : 8;
 		u64 reserved_8_15                    : 8;
 		u64 prev                             : 8;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_nixx_af_tl2x_pointers_s cn; */
+	/* struct nixx_af_tl2x_pointers_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_POINTERS(u64 a)
+static inline u64 NIXX_AF_TL2X_POINTERS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_POINTERS(u64 a)
+static inline u64 NIXX_AF_TL2X_POINTERS(u64 a)
 {
 	return 0xe60 + 0x10000 * a;
 }
@@ -6648,20 +7425,20 @@ static inline u64 CAVM_NIXX_AF_TL2X_POINTERS(u64 a)
  * INTERNAL: NIX Transmit Level 2 Red State Debug Register  This register
  * has the same bit fields as NIX_AF_TL1()_RED.
  */
-union cavm_nixx_af_tl2x_red {
+union nixx_af_tl2x_red {
 	u64 u;
-	struct cavm_nixx_af_tl2x_red_s {
+	struct nixx_af_tl2x_red_s {
 		u64 tail                             : 8;
 		u64 reserved_8_9                     : 2;
 		u64 head                             : 8;
 		u64 reserved_18_63                   : 46;
 	} s;
-	/* struct cavm_nixx_af_tl2x_red_s cn; */
+	/* struct nixx_af_tl2x_red_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_RED(u64 a)
+static inline u64 NIXX_AF_TL2X_RED(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_RED(u64 a)
+static inline u64 NIXX_AF_TL2X_RED(u64 a)
 {
 	return 0xeb0 + 0x10000 * a;
 }
@@ -6671,18 +7448,18 @@ static inline u64 CAVM_NIXX_AF_TL2X_RED(u64 a)
  *
  * NIX AF Transmit Level 2 Scheduling Control State Registers
  */
-union cavm_nixx_af_tl2x_sched_state {
+union nixx_af_tl2x_sched_state {
 	u64 u;
-	struct cavm_nixx_af_tl2x_sched_state_s {
+	struct nixx_af_tl2x_sched_state_s {
 		u64 rr_count                         : 25;
 		u64 reserved_25_63                   : 39;
 	} s;
-	/* struct cavm_nixx_af_tl2x_sched_state_s cn; */
+	/* struct nixx_af_tl2x_sched_state_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_SCHED_STATE(u64 a)
+static inline u64 NIXX_AF_TL2X_SCHED_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_SCHED_STATE(u64 a)
+static inline u64 NIXX_AF_TL2X_SCHED_STATE(u64 a)
 {
 	return 0xe40 + 0x10000 * a;
 }
@@ -6692,19 +7469,19 @@ static inline u64 CAVM_NIXX_AF_TL2X_SCHED_STATE(u64 a)
  *
  * NIX AF Transmit Level 2 Scheduling Control Registers
  */
-union cavm_nixx_af_tl2x_schedule {
+union nixx_af_tl2x_schedule {
 	u64 u;
-	struct cavm_nixx_af_tl2x_schedule_s {
+	struct nixx_af_tl2x_schedule_s {
 		u64 rr_quantum                       : 24;
 		u64 prio                             : 4;
 		u64 reserved_28_63                   : 36;
 	} s;
-	/* struct cavm_nixx_af_tl2x_schedule_s cn; */
+	/* struct nixx_af_tl2x_schedule_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_SCHEDULE(u64 a)
+static inline u64 NIXX_AF_TL2X_SCHEDULE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_SCHEDULE(u64 a)
+static inline u64 NIXX_AF_TL2X_SCHEDULE(u64 a)
 {
 	return 0xe00 + 0x10000 * a;
 }
@@ -6714,9 +7491,9 @@ static inline u64 CAVM_NIXX_AF_TL2X_SCHEDULE(u64 a)
  *
  * NIX AF Transmit Level 2 Shaping Control Registers
  */
-union cavm_nixx_af_tl2x_shape {
+union nixx_af_tl2x_shape {
 	u64 u;
-	struct cavm_nixx_af_tl2x_shape_s {
+	struct nixx_af_tl2x_shape_s {
 		u64 adjust                           : 9;
 		u64 red_algo                         : 2;
 		u64 red_disable                      : 1;
@@ -6726,12 +7503,12 @@ union cavm_nixx_af_tl2x_shape {
 		u64 schedule_list                    : 2;
 		u64 reserved_27_63                   : 37;
 	} s;
-	/* struct cavm_nixx_af_tl2x_shape_s cn; */
+	/* struct nixx_af_tl2x_shape_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_SHAPE(u64 a)
+static inline u64 NIXX_AF_TL2X_SHAPE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_SHAPE(u64 a)
+static inline u64 NIXX_AF_TL2X_SHAPE(u64 a)
 {
 	return 0xe10 + 0x10000 * a;
 }
@@ -6742,20 +7519,20 @@ static inline u64 CAVM_NIXX_AF_TL2X_SHAPE(u64 a)
  * NIX AF Transmit Level 2 Shape State Registers This register must not
  * be written during normal operation.
  */
-union cavm_nixx_af_tl2x_shape_state {
+union nixx_af_tl2x_shape_state {
 	u64 u;
-	struct cavm_nixx_af_tl2x_shape_state_s {
+	struct nixx_af_tl2x_shape_state_s {
 		u64 cir_accum                        : 26;
 		u64 pir_accum                        : 26;
 		u64 color                            : 2;
 		u64 reserved_54_63                   : 10;
 	} s;
-	/* struct cavm_nixx_af_tl2x_shape_state_s cn; */
+	/* struct nixx_af_tl2x_shape_state_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_SHAPE_STATE(u64 a)
+static inline u64 NIXX_AF_TL2X_SHAPE_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_SHAPE_STATE(u64 a)
+static inline u64 NIXX_AF_TL2X_SHAPE_STATE(u64 a)
 {
 	return 0xe50 + 0x10000 * a;
 }
@@ -6766,21 +7543,21 @@ static inline u64 CAVM_NIXX_AF_TL2X_SHAPE_STATE(u64 a)
  * NIX AF Transmit Level 2 Software Controlled XOFF Registers This
  * register has the same bit fields as NIX_AF_TL1()_SW_XOFF.
  */
-union cavm_nixx_af_tl2x_sw_xoff {
+union nixx_af_tl2x_sw_xoff {
 	u64 u;
-	struct cavm_nixx_af_tl2x_sw_xoff_s {
+	struct nixx_af_tl2x_sw_xoff_s {
 		u64 xoff                             : 1;
 		u64 drain                            : 1;
 		u64 reserved_2                       : 1;
 		u64 drain_irq                        : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_nixx_af_tl2x_sw_xoff_s cn; */
+	/* struct nixx_af_tl2x_sw_xoff_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_TL2X_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_TL2X_SW_XOFF(u64 a)
 {
 	return 0xe70 + 0x10000 * a;
 }
@@ -6790,21 +7567,21 @@ static inline u64 CAVM_NIXX_AF_TL2X_SW_XOFF(u64 a)
  *
  * NIX AF Transmit Level 2 Topology Registers
  */
-union cavm_nixx_af_tl2x_topology {
+union nixx_af_tl2x_topology {
 	u64 u;
-	struct cavm_nixx_af_tl2x_topology_s {
+	struct nixx_af_tl2x_topology_s {
 		u64 reserved_0                       : 1;
 		u64 rr_prio                          : 4;
 		u64 reserved_5_31                    : 27;
 		u64 prio_anchor                      : 8;
 		u64 reserved_40_63                   : 24;
 	} s;
-	/* struct cavm_nixx_af_tl2x_topology_s cn; */
+	/* struct nixx_af_tl2x_topology_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_TOPOLOGY(u64 a)
+static inline u64 NIXX_AF_TL2X_TOPOLOGY(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_TOPOLOGY(u64 a)
+static inline u64 NIXX_AF_TL2X_TOPOLOGY(u64 a)
 {
 	return 0xe80 + 0x10000 * a;
 }
@@ -6815,20 +7592,20 @@ static inline u64 CAVM_NIXX_AF_TL2X_TOPOLOGY(u64 a)
  * INTERNAL: NIX Transmit Level 2 Yellow State Debug Register  This
  * register has the same bit fields as NIX_AF_TL1()_YELLOW.
  */
-union cavm_nixx_af_tl2x_yellow {
+union nixx_af_tl2x_yellow {
 	u64 u;
-	struct cavm_nixx_af_tl2x_yellow_s {
+	struct nixx_af_tl2x_yellow_s {
 		u64 tail                             : 8;
 		u64 reserved_8_9                     : 2;
 		u64 head                             : 8;
 		u64 reserved_18_63                   : 46;
 	} s;
-	/* struct cavm_nixx_af_tl2x_yellow_s cn; */
+	/* struct nixx_af_tl2x_yellow_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2X_YELLOW(u64 a)
+static inline u64 NIXX_AF_TL2X_YELLOW(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2X_YELLOW(u64 a)
+static inline u64 NIXX_AF_TL2X_YELLOW(u64 a)
 {
 	return 0xea0 + 0x10000 * a;
 }
@@ -6839,18 +7616,18 @@ static inline u64 CAVM_NIXX_AF_TL2X_YELLOW(u64 a)
  * NIX AF Transmit Level 2 Constants Register This register contains
  * constants for software discovery.
  */
-union cavm_nixx_af_tl2_const {
+union nixx_af_tl2_const {
 	u64 u;
-	struct cavm_nixx_af_tl2_const_s {
+	struct nixx_af_tl2_const_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_nixx_af_tl2_const_s cn; */
+	/* struct nixx_af_tl2_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL2_CONST(void)
+static inline u64 NIXX_AF_TL2_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL2_CONST(void)
+static inline u64 NIXX_AF_TL2_CONST(void)
 {
 	return 0x78;
 }
@@ -6861,9 +7638,9 @@ static inline u64 CAVM_NIXX_AF_TL2_CONST(void)
  * NIX AF Transmit Level 3 Committed Information Rate Registers This
  * register has the same bit fields as NIX_AF_TL1()_CIR.
  */
-union cavm_nixx_af_tl3x_cir {
+union nixx_af_tl3x_cir {
 	u64 u;
-	struct cavm_nixx_af_tl3x_cir_s {
+	struct nixx_af_tl3x_cir_s {
 		u64 enable                           : 1;
 		u64 rate_mantissa                    : 8;
 		u64 rate_exponent                    : 4;
@@ -6873,12 +7650,12 @@ union cavm_nixx_af_tl3x_cir {
 		u64 burst_exponent                   : 4;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl3x_cir_s cn; */
+	/* struct nixx_af_tl3x_cir_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_CIR(u64 a)
+static inline u64 NIXX_AF_TL3X_CIR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_CIR(u64 a)
+static inline u64 NIXX_AF_TL3X_CIR(u64 a)
 {
 	return 0x1020 + 0x10000 * a;
 }
@@ -6888,9 +7665,9 @@ static inline u64 CAVM_NIXX_AF_TL3X_CIR(u64 a)
  *
  * INTERNAL: NIX Transmit Level 3 Green State Debug Register
  */
-union cavm_nixx_af_tl3x_green {
+union nixx_af_tl3x_green {
 	u64 u;
-	struct cavm_nixx_af_tl3x_green_s {
+	struct nixx_af_tl3x_green_s {
 		u64 tail                             : 9;
 		u64 reserved_9                       : 1;
 		u64 head                             : 9;
@@ -6899,12 +7676,12 @@ union cavm_nixx_af_tl3x_green {
 		u64 rr_active                        : 1;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl3x_green_s cn; */
+	/* struct nixx_af_tl3x_green_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_GREEN(u64 a)
+static inline u64 NIXX_AF_TL3X_GREEN(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_GREEN(u64 a)
+static inline u64 NIXX_AF_TL3X_GREEN(u64 a)
 {
 	return 0x1090 + 0x10000 * a;
 }
@@ -6915,9 +7692,9 @@ static inline u64 CAVM_NIXX_AF_TL3X_GREEN(u64 a)
  * NIX AF Transmit Level 3 Meta Descriptor Debug 0 Registers See
  * NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl3x_md_debug0 {
+union nixx_af_tl3x_md_debug0 {
 	u64 u;
-	struct cavm_nixx_af_tl3x_md_debug0_s {
+	struct nixx_af_tl3x_md_debug0_s {
 		u64 pmd0_length                      : 16;
 		u64 pmd1_length                      : 16;
 		u64 pmd0_vld                         : 1;
@@ -6932,12 +7709,30 @@ union cavm_nixx_af_tl3x_md_debug0 {
 		u64 reserved_62                      : 1;
 		u64 pmd_count                        : 1;
 	} s;
-	/* struct cavm_nixx_af_tl3x_md_debug0_s cn; */
+	/* struct nixx_af_tl3x_md_debug0_s cn96xxp1; */
+	struct nixx_af_tl3x_md_debug0_cn96xxp3 {
+		u64 pmd0_length                      : 16;
+		u64 reserved_16_31                   : 16;
+		u64 pmd0_vld                         : 1;
+		u64 reserved_33                      : 1;
+		u64 reserved_34_45                   : 12;
+		u64 reserved_46                      : 1;
+		u64 reserved_47                      : 1;
+		u64 c_con                            : 1;
+		u64 p_con                            : 1;
+		u64 reserved_50_51                   : 2;
+		u64 child                            : 10;
+		u64 reserved_62                      : 1;
+		u64 reserved_63                      : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl3x_md_debug0_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl3x_md_debug0_s cnf95xx; */
+	/* struct nixx_af_tl3x_md_debug0_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG0(u64 a)
+static inline u64 NIXX_AF_TL3X_MD_DEBUG0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG0(u64 a)
+static inline u64 NIXX_AF_TL3X_MD_DEBUG0(u64 a)
 {
 	return 0x10c0 + 0x10000 * a;
 }
@@ -6948,9 +7743,27 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG0(u64 a)
  * NIX AF Transmit Level 3 Meta Descriptor Debug 1 Registers Packet meta
  * descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl3x_md_debug1 {
+union nixx_af_tl3x_md_debug1 {
 	u64 u;
-	struct cavm_nixx_af_tl3x_md_debug1_s {
+	struct nixx_af_tl3x_md_debug1_s {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 uid                              : 4;
+		u64 reserved_23                      : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} s;
+	struct nixx_af_tl3x_md_debug1_cn96xxp1 {
 		u64 reserved_0_5                     : 6;
 		u64 red_algo_override                : 2;
 		u64 cir_dis                          : 1;
@@ -6967,13 +7780,33 @@ union cavm_nixx_af_tl3x_md_debug1 {
 		u64 mdq_idx                          : 10;
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
-	} s;
-	/* struct cavm_nixx_af_tl3x_md_debug1_s cn; */
+	} cn96xxp1;
+	struct nixx_af_tl3x_md_debug1_cn96xxp3 {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 reserved_19_22                   : 4;
+		u64 flush                            : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl3x_md_debug1_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl3x_md_debug1_cn96xxp1 cnf95xx; */
+	/* struct nixx_af_tl3x_md_debug1_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG1(u64 a)
+static inline u64 NIXX_AF_TL3X_MD_DEBUG1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG1(u64 a)
+static inline u64 NIXX_AF_TL3X_MD_DEBUG1(u64 a)
 {
 	return 0x10c8 + 0x10000 * a;
 }
@@ -6984,9 +7817,27 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG1(u64 a)
  * NIX AF Transmit Level 3 Meta Descriptor Debug 2 Registers Packet meta
  * descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl3x_md_debug2 {
+union nixx_af_tl3x_md_debug2 {
 	u64 u;
-	struct cavm_nixx_af_tl3x_md_debug2_s {
+	struct nixx_af_tl3x_md_debug2_s {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 uid                              : 4;
+		u64 reserved_23                      : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} s;
+	struct nixx_af_tl3x_md_debug2_cn96xxp1 {
 		u64 reserved_0_5                     : 6;
 		u64 red_algo_override                : 2;
 		u64 cir_dis                          : 1;
@@ -7003,13 +7854,33 @@ union cavm_nixx_af_tl3x_md_debug2 {
 		u64 mdq_idx                          : 10;
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
-	} s;
-	/* struct cavm_nixx_af_tl3x_md_debug2_s cn; */
+	} cn96xxp1;
+	struct nixx_af_tl3x_md_debug2_cn96xxp3 {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 reserved_19_22                   : 4;
+		u64 flush                            : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl3x_md_debug2_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl3x_md_debug2_cn96xxp1 cnf95xx; */
+	/* struct nixx_af_tl3x_md_debug2_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG2(u64 a)
+static inline u64 NIXX_AF_TL3X_MD_DEBUG2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG2(u64 a)
+static inline u64 NIXX_AF_TL3X_MD_DEBUG2(u64 a)
 {
 	return 0x10d0 + 0x10000 * a;
 }
@@ -7020,9 +7891,9 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG2(u64 a)
  * NIX AF Transmit Level 3 Meta Descriptor Debug 3 Registers Flush meta
  * descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl3x_md_debug3 {
+union nixx_af_tl3x_md_debug3 {
 	u64 u;
-	struct cavm_nixx_af_tl3x_md_debug3_s {
+	struct nixx_af_tl3x_md_debug3_s {
 		u64 reserved_0_36                    : 37;
 		u64 tx_pkt_p2x                       : 2;
 		u64 sqm_pkt_id                       : 13;
@@ -7030,12 +7901,23 @@ union cavm_nixx_af_tl3x_md_debug3 {
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
 	} s;
-	/* struct cavm_nixx_af_tl3x_md_debug3_s cn; */
+	/* struct nixx_af_tl3x_md_debug3_s cn96xxp1; */
+	struct nixx_af_tl3x_md_debug3_cn96xxp3 {
+		u64 reserved_0_36                    : 37;
+		u64 reserved_37_38                   : 2;
+		u64 reserved_39_51                   : 13;
+		u64 reserved_52_61                   : 10;
+		u64 reserved_62                      : 1;
+		u64 reserved_63                      : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl3x_md_debug3_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl3x_md_debug3_s cnf95xx; */
+	/* struct nixx_af_tl3x_md_debug3_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG3(u64 a)
+static inline u64 NIXX_AF_TL3X_MD_DEBUG3(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG3(u64 a)
+static inline u64 NIXX_AF_TL3X_MD_DEBUG3(u64 a)
 {
 	return 0x10d8 + 0x10000 * a;
 }
@@ -7045,19 +7927,19 @@ static inline u64 CAVM_NIXX_AF_TL3X_MD_DEBUG3(u64 a)
  *
  * NIX AF Transmit Level 3 Parent Registers
  */
-union cavm_nixx_af_tl3x_parent {
+union nixx_af_tl3x_parent {
 	u64 u;
-	struct cavm_nixx_af_tl3x_parent_s {
+	struct nixx_af_tl3x_parent_s {
 		u64 reserved_0_15                    : 16;
 		u64 parent                           : 8;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_nixx_af_tl3x_parent_s cn; */
+	/* struct nixx_af_tl3x_parent_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_PARENT(u64 a)
+static inline u64 NIXX_AF_TL3X_PARENT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_PARENT(u64 a)
+static inline u64 NIXX_AF_TL3X_PARENT(u64 a)
 {
 	return 0x1088 + 0x10000 * a;
 }
@@ -7068,9 +7950,9 @@ static inline u64 CAVM_NIXX_AF_TL3X_PARENT(u64 a)
  * NIX AF Transmit Level 3 Peak Information Rate Registers This register
  * has the same bit fields as NIX_AF_TL1()_CIR.
  */
-union cavm_nixx_af_tl3x_pir {
+union nixx_af_tl3x_pir {
 	u64 u;
-	struct cavm_nixx_af_tl3x_pir_s {
+	struct nixx_af_tl3x_pir_s {
 		u64 enable                           : 1;
 		u64 rate_mantissa                    : 8;
 		u64 rate_exponent                    : 4;
@@ -7080,12 +7962,12 @@ union cavm_nixx_af_tl3x_pir {
 		u64 burst_exponent                   : 4;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl3x_pir_s cn; */
+	/* struct nixx_af_tl3x_pir_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_PIR(u64 a)
+static inline u64 NIXX_AF_TL3X_PIR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_PIR(u64 a)
+static inline u64 NIXX_AF_TL3X_PIR(u64 a)
 {
 	return 0x1030 + 0x10000 * a;
 }
@@ -7096,20 +7978,20 @@ static inline u64 CAVM_NIXX_AF_TL3X_PIR(u64 a)
  * INTERNAL: NIX Transmit Level 3 Linked List Pointers Debug Register
  * This register has the same bit fields as NIX_AF_TL2()_POINTERS.
  */
-union cavm_nixx_af_tl3x_pointers {
+union nixx_af_tl3x_pointers {
 	u64 u;
-	struct cavm_nixx_af_tl3x_pointers_s {
+	struct nixx_af_tl3x_pointers_s {
 		u64 next                             : 8;
 		u64 reserved_8_15                    : 8;
 		u64 prev                             : 8;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_nixx_af_tl3x_pointers_s cn; */
+	/* struct nixx_af_tl3x_pointers_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_POINTERS(u64 a)
+static inline u64 NIXX_AF_TL3X_POINTERS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_POINTERS(u64 a)
+static inline u64 NIXX_AF_TL3X_POINTERS(u64 a)
 {
 	return 0x1060 + 0x10000 * a;
 }
@@ -7120,20 +8002,20 @@ static inline u64 CAVM_NIXX_AF_TL3X_POINTERS(u64 a)
  * INTERNAL: NIX Transmit Level 3 Red State Debug Register  This register
  * has the same bit fields as NIX_AF_TL3()_YELLOW.
  */
-union cavm_nixx_af_tl3x_red {
+union nixx_af_tl3x_red {
 	u64 u;
-	struct cavm_nixx_af_tl3x_red_s {
+	struct nixx_af_tl3x_red_s {
 		u64 tail                             : 9;
 		u64 reserved_9                       : 1;
 		u64 head                             : 9;
 		u64 reserved_19_63                   : 45;
 	} s;
-	/* struct cavm_nixx_af_tl3x_red_s cn; */
+	/* struct nixx_af_tl3x_red_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_RED(u64 a)
+static inline u64 NIXX_AF_TL3X_RED(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_RED(u64 a)
+static inline u64 NIXX_AF_TL3X_RED(u64 a)
 {
 	return 0x10b0 + 0x10000 * a;
 }
@@ -7144,18 +8026,18 @@ static inline u64 CAVM_NIXX_AF_TL3X_RED(u64 a)
  * NIX AF Transmit Level 3 Scheduling Control State Registers This
  * register has the same bit fields as NIX_AF_TL2()_SCHED_STATE.
  */
-union cavm_nixx_af_tl3x_sched_state {
+union nixx_af_tl3x_sched_state {
 	u64 u;
-	struct cavm_nixx_af_tl3x_sched_state_s {
+	struct nixx_af_tl3x_sched_state_s {
 		u64 rr_count                         : 25;
 		u64 reserved_25_63                   : 39;
 	} s;
-	/* struct cavm_nixx_af_tl3x_sched_state_s cn; */
+	/* struct nixx_af_tl3x_sched_state_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_SCHED_STATE(u64 a)
+static inline u64 NIXX_AF_TL3X_SCHED_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_SCHED_STATE(u64 a)
+static inline u64 NIXX_AF_TL3X_SCHED_STATE(u64 a)
 {
 	return 0x1040 + 0x10000 * a;
 }
@@ -7166,19 +8048,19 @@ static inline u64 CAVM_NIXX_AF_TL3X_SCHED_STATE(u64 a)
  * NIX AF Transmit Level 3 Scheduling Control Registers This register has
  * the same bit fields as NIX_AF_TL2()_SCHEDULE.
  */
-union cavm_nixx_af_tl3x_schedule {
+union nixx_af_tl3x_schedule {
 	u64 u;
-	struct cavm_nixx_af_tl3x_schedule_s {
+	struct nixx_af_tl3x_schedule_s {
 		u64 rr_quantum                       : 24;
 		u64 prio                             : 4;
 		u64 reserved_28_63                   : 36;
 	} s;
-	/* struct cavm_nixx_af_tl3x_schedule_s cn; */
+	/* struct nixx_af_tl3x_schedule_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_SCHEDULE(u64 a)
+static inline u64 NIXX_AF_TL3X_SCHEDULE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_SCHEDULE(u64 a)
+static inline u64 NIXX_AF_TL3X_SCHEDULE(u64 a)
 {
 	return 0x1000 + 0x10000 * a;
 }
@@ -7188,9 +8070,9 @@ static inline u64 CAVM_NIXX_AF_TL3X_SCHEDULE(u64 a)
  *
  * NIX AF Transmit Level 3 Shaping Control Registers
  */
-union cavm_nixx_af_tl3x_shape {
+union nixx_af_tl3x_shape {
 	u64 u;
-	struct cavm_nixx_af_tl3x_shape_s {
+	struct nixx_af_tl3x_shape_s {
 		u64 adjust                           : 9;
 		u64 red_algo                         : 2;
 		u64 red_disable                      : 1;
@@ -7200,12 +8082,12 @@ union cavm_nixx_af_tl3x_shape {
 		u64 schedule_list                    : 2;
 		u64 reserved_27_63                   : 37;
 	} s;
-	/* struct cavm_nixx_af_tl3x_shape_s cn; */
+	/* struct nixx_af_tl3x_shape_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_SHAPE(u64 a)
+static inline u64 NIXX_AF_TL3X_SHAPE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_SHAPE(u64 a)
+static inline u64 NIXX_AF_TL3X_SHAPE(u64 a)
 {
 	return 0x1010 + 0x10000 * a;
 }
@@ -7217,20 +8099,20 @@ static inline u64 CAVM_NIXX_AF_TL3X_SHAPE(u64 a)
  * same bit fields as NIX_AF_TL2()_SHAPE_STATE. This register must not be
  * written during normal operation.
  */
-union cavm_nixx_af_tl3x_shape_state {
+union nixx_af_tl3x_shape_state {
 	u64 u;
-	struct cavm_nixx_af_tl3x_shape_state_s {
+	struct nixx_af_tl3x_shape_state_s {
 		u64 cir_accum                        : 26;
 		u64 pir_accum                        : 26;
 		u64 color                            : 2;
 		u64 reserved_54_63                   : 10;
 	} s;
-	/* struct cavm_nixx_af_tl3x_shape_state_s cn; */
+	/* struct nixx_af_tl3x_shape_state_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_SHAPE_STATE(u64 a)
+static inline u64 NIXX_AF_TL3X_SHAPE_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_SHAPE_STATE(u64 a)
+static inline u64 NIXX_AF_TL3X_SHAPE_STATE(u64 a)
 {
 	return 0x1050 + 0x10000 * a;
 }
@@ -7241,21 +8123,21 @@ static inline u64 CAVM_NIXX_AF_TL3X_SHAPE_STATE(u64 a)
  * NIX AF Transmit Level 3 Software Controlled XOFF Registers This
  * register has the same bit fields as NIX_AF_TL1()_SW_XOFF
  */
-union cavm_nixx_af_tl3x_sw_xoff {
+union nixx_af_tl3x_sw_xoff {
 	u64 u;
-	struct cavm_nixx_af_tl3x_sw_xoff_s {
+	struct nixx_af_tl3x_sw_xoff_s {
 		u64 xoff                             : 1;
 		u64 drain                            : 1;
 		u64 reserved_2                       : 1;
 		u64 drain_irq                        : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_nixx_af_tl3x_sw_xoff_s cn; */
+	/* struct nixx_af_tl3x_sw_xoff_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_TL3X_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_TL3X_SW_XOFF(u64 a)
 {
 	return 0x1070 + 0x10000 * a;
 }
@@ -7265,21 +8147,21 @@ static inline u64 CAVM_NIXX_AF_TL3X_SW_XOFF(u64 a)
  *
  * NIX AF Transmit Level 3 Topology Registers
  */
-union cavm_nixx_af_tl3x_topology {
+union nixx_af_tl3x_topology {
 	u64 u;
-	struct cavm_nixx_af_tl3x_topology_s {
+	struct nixx_af_tl3x_topology_s {
 		u64 reserved_0                       : 1;
 		u64 rr_prio                          : 4;
 		u64 reserved_5_31                    : 27;
 		u64 prio_anchor                      : 9;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl3x_topology_s cn; */
+	/* struct nixx_af_tl3x_topology_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_TOPOLOGY(u64 a)
+static inline u64 NIXX_AF_TL3X_TOPOLOGY(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_TOPOLOGY(u64 a)
+static inline u64 NIXX_AF_TL3X_TOPOLOGY(u64 a)
 {
 	return 0x1080 + 0x10000 * a;
 }
@@ -7289,20 +8171,20 @@ static inline u64 CAVM_NIXX_AF_TL3X_TOPOLOGY(u64 a)
  *
  * INTERNAL: NIX Transmit Level 3 Yellow State Debug Register
  */
-union cavm_nixx_af_tl3x_yellow {
+union nixx_af_tl3x_yellow {
 	u64 u;
-	struct cavm_nixx_af_tl3x_yellow_s {
+	struct nixx_af_tl3x_yellow_s {
 		u64 tail                             : 9;
 		u64 reserved_9                       : 1;
 		u64 head                             : 9;
 		u64 reserved_19_63                   : 45;
 	} s;
-	/* struct cavm_nixx_af_tl3x_yellow_s cn; */
+	/* struct nixx_af_tl3x_yellow_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3X_YELLOW(u64 a)
+static inline u64 NIXX_AF_TL3X_YELLOW(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3X_YELLOW(u64 a)
+static inline u64 NIXX_AF_TL3X_YELLOW(u64 a)
 {
 	return 0x10a0 + 0x10000 * a;
 }
@@ -7313,18 +8195,18 @@ static inline u64 CAVM_NIXX_AF_TL3X_YELLOW(u64 a)
  * NIX AF Transmit Level 3 Constants Register This register contains
  * constants for software discovery.
  */
-union cavm_nixx_af_tl3_const {
+union nixx_af_tl3_const {
 	u64 u;
-	struct cavm_nixx_af_tl3_const_s {
+	struct nixx_af_tl3_const_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_nixx_af_tl3_const_s cn; */
+	/* struct nixx_af_tl3_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3_CONST(void)
+static inline u64 NIXX_AF_TL3_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3_CONST(void)
+static inline u64 NIXX_AF_TL3_CONST(void)
 {
 	return 0x80;
 }
@@ -7334,18 +8216,18 @@ static inline u64 CAVM_NIXX_AF_TL3_CONST(void)
  *
  * NIX AF Transmit Level 3/2 Backpressure Status Registers
  */
-union cavm_nixx_af_tl3_tl2x_bp_status {
+union nixx_af_tl3_tl2x_bp_status {
 	u64 u;
-	struct cavm_nixx_af_tl3_tl2x_bp_status_s {
+	struct nixx_af_tl3_tl2x_bp_status_s {
 		u64 hw_xoff                          : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_tl3_tl2x_bp_status_s cn; */
+	/* struct nixx_af_tl3_tl2x_bp_status_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3_TL2X_BP_STATUS(u64 a)
+static inline u64 NIXX_AF_TL3_TL2X_BP_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3_TL2X_BP_STATUS(u64 a)
+static inline u64 NIXX_AF_TL3_TL2X_BP_STATUS(u64 a)
 {
 	return 0x1610 + 0x10000 * a;
 }
@@ -7355,18 +8237,18 @@ static inline u64 CAVM_NIXX_AF_TL3_TL2X_BP_STATUS(u64 a)
  *
  * NIX AF Transmit Level 3/2 Configuration Registers
  */
-union cavm_nixx_af_tl3_tl2x_cfg {
+union nixx_af_tl3_tl2x_cfg {
 	u64 u;
-	struct cavm_nixx_af_tl3_tl2x_cfg_s {
+	struct nixx_af_tl3_tl2x_cfg_s {
 		u64 express                          : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_tl3_tl2x_cfg_s cn; */
+	/* struct nixx_af_tl3_tl2x_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3_TL2X_CFG(u64 a)
+static inline u64 NIXX_AF_TL3_TL2X_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3_TL2X_CFG(u64 a)
+static inline u64 NIXX_AF_TL3_TL2X_CFG(u64 a)
 {
 	return 0x1600 + 0x10000 * a;
 }
@@ -7381,21 +8263,21 @@ static inline u64 CAVM_NIXX_AF_TL3_TL2X_CFG(u64 a)
  * backpressured by one or more links and associated channels. The last
  * index (LINK) is enumerated by NIX_LINK_E.
  */
-union cavm_nixx_af_tl3_tl2x_linkx_cfg {
+union nixx_af_tl3_tl2x_linkx_cfg {
 	u64 u;
-	struct cavm_nixx_af_tl3_tl2x_linkx_cfg_s {
+	struct nixx_af_tl3_tl2x_linkx_cfg_s {
 		u64 relchan                          : 8;
 		u64 reserved_8_11                    : 4;
 		u64 ena                              : 1;
 		u64 bp_ena                           : 1;
 		u64 reserved_14_63                   : 50;
 	} s;
-	/* struct cavm_nixx_af_tl3_tl2x_linkx_cfg_s cn; */
+	/* struct nixx_af_tl3_tl2x_linkx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL3_TL2X_LINKX_CFG(u64 a, u64 b)
+static inline u64 NIXX_AF_TL3_TL2X_LINKX_CFG(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL3_TL2X_LINKX_CFG(u64 a, u64 b)
+static inline u64 NIXX_AF_TL3_TL2X_LINKX_CFG(u64 a, u64 b)
 {
 	return 0x1700 + 0x10000 * a + 8 * b;
 }
@@ -7405,18 +8287,18 @@ static inline u64 CAVM_NIXX_AF_TL3_TL2X_LINKX_CFG(u64 a, u64 b)
  *
  * NIX AF Transmit Level 4 Backpressure Status Registers
  */
-union cavm_nixx_af_tl4x_bp_status {
+union nixx_af_tl4x_bp_status {
 	u64 u;
-	struct cavm_nixx_af_tl4x_bp_status_s {
+	struct nixx_af_tl4x_bp_status_s {
 		u64 hw_xoff                          : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_tl4x_bp_status_s cn; */
+	/* struct nixx_af_tl4x_bp_status_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_BP_STATUS(u64 a)
+static inline u64 NIXX_AF_TL4X_BP_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_BP_STATUS(u64 a)
+static inline u64 NIXX_AF_TL4X_BP_STATUS(u64 a)
 {
 	return 0xb00 + 0x10000 * a;
 }
@@ -7427,9 +8309,9 @@ static inline u64 CAVM_NIXX_AF_TL4X_BP_STATUS(u64 a)
  * NIX AF Transmit Level 4 Committed Information Rate Registers This
  * register has the same bit fields as NIX_AF_TL1()_CIR.
  */
-union cavm_nixx_af_tl4x_cir {
+union nixx_af_tl4x_cir {
 	u64 u;
-	struct cavm_nixx_af_tl4x_cir_s {
+	struct nixx_af_tl4x_cir_s {
 		u64 enable                           : 1;
 		u64 rate_mantissa                    : 8;
 		u64 rate_exponent                    : 4;
@@ -7439,12 +8321,12 @@ union cavm_nixx_af_tl4x_cir {
 		u64 burst_exponent                   : 4;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl4x_cir_s cn; */
+	/* struct nixx_af_tl4x_cir_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_CIR(u64 a)
+static inline u64 NIXX_AF_TL4X_CIR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_CIR(u64 a)
+static inline u64 NIXX_AF_TL4X_CIR(u64 a)
 {
 	return 0x1220 + 0x10000 * a;
 }
@@ -7455,9 +8337,9 @@ static inline u64 CAVM_NIXX_AF_TL4X_CIR(u64 a)
  * INTERNAL: NIX Transmit Level 4 Green State Debug Register  This
  * register has the same bit fields as NIX_AF_TL3()_GREEN.
  */
-union cavm_nixx_af_tl4x_green {
+union nixx_af_tl4x_green {
 	u64 u;
-	struct cavm_nixx_af_tl4x_green_s {
+	struct nixx_af_tl4x_green_s {
 		u64 tail                             : 9;
 		u64 reserved_9                       : 1;
 		u64 head                             : 9;
@@ -7466,12 +8348,12 @@ union cavm_nixx_af_tl4x_green {
 		u64 rr_active                        : 1;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl4x_green_s cn; */
+	/* struct nixx_af_tl4x_green_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_GREEN(u64 a)
+static inline u64 NIXX_AF_TL4X_GREEN(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_GREEN(u64 a)
+static inline u64 NIXX_AF_TL4X_GREEN(u64 a)
 {
 	return 0x1290 + 0x10000 * a;
 }
@@ -7482,9 +8364,9 @@ static inline u64 CAVM_NIXX_AF_TL4X_GREEN(u64 a)
  * NIX AF Transmit Level 4 Meta Descriptor Debug 0 Registers See
  * NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl4x_md_debug0 {
+union nixx_af_tl4x_md_debug0 {
 	u64 u;
-	struct cavm_nixx_af_tl4x_md_debug0_s {
+	struct nixx_af_tl4x_md_debug0_s {
 		u64 pmd0_length                      : 16;
 		u64 pmd1_length                      : 16;
 		u64 pmd0_vld                         : 1;
@@ -7499,12 +8381,30 @@ union cavm_nixx_af_tl4x_md_debug0 {
 		u64 reserved_62                      : 1;
 		u64 pmd_count                        : 1;
 	} s;
-	/* struct cavm_nixx_af_tl4x_md_debug0_s cn; */
+	/* struct nixx_af_tl4x_md_debug0_s cn96xxp1; */
+	struct nixx_af_tl4x_md_debug0_cn96xxp3 {
+		u64 pmd0_length                      : 16;
+		u64 reserved_16_31                   : 16;
+		u64 pmd0_vld                         : 1;
+		u64 reserved_33                      : 1;
+		u64 reserved_34_45                   : 12;
+		u64 reserved_46                      : 1;
+		u64 reserved_47                      : 1;
+		u64 c_con                            : 1;
+		u64 p_con                            : 1;
+		u64 reserved_50_51                   : 2;
+		u64 child                            : 10;
+		u64 reserved_62                      : 1;
+		u64 reserved_63                      : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl4x_md_debug0_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl4x_md_debug0_s cnf95xx; */
+	/* struct nixx_af_tl4x_md_debug0_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG0(u64 a)
+static inline u64 NIXX_AF_TL4X_MD_DEBUG0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG0(u64 a)
+static inline u64 NIXX_AF_TL4X_MD_DEBUG0(u64 a)
 {
 	return 0x12c0 + 0x10000 * a;
 }
@@ -7515,9 +8415,27 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG0(u64 a)
  * NIX AF Transmit Level 4 Meta Descriptor Debug 1 Registers Packet meta
  * descriptor 0 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl4x_md_debug1 {
+union nixx_af_tl4x_md_debug1 {
 	u64 u;
-	struct cavm_nixx_af_tl4x_md_debug1_s {
+	struct nixx_af_tl4x_md_debug1_s {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 uid                              : 4;
+		u64 reserved_23                      : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} s;
+	struct nixx_af_tl4x_md_debug1_cn96xxp1 {
 		u64 reserved_0_5                     : 6;
 		u64 red_algo_override                : 2;
 		u64 cir_dis                          : 1;
@@ -7534,13 +8452,33 @@ union cavm_nixx_af_tl4x_md_debug1 {
 		u64 mdq_idx                          : 10;
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
-	} s;
-	/* struct cavm_nixx_af_tl4x_md_debug1_s cn; */
+	} cn96xxp1;
+	struct nixx_af_tl4x_md_debug1_cn96xxp3 {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 reserved_19_22                   : 4;
+		u64 flush                            : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl4x_md_debug1_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl4x_md_debug1_cn96xxp1 cnf95xx; */
+	/* struct nixx_af_tl4x_md_debug1_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG1(u64 a)
+static inline u64 NIXX_AF_TL4X_MD_DEBUG1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG1(u64 a)
+static inline u64 NIXX_AF_TL4X_MD_DEBUG1(u64 a)
 {
 	return 0x12c8 + 0x10000 * a;
 }
@@ -7551,9 +8489,27 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG1(u64 a)
  * NIX AF Transmit Level 4 Meta Descriptor Debug 2 Registers Packet meta
  * descriptor 1 debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl4x_md_debug2 {
+union nixx_af_tl4x_md_debug2 {
 	u64 u;
-	struct cavm_nixx_af_tl4x_md_debug2_s {
+	struct nixx_af_tl4x_md_debug2_s {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 uid                              : 4;
+		u64 reserved_23                      : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} s;
+	struct nixx_af_tl4x_md_debug2_cn96xxp1 {
 		u64 reserved_0_5                     : 6;
 		u64 red_algo_override                : 2;
 		u64 cir_dis                          : 1;
@@ -7570,13 +8526,33 @@ union cavm_nixx_af_tl4x_md_debug2 {
 		u64 mdq_idx                          : 10;
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
-	} s;
-	/* struct cavm_nixx_af_tl4x_md_debug2_s cn; */
+	} cn96xxp1;
+	struct nixx_af_tl4x_md_debug2_cn96xxp3 {
+		u64 reserved_0_5                     : 6;
+		u64 red_algo_override                : 2;
+		u64 cir_dis                          : 1;
+		u64 pir_dis                          : 1;
+		u64 adjust                           : 9;
+		u64 reserved_19_22                   : 4;
+		u64 flush                            : 1;
+		u64 bubble                           : 1;
+		u64 color                            : 2;
+		u64 pse_pkt_id                       : 9;
+		u64 reserved_36                      : 1;
+		u64 tx_pkt_p2x                       : 2;
+		u64 sqm_pkt_id                       : 13;
+		u64 mdq_idx                          : 10;
+		u64 reserved_62                      : 1;
+		u64 vld                              : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl4x_md_debug2_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl4x_md_debug2_cn96xxp1 cnf95xx; */
+	/* struct nixx_af_tl4x_md_debug2_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG2(u64 a)
+static inline u64 NIXX_AF_TL4X_MD_DEBUG2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG2(u64 a)
+static inline u64 NIXX_AF_TL4X_MD_DEBUG2(u64 a)
 {
 	return 0x12d0 + 0x10000 * a;
 }
@@ -7587,9 +8563,9 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG2(u64 a)
  * NIX AF Transmit Level 4 Meta Descriptor Debug 3 Registers Flush meta
  * descriptor debug. See NIX_AF_TL1()_MD_DEBUG0.
  */
-union cavm_nixx_af_tl4x_md_debug3 {
+union nixx_af_tl4x_md_debug3 {
 	u64 u;
-	struct cavm_nixx_af_tl4x_md_debug3_s {
+	struct nixx_af_tl4x_md_debug3_s {
 		u64 reserved_0_36                    : 37;
 		u64 tx_pkt_p2x                       : 2;
 		u64 sqm_pkt_id                       : 13;
@@ -7597,12 +8573,23 @@ union cavm_nixx_af_tl4x_md_debug3 {
 		u64 reserved_62                      : 1;
 		u64 vld                              : 1;
 	} s;
-	/* struct cavm_nixx_af_tl4x_md_debug3_s cn; */
+	/* struct nixx_af_tl4x_md_debug3_s cn96xxp1; */
+	struct nixx_af_tl4x_md_debug3_cn96xxp3 {
+		u64 reserved_0_36                    : 37;
+		u64 reserved_37_38                   : 2;
+		u64 reserved_39_51                   : 13;
+		u64 reserved_52_61                   : 10;
+		u64 reserved_62                      : 1;
+		u64 reserved_63                      : 1;
+	} cn96xxp3;
+	/* struct nixx_af_tl4x_md_debug3_cn96xxp3 cn98xx; */
+	/* struct nixx_af_tl4x_md_debug3_s cnf95xx; */
+	/* struct nixx_af_tl4x_md_debug3_cn96xxp3 loki; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG3(u64 a)
+static inline u64 NIXX_AF_TL4X_MD_DEBUG3(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG3(u64 a)
+static inline u64 NIXX_AF_TL4X_MD_DEBUG3(u64 a)
 {
 	return 0x12d8 + 0x10000 * a;
 }
@@ -7612,19 +8599,19 @@ static inline u64 CAVM_NIXX_AF_TL4X_MD_DEBUG3(u64 a)
  *
  * NIX AF Transmit Level 4 Parent Registers
  */
-union cavm_nixx_af_tl4x_parent {
+union nixx_af_tl4x_parent {
 	u64 u;
-	struct cavm_nixx_af_tl4x_parent_s {
+	struct nixx_af_tl4x_parent_s {
 		u64 reserved_0_15                    : 16;
 		u64 parent                           : 8;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_nixx_af_tl4x_parent_s cn; */
+	/* struct nixx_af_tl4x_parent_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_PARENT(u64 a)
+static inline u64 NIXX_AF_TL4X_PARENT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_PARENT(u64 a)
+static inline u64 NIXX_AF_TL4X_PARENT(u64 a)
 {
 	return 0x1288 + 0x10000 * a;
 }
@@ -7635,9 +8622,9 @@ static inline u64 CAVM_NIXX_AF_TL4X_PARENT(u64 a)
  * NIX AF Transmit Level 4 Peak Information Rate Registers This register
  * has the same bit fields as NIX_AF_TL1()_CIR.
  */
-union cavm_nixx_af_tl4x_pir {
+union nixx_af_tl4x_pir {
 	u64 u;
-	struct cavm_nixx_af_tl4x_pir_s {
+	struct nixx_af_tl4x_pir_s {
 		u64 enable                           : 1;
 		u64 rate_mantissa                    : 8;
 		u64 rate_exponent                    : 4;
@@ -7647,12 +8634,12 @@ union cavm_nixx_af_tl4x_pir {
 		u64 burst_exponent                   : 4;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl4x_pir_s cn; */
+	/* struct nixx_af_tl4x_pir_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_PIR(u64 a)
+static inline u64 NIXX_AF_TL4X_PIR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_PIR(u64 a)
+static inline u64 NIXX_AF_TL4X_PIR(u64 a)
 {
 	return 0x1230 + 0x10000 * a;
 }
@@ -7663,20 +8650,20 @@ static inline u64 CAVM_NIXX_AF_TL4X_PIR(u64 a)
  * INTERNAL: NIX Transmit Level 4 Linked List Pointers Debug Register
  * This register has the same bit fields as NIX_AF_TL2()_POINTERS.
  */
-union cavm_nixx_af_tl4x_pointers {
+union nixx_af_tl4x_pointers {
 	u64 u;
-	struct cavm_nixx_af_tl4x_pointers_s {
+	struct nixx_af_tl4x_pointers_s {
 		u64 next                             : 9;
 		u64 reserved_9_15                    : 7;
 		u64 prev                             : 9;
 		u64 reserved_25_63                   : 39;
 	} s;
-	/* struct cavm_nixx_af_tl4x_pointers_s cn; */
+	/* struct nixx_af_tl4x_pointers_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_POINTERS(u64 a)
+static inline u64 NIXX_AF_TL4X_POINTERS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_POINTERS(u64 a)
+static inline u64 NIXX_AF_TL4X_POINTERS(u64 a)
 {
 	return 0x1260 + 0x10000 * a;
 }
@@ -7687,20 +8674,20 @@ static inline u64 CAVM_NIXX_AF_TL4X_POINTERS(u64 a)
  * INTERNAL: NIX Transmit Level 4 Red State Debug Register  This register
  * has the same bit fields as NIX_AF_TL3()_YELLOW.
  */
-union cavm_nixx_af_tl4x_red {
+union nixx_af_tl4x_red {
 	u64 u;
-	struct cavm_nixx_af_tl4x_red_s {
+	struct nixx_af_tl4x_red_s {
 		u64 tail                             : 9;
 		u64 reserved_9                       : 1;
 		u64 head                             : 9;
 		u64 reserved_19_63                   : 45;
 	} s;
-	/* struct cavm_nixx_af_tl4x_red_s cn; */
+	/* struct nixx_af_tl4x_red_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_RED(u64 a)
+static inline u64 NIXX_AF_TL4X_RED(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_RED(u64 a)
+static inline u64 NIXX_AF_TL4X_RED(u64 a)
 {
 	return 0x12b0 + 0x10000 * a;
 }
@@ -7711,18 +8698,18 @@ static inline u64 CAVM_NIXX_AF_TL4X_RED(u64 a)
  * NIX AF Transmit Level 4 Scheduling Control State Registers This
  * register has the same bit fields as NIX_AF_TL2()_SCHED_STATE.
  */
-union cavm_nixx_af_tl4x_sched_state {
+union nixx_af_tl4x_sched_state {
 	u64 u;
-	struct cavm_nixx_af_tl4x_sched_state_s {
+	struct nixx_af_tl4x_sched_state_s {
 		u64 rr_count                         : 25;
 		u64 reserved_25_63                   : 39;
 	} s;
-	/* struct cavm_nixx_af_tl4x_sched_state_s cn; */
+	/* struct nixx_af_tl4x_sched_state_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_SCHED_STATE(u64 a)
+static inline u64 NIXX_AF_TL4X_SCHED_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_SCHED_STATE(u64 a)
+static inline u64 NIXX_AF_TL4X_SCHED_STATE(u64 a)
 {
 	return 0x1240 + 0x10000 * a;
 }
@@ -7733,19 +8720,19 @@ static inline u64 CAVM_NIXX_AF_TL4X_SCHED_STATE(u64 a)
  * NIX AF Transmit Level 4 Scheduling Control Registers This register has
  * the same bit fields as NIX_AF_TL2()_SCHEDULE.
  */
-union cavm_nixx_af_tl4x_schedule {
+union nixx_af_tl4x_schedule {
 	u64 u;
-	struct cavm_nixx_af_tl4x_schedule_s {
+	struct nixx_af_tl4x_schedule_s {
 		u64 rr_quantum                       : 24;
 		u64 prio                             : 4;
 		u64 reserved_28_63                   : 36;
 	} s;
-	/* struct cavm_nixx_af_tl4x_schedule_s cn; */
+	/* struct nixx_af_tl4x_schedule_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_SCHEDULE(u64 a)
+static inline u64 NIXX_AF_TL4X_SCHEDULE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_SCHEDULE(u64 a)
+static inline u64 NIXX_AF_TL4X_SCHEDULE(u64 a)
 {
 	return 0x1200 + 0x10000 * a;
 }
@@ -7757,21 +8744,21 @@ static inline u64 CAVM_NIXX_AF_TL4X_SCHEDULE(u64 a)
  * specify which TL4 queues transmit to and are optionally backpressured
  * by SDP.
  */
-union cavm_nixx_af_tl4x_sdp_link_cfg {
+union nixx_af_tl4x_sdp_link_cfg {
 	u64 u;
-	struct cavm_nixx_af_tl4x_sdp_link_cfg_s {
+	struct nixx_af_tl4x_sdp_link_cfg_s {
 		u64 relchan                          : 8;
 		u64 reserved_8_11                    : 4;
 		u64 ena                              : 1;
 		u64 bp_ena                           : 1;
 		u64 reserved_14_63                   : 50;
 	} s;
-	/* struct cavm_nixx_af_tl4x_sdp_link_cfg_s cn; */
+	/* struct nixx_af_tl4x_sdp_link_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_SDP_LINK_CFG(u64 a)
+static inline u64 NIXX_AF_TL4X_SDP_LINK_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_SDP_LINK_CFG(u64 a)
+static inline u64 NIXX_AF_TL4X_SDP_LINK_CFG(u64 a)
 {
 	return 0xb10 + 0x10000 * a;
 }
@@ -7782,9 +8769,9 @@ static inline u64 CAVM_NIXX_AF_TL4X_SDP_LINK_CFG(u64 a)
  * NIX AF Transmit Level 4 Shaping Control Registers This register has
  * the same bit fields as NIX_AF_TL2()_SHAPE.
  */
-union cavm_nixx_af_tl4x_shape {
+union nixx_af_tl4x_shape {
 	u64 u;
-	struct cavm_nixx_af_tl4x_shape_s {
+	struct nixx_af_tl4x_shape_s {
 		u64 adjust                           : 9;
 		u64 red_algo                         : 2;
 		u64 red_disable                      : 1;
@@ -7794,12 +8781,12 @@ union cavm_nixx_af_tl4x_shape {
 		u64 schedule_list                    : 2;
 		u64 reserved_27_63                   : 37;
 	} s;
-	/* struct cavm_nixx_af_tl4x_shape_s cn; */
+	/* struct nixx_af_tl4x_shape_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_SHAPE(u64 a)
+static inline u64 NIXX_AF_TL4X_SHAPE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_SHAPE(u64 a)
+static inline u64 NIXX_AF_TL4X_SHAPE(u64 a)
 {
 	return 0x1210 + 0x10000 * a;
 }
@@ -7811,20 +8798,20 @@ static inline u64 CAVM_NIXX_AF_TL4X_SHAPE(u64 a)
  * same bit fields as NIX_AF_TL2()_SHAPE_STATE. This register must not be
  * written during normal operation.
  */
-union cavm_nixx_af_tl4x_shape_state {
+union nixx_af_tl4x_shape_state {
 	u64 u;
-	struct cavm_nixx_af_tl4x_shape_state_s {
+	struct nixx_af_tl4x_shape_state_s {
 		u64 cir_accum                        : 26;
 		u64 pir_accum                        : 26;
 		u64 color                            : 2;
 		u64 reserved_54_63                   : 10;
 	} s;
-	/* struct cavm_nixx_af_tl4x_shape_state_s cn; */
+	/* struct nixx_af_tl4x_shape_state_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_SHAPE_STATE(u64 a)
+static inline u64 NIXX_AF_TL4X_SHAPE_STATE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_SHAPE_STATE(u64 a)
+static inline u64 NIXX_AF_TL4X_SHAPE_STATE(u64 a)
 {
 	return 0x1250 + 0x10000 * a;
 }
@@ -7835,21 +8822,21 @@ static inline u64 CAVM_NIXX_AF_TL4X_SHAPE_STATE(u64 a)
  * NIX AF Transmit Level 4 Software Controlled XOFF Registers This
  * register has the same bit fields as NIX_AF_TL1()_SW_XOFF
  */
-union cavm_nixx_af_tl4x_sw_xoff {
+union nixx_af_tl4x_sw_xoff {
 	u64 u;
-	struct cavm_nixx_af_tl4x_sw_xoff_s {
+	struct nixx_af_tl4x_sw_xoff_s {
 		u64 xoff                             : 1;
 		u64 drain                            : 1;
 		u64 reserved_2                       : 1;
 		u64 drain_irq                        : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_nixx_af_tl4x_sw_xoff_s cn; */
+	/* struct nixx_af_tl4x_sw_xoff_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_TL4X_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_TL4X_SW_XOFF(u64 a)
 {
 	return 0x1270 + 0x10000 * a;
 }
@@ -7859,21 +8846,21 @@ static inline u64 CAVM_NIXX_AF_TL4X_SW_XOFF(u64 a)
  *
  * NIX AF Transmit Level 4 Topology Registers
  */
-union cavm_nixx_af_tl4x_topology {
+union nixx_af_tl4x_topology {
 	u64 u;
-	struct cavm_nixx_af_tl4x_topology_s {
+	struct nixx_af_tl4x_topology_s {
 		u64 reserved_0                       : 1;
 		u64 rr_prio                          : 4;
 		u64 reserved_5_31                    : 27;
 		u64 prio_anchor                      : 9;
 		u64 reserved_41_63                   : 23;
 	} s;
-	/* struct cavm_nixx_af_tl4x_topology_s cn; */
+	/* struct nixx_af_tl4x_topology_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_TOPOLOGY(u64 a)
+static inline u64 NIXX_AF_TL4X_TOPOLOGY(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_TOPOLOGY(u64 a)
+static inline u64 NIXX_AF_TL4X_TOPOLOGY(u64 a)
 {
 	return 0x1280 + 0x10000 * a;
 }
@@ -7884,20 +8871,20 @@ static inline u64 CAVM_NIXX_AF_TL4X_TOPOLOGY(u64 a)
  * INTERNAL: NIX Transmit Level 4 Yellow State Debug Register  This
  * register has the same bit fields as NIX_AF_TL3()_YELLOW
  */
-union cavm_nixx_af_tl4x_yellow {
+union nixx_af_tl4x_yellow {
 	u64 u;
-	struct cavm_nixx_af_tl4x_yellow_s {
+	struct nixx_af_tl4x_yellow_s {
 		u64 tail                             : 9;
 		u64 reserved_9                       : 1;
 		u64 head                             : 9;
 		u64 reserved_19_63                   : 45;
 	} s;
-	/* struct cavm_nixx_af_tl4x_yellow_s cn; */
+	/* struct nixx_af_tl4x_yellow_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4X_YELLOW(u64 a)
+static inline u64 NIXX_AF_TL4X_YELLOW(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4X_YELLOW(u64 a)
+static inline u64 NIXX_AF_TL4X_YELLOW(u64 a)
 {
 	return 0x12a0 + 0x10000 * a;
 }
@@ -7908,18 +8895,18 @@ static inline u64 CAVM_NIXX_AF_TL4X_YELLOW(u64 a)
  * NIX AF Transmit Level 4 Constants Register This register contains
  * constants for software discovery.
  */
-union cavm_nixx_af_tl4_const {
+union nixx_af_tl4_const {
 	u64 u;
-	struct cavm_nixx_af_tl4_const_s {
+	struct nixx_af_tl4_const_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_nixx_af_tl4_const_s cn; */
+	/* struct nixx_af_tl4_const_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TL4_CONST(void)
+static inline u64 NIXX_AF_TL4_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TL4_CONST(void)
+static inline u64 NIXX_AF_TL4_CONST(void)
 {
 	return 0x88;
 }
@@ -7927,25 +8914,27 @@ static inline u64 CAVM_NIXX_AF_TL4_CONST(void)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_link#_expr_credit
  *
- * NIX AF Transmit Link Express Credit Registers These registers track
- * credits per link for express packets that may potentially preempt
- * normal packets. Link index enumerated by NIX_LINK_E.
+ * INTERNAL: NIX AF Transmit Link Express Credit Registers  Internal:
+ * 802.3br frame preemption/express path is defeatured. Old definition:
+ * These registers track credits per link for express packets that may
+ * potentially preempt normal packets. Link index enumerated by
+ * NIX_LINK_E.
  */
-union cavm_nixx_af_tx_linkx_expr_credit {
+union nixx_af_tx_linkx_expr_credit {
 	u64 u;
-	struct cavm_nixx_af_tx_linkx_expr_credit_s {
+	struct nixx_af_tx_linkx_expr_credit_s {
 		u64 reserved_0                       : 1;
 		u64 cc_enable                        : 1;
 		u64 cc_packet_cnt                    : 10;
 		u64 cc_unit_cnt                      : 20;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_nixx_af_tx_linkx_expr_credit_s cn; */
+	/* struct nixx_af_tx_linkx_expr_credit_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_LINKX_EXPR_CREDIT(u64 a)
+static inline u64 NIXX_AF_TX_LINKX_EXPR_CREDIT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_LINKX_EXPR_CREDIT(u64 a)
+static inline u64 NIXX_AF_TX_LINKX_EXPR_CREDIT(u64 a)
 {
 	return 0xa10 + 0x10000 * a;
 }
@@ -7956,17 +8945,17 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_EXPR_CREDIT(u64 a)
  * NIX AF Transmit Link Hardware Controlled XOFF Registers Link index
  * enumerated by NIX_LINK_E.
  */
-union cavm_nixx_af_tx_linkx_hw_xoff {
+union nixx_af_tx_linkx_hw_xoff {
 	u64 u;
-	struct cavm_nixx_af_tx_linkx_hw_xoff_s {
+	struct nixx_af_tx_linkx_hw_xoff_s {
 		u64 chan_xoff                        : 64;
 	} s;
-	/* struct cavm_nixx_af_tx_linkx_hw_xoff_s cn; */
+	/* struct nixx_af_tx_linkx_hw_xoff_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_LINKX_HW_XOFF(u64 a)
+static inline u64 NIXX_AF_TX_LINKX_HW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_LINKX_HW_XOFF(u64 a)
+static inline u64 NIXX_AF_TX_LINKX_HW_XOFF(u64 a)
 {
 	return 0xa30 + 0x10000 * a;
 }
@@ -7975,24 +8964,24 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_HW_XOFF(u64 a)
  * Register (RVU_PF_BAR0) nix#_af_tx_link#_norm_credit
  *
  * NIX AF Transmit Link Normal Credit Registers These registers track
- * credits per link for normal (potentially preemptable) packets sent to
- * CGX and LBK. Link index enumerated by NIX_LINK_E.
+ * credits per link for normal packets sent to CGX and LBK. Link index
+ * enumerated by NIX_LINK_E.
  */
-union cavm_nixx_af_tx_linkx_norm_credit {
+union nixx_af_tx_linkx_norm_credit {
 	u64 u;
-	struct cavm_nixx_af_tx_linkx_norm_credit_s {
+	struct nixx_af_tx_linkx_norm_credit_s {
 		u64 reserved_0                       : 1;
 		u64 cc_enable                        : 1;
 		u64 cc_packet_cnt                    : 10;
 		u64 cc_unit_cnt                      : 20;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_nixx_af_tx_linkx_norm_credit_s cn; */
+	/* struct nixx_af_tx_linkx_norm_credit_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_LINKX_NORM_CREDIT(u64 a)
+static inline u64 NIXX_AF_TX_LINKX_NORM_CREDIT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_LINKX_NORM_CREDIT(u64 a)
+static inline u64 NIXX_AF_TX_LINKX_NORM_CREDIT(u64 a)
 {
 	return 0xa00 + 0x10000 * a;
 }
@@ -8000,20 +8989,23 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_NORM_CREDIT(u64 a)
 /**
  * Register (RVU_PF_BAR0) nix#_af_tx_link#_sw_xoff
  *
- * NIX AF Transmit Link Software Controlled XOFF Registers Link index
- * enumerated by NIX_LINK_E.
+ * INTERNAL: NIX AF Transmit Link Software Controlled XOFF Registers
+ * Link index enumerated by NIX_LINK_E. Internal: Defeatured registers.
+ * Software should instead use NIX_AF_TL3()_SW_XOFF registers when
+ * NIX_AF_PSE_CHANNEL_LEVEL[BP_LEVEL] is set and NIX_AF_TL2()_SW_XOFF
+ * registers when NIX_AF_PSE_CHANNEL_LEVEL[BP_LEVEL] is clear.
  */
-union cavm_nixx_af_tx_linkx_sw_xoff {
+union nixx_af_tx_linkx_sw_xoff {
 	u64 u;
-	struct cavm_nixx_af_tx_linkx_sw_xoff_s {
+	struct nixx_af_tx_linkx_sw_xoff_s {
 		u64 chan_xoff                        : 64;
 	} s;
-	/* struct cavm_nixx_af_tx_linkx_sw_xoff_s cn; */
+	/* struct nixx_af_tx_linkx_sw_xoff_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_LINKX_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_TX_LINKX_SW_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_LINKX_SW_XOFF(u64 a)
+static inline u64 NIXX_AF_TX_LINKX_SW_XOFF(u64 a)
 {
 	return 0xa20 + 0x10000 * a;
 }
@@ -8029,21 +9021,21 @@ static inline u64 CAVM_NIXX_AF_TX_LINKX_SW_XOFF(u64 a)
  * points to the start of the multicast replication list, and [EOL] = 1
  * indicates the end of list.
  */
-union cavm_nixx_af_tx_mcastx {
+union nixx_af_tx_mcastx {
 	u64 u;
-	struct cavm_nixx_af_tx_mcastx_s {
+	struct nixx_af_tx_mcastx_s {
 		u64 channel                          : 12;
 		u64 eol                              : 1;
 		u64 reserved_13_15                   : 3;
 		u64 next                             : 16;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_nixx_af_tx_mcastx_s cn; */
+	/* struct nixx_af_tx_mcastx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_MCASTX(u64 a)
+static inline u64 NIXX_AF_TX_MCASTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_MCASTX(u64 a)
+static inline u64 NIXX_AF_TX_MCASTX(u64 a)
 {
 	return 0x1900 + 0x8000 * a;
 }
@@ -8056,9 +9048,9 @@ static inline u64 CAVM_NIXX_AF_TX_MCASTX(u64 a)
  * allows NPC responses for selected packets to be captured in
  * NIX_AF_TX_NPC_CAPTURE_INFO and NIX_AF_TX_NPC_CAPTURE_RESP().
  */
-union cavm_nixx_af_tx_npc_capture_config {
+union nixx_af_tx_npc_capture_config {
 	u64 u;
-	struct cavm_nixx_af_tx_npc_capture_config_s {
+	struct nixx_af_tx_npc_capture_config_s {
 		u64 en                               : 1;
 		u64 continuous                       : 1;
 		u64 lso_segnum_en                    : 1;
@@ -8071,12 +9063,12 @@ union cavm_nixx_af_tx_npc_capture_config {
 		u64 sq_id                            : 20;
 		u64 lf_id                            : 8;
 	} s;
-	/* struct cavm_nixx_af_tx_npc_capture_config_s cn; */
+	/* struct nixx_af_tx_npc_capture_config_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_CONFIG(void)
+static inline u64 NIXX_AF_TX_NPC_CAPTURE_CONFIG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_CONFIG(void)
+static inline u64 NIXX_AF_TX_NPC_CAPTURE_CONFIG(void)
 {
 	return 0x660;
 }
@@ -8088,9 +9080,9 @@ static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_CONFIG(void)
  * register contains captured NPC response information for a transmit
  * packet. See NIX_AF_TX_NPC_CAPTURE_CONFIG.
  */
-union cavm_nixx_af_tx_npc_capture_info {
+union nixx_af_tx_npc_capture_info {
 	u64 u;
-	struct cavm_nixx_af_tx_npc_capture_info_s {
+	struct nixx_af_tx_npc_capture_info_s {
 		u64 vld                              : 1;
 		u64 reserved_1_11                    : 11;
 		u64 lso_segnum                       : 8;
@@ -8098,12 +9090,12 @@ union cavm_nixx_af_tx_npc_capture_info {
 		u64 sq_id                            : 20;
 		u64 lf_id                            : 8;
 	} s;
-	/* struct cavm_nixx_af_tx_npc_capture_info_s cn; */
+	/* struct nixx_af_tx_npc_capture_info_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_INFO(void)
+static inline u64 NIXX_AF_TX_NPC_CAPTURE_INFO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_INFO(void)
+static inline u64 NIXX_AF_TX_NPC_CAPTURE_INFO(void)
 {
 	return 0x668;
 }
@@ -8116,17 +9108,17 @@ static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_INFO(void)
  * NIX_AF_TX_NPC_CAPTURE_INFO[VLD] is set. See also
  * NIX_AF_TX_NPC_CAPTURE_CONFIG.
  */
-union cavm_nixx_af_tx_npc_capture_respx {
+union nixx_af_tx_npc_capture_respx {
 	u64 u;
-	struct cavm_nixx_af_tx_npc_capture_respx_s {
+	struct nixx_af_tx_npc_capture_respx_s {
 		u64 data                             : 64;
 	} s;
-	/* struct cavm_nixx_af_tx_npc_capture_respx_s cn; */
+	/* struct nixx_af_tx_npc_capture_respx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_RESPX(u64 a)
+static inline u64 NIXX_AF_TX_NPC_CAPTURE_RESPX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_RESPX(u64 a)
+static inline u64 NIXX_AF_TX_NPC_CAPTURE_RESPX(u64 a)
 {
 	return 0x680 + 8 * a;
 }
@@ -8136,20 +9128,20 @@ static inline u64 CAVM_NIXX_AF_TX_NPC_CAPTURE_RESPX(u64 a)
  *
  * NIX AF Transmit Timestamp Configuration Register
  */
-union cavm_nixx_af_tx_tstmp_cfg {
+union nixx_af_tx_tstmp_cfg {
 	u64 u;
-	struct cavm_nixx_af_tx_tstmp_cfg_s {
+	struct nixx_af_tx_tstmp_cfg_s {
 		u64 tstmp_wd_period                  : 4;
 		u64 reserved_4_7                     : 4;
 		u64 express                          : 16;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_nixx_af_tx_tstmp_cfg_s cn; */
+	/* struct nixx_af_tx_tstmp_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_TSTMP_CFG(void)
+static inline u64 NIXX_AF_TX_TSTMP_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_TSTMP_CFG(void)
+static inline u64 NIXX_AF_TX_TSTMP_CFG(void)
 {
 	return 0xc0;
 }
@@ -8162,18 +9154,18 @@ static inline u64 CAVM_NIXX_AF_TX_TSTMP_CFG(void)
  * optionally insert or replace in the TX packet header. Indexed by
  * NIX_TX_VTAG_ACTION_S[VTAG*_DEF].
  */
-union cavm_nixx_af_tx_vtag_defx_ctl {
+union nixx_af_tx_vtag_defx_ctl {
 	u64 u;
-	struct cavm_nixx_af_tx_vtag_defx_ctl_s {
+	struct nixx_af_tx_vtag_defx_ctl_s {
 		u64 size                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_af_tx_vtag_defx_ctl_s cn; */
+	/* struct nixx_af_tx_vtag_defx_ctl_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_CTL(u64 a)
+static inline u64 NIXX_AF_TX_VTAG_DEFX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_CTL(u64 a)
+static inline u64 NIXX_AF_TX_VTAG_DEFX_CTL(u64 a)
 {
 	return 0x1a00 + 0x10000 * a;
 }
@@ -8184,17 +9176,17 @@ static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_CTL(u64 a)
  * NIX AF Transmit Vtag Definition Data Registers See
  * NIX_AF_TX_VTAG_DEF()_CTL.
  */
-union cavm_nixx_af_tx_vtag_defx_data {
+union nixx_af_tx_vtag_defx_data {
 	u64 u;
-	struct cavm_nixx_af_tx_vtag_defx_data_s {
+	struct nixx_af_tx_vtag_defx_data_s {
 		u64 data                             : 64;
 	} s;
-	/* struct cavm_nixx_af_tx_vtag_defx_data_s cn; */
+	/* struct nixx_af_tx_vtag_defx_data_s cn; */
 };
 
-static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_DATA(u64 a)
+static inline u64 NIXX_AF_TX_VTAG_DEFX_DATA(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_DATA(u64 a)
+static inline u64 NIXX_AF_TX_VTAG_DEFX_DATA(u64 a)
 {
 	return 0x1a10 + 0x10000 * a;
 }
@@ -8204,18 +9196,18 @@ static inline u64 CAVM_NIXX_AF_TX_VTAG_DEFX_DATA(u64 a)
  *
  * NIX LF Configuration Register
  */
-union cavm_nixx_lf_cfg {
+union nixx_lf_cfg {
 	u64 u;
-	struct cavm_nixx_lf_cfg_s {
+	struct nixx_lf_cfg_s {
 		u64 tcp_timer_int_ena                : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_lf_cfg_s cn; */
+	/* struct nixx_lf_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_CFG(void)
+static inline u64 NIXX_LF_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_CFG(void)
+static inline u64 NIXX_LF_CFG(void)
 {
 	return 0x100;
 }
@@ -8225,19 +9217,19 @@ static inline u64 CAVM_NIXX_LF_CFG(void)
  *
  * NIX LF Completion Interrupt Count Registers
  */
-union cavm_nixx_lf_cintx_cnt {
+union nixx_lf_cintx_cnt {
 	u64 u;
-	struct cavm_nixx_lf_cintx_cnt_s {
+	struct nixx_lf_cintx_cnt_s {
 		u64 ecount                           : 32;
 		u64 qcount                           : 16;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_lf_cintx_cnt_s cn; */
+	/* struct nixx_lf_cintx_cnt_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_CINTX_CNT(u64 a)
+static inline u64 NIXX_LF_CINTX_CNT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_CINTX_CNT(u64 a)
+static inline u64 NIXX_LF_CINTX_CNT(u64 a)
 {
 	return 0xd00 + 0x1000 * a;
 }
@@ -8248,18 +9240,18 @@ static inline u64 CAVM_NIXX_LF_CINTX_CNT(u64 a)
  * NIX LF Completion Interrupt Enable Clear Registers This register
  * clears interrupt enable bits.
  */
-union cavm_nixx_lf_cintx_ena_w1c {
+union nixx_lf_cintx_ena_w1c {
 	u64 u;
-	struct cavm_nixx_lf_cintx_ena_w1c_s {
+	struct nixx_lf_cintx_ena_w1c_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_lf_cintx_ena_w1c_s cn; */
+	/* struct nixx_lf_cintx_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1C(u64 a)
+static inline u64 NIXX_LF_CINTX_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1C(u64 a)
+static inline u64 NIXX_LF_CINTX_ENA_W1C(u64 a)
 {
 	return 0xd50 + 0x1000 * a;
 }
@@ -8270,18 +9262,18 @@ static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1C(u64 a)
  * NIX LF Completion Interrupt Enable Set Registers This register sets
  * interrupt enable bits.
  */
-union cavm_nixx_lf_cintx_ena_w1s {
+union nixx_lf_cintx_ena_w1s {
 	u64 u;
-	struct cavm_nixx_lf_cintx_ena_w1s_s {
+	struct nixx_lf_cintx_ena_w1s_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_lf_cintx_ena_w1s_s cn; */
+	/* struct nixx_lf_cintx_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1S(u64 a)
+static inline u64 NIXX_LF_CINTX_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1S(u64 a)
+static inline u64 NIXX_LF_CINTX_ENA_W1S(u64 a)
 {
 	return 0xd40 + 0x1000 * a;
 }
@@ -8291,18 +9283,18 @@ static inline u64 CAVM_NIXX_LF_CINTX_ENA_W1S(u64 a)
  *
  * NIX LF Completion Interrupt Registers
  */
-union cavm_nixx_lf_cintx_int {
+union nixx_lf_cintx_int {
 	u64 u;
-	struct cavm_nixx_lf_cintx_int_s {
+	struct nixx_lf_cintx_int_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_lf_cintx_int_s cn; */
+	/* struct nixx_lf_cintx_int_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_CINTX_INT(u64 a)
+static inline u64 NIXX_LF_CINTX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_CINTX_INT(u64 a)
+static inline u64 NIXX_LF_CINTX_INT(u64 a)
 {
 	return 0xd20 + 0x1000 * a;
 }
@@ -8313,18 +9305,18 @@ static inline u64 CAVM_NIXX_LF_CINTX_INT(u64 a)
  * NIX LF Completion Interrupt Set Registers This register sets interrupt
  * bits.
  */
-union cavm_nixx_lf_cintx_int_w1s {
+union nixx_lf_cintx_int_w1s {
 	u64 u;
-	struct cavm_nixx_lf_cintx_int_w1s_s {
+	struct nixx_lf_cintx_int_w1s_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_lf_cintx_int_w1s_s cn; */
+	/* struct nixx_lf_cintx_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_CINTX_INT_W1S(u64 a)
+static inline u64 NIXX_LF_CINTX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_CINTX_INT_W1S(u64 a)
+static inline u64 NIXX_LF_CINTX_INT_W1S(u64 a)
 {
 	return 0xd30 + 0x1000 * a;
 }
@@ -8334,20 +9326,20 @@ static inline u64 CAVM_NIXX_LF_CINTX_INT_W1S(u64 a)
  *
  * NIX LF Completion Interrupt Count Registers
  */
-union cavm_nixx_lf_cintx_wait {
+union nixx_lf_cintx_wait {
 	u64 u;
-	struct cavm_nixx_lf_cintx_wait_s {
+	struct nixx_lf_cintx_wait_s {
 		u64 ecount_wait                      : 32;
 		u64 qcount_wait                      : 16;
 		u64 time_wait                        : 8;
 		u64 reserved_56_63                   : 8;
 	} s;
-	/* struct cavm_nixx_lf_cintx_wait_s cn; */
+	/* struct nixx_lf_cintx_wait_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_CINTX_WAIT(u64 a)
+static inline u64 NIXX_LF_CINTX_WAIT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_CINTX_WAIT(u64 a)
+static inline u64 NIXX_LF_CINTX_WAIT(u64 a)
 {
 	return 0xd10 + 0x1000 * a;
 }
@@ -8359,20 +9351,20 @@ static inline u64 CAVM_NIXX_LF_CINTX_WAIT(u64 a)
  * dequeues CQEs from a CQ ring within the LF. A read is RAZ.  RSL
  * accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_cq_op_door {
+union nixx_lf_cq_op_door {
 	u64 u;
-	struct cavm_nixx_lf_cq_op_door_s {
+	struct nixx_lf_cq_op_door_s {
 		u64 count                            : 16;
 		u64 reserved_16_31                   : 16;
 		u64 cq                               : 20;
 		u64 reserved_52_63                   : 12;
 	} s;
-	/* struct cavm_nixx_lf_cq_op_door_s cn; */
+	/* struct nixx_lf_cq_op_door_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_CQ_OP_DOOR(void)
+static inline u64 NIXX_LF_CQ_OP_DOOR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_CQ_OP_DOOR(void)
+static inline u64 NIXX_LF_CQ_OP_DOOR(void)
 {
 	return 0xb30;
 }
@@ -8385,9 +9377,9 @@ static inline u64 CAVM_NIXX_LF_CQ_OP_DOOR(void)
  * enables. A write optionally sets or clears interrupts and interrupt
  * enables. A read is RAZ.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_cq_op_int {
+union nixx_lf_cq_op_int {
 	u64 u;
-	struct cavm_nixx_lf_cq_op_int_s {
+	struct nixx_lf_cq_op_int_s {
 		u64 cq_err_int                       : 8;
 		u64 cq_err_int_ena                   : 8;
 		u64 reserved_16_41                   : 26;
@@ -8395,12 +9387,12 @@ union cavm_nixx_lf_cq_op_int {
 		u64 setop                            : 1;
 		u64 cq                               : 20;
 	} s;
-	/* struct cavm_nixx_lf_cq_op_int_s cn; */
+	/* struct nixx_lf_cq_op_int_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_CQ_OP_INT(void)
+static inline u64 NIXX_LF_CQ_OP_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_CQ_OP_INT(void)
+static inline u64 NIXX_LF_CQ_OP_INT(void)
 {
 	return 0xb00;
 }
@@ -8414,9 +9406,9 @@ static inline u64 CAVM_NIXX_LF_CQ_OP_INT(void)
  * within LF.  All other accesses to this register (e.g. reads and
  * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_cq_op_status {
+union nixx_lf_cq_op_status {
 	u64 u;
-	struct cavm_nixx_lf_cq_op_status_s {
+	struct nixx_lf_cq_op_status_s {
 		u64 tail                             : 20;
 		u64 head                             : 20;
 		u64 reserved_40_45                   : 6;
@@ -8424,12 +9416,12 @@ union cavm_nixx_lf_cq_op_status {
 		u64 reserved_47_62                   : 16;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_cq_op_status_s cn; */
+	/* struct nixx_lf_cq_op_status_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_CQ_OP_STATUS(void)
+static inline u64 NIXX_LF_CQ_OP_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_CQ_OP_STATUS(void)
+static inline u64 NIXX_LF_CQ_OP_STATUS(void)
 {
 	return 0xb40;
 }
@@ -8439,9 +9431,9 @@ static inline u64 CAVM_NIXX_LF_CQ_OP_STATUS(void)
  *
  * NIX LF Error Interrupt Register
  */
-union cavm_nixx_lf_err_int {
+union nixx_lf_err_int {
 	u64 u;
-	struct cavm_nixx_lf_err_int_s {
+	struct nixx_lf_err_int_s {
 		u64 sqb_fault                        : 1;
 		u64 sq_ctx_fault                     : 1;
 		u64 rq_ctx_fault                     : 1;
@@ -8467,12 +9459,12 @@ union cavm_nixx_lf_err_int {
 		u64 cint_fault                       : 1;
 		u64 reserved_30_63                   : 34;
 	} s;
-	/* struct cavm_nixx_lf_err_int_s cn; */
+	/* struct nixx_lf_err_int_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_ERR_INT(void)
+static inline u64 NIXX_LF_ERR_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_ERR_INT(void)
+static inline u64 NIXX_LF_ERR_INT(void)
 {
 	return 0x220;
 }
@@ -8483,9 +9475,9 @@ static inline u64 CAVM_NIXX_LF_ERR_INT(void)
  * NIX LF Error Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_nixx_lf_err_int_ena_w1c {
+union nixx_lf_err_int_ena_w1c {
 	u64 u;
-	struct cavm_nixx_lf_err_int_ena_w1c_s {
+	struct nixx_lf_err_int_ena_w1c_s {
 		u64 sqb_fault                        : 1;
 		u64 sq_ctx_fault                     : 1;
 		u64 rq_ctx_fault                     : 1;
@@ -8511,12 +9503,12 @@ union cavm_nixx_lf_err_int_ena_w1c {
 		u64 cint_fault                       : 1;
 		u64 reserved_30_63                   : 34;
 	} s;
-	/* struct cavm_nixx_lf_err_int_ena_w1c_s cn; */
+	/* struct nixx_lf_err_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1C(void)
+static inline u64 NIXX_LF_ERR_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1C(void)
+static inline u64 NIXX_LF_ERR_INT_ENA_W1C(void)
 {
 	return 0x230;
 }
@@ -8527,9 +9519,9 @@ static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1C(void)
  * NIX LF Error Interrupt Enable Set Register This register sets
  * interrupt enable bits.
  */
-union cavm_nixx_lf_err_int_ena_w1s {
+union nixx_lf_err_int_ena_w1s {
 	u64 u;
-	struct cavm_nixx_lf_err_int_ena_w1s_s {
+	struct nixx_lf_err_int_ena_w1s_s {
 		u64 sqb_fault                        : 1;
 		u64 sq_ctx_fault                     : 1;
 		u64 rq_ctx_fault                     : 1;
@@ -8555,12 +9547,12 @@ union cavm_nixx_lf_err_int_ena_w1s {
 		u64 cint_fault                       : 1;
 		u64 reserved_30_63                   : 34;
 	} s;
-	/* struct cavm_nixx_lf_err_int_ena_w1s_s cn; */
+	/* struct nixx_lf_err_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1S(void)
+static inline u64 NIXX_LF_ERR_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1S(void)
+static inline u64 NIXX_LF_ERR_INT_ENA_W1S(void)
 {
 	return 0x238;
 }
@@ -8570,9 +9562,9 @@ static inline u64 CAVM_NIXX_LF_ERR_INT_ENA_W1S(void)
  *
  * NIX LF Error Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_nixx_lf_err_int_w1s {
+union nixx_lf_err_int_w1s {
 	u64 u;
-	struct cavm_nixx_lf_err_int_w1s_s {
+	struct nixx_lf_err_int_w1s_s {
 		u64 sqb_fault                        : 1;
 		u64 sq_ctx_fault                     : 1;
 		u64 rq_ctx_fault                     : 1;
@@ -8598,12 +9590,12 @@ union cavm_nixx_lf_err_int_w1s {
 		u64 cint_fault                       : 1;
 		u64 reserved_30_63                   : 34;
 	} s;
-	/* struct cavm_nixx_lf_err_int_w1s_s cn; */
+	/* struct nixx_lf_err_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_ERR_INT_W1S(void)
+static inline u64 NIXX_LF_ERR_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_ERR_INT_W1S(void)
+static inline u64 NIXX_LF_ERR_INT_W1S(void)
 {
 	return 0x228;
 }
@@ -8613,19 +9605,19 @@ static inline u64 CAVM_NIXX_LF_ERR_INT_W1S(void)
  *
  * NIX LF General Interrupt Register
  */
-union cavm_nixx_lf_gint {
+union nixx_lf_gint {
 	u64 u;
-	struct cavm_nixx_lf_gint_s {
+	struct nixx_lf_gint_s {
 		u64 drop                             : 1;
 		u64 tcp_timer                        : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_nixx_lf_gint_s cn; */
+	/* struct nixx_lf_gint_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_GINT(void)
+static inline u64 NIXX_LF_GINT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_GINT(void)
+static inline u64 NIXX_LF_GINT(void)
 {
 	return 0x200;
 }
@@ -8636,19 +9628,19 @@ static inline u64 CAVM_NIXX_LF_GINT(void)
  * NIX LF General Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_nixx_lf_gint_ena_w1c {
+union nixx_lf_gint_ena_w1c {
 	u64 u;
-	struct cavm_nixx_lf_gint_ena_w1c_s {
+	struct nixx_lf_gint_ena_w1c_s {
 		u64 drop                             : 1;
 		u64 tcp_timer                        : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_nixx_lf_gint_ena_w1c_s cn; */
+	/* struct nixx_lf_gint_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_GINT_ENA_W1C(void)
+static inline u64 NIXX_LF_GINT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_GINT_ENA_W1C(void)
+static inline u64 NIXX_LF_GINT_ENA_W1C(void)
 {
 	return 0x210;
 }
@@ -8659,19 +9651,19 @@ static inline u64 CAVM_NIXX_LF_GINT_ENA_W1C(void)
  * NIX LF General Interrupt Enable Set Register This register sets
  * interrupt enable bits.
  */
-union cavm_nixx_lf_gint_ena_w1s {
+union nixx_lf_gint_ena_w1s {
 	u64 u;
-	struct cavm_nixx_lf_gint_ena_w1s_s {
+	struct nixx_lf_gint_ena_w1s_s {
 		u64 drop                             : 1;
 		u64 tcp_timer                        : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_nixx_lf_gint_ena_w1s_s cn; */
+	/* struct nixx_lf_gint_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_GINT_ENA_W1S(void)
+static inline u64 NIXX_LF_GINT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_GINT_ENA_W1S(void)
+static inline u64 NIXX_LF_GINT_ENA_W1S(void)
 {
 	return 0x218;
 }
@@ -8682,19 +9674,19 @@ static inline u64 CAVM_NIXX_LF_GINT_ENA_W1S(void)
  * NIX LF General Interrupt Set Register This register sets interrupt
  * bits.
  */
-union cavm_nixx_lf_gint_w1s {
+union nixx_lf_gint_w1s {
 	u64 u;
-	struct cavm_nixx_lf_gint_w1s_s {
+	struct nixx_lf_gint_w1s_s {
 		u64 drop                             : 1;
 		u64 tcp_timer                        : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_nixx_lf_gint_w1s_s cn; */
+	/* struct nixx_lf_gint_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_GINT_W1S(void)
+static inline u64 NIXX_LF_GINT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_GINT_W1S(void)
+static inline u64 NIXX_LF_GINT_W1S(void)
 {
 	return 0x208;
 }
@@ -8708,21 +9700,21 @@ static inline u64 CAVM_NIXX_LF_GINT_W1S(void)
  * info is captured, and subsequent errors are not captured until
  * software clears [VALID] by writing a one to it.
  */
-union cavm_nixx_lf_mnq_err_dbg {
+union nixx_lf_mnq_err_dbg {
 	u64 u;
-	struct cavm_nixx_lf_mnq_err_dbg_s {
+	struct nixx_lf_mnq_err_dbg_s {
 		u64 errcode                          : 8;
 		u64 sq                               : 20;
 		u64 sqe_id                           : 16;
 		u64 valid                            : 1;
 		u64 reserved_45_63                   : 19;
 	} s;
-	/* struct cavm_nixx_lf_mnq_err_dbg_s cn; */
+	/* struct nixx_lf_mnq_err_dbg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_MNQ_ERR_DBG(void)
+static inline u64 NIXX_LF_MNQ_ERR_DBG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_MNQ_ERR_DBG(void)
+static inline u64 NIXX_LF_MNQ_ERR_DBG(void)
 {
 	return 0x270;
 }
@@ -8733,21 +9725,21 @@ static inline u64 CAVM_NIXX_LF_MNQ_ERR_DBG(void)
  * INTERNAL: NIX LF IPSEC Dynamic Ordering Counter Operation Register
  * Internal: Not used; no IPSEC fast-path. All accesses are RAZ/WI.
  */
-union cavm_nixx_lf_op_ipsec_dyno_cnt {
+union nixx_lf_op_ipsec_dyno_cnt {
 	u64 u;
-	struct cavm_nixx_lf_op_ipsec_dyno_cnt_s {
+	struct nixx_lf_op_ipsec_dyno_cnt_s {
 		u64 count                            : 32;
 		u64 reserved_32_46                   : 15;
 		u64 storeop                          : 1;
 		u64 dyno_sel                         : 15;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_op_ipsec_dyno_cnt_s cn; */
+	/* struct nixx_lf_op_ipsec_dyno_cnt_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_OP_IPSEC_DYNO_CNT(void)
+static inline u64 NIXX_LF_OP_IPSEC_DYNO_CNT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_OP_IPSEC_DYNO_CNT(void)
+static inline u64 NIXX_LF_OP_IPSEC_DYNO_CNT(void)
 {
 	return 0x980;
 }
@@ -8775,17 +9767,17 @@ static inline u64 CAVM_NIXX_LF_OP_IPSEC_DYNO_CNT(void)
  * matters and more than one CPU core is simultaneously enqueueing to the
  * same SQ.
  */
-union cavm_nixx_lf_op_sendx {
+union nixx_lf_op_sendx {
 	u64 u;
-	struct cavm_nixx_lf_op_sendx_s {
+	struct nixx_lf_op_sendx_s {
 		u64 data                             : 64;
 	} s;
-	/* struct cavm_nixx_lf_op_sendx_s cn; */
+	/* struct nixx_lf_op_sendx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_OP_SENDX(u64 a)
+static inline u64 NIXX_LF_OP_SENDX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_OP_SENDX(u64 a)
+static inline u64 NIXX_LF_OP_SENDX(u64 a)
 {
 	return 0x800 + 8 * a;
 }
@@ -8795,18 +9787,18 @@ static inline u64 CAVM_NIXX_LF_OP_SENDX(u64 a)
  *
  * NIX LF Queue Interrupt Count Registers
  */
-union cavm_nixx_lf_qintx_cnt {
+union nixx_lf_qintx_cnt {
 	u64 u;
-	struct cavm_nixx_lf_qintx_cnt_s {
+	struct nixx_lf_qintx_cnt_s {
 		u64 count                            : 22;
 		u64 reserved_22_63                   : 42;
 	} s;
-	/* struct cavm_nixx_lf_qintx_cnt_s cn; */
+	/* struct nixx_lf_qintx_cnt_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_QINTX_CNT(u64 a)
+static inline u64 NIXX_LF_QINTX_CNT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_QINTX_CNT(u64 a)
+static inline u64 NIXX_LF_QINTX_CNT(u64 a)
 {
 	return 0xc00 + 0x1000 * a;
 }
@@ -8817,18 +9809,18 @@ static inline u64 CAVM_NIXX_LF_QINTX_CNT(u64 a)
  * NIX LF Queue Interrupt Enable Clear Registers This register clears
  * interrupt enable bits.
  */
-union cavm_nixx_lf_qintx_ena_w1c {
+union nixx_lf_qintx_ena_w1c {
 	u64 u;
-	struct cavm_nixx_lf_qintx_ena_w1c_s {
+	struct nixx_lf_qintx_ena_w1c_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_lf_qintx_ena_w1c_s cn; */
+	/* struct nixx_lf_qintx_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1C(u64 a)
+static inline u64 NIXX_LF_QINTX_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1C(u64 a)
+static inline u64 NIXX_LF_QINTX_ENA_W1C(u64 a)
 {
 	return 0xc30 + 0x1000 * a;
 }
@@ -8839,18 +9831,18 @@ static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1C(u64 a)
  * NIX LF Queue Interrupt Enable Set Registers This register sets
  * interrupt enable bits.
  */
-union cavm_nixx_lf_qintx_ena_w1s {
+union nixx_lf_qintx_ena_w1s {
 	u64 u;
-	struct cavm_nixx_lf_qintx_ena_w1s_s {
+	struct nixx_lf_qintx_ena_w1s_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_lf_qintx_ena_w1s_s cn; */
+	/* struct nixx_lf_qintx_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1S(u64 a)
+static inline u64 NIXX_LF_QINTX_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1S(u64 a)
+static inline u64 NIXX_LF_QINTX_ENA_W1S(u64 a)
 {
 	return 0xc20 + 0x1000 * a;
 }
@@ -8860,18 +9852,18 @@ static inline u64 CAVM_NIXX_LF_QINTX_ENA_W1S(u64 a)
  *
  * NIX LF Queue Interrupt Registers
  */
-union cavm_nixx_lf_qintx_int {
+union nixx_lf_qintx_int {
 	u64 u;
-	struct cavm_nixx_lf_qintx_int_s {
+	struct nixx_lf_qintx_int_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_lf_qintx_int_s cn; */
+	/* struct nixx_lf_qintx_int_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_QINTX_INT(u64 a)
+static inline u64 NIXX_LF_QINTX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_QINTX_INT(u64 a)
+static inline u64 NIXX_LF_QINTX_INT(u64 a)
 {
 	return 0xc10 + 0x1000 * a;
 }
@@ -8881,18 +9873,18 @@ static inline u64 CAVM_NIXX_LF_QINTX_INT(u64 a)
  *
  * INTERNAL: NIX LF Queue Interrupt Set Registers
  */
-union cavm_nixx_lf_qintx_int_w1s {
+union nixx_lf_qintx_int_w1s {
 	u64 u;
-	struct cavm_nixx_lf_qintx_int_w1s_s {
+	struct nixx_lf_qintx_int_w1s_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_nixx_lf_qintx_int_w1s_s cn; */
+	/* struct nixx_lf_qintx_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_QINTX_INT_W1S(u64 a)
+static inline u64 NIXX_LF_QINTX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_QINTX_INT_W1S(u64 a)
+static inline u64 NIXX_LF_QINTX_INT_W1S(u64 a)
 {
 	return 0xc18 + 0x1000 * a;
 }
@@ -8902,9 +9894,9 @@ static inline u64 CAVM_NIXX_LF_QINTX_INT_W1S(u64 a)
  *
  * NIX LF RAS Interrupt Register
  */
-union cavm_nixx_lf_ras {
+union nixx_lf_ras {
 	u64 u;
-	struct cavm_nixx_lf_ras_s {
+	struct nixx_lf_ras_s {
 		u64 sqb_poison                       : 1;
 		u64 sq_ctx_poison                    : 1;
 		u64 rq_ctx_poison                    : 1;
@@ -8918,12 +9910,12 @@ union cavm_nixx_lf_ras {
 		u64 cint_poison                      : 1;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_lf_ras_s cn; */
+	/* struct nixx_lf_ras_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RAS(void)
+static inline u64 NIXX_LF_RAS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RAS(void)
+static inline u64 NIXX_LF_RAS(void)
 {
 	return 0x240;
 }
@@ -8934,9 +9926,9 @@ static inline u64 CAVM_NIXX_LF_RAS(void)
  * NIX LF RAS Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_nixx_lf_ras_ena_w1c {
+union nixx_lf_ras_ena_w1c {
 	u64 u;
-	struct cavm_nixx_lf_ras_ena_w1c_s {
+	struct nixx_lf_ras_ena_w1c_s {
 		u64 sqb_poison                       : 1;
 		u64 sq_ctx_poison                    : 1;
 		u64 rq_ctx_poison                    : 1;
@@ -8950,12 +9942,12 @@ union cavm_nixx_lf_ras_ena_w1c {
 		u64 cint_poison                      : 1;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_lf_ras_ena_w1c_s cn; */
+	/* struct nixx_lf_ras_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RAS_ENA_W1C(void)
+static inline u64 NIXX_LF_RAS_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RAS_ENA_W1C(void)
+static inline u64 NIXX_LF_RAS_ENA_W1C(void)
 {
 	return 0x250;
 }
@@ -8966,9 +9958,9 @@ static inline u64 CAVM_NIXX_LF_RAS_ENA_W1C(void)
  * NIX LF RAS Interrupt Enable Set Register This register sets interrupt
  * enable bits.
  */
-union cavm_nixx_lf_ras_ena_w1s {
+union nixx_lf_ras_ena_w1s {
 	u64 u;
-	struct cavm_nixx_lf_ras_ena_w1s_s {
+	struct nixx_lf_ras_ena_w1s_s {
 		u64 sqb_poison                       : 1;
 		u64 sq_ctx_poison                    : 1;
 		u64 rq_ctx_poison                    : 1;
@@ -8982,12 +9974,12 @@ union cavm_nixx_lf_ras_ena_w1s {
 		u64 cint_poison                      : 1;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_lf_ras_ena_w1s_s cn; */
+	/* struct nixx_lf_ras_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RAS_ENA_W1S(void)
+static inline u64 NIXX_LF_RAS_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RAS_ENA_W1S(void)
+static inline u64 NIXX_LF_RAS_ENA_W1S(void)
 {
 	return 0x258;
 }
@@ -8997,9 +9989,9 @@ static inline u64 CAVM_NIXX_LF_RAS_ENA_W1S(void)
  *
  * NIX LF RAS Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_nixx_lf_ras_w1s {
+union nixx_lf_ras_w1s {
 	u64 u;
-	struct cavm_nixx_lf_ras_w1s_s {
+	struct nixx_lf_ras_w1s_s {
 		u64 sqb_poison                       : 1;
 		u64 sq_ctx_poison                    : 1;
 		u64 rq_ctx_poison                    : 1;
@@ -9013,12 +10005,12 @@ union cavm_nixx_lf_ras_w1s {
 		u64 cint_poison                      : 1;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_nixx_lf_ras_w1s_s cn; */
+	/* struct nixx_lf_ras_w1s_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RAS_W1S(void)
+static inline u64 NIXX_LF_RAS_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RAS_W1S(void)
+static inline u64 NIXX_LF_RAS_W1S(void)
 {
 	return 0x248;
 }
@@ -9032,19 +10024,19 @@ static inline u64 CAVM_NIXX_LF_RAS_W1S(void)
  * within LF.  All other accesses to this register (e.g. reads and
  * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_rq_op_drop_octs {
+union nixx_lf_rq_op_drop_octs {
 	u64 u;
-	struct cavm_nixx_lf_rq_op_drop_octs_s {
+	struct nixx_lf_rq_op_drop_octs_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_62                   : 15;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_rq_op_drop_octs_s cn; */
+	/* struct nixx_lf_rq_op_drop_octs_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_OCTS(void)
+static inline u64 NIXX_LF_RQ_OP_DROP_OCTS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_OCTS(void)
+static inline u64 NIXX_LF_RQ_OP_DROP_OCTS(void)
 {
 	return 0x930;
 }
@@ -9058,19 +10050,19 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_OCTS(void)
  * within LF.  All other accesses to this register (e.g. reads and
  * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_rq_op_drop_pkts {
+union nixx_lf_rq_op_drop_pkts {
 	u64 u;
-	struct cavm_nixx_lf_rq_op_drop_pkts_s {
+	struct nixx_lf_rq_op_drop_pkts_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_62                   : 15;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_rq_op_drop_pkts_s cn; */
+	/* struct nixx_lf_rq_op_drop_pkts_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_PKTS(void)
+static inline u64 NIXX_LF_RQ_OP_DROP_PKTS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_PKTS(void)
+static inline u64 NIXX_LF_RQ_OP_DROP_PKTS(void)
 {
 	return 0x940;
 }
@@ -9085,9 +10077,9 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_DROP_PKTS(void)
  * 128-bit accesses) are RAZ/WI.  RSL accesses to this register are
  * RAZ/WI.
  */
-union cavm_nixx_lf_rq_op_int {
+union nixx_lf_rq_op_int {
 	u64 u;
-	struct cavm_nixx_lf_rq_op_int_s {
+	struct nixx_lf_rq_op_int_s {
 		u64 rq_int                           : 8;
 		u64 rq_int_ena                       : 8;
 		u64 reserved_16_41                   : 26;
@@ -9095,12 +10087,12 @@ union cavm_nixx_lf_rq_op_int {
 		u64 setop                            : 1;
 		u64 rq                               : 20;
 	} s;
-	/* struct cavm_nixx_lf_rq_op_int_s cn; */
+	/* struct nixx_lf_rq_op_int_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RQ_OP_INT(void)
+static inline u64 NIXX_LF_RQ_OP_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RQ_OP_INT(void)
+static inline u64 NIXX_LF_RQ_OP_INT(void)
 {
 	return 0x900;
 }
@@ -9114,19 +10106,19 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_INT(void)
  * other accesses to this register (e.g. reads and writes) are RAZ/WI.
  * RSL accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_rq_op_octs {
+union nixx_lf_rq_op_octs {
 	u64 u;
-	struct cavm_nixx_lf_rq_op_octs_s {
+	struct nixx_lf_rq_op_octs_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_62                   : 15;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_rq_op_octs_s cn; */
+	/* struct nixx_lf_rq_op_octs_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RQ_OP_OCTS(void)
+static inline u64 NIXX_LF_RQ_OP_OCTS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RQ_OP_OCTS(void)
+static inline u64 NIXX_LF_RQ_OP_OCTS(void)
 {
 	return 0x910;
 }
@@ -9140,19 +10132,19 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_OCTS(void)
  * other accesses to this register (e.g. reads and writes) are RAZ/WI.
  * RSL accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_rq_op_pkts {
+union nixx_lf_rq_op_pkts {
 	u64 u;
-	struct cavm_nixx_lf_rq_op_pkts_s {
+	struct nixx_lf_rq_op_pkts_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_62                   : 15;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_rq_op_pkts_s cn; */
+	/* struct nixx_lf_rq_op_pkts_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RQ_OP_PKTS(void)
+static inline u64 NIXX_LF_RQ_OP_PKTS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RQ_OP_PKTS(void)
+static inline u64 NIXX_LF_RQ_OP_PKTS(void)
 {
 	return 0x920;
 }
@@ -9166,19 +10158,19 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_PKTS(void)
  * within LF.  All other accesses to this register (e.g. reads and
  * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_rq_op_re_pkts {
+union nixx_lf_rq_op_re_pkts {
 	u64 u;
-	struct cavm_nixx_lf_rq_op_re_pkts_s {
+	struct nixx_lf_rq_op_re_pkts_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_62                   : 15;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_rq_op_re_pkts_s cn; */
+	/* struct nixx_lf_rq_op_re_pkts_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RQ_OP_RE_PKTS(void)
+static inline u64 NIXX_LF_RQ_OP_RE_PKTS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RQ_OP_RE_PKTS(void)
+static inline u64 NIXX_LF_RQ_OP_RE_PKTS(void)
 {
 	return 0x950;
 }
@@ -9188,17 +10180,17 @@ static inline u64 CAVM_NIXX_LF_RQ_OP_RE_PKTS(void)
  *
  * NIX LF Receive Secret Key Registers
  */
-union cavm_nixx_lf_rx_secretx {
+union nixx_lf_rx_secretx {
 	u64 u;
-	struct cavm_nixx_lf_rx_secretx_s {
+	struct nixx_lf_rx_secretx_s {
 		u64 key                              : 64;
 	} s;
-	/* struct cavm_nixx_lf_rx_secretx_s cn; */
+	/* struct nixx_lf_rx_secretx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RX_SECRETX(u64 a)
+static inline u64 NIXX_LF_RX_SECRETX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RX_SECRETX(u64 a)
+static inline u64 NIXX_LF_RX_SECRETX(u64 a)
 {
 	return 0 + 8 * a;
 }
@@ -9209,18 +10201,18 @@ static inline u64 CAVM_NIXX_LF_RX_SECRETX(u64 a)
  * NIX LF Receive Statistics Registers The last dimension indicates which
  * statistic, and is enumerated by NIX_STAT_LF_RX_E.
  */
-union cavm_nixx_lf_rx_statx {
+union nixx_lf_rx_statx {
 	u64 u;
-	struct cavm_nixx_lf_rx_statx_s {
+	struct nixx_lf_rx_statx_s {
 		u64 stat                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_lf_rx_statx_s cn; */
+	/* struct nixx_lf_rx_statx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_RX_STATX(u64 a)
+static inline u64 NIXX_LF_RX_STATX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_RX_STATX(u64 a)
+static inline u64 NIXX_LF_RX_STATX(u64 a)
 {
 	return 0x400 + 8 * a;
 }
@@ -9234,21 +10226,21 @@ static inline u64 CAVM_NIXX_LF_RX_STATX(u64 a)
  * subsequent errors are not captured until software clears [VALID] by
  * writing a one to it.
  */
-union cavm_nixx_lf_send_err_dbg {
+union nixx_lf_send_err_dbg {
 	u64 u;
-	struct cavm_nixx_lf_send_err_dbg_s {
+	struct nixx_lf_send_err_dbg_s {
 		u64 errcode                          : 8;
 		u64 sq                               : 20;
 		u64 sqe_id                           : 16;
 		u64 valid                            : 1;
 		u64 reserved_45_63                   : 19;
 	} s;
-	/* struct cavm_nixx_lf_send_err_dbg_s cn; */
+	/* struct nixx_lf_send_err_dbg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_SEND_ERR_DBG(void)
+static inline u64 NIXX_LF_SEND_ERR_DBG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_SEND_ERR_DBG(void)
+static inline u64 NIXX_LF_SEND_ERR_DBG(void)
 {
 	return 0x280;
 }
@@ -9262,19 +10254,19 @@ static inline u64 CAVM_NIXX_LF_SEND_ERR_DBG(void)
  * within LF.  All other accesses to this register (e.g. reads and
  * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_sq_op_drop_octs {
+union nixx_lf_sq_op_drop_octs {
 	u64 u;
-	struct cavm_nixx_lf_sq_op_drop_octs_s {
+	struct nixx_lf_sq_op_drop_octs_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_62                   : 15;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_sq_op_drop_octs_s cn; */
+	/* struct nixx_lf_sq_op_drop_octs_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_OCTS(void)
+static inline u64 NIXX_LF_SQ_OP_DROP_OCTS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_OCTS(void)
+static inline u64 NIXX_LF_SQ_OP_DROP_OCTS(void)
 {
 	return 0xa40;
 }
@@ -9288,19 +10280,19 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_OCTS(void)
  * within LF.  All other accesses to this register (e.g. reads and
  * writes) are RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_sq_op_drop_pkts {
+union nixx_lf_sq_op_drop_pkts {
 	u64 u;
-	struct cavm_nixx_lf_sq_op_drop_pkts_s {
+	struct nixx_lf_sq_op_drop_pkts_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_62                   : 15;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_sq_op_drop_pkts_s cn; */
+	/* struct nixx_lf_sq_op_drop_pkts_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_PKTS(void)
+static inline u64 NIXX_LF_SQ_OP_DROP_PKTS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_PKTS(void)
+static inline u64 NIXX_LF_SQ_OP_DROP_PKTS(void)
 {
 	return 0xa50;
 }
@@ -9314,21 +10306,21 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_DROP_PKTS(void)
  * debug info is captured, and subsequent errors are not captured until
  * software clears [VALID] by writing a one to it.
  */
-union cavm_nixx_lf_sq_op_err_dbg {
+union nixx_lf_sq_op_err_dbg {
 	u64 u;
-	struct cavm_nixx_lf_sq_op_err_dbg_s {
+	struct nixx_lf_sq_op_err_dbg_s {
 		u64 errcode                          : 8;
 		u64 sq                               : 20;
 		u64 sqe_id                           : 16;
 		u64 valid                            : 1;
 		u64 reserved_45_63                   : 19;
 	} s;
-	/* struct cavm_nixx_lf_sq_op_err_dbg_s cn; */
+	/* struct nixx_lf_sq_op_err_dbg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_SQ_OP_ERR_DBG(void)
+static inline u64 NIXX_LF_SQ_OP_ERR_DBG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_SQ_OP_ERR_DBG(void)
+static inline u64 NIXX_LF_SQ_OP_ERR_DBG(void)
 {
 	return 0x260;
 }
@@ -9342,9 +10334,9 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_ERR_DBG(void)
  * enables and XOFF status. A read is RAZ.  RSL accesses to this register
  * are RAZ/WI.
  */
-union cavm_nixx_lf_sq_op_int {
+union nixx_lf_sq_op_int {
 	u64 u;
-	struct cavm_nixx_lf_sq_op_int_s {
+	struct nixx_lf_sq_op_int_s {
 		u64 sq_int                           : 8;
 		u64 sq_int_ena                       : 8;
 		u64 xoff                             : 1;
@@ -9353,12 +10345,12 @@ union cavm_nixx_lf_sq_op_int {
 		u64 setop                            : 1;
 		u64 sq                               : 20;
 	} s;
-	/* struct cavm_nixx_lf_sq_op_int_s cn; */
+	/* struct nixx_lf_sq_op_int_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_SQ_OP_INT(void)
+static inline u64 NIXX_LF_SQ_OP_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_SQ_OP_INT(void)
+static inline u64 NIXX_LF_SQ_OP_INT(void)
 {
 	return 0xa00;
 }
@@ -9372,19 +10364,19 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_INT(void)
  * accesses to this register (e.g. reads and writes) are RAZ/WI.  RSL
  * accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_sq_op_octs {
+union nixx_lf_sq_op_octs {
 	u64 u;
-	struct cavm_nixx_lf_sq_op_octs_s {
+	struct nixx_lf_sq_op_octs_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_62                   : 15;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_sq_op_octs_s cn; */
+	/* struct nixx_lf_sq_op_octs_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_SQ_OP_OCTS(void)
+static inline u64 NIXX_LF_SQ_OP_OCTS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_SQ_OP_OCTS(void)
+static inline u64 NIXX_LF_SQ_OP_OCTS(void)
 {
 	return 0xa10;
 }
@@ -9398,19 +10390,19 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_OCTS(void)
  * accesses to this register (e.g. reads and writes) are RAZ/WI.  RSL
  * accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_sq_op_pkts {
+union nixx_lf_sq_op_pkts {
 	u64 u;
-	struct cavm_nixx_lf_sq_op_pkts_s {
+	struct nixx_lf_sq_op_pkts_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_62                   : 15;
 		u64 op_err                           : 1;
 	} s;
-	/* struct cavm_nixx_lf_sq_op_pkts_s cn; */
+	/* struct nixx_lf_sq_op_pkts_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_SQ_OP_PKTS(void)
+static inline u64 NIXX_LF_SQ_OP_PKTS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_SQ_OP_PKTS(void)
+static inline u64 NIXX_LF_SQ_OP_PKTS(void)
 {
 	return 0xa20;
 }
@@ -9426,9 +10418,9 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_PKTS(void)
  * other accesses to this register (e.g. reads and writes) are RAZ/WI.
  * RSL accesses to this register are RAZ/WI.
  */
-union cavm_nixx_lf_sq_op_status {
+union nixx_lf_sq_op_status {
 	u64 u;
-	struct cavm_nixx_lf_sq_op_status_s {
+	struct nixx_lf_sq_op_status_s {
 		u64 sqb_count                        : 16;
 		u64 reserved_16_19                   : 4;
 		u64 head_offset                      : 6;
@@ -9437,7 +10429,7 @@ union cavm_nixx_lf_sq_op_status {
 		u64 reserved_34_62                   : 29;
 		u64 op_err                           : 1;
 	} s;
-	struct cavm_nixx_lf_sq_op_status_cn {
+	struct nixx_lf_sq_op_status_cn {
 		u64 sqb_count                        : 16;
 		u64 reserved_16_19                   : 4;
 		u64 head_offset                      : 6;
@@ -9449,9 +10441,9 @@ union cavm_nixx_lf_sq_op_status {
 	} cn;
 };
 
-static inline u64 CAVM_NIXX_LF_SQ_OP_STATUS(void)
+static inline u64 NIXX_LF_SQ_OP_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_SQ_OP_STATUS(void)
+static inline u64 NIXX_LF_SQ_OP_STATUS(void)
 {
 	return 0xa30;
 }
@@ -9462,18 +10454,18 @@ static inline u64 CAVM_NIXX_LF_SQ_OP_STATUS(void)
  * NIX LF Transmit Statistics Registers The last dimension indicates
  * which statistic, and is enumerated by NIX_STAT_LF_TX_E.
  */
-union cavm_nixx_lf_tx_statx {
+union nixx_lf_tx_statx {
 	u64 u;
-	struct cavm_nixx_lf_tx_statx_s {
+	struct nixx_lf_tx_statx_s {
 		u64 stat                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_nixx_lf_tx_statx_s cn; */
+	/* struct nixx_lf_tx_statx_s cn; */
 };
 
-static inline u64 CAVM_NIXX_LF_TX_STATX(u64 a)
+static inline u64 NIXX_LF_TX_STATX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_LF_TX_STATX(u64 a)
+static inline u64 NIXX_LF_TX_STATX(u64 a)
 {
 	return 0x300 + 8 * a;
 }
@@ -9483,20 +10475,20 @@ static inline u64 CAVM_NIXX_LF_TX_STATX(u64 a)
  *
  * NIX Privileged Admin Function Interrupt Configuration Register
  */
-union cavm_nixx_priv_af_int_cfg {
+union nixx_priv_af_int_cfg {
 	u64 u;
-	struct cavm_nixx_priv_af_int_cfg_s {
+	struct nixx_priv_af_int_cfg_s {
 		u64 msix_offset                      : 11;
 		u64 reserved_11                      : 1;
 		u64 msix_size                        : 8;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_nixx_priv_af_int_cfg_s cn; */
+	/* struct nixx_priv_af_int_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_PRIV_AF_INT_CFG(void)
+static inline u64 NIXX_PRIV_AF_INT_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_PRIV_AF_INT_CFG(void)
+static inline u64 NIXX_PRIV_AF_INT_CFG(void)
 {
 	return 0x8000000;
 }
@@ -9512,20 +10504,20 @@ static inline u64 CAVM_NIXX_PRIV_AF_INT_CFG(void)
  * must be zero.  Internal: Hardware ignores [SLOT] and always assumes
  * 0x0.
  */
-union cavm_nixx_priv_lfx_cfg {
+union nixx_priv_lfx_cfg {
 	u64 u;
-	struct cavm_nixx_priv_lfx_cfg_s {
+	struct nixx_priv_lfx_cfg_s {
 		u64 slot                             : 8;
 		u64 pf_func                          : 16;
 		u64 reserved_24_62                   : 39;
 		u64 ena                              : 1;
 	} s;
-	/* struct cavm_nixx_priv_lfx_cfg_s cn; */
+	/* struct nixx_priv_lfx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_PRIV_LFX_CFG(u64 a)
+static inline u64 NIXX_PRIV_LFX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_PRIV_LFX_CFG(u64 a)
+static inline u64 NIXX_PRIV_LFX_CFG(u64 a)
 {
 	return 0x8000010 + 0x100 * a;
 }
@@ -9535,22 +10527,22 @@ static inline u64 CAVM_NIXX_PRIV_LFX_CFG(u64 a)
  *
  * NIX Privileged LF Interrupt Configuration Registers
  */
-union cavm_nixx_priv_lfx_int_cfg {
+union nixx_priv_lfx_int_cfg {
 	u64 u;
-	struct cavm_nixx_priv_lfx_int_cfg_s {
+	struct nixx_priv_lfx_int_cfg_s {
 		u64 msix_offset                      : 11;
 		u64 reserved_11                      : 1;
 		u64 msix_size                        : 8;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_nixx_priv_lfx_int_cfg_s cn; */
+	/* struct nixx_priv_lfx_int_cfg_s cn; */
 };
 
-static inline u64 CAVM_NIXX_PRIV_LFX_INT_CFG(u64 a)
+static inline u64 NIXX_PRIV_LFX_INT_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NIXX_PRIV_LFX_INT_CFG(u64 a)
+static inline u64 NIXX_PRIV_LFX_INT_CFG(u64 a)
 {
 	return 0x8000020 + 0x100 * a;
 }
 
-#endif /* __CAVM_CSRS_NIX_H__ */
+#endif /* __CSRS_NIX_H__ */

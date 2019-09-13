@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <common.h>
 #include <net.h>
@@ -15,7 +14,7 @@
 #include <errno.h>
 #include <linux/list.h>
 #include <asm/arch/octeontx2.h>
-#include "cavm-csrs-cgx.h"
+#include <asm/arch/csrs/csrs-cgx.h>
 #include "cgx.h"
 
 char lmac_type_to_str[][8] = {
@@ -71,7 +70,7 @@ struct lmac *nix_get_cgx_lmac(int lmac_instance)
 
 		cgx = dev_get_priv(dev);
 		debug("%s udev %p cgx %p instance %d\n", __func__, dev, cgx,
-			lmac_instance);
+		      lmac_instance);
 		for (idx = 0; idx < cgx->lmac_count; idx++) {
 			if (cgx->lmac[idx]->instance == lmac_instance)
 				return cgx->lmac[idx];
@@ -82,13 +81,13 @@ struct lmac *nix_get_cgx_lmac(int lmac_instance)
 
 void cgx_lmac_mac_filter_clear(struct lmac *lmac)
 {
-	union cavm_cgxx_cmrx_rx_dmac_ctl0 dmac_ctl0;
-	union cavm_cgxx_cmr_rx_dmacx_cam0 dmac_cam0;
+	union cgxx_cmrx_rx_dmac_ctl0 dmac_ctl0;
+	union cgxx_cmr_rx_dmacx_cam0 dmac_cam0;
 	void *reg_addr;
 
 	dmac_cam0.u = 0x0;
 	reg_addr = lmac->cgx->reg_base +
-			CAVM_CGXX_CMR_RX_DMACX_CAM0(lmac->lmac_id * 8);
+			CGXX_CMR_RX_DMACX_CAM0(lmac->lmac_id * 8);
 	writeq(dmac_cam0.u, reg_addr);
 	debug("%s: reg %p dmac_cam0 %llx\n", __func__, reg_addr, dmac_cam0.u);
 
@@ -97,20 +96,15 @@ void cgx_lmac_mac_filter_clear(struct lmac *lmac)
 	dmac_ctl0.s.mcst_mode = 1;
 	dmac_ctl0.s.cam_accept = 0;
 	reg_addr = lmac->cgx->reg_base +
-			CAVM_CGXX_CMRX_RX_DMAC_CTL0(lmac->lmac_id);
+			CGXX_CMRX_RX_DMAC_CTL0(lmac->lmac_id);
 	writeq(dmac_ctl0.u, reg_addr);
 	debug("%s: reg %p dmac_ctl0 %llx\n", __func__, reg_addr, dmac_ctl0.u);
 }
 
 void cgx_lmac_mac_filter_setup(struct lmac *lmac)
 {
-	union cavm_cgxx_cmrx_rx_dmac_ctl0 dmac_ctl0;
-	union cavm_cgxx_cmr_rx_dmacx_cam0 dmac_cam0;
-#if 0
-	union cavm_cgxx_cmr_rx_steering0x steering0;
-	union cavm_cgxx_cmr_rx_steering_default0 steering_default0;
-	static int str_idx = 1;
-#endif
+	union cgxx_cmrx_rx_dmac_ctl0 dmac_ctl0;
+	union cgxx_cmr_rx_dmacx_cam0 dmac_cam0;
 	u64 mac, tmp;
 	void *reg_addr;
 
@@ -124,7 +118,7 @@ void cgx_lmac_mac_filter_setup(struct lmac *lmac)
 	dmac_cam0.s.adr = mac;
 	dmac_cam0.s.en = 1;
 	reg_addr = lmac->cgx->reg_base +
-			CAVM_CGXX_CMR_RX_DMACX_CAM0(lmac->lmac_id * 8);
+			CGXX_CMR_RX_DMACX_CAM0(lmac->lmac_id * 8);
 	writeq(dmac_cam0.u, reg_addr);
 	debug("%s: reg %p dmac_cam0 %llx\n", __func__, reg_addr, dmac_cam0.u);
 	dmac_ctl0.u = 0x0;
@@ -132,49 +126,17 @@ void cgx_lmac_mac_filter_setup(struct lmac *lmac)
 	dmac_ctl0.s.mcst_mode = 0;
 	dmac_ctl0.s.cam_accept = 1;
 	reg_addr = lmac->cgx->reg_base +
-			CAVM_CGXX_CMRX_RX_DMAC_CTL0(lmac->lmac_id);
+			CGXX_CMRX_RX_DMAC_CTL0(lmac->lmac_id);
 	writeq(dmac_ctl0.u, reg_addr);
 	debug("%s: reg %p dmac_ctl0 %llx\n", __func__, reg_addr, dmac_ctl0.u);
-
-#if 0
-	steering_default0.u = 0x0;
-	steering_default0.s.pass = 0;
-	reg_addr = lmac->cgx->reg_base + CAVM_CGXX_CMR_RX_STEERING_DEFAULT0();
-	writeq(steering_default0.u, reg_addr);
-	debug("%s: reg %p str_def0 %llx\n", __func__, reg_addr,
-			 steering_default0.u);
-
-	steering0.u = 0x0;
-	steering0.s.pass = 1;
-	steering0.s.mcst_en = 0;
-	steering0.s.dmac_en = 1;
-	steering0.s.dmac = mac;
-	reg_addr = lmac->cgx->reg_base + CAVM_CGXX_CMR_RX_STEERING0X(0);
-	writeq(steering0.u, reg_addr);
-	debug("%s: reg %p steering00 %llx\n", __func__, reg_addr,
-			 steering0.u);
-
-	mac = 0x0000FFFFFFFFFFFF;	/* broadcast addr */
-	steering0.u = 0x0;
-	steering0.s.pass = 1;
-	steering0.s.mcst_en = 0;
-	steering0.s.dmac_en = 1;
-	steering0.s.dmac = mac;
-	reg_addr = lmac->cgx->reg_base + CAVM_CGXX_CMR_RX_STEERING0X(1);
-	writeq(steering0.u, reg_addr);
-	debug("%s: reg %p steering01 %llx\n", __func__, reg_addr,
-			 steering0.u);
-#endif
 }
-
 
 int cgx_lmac_set_pkind(struct lmac *lmac, u8 lmac_id, int pkind)
 {
-	cgx_write(lmac->cgx, lmac_id, CAVM_CGXX_CMRX_RX_ID_MAP(0),
+	cgx_write(lmac->cgx, lmac_id, CGXX_CMRX_RX_ID_MAP(0),
 		  (pkind & 0x3f));
 	return 0;
 }
-
 
 int cgx_lmac_link_status(struct lmac *lmac, int lmac_id, u64 *status)
 {
@@ -192,15 +154,15 @@ int cgx_lmac_link_status(struct lmac *lmac, int lmac_id, u64 *status)
 int cgx_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable)
 {
 	struct cgx *cgx = lmac->cgx;
-	union cavm_cgxx_cmrx_config cmrx_config;
+	union cgxx_cmrx_config cmrx_config;
 
 	if (!cgx || lmac_id >= cgx->lmac_count)
 		return -ENODEV;
 
-	cmrx_config.u = cgx_read(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0));
+	cmrx_config.u = cgx_read(cgx, lmac_id, CGXX_CMRX_CONFIG(0));
 	cmrx_config.s.data_pkt_rx_en =
 	cmrx_config.s.data_pkt_tx_en = enable ? 1 : 0;
-	cgx_write(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0), cmrx_config.u);
+	cgx_write(cgx, lmac_id, CGXX_CMRX_CONFIG(0), cmrx_config.u);
 	return 0;
 }
 
@@ -222,27 +184,27 @@ int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable,
 int cgx_lmac_internal_loopback(struct lmac *lmac, int lmac_id, bool enable)
 {
 	struct cgx *cgx = lmac->cgx;
-	union cavm_cgxx_cmrx_config cmrx_cfg;
-	union cavm_cgxx_gmp_pcs_mrx_control mrx_control;
-	union cavm_cgxx_spux_control1 spux_control1;
+	union cgxx_cmrx_config cmrx_cfg;
+	union cgxx_gmp_pcs_mrx_control mrx_control;
+	union cgxx_spux_control1 spux_control1;
 	enum lmac_type lmac_type;
 
 	if (!cgx || lmac_id >= cgx->lmac_count)
 		return -ENODEV;
 
-	cmrx_cfg.u = cgx_read(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0));
+	cmrx_cfg.u = cgx_read(cgx, lmac_id, CGXX_CMRX_CONFIG(0));
 	lmac_type = cmrx_cfg.s.lmac_type;
 	if (lmac_type == LMAC_MODE_SGMII || lmac_type == LMAC_MODE_QSGMII) {
 		mrx_control.u = cgx_read(cgx, lmac_id,
-					 CAVM_CGXX_GMP_PCS_MRX_CONTROL(0));
+					 CGXX_GMP_PCS_MRX_CONTROL(0));
 		mrx_control.s.loopbck1 = enable ? 1 : 0;
-		cgx_write(cgx, lmac_id, CAVM_CGXX_GMP_PCS_MRX_CONTROL(0),
+		cgx_write(cgx, lmac_id, CGXX_GMP_PCS_MRX_CONTROL(0),
 			  mrx_control.u);
 	} else {
 		spux_control1.u = cgx_read(cgx, lmac_id,
-					   CAVM_CGXX_SPUX_CONTROL1(0));
+					   CGXX_SPUX_CONTROL1(0));
 		spux_control1.s.loopbck = enable ? 1 : 0;
-		cgx_write(cgx, lmac_id, CAVM_CGXX_SPUX_CONTROL1(0),
+		cgx_write(cgx, lmac_id, CGXX_SPUX_CONTROL1(0),
 			  spux_control1.u);
 	}
 	return 0;
@@ -251,11 +213,11 @@ int cgx_lmac_internal_loopback(struct lmac *lmac, int lmac_id, bool enable)
 static int cgx_lmac_init(struct cgx *cgx)
 {
 	struct lmac *lmac;
-	union cavm_cgxx_cmrx_config cmrx_cfg;
+	union cgxx_cmrx_config cmrx_cfg;
 	static int instance = 1;
 	int i;
 
-	cgx->lmac_count = cgx_read(cgx, 0, CAVM_CGXX_CMR_RX_LMACS());
+	cgx->lmac_count = cgx_read(cgx, 0, CGXX_CMR_RX_LMACS());
 	debug("%s: Found %d lmacs for cgx %d@%p\n", __func__, cgx->lmac_count,
 	      cgx->cgx_id, cgx->reg_base);
 
@@ -267,15 +229,15 @@ static int cgx_lmac_init(struct cgx *cgx)
 		snprintf(lmac->name, sizeof(lmac->name), "cgx_fwi_%d_%d",
 			 cgx->cgx_id, i);
 		/* Get LMAC type */
-		cmrx_cfg.u = cgx_read(cgx, i, CAVM_CGXX_CMRX_CONFIG(0));
+		cmrx_cfg.u = cgx_read(cgx, i, CGXX_CMRX_CONFIG(0));
 		lmac->lmac_type = cmrx_cfg.s.lmac_type;
 
 		lmac->lmac_id = i;
 		lmac->cgx = cgx;
 		cgx->lmac[i] = lmac;
-		debug("%s: mapping id %d to lmac %p (%s), lmac type: %d"
-			" lmac instance %d\n", __func__, i, lmac, lmac->name,
-			 lmac->lmac_type, lmac->instance);
+		debug("%s: map id %d to lmac %p (%s), type:%d instance %d\n",
+		      __func__, i, lmac, lmac->name, lmac->lmac_type,
+		      lmac->instance);
 		lmac->init_pend = 1;
 		printf("CGX%d LMAC%d [%s]\n", lmac->cgx->cgx_id,
 		       lmac->lmac_id, lmac_type_to_str[lmac->lmac_type]);
@@ -297,8 +259,8 @@ int cgx_probe(struct udevice *dev)
 	cgx->dev = dev;
 	cgx->cgx_id = ((u64)(cgx->reg_base) >> 24) & 0x7;
 
-	debug("%s CGX BAR %p, id: %d\n", __func__,
-		 cgx->reg_base, cgx->cgx_id);
+	debug("%s CGX BAR %p, id: %d\n", __func__, cgx->reg_base,
+	      cgx->cgx_id);
 	debug("%s CGX %p, udev: %p\n", __func__, cgx, dev);
 
 	err = cgx_lmac_init(cgx);
@@ -312,7 +274,7 @@ int cgx_remove(struct udevice *dev)
 	int i;
 
 	debug("%s: cgx remove reg_base %p cgx_id %d",
-		__func__, cgx->reg_base, cgx->cgx_id);
+	      __func__, cgx->reg_base, cgx->cgx_id);
 	for (i = 0; i < cgx->lmac_count; i++)
 		cgx_lmac_mac_filter_clear(cgx->lmac[i]);
 
@@ -320,16 +282,16 @@ int cgx_remove(struct udevice *dev)
 }
 
 U_BOOT_DRIVER(cgx) = {
-        .name   = "cgx",
-        .id     = UCLASS_MISC,
-        .probe  = cgx_probe,
-        .remove  = cgx_remove,
-        .priv_auto_alloc_size = sizeof(struct cgx),
+	.name	= "cgx",
+	.id	= UCLASS_MISC,
+	.probe	= cgx_probe,
+	.remove	= cgx_remove,
+	.priv_auto_alloc_size = sizeof(struct cgx),
 };
 
 static struct pci_device_id cgx_supported[] = {
-        { PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX2_CGX) },
-        {}
+	{PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX2_CGX) },
+	{}
 };
 
 U_BOOT_PCI_DEVICE(cgx, cgx_supported);

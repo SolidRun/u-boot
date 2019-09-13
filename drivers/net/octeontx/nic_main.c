@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <config.h>
 #include <common.h>
@@ -45,12 +44,12 @@ static int nic_update_hw_frs(struct nicpf *nic, int new_frs, int vf);
 static int nic_rcv_queue_sw_sync(struct nicpf *nic);
 
 /* Register read/write APIs */
-static void nic_reg_write(struct nicpf *nic, uint64_t offset, uint64_t val)
+static void nic_reg_write(struct nicpf *nic, u64 offset, u64 val)
 {
 	writeq(val, nic->reg_base + offset);
 }
 
-static uint64_t nic_reg_read(struct nicpf *nic, uint64_t offset)
+static u64 nic_reg_read(struct nicpf *nic, u64 offset)
 {
 	return readq(nic->reg_base + offset);
 }
@@ -59,7 +58,6 @@ static u64 nic_get_mbx_addr(int vf)
 {
 	return NIC_PF_VF_0_127_MAILBOX_0_1 + (vf << NIC_VF_NUM_SHIFT);
 }
-
 
 static void nic_send_msg_to_vf(struct nicpf *nic, int vf, union nic_mbx *mbx)
 {
@@ -104,7 +102,7 @@ static void nic_mbx_send_ready(struct nicpf *nic, int vf)
 		if (mac)
 			memcpy((u8 *)&mbx.nic_cfg.mac_addr, mac, 6);
 
-		while (timeout-- && (link <= 0)){
+		while (timeout-- && (link <= 0)) {
 			link = bgx_poll_for_link(nic->node, bgx_idx, lmac);
 			debug("Link status: %d\n", link);
 			if (link <= 0)
@@ -120,7 +118,6 @@ static void nic_mbx_send_ready(struct nicpf *nic, int vf)
 
 	nic_send_msg_to_vf(nic, vf, &mbx);
 }
-
 
 /* ACKs VF's mailbox message
  * @vf: VF to which ACK to be sent
@@ -183,8 +180,7 @@ void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 		mbx_addr += sizeof(u64);
 	}
 
-	debug("%s: Mailbox msg %d from VF%d\n",
-		__func__, mbx.msg.msg, vf);
+	debug("%s: Mailbox msg %d from VF%d\n", __func__, mbx.msg.msg, vf);
 	switch (mbx.msg.msg) {
 	case NIC_MBOX_MSG_READY:
 		nic_mbx_send_ready(nic, vf);
@@ -242,7 +238,8 @@ void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 			   (mbx.sq.qs_num << NIC_QS_ID_SHIFT) |
 			   (mbx.sq.sq_num << NIC_Q_NUM_SHIFT);
 		nic_reg_write(nic, reg_addr, mbx.sq.cfg);
-		nic_tx_channel_cfg(nic, mbx.qs.num, (struct sq_cfg_msg*)&mbx.sq);
+		nic_tx_channel_cfg(nic, mbx.qs.num,
+				   (struct sq_cfg_msg *)&mbx.sq);
 		break;
 	case NIC_MBOX_MSG_SET_MAC:
 #ifdef VNIC_MULTI_QSET_SUPPORT
@@ -327,7 +324,6 @@ unlock:
 	nic->mbx_lock[vf] = false;
 }
 
-
 static int nic_rcv_queue_sw_sync(struct nicpf *nic)
 {
 	int timeout = 20;
@@ -349,10 +345,12 @@ static int nic_rcv_queue_sw_sync(struct nicpf *nic)
 
 static int nic_update_hw_frs(struct nicpf *nic, int new_frs, int vf)
 {
-	uint64_t *pkind = (uint64_t *)&nic->pkind;
-	if ((new_frs > NIC_HW_MAX_FRS) || (new_frs < NIC_HW_MIN_FRS)) {
-		printf("Invalid MTU setting from VF%d rejected, should be between %d and %d\n",
-				vf, NIC_HW_MIN_FRS, NIC_HW_MAX_FRS);
+	u64 *pkind = (u64 *)&nic->pkind;
+
+	if (new_frs > NIC_HW_MAX_FRS || new_frs < NIC_HW_MIN_FRS) {
+		printf("Invalid MTU setting from VF%d rejected,", vf);
+		printf(" should be between %d and %d\n", NIC_HW_MIN_FRS,
+		       NIC_HW_MAX_FRS);
 		return 1;
 	}
 	new_frs += ETH_HLEN;
@@ -369,7 +367,7 @@ static int nic_update_hw_frs(struct nicpf *nic, int new_frs, int vf)
 static void nic_set_tx_pkt_pad(struct nicpf *nic, int size)
 {
 	int lmac;
-	uint64_t lmac_cfg;
+	u64 lmac_cfg;
 	struct hw_info *hw = nic->hw;
 	int max_lmac = nic->hw->bgx_cnt * MAX_LMAC_PER_BGX;
 
@@ -396,7 +394,7 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
 {
 	int bgx, bgx_count, next_bgx_lmac = 0;
 	int lmac, lmac_cnt = 0;
-	uint64_t lmac_credit;
+	u64 lmac_credit;
 
 	nic->num_vf_en = 0;
 	if (nic->flags & NIC_TNS_ENABLED) {
@@ -425,8 +423,8 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
 				NIC_HW_MAX_FRS) / 16) << 12);
 		lmac = bgx * MAX_LMAC_PER_BGX;
 		for (; lmac < lmac_cnt + (bgx * MAX_LMAC_PER_BGX); lmac++)
-			nic_reg_write(nic,
-				NIC_PF_LMAC_0_7_CREDIT + (lmac * 8), lmac_credit);
+			nic_reg_write(nic, NIC_PF_LMAC_0_7_CREDIT + (lmac * 8),
+				      lmac_credit);
 	}
 }
 
@@ -488,8 +486,8 @@ static void nic_get_hw_info(struct nicpf *nic)
 static void nic_init_hw(struct nicpf *nic)
 {
 	int i;
-	uint64_t reg;
-	uint64_t *pkind = (uint64_t *)&nic->pkind;
+	u64 reg;
+	u64 *pkind = (u64 *)&nic->pkind;
 
 	/* Get HW capability info */
 	nic_get_hw_info(nic);
@@ -500,7 +498,8 @@ static void nic_init_hw(struct nicpf *nic)
 	/* Enable backpressure */
 	nic_reg_write(nic, NIC_PF_BP_CFG, (1ULL << 6) | 0x03);
 	nic_reg_write(nic, NIC_PF_INTF_0_1_BP_CFG, (1ULL << 63) | 0x08);
-	nic_reg_write(nic, NIC_PF_INTF_0_1_BP_CFG + (1 << 8), (1ULL << 63) | 0x09);
+	nic_reg_write(nic, NIC_PF_INTF_0_1_BP_CFG + (1 << 8),
+		      (1ULL << 63) | 0x09);
 
 	for (i = 0; i < NIC_MAX_CHANS; i++)
 		nic_reg_write(nic, NIC_PF_CHAN_0_255_TX_CFG | (i << 3), 1);
@@ -616,7 +615,6 @@ static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg)
 	nic->rssi_base[cfg->vf_id] = rssi_base;
 }
 
-
 /* Transmit channel configuration (TL4 -> TL3 -> Chan)
  * VNIC0-SQ0 -> TL4(0)  -> TL4A(0) -> TL3[0] -> BGX0/LMAC0/Chan0
  * VNIC1-SQ0 -> TL4(8)  -> TL4A(2) -> TL3[2] -> BGX0/LMAC1/Chan0
@@ -660,7 +658,8 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
 					break;
 			}
 			tl4 += (MAX_LMAC_PER_BGX * MAX_QUEUES_PER_QSET);
-			tl4 += (lmac * MAX_QUEUES_PER_QSET * MAX_SQS_PER_VF_SINGLE_NODE);
+			tl4 += (lmac * MAX_QUEUES_PER_QSET *
+				MAX_SQS_PER_VF_SINGLE_NODE);
 			tl4 += (svf * MAX_QUEUES_PER_QSET);
 		}
 	} else {
@@ -717,9 +716,8 @@ int nic_initialize(struct udevice *dev)
 
 	nic->udev = dev;
 	nic->hw = calloc(1, sizeof(struct hw_info));
-	if (!nic->hw) {
+	if (!nic->hw)
 		return -ENOMEM;
-	}
 
 	/* MAP PF's configuration registers */
 	nic->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
@@ -761,14 +759,9 @@ int octeontx_nic_probe(struct udevice *dev)
 		return ret;
 	}
 	ret = pci_sriov_init(dev, nicpf->num_vf_en);
-	if (ret < 0) {
-		printf("enabling SRIOV failed for num VFs %d",nicpf->num_vf_en);
-	}
-#if 0
-	for (int vf = 0; vf < nicpf->num_vf_en; vf++) {
-		 nicvf_initialize(dev, vf);
-	}
-#endif
+	if (ret < 0)
+		printf("enabling SRIOV failed for num VFs %d",
+		       nicpf->num_vf_en);
 	return ret;
 }
 

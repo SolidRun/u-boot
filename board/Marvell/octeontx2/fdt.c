@@ -1,7 +1,7 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -16,7 +16,6 @@
 #include <fdt_support.h>
 #include <asm/arch/atf.h>
 #include <asm/arch/octeontx2.h>
-
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,9 +37,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 		return ret;
 	}
 
-	if (blob != NULL) {
+	if (blob) {
 		offset = fdt_path_offset(blob, "/cavium,bdk");
-		if(offset < 0) {
+		if (offset < 0) {
 			printf("ERROR: FDT BDK node not found\n");
 			return offset;
 		}
@@ -52,7 +51,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 			return ret;
 		}
 
-		debug("%s deleted 'cavium,bdk' node\n", __FUNCTION__);
+		debug("%s deleted 'cavium,bdk' node\n", __func__);
 	}
 
 	return 0;

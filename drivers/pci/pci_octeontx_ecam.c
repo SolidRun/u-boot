@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <common.h>
 #include <dm.h>
@@ -30,7 +29,6 @@
 #define PCIERC_RAS_EINJ_CTL6_CHGV1	0x398
 
 #endif
-
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -73,16 +71,14 @@ static int pci_octeontx_ecam_read_config(struct udevice *bus, pci_dev_t bdf,
 		break;
 	};
 
-/*
 	debug("%02x.%02x.%02x: u%d %x -> %lx\n",
 	      b, d, f, size, offset, *valuep);
-*/
 	return 0;
 }
 
 static int pci_octeontx_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
-					 uint offset, ulong valuep,
-					 enum pci_size_t size)
+					  uint offset, ulong valuep,
+					  enum pci_size_t size)
 {
 	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
 	struct pci_controller *hose = dev_get_uclass_priv(bus);
@@ -109,10 +105,8 @@ static int pci_octeontx_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
 		break;
 	};
 
-/*
 	debug("%02x.%02x.%02x: u%d %x <- %lx\n",
 	      b, d, f, size, offset, valuep);
-*/
 	return 0;
 }
 
@@ -157,16 +151,14 @@ static int pci_octeontx_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 
 	hdrtype = readb(address + PCI_HEADER_TYPE);
 
-	if ((hdrtype == PCI_HEADER_TYPE_BRIDGE) &&
-	    (offset >= PCI_PRIMARY_BUS) &&
-	    (offset <= PCI_SUBORDINATE_BUS) &&
+	if (hdrtype == PCI_HEADER_TYPE_BRIDGE &&
+	    offset >= PCI_PRIMARY_BUS &&
+	    offset <= PCI_SUBORDINATE_BUS &&
 	    *valuep != pci_conv_32_to_size(~0UL, offset, size)) {
 		*valuep -= pci_conv_32_to_size(bus_offs, offset, size);
 	}
-/*
 	debug("%02x.%02x.%02x: u%d %x (%lx) -> %lx\n",
 	      b, d, f, size, offset, address, *valuep);
-*/
 	return 0;
 }
 
@@ -192,10 +184,10 @@ static int pci_octeontx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 
 	hdrtype = readb(address + PCI_HEADER_TYPE);
 
-	if ((hdrtype == PCI_HEADER_TYPE_BRIDGE) &&
-	    (offset >= PCI_PRIMARY_BUS) &&
-	    (offset <= PCI_SUBORDINATE_BUS) &&
-	    (value != pci_conv_32_to_size(~0UL, offset, size))) {
+	if (hdrtype == PCI_HEADER_TYPE_BRIDGE &&
+	    offset >= PCI_PRIMARY_BUS &&
+	    offset <= PCI_SUBORDINATE_BUS &&
+	    value != pci_conv_32_to_size(~0UL, offset, size)) {
 		value +=  pci_conv_32_to_size(bus_offs, offset, size);
 	}
 
@@ -215,16 +207,14 @@ static int pci_octeontx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 	default:
 		printf("Invalid size\n");
 	}
-/*
 	debug("%02x.%02x.%02x: u%d %x (%lx) <- %lx\n",
 	      b, d, f, size, offset, address, value);
-*/
 	return 0;
 }
 
 static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
-					uint offset, ulong *valuep,
-					enum pci_size_t size)
+					 uint offset, ulong *valuep,
+					 enum pci_size_t size)
 {
 	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
 	struct pci_controller *hose = dev_get_uclass_priv(bus);
@@ -237,11 +227,11 @@ static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 
 	address = (b << 20) | (d << 15) | (f << 12);
 
-	debug("bdf %x %02x.%02x.%02x: u%d %x (%lx) \n",
+	debug("bdf %x %02x.%02x.%02x: u%d %x (%lx)\n",
 	      bdf, b, d, f, size, offset, address);
 	address += pcie->cfg.start;
 
-	debug("%02x.%02x.%02x: u%d %x (%lx) %lx \n",
+	debug("%02x.%02x.%02x: u%d %x (%lx) %lx\n",
 	      b, d, f, size, offset, address, *valuep);
 	*valuep = pci_conv_32_to_size(~0UL, offset, size);
 
@@ -250,15 +240,15 @@ static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 
 	switch (size) {
 	case PCI_SIZE_8:
-		debug("byte %lx\n",address+offset);
+		debug("byte %lx\n", address + offset);
 		*valuep = readb(address + offset);
 		break;
 	case PCI_SIZE_16:
-		debug("word %lx\n",address+offset);
+		debug("word %lx\n", address + offset);
 		*valuep = readw(address + offset);
 		break;
 	case PCI_SIZE_32:
-		debug("long %lx\n",address+offset);
+		debug("long %lx\n", address + offset);
 		*valuep = readl(address + offset);
 		break;
 	default:
@@ -272,7 +262,7 @@ static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 }
 
 static void pci_octeontx2_pem_errata(struct udevice *bus, uint offset,
-					 enum pci_size_t size)
+				     enum pci_size_t size)
 {
 #if defined(CONFIG_ARCH_OCTEONTX2)
 	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
@@ -285,8 +275,6 @@ static void pci_octeontx2_pem_errata(struct udevice *bus, uint offset,
 	waddr = pcie->pem.start + PEM_CFG_WR;
 
 	debug("%s raddr %llx waddr %llx\n", __func__, raddr, waddr);
-		cfg_off = rval = wval = data = 0;
-
 		cfg_off = PCIERC_RASDP_DE_ME;
 		wval = cfg_off;
 	debug("%s DE_ME raddr %llx wval %llx\n", __func__, raddr, wval);
@@ -337,17 +325,17 @@ static void pci_octeontx2_pem_errata(struct udevice *bus, uint offset,
 	writeq(wval, waddr);
 
 	switch (size) {
-		case PCI_SIZE_8:
-			shift = offset % 4;
-			data = (0x1 << shift);
+	case PCI_SIZE_8:
+		shift = offset % 4;
+		data = (0x1 << shift);
 		break;
-		case PCI_SIZE_16:
-			shift = (offset % 4) ? 2 : 0;
-			data = (0x3 << shift);
+	case PCI_SIZE_16:
+		shift = (offset % 4) ? 2 : 0;
+		data = (0x3 << shift);
 		break;
-		default:
-		case PCI_SIZE_32:
-			data = 0xF;
+	default:
+	case PCI_SIZE_32:
+		data = 0xF;
 		break;
 	}
 
@@ -369,8 +357,8 @@ static void pci_octeontx2_pem_errata(struct udevice *bus, uint offset,
 }
 
 static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
-					 uint offset, ulong value,
-					 enum pci_size_t size)
+					  uint offset, ulong value,
+					  enum pci_size_t size)
 {
 	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
 	struct pci_controller *hose = dev_get_uclass_priv(bus);
@@ -385,11 +373,11 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 
 	address = (b << 20) | (d << 15) | (f << 12);
 
-	debug("bdf %x %02x.%02x.%02x: u%d %x (%lx) \n",
+	debug("bdf %x %02x.%02x.%02x: u%d %x (%lx)\n",
 	      bdf, b, d, f, size, offset, address);
 	address += pcie->cfg.start;
 
-	debug("%02x.%02x.%02x: u%d %x (%lx) %lx \n",
+	debug("%02x.%02x.%02x: u%d %x (%lx) %lx\n",
 	      b, d, f, size, offset, address, value);
 
 	if (b == 1 && d > 0)
@@ -401,7 +389,7 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 		tmp = (address + offset) & 0x3;
 		size = PCI_SIZE_32;
 		data = readl(addr);
-		debug("tmp 8 long %lx %x\n",addr, data);
+		debug("tmp 8 long %lx %x\n", addr, data);
 		tmp *= 8;
 		value = (data & ~(0xFFUL << tmp)) | ((value & 0xFF) << tmp);
 	break;
@@ -409,28 +397,28 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 		tmp = (address + offset) & 0x3;
 		size = PCI_SIZE_32;
 		data = readl(addr);
-		debug("tmp 16 long %lx %x\n",addr, data);
+		debug("tmp 16 long %lx %x\n", addr, data);
 		tmp *= 8;
 		value = (data & 0xFFFF) | (value << tmp);
 	break;
 	case PCI_SIZE_32:
 	break;
 	}
-	debug("tmp long %lx %lx\n",addr, value);
+	debug("tmp long %lx %lx\n", addr, value);
 
 	pci_octeontx2_pem_errata(bus, offset, size);
 
 	switch (size) {
 	case PCI_SIZE_8:
-		debug("byte %lx %lx\n",address+offset, value);
+		debug("byte %lx %lx\n", address + offset, value);
 		writeb(value, address + offset);
 		break;
 	case PCI_SIZE_16:
-		debug("word %lx %lx\n",address+offset, value);
+		debug("word %lx %lx\n", address + offset, value);
 		writew(value, address + offset);
 		break;
 	case PCI_SIZE_32:
-		debug("long %lx %lx\n",addr, value);
+		debug("long %lx %lx\n", addr, value);
 		writel(value, addr);
 		break;
 	default:
@@ -466,11 +454,11 @@ static int pci_octeontx_ecam_probe(struct udevice *dev)
 					"marvell,pci-host-octeontx2-pem");
 	if (!err) {
 		err = fdt_get_resource(gd->fdt_blob, dev->node.of_offset,
-					"reg", 1, &pcie->pem);
+				       "reg", 1, &pcie->pem);
 
 		if (err) {
 			printf("Error reading resource: %s\n",
-				fdt_strerror(err));
+			       fdt_strerror(err));
 			return err;
 		}
 	}

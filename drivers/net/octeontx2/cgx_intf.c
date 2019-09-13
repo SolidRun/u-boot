@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <common.h>
 #include <net.h>
@@ -61,6 +60,7 @@ static void cgx_wr_scr1(u8 cgx, u8 lmac, u64 val)
 static inline void set_ownership(u8 cgx, u8 lmac, u8 val)
 {
 	union cgx_scratchx1 scr1;
+
 	scr1.u = cgx_rd_scr1(cgx, lmac);
 	scr1.s.own_status = val;
 	cgx_wr_scr1(cgx, lmac, scr1.u);
@@ -74,12 +74,11 @@ static int wait_for_ownership(u8 cgx, u8 lmac)
 	int timeout = 5000;
 
 	do {
-	
 		scr1.u = cgx_rd_scr1(cgx, lmac);
 		scr0.u = cgx_rd_scr0(cgx, lmac);
 		/* clear async events if any */
-		if ((scr0.s.evt_sts.evt_type == CGX_EVT_ASYNC) &&
-			scr0.s.evt_sts.ack) {
+		if (scr0.s.evt_sts.evt_type == CGX_EVT_ASYNC &&
+		    scr0.s.evt_sts.ack) {
 			/* clear interrupt */
 			cmrx_int = readq(CGX_CMR_INT +
 					 CGX_SHIFT(cgx) + CMR_SHIFT(lmac));
@@ -136,10 +135,10 @@ int cgx_intf_req(u8 cgx, u8 lmac, union cgx_cmd_s cmd_args, u64 *rsp,
 		scr0.u = cgx_rd_scr0(cgx, lmac);
 		scr1.u = cgx_rd_scr1(cgx, lmac);
 		mdelay(10);
-	} while (timeout-- && ( !scr0.s.evt_sts.ack) &&
+	} while (timeout-- && (!scr0.s.evt_sts.ack) &&
 		 (scr1.s.own_status == CGX_OWN_FIRMWARE));
 	if (timeout < 0) {
-		debug("%s timeout waiting for ack\n",__func__);
+		debug("%s timeout waiting for ack\n", __func__);
 		err = -ETIMEDOUT;
 		goto error;
 	}
@@ -179,7 +178,6 @@ error:
 
 	return err;
 }
-
 
 int cgx_intf_get_mac_addr(u8 cgx, u8 lmac, u8 *mac)
 {

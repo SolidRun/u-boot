@@ -1,7 +1,7 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -65,12 +65,12 @@ void octeontx_parse_phy_info(void)
 	int len, rgx_id = 0, eth_id = 0;
 	int phandle, phy_offset;
 	int subnode, i;
-
 	int bgxnode;
+
 	bgxnode = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
 	if (bgxnode < 0) {
 		printf("%s: /cavium,bdk is missing from device tree: %s\n",
-			__func__, fdt_strerror(bgxnode));
+		       __func__, fdt_strerror(bgxnode));
 	}
 
 	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
@@ -81,6 +81,7 @@ void octeontx_parse_phy_info(void)
 			int mdio_bus[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = -1};
 			bool lmac_reg[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
 			bool lmac_enable[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
+
 			snprintf(bgxname, sizeof(bgxname),
 				 "bgx%d", bgx_id);
 			node = fdt_subnode_offset(fdt, offset, bgxname);
@@ -91,14 +92,16 @@ void octeontx_parse_phy_info(void)
 				node = fdt_subnode_offset(fdt, offset, bgxname);
 				if (node < 0) {
 					debug("bgx%d/rgx0 node not found\n",
-					       bgx_id);
+					      bgx_id);
 					return;
 				}
 			}
 			debug("bgx%d node found\n", bgx_id);
 
-			/* loop through each of the bgx/rgx nodes
-			to find PHY nodes */
+			/*
+			 * loop through each of the bgx/rgx nodes
+			 * to find PHY nodes
+			 */
 			fdt_for_each_subnode(subnode, fdt, node) {
 				/* Check for reg property */
 				val = fdt_getprop(fdt, subnode, "reg",
@@ -128,10 +131,10 @@ void octeontx_parse_phy_info(void)
 						octeontx_get_mdio_bus
 							(fdt, phy_offset);
 					}
-				} else
+				} else {
 					debug("phy-handle property not found %d\n",
 					      lmacid);
-
+				}
 				/* check for autonegotiation property */
 				val = fdt_getprop(fdt, subnode,
 						  "cavium,disable-autonegotiation",
@@ -145,6 +148,7 @@ void octeontx_parse_phy_info(void)
 
 			for (i = 0; i < MAX_LMAC_PER_BGX; i++) {
 				const char *str;
+
 				snprintf(bgxname, sizeof(bgxname), "BGX-ENABLE.N0.BGX%d.P%d", bgx_id, i);
 				if (bgxnode >= 0) {
 					str = fdt_getprop(gd->fdt_blob, bgxnode, bgxname, &len);
@@ -177,9 +181,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 		return ret;
 	}
 
-	if (blob != NULL) {
+	if (blob) {
 		offset = fdt_path_offset(blob, "/cavium,bdk");
-		if(offset < 0) {
+		if (offset < 0) {
 			printf("ERROR: FDT BDK node not found\n");
 			return offset;
 		}
@@ -191,7 +195,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 			return ret;
 		}
 
-		debug("%s deleted 'cavium,bdk' node\n", __FUNCTION__);
+		debug("%s deleted 'cavium,bdk' node\n", __func__);
 	}
 
 	return 0;

@@ -1,7 +1,7 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -35,6 +35,7 @@ struct cavm_bdt {
 	u8 alt_pkg;
 	char type[16];
 };
+
 extern struct cavm_bdt g_cavm_bdt;
 
 #endif

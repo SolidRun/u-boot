@@ -1,7 +1,7 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -22,6 +22,5 @@
 /* x1 - node number
  */
 #define OCTEONTX_DRAM_SIZE		0xc2000301
-#define OCTEONTX_NODE_COUNT		0xc2000601
 
 #endif /* __OCTEONTX_SVC_H__ */

@@ -1,16 +1,15 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #ifndef __NIX_H__
 #define	__NIX_H__
 
-#include "cavm-csrs-npa.h"
-#include "cavm-csrs-nix.h"
+#include <asm/arch/csrs/csrs-npa.h>
+#include <asm/arch/csrs/csrs-nix.h>
 #include "rvu.h"
 
 /** Maximum number of LMACs supported */
@@ -68,7 +67,7 @@
 #define MAX_LMAC_PKIND			12
 
 /** Number of Admin queue entries */
-#define AQ_RING_SIZE 			Q_COUNT(Q_SIZE_16)
+#define AQ_RING_SIZE	Q_COUNT(Q_SIZE_16)
 
 /** Each completion queue contains 256 entries, see NIC_CQ_CTX_S[qsize] */
 #define CQS_QSIZE			Q_SIZE_256
@@ -97,6 +96,7 @@ enum npa_aura_size {
 	NPA_AURA_SZ_1M,
 	NPA_AURA_SZ_MAX,
 };
+
 #define NPA_AURA_SIZE_DEFAULT		NPA_AURA_SZ_128
 
 /* NIX Transmit schedulers */
@@ -166,8 +166,8 @@ struct nix_af {
 };
 
 struct nix_tx_dr {
-	union cavm_nix_send_hdr_s	hdr;
-	union cavm_nix_send_sg_s	tx_sg;
+	union nix_send_hdr_s	hdr;
+	union nix_send_sg_s	tx_sg;
 	dma_addr_t			sg1_addr;
 	dma_addr_t			sg2_addr;
 	dma_addr_t			sg3_addr;
@@ -175,9 +175,9 @@ struct nix_tx_dr {
 };
 
 struct nix_rx_dr {
-	union cavm_nix_cqe_hdr_s hdr;
-	union cavm_nix_rx_parse_s rx_parse;
-	union cavm_nix_rx_sg_s rx_sg;
+	union nix_cqe_hdr_s hdr;
+	union nix_rx_parse_s rx_parse;
+	union nix_rx_sg_s rx_sg;
 };
 
 struct nix {
@@ -186,12 +186,12 @@ struct nix {
 	struct nix_af			*nix_af;
 	struct npa			*npa;
 	struct lmac			*lmac;
-	union cavm_nix_cint_hw_s	*cint_base;
-	union cavm_nix_cq_ctx_s		*cq_ctx_base;
-	union cavm_nix_qint_hw_s	*qint_base;
-	union cavm_nix_rq_ctx_s		*rq_ctx_base;
-	union cavm_nix_rsse_s		*rss_base;
-	union cavm_nix_sq_ctx_s		*sq_ctx_base;
+	union nix_cint_hw_s	*cint_base;
+	union nix_cq_ctx_s		*cq_ctx_base;
+	union nix_qint_hw_s	*qint_base;
+	union nix_rq_ctx_s		*rq_ctx_base;
+	union nix_rsse_s		*rss_base;
+	union nix_sq_ctx_s		*sq_ctx_base;
 	void				*cqe_base;
 	struct qmem			sq;
 	struct qmem			cq[NIX_CQ_COUNT];
@@ -203,7 +203,6 @@ struct nix {
 	void __iomem			*nix_base;	/** PF reg base */
 	void __iomem			*npc_base;
 	void __iomem			*lmt_base;
-	struct nix_tx_dr		tx_desc[SQ_QLEN*2];
 	struct nix_stats		tx_stats;
 	struct nix_stats		rx_stats;
 	u32				aura;
@@ -211,9 +210,9 @@ struct nix {
 	int				lf;
 	int				pf;
 	u16				pf_func;
-	u32				rq_cnt;		/** Number of receive queues */
-	u32				sq_cnt;		/** Number of send squeues */
-	u32				cq_cnt;		/** Number of completion queues */
+	u32				rq_cnt;	/** receive queues count */
+	u32				sq_cnt;	/** send queues count */
+	u32				cq_cnt;	/** completion queues count */
 	u16				rss_sz;
 	u16				sqb_size;
 	u8				rss_grps;
@@ -221,25 +220,26 @@ struct nix {
 };
 
 struct nix_aq_cq_request {
-	union cavm_nix_aq_res_s	resp	ALIGNED;
-	union cavm_nix_cq_ctx_s	cq	ALIGNED;
+	union nix_aq_res_s	resp ALIGNED;
+	union nix_cq_ctx_s	cq ALIGNED;
 };
 
 struct nix_aq_rq_request {
-	union cavm_nix_aq_res_s	resp	ALIGNED;
-	union cavm_nix_rq_ctx_s	rq	ALIGNED;
+	union nix_aq_res_s	resp ALIGNED;
+	union nix_rq_ctx_s	rq ALIGNED;
 };
 
 struct nix_aq_sq_request {
-	union cavm_nix_aq_res_s	resp	ALIGNED;
-	union cavm_nix_sq_ctx_s	sq	ALIGNED;
+	union nix_aq_res_s	resp ALIGNED;
+	union nix_sq_ctx_s	sq ALIGNED;
 };
 
 static inline u64 nix_af_reg_read(struct nix_af *nix_af, u64 offset)
 {
 	u64 val = readq(nix_af->nix_af_base + offset);
+
 	debug("%s reg %p val %llx\n", __func__, nix_af->nix_af_base + offset,
-		val);
+	      val);
 	return val;
 }
 
@@ -247,15 +247,16 @@ static inline void nix_af_reg_write(struct nix_af *nix_af, u64 offset,
 				    u64 val)
 {
 	debug("%s reg %p val %llx\n", __func__, nix_af->nix_af_base + offset,
-		val);
+	      val);
 	writeq(val, nix_af->nix_af_base + offset);
 }
 
 static inline u64 nix_pf_reg_read(struct nix *nix, u64 offset)
 {
 	u64 val = readq(nix->nix_base + offset);
+
 	debug("%s reg %p val %llx\n", __func__, nix->nix_base + offset,
-		val);
+	      val);
 	return val;
 }
 
@@ -263,15 +264,16 @@ static inline void nix_pf_reg_write(struct nix *nix, u64 offset,
 				    u64 val)
 {
 	debug("%s reg %p val %llx\n", __func__, nix->nix_base + offset,
-		val);
+	      val);
 	writeq(val, nix->nix_base + offset);
 }
 
 static inline u64 npa_af_reg_read(struct npa_af *npa_af, u64 offset)
 {
 	u64 val = readq(npa_af->npa_af_base + offset);
+
 	debug("%s reg %p val %llx\n", __func__, npa_af->npa_af_base + offset,
-		val);
+	      val);
 	return val;
 }
 
@@ -279,15 +281,16 @@ static inline void npa_af_reg_write(struct npa_af *npa_af, u64 offset,
 				    u64 val)
 {
 	debug("%s reg %p val %llx\n", __func__, npa_af->npa_af_base + offset,
-		val);
+	      val);
 	writeq(val, npa_af->npa_af_base + offset);
 }
 
 static inline u64 npc_af_reg_read(struct nix_af *nix_af, u64 offset)
 {
 	u64 val = readq(nix_af->npc_af_base + offset);
+
 	debug("%s reg %p val %llx\n", __func__, nix_af->npc_af_base + offset,
-		val);
+	      val);
 	return val;
 }
 
@@ -295,14 +298,14 @@ static inline void npc_af_reg_write(struct nix_af *nix_af, u64 offset,
 				    u64 val)
 {
 	debug("%s reg %p val %llx\n", __func__, nix_af->npc_af_base + offset,
-		val);
+	      val);
 	writeq(val, nix_af->npc_af_base + offset);
 }
 
 int npa_attach_aura(struct nix_af *nix_af, int lf,
-			const union cavm_npa_aura_s *desc, u32 aura_id);
+		    const union npa_aura_s *desc, u32 aura_id);
 int npa_attach_pool(struct nix_af *nix_af, int lf,
-			const union cavm_npa_pool_s *desc, u32 pool_id);
+		    const union npa_pool_s *desc, u32 pool_id);
 int npa_af_setup(struct npa_af *npa_af);
 int npa_af_shutdown(struct npa_af *npa_af);
 int npa_lf_setup(struct nix *nix);

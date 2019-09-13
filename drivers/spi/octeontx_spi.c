@@ -1,7 +1,7 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -74,7 +74,7 @@ union mpi_cfg {
 		/** 0 = shift MSB first, 1 = shift LSB first */
 		u64 lsbfirst	:1;
 		u64 cs_sticky	:1;	/** cs sticky bit */
-		u64 rsvd		:1;	/** Reserved */
+		u64 rsvd	:1;	/** Reserved */
 		/**
 		 * SPI_CSn_L high.  1 = SPI_CSn_L is asserted high,
 		 * 0 = SPI_CS_n asserted low.
@@ -101,9 +101,9 @@ union mpi_cfg {
 		u64 csena2	:1;	/** cs enable 2 */
 		u64 csena3	:1;	/** cs enable 3 */
 		u64 clkdiv	:13;	/** clock divisor */
-		u64		:2;
+		u64 rsvd1	:2;
 		u64 legacy_dis	:1;	/** Disable legacy mode */
-		u64		:2;
+		u64 rsvd2	:2;
 		/**
 		 * I/O Mode (legacy_dis must be 1):
 		 *   0x0	One-lane unidirectional mode.
@@ -112,7 +112,7 @@ union mpi_cfg {
 		 *   0x3	Four-lane bidirectional mode.
 		 */
 		u64 iomode	:2;
-		u64		:8;
+		u64 rsvd3	:8;
 		/**
 		 * Enable ESPI mode per slave.  Each bit corresponds to each
 		 * of the four possible CS's.
@@ -121,13 +121,13 @@ union mpi_cfg {
 		 * If 1, CRC hardware is enabled and the hardware will
 		 * automatically calculate the CRC for one transaction and then
 		 * apply it to the end of the transaction and then check the
-		 * CRC on the reponse and if there is an error the
+		 * CRC on the response and if there is an error the
 		 * MPI(0..1)_STS[CRC_ERR] bit will be set. The turn around
 		 * time (TAR in the ESPI spec) is set to two cicles and parsing
 		 * for special state is enabled.
 		 */
 		u64 cs_espi_en	:4;
-		u64		:1;
+		u64 rsvd4	:1;
 		/**
 		 * SPI 100MHz clock enable.
 		 *
@@ -139,7 +139,7 @@ union mpi_cfg {
 		 *	sclk agnostic.
 		 */
 		u64 tb100_en	:1;
-		u64		:14;
+		u64 rsvd5	:14;
 	} s;
 	/* struct mpi_cfg_s cn; */
 };
@@ -170,9 +170,9 @@ union mpi_sts {
 		u64 mpi_intr	:1;	/** Transaction done int */
 		u64 reserved_2_7:6;
 		u64 rxnum	:5;	/** ESPI number of rx bytes */
-		u64		:6;
+		u64 rsvd	:6;
 		u64 crc_err	:1;	/** CRC error from ESPI */
-		u64		:5;
+		u64 rsvd1	:5;
 		u64 crc		:8;	/** ESPI CRC received */
 		u64 reserved_40_63	:24;
 	} s;
@@ -188,13 +188,13 @@ union mpi_tx {
 	u64 u;
 	struct mpi_tx_s {
 		u64 totnum	:5;	/** Total bytes to shift */
-		u64 		:3;
+		u64 rsvd	:3;
 		u64 txnum	:5;	/** Number of words to tx */
-		u64		:3;
+		u64 rsvd1	:3;
 		u64 leavecs	:1;	/** Leave CS asserted */
-		u64		:3;
+		u64 rsvd2	:3;
 		u64 csid	:2;	/** Which CS to assert */
-		u64		:42;
+		u64 rsvd3	:42;
 	} s;
 	/* struct mpi_tx_s cn; */
 };
@@ -242,8 +242,8 @@ static union mpi_cfg octeontx_spi_set_mpicfg(struct udevice *dev)
 	if (max_speed > OCTEONTX_SPI_MAX_CLOCK_HZ)
 		max_speed = OCTEONTX_SPI_MAX_CLOCK_HZ;
 
-	debug ("\n slave params %d %d %d \n", slave->cs,
-		slave->max_hz, slave->mode);
+	debug("\n slave params %d %d %d\n", slave->cs,
+	      slave->max_hz, slave->mode);
 	cpha = !!(slave->mode & SPI_CPHA);
 	cpol = !!(slave->mode & SPI_CPOL);
 
@@ -260,7 +260,7 @@ static union mpi_cfg octeontx_spi_set_mpicfg(struct udevice *dev)
 	mpi_cfg.s.csena2 = 1;
 	mpi_cfg.s.csena3 = 1;
 
-	debug("\n mpi_cfg %llx\n",mpi_cfg.u);
+	debug("\n mpi_cfg %llx\n", mpi_cfg.u);
 	return mpi_cfg;
 }
 
@@ -282,6 +282,7 @@ static void octeontx_spi_wait_ready(struct udevice *dev)
 	} while (mpi_sts.s.busy);
 	debug("%s(%s)\n", __func__, dev->name);
 }
+
 /**
  * Claim the bus for a slave device
  *
@@ -355,8 +356,8 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	u64 wide_dat = 0;
 	int len = bitlen / 8;
 	int i;
-	const uint8_t *tx_data = dout;
-	uint8_t *rx_data = din;
+	const u8 *tx_data = dout;
+	u8 *rx_data = din;
 	int cs = spi_chip_select(dev);
 
 	if (!OCTEONTX_SPI_CS_VALID(cs))
@@ -628,7 +629,7 @@ static int octeontx_pci_spi_probe(struct udevice *dev)
 	dev->req_seq = PCI_FUNC(bdf);
 	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 
-	debug("SPI bus %s %d at %p\n",dev->name, dev->seq, priv->baseaddr);
+	debug("SPI bus %s %d at %p\n", dev->name, dev->seq, priv->baseaddr);
 
 	return 0;
 }
@@ -650,8 +651,8 @@ static const struct udevice_id octeontx_spi_ids[] = {
 U_BOOT_DRIVER(octeontx_pci_spi) = {
 	.name			= "spi_octeontx",
 	.id			= UCLASS_SPI,
-	.of_match 		= octeontx_spi_ids,
+	.of_match		= octeontx_spi_ids,
 	.probe			= octeontx_pci_spi_probe,
-	.priv_auto_alloc_size 	= sizeof(struct octeontx_spi),
+	.priv_auto_alloc_size	= sizeof(struct octeontx_spi),
 	.ops			= &octeontx_spi_ops,
 };

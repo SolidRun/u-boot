@@ -1,18 +1,17 @@
-#ifndef __CAVM_CSRS_NPA_H__
-#define __CAVM_CSRS_NPA_H__
-/* This file is auto-generated.  Do not edit */
-
-/***********************license start***********************************
-* Copyright (C) 2019 Marvell International Ltd.
-* SPDX-License-Identifier: BSD-3-Clause
-* https://spdx.org/licenses
-***********************license end**************************************/
+/* SPDX-License-Identifier:    GPL-2.0
+ *
+ * Copyright (C) 2019 Marvell International Ltd.
+ *
+ * https://spdx.org/licenses
+ */
+#ifndef __CSRS_NPA_H__
+#define __CSRS_NPA_H__
 
 /**
  * @file
  *
  * Configuration and status register (CSR) address and type definitions for
- * Cavium NPA.
+ * NPA.
  *
  * This file is auto generated.  Do not edit.
  *
@@ -24,11 +23,11 @@
  * NPA Admin Function Interrupt Vector Enumeration Enumerates the NPA AF
  * MSI-X interrupt vectors.
  */
-#define CAVM_NPA_AF_INT_VEC_E_AF_ERR (3)
-#define CAVM_NPA_AF_INT_VEC_E_AQ_DONE (2)
-#define CAVM_NPA_AF_INT_VEC_E_GEN (1)
-#define CAVM_NPA_AF_INT_VEC_E_POISON (4)
-#define CAVM_NPA_AF_INT_VEC_E_RVU (0)
+#define NPA_AF_INT_VEC_E_AF_ERR (3)
+#define NPA_AF_INT_VEC_E_AQ_DONE (2)
+#define NPA_AF_INT_VEC_E_GEN (1)
+#define NPA_AF_INT_VEC_E_POISON (4)
+#define NPA_AF_INT_VEC_E_RVU (0)
 
 /**
  * Enumeration npa_aq_comp_e
@@ -36,12 +35,12 @@
  * NPA Admin Queue Completion Enumeration Enumerates the values of
  * NPA_AQ_RES_S[COMPCODE].
  */
-#define CAVM_NPA_AQ_COMP_E_CTX_FAULT (4)
-#define CAVM_NPA_AQ_COMP_E_CTX_POISON (3)
-#define CAVM_NPA_AQ_COMP_E_GOOD (1)
-#define CAVM_NPA_AQ_COMP_E_LOCKERR (5)
-#define CAVM_NPA_AQ_COMP_E_NOTDONE (0)
-#define CAVM_NPA_AQ_COMP_E_SWERR (2)
+#define NPA_AQ_COMP_E_CTX_FAULT (4)
+#define NPA_AQ_COMP_E_CTX_POISON (3)
+#define NPA_AQ_COMP_E_GOOD (1)
+#define NPA_AQ_COMP_E_LOCKERR (5)
+#define NPA_AQ_COMP_E_NOTDONE (0)
+#define NPA_AQ_COMP_E_SWERR (2)
 
 /**
  * Enumeration npa_aq_ctype_e
@@ -49,8 +48,8 @@
  * NPA Admin Queue Context Type Enumeration Enumerates
  * NPA_AQ_INST_S[CTYPE] values.
  */
-#define CAVM_NPA_AQ_CTYPE_E_AURA (0)
-#define CAVM_NPA_AQ_CTYPE_E_POOL (1)
+#define NPA_AQ_CTYPE_E_AURA (0)
+#define NPA_AQ_CTYPE_E_POOL (1)
 
 /**
  * Enumeration npa_aq_instop_e
@@ -58,12 +57,12 @@
  * NPA Admin Queue Opcode Enumeration Enumerates NPA_AQ_INST_S[OP]
  * values.
  */
-#define CAVM_NPA_AQ_INSTOP_E_INIT (1)
-#define CAVM_NPA_AQ_INSTOP_E_LOCK (4)
-#define CAVM_NPA_AQ_INSTOP_E_NOP (0)
-#define CAVM_NPA_AQ_INSTOP_E_READ (3)
-#define CAVM_NPA_AQ_INSTOP_E_UNLOCK (5)
-#define CAVM_NPA_AQ_INSTOP_E_WRITE (2)
+#define NPA_AQ_INSTOP_E_INIT (1)
+#define NPA_AQ_INSTOP_E_LOCK (4)
+#define NPA_AQ_INSTOP_E_NOP (0)
+#define NPA_AQ_INSTOP_E_READ (3)
+#define NPA_AQ_INSTOP_E_UNLOCK (5)
+#define NPA_AQ_INSTOP_E_WRITE (2)
 
 /**
  * Enumeration npa_aura_err_int_e
@@ -71,11 +70,11 @@
  * NPA Aura Error Interrupt Enumeration Enumerates the bit index of
  * NPA_AURA_S[ERR_INT], and NPA_AURA_S[ERR_INT_ENA].
  */
-#define CAVM_NPA_AURA_ERR_INT_E_AURA_ADD_OVER (1)
-#define CAVM_NPA_AURA_ERR_INT_E_AURA_ADD_UNDER (2)
-#define CAVM_NPA_AURA_ERR_INT_E_AURA_FREE_UNDER (0)
-#define CAVM_NPA_AURA_ERR_INT_E_POOL_DIS (3)
-#define CAVM_NPA_AURA_ERR_INT_E_RX(a) (0 + (a))
+#define NPA_AURA_ERR_INT_E_AURA_ADD_OVER (1)
+#define NPA_AURA_ERR_INT_E_AURA_ADD_UNDER (2)
+#define NPA_AURA_ERR_INT_E_AURA_FREE_UNDER (0)
+#define NPA_AURA_ERR_INT_E_POOL_DIS (3)
+#define NPA_AURA_ERR_INT_E_RX(a) (0 + (a))
 
 /**
  * Enumeration npa_bpintf_e
@@ -83,7 +82,7 @@
  * NPA Backpressure Interface Enumeration Enumerates index of
  * NPA_AURA_S[BP_ENA].
  */
-#define CAVM_NPA_BPINTF_E_NIXX_RX(a) (0 + (a))
+#define NPA_BPINTF_E_NIXX_RX(a) (0 + (a))
 
 /**
  * Enumeration npa_inpq_e
@@ -91,15 +90,17 @@
  * NPA Input Queue Enumeration Enumerates ALLOC/FREE input queues from
  * coprocessors.
  */
-#define CAVM_NPA_INPQ_E_AURA_OP (0xe)
-#define CAVM_NPA_INPQ_E_BPHY (7)
-#define CAVM_NPA_INPQ_E_DPI (6)
-#define CAVM_NPA_INPQ_E_INTERNAL_RSV (0xf)
-#define CAVM_NPA_INPQ_E_NIXX_RX(a) (0 + 2 * (a))
-#define CAVM_NPA_INPQ_E_NIXX_TX(a) (1 + 2 * (a))
-#define CAVM_NPA_INPQ_E_RX(a) (0 + (a))
-#define CAVM_NPA_INPQ_E_SSO (4)
-#define CAVM_NPA_INPQ_E_TIM (5)
+#define NPA_INPQ_E_AURA_OP (0xe)
+#define NPA_INPQ_E_BPHY (7)
+#define NPA_INPQ_E_DPI (6)
+#define NPA_INPQ_E_DPI0 (6)
+#define NPA_INPQ_E_DPI1 (7)
+#define NPA_INPQ_E_INTERNAL_RSV (0xf)
+#define NPA_INPQ_E_NIXX_RX(a) (0 + 2 * (a))
+#define NPA_INPQ_E_NIXX_TX(a) (1 + 2 * (a))
+#define NPA_INPQ_E_RX(a) (0 + (a))
+#define NPA_INPQ_E_SSO (4)
+#define NPA_INPQ_E_TIM (5)
 
 /**
  * Enumeration npa_lf_int_vec_e
@@ -107,9 +108,9 @@
  * NPA Local Function Interrupt Vector Enumeration Enumerates the NPA
  * MSI-X interrupt vectors per LF.
  */
-#define CAVM_NPA_LF_INT_VEC_E_ERR_INT (0x40)
-#define CAVM_NPA_LF_INT_VEC_E_POISON (0x41)
-#define CAVM_NPA_LF_INT_VEC_E_QINTX(a) (0 + (a))
+#define NPA_LF_INT_VEC_E_ERR_INT (0x40)
+#define NPA_LF_INT_VEC_E_POISON (0x41)
+#define NPA_LF_INT_VEC_E_QINTX(a) (0 + (a))
 
 /**
  * Enumeration npa_ndc0_port_e
@@ -118,12 +119,12 @@
  * ports and the PORT index of NDC_AF_PORT()_RT()_RW()_REQ_PC and
  * NDC_AF_PORT()_RT()_RW()_LAT_PC.
  */
-#define CAVM_NPA_NDC0_PORT_E_AURA0 (0)
-#define CAVM_NPA_NDC0_PORT_E_AURA1 (1)
-#define CAVM_NPA_NDC0_PORT_E_POOL0 (2)
-#define CAVM_NPA_NDC0_PORT_E_POOL1 (3)
-#define CAVM_NPA_NDC0_PORT_E_STACK0 (4)
-#define CAVM_NPA_NDC0_PORT_E_STACK1 (5)
+#define NPA_NDC0_PORT_E_AURA0 (0)
+#define NPA_NDC0_PORT_E_AURA1 (1)
+#define NPA_NDC0_PORT_E_POOL0 (2)
+#define NPA_NDC0_PORT_E_POOL1 (3)
+#define NPA_NDC0_PORT_E_STACK0 (4)
+#define NPA_NDC0_PORT_E_STACK1 (5)
 
 /**
  * Enumeration npa_pool_err_int_e
@@ -131,10 +132,10 @@
  * NPA Pool Error Interrupt Enumeration Enumerates the bit index of
  * NPA_POOL_S[ERR_INT] and NPA_POOL_S[ERR_INT_ENA].
  */
-#define CAVM_NPA_POOL_ERR_INT_E_OVFLS (0)
-#define CAVM_NPA_POOL_ERR_INT_E_PERR (2)
-#define CAVM_NPA_POOL_ERR_INT_E_RX(a) (0 + (a))
-#define CAVM_NPA_POOL_ERR_INT_E_RANGE (1)
+#define NPA_POOL_ERR_INT_E_OVFLS (0)
+#define NPA_POOL_ERR_INT_E_PERR (2)
+#define NPA_POOL_ERR_INT_E_RX(a) (0 + (a))
+#define NPA_POOL_ERR_INT_E_RANGE (1)
 
 /**
  * Structure npa_aq_inst_s
@@ -150,9 +151,9 @@
  * NPA_POOL_HW_S reads and writes use NPA_AURA_HW_S[POOL_CACHING] and
  * NPA_AURA_HW_S[POOL_WAY_MASK].
  */
-union cavm_npa_aq_inst_s {
+union npa_aq_inst_s {
 	u64 u[2];
-	struct cavm_npa_aq_inst_s_s {
+	struct npa_aq_inst_s_s {
 		u64 op                               : 4;
 		u64 ctype                            : 4;
 		u64 lf                               : 9;
@@ -162,7 +163,7 @@ union cavm_npa_aq_inst_s {
 		u64 doneint                          : 1;
 		u64 res_addr                         : 64;
 	} s;
-	/* struct cavm_npa_aq_inst_s_s cn; */
+	/* struct npa_aq_inst_s_s cn; */
 };
 
 /**
@@ -179,9 +180,9 @@ union cavm_npa_aq_inst_s {
  * always allocate into LLC. Hardware reads of context data do not
  * allocate into LLC.
  */
-union cavm_npa_aq_res_s {
+union npa_aq_res_s {
 	u64 u[2];
-	struct cavm_npa_aq_res_s_s {
+	struct npa_aq_res_s_s {
 		u64 op                               : 4;
 		u64 ctype                            : 4;
 		u64 compcode                         : 8;
@@ -189,7 +190,7 @@ union cavm_npa_aq_res_s {
 		u64 reserved_17_63                   : 47;
 		u64 reserved_64_127                  : 64;
 	} s;
-	/* struct cavm_npa_aq_res_s_s cn; */
+	/* struct npa_aq_res_s_s cn; */
 };
 
 /**
@@ -200,14 +201,14 @@ union cavm_npa_aq_res_s {
  * NPA_LF_AURA_OP_ALLOC() and NPA_LF_POOL_OP_PC, and a 128-bit atomic
  * CASP operation to NPA_LF_AURA_OP_ALLOC().
  */
-union cavm_npa_aura_op_wdata_s {
+union npa_aura_op_wdata_s {
 	u64 u;
-	struct cavm_npa_aura_op_wdata_s_s {
+	struct npa_aura_op_wdata_s_s {
 		u64 aura                             : 20;
 		u64 reserved_20_62                   : 43;
 		u64 drop                             : 1;
 	} s;
-	/* struct cavm_npa_aura_op_wdata_s_s cn; */
+	/* struct npa_aura_op_wdata_s_s cn; */
 };
 
 /**
@@ -217,9 +218,9 @@ union cavm_npa_aura_op_wdata_s {
  * software with the NPA admin queue to read and write an aura's
  * NPA_AURA_HW_S structure maintained by hardware in LLC/DRAM.
  */
-union cavm_npa_aura_s {
+union npa_aura_s {
 	u64 u[8];
-	struct cavm_npa_aura_s_s {
+	struct npa_aura_s_s {
 		u64 pool_addr                        : 64;
 		u64 ena                              : 1;
 		u64 reserved_65_66                   : 2;
@@ -267,7 +268,7 @@ union cavm_npa_aura_s {
 		u64 reserved_420_447                 : 28;
 		u64 reserved_448_511                 : 64;
 	} s;
-	/* struct cavm_npa_aura_s_s cn; */
+	/* struct npa_aura_s_s cn; */
 };
 
 /**
@@ -277,9 +278,9 @@ union cavm_npa_aura_s {
  * software with the NPA admin queue to read and write a pool's
  * NPA_POOL_HW_S structure maintained by hardware in LLC/DRAM.
  */
-union cavm_npa_pool_s {
+union npa_pool_s {
 	u64 u[16];
-	struct cavm_npa_pool_s_s {
+	struct npa_pool_s_s {
 		u64 stack_base                       : 64;
 		u64 ena                              : 1;
 		u64 nat_align                        : 1;
@@ -331,7 +332,7 @@ union cavm_npa_pool_s {
 		u64 reserved_896_959                 : 64;
 		u64 reserved_960_1023                : 64;
 	} s;
-	/* struct cavm_npa_pool_s_s cn; */
+	/* struct npa_pool_s_s cn; */
 };
 
 /**
@@ -345,14 +346,14 @@ union cavm_npa_pool_s {
  * starting at IOVA NPA_AF_LF()_QINTS_BASE. Always stored in byte
  * invariant little-endian format (LE8).
  */
-union cavm_npa_qint_hw_s {
+union npa_qint_hw_s {
 	u32 u;
-	struct cavm_npa_qint_hw_s_s {
+	struct npa_qint_hw_s_s {
 		u32 count                            : 22;
 		u32 reserved_22_30                   : 9;
 		u32 ena                              : 1;
 	} s;
-	/* struct cavm_npa_qint_hw_s_s cn; */
+	/* struct npa_qint_hw_s_s cn; */
 };
 
 /**
@@ -360,17 +361,17 @@ union cavm_npa_qint_hw_s {
  *
  * NPA AF Active Cycles Register
  */
-union cavm_npa_af_active_cycles_pc {
+union npa_af_active_cycles_pc {
 	u64 u;
-	struct cavm_npa_af_active_cycles_pc_s {
+	struct npa_af_active_cycles_pc_s {
 		u64 act_cyc                          : 64;
 	} s;
-	/* struct cavm_npa_af_active_cycles_pc_s cn; */
+	/* struct npa_af_active_cycles_pc_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_ACTIVE_CYCLES_PC(void)
+static inline u64 NPA_AF_ACTIVE_CYCLES_PC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_ACTIVE_CYCLES_PC(void)
+static inline u64 NPA_AF_ACTIVE_CYCLES_PC(void)
 {
 	return 0xf0;
 }
@@ -380,19 +381,19 @@ static inline u64 CAVM_NPA_AF_ACTIVE_CYCLES_PC(void)
  *
  * NPA AF Admin Queue Base Address Register
  */
-union cavm_npa_af_aq_base {
+union npa_af_aq_base {
 	u64 u;
-	struct cavm_npa_af_aq_base_s {
+	struct npa_af_aq_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 base_addr                        : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_npa_af_aq_base_s cn; */
+	/* struct npa_af_aq_base_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_BASE(void)
+static inline u64 NPA_AF_AQ_BASE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_BASE(void)
+static inline u64 NPA_AF_AQ_BASE(void)
 {
 	return 0x610;
 }
@@ -402,18 +403,18 @@ static inline u64 CAVM_NPA_AF_AQ_BASE(void)
  *
  * NPA AF Admin Queue Configuration Register
  */
-union cavm_npa_af_aq_cfg {
+union npa_af_aq_cfg {
 	u64 u;
-	struct cavm_npa_af_aq_cfg_s {
+	struct npa_af_aq_cfg_s {
 		u64 qsize                            : 4;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_npa_af_aq_cfg_s cn; */
+	/* struct npa_af_aq_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_CFG(void)
+static inline u64 NPA_AF_AQ_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_CFG(void)
+static inline u64 NPA_AF_AQ_CFG(void)
 {
 	return 0x600;
 }
@@ -423,18 +424,18 @@ static inline u64 CAVM_NPA_AF_AQ_CFG(void)
  *
  * NPA AF AQ Done Count Register
  */
-union cavm_npa_af_aq_done {
+union npa_af_aq_done {
 	u64 u;
-	struct cavm_npa_af_aq_done_s {
+	struct npa_af_aq_done_s {
 		u64 done                             : 20;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_npa_af_aq_done_s cn; */
+	/* struct npa_af_aq_done_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_DONE(void)
+static inline u64 NPA_AF_AQ_DONE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_DONE(void)
+static inline u64 NPA_AF_AQ_DONE(void)
 {
 	return 0x650;
 }
@@ -445,18 +446,18 @@ static inline u64 CAVM_NPA_AF_AQ_DONE(void)
  * NPA AF AQ Done Count Ack Register This register is written by software
  * to acknowledge interrupts.
  */
-union cavm_npa_af_aq_done_ack {
+union npa_af_aq_done_ack {
 	u64 u;
-	struct cavm_npa_af_aq_done_ack_s {
+	struct npa_af_aq_done_ack_s {
 		u64 done_ack                         : 20;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_npa_af_aq_done_ack_s cn; */
+	/* struct npa_af_aq_done_ack_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_DONE_ACK(void)
+static inline u64 NPA_AF_AQ_DONE_ACK(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_DONE_ACK(void)
+static inline u64 NPA_AF_AQ_DONE_ACK(void)
 {
 	return 0x660;
 }
@@ -467,18 +468,18 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_ACK(void)
  * NPA AF AQ Done Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_npa_af_aq_done_ena_w1c {
+union npa_af_aq_done_ena_w1c {
 	u64 u;
-	struct cavm_npa_af_aq_done_ena_w1c_s {
+	struct npa_af_aq_done_ena_w1c_s {
 		u64 done                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_af_aq_done_ena_w1c_s cn; */
+	/* struct npa_af_aq_done_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1C(void)
+static inline u64 NPA_AF_AQ_DONE_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1C(void)
+static inline u64 NPA_AF_AQ_DONE_ENA_W1C(void)
 {
 	return 0x698;
 }
@@ -489,18 +490,18 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1C(void)
  * NPA AF AQ Done Interrupt Enable Set Register This register sets
  * interrupt enable bits.
  */
-union cavm_npa_af_aq_done_ena_w1s {
+union npa_af_aq_done_ena_w1s {
 	u64 u;
-	struct cavm_npa_af_aq_done_ena_w1s_s {
+	struct npa_af_aq_done_ena_w1s_s {
 		u64 done                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_af_aq_done_ena_w1s_s cn; */
+	/* struct npa_af_aq_done_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1S(void)
+static inline u64 NPA_AF_AQ_DONE_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1S(void)
+static inline u64 NPA_AF_AQ_DONE_ENA_W1S(void)
 {
 	return 0x690;
 }
@@ -510,18 +511,18 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_ENA_W1S(void)
  *
  * NPA AF AQ Done Interrupt Register
  */
-union cavm_npa_af_aq_done_int {
+union npa_af_aq_done_int {
 	u64 u;
-	struct cavm_npa_af_aq_done_int_s {
+	struct npa_af_aq_done_int_s {
 		u64 done                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_af_aq_done_int_s cn; */
+	/* struct npa_af_aq_done_int_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_DONE_INT(void)
+static inline u64 NPA_AF_AQ_DONE_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_DONE_INT(void)
+static inline u64 NPA_AF_AQ_DONE_INT(void)
 {
 	return 0x680;
 }
@@ -531,18 +532,18 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_INT(void)
  *
  * INTERNAL: NPA AF AQ Done Interrupt Set Register
  */
-union cavm_npa_af_aq_done_int_w1s {
+union npa_af_aq_done_int_w1s {
 	u64 u;
-	struct cavm_npa_af_aq_done_int_w1s_s {
+	struct npa_af_aq_done_int_w1s_s {
 		u64 done                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_af_aq_done_int_w1s_s cn; */
+	/* struct npa_af_aq_done_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_DONE_INT_W1S(void)
+static inline u64 NPA_AF_AQ_DONE_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_DONE_INT_W1S(void)
+static inline u64 NPA_AF_AQ_DONE_INT_W1S(void)
 {
 	return 0x688;
 }
@@ -553,18 +554,18 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_INT_W1S(void)
  * NPA AF Admin Queue Done Interrupt Timer Register Used to debug the
  * queue interrupt coalescing timer.
  */
-union cavm_npa_af_aq_done_timer {
+union npa_af_aq_done_timer {
 	u64 u;
-	struct cavm_npa_af_aq_done_timer_s {
+	struct npa_af_aq_done_timer_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_npa_af_aq_done_timer_s cn; */
+	/* struct npa_af_aq_done_timer_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_DONE_TIMER(void)
+static inline u64 NPA_AF_AQ_DONE_TIMER(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_DONE_TIMER(void)
+static inline u64 NPA_AF_AQ_DONE_TIMER(void)
 {
 	return 0x670;
 }
@@ -575,20 +576,20 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_TIMER(void)
  * NPA AF AQ Done Interrupt Coalescing Wait Register Specifies the queue
  * interrupt coalescing settings.
  */
-union cavm_npa_af_aq_done_wait {
+union npa_af_aq_done_wait {
 	u64 u;
-	struct cavm_npa_af_aq_done_wait_s {
+	struct npa_af_aq_done_wait_s {
 		u64 num_wait                         : 20;
 		u64 reserved_20_31                   : 12;
 		u64 time_wait                        : 16;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_npa_af_aq_done_wait_s cn; */
+	/* struct npa_af_aq_done_wait_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_DONE_WAIT(void)
+static inline u64 NPA_AF_AQ_DONE_WAIT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_DONE_WAIT(void)
+static inline u64 NPA_AF_AQ_DONE_WAIT(void)
 {
 	return 0x640;
 }
@@ -599,18 +600,18 @@ static inline u64 CAVM_NPA_AF_AQ_DONE_WAIT(void)
  * NPA AF Admin Queue Doorbell Register Software writes to this register
  * to enqueue one or more entries to AQ.
  */
-union cavm_npa_af_aq_door {
+union npa_af_aq_door {
 	u64 u;
-	struct cavm_npa_af_aq_door_s {
+	struct npa_af_aq_door_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_npa_af_aq_door_s cn; */
+	/* struct npa_af_aq_door_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AQ_DOOR(void)
+static inline u64 NPA_AF_AQ_DOOR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_DOOR(void)
+static inline u64 NPA_AF_AQ_DOOR(void)
 {
 	return 0x630;
 }
@@ -620,9 +621,9 @@ static inline u64 CAVM_NPA_AF_AQ_DOOR(void)
  *
  * NPA AF Admin Queue Status Register
  */
-union cavm_npa_af_aq_status {
+union npa_af_aq_status {
 	u64 u;
-	struct cavm_npa_af_aq_status_s {
+	struct npa_af_aq_status_s {
 		u64 reserved_0_3                     : 4;
 		u64 head_ptr                         : 20;
 		u64 reserved_24_35                   : 12;
@@ -631,7 +632,7 @@ union cavm_npa_af_aq_status {
 		u64 aq_busy                          : 1;
 		u64 aq_err                           : 1;
 	} s;
-	struct cavm_npa_af_aq_status_cn {
+	struct npa_af_aq_status_cn {
 		u64 reserved_0_3                     : 4;
 		u64 head_ptr                         : 20;
 		u64 reserved_24_31                   : 8;
@@ -643,9 +644,9 @@ union cavm_npa_af_aq_status {
 	} cn;
 };
 
-static inline u64 CAVM_NPA_AF_AQ_STATUS(void)
+static inline u64 NPA_AF_AQ_STATUS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AQ_STATUS(void)
+static inline u64 NPA_AF_AQ_STATUS(void)
 {
 	return 0x620;
 }
@@ -655,21 +656,21 @@ static inline u64 CAVM_NPA_AF_AQ_STATUS(void)
  *
  * NPA AF Queue Average Delay Register
  */
-union cavm_npa_af_avg_delay {
+union npa_af_avg_delay {
 	u64 u;
-	struct cavm_npa_af_avg_delay_s {
+	struct npa_af_avg_delay_s {
 		u64 avg_dly                          : 19;
 		u64 reserved_19_23                   : 5;
 		u64 avg_timer                        : 16;
 		u64 reserved_40_62                   : 23;
 		u64 avg_timer_dis                    : 1;
 	} s;
-	/* struct cavm_npa_af_avg_delay_s cn; */
+	/* struct npa_af_avg_delay_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_AVG_DELAY(void)
+static inline u64 NPA_AF_AVG_DELAY(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_AVG_DELAY(void)
+static inline u64 NPA_AF_AVG_DELAY(void)
 {
 	return 0x100;
 }
@@ -682,17 +683,17 @@ static inline u64 CAVM_NPA_AF_AVG_DELAY(void)
  * NPA_AF_BAR2_SEL[PF_FUNC].  Internal: Not implemented. Placeholder for
  * bug33464.
  */
-union cavm_npa_af_bar2_aliasx {
+union npa_af_bar2_aliasx {
 	u64 u;
-	struct cavm_npa_af_bar2_aliasx_s {
+	struct npa_af_bar2_aliasx_s {
 		u64 data                             : 64;
 	} s;
-	/* struct cavm_npa_af_bar2_aliasx_s cn; */
+	/* struct npa_af_bar2_aliasx_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_BAR2_ALIASX(u64 a)
+static inline u64 NPA_AF_BAR2_ALIASX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_BAR2_ALIASX(u64 a)
+static inline u64 NPA_AF_BAR2_ALIASX(u64 a)
 {
 	return 0x9100000 + 8 * a;
 }
@@ -704,19 +705,19 @@ static inline u64 CAVM_NPA_AF_BAR2_ALIASX(u64 a)
  * configures BAR2 accesses from the NPA_AF_BAR2_ALIAS() registers in
  * BAR0. Internal: Not implemented. Placeholder for bug33464.
  */
-union cavm_npa_af_bar2_sel {
+union npa_af_bar2_sel {
 	u64 u;
-	struct cavm_npa_af_bar2_sel_s {
+	struct npa_af_bar2_sel_s {
 		u64 alias_pf_func                    : 16;
 		u64 alias_ena                        : 1;
 		u64 reserved_17_63                   : 47;
 	} s;
-	/* struct cavm_npa_af_bar2_sel_s cn; */
+	/* struct npa_af_bar2_sel_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_BAR2_SEL(void)
+static inline u64 NPA_AF_BAR2_SEL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_BAR2_SEL(void)
+static inline u64 NPA_AF_BAR2_SEL(void)
 {
 	return 0x9000000;
 }
@@ -726,19 +727,19 @@ static inline u64 CAVM_NPA_AF_BAR2_SEL(void)
  *
  * NPA AF Block Reset Register
  */
-union cavm_npa_af_blk_rst {
+union npa_af_blk_rst {
 	u64 u;
-	struct cavm_npa_af_blk_rst_s {
+	struct npa_af_blk_rst_s {
 		u64 rst                              : 1;
 		u64 reserved_1_62                    : 62;
 		u64 busy                             : 1;
 	} s;
-	/* struct cavm_npa_af_blk_rst_s cn; */
+	/* struct npa_af_blk_rst_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_BLK_RST(void)
+static inline u64 NPA_AF_BLK_RST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_BLK_RST(void)
+static inline u64 NPA_AF_BLK_RST(void)
 {
 	return 0;
 }
@@ -748,20 +749,20 @@ static inline u64 CAVM_NPA_AF_BLK_RST(void)
  *
  * INTERNAL: NPA AF Backpressure Test Register
  */
-union cavm_npa_af_bp_test {
+union npa_af_bp_test {
 	u64 u;
-	struct cavm_npa_af_bp_test_s {
+	struct npa_af_bp_test_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 32;
 		u64 enable                           : 16;
 	} s;
-	/* struct cavm_npa_af_bp_test_s cn; */
+	/* struct npa_af_bp_test_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_BP_TEST(void)
+static inline u64 NPA_AF_BP_TEST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_BP_TEST(void)
+static inline u64 NPA_AF_BP_TEST(void)
 {
 	return 0x200;
 }
@@ -772,9 +773,9 @@ static inline u64 CAVM_NPA_AF_BP_TEST(void)
  * NPA AF Constants Register This register contains constants for
  * software discovery.
  */
-union cavm_npa_af_const {
+union npa_af_const {
 	u64 u;
-	struct cavm_npa_af_const_s {
+	struct npa_af_const_s {
 		u64 stack_page_bytes                 : 8;
 		u64 stack_page_ptrs                  : 8;
 		u64 lfs                              : 12;
@@ -782,12 +783,12 @@ union cavm_npa_af_const {
 		u64 num_ndc                          : 3;
 		u64 reserved_43_63                   : 21;
 	} s;
-	/* struct cavm_npa_af_const_s cn; */
+	/* struct npa_af_const_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_CONST(void)
+static inline u64 NPA_AF_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_CONST(void)
+static inline u64 NPA_AF_CONST(void)
 {
 	return 0x10;
 }
@@ -798,20 +799,20 @@ static inline u64 CAVM_NPA_AF_CONST(void)
  * NPA AF Constants Register 1 This register contains constants for
  * software discovery.
  */
-union cavm_npa_af_const1 {
+union npa_af_const1 {
 	u64 u;
-	struct cavm_npa_af_const1_s {
+	struct npa_af_const1_s {
 		u64 aura_log2bytes                   : 4;
 		u64 pool_log2bytes                   : 4;
 		u64 qint_log2bytes                   : 4;
 		u64 reserved_12_63                   : 52;
 	} s;
-	/* struct cavm_npa_af_const1_s cn; */
+	/* struct npa_af_const1_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_CONST1(void)
+static inline u64 NPA_AF_CONST1(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_CONST1(void)
+static inline u64 NPA_AF_CONST1(void)
 {
 	return 0x18;
 }
@@ -821,20 +822,20 @@ static inline u64 CAVM_NPA_AF_CONST1(void)
  *
  * NPA AF DTX LF Filter Control Register
  */
-union cavm_npa_af_dtx_filter_ctl {
+union npa_af_dtx_filter_ctl {
 	u64 u;
-	struct cavm_npa_af_dtx_filter_ctl_s {
+	struct npa_af_dtx_filter_ctl_s {
 		u64 ena                              : 1;
 		u64 reserved_1_3                     : 3;
 		u64 lf                               : 7;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_npa_af_dtx_filter_ctl_s cn; */
+	/* struct npa_af_dtx_filter_ctl_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_DTX_FILTER_CTL(void)
+static inline u64 NPA_AF_DTX_FILTER_CTL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_DTX_FILTER_CTL(void)
+static inline u64 NPA_AF_DTX_FILTER_CTL(void)
 {
 	return 0x10040;
 }
@@ -844,18 +845,18 @@ static inline u64 CAVM_NPA_AF_DTX_FILTER_CTL(void)
  *
  * INTERNAL: NPA AF ECO Register
  */
-union cavm_npa_af_eco {
+union npa_af_eco {
 	u64 u;
-	struct cavm_npa_af_eco_s {
+	struct npa_af_eco_s {
 		u64 eco_rw                           : 32;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_npa_af_eco_s cn; */
+	/* struct npa_af_eco_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_ECO(void)
+static inline u64 NPA_AF_ECO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_ECO(void)
+static inline u64 NPA_AF_ECO(void)
 {
 	return 0x300;
 }
@@ -865,21 +866,21 @@ static inline u64 CAVM_NPA_AF_ECO(void)
  *
  * NPA Admin Function Error Interrupt Register
  */
-union cavm_npa_af_err_int {
+union npa_af_err_int {
 	u64 u;
-	struct cavm_npa_af_err_int_s {
+	struct npa_af_err_int_s {
 		u64 reserved_0_11                    : 12;
 		u64 aq_door_err                      : 1;
 		u64 aq_res_fault                     : 1;
 		u64 aq_inst_fault                    : 1;
 		u64 reserved_15_63                   : 49;
 	} s;
-	/* struct cavm_npa_af_err_int_s cn; */
+	/* struct npa_af_err_int_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_ERR_INT(void)
+static inline u64 NPA_AF_ERR_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_ERR_INT(void)
+static inline u64 NPA_AF_ERR_INT(void)
 {
 	return 0x180;
 }
@@ -890,21 +891,21 @@ static inline u64 CAVM_NPA_AF_ERR_INT(void)
  * NPA Admin Function Error Interrupt Enable Clear Register This register
  * clears interrupt enable bits.
  */
-union cavm_npa_af_err_int_ena_w1c {
+union npa_af_err_int_ena_w1c {
 	u64 u;
-	struct cavm_npa_af_err_int_ena_w1c_s {
+	struct npa_af_err_int_ena_w1c_s {
 		u64 reserved_0_11                    : 12;
 		u64 aq_door_err                      : 1;
 		u64 aq_res_fault                     : 1;
 		u64 aq_inst_fault                    : 1;
 		u64 reserved_15_63                   : 49;
 	} s;
-	/* struct cavm_npa_af_err_int_ena_w1c_s cn; */
+	/* struct npa_af_err_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1C(void)
+static inline u64 NPA_AF_ERR_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1C(void)
+static inline u64 NPA_AF_ERR_INT_ENA_W1C(void)
 {
 	return 0x198;
 }
@@ -915,21 +916,21 @@ static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1C(void)
  * NPA Admin Function Error Interrupt Enable Set Register This register
  * sets interrupt enable bits.
  */
-union cavm_npa_af_err_int_ena_w1s {
+union npa_af_err_int_ena_w1s {
 	u64 u;
-	struct cavm_npa_af_err_int_ena_w1s_s {
+	struct npa_af_err_int_ena_w1s_s {
 		u64 reserved_0_11                    : 12;
 		u64 aq_door_err                      : 1;
 		u64 aq_res_fault                     : 1;
 		u64 aq_inst_fault                    : 1;
 		u64 reserved_15_63                   : 49;
 	} s;
-	/* struct cavm_npa_af_err_int_ena_w1s_s cn; */
+	/* struct npa_af_err_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1S(void)
+static inline u64 NPA_AF_ERR_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1S(void)
+static inline u64 NPA_AF_ERR_INT_ENA_W1S(void)
 {
 	return 0x190;
 }
@@ -940,21 +941,21 @@ static inline u64 CAVM_NPA_AF_ERR_INT_ENA_W1S(void)
  * NPA Admin Function Error Interrupt Set Register This register sets
  * interrupt bits.
  */
-union cavm_npa_af_err_int_w1s {
+union npa_af_err_int_w1s {
 	u64 u;
-	struct cavm_npa_af_err_int_w1s_s {
+	struct npa_af_err_int_w1s_s {
 		u64 reserved_0_11                    : 12;
 		u64 aq_door_err                      : 1;
 		u64 aq_res_fault                     : 1;
 		u64 aq_inst_fault                    : 1;
 		u64 reserved_15_63                   : 49;
 	} s;
-	/* struct cavm_npa_af_err_int_w1s_s cn; */
+	/* struct npa_af_err_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_ERR_INT_W1S(void)
+static inline u64 NPA_AF_ERR_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_ERR_INT_W1S(void)
+static inline u64 NPA_AF_ERR_INT_W1S(void)
 {
 	return 0x188;
 }
@@ -965,9 +966,9 @@ static inline u64 CAVM_NPA_AF_ERR_INT_W1S(void)
  * NPA AF General Configuration Register This register provides NPA
  * control and status information.
  */
-union cavm_npa_af_gen_cfg {
+union npa_af_gen_cfg {
 	u64 u;
-	struct cavm_npa_af_gen_cfg_s {
+	struct npa_af_gen_cfg_s {
 		u64 reserved_0                       : 1;
 		u64 af_be                            : 1;
 		u64 reserved_2                       : 1;
@@ -979,12 +980,12 @@ union cavm_npa_af_gen_cfg {
 		u64 ratem1                           : 4;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_npa_af_gen_cfg_s cn; */
+	/* struct npa_af_gen_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_GEN_CFG(void)
+static inline u64 NPA_AF_GEN_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_GEN_CFG(void)
+static inline u64 NPA_AF_GEN_CFG(void)
 {
 	return 0x30;
 }
@@ -995,20 +996,20 @@ static inline u64 CAVM_NPA_AF_GEN_CFG(void)
  * NPA AF General Interrupt Register This register contains general error
  * interrupt summary bits.
  */
-union cavm_npa_af_gen_int {
+union npa_af_gen_int {
 	u64 u;
-	struct cavm_npa_af_gen_int_s {
+	struct npa_af_gen_int_s {
 		u64 free_dis                         : 16;
 		u64 alloc_dis                        : 16;
 		u64 unmapped_pf_func                 : 1;
 		u64 reserved_33_63                   : 31;
 	} s;
-	/* struct cavm_npa_af_gen_int_s cn; */
+	/* struct npa_af_gen_int_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_GEN_INT(void)
+static inline u64 NPA_AF_GEN_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_GEN_INT(void)
+static inline u64 NPA_AF_GEN_INT(void)
 {
 	return 0x140;
 }
@@ -1019,20 +1020,20 @@ static inline u64 CAVM_NPA_AF_GEN_INT(void)
  * NPA AF General Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_npa_af_gen_int_ena_w1c {
+union npa_af_gen_int_ena_w1c {
 	u64 u;
-	struct cavm_npa_af_gen_int_ena_w1c_s {
+	struct npa_af_gen_int_ena_w1c_s {
 		u64 free_dis                         : 16;
 		u64 alloc_dis                        : 16;
 		u64 unmapped_pf_func                 : 1;
 		u64 reserved_33_63                   : 31;
 	} s;
-	/* struct cavm_npa_af_gen_int_ena_w1c_s cn; */
+	/* struct npa_af_gen_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1C(void)
+static inline u64 NPA_AF_GEN_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1C(void)
+static inline u64 NPA_AF_GEN_INT_ENA_W1C(void)
 {
 	return 0x158;
 }
@@ -1043,20 +1044,20 @@ static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1C(void)
  * NPA AF General Interrupt Enable Set Register This register sets
  * interrupt enable bits.
  */
-union cavm_npa_af_gen_int_ena_w1s {
+union npa_af_gen_int_ena_w1s {
 	u64 u;
-	struct cavm_npa_af_gen_int_ena_w1s_s {
+	struct npa_af_gen_int_ena_w1s_s {
 		u64 free_dis                         : 16;
 		u64 alloc_dis                        : 16;
 		u64 unmapped_pf_func                 : 1;
 		u64 reserved_33_63                   : 31;
 	} s;
-	/* struct cavm_npa_af_gen_int_ena_w1s_s cn; */
+	/* struct npa_af_gen_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1S(void)
+static inline u64 NPA_AF_GEN_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1S(void)
+static inline u64 NPA_AF_GEN_INT_ENA_W1S(void)
 {
 	return 0x150;
 }
@@ -1067,20 +1068,20 @@ static inline u64 CAVM_NPA_AF_GEN_INT_ENA_W1S(void)
  * NPA AF General Interrupt Set Register This register sets interrupt
  * bits.
  */
-union cavm_npa_af_gen_int_w1s {
+union npa_af_gen_int_w1s {
 	u64 u;
-	struct cavm_npa_af_gen_int_w1s_s {
+	struct npa_af_gen_int_w1s_s {
 		u64 free_dis                         : 16;
 		u64 alloc_dis                        : 16;
 		u64 unmapped_pf_func                 : 1;
 		u64 reserved_33_63                   : 31;
 	} s;
-	/* struct cavm_npa_af_gen_int_w1s_s cn; */
+	/* struct npa_af_gen_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_GEN_INT_W1S(void)
+static inline u64 NPA_AF_GEN_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_GEN_INT_W1S(void)
+static inline u64 NPA_AF_GEN_INT_W1S(void)
 {
 	return 0x148;
 }
@@ -1090,19 +1091,19 @@ static inline u64 CAVM_NPA_AF_GEN_INT_W1S(void)
  *
  * NPA AF Input Control Register
  */
-union cavm_npa_af_inp_ctl {
+union npa_af_inp_ctl {
 	u64 u;
-	struct cavm_npa_af_inp_ctl_s {
+	struct npa_af_inp_ctl_s {
 		u64 free_dis                         : 16;
 		u64 alloc_dis                        : 16;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_npa_af_inp_ctl_s cn; */
+	/* struct npa_af_inp_ctl_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_INP_CTL(void)
+static inline u64 NPA_AF_INP_CTL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_INP_CTL(void)
+static inline u64 NPA_AF_INP_CTL(void)
 {
 	return 0xd0;
 }
@@ -1112,9 +1113,9 @@ static inline u64 CAVM_NPA_AF_INP_CTL(void)
  *
  * NPA AF Local Function Auras Configuration Registers
  */
-union cavm_npa_af_lfx_auras_cfg {
+union npa_af_lfx_auras_cfg {
 	u64 u;
-	struct cavm_npa_af_lfx_auras_cfg_s {
+	struct npa_af_lfx_auras_cfg_s {
 		u64 way_mask                         : 16;
 		u64 loc_aura_size                    : 4;
 		u64 loc_aura_offset                  : 14;
@@ -1125,7 +1126,7 @@ union cavm_npa_af_lfx_auras_cfg {
 		u64 rmt_lf                           : 7;
 		u64 reserved_61_63                   : 3;
 	} s;
-	struct cavm_npa_af_lfx_auras_cfg_cn96xx {
+	struct npa_af_lfx_auras_cfg_cn96xxp1 {
 		u64 way_mask                         : 16;
 		u64 loc_aura_size                    : 4;
 		u64 loc_aura_offset                  : 14;
@@ -1135,13 +1136,16 @@ union cavm_npa_af_lfx_auras_cfg {
 		u64 rmt_aura_offset                  : 14;
 		u64 rmt_lf                           : 7;
 		u64 reserved_61_63                   : 3;
-	} cn96xx;
-	/* struct cavm_npa_af_lfx_auras_cfg_s cnf95xx; */
+	} cn96xxp1;
+	/* struct npa_af_lfx_auras_cfg_s cn96xxp3; */
+	/* struct npa_af_lfx_auras_cfg_s cn98xx; */
+	/* struct npa_af_lfx_auras_cfg_s cnf95xx; */
+	/* struct npa_af_lfx_auras_cfg_s loki; */
 };
 
-static inline u64 CAVM_NPA_AF_LFX_AURAS_CFG(u64 a)
+static inline u64 NPA_AF_LFX_AURAS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_LFX_AURAS_CFG(u64 a)
+static inline u64 NPA_AF_LFX_AURAS_CFG(u64 a)
 {
 	return 0x4000 + 0x40000 * a;
 }
@@ -1151,19 +1155,19 @@ static inline u64 CAVM_NPA_AF_LFX_AURAS_CFG(u64 a)
  *
  * NPA AF Local Function Auras Base Registers
  */
-union cavm_npa_af_lfx_loc_auras_base {
+union npa_af_lfx_loc_auras_base {
 	u64 u;
-	struct cavm_npa_af_lfx_loc_auras_base_s {
+	struct npa_af_lfx_loc_auras_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_npa_af_lfx_loc_auras_base_s cn; */
+	/* struct npa_af_lfx_loc_auras_base_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_LFX_LOC_AURAS_BASE(u64 a)
+static inline u64 NPA_AF_LFX_LOC_AURAS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_LFX_LOC_AURAS_BASE(u64 a)
+static inline u64 NPA_AF_LFX_LOC_AURAS_BASE(u64 a)
 {
 	return 0x4010 + 0x40000 * a;
 }
@@ -1173,19 +1177,19 @@ static inline u64 CAVM_NPA_AF_LFX_LOC_AURAS_BASE(u64 a)
  *
  * NPA AF Local Function Queue Interrupts Base Registers
  */
-union cavm_npa_af_lfx_qints_base {
+union npa_af_lfx_qints_base {
 	u64 u;
-	struct cavm_npa_af_lfx_qints_base_s {
+	struct npa_af_lfx_qints_base_s {
 		u64 reserved_0_6                     : 7;
 		u64 addr                             : 46;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_npa_af_lfx_qints_base_s cn; */
+	/* struct npa_af_lfx_qints_base_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_LFX_QINTS_BASE(u64 a)
+static inline u64 NPA_AF_LFX_QINTS_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_LFX_QINTS_BASE(u64 a)
+static inline u64 NPA_AF_LFX_QINTS_BASE(u64 a)
 {
 	return 0x4110 + 0x40000 * a;
 }
@@ -1199,20 +1203,20 @@ static inline u64 CAVM_NPA_AF_LFX_QINTS_BASE(u64 a)
  * NPA_QINT_HW_S structures. The size of each structure is 1 \<\<
  * NPA_AF_CONST1[QINT_LOG2BYTES] bytes.
  */
-union cavm_npa_af_lfx_qints_cfg {
+union npa_af_lfx_qints_cfg {
 	u64 u;
-	struct cavm_npa_af_lfx_qints_cfg_s {
+	struct npa_af_lfx_qints_cfg_s {
 		u64 reserved_0_19                    : 20;
 		u64 way_mask                         : 16;
 		u64 caching                          : 2;
 		u64 reserved_38_63                   : 26;
 	} s;
-	/* struct cavm_npa_af_lfx_qints_cfg_s cn; */
+	/* struct npa_af_lfx_qints_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_LFX_QINTS_CFG(u64 a)
+static inline u64 NPA_AF_LFX_QINTS_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_LFX_QINTS_CFG(u64 a)
+static inline u64 NPA_AF_LFX_QINTS_CFG(u64 a)
 {
 	return 0x4100 + 0x40000 * a;
 }
@@ -1222,20 +1226,20 @@ static inline u64 CAVM_NPA_AF_LFX_QINTS_CFG(u64 a)
  *
  * NPA Admin Function LF Reset Register
  */
-union cavm_npa_af_lf_rst {
+union npa_af_lf_rst {
 	u64 u;
-	struct cavm_npa_af_lf_rst_s {
+	struct npa_af_lf_rst_s {
 		u64 lf                               : 8;
 		u64 reserved_8_11                    : 4;
 		u64 exec                             : 1;
 		u64 reserved_13_63                   : 51;
 	} s;
-	/* struct cavm_npa_af_lf_rst_s cn; */
+	/* struct npa_af_lf_rst_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_LF_RST(void)
+static inline u64 NPA_AF_LF_RST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_LF_RST(void)
+static inline u64 NPA_AF_LF_RST(void)
 {
 	return 0x20;
 }
@@ -1246,9 +1250,9 @@ static inline u64 CAVM_NPA_AF_LF_RST(void)
  * NDC AF General Configuration Register This register provides NDC
  * control.
  */
-union cavm_npa_af_ndc_cfg {
+union npa_af_ndc_cfg {
 	u64 u;
-	struct cavm_npa_af_ndc_cfg_s {
+	struct npa_af_ndc_cfg_s {
 		u64 ndc_bypass                       : 1;
 		u64 ndc_ign_pois                     : 1;
 		u64 byp_aura                         : 1;
@@ -1257,12 +1261,12 @@ union cavm_npa_af_ndc_cfg {
 		u64 byp_qint                         : 1;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_npa_af_ndc_cfg_s cn; */
+	/* struct npa_af_ndc_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_NDC_CFG(void)
+static inline u64 NPA_AF_NDC_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_NDC_CFG(void)
+static inline u64 NPA_AF_NDC_CFG(void)
 {
 	return 0x40;
 }
@@ -1272,20 +1276,20 @@ static inline u64 CAVM_NPA_AF_NDC_CFG(void)
  *
  * NPA AF NDC Sync Register Used to synchronize the NPA NDC.
  */
-union cavm_npa_af_ndc_sync {
+union npa_af_ndc_sync {
 	u64 u;
-	struct cavm_npa_af_ndc_sync_s {
+	struct npa_af_ndc_sync_s {
 		u64 lf                               : 8;
 		u64 reserved_8_11                    : 4;
 		u64 exec                             : 1;
 		u64 reserved_13_63                   : 51;
 	} s;
-	/* struct cavm_npa_af_ndc_sync_s cn; */
+	/* struct npa_af_ndc_sync_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_NDC_SYNC(void)
+static inline u64 NPA_AF_NDC_SYNC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_NDC_SYNC(void)
+static inline u64 NPA_AF_NDC_SYNC(void)
 {
 	return 0x50;
 }
@@ -1296,21 +1300,21 @@ static inline u64 CAVM_NPA_AF_NDC_SYNC(void)
  * NPA AF RAS Interrupt Register This register is intended for delivery
  * of RAS events to the SCP, so should be ignored by OS drivers.
  */
-union cavm_npa_af_ras {
+union npa_af_ras {
 	u64 u;
-	struct cavm_npa_af_ras_s {
+	struct npa_af_ras_s {
 		u64 reserved_0_31                    : 32;
 		u64 aq_ctx_poison                    : 1;
 		u64 aq_res_poison                    : 1;
 		u64 aq_inst_poison                   : 1;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_npa_af_ras_s cn; */
+	/* struct npa_af_ras_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_RAS(void)
+static inline u64 NPA_AF_RAS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_RAS(void)
+static inline u64 NPA_AF_RAS(void)
 {
 	return 0x1a0;
 }
@@ -1321,21 +1325,21 @@ static inline u64 CAVM_NPA_AF_RAS(void)
  * NPA AF RAS Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_npa_af_ras_ena_w1c {
+union npa_af_ras_ena_w1c {
 	u64 u;
-	struct cavm_npa_af_ras_ena_w1c_s {
+	struct npa_af_ras_ena_w1c_s {
 		u64 reserved_0_31                    : 32;
 		u64 aq_ctx_poison                    : 1;
 		u64 aq_res_poison                    : 1;
 		u64 aq_inst_poison                   : 1;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_npa_af_ras_ena_w1c_s cn; */
+	/* struct npa_af_ras_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_RAS_ENA_W1C(void)
+static inline u64 NPA_AF_RAS_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_RAS_ENA_W1C(void)
+static inline u64 NPA_AF_RAS_ENA_W1C(void)
 {
 	return 0x1b8;
 }
@@ -1346,21 +1350,21 @@ static inline u64 CAVM_NPA_AF_RAS_ENA_W1C(void)
  * NPA AF RAS Interrupt Enable Set Register This register sets interrupt
  * enable bits.
  */
-union cavm_npa_af_ras_ena_w1s {
+union npa_af_ras_ena_w1s {
 	u64 u;
-	struct cavm_npa_af_ras_ena_w1s_s {
+	struct npa_af_ras_ena_w1s_s {
 		u64 reserved_0_31                    : 32;
 		u64 aq_ctx_poison                    : 1;
 		u64 aq_res_poison                    : 1;
 		u64 aq_inst_poison                   : 1;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_npa_af_ras_ena_w1s_s cn; */
+	/* struct npa_af_ras_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_RAS_ENA_W1S(void)
+static inline u64 NPA_AF_RAS_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_RAS_ENA_W1S(void)
+static inline u64 NPA_AF_RAS_ENA_W1S(void)
 {
 	return 0x1b0;
 }
@@ -1370,21 +1374,21 @@ static inline u64 CAVM_NPA_AF_RAS_ENA_W1S(void)
  *
  * NPA AF RAS Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_npa_af_ras_w1s {
+union npa_af_ras_w1s {
 	u64 u;
-	struct cavm_npa_af_ras_w1s_s {
+	struct npa_af_ras_w1s_s {
 		u64 reserved_0_31                    : 32;
 		u64 aq_ctx_poison                    : 1;
 		u64 aq_res_poison                    : 1;
 		u64 aq_inst_poison                   : 1;
 		u64 reserved_35_63                   : 29;
 	} s;
-	/* struct cavm_npa_af_ras_w1s_s cn; */
+	/* struct npa_af_ras_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_RAS_W1S(void)
+static inline u64 NPA_AF_RAS_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_RAS_W1S(void)
+static inline u64 NPA_AF_RAS_W1S(void)
 {
 	return 0x1a8;
 }
@@ -1395,18 +1399,18 @@ static inline u64 CAVM_NPA_AF_RAS_W1S(void)
  * NPA AF RVU Interrupt Register This register contains RVU error
  * interrupt summary bits.
  */
-union cavm_npa_af_rvu_int {
+union npa_af_rvu_int {
 	u64 u;
-	struct cavm_npa_af_rvu_int_s {
+	struct npa_af_rvu_int_s {
 		u64 unmapped_slot                    : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_af_rvu_int_s cn; */
+	/* struct npa_af_rvu_int_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_RVU_INT(void)
+static inline u64 NPA_AF_RVU_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_RVU_INT(void)
+static inline u64 NPA_AF_RVU_INT(void)
 {
 	return 0x160;
 }
@@ -1417,18 +1421,18 @@ static inline u64 CAVM_NPA_AF_RVU_INT(void)
  * NPA AF RVU Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_npa_af_rvu_int_ena_w1c {
+union npa_af_rvu_int_ena_w1c {
 	u64 u;
-	struct cavm_npa_af_rvu_int_ena_w1c_s {
+	struct npa_af_rvu_int_ena_w1c_s {
 		u64 unmapped_slot                    : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_af_rvu_int_ena_w1c_s cn; */
+	/* struct npa_af_rvu_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1C(void)
+static inline u64 NPA_AF_RVU_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1C(void)
+static inline u64 NPA_AF_RVU_INT_ENA_W1C(void)
 {
 	return 0x178;
 }
@@ -1439,18 +1443,18 @@ static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1C(void)
  * NPA AF RVU Interrupt Enable Set Register This register sets interrupt
  * enable bits.
  */
-union cavm_npa_af_rvu_int_ena_w1s {
+union npa_af_rvu_int_ena_w1s {
 	u64 u;
-	struct cavm_npa_af_rvu_int_ena_w1s_s {
+	struct npa_af_rvu_int_ena_w1s_s {
 		u64 unmapped_slot                    : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_af_rvu_int_ena_w1s_s cn; */
+	/* struct npa_af_rvu_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1S(void)
+static inline u64 NPA_AF_RVU_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1S(void)
+static inline u64 NPA_AF_RVU_INT_ENA_W1S(void)
 {
 	return 0x170;
 }
@@ -1460,18 +1464,18 @@ static inline u64 CAVM_NPA_AF_RVU_INT_ENA_W1S(void)
  *
  * NPA AF RVU Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_npa_af_rvu_int_w1s {
+union npa_af_rvu_int_w1s {
 	u64 u;
-	struct cavm_npa_af_rvu_int_w1s_s {
+	struct npa_af_rvu_int_w1s_s {
 		u64 unmapped_slot                    : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_af_rvu_int_w1s_s cn; */
+	/* struct npa_af_rvu_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_RVU_INT_W1S(void)
+static inline u64 NPA_AF_RVU_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_RVU_INT_W1S(void)
+static inline u64 NPA_AF_RVU_INT_W1S(void)
 {
 	return 0x168;
 }
@@ -1483,9 +1487,9 @@ static inline u64 CAVM_NPA_AF_RVU_INT_W1S(void)
  * allows software to lookup the reverse mapping from VF/PF slot to LF.
  * The forward mapping is programmed with NPA_PRIV_LF()_CFG.
  */
-union cavm_npa_af_rvu_lf_cfg_debug {
+union npa_af_rvu_lf_cfg_debug {
 	u64 u;
-	struct cavm_npa_af_rvu_lf_cfg_debug_s {
+	struct npa_af_rvu_lf_cfg_debug_s {
 		u64 lf                               : 12;
 		u64 lf_valid                         : 1;
 		u64 exec                             : 1;
@@ -1494,12 +1498,12 @@ union cavm_npa_af_rvu_lf_cfg_debug {
 		u64 pf_func                          : 16;
 		u64 reserved_40_63                   : 24;
 	} s;
-	/* struct cavm_npa_af_rvu_lf_cfg_debug_s cn; */
+	/* struct npa_af_rvu_lf_cfg_debug_s cn; */
 };
 
-static inline u64 CAVM_NPA_AF_RVU_LF_CFG_DEBUG(void)
+static inline u64 NPA_AF_RVU_LF_CFG_DEBUG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_AF_RVU_LF_CFG_DEBUG(void)
+static inline u64 NPA_AF_RVU_LF_CFG_DEBUG(void)
 {
 	return 0x10030;
 }
@@ -1517,17 +1521,17 @@ static inline u64 CAVM_NPA_AF_RVU_LF_CFG_DEBUG(void)
  * All other accesses to this register (e.g. reads and writes) are
  * RAZ/WI.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_npa_lf_aura_op_allocx {
+union npa_lf_aura_op_allocx {
 	u64 u;
-	struct cavm_npa_lf_aura_op_allocx_s {
+	struct npa_lf_aura_op_allocx_s {
 		u64 addr                             : 64;
 	} s;
-	/* struct cavm_npa_lf_aura_op_allocx_s cn; */
+	/* struct npa_lf_aura_op_allocx_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_AURA_OP_ALLOCX(u64 a)
+static inline u64 NPA_LF_AURA_OP_ALLOCX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_AURA_OP_ALLOCX(u64 a)
+static inline u64 NPA_LF_AURA_OP_ALLOCX(u64 a)
 {
 	return 0x10 + 8 * a;
 }
@@ -1539,21 +1543,21 @@ static inline u64 CAVM_NPA_LF_AURA_OP_ALLOCX(u64 a)
  * register returns a given aura's count. A write sets or adds the aura's
  * count. A read is RAZ.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_npa_lf_aura_op_cnt {
+union npa_lf_aura_op_cnt {
 	u64 u;
-	struct cavm_npa_lf_aura_op_cnt_s {
+	struct npa_lf_aura_op_cnt_s {
 		u64 count                            : 36;
 		u64 reserved_36_41                   : 6;
 		u64 op_err                           : 1;
 		u64 cnt_add                          : 1;
 		u64 aura                             : 20;
 	} s;
-	/* struct cavm_npa_lf_aura_op_cnt_s cn; */
+	/* struct npa_lf_aura_op_cnt_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_AURA_OP_CNT(void)
+static inline u64 NPA_LF_AURA_OP_CNT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_AURA_OP_CNT(void)
+static inline u64 NPA_LF_AURA_OP_CNT(void)
 {
 	return 0x30;
 }
@@ -1561,23 +1565,23 @@ static inline u64 CAVM_NPA_LF_AURA_OP_CNT(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_free0
  *
- * NPA LF Aura Free Operation Register 0 A 128-bit write to
+ * NPA LF Aura Free Operation Register 0 A 128-bit write (STP) to
  * NPA_LF_AURA_OP_FREE0 and NPA_LF_AURA_OP_FREE1 frees a pointer into a
  * given aura's pool. All other accesses to these registers (e.g. reads
  * and 64-bit writes) are RAZ/WI.  RSL accesses to this register are
  * RAZ/WI.
  */
-union cavm_npa_lf_aura_op_free0 {
+union npa_lf_aura_op_free0 {
 	u64 u;
-	struct cavm_npa_lf_aura_op_free0_s {
+	struct npa_lf_aura_op_free0_s {
 		u64 addr                             : 64;
 	} s;
-	/* struct cavm_npa_lf_aura_op_free0_s cn; */
+	/* struct npa_lf_aura_op_free0_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_AURA_OP_FREE0(void)
+static inline u64 NPA_LF_AURA_OP_FREE0(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_AURA_OP_FREE0(void)
+static inline u64 NPA_LF_AURA_OP_FREE0(void)
 {
 	return 0x20;
 }
@@ -1588,19 +1592,19 @@ static inline u64 CAVM_NPA_LF_AURA_OP_FREE0(void)
  * NPA LF Aura Free Operation Register 1 See NPA_LF_AURA_OP_FREE0.  RSL
  * accesses to this register are RAZ/WI.
  */
-union cavm_npa_lf_aura_op_free1 {
+union npa_lf_aura_op_free1 {
 	u64 u;
-	struct cavm_npa_lf_aura_op_free1_s {
+	struct npa_lf_aura_op_free1_s {
 		u64 aura                             : 20;
 		u64 reserved_20_62                   : 43;
 		u64 fabs                             : 1;
 	} s;
-	/* struct cavm_npa_lf_aura_op_free1_s cn; */
+	/* struct npa_lf_aura_op_free1_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_AURA_OP_FREE1(void)
+static inline u64 NPA_LF_AURA_OP_FREE1(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_AURA_OP_FREE1(void)
+static inline u64 NPA_LF_AURA_OP_FREE1(void)
 {
 	return 0x28;
 }
@@ -1614,9 +1618,9 @@ static inline u64 CAVM_NPA_LF_AURA_OP_FREE1(void)
  * optionally sets or clears these fields. A read is RAZ.  RSL accesses
  * to this register are RAZ/WI.
  */
-union cavm_npa_lf_aura_op_int {
+union npa_lf_aura_op_int {
 	u64 u;
-	struct cavm_npa_lf_aura_op_int_s {
+	struct npa_lf_aura_op_int_s {
 		u64 err_int                          : 8;
 		u64 err_int_ena                      : 8;
 		u64 thresh_int                       : 1;
@@ -1626,12 +1630,12 @@ union cavm_npa_lf_aura_op_int {
 		u64 setop                            : 1;
 		u64 aura                             : 20;
 	} s;
-	/* struct cavm_npa_lf_aura_op_int_s cn; */
+	/* struct npa_lf_aura_op_int_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_AURA_OP_INT(void)
+static inline u64 NPA_LF_AURA_OP_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_AURA_OP_INT(void)
+static inline u64 NPA_LF_AURA_OP_INT(void)
 {
 	return 0x60;
 }
@@ -1643,21 +1647,21 @@ static inline u64 CAVM_NPA_LF_AURA_OP_INT(void)
  * this register returns a given aura's limit. A write sets the aura's
  * limit. A read is RAZ.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_npa_lf_aura_op_limit {
+union npa_lf_aura_op_limit {
 	u64 u;
-	struct cavm_npa_lf_aura_op_limit_s {
+	struct npa_lf_aura_op_limit_s {
 		u64 limit                            : 36;
 		u64 reserved_36_41                   : 6;
 		u64 op_err                           : 1;
 		u64 reserved_43                      : 1;
 		u64 aura                             : 20;
 	} s;
-	/* struct cavm_npa_lf_aura_op_limit_s cn; */
+	/* struct npa_lf_aura_op_limit_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_AURA_OP_LIMIT(void)
+static inline u64 NPA_LF_AURA_OP_LIMIT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_AURA_OP_LIMIT(void)
+static inline u64 NPA_LF_AURA_OP_LIMIT(void)
 {
 	return 0x50;
 }
@@ -1671,21 +1675,21 @@ static inline u64 CAVM_NPA_LF_AURA_OP_LIMIT(void)
  * NPA_AURA_HW_S[THRESH_INT]. A read is RAZ.  RSL accesses to this
  * register are RAZ/WI.
  */
-union cavm_npa_lf_aura_op_thresh {
+union npa_lf_aura_op_thresh {
 	u64 u;
-	struct cavm_npa_lf_aura_op_thresh_s {
+	struct npa_lf_aura_op_thresh_s {
 		u64 thresh                           : 36;
 		u64 reserved_36_41                   : 6;
 		u64 op_err                           : 1;
 		u64 thresh_up                        : 1;
 		u64 aura                             : 20;
 	} s;
-	/* struct cavm_npa_lf_aura_op_thresh_s cn; */
+	/* struct npa_lf_aura_op_thresh_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_AURA_OP_THRESH(void)
+static inline u64 NPA_LF_AURA_OP_THRESH(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_AURA_OP_THRESH(void)
+static inline u64 NPA_LF_AURA_OP_THRESH(void)
 {
 	return 0x70;
 }
@@ -1695,9 +1699,9 @@ static inline u64 CAVM_NPA_LF_AURA_OP_THRESH(void)
  *
  * NPA LF Error Interrupt Register
  */
-union cavm_npa_lf_err_int {
+union npa_lf_err_int {
 	u64 u;
-	struct cavm_npa_lf_err_int_s {
+	struct npa_lf_err_int_s {
 		u64 aura_dis                         : 1;
 		u64 aura_oor                         : 1;
 		u64 reserved_2                       : 1;
@@ -1709,12 +1713,12 @@ union cavm_npa_lf_err_int {
 		u64 qint_fault                       : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_npa_lf_err_int_s cn; */
+	/* struct npa_lf_err_int_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_ERR_INT(void)
+static inline u64 NPA_LF_ERR_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_ERR_INT(void)
+static inline u64 NPA_LF_ERR_INT(void)
 {
 	return 0x200;
 }
@@ -1725,9 +1729,9 @@ static inline u64 CAVM_NPA_LF_ERR_INT(void)
  * NPA LF Error Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_npa_lf_err_int_ena_w1c {
+union npa_lf_err_int_ena_w1c {
 	u64 u;
-	struct cavm_npa_lf_err_int_ena_w1c_s {
+	struct npa_lf_err_int_ena_w1c_s {
 		u64 aura_dis                         : 1;
 		u64 aura_oor                         : 1;
 		u64 reserved_2                       : 1;
@@ -1739,12 +1743,12 @@ union cavm_npa_lf_err_int_ena_w1c {
 		u64 qint_fault                       : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_npa_lf_err_int_ena_w1c_s cn; */
+	/* struct npa_lf_err_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1C(void)
+static inline u64 NPA_LF_ERR_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1C(void)
+static inline u64 NPA_LF_ERR_INT_ENA_W1C(void)
 {
 	return 0x210;
 }
@@ -1755,9 +1759,9 @@ static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1C(void)
  * NPA LF Error Interrupt Enable Set Register This register sets
  * interrupt enable bits.
  */
-union cavm_npa_lf_err_int_ena_w1s {
+union npa_lf_err_int_ena_w1s {
 	u64 u;
-	struct cavm_npa_lf_err_int_ena_w1s_s {
+	struct npa_lf_err_int_ena_w1s_s {
 		u64 aura_dis                         : 1;
 		u64 aura_oor                         : 1;
 		u64 reserved_2                       : 1;
@@ -1769,12 +1773,12 @@ union cavm_npa_lf_err_int_ena_w1s {
 		u64 qint_fault                       : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_npa_lf_err_int_ena_w1s_s cn; */
+	/* struct npa_lf_err_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1S(void)
+static inline u64 NPA_LF_ERR_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1S(void)
+static inline u64 NPA_LF_ERR_INT_ENA_W1S(void)
 {
 	return 0x218;
 }
@@ -1784,9 +1788,9 @@ static inline u64 CAVM_NPA_LF_ERR_INT_ENA_W1S(void)
  *
  * NPA LF Error Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_npa_lf_err_int_w1s {
+union npa_lf_err_int_w1s {
 	u64 u;
-	struct cavm_npa_lf_err_int_w1s_s {
+	struct npa_lf_err_int_w1s_s {
 		u64 aura_dis                         : 1;
 		u64 aura_oor                         : 1;
 		u64 reserved_2                       : 1;
@@ -1798,12 +1802,12 @@ union cavm_npa_lf_err_int_w1s {
 		u64 qint_fault                       : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_npa_lf_err_int_w1s_s cn; */
+	/* struct npa_lf_err_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_ERR_INT_W1S(void)
+static inline u64 NPA_LF_ERR_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_ERR_INT_W1S(void)
+static inline u64 NPA_LF_ERR_INT_W1S(void)
 {
 	return 0x208;
 }
@@ -1816,21 +1820,21 @@ static inline u64 CAVM_NPA_LF_ERR_INT_W1S(void)
  * Reads and writes are RAZ/WI.  RSL accesses to this register are
  * RAZ/WI.
  */
-union cavm_npa_lf_pool_op_available {
+union npa_lf_pool_op_available {
 	u64 u;
-	struct cavm_npa_lf_pool_op_available_s {
+	struct npa_lf_pool_op_available_s {
 		u64 count                            : 36;
 		u64 reserved_36_41                   : 6;
 		u64 op_err                           : 1;
 		u64 reserved_43                      : 1;
 		u64 aura                             : 20;
 	} s;
-	/* struct cavm_npa_lf_pool_op_available_s cn; */
+	/* struct npa_lf_pool_op_available_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_POOL_OP_AVAILABLE(void)
+static inline u64 NPA_LF_POOL_OP_AVAILABLE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_POOL_OP_AVAILABLE(void)
+static inline u64 NPA_LF_POOL_OP_AVAILABLE(void)
 {
 	return 0x110;
 }
@@ -1844,9 +1848,9 @@ static inline u64 CAVM_NPA_LF_POOL_OP_AVAILABLE(void)
  * optionally sets or clears these fields. A read is RAZ.  RSL accesses
  * to this register are RAZ/WI.
  */
-union cavm_npa_lf_pool_op_int {
+union npa_lf_pool_op_int {
 	u64 u;
-	struct cavm_npa_lf_pool_op_int_s {
+	struct npa_lf_pool_op_int_s {
 		u64 err_int                          : 8;
 		u64 err_int_ena                      : 8;
 		u64 thresh_int                       : 1;
@@ -1856,12 +1860,12 @@ union cavm_npa_lf_pool_op_int {
 		u64 setop                            : 1;
 		u64 aura                             : 20;
 	} s;
-	/* struct cavm_npa_lf_pool_op_int_s cn; */
+	/* struct npa_lf_pool_op_int_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_POOL_OP_INT(void)
+static inline u64 NPA_LF_POOL_OP_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_POOL_OP_INT(void)
+static inline u64 NPA_LF_POOL_OP_INT(void)
 {
 	return 0x160;
 }
@@ -1875,19 +1879,19 @@ static inline u64 CAVM_NPA_LF_POOL_OP_INT(void)
  * NPA_AURA_OP_WDATA_S. Reads and writes are RAZ/WI.  RSL accesses to
  * this register are RAZ/WI.
  */
-union cavm_npa_lf_pool_op_pc {
+union npa_lf_pool_op_pc {
 	u64 u;
-	struct cavm_npa_lf_pool_op_pc_s {
+	struct npa_lf_pool_op_pc_s {
 		u64 op_pc                            : 48;
 		u64 op_err                           : 1;
 		u64 reserved_49_63                   : 15;
 	} s;
-	/* struct cavm_npa_lf_pool_op_pc_s cn; */
+	/* struct npa_lf_pool_op_pc_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_POOL_OP_PC(void)
+static inline u64 NPA_LF_POOL_OP_PC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_POOL_OP_PC(void)
+static inline u64 NPA_LF_POOL_OP_PC(void)
 {
 	return 0x100;
 }
@@ -1895,23 +1899,23 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PC(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_ptr_end0
  *
- * NPA LF Pool Pointer End Operation Register 0 A 128-bit write to the
- * NPA_LF_POOL_OP_PTR_END0 and NPA_LF_POOL_OP_PTR_END1 registers writes
- * to a given pool's pointer end value. All other accesses to these
- * registers (e.g. reads and 64-bit writes) are RAZ/WI.  RSL accesses to
- * this register are RAZ/WI.
+ * NPA LF Pool Pointer End Operation Register 0 A 128-bit write (STP) to
+ * the NPA_LF_POOL_OP_PTR_END0 and NPA_LF_POOL_OP_PTR_END1 registers
+ * writes to a given pool's pointer end value. All other accesses to
+ * these registers (e.g. reads and 64-bit writes) are RAZ/WI.  RSL
+ * accesses to this register are RAZ/WI.
  */
-union cavm_npa_lf_pool_op_ptr_end0 {
+union npa_lf_pool_op_ptr_end0 {
 	u64 u;
-	struct cavm_npa_lf_pool_op_ptr_end0_s {
+	struct npa_lf_pool_op_ptr_end0_s {
 		u64 ptr_end                          : 64;
 	} s;
-	/* struct cavm_npa_lf_pool_op_ptr_end0_s cn; */
+	/* struct npa_lf_pool_op_ptr_end0_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END0(void)
+static inline u64 NPA_LF_POOL_OP_PTR_END0(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END0(void)
+static inline u64 NPA_LF_POOL_OP_PTR_END0(void)
 {
 	return 0x130;
 }
@@ -1922,18 +1926,18 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END0(void)
  * NPA LF Pool Pointer End Operation Register 1 See
  * NPA_LF_POOL_OP_PTR_END0.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_npa_lf_pool_op_ptr_end1 {
+union npa_lf_pool_op_ptr_end1 {
 	u64 u;
-	struct cavm_npa_lf_pool_op_ptr_end1_s {
+	struct npa_lf_pool_op_ptr_end1_s {
 		u64 aura                             : 20;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_npa_lf_pool_op_ptr_end1_s cn; */
+	/* struct npa_lf_pool_op_ptr_end1_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END1(void)
+static inline u64 NPA_LF_POOL_OP_PTR_END1(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END1(void)
+static inline u64 NPA_LF_POOL_OP_PTR_END1(void)
 {
 	return 0x138;
 }
@@ -1941,23 +1945,23 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_END1(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_ptr_start0
  *
- * NPA LF Pool Pointer Start Operation Register 0 A 128-bit write to the
- * NPA_LF_POOL_OP_PTR_START0 and NPA_LF_POOL_OP_PTR_START1 registers
- * writes to a given pool's pointer start value. All other accesses to
- * these registers (e.g. reads and 64-bit writes) are RAZ/WI.  RSL
- * accesses to this register are RAZ/WI.
+ * NPA LF Pool Pointer Start Operation Register 0 A 128-bit write (STP)
+ * to the NPA_LF_POOL_OP_PTR_START0 and NPA_LF_POOL_OP_PTR_START1
+ * registers writes to a given pool's pointer start value. All other
+ * accesses to these registers (e.g. reads and 64-bit writes) are RAZ/WI.
+ * RSL accesses to this register are RAZ/WI.
  */
-union cavm_npa_lf_pool_op_ptr_start0 {
+union npa_lf_pool_op_ptr_start0 {
 	u64 u;
-	struct cavm_npa_lf_pool_op_ptr_start0_s {
+	struct npa_lf_pool_op_ptr_start0_s {
 		u64 ptr_start                        : 64;
 	} s;
-	/* struct cavm_npa_lf_pool_op_ptr_start0_s cn; */
+	/* struct npa_lf_pool_op_ptr_start0_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START0(void)
+static inline u64 NPA_LF_POOL_OP_PTR_START0(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START0(void)
+static inline u64 NPA_LF_POOL_OP_PTR_START0(void)
 {
 	return 0x120;
 }
@@ -1968,18 +1972,18 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START0(void)
  * NPA LF Pool Pointer Start Operation Register 1 See
  * NPA_LF_POOL_OP_PTR_START0.  RSL accesses to this register are RAZ/WI.
  */
-union cavm_npa_lf_pool_op_ptr_start1 {
+union npa_lf_pool_op_ptr_start1 {
 	u64 u;
-	struct cavm_npa_lf_pool_op_ptr_start1_s {
+	struct npa_lf_pool_op_ptr_start1_s {
 		u64 aura                             : 20;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_npa_lf_pool_op_ptr_start1_s cn; */
+	/* struct npa_lf_pool_op_ptr_start1_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START1(void)
+static inline u64 NPA_LF_POOL_OP_PTR_START1(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START1(void)
+static inline u64 NPA_LF_POOL_OP_PTR_START1(void)
 {
 	return 0x128;
 }
@@ -1992,21 +1996,21 @@ static inline u64 CAVM_NPA_LF_POOL_OP_PTR_START1(void)
  * register writes NPA_POOL_S[THRESH_UP,THRESH]. A read is RAZ.  RSL
  * accesses to this register are RAZ/WI.
  */
-union cavm_npa_lf_pool_op_thresh {
+union npa_lf_pool_op_thresh {
 	u64 u;
-	struct cavm_npa_lf_pool_op_thresh_s {
+	struct npa_lf_pool_op_thresh_s {
 		u64 thresh                           : 36;
 		u64 reserved_36_41                   : 6;
 		u64 op_err                           : 1;
 		u64 thresh_up                        : 1;
 		u64 aura                             : 20;
 	} s;
-	/* struct cavm_npa_lf_pool_op_thresh_s cn; */
+	/* struct npa_lf_pool_op_thresh_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_POOL_OP_THRESH(void)
+static inline u64 NPA_LF_POOL_OP_THRESH(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_POOL_OP_THRESH(void)
+static inline u64 NPA_LF_POOL_OP_THRESH(void)
 {
 	return 0x170;
 }
@@ -2016,18 +2020,18 @@ static inline u64 CAVM_NPA_LF_POOL_OP_THRESH(void)
  *
  * NPA LF Queue Interrupt Count Registers
  */
-union cavm_npa_lf_qintx_cnt {
+union npa_lf_qintx_cnt {
 	u64 u;
-	struct cavm_npa_lf_qintx_cnt_s {
+	struct npa_lf_qintx_cnt_s {
 		u64 count                            : 22;
 		u64 reserved_22_63                   : 42;
 	} s;
-	/* struct cavm_npa_lf_qintx_cnt_s cn; */
+	/* struct npa_lf_qintx_cnt_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_QINTX_CNT(u64 a)
+static inline u64 NPA_LF_QINTX_CNT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_QINTX_CNT(u64 a)
+static inline u64 NPA_LF_QINTX_CNT(u64 a)
 {
 	return 0x300 + 0x1000 * a;
 }
@@ -2038,18 +2042,18 @@ static inline u64 CAVM_NPA_LF_QINTX_CNT(u64 a)
  * NPA LF Queue Interrupt Enable Clear Registers This register clears
  * interrupt enable bits.
  */
-union cavm_npa_lf_qintx_ena_w1c {
+union npa_lf_qintx_ena_w1c {
 	u64 u;
-	struct cavm_npa_lf_qintx_ena_w1c_s {
+	struct npa_lf_qintx_ena_w1c_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_lf_qintx_ena_w1c_s cn; */
+	/* struct npa_lf_qintx_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_QINTX_ENA_W1C(u64 a)
+static inline u64 NPA_LF_QINTX_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_QINTX_ENA_W1C(u64 a)
+static inline u64 NPA_LF_QINTX_ENA_W1C(u64 a)
 {
 	return 0x330 + 0x1000 * a;
 }
@@ -2060,18 +2064,18 @@ static inline u64 CAVM_NPA_LF_QINTX_ENA_W1C(u64 a)
  * NPA LF Queue Interrupt Enable Set Registers This register sets
  * interrupt enable bits.
  */
-union cavm_npa_lf_qintx_ena_w1s {
+union npa_lf_qintx_ena_w1s {
 	u64 u;
-	struct cavm_npa_lf_qintx_ena_w1s_s {
+	struct npa_lf_qintx_ena_w1s_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_lf_qintx_ena_w1s_s cn; */
+	/* struct npa_lf_qintx_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_QINTX_ENA_W1S(u64 a)
+static inline u64 NPA_LF_QINTX_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_QINTX_ENA_W1S(u64 a)
+static inline u64 NPA_LF_QINTX_ENA_W1S(u64 a)
 {
 	return 0x320 + 0x1000 * a;
 }
@@ -2081,18 +2085,18 @@ static inline u64 CAVM_NPA_LF_QINTX_ENA_W1S(u64 a)
  *
  * NPA LF Queue Interrupt Registers
  */
-union cavm_npa_lf_qintx_int {
+union npa_lf_qintx_int {
 	u64 u;
-	struct cavm_npa_lf_qintx_int_s {
+	struct npa_lf_qintx_int_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_lf_qintx_int_s cn; */
+	/* struct npa_lf_qintx_int_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_QINTX_INT(u64 a)
+static inline u64 NPA_LF_QINTX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_QINTX_INT(u64 a)
+static inline u64 NPA_LF_QINTX_INT(u64 a)
 {
 	return 0x310 + 0x1000 * a;
 }
@@ -2102,18 +2106,18 @@ static inline u64 CAVM_NPA_LF_QINTX_INT(u64 a)
  *
  * INTERNAL: NPA LF Queue Interrupt Set Registers
  */
-union cavm_npa_lf_qintx_int_w1s {
+union npa_lf_qintx_int_w1s {
 	u64 u;
-	struct cavm_npa_lf_qintx_int_w1s_s {
+	struct npa_lf_qintx_int_w1s_s {
 		u64 intr                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_npa_lf_qintx_int_w1s_s cn; */
+	/* struct npa_lf_qintx_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_QINTX_INT_W1S(u64 a)
+static inline u64 NPA_LF_QINTX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_QINTX_INT_W1S(u64 a)
+static inline u64 NPA_LF_QINTX_INT_W1S(u64 a)
 {
 	return 0x318 + 0x1000 * a;
 }
@@ -2123,21 +2127,21 @@ static inline u64 CAVM_NPA_LF_QINTX_INT_W1S(u64 a)
  *
  * NPA LF RAS Interrupt Register
  */
-union cavm_npa_lf_ras {
+union npa_lf_ras {
 	u64 u;
-	struct cavm_npa_lf_ras_s {
+	struct npa_lf_ras_s {
 		u64 aura_poison                      : 1;
 		u64 pool_poison                      : 1;
 		u64 stack_poison                     : 1;
 		u64 qint_poison                      : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_npa_lf_ras_s cn; */
+	/* struct npa_lf_ras_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_RAS(void)
+static inline u64 NPA_LF_RAS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_RAS(void)
+static inline u64 NPA_LF_RAS(void)
 {
 	return 0x220;
 }
@@ -2148,21 +2152,21 @@ static inline u64 CAVM_NPA_LF_RAS(void)
  * NPA LF RAS Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_npa_lf_ras_ena_w1c {
+union npa_lf_ras_ena_w1c {
 	u64 u;
-	struct cavm_npa_lf_ras_ena_w1c_s {
+	struct npa_lf_ras_ena_w1c_s {
 		u64 aura_poison                      : 1;
 		u64 pool_poison                      : 1;
 		u64 stack_poison                     : 1;
 		u64 qint_poison                      : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_npa_lf_ras_ena_w1c_s cn; */
+	/* struct npa_lf_ras_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_RAS_ENA_W1C(void)
+static inline u64 NPA_LF_RAS_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_RAS_ENA_W1C(void)
+static inline u64 NPA_LF_RAS_ENA_W1C(void)
 {
 	return 0x230;
 }
@@ -2173,21 +2177,21 @@ static inline u64 CAVM_NPA_LF_RAS_ENA_W1C(void)
  * NPA LF RAS Interrupt Enable Set Register This register sets interrupt
  * enable bits.
  */
-union cavm_npa_lf_ras_ena_w1s {
+union npa_lf_ras_ena_w1s {
 	u64 u;
-	struct cavm_npa_lf_ras_ena_w1s_s {
+	struct npa_lf_ras_ena_w1s_s {
 		u64 aura_poison                      : 1;
 		u64 pool_poison                      : 1;
 		u64 stack_poison                     : 1;
 		u64 qint_poison                      : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_npa_lf_ras_ena_w1s_s cn; */
+	/* struct npa_lf_ras_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_RAS_ENA_W1S(void)
+static inline u64 NPA_LF_RAS_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_RAS_ENA_W1S(void)
+static inline u64 NPA_LF_RAS_ENA_W1S(void)
 {
 	return 0x238;
 }
@@ -2197,21 +2201,21 @@ static inline u64 CAVM_NPA_LF_RAS_ENA_W1S(void)
  *
  * NPA LF RAS Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_npa_lf_ras_w1s {
+union npa_lf_ras_w1s {
 	u64 u;
-	struct cavm_npa_lf_ras_w1s_s {
+	struct npa_lf_ras_w1s_s {
 		u64 aura_poison                      : 1;
 		u64 pool_poison                      : 1;
 		u64 stack_poison                     : 1;
 		u64 qint_poison                      : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_npa_lf_ras_w1s_s cn; */
+	/* struct npa_lf_ras_w1s_s cn; */
 };
 
-static inline u64 CAVM_NPA_LF_RAS_W1S(void)
+static inline u64 NPA_LF_RAS_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_LF_RAS_W1S(void)
+static inline u64 NPA_LF_RAS_W1S(void)
 {
 	return 0x228;
 }
@@ -2221,20 +2225,20 @@ static inline u64 CAVM_NPA_LF_RAS_W1S(void)
  *
  * NPA Privileged AF Interrupt Configuration Register
  */
-union cavm_npa_priv_af_int_cfg {
+union npa_priv_af_int_cfg {
 	u64 u;
-	struct cavm_npa_priv_af_int_cfg_s {
+	struct npa_priv_af_int_cfg_s {
 		u64 msix_offset                      : 11;
 		u64 reserved_11                      : 1;
 		u64 msix_size                        : 8;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_npa_priv_af_int_cfg_s cn; */
+	/* struct npa_priv_af_int_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPA_PRIV_AF_INT_CFG(void)
+static inline u64 NPA_PRIV_AF_INT_CFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_PRIV_AF_INT_CFG(void)
+static inline u64 NPA_PRIV_AF_INT_CFG(void)
 {
 	return 0x10000;
 }
@@ -2250,20 +2254,20 @@ static inline u64 CAVM_NPA_PRIV_AF_INT_CFG(void)
  * must be zero.  Internal: Hardware ignores [SLOT] and always assumes
  * 0x0.
  */
-union cavm_npa_priv_lfx_cfg {
+union npa_priv_lfx_cfg {
 	u64 u;
-	struct cavm_npa_priv_lfx_cfg_s {
+	struct npa_priv_lfx_cfg_s {
 		u64 slot                             : 8;
 		u64 pf_func                          : 16;
 		u64 reserved_24_62                   : 39;
 		u64 ena                              : 1;
 	} s;
-	/* struct cavm_npa_priv_lfx_cfg_s cn; */
+	/* struct npa_priv_lfx_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPA_PRIV_LFX_CFG(u64 a)
+static inline u64 NPA_PRIV_LFX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_PRIV_LFX_CFG(u64 a)
+static inline u64 NPA_PRIV_LFX_CFG(u64 a)
 {
 	return 0x10010 + 0x100 * a;
 }
@@ -2273,22 +2277,22 @@ static inline u64 CAVM_NPA_PRIV_LFX_CFG(u64 a)
  *
  * NPA Privileged LF Interrupt Configuration Registers
  */
-union cavm_npa_priv_lfx_int_cfg {
+union npa_priv_lfx_int_cfg {
 	u64 u;
-	struct cavm_npa_priv_lfx_int_cfg_s {
+	struct npa_priv_lfx_int_cfg_s {
 		u64 msix_offset                      : 11;
 		u64 reserved_11                      : 1;
 		u64 msix_size                        : 8;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_npa_priv_lfx_int_cfg_s cn; */
+	/* struct npa_priv_lfx_int_cfg_s cn; */
 };
 
-static inline u64 CAVM_NPA_PRIV_LFX_INT_CFG(u64 a)
+static inline u64 NPA_PRIV_LFX_INT_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_NPA_PRIV_LFX_INT_CFG(u64 a)
+static inline u64 NPA_PRIV_LFX_INT_CFG(u64 a)
 {
 	return 0x10020 + 0x100 * a;
 }
 
-#endif /* __CAVM_CSRS_NPA_H__ */
+#endif /* __CSRS_NPA_H__ */

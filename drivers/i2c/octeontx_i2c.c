@@ -1,7 +1,7 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -103,24 +103,24 @@ union twsx_sw_twsi {
 union twsx_sw_twsi_ext {
 	u64 u;
 	struct {
-		u64	data:32;
-		u64	ia:8;
-		u64	:24;
+		u64 data:32;
+		u64 ia:8;
+		u64 rsvd:24;
 	} s;
 };
 
 union twsx_int {
 	u64 u;
 	struct {
-		u64	st_int:1;	/** TWSX_SW_TWSI register update int */
-		u64	ts_int:1;	/** TWSX_TWSI_SW register update int */
-		u64	core_int:1;	/** TWSI core interrupt, ignored for HLC */
-		u64	:5;		/** Reserved */
-		u64	sda_ovr:1;	/** SDA testing override */
-		u64	scl_ovr:1;	/** SCL testing override */
-		u64	sda:1;		/** SDA signal */
-		u64	scl:1;		/** SCL signal */
-		u64	:52;		/** Reserved */
+		u64 st_int:1;	/** TWSX_SW_TWSI register update int */
+		u64 ts_int:1;	/** TWSX_TWSI_SW register update int */
+		u64 core_int:1;	/** TWSI core interrupt, ignored for HLC */
+		u64 rsvd1:5;		/** Reserved */
+		u64 sda_ovr:1;	/** SDA testing override */
+		u64 scl_ovr:1;	/** SCL testing override */
+		u64 sda:1;		/** SDA signal */
+		u64 scl:1;		/** SCL signal */
+		u64 rsvd2:52;		/** Reserved */
 	} s;
 };
 
@@ -237,7 +237,7 @@ struct octeontx_twsi {
 };
 
 /** Array of bus speeds */
-static unsigned speeds[] = {
+static unsigned int speeds[] = {
 	CONFIG_SYS_I2C_OCTEONTX_SPEED_0,
 	CONFIG_SYS_I2C_OCTEONTX_SPEED_1,
 	CONFIG_SYS_I2C_OCTEONTX_SPEED_2,
@@ -253,11 +253,10 @@ static unsigned speeds[] = {
 };
 
 /** Last i2c id assigned */
-static int last_id = 0;
+static int last_id;
 
 static void twsi_unblock(void *baseaddr);
 static int twsi_stop(void *baseaddr);
-
 
 /**
  * Converts the i2c status to a meaningful string
@@ -388,7 +387,7 @@ static int twsi_i2c_lost_arb(u8 code, int final_read)
 	return 0;
 }
 
-#define RST_BOOT_PNR_MUL(Val)  ((Val >> 33) & 0x1F)
+#define RST_BOOT_PNR_MUL(val)  (((val) >> 33) & 0x1F)
 
 /**
  * Writes to the MIO_TWS(0..5)_SW_TWSI register
@@ -427,6 +426,7 @@ static u64 twsi_write_sw(void *baseaddr, union twsx_sw_twsi sw_twsi)
 static u64 twsi_read_sw(void *baseaddr, union twsx_sw_twsi sw_twsi)
 {
 	unsigned long start = get_timer(0);
+
 	sw_twsi.s.r = 1;
 	sw_twsi.s.v = 1;
 
@@ -580,6 +580,7 @@ static int twsi_start(void *baseaddr)
 static int twsi_stop(void *baseaddr)
 {
 	u8 stat;
+
 	twsi_write_ctl(baseaddr, TWSI_CTL_STP | TWSI_CTL_ENAB);
 
 	stat = twsi_read_status(baseaddr);
@@ -624,7 +625,7 @@ static int twsi_write_data(void *baseaddr, u8  slave_addr,
 	twsi_sw.u	 = 0;
 	twsi_sw.s.op	 = TWSI_SW_EOP_IA;
 	twsi_sw.s.eop_ia = TWSI_DATA;
-	twsi_sw.s.data	 = (u32) (slave_addr << 1) | TWSI_OP_WRITE;
+	twsi_sw.s.data	 = (u32)(slave_addr << 1) | TWSI_OP_WRITE;
 
 	twsi_write_sw(baseaddr, twsi_sw);
 	twsi_write_ctl(baseaddr, TWSI_CTL_ENAB);
@@ -639,7 +640,7 @@ static int twsi_write_data(void *baseaddr, u8  slave_addr,
 	result = twsi_read_status(baseaddr);
 	debug("%s: status: (%d) %s\n", __func__, result,
 	      twsi_i2c_status_str(result));
-	if ((result = twsi_read_status(baseaddr)) != TWSI_STAT_TXADDR_ACK) {
+	if (result != TWSI_STAT_TXADDR_ACK) {
 		debug("%s: status: (%d) %s\n", __func__, result,
 		      twsi_i2c_status_str(result));
 		twsi_stop(baseaddr);
@@ -735,7 +736,7 @@ static int twsi_read_data(void *baseaddr, u8 slave_addr,
 	twsi_sw.s.op	 = TWSI_SW_EOP_IA;
 	twsi_sw.s.eop_ia = TWSI_DATA;
 
-	twsi_sw.s.data  = (u32) (slave_addr << 1) | TWSI_OP_READ;
+	twsi_sw.s.data  = (u32)(slave_addr << 1) | TWSI_OP_READ;
 
 	twsi_write_sw(baseaddr, twsi_sw);
 	twsi_write_ctl(baseaddr, TWSI_CTL_ENAB);
@@ -835,7 +836,6 @@ static int twsi_init(void *baseaddr, unsigned int speed, int slaveaddr)
 	debug("%s: Writing 0x%llx to sw_twsi, m_div: 0x%x, n_div: 0x%x\n",
 	      __func__, sw_twsi.u, m_div, n_div);
 
-
 	sw_twsi.u = 0;
 	sw_twsi.s.v = 1;
 	sw_twsi.s.op = TWSI_SW_EOP_IA;
@@ -872,21 +872,21 @@ static int octeontx_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 	struct octeontx_twsi *twsi = dev_get_priv(bus);
 	int result;
 
-	debug("octeontx_i2c_xfer: %d messages\n", nmsgs);
+	debug("%s: %d messages\n", __func__, nmsgs);
 	for (; nmsgs > 0; nmsgs--, msg++) {
-		debug("octeontx_i2c_xfer: chip=0x%x, len=0x%x\n",
-		      msg->addr, msg->len);
+		debug("%s: chip=0x%x, len=0x%x\n", __func__, msg->addr,
+		      msg->len);
 		if (msg->flags & I2C_M_RD) {
 			debug("%s: Reading data\n", __func__);
 			result = twsi_read_data(twsi->baseaddr, msg->addr,
-					     msg->buf, msg->len);
+						msg->buf, msg->len);
 		} else {
 			debug("%s: Writing data\n", __func__);
 			result = twsi_write_data(twsi->baseaddr, msg->addr,
-					      msg->buf, msg->len);
+						 msg->buf, msg->len);
 		}
 		if (result) {
-			debug("octeontx_i2c_xfer: error sending\n");
+			debug("%s: error sending\n", __func__);
 			return -EREMOTEIO;
 		}
 	}
@@ -933,7 +933,7 @@ static int octeontx_pci_i2c_probe(struct udevice *dev)
 	twsi->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
 	twsi->id = last_id++;
 
-	debug("TWSI bus %d at %p\n",dev->seq, twsi->baseaddr);
+	debug("TWSI bus %d at %p\n", dev->seq, twsi->baseaddr);
 
 	return twsi_init(twsi->baseaddr,
 			 twsi->id < ARRAY_SIZE(speeds) ?

@@ -1,7 +1,7 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  *
  * (C) Copyright 2011
@@ -42,7 +42,7 @@ DECLARE_GLOBAL_DATA_PTR;
 			  ((value) ? GPIO_TX_SET : GPIO_TX_CLR))
 
 /** Returns the offset to the input data register based on the offset */
-#define GPIO_RX_DAT_REG(offset) ((offset >= 64) ? GPIO_RX1_DAT : GPIO_RX_DAT)
+#define GPIO_RX_DAT_REG(offset) (((offset) >= 64) ? GPIO_RX1_DAT : GPIO_RX_DAT)
 
 /** Returns the bit configuration register based on the offset */
 #define GPIO_BIT_CFG(x)		(0x400 + 8 * (x))
@@ -66,16 +66,17 @@ struct octeontx_gpio {
 	void __iomem *baseaddr;
 };
 
-static int octeontx_gpio_dir_input(struct udevice *dev, unsigned offset)
+static int octeontx_gpio_dir_input(struct udevice *dev, unsigned int offset)
 {
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
+
 	debug("%s(%s, %u)\n", __func__, dev->name, offset);
 	clrbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
 		     (0x3ffUL << 16) | 4UL | 2UL | 1UL);
 	return 0;
 }
 
-static int octeontx_gpio_dir_output(struct udevice *dev, unsigned offset,
+static int octeontx_gpio_dir_output(struct udevice *dev, unsigned int offset,
 				    int value)
 {
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
@@ -89,7 +90,7 @@ static int octeontx_gpio_dir_output(struct udevice *dev, unsigned offset,
 }
 
 static int octeontx_gpio_get_value(struct udevice *dev,
-				   unsigned offset)
+				   unsigned int offset)
 {
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 	u64 reg = readq(gpio->baseaddr + GPIO_RX_DAT_REG(offset));
@@ -101,7 +102,7 @@ static int octeontx_gpio_get_value(struct udevice *dev,
 }
 
 static int octeontx_gpio_set_value(struct udevice *dev,
-				   unsigned offset, int value)
+				   unsigned int offset, int value)
 {
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 
@@ -109,14 +110,14 @@ static int octeontx_gpio_set_value(struct udevice *dev,
 	writeq(GPIO_BIT(offset), gpio->baseaddr + GPIO_TX_REG(offset, value));
 
 	return 0;
-
 }
 
 static int octeontx_gpio_get_function(struct udevice *dev,
-				      unsigned offset)
+				      unsigned int offset)
 {
 	struct octeontx_gpio *gpio = dev_get_priv(dev);
 	u64 pinsel = readl(gpio->baseaddr + GPIO_BIT_CFG(offset));
+
 	debug("%s(%s, %u): pinsel: 0x%llx\n", __func__, dev->name, offset,
 	      pinsel);
 	if (GPIO_BIT_CFG_FN(pinsel))
@@ -128,7 +129,7 @@ static int octeontx_gpio_get_function(struct udevice *dev,
 }
 
 static int octeontx_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
-			    struct ofnode_phandle_args *args)
+			       struct ofnode_phandle_args *args)
 {
 	if (args->args_count < 1)
 		return -EINVAL;
@@ -193,7 +194,6 @@ static int octeontx_gpio_probe(struct udevice *dev)
 
 	return 0;
 }
-
 
 static const struct udevice_id octeontx_gpio_ids[] = {
 	{ .compatible = "cavium,thunder-8890-gpio" },

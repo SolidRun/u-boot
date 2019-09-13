@@ -1,7 +1,7 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -125,7 +125,7 @@ void octeontx_parse_board_info(void)
 	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
 	if (str) {
 		strlcpy(g_cavm_bdt.type, str, sizeof(g_cavm_bdt.type));
-		debug("fdt: BOARD-MODEL bdt.type %s \n", g_cavm_bdt.type);
+		debug("fdt: BOARD-MODEL bdt.type %s\n", g_cavm_bdt.type);
 	} else {
 		printf("Error: cannot retrieve board type from fdt\n");
 	}
@@ -158,8 +158,6 @@ void octeontx_parse_board_info(void)
 
 void board_quiesce_devices(void)
 {
-	ssize_t node_count = atf_node_count();
-	int node;
 	struct uclass *uc_dev;
 	int ret;
 
@@ -183,9 +181,7 @@ void board_quiesce_devices(void)
 		printf("couldn't remove misc (cgx/rvu_af) devices\n");
 
 	/* SMC call - removes all LF<->PF mappings */
-	for (node = 0; node < node_count; node++) {
-		atf_disable_rvu_lfs(node);
-	}
+	atf_disable_rvu_lfs(0);
 }
 
 int board_early_init_r(void)
@@ -207,19 +203,10 @@ int timer_init(void)
 
 int dram_init(void)
 {
-	ssize_t node_count = atf_node_count();
-	ssize_t dram_size;
-	int node;
-
-	debug("Initializing\nNodes in system: %zd\n", node_count);
-
 	gd->ram_size = 0;
 
-	for (node = 0; node < node_count; node++) {
-		dram_size = atf_dram_size(node);
-		debug("Node %d: %zd MBytes of DRAM\n", node, dram_size >> 20);
-		gd->ram_size += dram_size;
-	}
+	gd->ram_size = atf_dram_size(0);
+	debug("Node0: %lld MBytes of DRAM\n", gd->ram_size >> 20);
 
 	gd->ram_size -= CONFIG_SYS_SDRAM_BASE;
 
@@ -339,9 +326,8 @@ int show_board_info(void)
 	}
 	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
 	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
-	if (!str) {
+	if (!str)
 		printf("Error: cannot retrieve board type from fdt\n");
-	}
 
 	if (prod_id == CN96XX)
 		printf("OcteonTX2 CN96XX ARM V8 Core\n");
@@ -360,7 +346,7 @@ void acquire_flash_arb(bool acquire)
 {
 	union cavm_cpc_boot_ownerx ownerx;
 
-	if (acquire == false) {
+	if (!acquire) {
 		ownerx.u = readl(CAVM_CPC_BOOT_OWNERX(3));
 		ownerx.s.boot_req = 0;
 		writel(ownerx.u, CAVM_CPC_BOOT_OWNERX(3));

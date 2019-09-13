@@ -4,9 +4,3 @@
  *
  * https://spdx.org/licenses
  */
-
-#ifndef __ATF_H__
-#define __ATF_H__
-
-ssize_t atf_dram_size(unsigned int node);
-#endif

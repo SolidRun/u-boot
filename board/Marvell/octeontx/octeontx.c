@@ -1,7 +1,7 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -14,8 +14,8 @@
 #include <linux/compiler.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
-#include <asm/arch/octeontx.h>
 #include <asm/arch/atf.h>
+#include <asm/arch/octeontx.h>
 #include <dm/util.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -27,9 +27,10 @@ extern void eth_common_init(void);
 void octeontx_cleanup_ethaddr(void)
 {
 	char ename[32];
+
 	for (int i = 0; i < 20; i++) {
 		sprintf(ename, i ? "eth%daddr" : "ethaddr", i);
-		if(env_get(ename))
+		if (env_get(ename))
 			env_set_force(ename, NULL);
 	}
 }
@@ -45,14 +46,15 @@ void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth)
 	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
 	if (offset < 0) {
 		printf("%s couldn't find mrml bridge node in fdt\n",
-			 __func__);
+		       __func__);
 		return;
 	}
 	if (bgx == 2 && is_board_model(CN81XX)) {
 		snprintf(bgxname, sizeof(bgxname), "rgx%d", 0);
 		lmac = 0;
-	} else
+	} else {
 		snprintf(bgxname, sizeof(bgxname), "bgx%d", bgx);
+	}
 
 	node = fdt_subnode_offset(fdt, offset, bgxname);
 
@@ -60,13 +62,13 @@ void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth)
 		if (i++ != lmac)
 			continue;
 		/* check for local-mac-address */
-		mac = fdt_getprop(fdt, subnode,
-				       "local-mac-address", &len);
-		if(mac) {
+		mac = fdt_getprop(fdt, subnode, "local-mac-address", &len);
+		if (mac) {
 			debug("%s mac %pM\n", __func__, mac);
 			memcpy(eth, mac, ARP_HLEN);
-		} else
+		} else {
 			memset(eth, 0, ARP_HLEN);
+		}
 		debug("%s eth %pM\n", __func__, eth);
 		return;
 	}
@@ -75,7 +77,7 @@ void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth)
 int octeontx_board_has_pmp(void)
 {
 	if ((strcasecmp(g_cavm_bdt.type, "sff8104") == 0) ||
-		(strcasecmp(g_cavm_bdt.type, "nas8104") == 0))
+	    (strcasecmp(g_cavm_bdt.type, "nas8104") == 0))
 		return 1;
 
 	return 0;
@@ -96,8 +98,8 @@ void octeontx_parse_board_info(void)
 
 	val = readq(CAVM_MIO_FUS_DAT2);
 	g_cavm_bdt.alt_pkg = (val >> 22) & 0x3;
-	if ((g_cavm_bdt.prod_id == CN81XX) &&
-		(g_cavm_bdt.alt_pkg || ((val >> 30) & 0x1)))
+	if (g_cavm_bdt.prod_id == CN81XX &&
+	    (g_cavm_bdt.alt_pkg || ((val >> 30) & 0x1)))
 		g_cavm_bdt.alt_pkg = 2;
 
 	if (!gd->fdt_blob) {
@@ -123,7 +125,7 @@ void octeontx_parse_board_info(void)
 	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
 	if (str) {
 		strlcpy(g_cavm_bdt.type, str, sizeof(g_cavm_bdt.type));
-		debug("fdt: BOARD-MODEL bdt.type %s \n", g_cavm_bdt.type);
+		debug("fdt: BOARD-MODEL bdt.type %s\n", g_cavm_bdt.type);
 	} else {
 		printf("Error: cannot retrieve board type from fdt\n");
 	}
@@ -169,20 +171,7 @@ int timer_init(void)
 
 int dram_init(void)
 {
-	ssize_t node_count = atf_node_count();
-	ssize_t dram_size;
-	int node;
-
-	debug("Initializing\nNodes in system: %zd\n", node_count);
-
-	gd->ram_size = 0;
-
-	for (node = 0; node < node_count; node++) {
-		dram_size = atf_dram_size(node);
-		debug("Node %d: %zd MBytes of DRAM\n", node, dram_size >> 20);
-		gd->ram_size += dram_size;
-	}
-
+	gd->ram_size = atf_dram_size(0);
 	gd->ram_size -= CONFIG_SYS_SDRAM_BASE;
 
 	return 0;
@@ -246,9 +235,8 @@ int show_board_info(void)
 	}
 	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
 	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
-	if (!str) {
+	if (!str)
 		printf("Error: cannot retrieve board type from fdt\n");
-	}
 
 	if (prod_id == CN81XX)
 		printf("OcteonTX CN81XX ARM V8 Core\n");

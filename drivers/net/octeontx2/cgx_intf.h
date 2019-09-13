@@ -1,7 +1,7 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -16,8 +16,8 @@
 #define CGX_CMR_SCRATCH0	0x87e0e0001050
 #define CGX_CMR_SCRATCH1	0x87e0e0001058
 
-#define CGX_SHIFT(x)		(0x1000000 * (x & 0x3))
-#define CMR_SHIFT(x)		(0x40000 * (x & 0x3))
+#define CGX_SHIFT(x)		(0x1000000 * ((x) & 0x3))
+#define CMR_SHIFT(x)		(0x40000 * ((x) & 0x3))
 
 /* CGX error types. set for cmd response status as CGX_STAT_FAIL */
 enum cgx_error_type {
@@ -135,11 +135,11 @@ enum cgx_cmd_own {
  * For any updates/new bitfields, corresponding structures needs to be updated
  */
 struct cgx_evt_sts_s {			/* start from bit 0 */
-	uint64_t ack:1;
-	uint64_t evt_type:1;		/* cgx_evt_type */
-	uint64_t stat:1;		/* cgx_stat */
-	uint64_t id:6;			/* cgx_evt_id/cgx_cmd_id */
-	uint64_t reserved:55;
+	u64 ack:1;
+	u64 evt_type:1;		/* cgx_evt_type */
+	u64 stat:1;		/* cgx_stat */
+	u64 id:6;			/* cgx_evt_id/cgx_cmd_id */
+	u64 reserved:55;
 };
 
 /* all the below structures are in the same memory location of SCRATCHX(0)
@@ -152,31 +152,31 @@ struct cgx_evt_sts_s {			/* start from bit 0 */
  *	check struct cgx_lnk_sts_s comments
  */
 struct cgx_err_sts_s {			/* start from bit 9 */
-	uint64_t reserved1:9;
-	uint64_t type:10;		/* cgx_error_type */
-	uint64_t reserved2:35;
+	u64 reserved1:9;
+	u64 type:10;		/* cgx_error_type */
+	u64 reserved2:35;
 };
 
 /* Resp to cmd ID as CGX_CMD_GET_FW_VER with cmd status as CGX_STAT_SUCCESS */
 struct cgx_ver_s {			/* start from bit 9 */
-	uint64_t reserved1:9;
-	uint64_t major_ver:4;
-	uint64_t minor_ver:4;
-	uint64_t reserved2:47;
+	u64 reserved1:9;
+	u64 major_ver:4;
+	u64 minor_ver:4;
+	u64 reserved2:47;
 };
 
 /* Resp to cmd ID as CGX_CMD_GET_MAC_ADDR with cmd status as CGX_STAT_SUCCESS
  * Returns each byte of MAC address in a separate bit field
  */
 struct cgx_mac_addr_s {			/* start from bit 9 */
-	uint64_t reserved1:9;
-	uint64_t addr_0:8;
-	uint64_t addr_1:8;
-	uint64_t addr_2:8;
-	uint64_t addr_3:8;
-	uint64_t addr_4:8;
-	uint64_t addr_5:8;
-	uint64_t reserved2:7;
+	u64 reserved1:9;
+	u64 addr_0:8;
+	u64 addr_1:8;
+	u64 addr_2:8;
+	u64 addr_3:8;
+	u64 addr_4:8;
+	u64 addr_5:8;
+	u64 reserved2:7;
 };
 
 /* Resp to cmd ID - CGX_CMD_LINK_BRING_UP/DOWN, event ID CGX_EVT_LINK_CHANGE
@@ -188,25 +188,25 @@ struct cgx_mac_addr_s {			/* start from bit 9 */
  * link status will be updated
  */
 struct cgx_lnk_sts_s {
-	uint64_t reserved1:9;
-	uint64_t link_up:1;
-	uint64_t full_duplex:1;
-	uint64_t speed:4;	/* cgx_link_speed */
-	uint64_t err_type:10;
-	uint64_t an:1;		/* Current AN state : enabled/disabled */
-	uint64_t fec:2;		/* Current FEC type if enabled, if not 0 */
-	uint64_t port:8;	/* Share the current port info if required */
-	uint64_t reserved2:28;
+	u64 reserved1:9;
+	u64 link_up:1;
+	u64 full_duplex:1;
+	u64 speed:4;	/* cgx_link_speed */
+	u64 err_type:10;
+	u64 an:1;		/* Current AN state : enabled/disabled */
+	u64 fec:2;		/* Current FEC type if enabled, if not 0 */
+	u64 port:8;	/* Share the current port info if required */
+	u64 reserved2:28;
 };
 
 struct sh_fwd_base_s {
-	uint64_t reserved1:9;
-	uint64_t addr:55;
+	u64 reserved1:9;
+	u64 addr:55;
 };
 
 struct cgx_link_modes_s {
-	uint64_t reserved1:9;
-	uint64_t modes:55;
+	u64 reserved1:9;
+	u64 modes:55;
 };
 
 /* Resp to cmd ID - CGX_CMD_GET_ADV_FEC/CGX_CMD_GET_SUPPORTED_FEC
@@ -218,23 +218,23 @@ struct cgx_link_modes_s {
  * } fec_type_t;
  */
 struct cgx_fec_types_s {
-	uint64_t reserved1:9;
-	uint64_t fec:2;
-	uint64_t reserved2:53;
+	u64 reserved1:9;
+	u64 fec:2;
+	u64 reserved2:53;
 };
 
 /* Resp to cmd ID - CGX_CMD_GET_AN */
 struct cgx_get_an_s {
-	uint64_t reserved1:9;
-	uint64_t an:1;
-	uint64_t reserved2:54;
+	u64 reserved1:9;
+	u64 an:1;
+	u64 reserved2:54;
 };
 
 /* Resp to cmd ID - CGX_CMD_GET_PHY_MOD_TYPE */
 struct cgx_get_phy_mod_type_s {
-	uint64_t reserved1:9;
-	uint64_t mod:1;		/* 0=NRZ, 1=PAM4 */
-	uint64_t reserved2:54;
+	u64 reserved1:9;
+	u64 mod:1;		/* 0=NRZ, 1=PAM4 */
+	u64 reserved2:54;
 };
 
 union cgx_rsp_sts {
@@ -271,7 +271,7 @@ union cgx_rsp_sts {
 };
 
 union cgx_scratchx0 {
-	uint64_t u;
+	u64 u;
 	union cgx_rsp_sts s;
 };
 
@@ -279,9 +279,9 @@ union cgx_scratchx0 {
  * This CSR acts as a command register
  */
 struct cgx_cmd {			/* start from bit 2 */
-	uint64_t reserved1:2;
-	uint64_t id:6;			/* cgx_request_id */
-	uint64_t reserved2:56;
+	u64 reserved1:2;
+	u64 id:6;			/* cgx_request_id */
+	u64 reserved2:56;
 };
 
 /* all the below structures are in the same memory location of SCRATCHX(1)
@@ -293,67 +293,67 @@ struct cgx_cmd {			/* start from bit 2 */
  * Ex: Loopback, HiGig...
  */
 struct cgx_ctl_args {			/* start from bit 8 */
-	uint64_t reserved1:8;
-	uint64_t enable:1;
-	uint64_t reserved2:55;
+	u64 reserved1:8;
+	u64 enable:1;
+	u64 reserved2:55;
 };
 
 /* command argument to be passed for cmd ID - CGX_CMD_SET_MTU */
 struct cgx_mtu_args {
-	uint64_t reserved1:8;
-	uint64_t size:16;
-	uint64_t reserved2:40;
+	u64 reserved1:8;
+	u64 size:16;
+	u64 reserved2:40;
 };
 
 /* command argument to be passed for cmd ID - CGX_CMD_LINK_CHANGE */
 struct cgx_link_change_args {		/* start from bit 8 */
-	uint64_t reserved1:8;
-	uint64_t link_up:1;
-	uint64_t full_duplex:1;
-	uint64_t speed:4;		/* cgx_link_speed */
-	uint64_t reserved2:50;
+	u64 reserved1:8;
+	u64 link_up:1;
+	u64 full_duplex:1;
+	u64 speed:4;		/* cgx_link_speed */
+	u64 reserved2:50;
 };
 
 /* command argument to be passed for cmd ID - CGX_CMD_SET_LINK_MODE */
 struct cgx_set_mode_args {
-	uint64_t reserved1:8;
-	uint64_t mode:56;
+	u64 reserved1:8;
+	u64 mode:56;
 };
 
 /* command argument to be passed for cmd ID - CGX_CMD_SET_FEC */
 struct cgx_set_fec_args {
-	uint64_t reserved1:8;
-	uint64_t fec:2;
-	uint64_t reserved2:54;
+	u64 reserved1:8;
+	u64 fec:2;
+	u64 reserved2:54;
 };
 
 /* command argument to be passed for cmd ID - CGX_CMD_SET_PHY_MOD_TYPE */
 struct cgx_set_phy_mod_args {
-	uint64_t reserved1:8;
-	uint64_t mod:1;		/* 0=NRZ, 1=PAM4 */
-	uint64_t reserved2:55;
+	u64 reserved1:8;
+	u64 mod:1;		/* 0=NRZ, 1=PAM4 */
+	u64 reserved2:55;
 };
 
 struct cgx_prbs_args {
-	uint64_t reserved1:8; /* start from bit 8 */
-	uint64_t qlm:8;
-	uint64_t stop_on_error:1;
-	uint64_t mode:8;
-	uint64_t time:39;
+	u64 reserved1:8; /* start from bit 8 */
+	u64 qlm:8;
+	u64 stop_on_error:1;
+	u64 mode:8;
+	u64 time:39;
 };
 
 struct cgx_display_eye_args {
-	uint64_t reserved1:8; /* start from bit 8 */
-	uint64_t qlm:8;
-	uint64_t lane:47;
+	u64 reserved1:8; /* start from bit 8 */
+	u64 qlm:8;
+	u64 lane:47;
 };
 
 union cgx_cmd_s {
-	uint64_t own_status:2;			/* cgx_cmd_own */
+	u64 own_status:2;			/* cgx_cmd_own */
 	struct cgx_cmd cmd;
 	struct cgx_ctl_args cmd_args;
 	struct cgx_mtu_args mtu_size;
-	struct cgx_link_change_args lnk_args;	/* Input to CGX_CMD_LINK_CHANGE */
+	struct cgx_link_change_args lnk_args; /* Input CGX_CMD_LINK_CHANGE */
 	struct cgx_set_mode_args mode_args;
 	struct cgx_set_fec_args fec_args;
 	struct cgx_set_phy_mod_args phy_mod_args;
@@ -363,7 +363,7 @@ union cgx_cmd_s {
 };
 
 union cgx_scratchx1 {
-	uint64_t u;
+	u64 u;
 	union cgx_cmd_s s;
 };
 

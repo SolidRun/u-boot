@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <config.h>
 #include <common.h>
@@ -25,27 +24,26 @@
 
 #define ETH_ALEN 6
 
-
 /* Register read/write APIs */
-void nicvf_reg_write(struct nicvf *nic, uint64_t offset, uint64_t val)
+void nicvf_reg_write(struct nicvf *nic, u64 offset, u64 val)
 {
 	writeq(val, nic->reg_base + offset);
 }
 
-uint64_t nicvf_reg_read(struct nicvf *nic, uint64_t offset)
+u64 nicvf_reg_read(struct nicvf *nic, u64 offset)
 {
 	return readq(nic->reg_base + offset);
 }
 
-void nicvf_queue_reg_write(struct nicvf *nic, uint64_t offset,
-			   uint64_t qidx, uint64_t val)
+void nicvf_queue_reg_write(struct nicvf *nic, u64 offset,
+			   u64 qidx, u64 val)
 {
 	void *addr = nic->reg_base + offset;
 
 	writeq(val, (void *)(addr + (qidx << NIC_Q_NUM_SHIFT)));
 }
 
-uint64_t nicvf_queue_reg_read(struct nicvf *nic, uint64_t offset, uint64_t qidx)
+u64 nicvf_queue_reg_read(struct nicvf *nic, u64 offset, u64 qidx)
 {
 	void *addr = nic->reg_base + offset;
 
@@ -95,10 +93,9 @@ int nicvf_send_msg_to_pf(struct nicvf *nic, union nic_mbx *mbx)
 	return 0;
 }
 
-
 /* Checks if VF is able to comminicate with PF
-* and also gets the VNIC number this VF is associated to.
-*/
+ * and also gets the VNIC number this VF is associated to.
+ */
 static int nicvf_check_pf_ready(struct nicvf *nic)
 {
 	union nic_mbx mbx = {};
@@ -138,7 +135,7 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
 		nic->node = mbx.nic_cfg.node_id;
 		if (!nic->set_mac_pending)
 			memcpy(pdata->enetaddr,
-					mbx.nic_cfg.mac_addr, 6);
+			       mbx.nic_cfg.mac_addr, 6);
 		nic->loopback_supported = mbx.nic_cfg.loopback_supported;
 		nic->link_up = false;
 		nic->duplex = 0;
@@ -157,12 +154,11 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
 		nic->speed = mbx.link_status.speed;
 		if (nic->link_up) {
 			printf("%s: Link is Up %d Mbps %s\n",
-				    nic->dev->name, nic->speed,
-				    nic->duplex == 1 ?
-				"Full duplex" : "Half duplex");
+			       nic->dev->name, nic->speed,
+			       nic->duplex == 1 ?
+			       "Full duplex" : "Half duplex");
 		} else {
-			printf("%s: Link is Down\n",
-				    nic->dev->name);
+			printf("%s: Link is Down\n", nic->dev->name);
 		}
 		break;
 	default:
@@ -197,7 +193,6 @@ static void nicvf_config_cpi(struct nicvf *nic)
 	nicvf_send_msg_to_pf(nic, &mbx);
 }
 
-
 static int nicvf_init_resources(struct nicvf *nic)
 {
 	int err;
@@ -216,12 +211,7 @@ static int nicvf_init_resources(struct nicvf *nic)
 	}
 	return 0;
 }
-#if 0
-void nicvf_free_pkt(struct nicvf *nic, void *pkt)
-{
-	free(pkt);
-}
-#endif
+
 static void nicvf_snd_pkt_handler(struct nicvf *nic,
 				  struct cmp_queue *cq,
 				  void *cq_desc, int cqe_type)
@@ -287,7 +277,8 @@ int nicvf_cq_handler(struct nicvf *nic, void **ppkt, int *pkt_len)
 		return 0;
 
 	/* Get head of the valid CQ entries */
-	cqe_head = nicvf_queue_reg_read(nic, NIC_QSET_CQ_0_7_HEAD, cq_qnum) >> 9;
+	cqe_head = nicvf_queue_reg_read(nic, NIC_QSET_CQ_0_7_HEAD, cq_qnum);
+	cqe_head >>= 9;
 	cqe_head &= 0xFFFF;
 
 	if (cqe_count) {
@@ -301,7 +292,8 @@ int nicvf_cq_handler(struct nicvf *nic, void **ppkt, int *pkt_len)
 		switch (cq_desc->cqe_type) {
 		case CQE_TYPE_RX:
 			debug("%s: Got Rx CQE\n", nic->dev->name);
-			*pkt_len = nicvf_rcv_pkt_handler(nic, cq, cq_desc, ppkt, CQE_TYPE_RX);
+			*pkt_len = nicvf_rcv_pkt_handler(nic, cq, cq_desc,
+							 ppkt, CQE_TYPE_RX);
 			processed_rq_cqe++;
 			break;
 		case CQE_TYPE_SEND:
@@ -310,12 +302,12 @@ int nicvf_cq_handler(struct nicvf *nic, void **ppkt, int *pkt_len)
 			processed_sq_cqe++;
 			break;
 		default:
-			debug("%s: Got CQ type %u\n", nic->dev->name, cq_desc->cqe_type);
+			debug("%s: Got CQ type %u\n", nic->dev->name,
+			      cq_desc->cqe_type);
 			break;
 		}
 		processed_cqe++;
 	}
-
 
 	/* Dequeue CQE */
 	nicvf_queue_reg_write(nic, NIC_QSET_CQ_0_7_DOOR,
@@ -323,7 +315,7 @@ int nicvf_cq_handler(struct nicvf *nic, void **ppkt, int *pkt_len)
 
 	asm volatile ("dsb sy");
 
-	return (processed_sq_cqe | processed_rq_cqe)  ;
+	return (processed_sq_cqe | processed_rq_cqe);
 }
 
 /* Qset error interrupt handler
@@ -334,7 +326,7 @@ void nicvf_handle_qs_err(struct nicvf *nic)
 {
 	struct queue_set *qs = nic->qs;
 	int qidx;
-	uint64_t status;
+	u64 status;
 
 	/* Check if it is CQ err */
 	for (qidx = 0; qidx < qs->cq_cnt; qidx++) {
@@ -376,9 +368,8 @@ static int nicvf_xmit(struct udevice *dev, void *pkt, int pkt_len)
 	/* check and update CQ for pkt sent */
 	while (!ret && timeout--) {
 		ret = nicvf_cq_handler(nic, &rpkt, &rcv_len);
-		if (!ret)
-		{
-			debug("%s: %d, Not sent\n", __FUNCTION__, __LINE__);
+		if (!ret) {
+			debug("%s: %d, Not sent\n", __func__, __LINE__);
 			udelay(10);
 		}
 	}
@@ -404,9 +395,8 @@ static int nicvf_recv(struct udevice *dev, int flags, uchar **packetp)
 		printf("RX packet contents:\n");
 		for (i = 0; i < 8; i++) {
 			puts("\t");
-			for (j = 0; j < 10; j++) {
+			for (j = 0; j < 10; j++)
 				printf("%02x ", dpkt[i * 10 + j]);
-			}
 			puts("\n");
 		}
 #endif
@@ -450,9 +440,8 @@ int nicvf_open(struct udevice *dev)
 	if (err)
 		return -1;
 
-	if (!nicvf_check_pf_ready(nic)) {
+	if (!nicvf_check_pf_ready(nic))
 		return -1;
-	}
 
 	nic->open = true;
 
@@ -472,12 +461,12 @@ struct nicpf *nicvf_get_nicpf(void)
 				 0, &pdev);
 	if (err)
 		printf("%s couldn't find NIC PF device..VF probe failed\n",
-			__func__);
+		       __func__);
 
-	return (err ? NULL : dev_get_priv(pdev));
+	return err ? NULL : dev_get_priv(pdev);
 }
 
-static int vfid = 0;
+static int vfid;
 int nicvf_initialize(struct udevice *dev)
 {
 	struct nicvf *nicvf = dev_get_priv(dev);
@@ -486,6 +475,7 @@ int nicvf_initialize(struct udevice *dev)
 	size_t size;
 	char   name[16];
 	unsigned char ethaddr[ARP_HLEN];
+	struct nicpf *pfptr;
 
 	nicvf->nicpf = nicvf_get_nicpf();
 	if (!nicvf->nicpf) {
@@ -516,30 +506,22 @@ int nicvf_initialize(struct udevice *dev)
 	debug("%s name %s\n", __func__, name);
 	device_set_name(dev, name);
 
-	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(
-				nicvf->nicpf->vf_lmac_map[nicvf->vf_id]);
-	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(
-				nicvf->nicpf->vf_lmac_map[nicvf->vf_id]);
-	debug("%s VF %d BGX %d LMAC %d \n",
-		__func__, nicvf->vf_id, bgx, lmac);
-	debug("%s PF %p pfdev %p VF %p vfdev %p vf->pdata %p \n",
-		__func__, nicvf->nicpf, nicvf->nicpf->udev, nicvf, nicvf->dev, pdata);
+	pfptr = nicvf->nicpf;
+	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(pfptr->vf_lmac_map[nicvf->vf_id]);
+	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(pfptr->vf_lmac_map[nicvf->vf_id]);
+	debug("%s VF %d BGX %d LMAC %d\n", __func__, nicvf->vf_id, bgx, lmac);
+	debug("%s PF %p pfdev %p VF %p vfdev %p vf->pdata %p\n",
+	      __func__, nicvf->nicpf, nicvf->nicpf->udev, nicvf, nicvf->dev,
+	      pdata);
 
 	octeontx_board_get_ethaddr(bgx, lmac, ethaddr);
 
-	debug("%s bgx %d lmac %d ethaddr %pM\n",
-		__func__, bgx, lmac, ethaddr);
+	debug("%s bgx %d lmac %d ethaddr %pM\n", __func__, bgx, lmac, ethaddr);
 
 	memcpy(pdata->enetaddr, ethaddr, ARP_HLEN);
-	debug("%s enetaddr %pM ethaddr %pM\n",
-		__func__, pdata->enetaddr, ethaddr);
+	debug("%s enetaddr %pM ethaddr %pM\n", __func__, pdata->enetaddr,
+	      ethaddr);
 	eth_env_set_enetaddr_by_index("eth", dev->seq, ethaddr);
-#if 0
-	if (!eth_env_get_enetaddr_by_index("eth", nicvf->vf_id, netdev->enetaddr)) {
-		eth_env_get_enetaddr("ethaddr", netdev->enetaddr);
-		netdev->enetaddr[5] += nicvf->vf_id;
-	}
-#endif
 
 fail:
 	return ret;

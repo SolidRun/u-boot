@@ -1,7 +1,7 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -47,6 +47,7 @@ static struct mm_region octeontx2_mem_map[] = {
 		0,
 	}
 };
+
 struct mm_region *mem_map = octeontx2_mem_map;
 
 u64 get_page_table_size(void)
@@ -56,5 +57,4 @@ u64 get_page_table_size(void)
 
 void reset_cpu(ulong addr)
 {
-
 }

@@ -1,18 +1,17 @@
-#ifndef __CAVM_CSRS_CGX_H__
-#define __CAVM_CSRS_CGX_H__
-/* This file is auto-generated.  Do not edit */
-
-/***********************license start***********************************
-* Copyright (C) 2019 Marvell International Ltd.
-* SPDX-License-Identifier: BSD-3-Clause
-* https://spdx.org/licenses
-***********************license end**************************************/
+/* SPDX-License-Identifier:    GPL-2.0
+ *
+ * Copyright (C) 2019 Marvell International Ltd.
+ *
+ * https://spdx.org/licenses
+ */
+#ifndef __CSRS_CGX_H__
+#define __CSRS_CGX_H__
 
 /**
  * @file
  *
  * Configuration and status register (CSR) address and type definitions for
- * Cavium CGX.
+ * CGX.
  *
  * This file is auto generated.  Do not edit.
  *
@@ -24,44 +23,45 @@
  * CGX Base Address Register Enumeration Enumerates the base address
  * registers.
  */
-#define CAVM_CGX_BAR_E_CGXX_PF_BAR0(a) (0x87e0e0000000ll + 0x1000000ll * (a))
-#define CAVM_CGX_BAR_E_CGXX_PF_BAR0_SIZE 0x100000ull
-#define CAVM_CGX_BAR_E_CGXX_PF_BAR4(a) (0x87e0e0400000ll + 0x1000000ll * (a))
-#define CAVM_CGX_BAR_E_CGXX_PF_BAR4_SIZE 0x100000ull
+#define CGX_BAR_E_CGXX_PF_BAR0(a) (0x87e0e0000000ll + 0x1000000ll * (a))
+#define CGX_BAR_E_CGXX_PF_BAR0_SIZE 0x100000ull
+#define CGX_BAR_E_CGXX_PF_BAR4(a) (0x87e0e0400000ll + 0x1000000ll * (a))
+#define CGX_BAR_E_CGXX_PF_BAR4_SIZE 0x100000ull
 
 /**
  * Enumeration cgx_int_vec_e
  *
  * CGX MSI-X Vector Enumeration Enumeration the MSI-X interrupt vectors.
  */
-#define CAVM_CGX_INT_VEC_E_CMRX_INT(a) (0 + 9 * (a))
-#define CAVM_CGX_INT_VEC_E_CMR_MEM_INT (0x24)
-#define CAVM_CGX_INT_VEC_E_GMPX_GMI_RX_INT(a) (5 + 9 * (a))
-#define CAVM_CGX_INT_VEC_E_GMPX_GMI_TX_INT(a) (6 + 9 * (a))
-#define CAVM_CGX_INT_VEC_E_GMPX_GMI_WOL_INT(a) (7 + 9 * (a))
-#define CAVM_CGX_INT_VEC_E_GMPX_PCS_INT(a) (4 + 9 * (a))
-#define CAVM_CGX_INT_VEC_E_SMUX_RX_INT(a) (2 + 9 * (a))
-#define CAVM_CGX_INT_VEC_E_SMUX_RX_WOL_INT(a) (8 + 9 * (a))
-#define CAVM_CGX_INT_VEC_E_SMUX_TX_INT(a) (3 + 9 * (a))
-#define CAVM_CGX_INT_VEC_E_SPUX_INT(a) (1 + 9 * (a))
-#define CAVM_CGX_INT_VEC_E_SW (0x25)
+#define CGX_INT_VEC_E_CMRX_INT(a) (0 + 9 * (a))
+#define CGX_INT_VEC_E_CMRX_SW(a) (0x26 + (a))
+#define CGX_INT_VEC_E_CMR_MEM_INT (0x24)
+#define CGX_INT_VEC_E_GMPX_GMI_RX_INT(a) (5 + 9 * (a))
+#define CGX_INT_VEC_E_GMPX_GMI_TX_INT(a) (6 + 9 * (a))
+#define CGX_INT_VEC_E_GMPX_GMI_WOL_INT(a) (7 + 9 * (a))
+#define CGX_INT_VEC_E_GMPX_PCS_INT(a) (4 + 9 * (a))
+#define CGX_INT_VEC_E_SMUX_RX_INT(a) (2 + 9 * (a))
+#define CGX_INT_VEC_E_SMUX_RX_WOL_INT(a) (8 + 9 * (a))
+#define CGX_INT_VEC_E_SMUX_TX_INT(a) (3 + 9 * (a))
+#define CGX_INT_VEC_E_SPUX_INT(a) (1 + 9 * (a))
+#define CGX_INT_VEC_E_SW (0x25)
 
 /**
  * Enumeration cgx_lmac_types_e
  *
  * CGX LMAC Type Enumeration Enumerates the LMAC Types that CGX supports.
  */
-#define CAVM_CGX_LMAC_TYPES_E_FIFTYG_R (8)
-#define CAVM_CGX_LMAC_TYPES_E_FORTYG_R (4)
-#define CAVM_CGX_LMAC_TYPES_E_HUNDREDG_R (9)
-#define CAVM_CGX_LMAC_TYPES_E_QSGMII (6)
-#define CAVM_CGX_LMAC_TYPES_E_RGMII (5)
-#define CAVM_CGX_LMAC_TYPES_E_RXAUI (2)
-#define CAVM_CGX_LMAC_TYPES_E_SGMII (0)
-#define CAVM_CGX_LMAC_TYPES_E_TENG_R (3)
-#define CAVM_CGX_LMAC_TYPES_E_TWENTYFIVEG_R (7)
-#define CAVM_CGX_LMAC_TYPES_E_USXGMII (0xa)
-#define CAVM_CGX_LMAC_TYPES_E_XAUI (1)
+#define CGX_LMAC_TYPES_E_FIFTYG_R (8)
+#define CGX_LMAC_TYPES_E_FORTYG_R (4)
+#define CGX_LMAC_TYPES_E_HUNDREDG_R (9)
+#define CGX_LMAC_TYPES_E_QSGMII (6)
+#define CGX_LMAC_TYPES_E_RGMII (5)
+#define CGX_LMAC_TYPES_E_RXAUI (2)
+#define CGX_LMAC_TYPES_E_SGMII (0)
+#define CGX_LMAC_TYPES_E_TENG_R (3)
+#define CGX_LMAC_TYPES_E_TWENTYFIVEG_R (7)
+#define CGX_LMAC_TYPES_E_USXGMII (0xa)
+#define CGX_LMAC_TYPES_E_XAUI (1)
 
 /**
  * Enumeration cgx_opcode_e
@@ -69,14 +69,14 @@
  * INTERNAL: CGX Error Opcode Enumeration  Enumerates the error opcodes
  * created by CGX and presented to NCSI/NIX.
  */
-#define CAVM_CGX_OPCODE_E_RE_FCS (7)
-#define CAVM_CGX_OPCODE_E_RE_FCS_RCV (8)
-#define CAVM_CGX_OPCODE_E_RE_JABBER (2)
-#define CAVM_CGX_OPCODE_E_RE_NONE (0)
-#define CAVM_CGX_OPCODE_E_RE_PARTIAL (1)
-#define CAVM_CGX_OPCODE_E_RE_RX_CTL (0xb)
-#define CAVM_CGX_OPCODE_E_RE_SKIP (0xc)
-#define CAVM_CGX_OPCODE_E_RE_TERMINATE (9)
+#define CGX_OPCODE_E_RE_FCS (7)
+#define CGX_OPCODE_E_RE_FCS_RCV (8)
+#define CGX_OPCODE_E_RE_JABBER (2)
+#define CGX_OPCODE_E_RE_NONE (0)
+#define CGX_OPCODE_E_RE_PARTIAL (1)
+#define CGX_OPCODE_E_RE_RX_CTL (0xb)
+#define CGX_OPCODE_E_RE_SKIP (0xc)
+#define CGX_OPCODE_E_RE_TERMINATE (9)
 
 /**
  * Enumeration cgx_spu_br_train_cst_e
@@ -84,10 +84,10 @@
  * CGX Training Coefficient Status Enumeration 2-bit status for each
  * coefficient as defined in IEEE 802.3, Table 72-5.
  */
-#define CAVM_CGX_SPU_BR_TRAIN_CST_E_MAXIMUM (3)
-#define CAVM_CGX_SPU_BR_TRAIN_CST_E_MINIMUM (2)
-#define CAVM_CGX_SPU_BR_TRAIN_CST_E_NOT_UPDATED (0)
-#define CAVM_CGX_SPU_BR_TRAIN_CST_E_UPDATED (1)
+#define CGX_SPU_BR_TRAIN_CST_E_MAXIMUM (3)
+#define CGX_SPU_BR_TRAIN_CST_E_MINIMUM (2)
+#define CGX_SPU_BR_TRAIN_CST_E_NOT_UPDATED (0)
+#define CGX_SPU_BR_TRAIN_CST_E_UPDATED (1)
 
 /**
  * Enumeration cgx_spu_br_train_cup_e
@@ -95,10 +95,10 @@
  * CGX Training Coefficient Enumeration 2-bit command for each
  * coefficient as defined in IEEE 802.3, Table 72-4.
  */
-#define CAVM_CGX_SPU_BR_TRAIN_CUP_E_DECREMENT (1)
-#define CAVM_CGX_SPU_BR_TRAIN_CUP_E_HOLD (0)
-#define CAVM_CGX_SPU_BR_TRAIN_CUP_E_INCREMENT (2)
-#define CAVM_CGX_SPU_BR_TRAIN_CUP_E_RSV_CMD (3)
+#define CGX_SPU_BR_TRAIN_CUP_E_DECREMENT (1)
+#define CGX_SPU_BR_TRAIN_CUP_E_HOLD (0)
+#define CGX_SPU_BR_TRAIN_CUP_E_INCREMENT (2)
+#define CGX_SPU_BR_TRAIN_CUP_E_RSV_CMD (3)
 
 /**
  * Enumeration cgx_usxgmii_rate_e
@@ -111,14 +111,14 @@
  * behavior. USXGMII hardware-based autonegotiation may change this
  * setting.
  */
-#define CAVM_CGX_USXGMII_RATE_E_RATE_100M (1)
-#define CAVM_CGX_USXGMII_RATE_E_RATE_10G (5)
-#define CAVM_CGX_USXGMII_RATE_E_RATE_10M (0)
-#define CAVM_CGX_USXGMII_RATE_E_RATE_1G (2)
-#define CAVM_CGX_USXGMII_RATE_E_RATE_20G (6)
-#define CAVM_CGX_USXGMII_RATE_E_RATE_2HG (3)
-#define CAVM_CGX_USXGMII_RATE_E_RATE_5G (4)
-#define CAVM_CGX_USXGMII_RATE_E_RSV_RATE (7)
+#define CGX_USXGMII_RATE_E_RATE_100M (1)
+#define CGX_USXGMII_RATE_E_RATE_10G (5)
+#define CGX_USXGMII_RATE_E_RATE_10M (0)
+#define CGX_USXGMII_RATE_E_RATE_1G (2)
+#define CGX_USXGMII_RATE_E_RATE_20G (6)
+#define CGX_USXGMII_RATE_E_RATE_2HG (3)
+#define CGX_USXGMII_RATE_E_RATE_5G (4)
+#define CGX_USXGMII_RATE_E_RSV_RATE (7)
 
 /**
  * Enumeration cgx_usxgmii_type_e
@@ -134,14 +134,14 @@
  * more LMACs than the maximum allowed for a given port sub-type will
  * cause unpredictable behavior.
  */
-#define CAVM_CGX_USXGMII_TYPE_E_DXGMII_10G (3)
-#define CAVM_CGX_USXGMII_TYPE_E_DXGMII_20G (5)
-#define CAVM_CGX_USXGMII_TYPE_E_DXGMII_5G (4)
-#define CAVM_CGX_USXGMII_TYPE_E_QXGMII_10G (7)
-#define CAVM_CGX_USXGMII_TYPE_E_QXGMII_20G (6)
-#define CAVM_CGX_USXGMII_TYPE_E_SXGMII_10G (0)
-#define CAVM_CGX_USXGMII_TYPE_E_SXGMII_2G (2)
-#define CAVM_CGX_USXGMII_TYPE_E_SXGMII_5G (1)
+#define CGX_USXGMII_TYPE_E_DXGMII_10G (3)
+#define CGX_USXGMII_TYPE_E_DXGMII_20G (5)
+#define CGX_USXGMII_TYPE_E_DXGMII_5G (4)
+#define CGX_USXGMII_TYPE_E_QXGMII_10G (7)
+#define CGX_USXGMII_TYPE_E_QXGMII_20G (6)
+#define CGX_USXGMII_TYPE_E_SXGMII_10G (0)
+#define CGX_USXGMII_TYPE_E_SXGMII_2G (2)
+#define CGX_USXGMII_TYPE_E_SXGMII_5G (1)
 
 /**
  * Structure cgx_spu_br_lane_train_status_s
@@ -150,28 +150,28 @@
  * bits for a single lane in the BASE-R PMD status register (MDIO address
  * 1.151) as defined in IEEE 802.3ba-2010, Table 45-55.
  */
-union cavm_cgx_spu_br_lane_train_status_s {
+union cgx_spu_br_lane_train_status_s {
 	u32 u;
-	struct cavm_cgx_spu_br_lane_train_status_s_s {
+	struct cgx_spu_br_lane_train_status_s_s {
 		u32 rx_trained                       : 1;
 		u32 frame_lock                       : 1;
 		u32 training                         : 1;
 		u32 training_failure                 : 1;
 		u32 reserved_4_31                    : 28;
 	} s;
-	/* struct cavm_cgx_spu_br_lane_train_status_s_s cn; */
+	/* struct cgx_spu_br_lane_train_status_s_s cn; */
 };
 
 /**
  * Structure cgx_spu_br_train_cup_s
  *
- * CGX Lane Training Coeffiecient Structure This is the coefficient
- * update field of the BASE-R link training packet as defined in IEEE
- * 802.3, Table 72-4.
+ * CGX Lane Training Coefficient Structure This is the coefficient update
+ * field of the BASE-R link training packet as defined in IEEE 802.3,
+ * Table 72-4.
  */
-union cavm_cgx_spu_br_train_cup_s {
+union cgx_spu_br_train_cup_s {
 	u32 u;
-	struct cavm_cgx_spu_br_train_cup_s_s {
+	struct cgx_spu_br_train_cup_s_s {
 		u32 pre_cup                          : 2;
 		u32 main_cup                         : 2;
 		u32 post_cup                         : 2;
@@ -180,7 +180,7 @@ union cavm_cgx_spu_br_train_cup_s {
 		u32 preset                           : 1;
 		u32 reserved_14_31                   : 18;
 	} s;
-	struct cavm_cgx_spu_br_train_cup_s_cn {
+	struct cgx_spu_br_train_cup_s_cn {
 		u32 pre_cup                          : 2;
 		u32 main_cup                         : 2;
 		u32 post_cup                         : 2;
@@ -198,9 +198,9 @@ union cavm_cgx_spu_br_train_cup_s {
  * CGX Training Report Structure This is the status report field of the
  * BASE-R link training packet as defined in IEEE 802.3, Table 72-5.
  */
-union cavm_cgx_spu_br_train_rep_s {
+union cgx_spu_br_train_rep_s {
 	u32 u;
-	struct cavm_cgx_spu_br_train_rep_s_s {
+	struct cgx_spu_br_train_rep_s_s {
 		u32 pre_cst                          : 2;
 		u32 main_cst                         : 2;
 		u32 post_cst                         : 2;
@@ -208,7 +208,7 @@ union cavm_cgx_spu_br_train_rep_s {
 		u32 rx_ready                         : 1;
 		u32 reserved_16_31                   : 16;
 	} s;
-	/* struct cavm_cgx_spu_br_train_rep_s_s cn; */
+	/* struct cgx_spu_br_train_rep_s_s cn; */
 };
 
 /**
@@ -218,9 +218,9 @@ union cavm_cgx_spu_br_train_rep_s {
  * similar to CGX_SPU_BR_TRAIN_CUP_S format, but with reserved fields
  * removed and [RCVR_READY] field added.
  */
-union cavm_cgx_spu_sds_cu_s {
+union cgx_spu_sds_cu_s {
 	u32 u;
-	struct cavm_cgx_spu_sds_cu_s_s {
+	struct cgx_spu_sds_cu_s_s {
 		u32 pre_cu                           : 2;
 		u32 main_cu                          : 2;
 		u32 post_cu                          : 2;
@@ -229,7 +229,7 @@ union cavm_cgx_spu_sds_cu_s {
 		u32 rcvr_ready                       : 1;
 		u32 reserved_9_31                    : 23;
 	} s;
-	/* struct cavm_cgx_spu_sds_cu_s_s cn; */
+	/* struct cgx_spu_sds_cu_s_s cn; */
 };
 
 /**
@@ -240,9 +240,9 @@ union cavm_cgx_spu_sds_cu_s {
  * LMAC/LPCS. Contents are valid when RX deskew is done for the
  * associated LMAC/LPCS.
  */
-union cavm_cgx_spu_sds_skew_status_s {
+union cgx_spu_sds_skew_status_s {
 	u32 u;
-	struct cavm_cgx_spu_sds_skew_status_s_s {
+	struct cgx_spu_sds_skew_status_s_s {
 		u32 am_timestamp                     : 12;
 		u32 reserved_12_15                   : 4;
 		u32 am_lane_id                       : 5;
@@ -250,7 +250,7 @@ union cavm_cgx_spu_sds_skew_status_s {
 		u32 lane_skew                        : 7;
 		u32 reserved_30_31                   : 2;
 	} s;
-	/* struct cavm_cgx_spu_sds_skew_status_s_s cn; */
+	/* struct cgx_spu_sds_skew_status_s_s cn; */
 };
 
 /**
@@ -260,15 +260,15 @@ union cavm_cgx_spu_sds_skew_status_s {
  * CGX_SPU_BR_TRAIN_REP_S format, but with reserved and RX ready fields
  * removed.
  */
-union cavm_cgx_spu_sds_sr_s {
+union cgx_spu_sds_sr_s {
 	u32 u;
-	struct cavm_cgx_spu_sds_sr_s_s {
+	struct cgx_spu_sds_sr_s_s {
 		u32 pre_status                       : 2;
 		u32 main_status                      : 2;
 		u32 post_status                      : 2;
 		u32 reserved_6_31                    : 26;
 	} s;
-	/* struct cavm_cgx_spu_sds_sr_s_s cn; */
+	/* struct cgx_spu_sds_sr_s_s cn; */
 };
 
 /**
@@ -277,17 +277,17 @@ union cavm_cgx_spu_sds_sr_s {
  * CGX ACTIVE PC Register This register counts the conditional clocks for
  * power management.
  */
-union cavm_cgxx_active_pc {
+union cgxx_active_pc {
 	u64 u;
-	struct cavm_cgxx_active_pc_s {
+	struct cgxx_active_pc_s {
 		u64 cnt                              : 64;
 	} s;
-	/* struct cavm_cgxx_active_pc_s cn; */
+	/* struct cgxx_active_pc_s cn; */
 };
 
-static inline u64 CAVM_CGXX_ACTIVE_PC(void)
+static inline u64 CGXX_ACTIVE_PC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_ACTIVE_PC(void)
+static inline u64 CGXX_ACTIVE_PC(void)
 {
 	return 0x2010;
 }
@@ -297,9 +297,9 @@ static inline u64 CAVM_CGXX_ACTIVE_PC(void)
  *
  * CGX CMR Activity Registers
  */
-union cavm_cgxx_cmrx_activity {
+union cgxx_cmrx_activity {
 	u64 u;
-	struct cavm_cgxx_cmrx_activity_s {
+	struct cgxx_cmrx_activity_s {
 		u64 act_tx_lo                        : 1;
 		u64 act_tx_hi                        : 1;
 		u64 pause_tx                         : 1;
@@ -308,12 +308,12 @@ union cavm_cgxx_cmrx_activity {
 		u64 pause_rx                         : 1;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_cgxx_cmrx_activity_s cn; */
+	/* struct cgxx_cmrx_activity_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_ACTIVITY(u64 a)
+static inline u64 CGXX_CMRX_ACTIVITY(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_ACTIVITY(u64 a)
+static inline u64 CGXX_CMRX_ACTIVITY(u64 a)
 {
 	return 0x5f8 + 0x40000 * a;
 }
@@ -385,9 +385,9 @@ static inline u64 CAVM_CGXX_CMRX_ACTIVITY(u64 a)
  * CGXn_CMR3_CONFIG     1           0   ---------------------------------
  * ------------------------------------------ \</pre\>
  */
-union cavm_cgxx_cmrx_config {
+union cgxx_cmrx_config {
 	u64 u;
-	struct cavm_cgxx_cmrx_config_s {
+	struct cgxx_cmrx_config_s {
 		u64 lane_to_sds                      : 8;
 		u64 reserved_8_39                    : 32;
 		u64 lmac_type                        : 4;
@@ -400,12 +400,12 @@ union cavm_cgxx_cmrx_config {
 		u64 p2x_select                       : 3;
 		u64 reserved_62_63                   : 2;
 	} s;
-	/* struct cavm_cgxx_cmrx_config_s cn; */
+	/* struct cgxx_cmrx_config_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_CONFIG(u64 a)
+static inline u64 CGXX_CMRX_CONFIG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_CONFIG(u64 a)
+static inline u64 CGXX_CMRX_CONFIG(u64 a)
 {
 	return 0 + 0x40000 * a;
 }
@@ -415,9 +415,9 @@ static inline u64 CAVM_CGXX_CMRX_CONFIG(u64 a)
  *
  * CGX CMR Interrupt Register
  */
-union cavm_cgxx_cmrx_int {
+union cgxx_cmrx_int {
 	u64 u;
-	struct cavm_cgxx_cmrx_int_s {
+	struct cgxx_cmrx_int_s {
 		u64 pause_drp                        : 1;
 		u64 overflw                          : 1;
 		u64 nic_nxc                          : 1;
@@ -427,12 +427,12 @@ union cavm_cgxx_cmrx_int {
 		u64 nix1_e_nxc                       : 1;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_cgxx_cmrx_int_s cn; */
+	/* struct cgxx_cmrx_int_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_INT(u64 a)
+static inline u64 CGXX_CMRX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_INT(u64 a)
+static inline u64 CGXX_CMRX_INT(u64 a)
 {
 	return 0x40 + 0x40000 * a;
 }
@@ -443,9 +443,9 @@ static inline u64 CAVM_CGXX_CMRX_INT(u64 a)
  * CGX CMR Interrupt Enable Clear Register This register clears interrupt
  * enable bits.
  */
-union cavm_cgxx_cmrx_int_ena_w1c {
+union cgxx_cmrx_int_ena_w1c {
 	u64 u;
-	struct cavm_cgxx_cmrx_int_ena_w1c_s {
+	struct cgxx_cmrx_int_ena_w1c_s {
 		u64 pause_drp                        : 1;
 		u64 overflw                          : 1;
 		u64 nic_nxc                          : 1;
@@ -455,12 +455,12 @@ union cavm_cgxx_cmrx_int_ena_w1c {
 		u64 nix1_e_nxc                       : 1;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_cgxx_cmrx_int_ena_w1c_s cn; */
+	/* struct cgxx_cmrx_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_CMRX_INT_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_CMRX_INT_ENA_W1C(u64 a)
 {
 	return 0x50 + 0x40000 * a;
 }
@@ -471,9 +471,9 @@ static inline u64 CAVM_CGXX_CMRX_INT_ENA_W1C(u64 a)
  * CGX CMR Interrupt Enable Set Register This register sets interrupt
  * enable bits.
  */
-union cavm_cgxx_cmrx_int_ena_w1s {
+union cgxx_cmrx_int_ena_w1s {
 	u64 u;
-	struct cavm_cgxx_cmrx_int_ena_w1s_s {
+	struct cgxx_cmrx_int_ena_w1s_s {
 		u64 pause_drp                        : 1;
 		u64 overflw                          : 1;
 		u64 nic_nxc                          : 1;
@@ -483,12 +483,12 @@ union cavm_cgxx_cmrx_int_ena_w1s {
 		u64 nix1_e_nxc                       : 1;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_cgxx_cmrx_int_ena_w1s_s cn; */
+	/* struct cgxx_cmrx_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_CMRX_INT_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_CMRX_INT_ENA_W1S(u64 a)
 {
 	return 0x58 + 0x40000 * a;
 }
@@ -498,9 +498,9 @@ static inline u64 CAVM_CGXX_CMRX_INT_ENA_W1S(u64 a)
  *
  * CGX CMR Interrupt Set Register This register sets interrupt bits.
  */
-union cavm_cgxx_cmrx_int_w1s {
+union cgxx_cmrx_int_w1s {
 	u64 u;
-	struct cavm_cgxx_cmrx_int_w1s_s {
+	struct cgxx_cmrx_int_w1s_s {
 		u64 pause_drp                        : 1;
 		u64 overflw                          : 1;
 		u64 nic_nxc                          : 1;
@@ -510,12 +510,12 @@ union cavm_cgxx_cmrx_int_w1s {
 		u64 nix1_e_nxc                       : 1;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_cgxx_cmrx_int_w1s_s cn; */
+	/* struct cgxx_cmrx_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_INT_W1S(u64 a)
+static inline u64 CGXX_CMRX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_INT_W1S(u64 a)
+static inline u64 CGXX_CMRX_INT_W1S(u64 a)
 {
 	return 0x48 + 0x40000 * a;
 }
@@ -525,18 +525,18 @@ static inline u64 CAVM_CGXX_CMRX_INT_W1S(u64 a)
  *
  * CGX MAC LED Activity Timing Registers
  */
-union cavm_cgxx_cmrx_led_timing {
+union cgxx_cmrx_led_timing {
 	u64 u;
-	struct cavm_cgxx_cmrx_led_timing_s {
+	struct cgxx_cmrx_led_timing_s {
 		u64 extension                        : 8;
 		u64 reserved_8_63                    : 56;
 	} s;
-	/* struct cavm_cgxx_cmrx_led_timing_s cn; */
+	/* struct cgxx_cmrx_led_timing_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_LED_TIMING(u64 a)
+static inline u64 CGXX_CMRX_LED_TIMING(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_LED_TIMING(u64 a)
+static inline u64 CGXX_CMRX_LED_TIMING(u64 a)
 {
 	return 0x5f0 + 0x40000 * a;
 }
@@ -546,19 +546,19 @@ static inline u64 CAVM_CGXX_CMRX_LED_TIMING(u64 a)
  *
  * CGX CMR LMAC PFC Control Registers See CGX()_CMR()_RX_LOGL_XOFF[XOFF].
  */
-union cavm_cgxx_cmrx_prt_cbfc_ctl {
+union cgxx_cmrx_prt_cbfc_ctl {
 	u64 u;
-	struct cavm_cgxx_cmrx_prt_cbfc_ctl_s {
+	struct cgxx_cmrx_prt_cbfc_ctl_s {
 		u64 reserved_0_15                    : 16;
 		u64 phys_bp                          : 16;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_cmrx_prt_cbfc_ctl_s cn; */
+	/* struct cgxx_cmrx_prt_cbfc_ctl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_PRT_CBFC_CTL(u64 a)
+static inline u64 CGXX_CMRX_PRT_CBFC_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_PRT_CBFC_CTL(u64 a)
+static inline u64 CGXX_CMRX_PRT_CBFC_CTL(u64 a)
 {
 	return 0x608 + 0x40000 * a;
 }
@@ -568,18 +568,18 @@ static inline u64 CAVM_CGXX_CMRX_PRT_CBFC_CTL(u64 a)
  *
  * CGX Receive Backpressure Drop Register
  */
-union cavm_cgxx_cmrx_rx_bp_drop {
+union cgxx_cmrx_rx_bp_drop {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_bp_drop_s {
+	struct cgxx_cmrx_rx_bp_drop_s {
 		u64 mark                             : 7;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_bp_drop_s cn; */
+	/* struct cgxx_cmrx_rx_bp_drop_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_BP_DROP(u64 a)
+static inline u64 CGXX_CMRX_RX_BP_DROP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_BP_DROP(u64 a)
+static inline u64 CGXX_CMRX_RX_BP_DROP(u64 a)
 {
 	return 0xd8 + 0x40000 * a;
 }
@@ -589,18 +589,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_BP_DROP(u64 a)
  *
  * CGX Receive Backpressure Off Register
  */
-union cavm_cgxx_cmrx_rx_bp_off {
+union cgxx_cmrx_rx_bp_off {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_bp_off_s {
+	struct cgxx_cmrx_rx_bp_off_s {
 		u64 mark                             : 7;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_bp_off_s cn; */
+	/* struct cgxx_cmrx_rx_bp_off_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_BP_OFF(u64 a)
+static inline u64 CGXX_CMRX_RX_BP_OFF(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_BP_OFF(u64 a)
+static inline u64 CGXX_CMRX_RX_BP_OFF(u64 a)
 {
 	return 0xe8 + 0x40000 * a;
 }
@@ -610,18 +610,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_BP_OFF(u64 a)
  *
  * CGX Receive Backpressure On Register
  */
-union cavm_cgxx_cmrx_rx_bp_on {
+union cgxx_cmrx_rx_bp_on {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_bp_on_s {
+	struct cgxx_cmrx_rx_bp_on_s {
 		u64 mark                             : 13;
 		u64 reserved_13_63                   : 51;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_bp_on_s cn; */
+	/* struct cgxx_cmrx_rx_bp_on_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_BP_ON(u64 a)
+static inline u64 CGXX_CMRX_RX_BP_ON(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_BP_ON(u64 a)
+static inline u64 CGXX_CMRX_RX_BP_ON(u64 a)
 {
 	return 0xe0 + 0x40000 * a;
 }
@@ -631,18 +631,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_BP_ON(u64 a)
  *
  * CGX CMR Receive Backpressure Status Registers
  */
-union cavm_cgxx_cmrx_rx_bp_status {
+union cgxx_cmrx_rx_bp_status {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_bp_status_s {
+	struct cgxx_cmrx_rx_bp_status_s {
 		u64 bp                               : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_bp_status_s cn; */
+	/* struct cgxx_cmrx_rx_bp_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_BP_STATUS(u64 a)
+static inline u64 CGXX_CMRX_RX_BP_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_BP_STATUS(u64 a)
+static inline u64 CGXX_CMRX_RX_BP_STATUS(u64 a)
 {
 	return 0xf0 + 0x40000 * a;
 }
@@ -671,20 +671,20 @@ static inline u64 CAVM_CGXX_CMRX_RX_BP_STATUS(u64 a)
  * return (CGX()_CMR(lmac)_RX_DMAC_CTL0[CAM_ACCEPT] ? REJECT : ACCEPT);
  * } } \</pre\>"
  */
-union cavm_cgxx_cmrx_rx_dmac_ctl0 {
+union cgxx_cmrx_rx_dmac_ctl0 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_dmac_ctl0_s {
+	struct cgxx_cmrx_rx_dmac_ctl0_s {
 		u64 bcst_accept                      : 1;
 		u64 mcst_mode                        : 2;
 		u64 cam_accept                       : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_dmac_ctl0_s cn; */
+	/* struct cgxx_cmrx_rx_dmac_ctl0_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_DMAC_CTL0(u64 a)
+static inline u64 CGXX_CMRX_RX_DMAC_CTL0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_DMAC_CTL0(u64 a)
+static inline u64 CGXX_CMRX_RX_DMAC_CTL0(u64 a)
 {
 	return 0x1f8 + 0x40000 * a;
 }
@@ -700,20 +700,20 @@ static inline u64 CAVM_CGXX_CMRX_RX_DMAC_CTL0(u64 a)
  * see CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID].  Internal: ALGORITHM: See
  * CGX()_CMR()_RX_DMAC_CTL0.
  */
-union cavm_cgxx_cmrx_rx_dmac_ctl1 {
+union cgxx_cmrx_rx_dmac_ctl1 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_dmac_ctl1_s {
+	struct cgxx_cmrx_rx_dmac_ctl1_s {
 		u64 bcst_accept                      : 1;
 		u64 mcst_mode                        : 2;
 		u64 cam_accept                       : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_dmac_ctl1_s cn; */
+	/* struct cgxx_cmrx_rx_dmac_ctl1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_DMAC_CTL1(u64 a)
+static inline u64 CGXX_CMRX_RX_DMAC_CTL1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_DMAC_CTL1(u64 a)
+static inline u64 CGXX_CMRX_RX_DMAC_CTL1(u64 a)
 {
 	return 0x3f8 + 0x40000 * a;
 }
@@ -723,21 +723,21 @@ static inline u64 CAVM_CGXX_CMRX_RX_DMAC_CTL1(u64 a)
  *
  * CGX CMR Receive Fifo Length Registers
  */
-union cavm_cgxx_cmrx_rx_fifo_len {
+union cgxx_cmrx_rx_fifo_len {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_fifo_len_s {
+	struct cgxx_cmrx_rx_fifo_len_s {
 		u64 fifo_len                         : 14;
 		u64 busy                             : 1;
 		u64 fifo_len_e                       : 14;
 		u64 busy_e                           : 1;
 		u64 reserved_30_63                   : 34;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_fifo_len_s cn; */
+	/* struct cgxx_cmrx_rx_fifo_len_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_FIFO_LEN(u64 a)
+static inline u64 CGXX_CMRX_RX_FIFO_LEN(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_FIFO_LEN(u64 a)
+static inline u64 CGXX_CMRX_RX_FIFO_LEN(u64 a)
 {
 	return 0x108 + 0x40000 * a;
 }
@@ -748,20 +748,20 @@ static inline u64 CAVM_CGXX_CMRX_RX_FIFO_LEN(u64 a)
  * CGX CMR Receive ID Map Register These registers set the RX LMAC ID
  * mapping for X2P/NIX.
  */
-union cavm_cgxx_cmrx_rx_id_map {
+union cgxx_cmrx_rx_id_map {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_id_map_s {
+	struct cgxx_cmrx_rx_id_map_s {
 		u64 pknd                             : 6;
 		u64 unused                           : 2;
 		u64 rid                              : 7;
 		u64 reserved_15_63                   : 49;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_id_map_s cn; */
+	/* struct cgxx_cmrx_rx_id_map_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_ID_MAP(u64 a)
+static inline u64 CGXX_CMRX_RX_ID_MAP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_ID_MAP(u64 a)
+static inline u64 CGXX_CMRX_RX_ID_MAP(u64 a)
 {
 	return 0x60 + 0x40000 * a;
 }
@@ -771,18 +771,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_ID_MAP(u64 a)
  *
  * CGX CMR Receive Logical XOFF Registers
  */
-union cavm_cgxx_cmrx_rx_logl_xoff {
+union cgxx_cmrx_rx_logl_xoff {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_logl_xoff_s {
+	struct cgxx_cmrx_rx_logl_xoff_s {
 		u64 xoff                             : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_logl_xoff_s cn; */
+	/* struct cgxx_cmrx_rx_logl_xoff_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_LOGL_XOFF(u64 a)
+static inline u64 CGXX_CMRX_RX_LOGL_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_LOGL_XOFF(u64 a)
+static inline u64 CGXX_CMRX_RX_LOGL_XOFF(u64 a)
 {
 	return 0xf8 + 0x40000 * a;
 }
@@ -792,18 +792,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_LOGL_XOFF(u64 a)
  *
  * CGX CMR Receive Logical XON Registers
  */
-union cavm_cgxx_cmrx_rx_logl_xon {
+union cgxx_cmrx_rx_logl_xon {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_logl_xon_s {
+	struct cgxx_cmrx_rx_logl_xon_s {
 		u64 xon                              : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_logl_xon_s cn; */
+	/* struct cgxx_cmrx_rx_logl_xon_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_LOGL_XON(u64 a)
+static inline u64 CGXX_CMRX_RX_LOGL_XON(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_LOGL_XON(u64 a)
+static inline u64 CGXX_CMRX_RX_LOGL_XON(u64 a)
 {
 	return 0x100 + 0x40000 * a;
 }
@@ -813,18 +813,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_LOGL_XON(u64 a)
  *
  * CGX RX Preemption Status Register 0
  */
-union cavm_cgxx_cmrx_rx_merge_stat0 {
+union cgxx_cmrx_rx_merge_stat0 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_merge_stat0_s {
+	struct cgxx_cmrx_rx_merge_stat0_s {
 		u64 fa_err_cnt                       : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_merge_stat0_s cn; */
+	/* struct cgxx_cmrx_rx_merge_stat0_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT0(u64 a)
+static inline u64 CGXX_CMRX_RX_MERGE_STAT0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT0(u64 a)
+static inline u64 CGXX_CMRX_RX_MERGE_STAT0(u64 a)
 {
 	return 0x138 + 0x40000 * a;
 }
@@ -834,18 +834,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT0(u64 a)
  *
  * CGX RX Preemption Status Register 1
  */
-union cavm_cgxx_cmrx_rx_merge_stat1 {
+union cgxx_cmrx_rx_merge_stat1 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_merge_stat1_s {
+	struct cgxx_cmrx_rx_merge_stat1_s {
 		u64 fs_err_cnt                       : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_merge_stat1_s cn; */
+	/* struct cgxx_cmrx_rx_merge_stat1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT1(u64 a)
+static inline u64 CGXX_CMRX_RX_MERGE_STAT1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT1(u64 a)
+static inline u64 CGXX_CMRX_RX_MERGE_STAT1(u64 a)
 {
 	return 0x140 + 0x40000 * a;
 }
@@ -855,18 +855,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT1(u64 a)
  *
  * CGX RX Preemption Status Register 2
  */
-union cavm_cgxx_cmrx_rx_merge_stat2 {
+union cgxx_cmrx_rx_merge_stat2 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_merge_stat2_s {
+	struct cgxx_cmrx_rx_merge_stat2_s {
 		u64 fa_ok_cnt                        : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_merge_stat2_s cn; */
+	/* struct cgxx_cmrx_rx_merge_stat2_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT2(u64 a)
+static inline u64 CGXX_CMRX_RX_MERGE_STAT2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT2(u64 a)
+static inline u64 CGXX_CMRX_RX_MERGE_STAT2(u64 a)
 {
 	return 0x148 + 0x40000 * a;
 }
@@ -876,18 +876,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT2(u64 a)
  *
  * CGX RX Preemption Status Register 3
  */
-union cavm_cgxx_cmrx_rx_merge_stat3 {
+union cgxx_cmrx_rx_merge_stat3 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_merge_stat3_s {
+	struct cgxx_cmrx_rx_merge_stat3_s {
 		u64 ff_cnt                           : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_merge_stat3_s cn; */
+	/* struct cgxx_cmrx_rx_merge_stat3_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT3(u64 a)
+static inline u64 CGXX_CMRX_RX_MERGE_STAT3(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT3(u64 a)
+static inline u64 CGXX_CMRX_RX_MERGE_STAT3(u64 a)
 {
 	return 0x150 + 0x40000 * a;
 }
@@ -897,18 +897,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT3(u64 a)
  *
  * CGX RX Preemption Status Register 4
  */
-union cavm_cgxx_cmrx_rx_merge_stat4 {
+union cgxx_cmrx_rx_merge_stat4 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_merge_stat4_s {
+	struct cgxx_cmrx_rx_merge_stat4_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_merge_stat4_s cn; */
+	/* struct cgxx_cmrx_rx_merge_stat4_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT4(u64 a)
+static inline u64 CGXX_CMRX_RX_MERGE_STAT4(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT4(u64 a)
+static inline u64 CGXX_CMRX_RX_MERGE_STAT4(u64 a)
 {
 	return 0x158 + 0x40000 * a;
 }
@@ -918,19 +918,19 @@ static inline u64 CAVM_CGXX_CMRX_RX_MERGE_STAT4(u64 a)
  *
  * CGX CMR Receive Pause Drop-Time Register
  */
-union cavm_cgxx_cmrx_rx_pause_drop_time {
+union cgxx_cmrx_rx_pause_drop_time {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_pause_drop_time_s {
+	struct cgxx_cmrx_rx_pause_drop_time_s {
 		u64 pause_time                       : 16;
 		u64 pause_time_e                     : 16;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_pause_drop_time_s cn; */
+	/* struct cgxx_cmrx_rx_pause_drop_time_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_PAUSE_DROP_TIME(u64 a)
+static inline u64 CGXX_CMRX_RX_PAUSE_DROP_TIME(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_PAUSE_DROP_TIME(u64 a)
+static inline u64 CGXX_CMRX_RX_PAUSE_DROP_TIME(u64 a)
 {
 	return 0x68 + 0x40000 * a;
 }
@@ -949,18 +949,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_PAUSE_DROP_TIME(u64 a)
  * drop)   incr RX_STAT4,5 if not a filter+decision else   incr
  * RX_STAT0,1 end \</pre\>"
  */
-union cavm_cgxx_cmrx_rx_stat0 {
+union cgxx_cmrx_rx_stat0 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_stat0_s {
+	struct cgxx_cmrx_rx_stat0_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_stat0_s cn; */
+	/* struct cgxx_cmrx_rx_stat0_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_STAT0(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_STAT0(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT0(u64 a)
 {
 	return 0x70 + 0x40000 * a;
 }
@@ -971,18 +971,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT0(u64 a)
  * CGX Receive Status Register 1 These registers provide a count of
  * octets of received packets.
  */
-union cavm_cgxx_cmrx_rx_stat1 {
+union cgxx_cmrx_rx_stat1 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_stat1_s {
+	struct cgxx_cmrx_rx_stat1_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_stat1_s cn; */
+	/* struct cgxx_cmrx_rx_stat1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_STAT1(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_STAT1(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT1(u64 a)
 {
 	return 0x78 + 0x40000 * a;
 }
@@ -998,18 +998,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT1(u64 a)
  * CGX()_SMU()_RX_FRM_CTL[CTL_DRP]/CGX()_GMP_GMI_RX()_FRM_CTL[CTL_DRP].
  * This count increments regardless of whether the packet is dropped.
  */
-union cavm_cgxx_cmrx_rx_stat2 {
+union cgxx_cmrx_rx_stat2 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_stat2_s {
+	struct cgxx_cmrx_rx_stat2_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_stat2_s cn; */
+	/* struct cgxx_cmrx_rx_stat2_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_STAT2(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_STAT2(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT2(u64 a)
 {
 	return 0x80 + 0x40000 * a;
 }
@@ -1020,18 +1020,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT2(u64 a)
  * CGX Receive Status Register 3 These registers provide a count of
  * octets of received PAUSE and control packets.
  */
-union cavm_cgxx_cmrx_rx_stat3 {
+union cgxx_cmrx_rx_stat3 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_stat3_s {
+	struct cgxx_cmrx_rx_stat3_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_stat3_s cn; */
+	/* struct cgxx_cmrx_rx_stat3_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_STAT3(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT3(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_STAT3(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT3(u64 a)
 {
 	return 0x88 + 0x40000 * a;
 }
@@ -1050,18 +1050,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT3(u64 a)
  * be filtered upon decision before the end of packet, then STAT4 and
  * STAT5 will not be updated.
  */
-union cavm_cgxx_cmrx_rx_stat4 {
+union cgxx_cmrx_rx_stat4 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_stat4_s {
+	struct cgxx_cmrx_rx_stat4_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_stat4_s cn; */
+	/* struct cgxx_cmrx_rx_stat4_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_STAT4(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT4(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_STAT4(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT4(u64 a)
 {
 	return 0x90 + 0x40000 * a;
 }
@@ -1072,18 +1072,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT4(u64 a)
  * CGX Receive Status Register 5 These registers provide a count of
  * octets of filtered DMAC0 or VLAN STEERING0 packets.
  */
-union cavm_cgxx_cmrx_rx_stat5 {
+union cgxx_cmrx_rx_stat5 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_stat5_s {
+	struct cgxx_cmrx_rx_stat5_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_stat5_s cn; */
+	/* struct cgxx_cmrx_rx_stat5_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_STAT5(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT5(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_STAT5(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT5(u64 a)
 {
 	return 0x98 + 0x40000 * a;
 }
@@ -1100,18 +1100,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT5(u64 a)
  * STAT8. These registers count all entire packets dropped by the FIFO
  * for a given LMAC.
  */
-union cavm_cgxx_cmrx_rx_stat6 {
+union cgxx_cmrx_rx_stat6 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_stat6_s {
+	struct cgxx_cmrx_rx_stat6_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_stat6_s cn; */
+	/* struct cgxx_cmrx_rx_stat6_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_STAT6(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT6(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_STAT6(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT6(u64 a)
 {
 	return 0xa0 + 0x40000 * a;
 }
@@ -1123,18 +1123,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT6(u64 a)
  * octets of received packets that were dropped due to a full receive
  * FIFO.
  */
-union cavm_cgxx_cmrx_rx_stat7 {
+union cgxx_cmrx_rx_stat7 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_stat7_s {
+	struct cgxx_cmrx_rx_stat7_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_stat7_s cn; */
+	/* struct cgxx_cmrx_rx_stat7_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_STAT7(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT7(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_STAT7(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT7(u64 a)
 {
 	return 0xa8 + 0x40000 * a;
 }
@@ -1146,18 +1146,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT7(u64 a)
  * received packets that meet the following conditions:  * are recognized
  * as ERROR packets(any OPCODE).
  */
-union cavm_cgxx_cmrx_rx_stat8 {
+union cgxx_cmrx_rx_stat8 {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_stat8_s {
+	struct cgxx_cmrx_rx_stat8_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_stat8_s cn; */
+	/* struct cgxx_cmrx_rx_stat8_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_STAT8(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT8(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_STAT8(u64 a)
+static inline u64 CGXX_CMRX_RX_STAT8(u64 a)
 {
 	return 0xb0 + 0x40000 * a;
 }
@@ -1167,18 +1167,18 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT8(u64 a)
  *
  * CGX CMR RX XON to XOFF transition Registers
  */
-union cavm_cgxx_cmrx_rx_stat_prix_xoff {
+union cgxx_cmrx_rx_stat_prix_xoff {
 	u64 u;
-	struct cavm_cgxx_cmrx_rx_stat_prix_xoff_s {
+	struct cgxx_cmrx_rx_stat_prix_xoff_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_rx_stat_prix_xoff_s cn; */
+	/* struct cgxx_cmrx_rx_stat_prix_xoff_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_RX_STAT_PRIX_XOFF(u64 a, u64 b)
+static inline u64 CGXX_CMRX_RX_STAT_PRIX_XOFF(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_RX_STAT_PRIX_XOFF(u64 a, u64 b)
+static inline u64 CGXX_CMRX_RX_STAT_PRIX_XOFF(u64 a, u64 b)
 {
 	return 0x7c0 + 0x40000 * a + 8 * b;
 }
@@ -1188,19 +1188,105 @@ static inline u64 CAVM_CGXX_CMRX_RX_STAT_PRIX_XOFF(u64 a, u64 b)
  *
  * CGX CMR Scratch Registers
  */
-union cavm_cgxx_cmrx_scratchx {
+union cgxx_cmrx_scratchx {
 	u64 u;
-	struct cavm_cgxx_cmrx_scratchx_s {
+	struct cgxx_cmrx_scratchx_s {
 		u64 scratch                          : 64;
 	} s;
-	/* struct cavm_cgxx_cmrx_scratchx_s cn; */
+	/* struct cgxx_cmrx_scratchx_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_SCRATCHX(u64 a, u64 b)
+static inline u64 CGXX_CMRX_SCRATCHX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_SCRATCHX(u64 a, u64 b)
+static inline u64 CGXX_CMRX_SCRATCHX(u64 a, u64 b)
 {
 	return 0x1050 + 0x40000 * a + 8 * b;
+}
+
+/**
+ * Register (RSL) cgx#_cmr#_sw_int
+ *
+ * CGX CMR Interrupt Register
+ */
+union cgxx_cmrx_sw_int {
+	u64 u;
+	struct cgxx_cmrx_sw_int_s {
+		u64 sw_set                           : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct cgxx_cmrx_sw_int_s cn; */
+};
+
+static inline u64 CGXX_CMRX_SW_INT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 CGXX_CMRX_SW_INT(u64 a)
+{
+	return 0x180 + 0x40000 * a;
+}
+
+/**
+ * Register (RSL) cgx#_cmr#_sw_int_ena_w1c
+ *
+ * CGX CMR Interrupt Enable Clear Register This register clears interrupt
+ * enable bits.
+ */
+union cgxx_cmrx_sw_int_ena_w1c {
+	u64 u;
+	struct cgxx_cmrx_sw_int_ena_w1c_s {
+		u64 sw_set                           : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct cgxx_cmrx_sw_int_ena_w1c_s cn; */
+};
+
+static inline u64 CGXX_CMRX_SW_INT_ENA_W1C(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 CGXX_CMRX_SW_INT_ENA_W1C(u64 a)
+{
+	return 0x190 + 0x40000 * a;
+}
+
+/**
+ * Register (RSL) cgx#_cmr#_sw_int_ena_w1s
+ *
+ * CGX CMR Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
+ */
+union cgxx_cmrx_sw_int_ena_w1s {
+	u64 u;
+	struct cgxx_cmrx_sw_int_ena_w1s_s {
+		u64 sw_set                           : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct cgxx_cmrx_sw_int_ena_w1s_s cn; */
+};
+
+static inline u64 CGXX_CMRX_SW_INT_ENA_W1S(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 CGXX_CMRX_SW_INT_ENA_W1S(u64 a)
+{
+	return 0x198 + 0x40000 * a;
+}
+
+/**
+ * Register (RSL) cgx#_cmr#_sw_int_w1s
+ *
+ * CGX CMR Interrupt Set Register This register sets interrupt bits.
+ */
+union cgxx_cmrx_sw_int_w1s {
+	u64 u;
+	struct cgxx_cmrx_sw_int_w1s_s {
+		u64 sw_set                           : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct cgxx_cmrx_sw_int_w1s_s cn; */
+};
+
+static inline u64 CGXX_CMRX_SW_INT_W1S(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 CGXX_CMRX_SW_INT_W1S(u64 a)
+{
+	return 0x188 + 0x40000 * a;
 }
 
 /**
@@ -1208,18 +1294,18 @@ static inline u64 CAVM_CGXX_CMRX_SCRATCHX(u64 a, u64 b)
  *
  * CGX CMR Transmit-Channels Registers
  */
-union cavm_cgxx_cmrx_tx_channel {
+union cgxx_cmrx_tx_channel {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_channel_s {
+	struct cgxx_cmrx_tx_channel_s {
 		u64 msk                              : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_channel_s cn; */
+	/* struct cgxx_cmrx_tx_channel_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_CHANNEL(u64 a)
+static inline u64 CGXX_CMRX_TX_CHANNEL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_CHANNEL(u64 a)
+static inline u64 CGXX_CMRX_TX_CHANNEL(u64 a)
 {
 	return 0x600 + 0x40000 * a;
 }
@@ -1229,21 +1315,21 @@ static inline u64 CAVM_CGXX_CMRX_TX_CHANNEL(u64 a)
  *
  * CGX CMR Transmit Fifo Length Registers
  */
-union cavm_cgxx_cmrx_tx_fifo_len {
+union cgxx_cmrx_tx_fifo_len {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_fifo_len_s {
+	struct cgxx_cmrx_tx_fifo_len_s {
 		u64 fifo_len                         : 14;
 		u64 lmac_idle                        : 1;
 		u64 fifo_e_len                       : 14;
 		u64 lmac_e_idle                      : 1;
 		u64 reserved_30_63                   : 34;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_fifo_len_s cn; */
+	/* struct cgxx_cmrx_tx_fifo_len_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_FIFO_LEN(u64 a)
+static inline u64 CGXX_CMRX_TX_FIFO_LEN(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_FIFO_LEN(u64 a)
+static inline u64 CGXX_CMRX_TX_FIFO_LEN(u64 a)
 {
 	return 0x618 + 0x40000 * a;
 }
@@ -1253,19 +1339,19 @@ static inline u64 CAVM_CGXX_CMRX_TX_FIFO_LEN(u64 a)
  *
  * CGX CMR Transmit HiGig2 Status Registers
  */
-union cavm_cgxx_cmrx_tx_hg2_status {
+union cgxx_cmrx_tx_hg2_status {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_hg2_status_s {
+	struct cgxx_cmrx_tx_hg2_status_s {
 		u64 lgtim2go                         : 16;
 		u64 xof                              : 16;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_hg2_status_s cn; */
+	/* struct cgxx_cmrx_tx_hg2_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_HG2_STATUS(u64 a)
+static inline u64 CGXX_CMRX_TX_HG2_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_HG2_STATUS(u64 a)
+static inline u64 CGXX_CMRX_TX_HG2_STATUS(u64 a)
 {
 	return 0x610 + 0x40000 * a;
 }
@@ -1275,18 +1361,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_HG2_STATUS(u64 a)
  *
  * CGX TX Preemption Status Register 0
  */
-union cavm_cgxx_cmrx_tx_merge_stat0 {
+union cgxx_cmrx_tx_merge_stat0 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_merge_stat0_s {
+	struct cgxx_cmrx_tx_merge_stat0_s {
 		u64 ff_cnt                           : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_merge_stat0_s cn; */
+	/* struct cgxx_cmrx_tx_merge_stat0_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_MERGE_STAT0(u64 a)
+static inline u64 CGXX_CMRX_TX_MERGE_STAT0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_MERGE_STAT0(u64 a)
+static inline u64 CGXX_CMRX_TX_MERGE_STAT0(u64 a)
 {
 	return 0x160 + 0x40000 * a;
 }
@@ -1296,18 +1382,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_MERGE_STAT0(u64 a)
  *
  * CGX CMR Transmit-Channels Backpressure Override Registers
  */
-union cavm_cgxx_cmrx_tx_ovr_bp {
+union cgxx_cmrx_tx_ovr_bp {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_ovr_bp_s {
+	struct cgxx_cmrx_tx_ovr_bp_s {
 		u64 tx_chan_bp                       : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_ovr_bp_s cn; */
+	/* struct cgxx_cmrx_tx_ovr_bp_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_OVR_BP(u64 a)
+static inline u64 CGXX_CMRX_TX_OVR_BP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_OVR_BP(u64 a)
+static inline u64 CGXX_CMRX_TX_OVR_BP(u64 a)
 {
 	return 0x620 + 0x40000 * a;
 }
@@ -1317,18 +1403,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_OVR_BP(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 0
  */
-union cavm_cgxx_cmrx_tx_stat0 {
+union cgxx_cmrx_tx_stat0 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat0_s {
+	struct cgxx_cmrx_tx_stat0_s {
 		u64 xscol                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat0_s cn; */
+	/* struct cgxx_cmrx_tx_stat0_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT0(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT0(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT0(u64 a)
 {
 	return 0x700 + 0x40000 * a;
 }
@@ -1338,18 +1424,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT0(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 1
  */
-union cavm_cgxx_cmrx_tx_stat1 {
+union cgxx_cmrx_tx_stat1 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat1_s {
+	struct cgxx_cmrx_tx_stat1_s {
 		u64 xsdef                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat1_s cn; */
+	/* struct cgxx_cmrx_tx_stat1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT1(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT1(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT1(u64 a)
 {
 	return 0x708 + 0x40000 * a;
 }
@@ -1359,18 +1445,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT1(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 10
  */
-union cavm_cgxx_cmrx_tx_stat10 {
+union cgxx_cmrx_tx_stat10 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat10_s {
+	struct cgxx_cmrx_tx_stat10_s {
 		u64 hist4                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat10_s cn; */
+	/* struct cgxx_cmrx_tx_stat10_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT10(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT10(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT10(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT10(u64 a)
 {
 	return 0x750 + 0x40000 * a;
 }
@@ -1380,18 +1466,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT10(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 11
  */
-union cavm_cgxx_cmrx_tx_stat11 {
+union cgxx_cmrx_tx_stat11 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat11_s {
+	struct cgxx_cmrx_tx_stat11_s {
 		u64 hist5                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat11_s cn; */
+	/* struct cgxx_cmrx_tx_stat11_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT11(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT11(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT11(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT11(u64 a)
 {
 	return 0x758 + 0x40000 * a;
 }
@@ -1401,18 +1487,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT11(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 12
  */
-union cavm_cgxx_cmrx_tx_stat12 {
+union cgxx_cmrx_tx_stat12 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat12_s {
+	struct cgxx_cmrx_tx_stat12_s {
 		u64 hist6                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat12_s cn; */
+	/* struct cgxx_cmrx_tx_stat12_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT12(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT12(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT12(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT12(u64 a)
 {
 	return 0x760 + 0x40000 * a;
 }
@@ -1422,18 +1508,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT12(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 13
  */
-union cavm_cgxx_cmrx_tx_stat13 {
+union cgxx_cmrx_tx_stat13 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat13_s {
+	struct cgxx_cmrx_tx_stat13_s {
 		u64 hist7                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat13_s cn; */
+	/* struct cgxx_cmrx_tx_stat13_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT13(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT13(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT13(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT13(u64 a)
 {
 	return 0x768 + 0x40000 * a;
 }
@@ -1443,18 +1529,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT13(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 14
  */
-union cavm_cgxx_cmrx_tx_stat14 {
+union cgxx_cmrx_tx_stat14 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat14_s {
+	struct cgxx_cmrx_tx_stat14_s {
 		u64 bcst                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat14_s cn; */
+	/* struct cgxx_cmrx_tx_stat14_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT14(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT14(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT14(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT14(u64 a)
 {
 	return 0x770 + 0x40000 * a;
 }
@@ -1464,18 +1550,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT14(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 15
  */
-union cavm_cgxx_cmrx_tx_stat15 {
+union cgxx_cmrx_tx_stat15 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat15_s {
+	struct cgxx_cmrx_tx_stat15_s {
 		u64 mcst                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat15_s cn; */
+	/* struct cgxx_cmrx_tx_stat15_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT15(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT15(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT15(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT15(u64 a)
 {
 	return 0x778 + 0x40000 * a;
 }
@@ -1485,18 +1571,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT15(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 16
  */
-union cavm_cgxx_cmrx_tx_stat16 {
+union cgxx_cmrx_tx_stat16 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat16_s {
+	struct cgxx_cmrx_tx_stat16_s {
 		u64 undflw                           : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat16_s cn; */
+	/* struct cgxx_cmrx_tx_stat16_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT16(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT16(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT16(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT16(u64 a)
 {
 	return 0x780 + 0x40000 * a;
 }
@@ -1506,18 +1592,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT16(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 17
  */
-union cavm_cgxx_cmrx_tx_stat17 {
+union cgxx_cmrx_tx_stat17 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat17_s {
+	struct cgxx_cmrx_tx_stat17_s {
 		u64 ctl                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat17_s cn; */
+	/* struct cgxx_cmrx_tx_stat17_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT17(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT17(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT17(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT17(u64 a)
 {
 	return 0x788 + 0x40000 * a;
 }
@@ -1527,18 +1613,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT17(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 2
  */
-union cavm_cgxx_cmrx_tx_stat2 {
+union cgxx_cmrx_tx_stat2 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat2_s {
+	struct cgxx_cmrx_tx_stat2_s {
 		u64 mcol                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat2_s cn; */
+	/* struct cgxx_cmrx_tx_stat2_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT2(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT2(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT2(u64 a)
 {
 	return 0x710 + 0x40000 * a;
 }
@@ -1548,18 +1634,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT2(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 3
  */
-union cavm_cgxx_cmrx_tx_stat3 {
+union cgxx_cmrx_tx_stat3 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat3_s {
+	struct cgxx_cmrx_tx_stat3_s {
 		u64 scol                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat3_s cn; */
+	/* struct cgxx_cmrx_tx_stat3_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT3(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT3(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT3(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT3(u64 a)
 {
 	return 0x718 + 0x40000 * a;
 }
@@ -1569,18 +1655,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT3(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 4
  */
-union cavm_cgxx_cmrx_tx_stat4 {
+union cgxx_cmrx_tx_stat4 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat4_s {
+	struct cgxx_cmrx_tx_stat4_s {
 		u64 octs                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat4_s cn; */
+	/* struct cgxx_cmrx_tx_stat4_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT4(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT4(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT4(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT4(u64 a)
 {
 	return 0x720 + 0x40000 * a;
 }
@@ -1590,18 +1676,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT4(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 5
  */
-union cavm_cgxx_cmrx_tx_stat5 {
+union cgxx_cmrx_tx_stat5 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat5_s {
+	struct cgxx_cmrx_tx_stat5_s {
 		u64 pkts                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat5_s cn; */
+	/* struct cgxx_cmrx_tx_stat5_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT5(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT5(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT5(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT5(u64 a)
 {
 	return 0x728 + 0x40000 * a;
 }
@@ -1611,18 +1697,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT5(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 6
  */
-union cavm_cgxx_cmrx_tx_stat6 {
+union cgxx_cmrx_tx_stat6 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat6_s {
+	struct cgxx_cmrx_tx_stat6_s {
 		u64 hist0                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat6_s cn; */
+	/* struct cgxx_cmrx_tx_stat6_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT6(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT6(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT6(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT6(u64 a)
 {
 	return 0x730 + 0x40000 * a;
 }
@@ -1632,18 +1718,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT6(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 7
  */
-union cavm_cgxx_cmrx_tx_stat7 {
+union cgxx_cmrx_tx_stat7 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat7_s {
+	struct cgxx_cmrx_tx_stat7_s {
 		u64 hist1                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat7_s cn; */
+	/* struct cgxx_cmrx_tx_stat7_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT7(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT7(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT7(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT7(u64 a)
 {
 	return 0x738 + 0x40000 * a;
 }
@@ -1653,18 +1739,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT7(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 8
  */
-union cavm_cgxx_cmrx_tx_stat8 {
+union cgxx_cmrx_tx_stat8 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat8_s {
+	struct cgxx_cmrx_tx_stat8_s {
 		u64 hist2                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat8_s cn; */
+	/* struct cgxx_cmrx_tx_stat8_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT8(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT8(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT8(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT8(u64 a)
 {
 	return 0x740 + 0x40000 * a;
 }
@@ -1674,18 +1760,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT8(u64 a)
  *
  * CGX CMR Transmit Statistics Registers 9
  */
-union cavm_cgxx_cmrx_tx_stat9 {
+union cgxx_cmrx_tx_stat9 {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat9_s {
+	struct cgxx_cmrx_tx_stat9_s {
 		u64 hist3                            : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat9_s cn; */
+	/* struct cgxx_cmrx_tx_stat9_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT9(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT9(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT9(u64 a)
+static inline u64 CGXX_CMRX_TX_STAT9(u64 a)
 {
 	return 0x748 + 0x40000 * a;
 }
@@ -1695,18 +1781,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT9(u64 a)
  *
  * CGX CMR TX XON to XOFF transition Registers
  */
-union cavm_cgxx_cmrx_tx_stat_prix_xoff {
+union cgxx_cmrx_tx_stat_prix_xoff {
 	u64 u;
-	struct cavm_cgxx_cmrx_tx_stat_prix_xoff_s {
+	struct cgxx_cmrx_tx_stat_prix_xoff_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmrx_tx_stat_prix_xoff_s cn; */
+	/* struct cgxx_cmrx_tx_stat_prix_xoff_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMRX_TX_STAT_PRIX_XOFF(u64 a, u64 b)
+static inline u64 CGXX_CMRX_TX_STAT_PRIX_XOFF(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMRX_TX_STAT_PRIX_XOFF(u64 a, u64 b)
+static inline u64 CGXX_CMRX_TX_STAT_PRIX_XOFF(u64 a, u64 b)
 {
 	return 0x800 + 0x40000 * a + 8 * b;
 }
@@ -1716,18 +1802,18 @@ static inline u64 CAVM_CGXX_CMRX_TX_STAT_PRIX_XOFF(u64 a, u64 b)
  *
  * CGX CMR Bad Registers
  */
-union cavm_cgxx_cmr_bad {
+union cgxx_cmr_bad {
 	u64 u;
-	struct cavm_cgxx_cmr_bad_s {
+	struct cgxx_cmr_bad_s {
 		u64 rxb_nxl                          : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_cmr_bad_s cn; */
+	/* struct cgxx_cmr_bad_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_BAD(void)
+static inline u64 CGXX_CMR_BAD(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_BAD(void)
+static inline u64 CGXX_CMR_BAD(void)
 {
 	return 0x1020;
 }
@@ -1737,17 +1823,17 @@ static inline u64 CAVM_CGXX_CMR_BAD(void)
  *
  * CGX CMR Backpressure Channel Mask AND Registers
  */
-union cavm_cgxx_cmr_chan_msk_and {
+union cgxx_cmr_chan_msk_and {
 	u64 u;
-	struct cavm_cgxx_cmr_chan_msk_and_s {
+	struct cgxx_cmr_chan_msk_and_s {
 		u64 msk_and                          : 64;
 	} s;
-	/* struct cavm_cgxx_cmr_chan_msk_and_s cn; */
+	/* struct cgxx_cmr_chan_msk_and_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_CHAN_MSK_AND(void)
+static inline u64 CGXX_CMR_CHAN_MSK_AND(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_CHAN_MSK_AND(void)
+static inline u64 CGXX_CMR_CHAN_MSK_AND(void)
 {
 	return 0x110;
 }
@@ -1757,17 +1843,17 @@ static inline u64 CAVM_CGXX_CMR_CHAN_MSK_AND(void)
  *
  * CGX Backpressure Channel Mask OR Registers
  */
-union cavm_cgxx_cmr_chan_msk_or {
+union cgxx_cmr_chan_msk_or {
 	u64 u;
-	struct cavm_cgxx_cmr_chan_msk_or_s {
+	struct cgxx_cmr_chan_msk_or_s {
 		u64 msk_or                           : 64;
 	} s;
-	/* struct cavm_cgxx_cmr_chan_msk_or_s cn; */
+	/* struct cgxx_cmr_chan_msk_or_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_CHAN_MSK_OR(void)
+static inline u64 CGXX_CMR_CHAN_MSK_OR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_CHAN_MSK_OR(void)
+static inline u64 CGXX_CMR_CHAN_MSK_OR(void)
 {
 	return 0x118;
 }
@@ -1777,18 +1863,18 @@ static inline u64 CAVM_CGXX_CMR_CHAN_MSK_OR(void)
  *
  * INTERNAL: CGX ECO Registers
  */
-union cavm_cgxx_cmr_eco {
+union cgxx_cmr_eco {
 	u64 u;
-	struct cavm_cgxx_cmr_eco_s {
+	struct cgxx_cmr_eco_s {
 		u64 eco_rw                           : 32;
 		u64 eco_ro                           : 32;
 	} s;
-	/* struct cavm_cgxx_cmr_eco_s cn; */
+	/* struct cgxx_cmr_eco_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_ECO(void)
+static inline u64 CGXX_CMR_ECO(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_ECO(void)
+static inline u64 CGXX_CMR_ECO(void)
 {
 	return 0x1028;
 }
@@ -1799,9 +1885,9 @@ static inline u64 CAVM_CGXX_CMR_ECO(void)
  * CGX CMR Global Configuration Register These registers configure the
  * global CMR, PCS, and MAC.
  */
-union cavm_cgxx_cmr_global_config {
+union cgxx_cmr_global_config {
 	u64 u;
-	struct cavm_cgxx_cmr_global_config_s {
+	struct cgxx_cmr_global_config_s {
 		u64 pmux_sds_sel                     : 1;
 		u64 cgx_clk_enable                   : 1;
 		u64 cmr_x2p_reset                    : 3;
@@ -1814,12 +1900,12 @@ union cavm_cgxx_cmr_global_config {
 		u64 cmr_clken_ovrd                   : 1;
 		u64 reserved_25_63                   : 39;
 	} s;
-	/* struct cavm_cgxx_cmr_global_config_s cn; */
+	/* struct cgxx_cmr_global_config_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_GLOBAL_CONFIG(void)
+static inline u64 CGXX_CMR_GLOBAL_CONFIG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_GLOBAL_CONFIG(void)
+static inline u64 CGXX_CMR_GLOBAL_CONFIG(void)
 {
 	return 8;
 }
@@ -1829,19 +1915,19 @@ static inline u64 CAVM_CGXX_CMR_GLOBAL_CONFIG(void)
  *
  * CGX CMR Memory Interrupt Register
  */
-union cavm_cgxx_cmr_mem_int {
+union cgxx_cmr_mem_int {
 	u64 u;
-	struct cavm_cgxx_cmr_mem_int_s {
+	struct cgxx_cmr_mem_int_s {
 		u64 gmp_in_overfl                    : 1;
 		u64 smu_in_overfl                    : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_cgxx_cmr_mem_int_s cn; */
+	/* struct cgxx_cmr_mem_int_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_MEM_INT(void)
+static inline u64 CGXX_CMR_MEM_INT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_MEM_INT(void)
+static inline u64 CGXX_CMR_MEM_INT(void)
 {
 	return 0x10;
 }
@@ -1852,19 +1938,19 @@ static inline u64 CAVM_CGXX_CMR_MEM_INT(void)
  * CGX CMR Memory Interrupt Enable Clear Register This register clears
  * interrupt enable bits.
  */
-union cavm_cgxx_cmr_mem_int_ena_w1c {
+union cgxx_cmr_mem_int_ena_w1c {
 	u64 u;
-	struct cavm_cgxx_cmr_mem_int_ena_w1c_s {
+	struct cgxx_cmr_mem_int_ena_w1c_s {
 		u64 gmp_in_overfl                    : 1;
 		u64 smu_in_overfl                    : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_cgxx_cmr_mem_int_ena_w1c_s cn; */
+	/* struct cgxx_cmr_mem_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_MEM_INT_ENA_W1C(void)
+static inline u64 CGXX_CMR_MEM_INT_ENA_W1C(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_MEM_INT_ENA_W1C(void)
+static inline u64 CGXX_CMR_MEM_INT_ENA_W1C(void)
 {
 	return 0x20;
 }
@@ -1875,19 +1961,19 @@ static inline u64 CAVM_CGXX_CMR_MEM_INT_ENA_W1C(void)
  * CGX CMR Memory Interrupt Enable Set Register This register sets
  * interrupt enable bits.
  */
-union cavm_cgxx_cmr_mem_int_ena_w1s {
+union cgxx_cmr_mem_int_ena_w1s {
 	u64 u;
-	struct cavm_cgxx_cmr_mem_int_ena_w1s_s {
+	struct cgxx_cmr_mem_int_ena_w1s_s {
 		u64 gmp_in_overfl                    : 1;
 		u64 smu_in_overfl                    : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_cgxx_cmr_mem_int_ena_w1s_s cn; */
+	/* struct cgxx_cmr_mem_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_MEM_INT_ENA_W1S(void)
+static inline u64 CGXX_CMR_MEM_INT_ENA_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_MEM_INT_ENA_W1S(void)
+static inline u64 CGXX_CMR_MEM_INT_ENA_W1S(void)
 {
 	return 0x28;
 }
@@ -1898,19 +1984,19 @@ static inline u64 CAVM_CGXX_CMR_MEM_INT_ENA_W1S(void)
  * CGX CMR Memory Interrupt Set Register This register sets interrupt
  * bits.
  */
-union cavm_cgxx_cmr_mem_int_w1s {
+union cgxx_cmr_mem_int_w1s {
 	u64 u;
-	struct cavm_cgxx_cmr_mem_int_w1s_s {
+	struct cgxx_cmr_mem_int_w1s_s {
 		u64 gmp_in_overfl                    : 1;
 		u64 smu_in_overfl                    : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_cgxx_cmr_mem_int_w1s_s cn; */
+	/* struct cgxx_cmr_mem_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_MEM_INT_W1S(void)
+static inline u64 CGXX_CMR_MEM_INT_W1S(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_MEM_INT_W1S(void)
+static inline u64 CGXX_CMR_MEM_INT_W1S(void)
 {
 	return 0x18;
 }
@@ -1920,19 +2006,19 @@ static inline u64 CAVM_CGXX_CMR_MEM_INT_W1S(void)
  *
  * CGX CMR NIC NXC Exception Registers
  */
-union cavm_cgxx_cmr_nic_nxc_adr {
+union cgxx_cmr_nic_nxc_adr {
 	u64 u;
-	struct cavm_cgxx_cmr_nic_nxc_adr_s {
+	struct cgxx_cmr_nic_nxc_adr_s {
 		u64 channel                          : 12;
 		u64 lmac_id                          : 4;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_cmr_nic_nxc_adr_s cn; */
+	/* struct cgxx_cmr_nic_nxc_adr_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_NIC_NXC_ADR(void)
+static inline u64 CGXX_CMR_NIC_NXC_ADR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_NIC_NXC_ADR(void)
+static inline u64 CGXX_CMR_NIC_NXC_ADR(void)
 {
 	return 0x1030;
 }
@@ -1942,21 +2028,21 @@ static inline u64 CAVM_CGXX_CMR_NIC_NXC_ADR(void)
  *
  * CGX CMR NIX0 NXC Exception Registers
  */
-union cavm_cgxx_cmr_nix0_nxc_adr {
+union cgxx_cmr_nix0_nxc_adr {
 	u64 u;
-	struct cavm_cgxx_cmr_nix0_nxc_adr_s {
+	struct cgxx_cmr_nix0_nxc_adr_s {
 		u64 channel                          : 12;
 		u64 lmac_id                          : 4;
 		u64 channel_e                        : 12;
 		u64 lmac_e_id                        : 4;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_cmr_nix0_nxc_adr_s cn; */
+	/* struct cgxx_cmr_nix0_nxc_adr_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_NIX0_NXC_ADR(void)
+static inline u64 CGXX_CMR_NIX0_NXC_ADR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_NIX0_NXC_ADR(void)
+static inline u64 CGXX_CMR_NIX0_NXC_ADR(void)
 {
 	return 0x1038;
 }
@@ -1966,21 +2052,21 @@ static inline u64 CAVM_CGXX_CMR_NIX0_NXC_ADR(void)
  *
  * CGX CMR NIX1 NXC Exception Registers
  */
-union cavm_cgxx_cmr_nix1_nxc_adr {
+union cgxx_cmr_nix1_nxc_adr {
 	u64 u;
-	struct cavm_cgxx_cmr_nix1_nxc_adr_s {
+	struct cgxx_cmr_nix1_nxc_adr_s {
 		u64 channel                          : 12;
 		u64 lmac_id                          : 4;
 		u64 channel_e                        : 12;
 		u64 lmac_e_id                        : 4;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_cmr_nix1_nxc_adr_s cn; */
+	/* struct cgxx_cmr_nix1_nxc_adr_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_NIX1_NXC_ADR(void)
+static inline u64 CGXX_CMR_NIX1_NXC_ADR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_NIX1_NXC_ADR(void)
+static inline u64 CGXX_CMR_NIX1_NXC_ADR(void)
 {
 	return 0x1040;
 }
@@ -1990,17 +2076,17 @@ static inline u64 CAVM_CGXX_CMR_NIX1_NXC_ADR(void)
  *
  * CGX P2X Activity Register
  */
-union cavm_cgxx_cmr_p2xx_count {
+union cgxx_cmr_p2xx_count {
 	u64 u;
-	struct cavm_cgxx_cmr_p2xx_count_s {
+	struct cgxx_cmr_p2xx_count_s {
 		u64 p2x_cnt                          : 64;
 	} s;
-	/* struct cavm_cgxx_cmr_p2xx_count_s cn; */
+	/* struct cgxx_cmr_p2xx_count_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_P2XX_COUNT(u64 a)
+static inline u64 CGXX_CMR_P2XX_COUNT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_P2XX_COUNT(u64 a)
+static inline u64 CGXX_CMR_P2XX_COUNT(u64 a)
 {
 	return 0x168 + 0x1000 * a;
 }
@@ -2011,20 +2097,20 @@ static inline u64 CAVM_CGXX_CMR_P2XX_COUNT(u64 a)
  * CGX CMR Receive CAM Registers These registers provide access to the 32
  * DMAC CAM0 entries in CGX, for use by X2P/NIX bound traffic.
  */
-union cavm_cgxx_cmr_rx_dmacx_cam0 {
+union cgxx_cmr_rx_dmacx_cam0 {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_dmacx_cam0_s {
+	struct cgxx_cmr_rx_dmacx_cam0_s {
 		u64 adr                              : 48;
 		u64 en                               : 1;
 		u64 id                               : 2;
 		u64 reserved_51_63                   : 13;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_dmacx_cam0_s cn; */
+	/* struct cgxx_cmr_rx_dmacx_cam0_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_DMACX_CAM0(u64 a)
+static inline u64 CGXX_CMR_RX_DMACX_CAM0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_DMACX_CAM0(u64 a)
+static inline u64 CGXX_CMR_RX_DMACX_CAM0(u64 a)
 {
 	return 0x200 + 8 * a;
 }
@@ -2037,20 +2123,20 @@ static inline u64 CAVM_CGXX_CMR_RX_DMACX_CAM0(u64 a)
  * CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID] and CGX()_CMR_RX_STEERING1()
  * registers.
  */
-union cavm_cgxx_cmr_rx_dmacx_cam1 {
+union cgxx_cmr_rx_dmacx_cam1 {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_dmacx_cam1_s {
+	struct cgxx_cmr_rx_dmacx_cam1_s {
 		u64 adr                              : 48;
 		u64 en                               : 1;
 		u64 id                               : 2;
 		u64 reserved_51_63                   : 13;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_dmacx_cam1_s cn; */
+	/* struct cgxx_cmr_rx_dmacx_cam1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_DMACX_CAM1(u64 a)
+static inline u64 CGXX_CMR_RX_DMACX_CAM1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_DMACX_CAM1(u64 a)
+static inline u64 CGXX_CMR_RX_DMACX_CAM1(u64 a)
 {
 	return 0x400 + 8 * a;
 }
@@ -2060,18 +2146,18 @@ static inline u64 CAVM_CGXX_CMR_RX_DMACX_CAM1(u64 a)
  *
  * CGX CMR Receive Logical MACs Registers
  */
-union cavm_cgxx_cmr_rx_lmacs {
+union cgxx_cmr_rx_lmacs {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_lmacs_s {
+	struct cgxx_cmr_rx_lmacs_s {
 		u64 lmacs                            : 3;
 		u64 reserved_3_63                    : 61;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_lmacs_s cn; */
+	/* struct cgxx_cmr_rx_lmacs_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_LMACS(void)
+static inline u64 CGXX_CMR_RX_LMACS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_LMACS(void)
+static inline u64 CGXX_CMR_RX_LMACS(void)
 {
 	return 0x128;
 }
@@ -2090,20 +2176,20 @@ static inline u64 CAVM_CGXX_CMR_RX_LMACS(void)
  * (optionally, when CGX()_SMU()_HG2_CONTROL[HG2TX_EN]=1) with the HiGig2
  * protocol.
  */
-union cavm_cgxx_cmr_rx_ovr_bp {
+union cgxx_cmr_rx_ovr_bp {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_ovr_bp_s {
+	struct cgxx_cmr_rx_ovr_bp_s {
 		u64 ign_fifo_bp                      : 4;
 		u64 bp                               : 4;
 		u64 en                               : 4;
 		u64 reserved_12_63                   : 52;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_ovr_bp_s cn; */
+	/* struct cgxx_cmr_rx_ovr_bp_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_OVR_BP(void)
+static inline u64 CGXX_CMR_RX_OVR_BP(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_OVR_BP(void)
+static inline u64 CGXX_CMR_RX_OVR_BP(void)
 {
 	return 0x130;
 }
@@ -2114,18 +2200,18 @@ static inline u64 CAVM_CGXX_CMR_RX_OVR_BP(void)
  * CGX Receive Status Register 10 These registers provide a count of
  * octets of filtered DMAC1 or VLAN STEERING1 packets.
  */
-union cavm_cgxx_cmr_rx_stat10 {
+union cgxx_cmr_rx_stat10 {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_stat10_s {
+	struct cgxx_cmr_rx_stat10_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_stat10_s cn; */
+	/* struct cgxx_cmr_rx_stat10_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_STAT10(void)
+static inline u64 CGXX_CMR_RX_STAT10(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_STAT10(void)
+static inline u64 CGXX_CMR_RX_STAT10(void)
 {
 	return 0xc0;
 }
@@ -2139,18 +2225,18 @@ static inline u64 CAVM_CGXX_CMR_RX_STAT10(void)
  * dropped NCSI packets is not accounted for in any other stats
  * registers.
  */
-union cavm_cgxx_cmr_rx_stat11 {
+union cgxx_cmr_rx_stat11 {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_stat11_s {
+	struct cgxx_cmr_rx_stat11_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_stat11_s cn; */
+	/* struct cgxx_cmr_rx_stat11_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_STAT11(void)
+static inline u64 CGXX_CMR_RX_STAT11(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_STAT11(void)
+static inline u64 CGXX_CMR_RX_STAT11(void)
 {
 	return 0xc8;
 }
@@ -2161,18 +2247,18 @@ static inline u64 CAVM_CGXX_CMR_RX_STAT11(void)
  * CGX Receive Status Register 12 This register provide a count of octets
  * of dropped at the NCSI interface.
  */
-union cavm_cgxx_cmr_rx_stat12 {
+union cgxx_cmr_rx_stat12 {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_stat12_s {
+	struct cgxx_cmr_rx_stat12_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_stat12_s cn; */
+	/* struct cgxx_cmr_rx_stat12_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_STAT12(void)
+static inline u64 CGXX_CMR_RX_STAT12(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_STAT12(void)
+static inline u64 CGXX_CMR_RX_STAT12(void)
 {
 	return 0xd0;
 }
@@ -2191,18 +2277,18 @@ static inline u64 CAVM_CGXX_CMR_RX_STAT12(void)
  * the MAC signal to the CMR that the packet be filtered upon decision
  * before the end of packet, then STAT9 and STAT10 will not be updated.
  */
-union cavm_cgxx_cmr_rx_stat9 {
+union cgxx_cmr_rx_stat9 {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_stat9_s {
+	struct cgxx_cmr_rx_stat9_s {
 		u64 cnt                              : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_stat9_s cn; */
+	/* struct cgxx_cmr_rx_stat9_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_STAT9(void)
+static inline u64 CGXX_CMR_RX_STAT9(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_STAT9(void)
+static inline u64 CGXX_CMR_RX_STAT9(void)
 {
 	return 0xb8;
 }
@@ -2229,21 +2315,21 @@ static inline u64 CAVM_CGXX_CMR_RX_STAT9(void)
  * }       }    }    return CGX()_CMR_RX_STEERING_DEFAULT0[PASS]; // No
  * match } \</pre\>"
  */
-union cavm_cgxx_cmr_rx_steering0x {
+union cgxx_cmr_rx_steering0x {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_steering0x_s {
+	struct cgxx_cmr_rx_steering0x_s {
 		u64 dmac                             : 48;
 		u64 dmac_en                          : 1;
 		u64 mcst_en                          : 1;
 		u64 pass                             : 1;
 		u64 reserved_51_63                   : 13;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_steering0x_s cn; */
+	/* struct cgxx_cmr_rx_steering0x_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_STEERING0X(u64 a)
+static inline u64 CGXX_CMR_RX_STEERING0X(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_STEERING0X(u64 a)
+static inline u64 CGXX_CMR_RX_STEERING0X(u64 a)
 {
 	return 0x300 + 8 * a;
 }
@@ -2260,21 +2346,21 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING0X(u64 a)
  * See CGX()_CMR_GLOBAL_CONFIG[NCSI_LMAC_ID].  Internal: ALGORITHM: See
  * CGX()_CMR_RX_STEERING0().
  */
-union cavm_cgxx_cmr_rx_steering1x {
+union cgxx_cmr_rx_steering1x {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_steering1x_s {
+	struct cgxx_cmr_rx_steering1x_s {
 		u64 dmac                             : 48;
 		u64 dmac_en                          : 1;
 		u64 mcst_en                          : 1;
 		u64 pass                             : 1;
 		u64 reserved_51_63                   : 13;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_steering1x_s cn; */
+	/* struct cgxx_cmr_rx_steering1x_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_STEERING1X(u64 a)
+static inline u64 CGXX_CMR_RX_STEERING1X(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_STEERING1X(u64 a)
+static inline u64 CGXX_CMR_RX_STEERING1X(u64 a)
 {
 	return 0x500 + 8 * a;
 }
@@ -2289,18 +2375,18 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING1X(u64 a)
  * case of FCS strip) as the result of truncation will steer to default
  * destination
  */
-union cavm_cgxx_cmr_rx_steering_default0 {
+union cgxx_cmr_rx_steering_default0 {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_steering_default0_s {
+	struct cgxx_cmr_rx_steering_default0_s {
 		u64 pass                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_steering_default0_s cn; */
+	/* struct cgxx_cmr_rx_steering_default0_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_STEERING_DEFAULT0(void)
+static inline u64 CGXX_CMR_RX_STEERING_DEFAULT0(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_STEERING_DEFAULT0(void)
+static inline u64 CGXX_CMR_RX_STEERING_DEFAULT0(void)
 {
 	return 0x3f0;
 }
@@ -2316,18 +2402,18 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING_DEFAULT0(void)
  * packets or smaller (20B in case of FCS strip) as the result of
  * truncation will steer to default destination
  */
-union cavm_cgxx_cmr_rx_steering_default1 {
+union cgxx_cmr_rx_steering_default1 {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_steering_default1_s {
+	struct cgxx_cmr_rx_steering_default1_s {
 		u64 pass                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_steering_default1_s cn; */
+	/* struct cgxx_cmr_rx_steering_default1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_STEERING_DEFAULT1(void)
+static inline u64 CGXX_CMR_RX_STEERING_DEFAULT1(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_STEERING_DEFAULT1(void)
+static inline u64 CGXX_CMR_RX_STEERING_DEFAULT1(void)
 {
 	return 0x5e0;
 }
@@ -2339,21 +2425,21 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING_DEFAULT1(void)
  * CGX()_CMR_RX_STEERING0(), provide eight filters for identifying and
  * steering X2P/NIX receive traffic.
  */
-union cavm_cgxx_cmr_rx_steering_vetype0x {
+union cgxx_cmr_rx_steering_vetype0x {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_steering_vetype0x_s {
+	struct cgxx_cmr_rx_steering_vetype0x_s {
 		u64 vlan_etype                       : 16;
 		u64 vlan_tag_en                      : 1;
 		u64 vlan_id                          : 12;
 		u64 vlan_en                          : 1;
 		u64 reserved_30_63                   : 34;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_steering_vetype0x_s cn; */
+	/* struct cgxx_cmr_rx_steering_vetype0x_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_STEERING_VETYPE0X(u64 a)
+static inline u64 CGXX_CMR_RX_STEERING_VETYPE0X(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_STEERING_VETYPE0X(u64 a)
+static inline u64 CGXX_CMR_RX_STEERING_VETYPE0X(u64 a)
 {
 	return 0x380 + 8 * a;
 }
@@ -2366,21 +2452,21 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING_VETYPE0X(u64 a)
  * registers, along with CGX()_CMR_RX_STEERING1(), provide eight filters
  * for identifying and steering NCSI receive traffic.
  */
-union cavm_cgxx_cmr_rx_steering_vetype1x {
+union cgxx_cmr_rx_steering_vetype1x {
 	u64 u;
-	struct cavm_cgxx_cmr_rx_steering_vetype1x_s {
+	struct cgxx_cmr_rx_steering_vetype1x_s {
 		u64 vlan_etype                       : 16;
 		u64 vlan_tag_en                      : 1;
 		u64 vlan_id                          : 12;
 		u64 vlan_en                          : 1;
 		u64 reserved_30_63                   : 34;
 	} s;
-	/* struct cavm_cgxx_cmr_rx_steering_vetype1x_s cn; */
+	/* struct cgxx_cmr_rx_steering_vetype1x_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_RX_STEERING_VETYPE1X(u64 a)
+static inline u64 CGXX_CMR_RX_STEERING_VETYPE1X(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_RX_STEERING_VETYPE1X(u64 a)
+static inline u64 CGXX_CMR_RX_STEERING_VETYPE1X(u64 a)
 {
 	return 0x580 + 8 * a;
 }
@@ -2392,18 +2478,18 @@ static inline u64 CAVM_CGXX_CMR_RX_STEERING_VETYPE1X(u64 a)
  * of LMACs allowed on the TX interface. The value is important for
  * defining the partitioning of the transmit FIFO.
  */
-union cavm_cgxx_cmr_tx_lmacs {
+union cgxx_cmr_tx_lmacs {
 	u64 u;
-	struct cavm_cgxx_cmr_tx_lmacs_s {
+	struct cgxx_cmr_tx_lmacs_s {
 		u64 lmacs                            : 3;
 		u64 reserved_3_63                    : 61;
 	} s;
-	/* struct cavm_cgxx_cmr_tx_lmacs_s cn; */
+	/* struct cgxx_cmr_tx_lmacs_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_TX_LMACS(void)
+static inline u64 CGXX_CMR_TX_LMACS(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_TX_LMACS(void)
+static inline u64 CGXX_CMR_TX_LMACS(void)
 {
 	return 0x1000;
 }
@@ -2413,17 +2499,17 @@ static inline u64 CAVM_CGXX_CMR_TX_LMACS(void)
  *
  * CGX X2P Activity Register
  */
-union cavm_cgxx_cmr_x2px_count {
+union cgxx_cmr_x2px_count {
 	u64 u;
-	struct cavm_cgxx_cmr_x2px_count_s {
+	struct cgxx_cmr_x2px_count_s {
 		u64 x2p_cnt                          : 64;
 	} s;
-	/* struct cavm_cgxx_cmr_x2px_count_s cn; */
+	/* struct cgxx_cmr_x2px_count_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CMR_X2PX_COUNT(u64 a)
+static inline u64 CGXX_CMR_X2PX_COUNT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CMR_X2PX_COUNT(u64 a)
+static inline u64 CGXX_CMR_X2PX_COUNT(u64 a)
 {
 	return 0x170 + 0x1000 * a;
 }
@@ -2434,20 +2520,20 @@ static inline u64 CAVM_CGXX_CMR_X2PX_COUNT(u64 a)
  * CGX CONST Registers This register contains constants for software
  * discovery.
  */
-union cavm_cgxx_const {
+union cgxx_const {
 	u64 u;
-	struct cavm_cgxx_const_s {
+	struct cgxx_const_s {
 		u64 tx_fifosz                        : 24;
 		u64 lmacs                            : 8;
 		u64 rx_fifosz                        : 24;
 		u64 reserved_56_63                   : 8;
 	} s;
-	/* struct cavm_cgxx_const_s cn; */
+	/* struct cgxx_const_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CONST(void)
+static inline u64 CGXX_CONST(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CONST(void)
+static inline u64 CGXX_CONST(void)
 {
 	return 0x2000;
 }
@@ -2458,19 +2544,19 @@ static inline u64 CAVM_CGXX_CONST(void)
  * CGX CONST1 Registers This register contains constants for software
  * discovery.
  */
-union cavm_cgxx_const1 {
+union cgxx_const1 {
 	u64 u;
-	struct cavm_cgxx_const1_s {
+	struct cgxx_const1_s {
 		u64 types                            : 11;
 		u64 res_types                        : 21;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_const1_s cn; */
+	/* struct cgxx_const1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_CONST1(void)
+static inline u64 CGXX_CONST1(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_CONST1(void)
+static inline u64 CGXX_CONST1(void)
 {
 	return 0x2008;
 }
@@ -2480,19 +2566,19 @@ static inline u64 CAVM_CGXX_CONST1(void)
  *
  * CGX GMP GMI RX Wake-on-LAN Control 0 Registers
  */
-union cavm_cgxx_gmp_gmix_rx_wol_ctrl0 {
+union cgxx_gmp_gmix_rx_wol_ctrl0 {
 	u64 u;
-	struct cavm_cgxx_gmp_gmix_rx_wol_ctrl0_s {
+	struct cgxx_gmp_gmix_rx_wol_ctrl0_s {
 		u64 dmac                             : 48;
 		u64 pswd_len                         : 4;
 		u64 reserved_52_63                   : 12;
 	} s;
-	/* struct cavm_cgxx_gmp_gmix_rx_wol_ctrl0_s cn; */
+	/* struct cgxx_gmp_gmix_rx_wol_ctrl0_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMIX_RX_WOL_CTRL0(u64 a)
+static inline u64 CGXX_GMP_GMIX_RX_WOL_CTRL0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMIX_RX_WOL_CTRL0(u64 a)
+static inline u64 CGXX_GMP_GMIX_RX_WOL_CTRL0(u64 a)
 {
 	return 0x38a00 + 0x40000 * a;
 }
@@ -2502,17 +2588,17 @@ static inline u64 CAVM_CGXX_GMP_GMIX_RX_WOL_CTRL0(u64 a)
  *
  * CGX GMP GMI RX Wake-on-LAN Control 1 Registers
  */
-union cavm_cgxx_gmp_gmix_rx_wol_ctrl1 {
+union cgxx_gmp_gmix_rx_wol_ctrl1 {
 	u64 u;
-	struct cavm_cgxx_gmp_gmix_rx_wol_ctrl1_s {
+	struct cgxx_gmp_gmix_rx_wol_ctrl1_s {
 		u64 pswd                             : 64;
 	} s;
-	/* struct cavm_cgxx_gmp_gmix_rx_wol_ctrl1_s cn; */
+	/* struct cgxx_gmp_gmix_rx_wol_ctrl1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMIX_RX_WOL_CTRL1(u64 a)
+static inline u64 CGXX_GMP_GMIX_RX_WOL_CTRL1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMIX_RX_WOL_CTRL1(u64 a)
+static inline u64 CGXX_GMP_GMIX_RX_WOL_CTRL1(u64 a)
 {
 	return 0x38a08 + 0x40000 * a;
 }
@@ -2525,9 +2611,9 @@ static inline u64 CAVM_CGXX_GMP_GMIX_RX_WOL_CTRL1(u64 a)
  * LPI. Those registers take effect only when EEE is supported and
  * enabled for a given LMAC.
  */
-union cavm_cgxx_gmp_gmix_tx_eee {
+union cgxx_gmp_gmix_tx_eee {
 	u64 u;
-	struct cavm_cgxx_gmp_gmix_tx_eee_s {
+	struct cgxx_gmp_gmix_tx_eee_s {
 		u64 idle_thresh                      : 28;
 		u64 reserved_28                      : 1;
 		u64 force_lpi                        : 1;
@@ -2539,12 +2625,12 @@ union cavm_cgxx_gmp_gmix_tx_eee {
 		u64 sync_status_lpi_enable           : 1;
 		u64 reserved_63                      : 1;
 	} s;
-	/* struct cavm_cgxx_gmp_gmix_tx_eee_s cn; */
+	/* struct cgxx_gmp_gmix_tx_eee_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMIX_TX_EEE(u64 a)
+static inline u64 CGXX_GMP_GMIX_TX_EEE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMIX_TX_EEE(u64 a)
+static inline u64 CGXX_GMP_GMIX_TX_EEE(u64 a)
 {
 	return 0x38800 + 0x40000 * a;
 }
@@ -2556,9 +2642,9 @@ static inline u64 CAVM_CGXX_GMP_GMIX_TX_EEE(u64 a)
  * Reserved. Internal: Controls the GMP exiting of LPI and starting to
  * send data.
  */
-union cavm_cgxx_gmp_gmix_tx_eee_cfg1 {
+union cgxx_gmp_gmix_tx_eee_cfg1 {
 	u64 u;
-	struct cavm_cgxx_gmp_gmix_tx_eee_cfg1_s {
+	struct cgxx_gmp_gmix_tx_eee_cfg1_s {
 		u64 wake2data_time                   : 24;
 		u64 reserved_24_35                   : 12;
 		u64 tx_eee_enable                    : 1;
@@ -2566,7 +2652,7 @@ union cavm_cgxx_gmp_gmix_tx_eee_cfg1 {
 		u64 sync2lpi_time                    : 21;
 		u64 reserved_61_63                   : 3;
 	} s;
-	struct cavm_cgxx_gmp_gmix_tx_eee_cfg1_cn {
+	struct cgxx_gmp_gmix_tx_eee_cfg1_cn {
 		u64 wake2data_time                   : 24;
 		u64 reserved_24_31                   : 8;
 		u64 reserved_32_35                   : 4;
@@ -2577,9 +2663,9 @@ union cavm_cgxx_gmp_gmix_tx_eee_cfg1 {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_GMIX_TX_EEE_CFG1(u64 a)
+static inline u64 CGXX_GMP_GMIX_TX_EEE_CFG1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMIX_TX_EEE_CFG1(u64 a)
+static inline u64 CGXX_GMP_GMIX_TX_EEE_CFG1(u64 a)
 {
 	return 0x38808 + 0x40000 * a;
 }
@@ -2590,18 +2676,18 @@ static inline u64 CAVM_CGXX_GMP_GMIX_TX_EEE_CFG1(u64 a)
  * CGX GMP GMI RX WOL Interrupt Registers These registers allow WOL
  * interrupts to be sent to the control processor.
  */
-union cavm_cgxx_gmp_gmix_wol_int {
+union cgxx_gmp_gmix_wol_int {
 	u64 u;
-	struct cavm_cgxx_gmp_gmix_wol_int_s {
+	struct cgxx_gmp_gmix_wol_int_s {
 		u64 wol_rcvd                         : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_gmp_gmix_wol_int_s cn; */
+	/* struct cgxx_gmp_gmix_wol_int_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT(u64 a)
+static inline u64 CGXX_GMP_GMIX_WOL_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT(u64 a)
+static inline u64 CGXX_GMP_GMIX_WOL_INT(u64 a)
 {
 	return 0x38a80 + 0x40000 * a;
 }
@@ -2612,18 +2698,18 @@ static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT(u64 a)
  * CGX GMP GMI RX WOL Interrupt Enable Clear Registers This register
  * clears interrupt enable bits.
  */
-union cavm_cgxx_gmp_gmix_wol_int_ena_w1c {
+union cgxx_gmp_gmix_wol_int_ena_w1c {
 	u64 u;
-	struct cavm_cgxx_gmp_gmix_wol_int_ena_w1c_s {
+	struct cgxx_gmp_gmix_wol_int_ena_w1c_s {
 		u64 wol_rcvd                         : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_gmp_gmix_wol_int_ena_w1c_s cn; */
+	/* struct cgxx_gmp_gmix_wol_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_GMP_GMIX_WOL_INT_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_GMP_GMIX_WOL_INT_ENA_W1C(u64 a)
 {
 	return 0x38a90 + 0x40000 * a;
 }
@@ -2634,18 +2720,18 @@ static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_ENA_W1C(u64 a)
  * CGX GMP GMI RX WOL Interrupt Enable Set Registers This register sets
  * interrupt enable bits.
  */
-union cavm_cgxx_gmp_gmix_wol_int_ena_w1s {
+union cgxx_gmp_gmix_wol_int_ena_w1s {
 	u64 u;
-	struct cavm_cgxx_gmp_gmix_wol_int_ena_w1s_s {
+	struct cgxx_gmp_gmix_wol_int_ena_w1s_s {
 		u64 wol_rcvd                         : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_gmp_gmix_wol_int_ena_w1s_s cn; */
+	/* struct cgxx_gmp_gmix_wol_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_GMP_GMIX_WOL_INT_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_GMP_GMIX_WOL_INT_ENA_W1S(u64 a)
 {
 	return 0x38a98 + 0x40000 * a;
 }
@@ -2656,18 +2742,18 @@ static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_ENA_W1S(u64 a)
  * CGX GMP GMI RX WOL Interrupt Set Registers This register sets
  * interrupt bits.
  */
-union cavm_cgxx_gmp_gmix_wol_int_w1s {
+union cgxx_gmp_gmix_wol_int_w1s {
 	u64 u;
-	struct cavm_cgxx_gmp_gmix_wol_int_w1s_s {
+	struct cgxx_gmp_gmix_wol_int_w1s_s {
 		u64 wol_rcvd                         : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_gmp_gmix_wol_int_w1s_s cn; */
+	/* struct cgxx_gmp_gmix_wol_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_W1S(u64 a)
+static inline u64 CGXX_GMP_GMIX_WOL_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_W1S(u64 a)
+static inline u64 CGXX_GMP_GMIX_WOL_INT_W1S(u64 a)
 {
 	return 0x38a88 + 0x40000 * a;
 }
@@ -2678,9 +2764,9 @@ static inline u64 CAVM_CGXX_GMP_GMIX_WOL_INT_W1S(u64 a)
  * CGX GMP GMI LMAC Configuration Registers This register controls the
  * configuration of the LMAC.
  */
-union cavm_cgxx_gmp_gmi_prtx_cfg {
+union cgxx_gmp_gmi_prtx_cfg {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_prtx_cfg_s {
+	struct cgxx_gmp_gmi_prtx_cfg_s {
 		u64 reserved_0                       : 1;
 		u64 speed                            : 1;
 		u64 duplex                           : 1;
@@ -2692,12 +2778,12 @@ union cavm_cgxx_gmp_gmi_prtx_cfg {
 		u64 tx_idle                          : 1;
 		u64 reserved_14_63                   : 50;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_prtx_cfg_s cn; */
+	/* struct cgxx_gmp_gmi_prtx_cfg_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_PRTX_CFG(u64 a)
+static inline u64 CGXX_GMP_GMI_PRTX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_PRTX_CFG(u64 a)
+static inline u64 CGXX_GMP_GMI_PRTX_CFG(u64 a)
 {
 	return 0x38020 + 0x40000 * a;
 }
@@ -2727,18 +2813,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_PRTX_CFG(u64 a)
  * CGX()_GMP_GMI_RX()_UDD_SKP[LEN] -
  * ((CGX()_GMP_GMI_RX()_FRM_CTL[PRE_CHK]==1)*8)).
  */
-union cavm_cgxx_gmp_gmi_rxx_decision {
+union cgxx_gmp_gmi_rxx_decision {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_rxx_decision_s {
+	struct cgxx_gmp_gmi_rxx_decision_s {
 		u64 cnt                              : 5;
 		u64 reserved_5_63                    : 59;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_rxx_decision_s cn; */
+	/* struct cgxx_gmp_gmi_rxx_decision_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_DECISION(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_DECISION(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_DECISION(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_DECISION(u64 a)
 {
 	return 0x38040 + 0x40000 * a;
 }
@@ -2748,9 +2834,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_DECISION(u64 a)
  *
  * CGX GMP Frame Check Registers
  */
-union cavm_cgxx_gmp_gmi_rxx_frm_chk {
+union cgxx_gmp_gmi_rxx_frm_chk {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_rxx_frm_chk_s {
+	struct cgxx_gmp_gmi_rxx_frm_chk_s {
 		u64 minerr                           : 1;
 		u64 carext                           : 1;
 		u64 reserved_2                       : 1;
@@ -2761,12 +2847,12 @@ union cavm_cgxx_gmp_gmi_rxx_frm_chk {
 		u64 skperr                           : 1;
 		u64 reserved_9_63                    : 55;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_rxx_frm_chk_s cn; */
+	/* struct cgxx_gmp_gmi_rxx_frm_chk_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_FRM_CHK(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_FRM_CHK(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_FRM_CHK(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_FRM_CHK(u64 a)
 {
 	return 0x38030 + 0x40000 * a;
 }
@@ -2792,9 +2878,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_FRM_CHK(u64 a)
  * Furthermore, the bytes are skipped when locating the start of the L2
  * header for DMAC and Control frame recognition.
  */
-union cavm_cgxx_gmp_gmi_rxx_frm_ctl {
+union cgxx_gmp_gmi_rxx_frm_ctl {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_rxx_frm_ctl_s {
+	struct cgxx_gmp_gmi_rxx_frm_ctl_s {
 		u64 pre_chk                          : 1;
 		u64 pre_strp                         : 1;
 		u64 ctl_drp                          : 1;
@@ -2810,7 +2896,7 @@ union cavm_cgxx_gmp_gmi_rxx_frm_ctl {
 		u64 rx_fc_type                       : 1;
 		u64 reserved_14_63                   : 50;
 	} s;
-	struct cavm_cgxx_gmp_gmi_rxx_frm_ctl_cn {
+	struct cgxx_gmp_gmi_rxx_frm_ctl_cn {
 		u64 pre_chk                          : 1;
 		u64 pre_strp                         : 1;
 		u64 ctl_drp                          : 1;
@@ -2829,9 +2915,9 @@ union cavm_cgxx_gmp_gmi_rxx_frm_ctl {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_FRM_CTL(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_FRM_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_FRM_CTL(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_FRM_CTL(u64 a)
 {
 	return 0x38028 + 0x40000 * a;
 }
@@ -2843,18 +2929,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_FRM_CTL(u64 a)
  * specifies the minimum number of interframe-gap (IFG) cycles between
  * packets.
  */
-union cavm_cgxx_gmp_gmi_rxx_ifg {
+union cgxx_gmp_gmi_rxx_ifg {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_rxx_ifg_s {
+	struct cgxx_gmp_gmi_rxx_ifg_s {
 		u64 ifg                              : 4;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_rxx_ifg_s cn; */
+	/* struct cgxx_gmp_gmi_rxx_ifg_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_IFG(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_IFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_IFG(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_IFG(u64 a)
 {
 	return 0x38058 + 0x40000 * a;
 }
@@ -2907,9 +2993,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_IFG(u64 a)
  * the tick before another is produced.  If that doesn't happen that's
  * when OVRERR will assert."
  */
-union cavm_cgxx_gmp_gmi_rxx_int {
+union cgxx_gmp_gmi_rxx_int {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_rxx_int_s {
+	struct cgxx_gmp_gmi_rxx_int_s {
 		u64 minerr                           : 1;
 		u64 carext                           : 1;
 		u64 jabber                           : 1;
@@ -2924,7 +3010,7 @@ union cavm_cgxx_gmp_gmi_rxx_int {
 		u64 ifgerr                           : 1;
 		u64 reserved_12_63                   : 52;
 	} s;
-	struct cavm_cgxx_gmp_gmi_rxx_int_cn {
+	struct cgxx_gmp_gmi_rxx_int_cn {
 		u64 minerr                           : 1;
 		u64 carext                           : 1;
 		u64 jabber                           : 1;
@@ -2942,9 +3028,9 @@ union cavm_cgxx_gmp_gmi_rxx_int {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_INT(u64 a)
 {
 	return 0x38000 + 0x40000 * a;
 }
@@ -2955,9 +3041,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT(u64 a)
  * CGX GMP GMI RX Interrupt Enable Clear Registers This register clears
  * interrupt enable bits.
  */
-union cavm_cgxx_gmp_gmi_rxx_int_ena_w1c {
+union cgxx_gmp_gmi_rxx_int_ena_w1c {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_rxx_int_ena_w1c_s {
+	struct cgxx_gmp_gmi_rxx_int_ena_w1c_s {
 		u64 minerr                           : 1;
 		u64 carext                           : 1;
 		u64 jabber                           : 1;
@@ -2972,7 +3058,7 @@ union cavm_cgxx_gmp_gmi_rxx_int_ena_w1c {
 		u64 ifgerr                           : 1;
 		u64 reserved_12_63                   : 52;
 	} s;
-	struct cavm_cgxx_gmp_gmi_rxx_int_ena_w1c_cn {
+	struct cgxx_gmp_gmi_rxx_int_ena_w1c_cn {
 		u64 minerr                           : 1;
 		u64 carext                           : 1;
 		u64 jabber                           : 1;
@@ -2990,9 +3076,9 @@ union cavm_cgxx_gmp_gmi_rxx_int_ena_w1c {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_INT_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_INT_ENA_W1C(u64 a)
 {
 	return 0x38010 + 0x40000 * a;
 }
@@ -3003,9 +3089,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_ENA_W1C(u64 a)
  * CGX GMP GMI RX Interrupt Enable Set Registers This register sets
  * interrupt enable bits.
  */
-union cavm_cgxx_gmp_gmi_rxx_int_ena_w1s {
+union cgxx_gmp_gmi_rxx_int_ena_w1s {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_rxx_int_ena_w1s_s {
+	struct cgxx_gmp_gmi_rxx_int_ena_w1s_s {
 		u64 minerr                           : 1;
 		u64 carext                           : 1;
 		u64 jabber                           : 1;
@@ -3020,7 +3106,7 @@ union cavm_cgxx_gmp_gmi_rxx_int_ena_w1s {
 		u64 ifgerr                           : 1;
 		u64 reserved_12_63                   : 52;
 	} s;
-	struct cavm_cgxx_gmp_gmi_rxx_int_ena_w1s_cn {
+	struct cgxx_gmp_gmi_rxx_int_ena_w1s_cn {
 		u64 minerr                           : 1;
 		u64 carext                           : 1;
 		u64 jabber                           : 1;
@@ -3038,9 +3124,9 @@ union cavm_cgxx_gmp_gmi_rxx_int_ena_w1s {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_INT_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_INT_ENA_W1S(u64 a)
 {
 	return 0x38018 + 0x40000 * a;
 }
@@ -3051,9 +3137,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_ENA_W1S(u64 a)
  * CGX GMP GMI RX Interrupt Set Registers This register sets interrupt
  * bits.
  */
-union cavm_cgxx_gmp_gmi_rxx_int_w1s {
+union cgxx_gmp_gmi_rxx_int_w1s {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_rxx_int_w1s_s {
+	struct cgxx_gmp_gmi_rxx_int_w1s_s {
 		u64 minerr                           : 1;
 		u64 carext                           : 1;
 		u64 jabber                           : 1;
@@ -3068,7 +3154,7 @@ union cavm_cgxx_gmp_gmi_rxx_int_w1s {
 		u64 ifgerr                           : 1;
 		u64 reserved_12_63                   : 52;
 	} s;
-	struct cavm_cgxx_gmp_gmi_rxx_int_w1s_cn {
+	struct cgxx_gmp_gmi_rxx_int_w1s_cn {
 		u64 minerr                           : 1;
 		u64 carext                           : 1;
 		u64 jabber                           : 1;
@@ -3086,9 +3172,9 @@ union cavm_cgxx_gmp_gmi_rxx_int_w1s {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_W1S(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_W1S(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_INT_W1S(u64 a)
 {
 	return 0x38008 + 0x40000 * a;
 }
@@ -3099,18 +3185,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_INT_W1S(u64 a)
  * CGX GMP Maximum Packet-Size Registers This register specifies the
  * maximum size for packets, beyond which the GMI truncates.
  */
-union cavm_cgxx_gmp_gmi_rxx_jabber {
+union cgxx_gmp_gmi_rxx_jabber {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_rxx_jabber_s {
+	struct cgxx_gmp_gmi_rxx_jabber_s {
 		u64 cnt                              : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_rxx_jabber_s cn; */
+	/* struct cgxx_gmp_gmi_rxx_jabber_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_JABBER(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_JABBER(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_JABBER(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_JABBER(u64 a)
 {
 	return 0x38038 + 0x40000 * a;
 }
@@ -3136,20 +3222,20 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_JABBER(u64 a)
  * the UDD bytes will be sent down the packet interface as part of the
  * packet.  The UDD bytes are never stripped from the actual packet.
  */
-union cavm_cgxx_gmp_gmi_rxx_udd_skp {
+union cgxx_gmp_gmi_rxx_udd_skp {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_rxx_udd_skp_s {
+	struct cgxx_gmp_gmi_rxx_udd_skp_s {
 		u64 len                              : 7;
 		u64 reserved_7                       : 1;
 		u64 fcssel                           : 1;
 		u64 reserved_9_63                    : 55;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_rxx_udd_skp_s cn; */
+	/* struct cgxx_gmp_gmi_rxx_udd_skp_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_UDD_SKP(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_UDD_SKP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_RXX_UDD_SKP(u64 a)
+static inline u64 CGXX_GMP_GMI_RXX_UDD_SKP(u64 a)
 {
 	return 0x38048 + 0x40000 * a;
 }
@@ -3159,18 +3245,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_RXX_UDD_SKP(u64 a)
  *
  * CGX GMI SMAC Registers
  */
-union cavm_cgxx_gmp_gmi_smacx {
+union cgxx_gmp_gmi_smacx {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_smacx_s {
+	struct cgxx_gmp_gmi_smacx_s {
 		u64 smac                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_smacx_s cn; */
+	/* struct cgxx_gmp_gmi_smacx_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_SMACX(u64 a)
+static inline u64 CGXX_GMP_GMI_SMACX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_SMACX(u64 a)
+static inline u64 CGXX_GMP_GMI_SMACX(u64 a)
 {
 	return 0x38230 + 0x40000 * a;
 }
@@ -3180,21 +3266,21 @@ static inline u64 CAVM_CGXX_GMP_GMI_SMACX(u64 a)
  *
  * CGX GMI TX Append Control Registers
  */
-union cavm_cgxx_gmp_gmi_txx_append {
+union cgxx_gmp_gmi_txx_append {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_append_s {
+	struct cgxx_gmp_gmi_txx_append_s {
 		u64 preamble                         : 1;
 		u64 pad                              : 1;
 		u64 fcs                              : 1;
 		u64 force_fcs                        : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_append_s cn; */
+	/* struct cgxx_gmp_gmi_txx_append_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_APPEND(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_APPEND(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_APPEND(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_APPEND(u64 a)
 {
 	return 0x38218 + 0x40000 * a;
 }
@@ -3204,18 +3290,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_APPEND(u64 a)
  *
  * CGX GMI TX Burst-Counter Registers
  */
-union cavm_cgxx_gmp_gmi_txx_burst {
+union cgxx_gmp_gmi_txx_burst {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_burst_s {
+	struct cgxx_gmp_gmi_txx_burst_s {
 		u64 burst                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_burst_s cn; */
+	/* struct cgxx_gmp_gmi_txx_burst_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_BURST(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_BURST(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_BURST(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_BURST(u64 a)
 {
 	return 0x38228 + 0x40000 * a;
 }
@@ -3225,21 +3311,21 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_BURST(u64 a)
  *
  * CGX GMI Transmit Control Registers
  */
-union cavm_cgxx_gmp_gmi_txx_ctl {
+union cgxx_gmp_gmi_txx_ctl {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_ctl_s {
+	struct cgxx_gmp_gmi_txx_ctl_s {
 		u64 xscol_en                         : 1;
 		u64 xsdef_en                         : 1;
 		u64 tx_fc_type                       : 1;
 		u64 link_drain                       : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_ctl_s cn; */
+	/* struct cgxx_gmp_gmi_txx_ctl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_CTL(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_CTL(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_CTL(u64 a)
 {
 	return 0x38270 + 0x40000 * a;
 }
@@ -3249,9 +3335,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_CTL(u64 a)
  *
  * CGX GMI TX Interrupt Registers
  */
-union cavm_cgxx_gmp_gmi_txx_int {
+union cgxx_gmp_gmi_txx_int {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_int_s {
+	struct cgxx_gmp_gmi_txx_int_s {
 		u64 undflw                           : 1;
 		u64 xscol                            : 1;
 		u64 xsdef                            : 1;
@@ -3259,7 +3345,7 @@ union cavm_cgxx_gmp_gmi_txx_int {
 		u64 ptp_lost                         : 1;
 		u64 reserved_5_63                    : 59;
 	} s;
-	struct cavm_cgxx_gmp_gmi_txx_int_cn {
+	struct cgxx_gmp_gmi_txx_int_cn {
 		u64 undflw                           : 1;
 		u64 xscol                            : 1;
 		u64 xsdef                            : 1;
@@ -3271,9 +3357,9 @@ union cavm_cgxx_gmp_gmi_txx_int {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_INT(u64 a)
 {
 	return 0x38500 + 0x40000 * a;
 }
@@ -3284,9 +3370,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT(u64 a)
  * CGX GMI TX Interrupt Enable Clear Registers This register clears
  * interrupt enable bits.
  */
-union cavm_cgxx_gmp_gmi_txx_int_ena_w1c {
+union cgxx_gmp_gmi_txx_int_ena_w1c {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_int_ena_w1c_s {
+	struct cgxx_gmp_gmi_txx_int_ena_w1c_s {
 		u64 undflw                           : 1;
 		u64 xscol                            : 1;
 		u64 xsdef                            : 1;
@@ -3294,7 +3380,7 @@ union cavm_cgxx_gmp_gmi_txx_int_ena_w1c {
 		u64 ptp_lost                         : 1;
 		u64 reserved_5_63                    : 59;
 	} s;
-	struct cavm_cgxx_gmp_gmi_txx_int_ena_w1c_cn {
+	struct cgxx_gmp_gmi_txx_int_ena_w1c_cn {
 		u64 undflw                           : 1;
 		u64 xscol                            : 1;
 		u64 xsdef                            : 1;
@@ -3306,9 +3392,9 @@ union cavm_cgxx_gmp_gmi_txx_int_ena_w1c {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_INT_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_INT_ENA_W1C(u64 a)
 {
 	return 0x38510 + 0x40000 * a;
 }
@@ -3319,9 +3405,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_ENA_W1C(u64 a)
  * CGX GMI TX Interrupt Enable Set Registers This register sets interrupt
  * enable bits.
  */
-union cavm_cgxx_gmp_gmi_txx_int_ena_w1s {
+union cgxx_gmp_gmi_txx_int_ena_w1s {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_int_ena_w1s_s {
+	struct cgxx_gmp_gmi_txx_int_ena_w1s_s {
 		u64 undflw                           : 1;
 		u64 xscol                            : 1;
 		u64 xsdef                            : 1;
@@ -3329,7 +3415,7 @@ union cavm_cgxx_gmp_gmi_txx_int_ena_w1s {
 		u64 ptp_lost                         : 1;
 		u64 reserved_5_63                    : 59;
 	} s;
-	struct cavm_cgxx_gmp_gmi_txx_int_ena_w1s_cn {
+	struct cgxx_gmp_gmi_txx_int_ena_w1s_cn {
 		u64 undflw                           : 1;
 		u64 xscol                            : 1;
 		u64 xsdef                            : 1;
@@ -3341,9 +3427,9 @@ union cavm_cgxx_gmp_gmi_txx_int_ena_w1s {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_INT_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_INT_ENA_W1S(u64 a)
 {
 	return 0x38518 + 0x40000 * a;
 }
@@ -3353,9 +3439,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_ENA_W1S(u64 a)
  *
  * CGX GMI TX Interrupt Set Registers This register sets interrupt bits.
  */
-union cavm_cgxx_gmp_gmi_txx_int_w1s {
+union cgxx_gmp_gmi_txx_int_w1s {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_int_w1s_s {
+	struct cgxx_gmp_gmi_txx_int_w1s_s {
 		u64 undflw                           : 1;
 		u64 xscol                            : 1;
 		u64 xsdef                            : 1;
@@ -3363,7 +3449,7 @@ union cavm_cgxx_gmp_gmi_txx_int_w1s {
 		u64 ptp_lost                         : 1;
 		u64 reserved_5_63                    : 59;
 	} s;
-	struct cavm_cgxx_gmp_gmi_txx_int_w1s_cn {
+	struct cgxx_gmp_gmi_txx_int_w1s_cn {
 		u64 undflw                           : 1;
 		u64 xscol                            : 1;
 		u64 xsdef                            : 1;
@@ -3375,9 +3461,9 @@ union cavm_cgxx_gmp_gmi_txx_int_w1s {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_W1S(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_W1S(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_INT_W1S(u64 a)
 {
 	return 0x38508 + 0x40000 * a;
 }
@@ -3387,18 +3473,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_INT_W1S(u64 a)
  *
  * CGX GMI TX Minimum-Size-Packet Registers
  */
-union cavm_cgxx_gmp_gmi_txx_min_pkt {
+union cgxx_gmp_gmi_txx_min_pkt {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_min_pkt_s {
+	struct cgxx_gmp_gmi_txx_min_pkt_s {
 		u64 min_size                         : 8;
 		u64 reserved_8_63                    : 56;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_min_pkt_s cn; */
+	/* struct cgxx_gmp_gmi_txx_min_pkt_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_MIN_PKT(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_MIN_PKT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_MIN_PKT(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_MIN_PKT(u64 a)
 {
 	return 0x38240 + 0x40000 * a;
 }
@@ -3422,18 +3508,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_MIN_PKT(u64 a)
  * that the system can send (normally 1518B), IFG is the interframe gap
  * and pause_pkt_size is the size of the PAUSE packet (normally 64B).
  */
-union cavm_cgxx_gmp_gmi_txx_pause_pkt_interval {
+union cgxx_gmp_gmi_txx_pause_pkt_interval {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_pause_pkt_interval_s {
+	struct cgxx_gmp_gmi_txx_pause_pkt_interval_s {
 		u64 interval                         : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_pause_pkt_interval_s cn; */
+	/* struct cgxx_gmp_gmi_txx_pause_pkt_interval_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_PKT_INTERVAL(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_PAUSE_PKT_INTERVAL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_PKT_INTERVAL(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_PAUSE_PKT_INTERVAL(u64 a)
 {
 	return 0x38248 + 0x40000 * a;
 }
@@ -3443,18 +3529,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_PKT_INTERVAL(u64 a)
  *
  * CGX GMI TX PAUSE Packet PAUSE-Time Registers
  */
-union cavm_cgxx_gmp_gmi_txx_pause_pkt_time {
+union cgxx_gmp_gmi_txx_pause_pkt_time {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_pause_pkt_time_s {
+	struct cgxx_gmp_gmi_txx_pause_pkt_time_s {
 		u64 ptime                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_pause_pkt_time_s cn; */
+	/* struct cgxx_gmp_gmi_txx_pause_pkt_time_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_PKT_TIME(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_PAUSE_PKT_TIME(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_PKT_TIME(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_PAUSE_PKT_TIME(u64 a)
 {
 	return 0x38238 + 0x40000 * a;
 }
@@ -3464,18 +3550,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_PKT_TIME(u64 a)
  *
  * CGX GMI TX Time-to-Backpressure Registers
  */
-union cavm_cgxx_gmp_gmi_txx_pause_togo {
+union cgxx_gmp_gmi_txx_pause_togo {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_pause_togo_s {
+	struct cgxx_gmp_gmi_txx_pause_togo_s {
 		u64 ptime                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_pause_togo_s cn; */
+	/* struct cgxx_gmp_gmi_txx_pause_togo_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_TOGO(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_PAUSE_TOGO(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_TOGO(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_PAUSE_TOGO(u64 a)
 {
 	return 0x38258 + 0x40000 * a;
 }
@@ -3485,18 +3571,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_TOGO(u64 a)
  *
  * CGX GMI TX PAUSE-Zero-Enable Registers
  */
-union cavm_cgxx_gmp_gmi_txx_pause_zero {
+union cgxx_gmp_gmi_txx_pause_zero {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_pause_zero_s {
+	struct cgxx_gmp_gmi_txx_pause_zero_s {
 		u64 send                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_pause_zero_s cn; */
+	/* struct cgxx_gmp_gmi_txx_pause_zero_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_ZERO(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_PAUSE_ZERO(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_ZERO(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_PAUSE_ZERO(u64 a)
 {
 	return 0x38260 + 0x40000 * a;
 }
@@ -3506,18 +3592,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_PAUSE_ZERO(u64 a)
  *
  * CGX SGMII Control Registers
  */
-union cavm_cgxx_gmp_gmi_txx_sgmii_ctl {
+union cgxx_gmp_gmi_txx_sgmii_ctl {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_sgmii_ctl_s {
+	struct cgxx_gmp_gmi_txx_sgmii_ctl_s {
 		u64 align                            : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_sgmii_ctl_s cn; */
+	/* struct cgxx_gmp_gmi_txx_sgmii_ctl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_SGMII_CTL(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_SGMII_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_SGMII_CTL(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_SGMII_CTL(u64 a)
 {
 	return 0x38300 + 0x40000 * a;
 }
@@ -3527,18 +3613,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_SGMII_CTL(u64 a)
  *
  * CGX GMI TX Slottime Counter Registers
  */
-union cavm_cgxx_gmp_gmi_txx_slot {
+union cgxx_gmp_gmi_txx_slot {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_slot_s {
+	struct cgxx_gmp_gmi_txx_slot_s {
 		u64 slot                             : 10;
 		u64 reserved_10_63                   : 54;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_slot_s cn; */
+	/* struct cgxx_gmp_gmi_txx_slot_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_SLOT(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_SLOT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_SLOT(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_SLOT(u64 a)
 {
 	return 0x38220 + 0x40000 * a;
 }
@@ -3548,18 +3634,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_SLOT(u64 a)
  *
  * CGX GMI TX Software PAUSE Registers
  */
-union cavm_cgxx_gmp_gmi_txx_soft_pause {
+union cgxx_gmp_gmi_txx_soft_pause {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_soft_pause_s {
+	struct cgxx_gmp_gmi_txx_soft_pause_s {
 		u64 ptime                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_soft_pause_s cn; */
+	/* struct cgxx_gmp_gmi_txx_soft_pause_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_SOFT_PAUSE(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_SOFT_PAUSE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_SOFT_PAUSE(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_SOFT_PAUSE(u64 a)
 {
 	return 0x38250 + 0x40000 * a;
 }
@@ -3569,18 +3655,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_SOFT_PAUSE(u64 a)
  *
  * CGX GMI TX Threshold Registers
  */
-union cavm_cgxx_gmp_gmi_txx_thresh {
+union cgxx_gmp_gmi_txx_thresh {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_txx_thresh_s {
+	struct cgxx_gmp_gmi_txx_thresh_s {
 		u64 cnt                              : 11;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_txx_thresh_s cn; */
+	/* struct cgxx_gmp_gmi_txx_thresh_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_THRESH(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_THRESH(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TXX_THRESH(u64 a)
+static inline u64 CGXX_GMP_GMI_TXX_THRESH(u64 a)
 {
 	return 0x38210 + 0x40000 * a;
 }
@@ -3590,18 +3676,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TXX_THRESH(u64 a)
  *
  * CGX TX Collision Attempts Before Dropping Frame Registers
  */
-union cavm_cgxx_gmp_gmi_tx_col_attempt {
+union cgxx_gmp_gmi_tx_col_attempt {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_tx_col_attempt_s {
+	struct cgxx_gmp_gmi_tx_col_attempt_s {
 		u64 limit                            : 5;
 		u64 reserved_5_63                    : 59;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_tx_col_attempt_s cn; */
+	/* struct cgxx_gmp_gmi_tx_col_attempt_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TX_COL_ATTEMPT(void)
+static inline u64 CGXX_GMP_GMI_TX_COL_ATTEMPT(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TX_COL_ATTEMPT(void)
+static inline u64 CGXX_GMP_GMI_TX_COL_ATTEMPT(void)
 {
 	return 0x39010;
 }
@@ -3619,19 +3705,19 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_COL_ATTEMPT(void)
  * For all other systems, IFG1 and IFG2 can be any value in the range of
  * 1-15, allowing for a total possible IFG sum of 2-30.
  */
-union cavm_cgxx_gmp_gmi_tx_ifg {
+union cgxx_gmp_gmi_tx_ifg {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_tx_ifg_s {
+	struct cgxx_gmp_gmi_tx_ifg_s {
 		u64 ifg1                             : 4;
 		u64 ifg2                             : 4;
 		u64 reserved_8_63                    : 56;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_tx_ifg_s cn; */
+	/* struct cgxx_gmp_gmi_tx_ifg_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TX_IFG(void)
+static inline u64 CGXX_GMP_GMI_TX_IFG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TX_IFG(void)
+static inline u64 CGXX_GMP_GMI_TX_IFG(void)
 {
 	return 0x39000;
 }
@@ -3642,18 +3728,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_IFG(void)
  * CGX GMI TX JAM Pattern Registers This register provides the pattern
  * used in JAM bytes.
  */
-union cavm_cgxx_gmp_gmi_tx_jam {
+union cgxx_gmp_gmi_tx_jam {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_tx_jam_s {
+	struct cgxx_gmp_gmi_tx_jam_s {
 		u64 jam                              : 8;
 		u64 reserved_8_63                    : 56;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_tx_jam_s cn; */
+	/* struct cgxx_gmp_gmi_tx_jam_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TX_JAM(void)
+static inline u64 CGXX_GMP_GMI_TX_JAM(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TX_JAM(void)
+static inline u64 CGXX_GMP_GMI_TX_JAM(void)
 {
 	return 0x39008;
 }
@@ -3665,18 +3751,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_JAM(void)
  * linear feedback shift register (LFSR), which is used to implement
  * truncated binary exponential backoff.
  */
-union cavm_cgxx_gmp_gmi_tx_lfsr {
+union cgxx_gmp_gmi_tx_lfsr {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_tx_lfsr_s {
+	struct cgxx_gmp_gmi_tx_lfsr_s {
 		u64 lfsr                             : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_tx_lfsr_s cn; */
+	/* struct cgxx_gmp_gmi_tx_lfsr_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TX_LFSR(void)
+static inline u64 CGXX_GMP_GMI_TX_LFSR(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TX_LFSR(void)
+static inline u64 CGXX_GMP_GMI_TX_LFSR(void)
 {
 	return 0x39028;
 }
@@ -3686,18 +3772,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_LFSR(void)
  *
  * CGX TX PAUSE-Packet DMAC-Field Registers
  */
-union cavm_cgxx_gmp_gmi_tx_pause_pkt_dmac {
+union cgxx_gmp_gmi_tx_pause_pkt_dmac {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_tx_pause_pkt_dmac_s {
+	struct cgxx_gmp_gmi_tx_pause_pkt_dmac_s {
 		u64 dmac                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_tx_pause_pkt_dmac_s cn; */
+	/* struct cgxx_gmp_gmi_tx_pause_pkt_dmac_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TX_PAUSE_PKT_DMAC(void)
+static inline u64 CGXX_GMP_GMI_TX_PAUSE_PKT_DMAC(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TX_PAUSE_PKT_DMAC(void)
+static inline u64 CGXX_GMP_GMI_TX_PAUSE_PKT_DMAC(void)
 {
 	return 0x39018;
 }
@@ -3708,18 +3794,18 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_PAUSE_PKT_DMAC(void)
  * CGX GMI TX PAUSE-Packet-PTYPE Field Registers This register provides
  * the PTYPE field that is placed in outbound PAUSE packets.
  */
-union cavm_cgxx_gmp_gmi_tx_pause_pkt_type {
+union cgxx_gmp_gmi_tx_pause_pkt_type {
 	u64 u;
-	struct cavm_cgxx_gmp_gmi_tx_pause_pkt_type_s {
+	struct cgxx_gmp_gmi_tx_pause_pkt_type_s {
 		u64 ptype                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_gmi_tx_pause_pkt_type_s cn; */
+	/* struct cgxx_gmp_gmi_tx_pause_pkt_type_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_GMI_TX_PAUSE_PKT_TYPE(void)
+static inline u64 CGXX_GMP_GMI_TX_PAUSE_PKT_TYPE(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_GMI_TX_PAUSE_PKT_TYPE(void)
+static inline u64 CGXX_GMP_GMI_TX_PAUSE_PKT_TYPE(void)
 {
 	return 0x39020;
 }
@@ -3731,9 +3817,9 @@ static inline u64 CAVM_CGXX_GMP_GMI_TX_PAUSE_PKT_TYPE(void)
  * general configuration that should not need to be changed from reset
  * settings.  Internal: Per lmac diagnostic and chicken bits.
  */
-union cavm_cgxx_gmp_miscx_cfg {
+union cgxx_gmp_miscx_cfg {
 	u64 u;
-	struct cavm_cgxx_gmp_miscx_cfg_s {
+	struct cgxx_gmp_miscx_cfg_s {
 		u64 tx_eee_quiet_credit_mode         : 1;
 		u64 tx_eee_wait_gmi_fast_idle        : 1;
 		u64 tx_qsgmii_port0_init             : 1;
@@ -3752,12 +3838,12 @@ union cavm_cgxx_gmp_miscx_cfg {
 		u64 rx_cgp_edet_qlm_val              : 1;
 		u64 reserved_19_63                   : 45;
 	} s;
-	/* struct cavm_cgxx_gmp_miscx_cfg_s cn; */
+	/* struct cgxx_gmp_miscx_cfg_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_MISCX_CFG(u64 a)
+static inline u64 CGXX_GMP_MISCX_CFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_MISCX_CFG(u64 a)
+static inline u64 CGXX_GMP_MISCX_CFG(u64 a)
 {
 	return 0x34000 + 0x40000 * a;
 }
@@ -3767,20 +3853,20 @@ static inline u64 CAVM_CGXX_GMP_MISCX_CFG(u64 a)
  *
  * CGX GMP PCS AN Expansion register Register 6 AN status
  */
-union cavm_cgxx_gmp_pcsx_an_expansion {
+union cgxx_gmp_pcsx_an_expansion {
 	u64 u;
-	struct cavm_cgxx_gmp_pcsx_an_expansion_s {
+	struct cgxx_gmp_pcsx_an_expansion_s {
 		u64 reserved_0                       : 1;
 		u64 page_received                    : 1;
 		u64 next_page_able                   : 1;
 		u64 reserved_3_63                    : 61;
 	} s;
-	/* struct cavm_cgxx_gmp_pcsx_an_expansion_s cn; */
+	/* struct cgxx_gmp_pcsx_an_expansion_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCSX_AN_EXPANSION(u64 a)
+static inline u64 CGXX_GMP_PCSX_AN_EXPANSION(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCSX_AN_EXPANSION(u64 a)
+static inline u64 CGXX_GMP_PCSX_AN_EXPANSION(u64 a)
 {
 	return 0x30a60 + 0x40000 * a;
 }
@@ -3793,9 +3879,9 @@ static inline u64 CAVM_CGXX_GMP_PCSX_AN_EXPANSION(u64 a)
  * definition for this register is provided in 32.5.4.2 for changes to
  * 28.2.4.1.4.
  */
-union cavm_cgxx_gmp_pcsx_an_lp_abil_np {
+union cgxx_gmp_pcsx_an_lp_abil_np {
 	u64 u;
-	struct cavm_cgxx_gmp_pcsx_an_lp_abil_np_s {
+	struct cgxx_gmp_pcsx_an_lp_abil_np_s {
 		u64 m_u                              : 11;
 		u64 toggle                           : 1;
 		u64 ack2                             : 1;
@@ -3804,12 +3890,12 @@ union cavm_cgxx_gmp_pcsx_an_lp_abil_np {
 		u64 np                               : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcsx_an_lp_abil_np_s cn; */
+	/* struct cgxx_gmp_pcsx_an_lp_abil_np_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCSX_AN_LP_ABIL_NP(u64 a)
+static inline u64 CGXX_GMP_PCSX_AN_LP_ABIL_NP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCSX_AN_LP_ABIL_NP(u64 a)
+static inline u64 CGXX_GMP_PCSX_AN_LP_ABIL_NP(u64 a)
 {
 	return 0x30a80 + 0x40000 * a;
 }
@@ -3826,9 +3912,9 @@ static inline u64 CAVM_CGXX_GMP_PCSX_AN_LP_ABIL_NP(u64 a)
  * next page exchange continues until both ends of the link segment set
  * their NP bits to 0. Both sides must be NP capable to use NP exchanges.
  */
-union cavm_cgxx_gmp_pcsx_an_np_tx {
+union cgxx_gmp_pcsx_an_np_tx {
 	u64 u;
-	struct cavm_cgxx_gmp_pcsx_an_np_tx_s {
+	struct cgxx_gmp_pcsx_an_np_tx_s {
 		u64 m_u                              : 11;
 		u64 toggle                           : 1;
 		u64 ack2                             : 1;
@@ -3837,12 +3923,12 @@ union cavm_cgxx_gmp_pcsx_an_np_tx {
 		u64 np                               : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcsx_an_np_tx_s cn; */
+	/* struct cgxx_gmp_pcsx_an_np_tx_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCSX_AN_NP_TX(u64 a)
+static inline u64 CGXX_GMP_PCSX_AN_NP_TX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCSX_AN_NP_TX(u64 a)
+static inline u64 CGXX_GMP_PCSX_AN_NP_TX(u64 a)
 {
 	return 0x30a70 + 0x40000 * a;
 }
@@ -3852,18 +3938,18 @@ static inline u64 CAVM_CGXX_GMP_PCSX_AN_NP_TX(u64 a)
  *
  * CGX PCS Debug Control Registers
  */
-union cavm_cgxx_gmp_pcsx_dbg_control {
+union cgxx_gmp_pcsx_dbg_control {
 	u64 u;
-	struct cavm_cgxx_gmp_pcsx_dbg_control_s {
+	struct cgxx_gmp_pcsx_dbg_control_s {
 		u64 us_clk_period                    : 7;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_cgxx_gmp_pcsx_dbg_control_s cn; */
+	/* struct cgxx_gmp_pcsx_dbg_control_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCSX_DBG_CONTROL(u64 a)
+static inline u64 CGXX_GMP_PCSX_DBG_CONTROL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCSX_DBG_CONTROL(u64 a)
+static inline u64 CGXX_GMP_PCSX_DBG_CONTROL(u64 a)
 {
 	return 0x31000 + 0x40000 * a;
 }
@@ -3881,18 +3967,18 @@ static inline u64 CAVM_CGXX_GMP_PCSX_DBG_CONTROL(u64 a)
  * PCS reset. This counter shall be held at all ones in the case of
  * overflow.
  */
-union cavm_cgxx_gmp_pcsx_rx_eee_wake {
+union cgxx_gmp_pcsx_rx_eee_wake {
 	u64 u;
-	struct cavm_cgxx_gmp_pcsx_rx_eee_wake_s {
+	struct cgxx_gmp_pcsx_rx_eee_wake_s {
 		u64 error_counter                    : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcsx_rx_eee_wake_s cn; */
+	/* struct cgxx_gmp_pcsx_rx_eee_wake_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCSX_RX_EEE_WAKE(u64 a)
+static inline u64 CGXX_GMP_PCSX_RX_EEE_WAKE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCSX_RX_EEE_WAKE(u64 a)
+static inline u64 CGXX_GMP_PCSX_RX_EEE_WAKE(u64 a)
 {
 	return 0x30910 + 0x40000 * a;
 }
@@ -3903,21 +3989,21 @@ static inline u64 CAVM_CGXX_GMP_PCSX_RX_EEE_WAKE(u64 a)
  * INTERNAL: CGX GMP PCS  RX EEE LPI Timing Parameters Registers
  * Reserved. Internal: Receiver LPI timing parameters Tqr, Twr and Twtf.
  */
-union cavm_cgxx_gmp_pcsx_rx_lpi_timing {
+union cgxx_gmp_pcsx_rx_lpi_timing {
 	u64 u;
-	struct cavm_cgxx_gmp_pcsx_rx_lpi_timing_s {
+	struct cgxx_gmp_pcsx_rx_lpi_timing_s {
 		u64 twtf                             : 18;
 		u64 reserved_18_19                   : 2;
 		u64 twr                              : 12;
 		u64 tqr                              : 20;
 		u64 reserved_52_63                   : 12;
 	} s;
-	/* struct cavm_cgxx_gmp_pcsx_rx_lpi_timing_s cn; */
+	/* struct cgxx_gmp_pcsx_rx_lpi_timing_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCSX_RX_LPI_TIMING(u64 a)
+static inline u64 CGXX_GMP_PCSX_RX_LPI_TIMING(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCSX_RX_LPI_TIMING(u64 a)
+static inline u64 CGXX_GMP_PCSX_RX_LPI_TIMING(u64 a)
 {
 	return 0x30900 + 0x40000 * a;
 }
@@ -3927,9 +4013,9 @@ static inline u64 CAVM_CGXX_GMP_PCSX_RX_LPI_TIMING(u64 a)
  *
  * CGX GMP PCS Status 1 Register PCS LPI Status, Link OK.  Register 3.1
  */
-union cavm_cgxx_gmp_pcsx_status1 {
+union cgxx_gmp_pcsx_status1 {
 	u64 u;
-	struct cavm_cgxx_gmp_pcsx_status1_s {
+	struct cgxx_gmp_pcsx_status1_s {
 		u64 reserved_0_1                     : 2;
 		u64 receive_link_status              : 1;
 		u64 reserved_3_7                     : 5;
@@ -3939,12 +4025,12 @@ union cavm_cgxx_gmp_pcsx_status1 {
 		u64 tx_lpi_received                  : 1;
 		u64 reserved_12_63                   : 52;
 	} s;
-	/* struct cavm_cgxx_gmp_pcsx_status1_s cn; */
+	/* struct cgxx_gmp_pcsx_status1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCSX_STATUS1(u64 a)
+static inline u64 CGXX_GMP_PCSX_STATUS1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCSX_STATUS1(u64 a)
+static inline u64 CGXX_GMP_PCSX_STATUS1(u64 a)
 {
 	return 0x30880 + 0x40000 * a;
 }
@@ -3956,9 +4042,9 @@ static inline u64 CAVM_CGXX_GMP_PCSX_STATUS1(u64 a)
  * Reserved. Internal: Transmitter LPI timing parameters Tsl, Tql and
  * Tul.
  */
-union cavm_cgxx_gmp_pcsx_tx_lpi_timing {
+union cgxx_gmp_pcsx_tx_lpi_timing {
 	u64 u;
-	struct cavm_cgxx_gmp_pcsx_tx_lpi_timing_s {
+	struct cgxx_gmp_pcsx_tx_lpi_timing_s {
 		u64 tql                              : 19;
 		u64 reserved_19_31                   : 13;
 		u64 tul                              : 12;
@@ -3966,12 +4052,12 @@ union cavm_cgxx_gmp_pcsx_tx_lpi_timing {
 		u64 tsl                              : 12;
 		u64 reserved_60_63                   : 4;
 	} s;
-	/* struct cavm_cgxx_gmp_pcsx_tx_lpi_timing_s cn; */
+	/* struct cgxx_gmp_pcsx_tx_lpi_timing_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCSX_TX_LPI_TIMING(u64 a)
+static inline u64 CGXX_GMP_PCSX_TX_LPI_TIMING(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCSX_TX_LPI_TIMING(u64 a)
+static inline u64 CGXX_GMP_PCSX_TX_LPI_TIMING(u64 a)
 {
 	return 0x30800 + 0x40000 * a;
 }
@@ -3981,9 +4067,9 @@ static inline u64 CAVM_CGXX_GMP_PCSX_TX_LPI_TIMING(u64 a)
  *
  * CGX GMP PCS Autonegotiation Advertisement Registers
  */
-union cavm_cgxx_gmp_pcs_anx_adv {
+union cgxx_gmp_pcs_anx_adv {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_anx_adv_s {
+	struct cgxx_gmp_pcs_anx_adv_s {
 		u64 reserved_0_4                     : 5;
 		u64 fd                               : 1;
 		u64 hfd                              : 1;
@@ -3994,12 +4080,12 @@ union cavm_cgxx_gmp_pcs_anx_adv {
 		u64 np                               : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_anx_adv_s cn; */
+	/* struct cgxx_gmp_pcs_anx_adv_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_ANX_ADV(u64 a)
+static inline u64 CGXX_GMP_PCS_ANX_ADV(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_ANX_ADV(u64 a)
+static inline u64 CGXX_GMP_PCS_ANX_ADV(u64 a)
 {
 	return 0x30010 + 0x40000 * a;
 }
@@ -4009,9 +4095,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_ANX_ADV(u64 a)
  *
  * CGX GMO PCS Autonegotiation Extended Status Registers
  */
-union cavm_cgxx_gmp_pcs_anx_ext_st {
+union cgxx_gmp_pcs_anx_ext_st {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_anx_ext_st_s {
+	struct cgxx_gmp_pcs_anx_ext_st_s {
 		u64 reserved_0_11                    : 12;
 		u64 thou_thd                         : 1;
 		u64 thou_tfd                         : 1;
@@ -4019,12 +4105,12 @@ union cavm_cgxx_gmp_pcs_anx_ext_st {
 		u64 thou_xfd                         : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_anx_ext_st_s cn; */
+	/* struct cgxx_gmp_pcs_anx_ext_st_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_ANX_EXT_ST(u64 a)
+static inline u64 CGXX_GMP_PCS_ANX_EXT_ST(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_ANX_EXT_ST(u64 a)
+static inline u64 CGXX_GMP_PCS_ANX_EXT_ST(u64 a)
 {
 	return 0x30028 + 0x40000 * a;
 }
@@ -4036,9 +4122,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_ANX_EXT_ST(u64 a)
  * autonegotiation link partner ability register 5 as per IEEE 802.3,
  * Clause 37.
  */
-union cavm_cgxx_gmp_pcs_anx_lp_abil {
+union cgxx_gmp_pcs_anx_lp_abil {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_anx_lp_abil_s {
+	struct cgxx_gmp_pcs_anx_lp_abil_s {
 		u64 reserved_0_4                     : 5;
 		u64 fd                               : 1;
 		u64 hfd                              : 1;
@@ -4049,12 +4135,12 @@ union cavm_cgxx_gmp_pcs_anx_lp_abil {
 		u64 np                               : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_anx_lp_abil_s cn; */
+	/* struct cgxx_gmp_pcs_anx_lp_abil_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_ANX_LP_ABIL(u64 a)
+static inline u64 CGXX_GMP_PCS_ANX_LP_ABIL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_ANX_LP_ABIL(u64 a)
+static inline u64 CGXX_GMP_PCS_ANX_LP_ABIL(u64 a)
 {
 	return 0x30018 + 0x40000 * a;
 }
@@ -4068,9 +4154,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_ANX_LP_ABIL(u64 a)
  * CGX()_GMP_PCS_AN()_RESULTS[AN_CPT] is set to 1, this register is
  * valid.
  */
-union cavm_cgxx_gmp_pcs_anx_results {
+union cgxx_gmp_pcs_anx_results {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_anx_results_s {
+	struct cgxx_gmp_pcs_anx_results_s {
 		u64 link_ok                          : 1;
 		u64 dup                              : 1;
 		u64 an_cpt                           : 1;
@@ -4078,12 +4164,12 @@ union cavm_cgxx_gmp_pcs_anx_results {
 		u64 pause                            : 2;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_anx_results_s cn; */
+	/* struct cgxx_gmp_pcs_anx_results_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_ANX_RESULTS(u64 a)
+static inline u64 CGXX_GMP_PCS_ANX_RESULTS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_ANX_RESULTS(u64 a)
+static inline u64 CGXX_GMP_PCS_ANX_RESULTS(u64 a)
 {
 	return 0x30020 + 0x40000 * a;
 }
@@ -4093,9 +4179,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_ANX_RESULTS(u64 a)
  *
  * CGX GMP PCS Interrupt Registers
  */
-union cavm_cgxx_gmp_pcs_intx {
+union cgxx_gmp_pcs_intx {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_intx_s {
+	struct cgxx_gmp_pcs_intx_s {
 		u64 lnkspd                           : 1;
 		u64 xmit                             : 1;
 		u64 an_err                           : 1;
@@ -4118,12 +4204,12 @@ union cavm_cgxx_gmp_pcs_intx {
 		u64 eee_rx_link_fail                 : 1;
 		u64 reserved_23_63                   : 41;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_intx_s cn; */
+	/* struct cgxx_gmp_pcs_intx_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_INTX(u64 a)
+static inline u64 CGXX_GMP_PCS_INTX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_INTX(u64 a)
+static inline u64 CGXX_GMP_PCS_INTX(u64 a)
 {
 	return 0x30080 + 0x40000 * a;
 }
@@ -4134,9 +4220,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_INTX(u64 a)
  * CGX GMP PCS Interrupt Enable Clear Registers This register clears
  * interrupt enable bits.
  */
-union cavm_cgxx_gmp_pcs_intx_ena_w1c {
+union cgxx_gmp_pcs_intx_ena_w1c {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_intx_ena_w1c_s {
+	struct cgxx_gmp_pcs_intx_ena_w1c_s {
 		u64 lnkspd                           : 1;
 		u64 xmit                             : 1;
 		u64 an_err                           : 1;
@@ -4159,12 +4245,12 @@ union cavm_cgxx_gmp_pcs_intx_ena_w1c {
 		u64 eee_rx_link_fail                 : 1;
 		u64 reserved_23_63                   : 41;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_intx_ena_w1c_s cn; */
+	/* struct cgxx_gmp_pcs_intx_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_INTX_ENA_W1C(u64 a)
+static inline u64 CGXX_GMP_PCS_INTX_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_INTX_ENA_W1C(u64 a)
+static inline u64 CGXX_GMP_PCS_INTX_ENA_W1C(u64 a)
 {
 	return 0x30090 + 0x40000 * a;
 }
@@ -4175,9 +4261,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_INTX_ENA_W1C(u64 a)
  * CGX GMP PCS Interrupt Enable Set Registers This register sets
  * interrupt enable bits.
  */
-union cavm_cgxx_gmp_pcs_intx_ena_w1s {
+union cgxx_gmp_pcs_intx_ena_w1s {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_intx_ena_w1s_s {
+	struct cgxx_gmp_pcs_intx_ena_w1s_s {
 		u64 lnkspd                           : 1;
 		u64 xmit                             : 1;
 		u64 an_err                           : 1;
@@ -4200,12 +4286,12 @@ union cavm_cgxx_gmp_pcs_intx_ena_w1s {
 		u64 eee_rx_link_fail                 : 1;
 		u64 reserved_23_63                   : 41;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_intx_ena_w1s_s cn; */
+	/* struct cgxx_gmp_pcs_intx_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_INTX_ENA_W1S(u64 a)
+static inline u64 CGXX_GMP_PCS_INTX_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_INTX_ENA_W1S(u64 a)
+static inline u64 CGXX_GMP_PCS_INTX_ENA_W1S(u64 a)
 {
 	return 0x30098 + 0x40000 * a;
 }
@@ -4215,9 +4301,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_INTX_ENA_W1S(u64 a)
  *
  * CGX GMP PCS Interrupt Set Registers This register sets interrupt bits.
  */
-union cavm_cgxx_gmp_pcs_intx_w1s {
+union cgxx_gmp_pcs_intx_w1s {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_intx_w1s_s {
+	struct cgxx_gmp_pcs_intx_w1s_s {
 		u64 lnkspd                           : 1;
 		u64 xmit                             : 1;
 		u64 an_err                           : 1;
@@ -4240,12 +4326,12 @@ union cavm_cgxx_gmp_pcs_intx_w1s {
 		u64 eee_rx_link_fail                 : 1;
 		u64 reserved_23_63                   : 41;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_intx_w1s_s cn; */
+	/* struct cgxx_gmp_pcs_intx_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_INTX_W1S(u64 a)
+static inline u64 CGXX_GMP_PCS_INTX_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_INTX_W1S(u64 a)
+static inline u64 CGXX_GMP_PCS_INTX_W1S(u64 a)
 {
 	return 0x30088 + 0x40000 * a;
 }
@@ -4256,18 +4342,18 @@ static inline u64 CAVM_CGXX_GMP_PCS_INTX_W1S(u64 a)
  * CGX GMP PCS Link Timer Registers This is the 1.6 ms nominal link timer
  * register.
  */
-union cavm_cgxx_gmp_pcs_linkx_timer {
+union cgxx_gmp_pcs_linkx_timer {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_linkx_timer_s {
+	struct cgxx_gmp_pcs_linkx_timer_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_linkx_timer_s cn; */
+	/* struct cgxx_gmp_pcs_linkx_timer_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_LINKX_TIMER(u64 a)
+static inline u64 CGXX_GMP_PCS_LINKX_TIMER(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_LINKX_TIMER(u64 a)
+static inline u64 CGXX_GMP_PCS_LINKX_TIMER(u64 a)
 {
 	return 0x30040 + 0x40000 * a;
 }
@@ -4284,9 +4370,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_LINKX_TIMER(u64 a)
  * tx_Config_Reg sent will be 0. The PHY dictates the Auto Negotiation
  * results.
  */
-union cavm_cgxx_gmp_pcs_miscx_ctl {
+union cgxx_gmp_pcs_miscx_ctl {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_miscx_ctl_s {
+	struct cgxx_gmp_pcs_miscx_ctl_s {
 		u64 samp_pt                          : 7;
 		u64 an_ovrd                          : 1;
 		u64 mode                             : 1;
@@ -4300,7 +4386,7 @@ union cavm_cgxx_gmp_pcs_miscx_ctl {
 		u64 qsgmii_comma_wd_en               : 1;
 		u64 reserved_33_63                   : 31;
 	} s;
-	struct cavm_cgxx_gmp_pcs_miscx_ctl_cn {
+	struct cgxx_gmp_pcs_miscx_ctl_cn {
 		u64 samp_pt                          : 7;
 		u64 an_ovrd                          : 1;
 		u64 mode                             : 1;
@@ -4317,9 +4403,9 @@ union cavm_cgxx_gmp_pcs_miscx_ctl {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_MISCX_CTL(u64 a)
+static inline u64 CGXX_GMP_PCS_MISCX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_MISCX_CTL(u64 a)
+static inline u64 CGXX_GMP_PCS_MISCX_CTL(u64 a)
 {
 	return 0x30078 + 0x40000 * a;
 }
@@ -4329,9 +4415,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_MISCX_CTL(u64 a)
  *
  * CGX GMP PCS Control Registers
  */
-union cavm_cgxx_gmp_pcs_mrx_control {
+union cgxx_gmp_pcs_mrx_control {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_mrx_control_s {
+	struct cgxx_gmp_pcs_mrx_control_s {
 		u64 reserved_0_4                     : 5;
 		u64 uni                              : 1;
 		u64 spdmsb                           : 1;
@@ -4346,12 +4432,12 @@ union cavm_cgxx_gmp_pcs_mrx_control {
 		u64 reset                            : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_mrx_control_s cn; */
+	/* struct cgxx_gmp_pcs_mrx_control_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_MRX_CONTROL(u64 a)
+static inline u64 CGXX_GMP_PCS_MRX_CONTROL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_MRX_CONTROL(u64 a)
+static inline u64 CGXX_GMP_PCS_MRX_CONTROL(u64 a)
 {
 	return 0x30000 + 0x40000 * a;
 }
@@ -4365,9 +4451,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_MRX_CONTROL(u64 a)
  * chip cannot operate in the corresponding modes. The field [RM_FLT] is
  * a 'don't care' when the selected mode is SGMII/QSGMII.
  */
-union cavm_cgxx_gmp_pcs_mrx_status {
+union cgxx_gmp_pcs_mrx_status {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_mrx_status_s {
+	struct cgxx_gmp_pcs_mrx_status_s {
 		u64 extnd                            : 1;
 		u64 reserved_1                       : 1;
 		u64 lnk_st                           : 1;
@@ -4386,12 +4472,12 @@ union cavm_cgxx_gmp_pcs_mrx_status {
 		u64 hun_t4                           : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_mrx_status_s cn; */
+	/* struct cgxx_gmp_pcs_mrx_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_MRX_STATUS(u64 a)
+static inline u64 CGXX_GMP_PCS_MRX_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_MRX_STATUS(u64 a)
+static inline u64 CGXX_GMP_PCS_MRX_STATUS(u64 a)
 {
 	return 0x30008 + 0x40000 * a;
 }
@@ -4401,9 +4487,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_MRX_STATUS(u64 a)
  *
  * CGX GMP PCS RX State-Machines States Registers
  */
-union cavm_cgxx_gmp_pcs_rxx_states {
+union cgxx_gmp_pcs_rxx_states {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_rxx_states_s {
+	struct cgxx_gmp_pcs_rxx_states_s {
 		u64 an_st                            : 4;
 		u64 an_bad                           : 1;
 		u64 sync                             : 4;
@@ -4412,12 +4498,12 @@ union cavm_cgxx_gmp_pcs_rxx_states {
 		u64 rx_bad                           : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_rxx_states_s cn; */
+	/* struct cgxx_gmp_pcs_rxx_states_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_RXX_STATES(u64 a)
+static inline u64 CGXX_GMP_PCS_RXX_STATES(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_RXX_STATES(u64 a)
+static inline u64 CGXX_GMP_PCS_RXX_STATES(u64 a)
 {
 	return 0x30058 + 0x40000 * a;
 }
@@ -4427,19 +4513,19 @@ static inline u64 CAVM_CGXX_GMP_PCS_RXX_STATES(u64 a)
  *
  * CGX GMP PCS Code Group Synchronization Registers
  */
-union cavm_cgxx_gmp_pcs_rxx_sync {
+union cgxx_gmp_pcs_rxx_sync {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_rxx_sync_s {
+	struct cgxx_gmp_pcs_rxx_sync_s {
 		u64 bit_lock                         : 1;
 		u64 sync                             : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_rxx_sync_s cn; */
+	/* struct cgxx_gmp_pcs_rxx_sync_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_RXX_SYNC(u64 a)
+static inline u64 CGXX_GMP_PCS_RXX_SYNC(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_RXX_SYNC(u64 a)
+static inline u64 CGXX_GMP_PCS_RXX_SYNC(u64 a)
 {
 	return 0x30050 + 0x40000 * a;
 }
@@ -4456,9 +4542,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_RXX_SYNC(u64 a)
  * tx_Config_Reg\<0\> is always 1. All other bits in tx_Config_Reg sent
  * will be 0. The PHY dictates the autonegotiation results.
  */
-union cavm_cgxx_gmp_pcs_sgmx_an_adv {
+union cgxx_gmp_pcs_sgmx_an_adv {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_sgmx_an_adv_s {
+	struct cgxx_gmp_pcs_sgmx_an_adv_s {
 		u64 one                              : 1;
 		u64 reserved_1_9                     : 9;
 		u64 speed                            : 2;
@@ -4468,12 +4554,12 @@ union cavm_cgxx_gmp_pcs_sgmx_an_adv {
 		u64 link                             : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_sgmx_an_adv_s cn; */
+	/* struct cgxx_gmp_pcs_sgmx_an_adv_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_SGMX_AN_ADV(u64 a)
+static inline u64 CGXX_GMP_PCS_SGMX_AN_ADV(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_SGMX_AN_ADV(u64 a)
+static inline u64 CGXX_GMP_PCS_SGMX_AN_ADV(u64 a)
 {
 	return 0x30068 + 0x40000 * a;
 }
@@ -4485,9 +4571,9 @@ static inline u64 CAVM_CGXX_GMP_PCS_SGMX_AN_ADV(u64 a)
  * SGMII link partner advertisement register (received as
  * rx_Config_Reg\<15:0\> as defined in IEEE 802.3 clause 37).
  */
-union cavm_cgxx_gmp_pcs_sgmx_lp_adv {
+union cgxx_gmp_pcs_sgmx_lp_adv {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_sgmx_lp_adv_s {
+	struct cgxx_gmp_pcs_sgmx_lp_adv_s {
 		u64 one                              : 1;
 		u64 reserved_1_9                     : 9;
 		u64 speed                            : 2;
@@ -4496,7 +4582,7 @@ union cavm_cgxx_gmp_pcs_sgmx_lp_adv {
 		u64 link                             : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	struct cavm_cgxx_gmp_pcs_sgmx_lp_adv_cn {
+	struct cgxx_gmp_pcs_sgmx_lp_adv_cn {
 		u64 one                              : 1;
 		u64 reserved_1_9                     : 9;
 		u64 speed                            : 2;
@@ -4508,9 +4594,9 @@ union cavm_cgxx_gmp_pcs_sgmx_lp_adv {
 	} cn;
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_SGMX_LP_ADV(u64 a)
+static inline u64 CGXX_GMP_PCS_SGMX_LP_ADV(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_SGMX_LP_ADV(u64 a)
+static inline u64 CGXX_GMP_PCS_SGMX_LP_ADV(u64 a)
 {
 	return 0x30070 + 0x40000 * a;
 }
@@ -4520,20 +4606,20 @@ static inline u64 CAVM_CGXX_GMP_PCS_SGMX_LP_ADV(u64 a)
  *
  * CGX GMP PCS TX State-Machines States Registers
  */
-union cavm_cgxx_gmp_pcs_txx_states {
+union cgxx_gmp_pcs_txx_states {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_txx_states_s {
+	struct cgxx_gmp_pcs_txx_states_s {
 		u64 ord_st                           : 4;
 		u64 tx_bad                           : 1;
 		u64 xmit                             : 2;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_txx_states_s cn; */
+	/* struct cgxx_gmp_pcs_txx_states_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_TXX_STATES(u64 a)
+static inline u64 CGXX_GMP_PCS_TXX_STATES(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_TXX_STATES(u64 a)
+static inline u64 CGXX_GMP_PCS_TXX_STATES(u64 a)
 {
 	return 0x30060 + 0x40000 * a;
 }
@@ -4547,21 +4633,21 @@ static inline u64 CAVM_CGXX_GMP_PCS_TXX_STATES(u64 a)
  * When LMAC_TYPE=QSGMII, only lane 0 polarity data and settings are
  * relevant and settings for lanes 1, 2 and 3 are unused.
  */
-union cavm_cgxx_gmp_pcs_tx_rxx_polarity {
+union cgxx_gmp_pcs_tx_rxx_polarity {
 	u64 u;
-	struct cavm_cgxx_gmp_pcs_tx_rxx_polarity_s {
+	struct cgxx_gmp_pcs_tx_rxx_polarity_s {
 		u64 txplrt                           : 1;
 		u64 rxplrt                           : 1;
 		u64 autorxpl                         : 1;
 		u64 rxovrd                           : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_cgxx_gmp_pcs_tx_rxx_polarity_s cn; */
+	/* struct cgxx_gmp_pcs_tx_rxx_polarity_s cn; */
 };
 
-static inline u64 CAVM_CGXX_GMP_PCS_TX_RXX_POLARITY(u64 a)
+static inline u64 CGXX_GMP_PCS_TX_RXX_POLARITY(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_GMP_PCS_TX_RXX_POLARITY(u64 a)
+static inline u64 CGXX_GMP_PCS_TX_RXX_POLARITY(u64 a)
 {
 	return 0x30048 + 0x40000 * a;
 }
@@ -4572,17 +4658,17 @@ static inline u64 CAVM_CGXX_GMP_PCS_TX_RXX_POLARITY(u64 a)
  * CGX MSI-X Pending Bit Array Registers This register is the MSI-X PBA
  * table, the bit number is indexed by the CGX_INT_VEC_E enumeration.
  */
-union cavm_cgxx_msix_pbax {
+union cgxx_msix_pbax {
 	u64 u;
-	struct cavm_cgxx_msix_pbax_s {
+	struct cgxx_msix_pbax_s {
 		u64 pend                             : 64;
 	} s;
-	/* struct cavm_cgxx_msix_pbax_s cn; */
+	/* struct cgxx_msix_pbax_s cn; */
 };
 
-static inline u64 CAVM_CGXX_MSIX_PBAX(u64 a)
+static inline u64 CGXX_MSIX_PBAX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_MSIX_PBAX(u64 a)
+static inline u64 CGXX_MSIX_PBAX(u64 a)
 {
 	return 0xf0000 + 8 * a;
 }
@@ -4593,20 +4679,20 @@ static inline u64 CAVM_CGXX_MSIX_PBAX(u64 a)
  * CGX MSI-X Vector Table Address Registers This register is the MSI-X
  * vector table, indexed by the CGX_INT_VEC_E enumeration.
  */
-union cavm_cgxx_msix_vecx_addr {
+union cgxx_msix_vecx_addr {
 	u64 u;
-	struct cavm_cgxx_msix_vecx_addr_s {
+	struct cgxx_msix_vecx_addr_s {
 		u64 secvec                           : 1;
 		u64 reserved_1                       : 1;
 		u64 addr                             : 51;
 		u64 reserved_53_63                   : 11;
 	} s;
-	/* struct cavm_cgxx_msix_vecx_addr_s cn; */
+	/* struct cgxx_msix_vecx_addr_s cn; */
 };
 
-static inline u64 CAVM_CGXX_MSIX_VECX_ADDR(u64 a)
+static inline u64 CGXX_MSIX_VECX_ADDR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_MSIX_VECX_ADDR(u64 a)
+static inline u64 CGXX_MSIX_VECX_ADDR(u64 a)
 {
 	return 0 + 0x10 * a;
 }
@@ -4617,19 +4703,19 @@ static inline u64 CAVM_CGXX_MSIX_VECX_ADDR(u64 a)
  * CGX MSI-X Vector Table Control and Data Registers This register is the
  * MSI-X vector table, indexed by the CGX_INT_VEC_E enumeration.
  */
-union cavm_cgxx_msix_vecx_ctl {
+union cgxx_msix_vecx_ctl {
 	u64 u;
-	struct cavm_cgxx_msix_vecx_ctl_s {
+	struct cgxx_msix_vecx_ctl_s {
 		u64 data                             : 32;
 		u64 mask                             : 1;
 		u64 reserved_33_63                   : 31;
 	} s;
-	/* struct cavm_cgxx_msix_vecx_ctl_s cn; */
+	/* struct cgxx_msix_vecx_ctl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_MSIX_VECX_CTL(u64 a)
+static inline u64 CGXX_MSIX_VECX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_MSIX_VECX_CTL(u64 a)
+static inline u64 CGXX_MSIX_VECX_CTL(u64 a)
 {
 	return 8 + 0x10 * a;
 }
@@ -4639,9 +4725,9 @@ static inline u64 CAVM_CGXX_MSIX_VECX_CTL(u64 a)
  *
  * INTERNAL: CGX SMU TX Backpressure Test Registers
  */
-union cavm_cgxx_smux_bp_test {
+union cgxx_smux_bp_test {
 	u64 u;
-	struct cavm_cgxx_smux_bp_test_s {
+	struct cgxx_smux_bp_test_s {
 		u64 lfsr_freq                        : 12;
 		u64 reserved_12_15                   : 4;
 		u64 bp_cfg                           : 8;
@@ -4649,12 +4735,12 @@ union cavm_cgxx_smux_bp_test {
 		u64 enable                           : 4;
 		u64 reserved_52_63                   : 12;
 	} s;
-	/* struct cavm_cgxx_smux_bp_test_s cn; */
+	/* struct cgxx_smux_bp_test_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_BP_TEST(u64 a)
+static inline u64 CGXX_SMUX_BP_TEST(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_BP_TEST(u64 a)
+static inline u64 CGXX_SMUX_BP_TEST(u64 a)
 {
 	return 0x20230 + 0x40000 * a;
 }
@@ -4666,9 +4752,9 @@ static inline u64 CAVM_CGXX_SMUX_BP_TEST(u64 a)
  * class/channel \<i\> is XOFF\<i\> = ([PHYS_EN]\<i\> & cmr_rx_phys_bp) |
  * ([LOGL_EN]\<i\> & cmr_rx_logl_xoff\<i\>).
  */
-union cavm_cgxx_smux_cbfc_ctl {
+union cgxx_smux_cbfc_ctl {
 	u64 u;
-	struct cavm_cgxx_smux_cbfc_ctl_s {
+	struct cgxx_smux_cbfc_ctl_s {
 		u64 rx_en                            : 1;
 		u64 tx_en                            : 1;
 		u64 drp_en                           : 1;
@@ -4677,12 +4763,12 @@ union cavm_cgxx_smux_cbfc_ctl {
 		u64 logl_en                          : 16;
 		u64 phys_en                          : 16;
 	} s;
-	/* struct cavm_cgxx_smux_cbfc_ctl_s cn; */
+	/* struct cgxx_smux_cbfc_ctl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_CBFC_CTL(u64 a)
+static inline u64 CGXX_SMUX_CBFC_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_CBFC_CTL(u64 a)
+static inline u64 CGXX_SMUX_CBFC_CTL(u64 a)
 {
 	return 0x20218 + 0x40000 * a;
 }
@@ -4692,19 +4778,19 @@ static inline u64 CAVM_CGXX_SMUX_CBFC_CTL(u64 a)
  *
  * CGX SMU Control Registers
  */
-union cavm_cgxx_smux_ctrl {
+union cgxx_smux_ctrl {
 	u64 u;
-	struct cavm_cgxx_smux_ctrl_s {
+	struct cgxx_smux_ctrl_s {
 		u64 rx_idle                          : 1;
 		u64 tx_idle                          : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_cgxx_smux_ctrl_s cn; */
+	/* struct cgxx_smux_ctrl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_CTRL(u64 a)
+static inline u64 CGXX_SMUX_CTRL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_CTRL(u64 a)
+static inline u64 CGXX_SMUX_CTRL(u64 a)
 {
 	return 0x20200 + 0x40000 * a;
 }
@@ -4716,9 +4802,9 @@ static inline u64 CAVM_CGXX_SMUX_CTRL(u64 a)
  * local and remote parties must match exactly; otherwise loopback FIFO
  * will overrun: CGX()_SMU()_TX_INT[LB_OVRFLW].
  */
-union cavm_cgxx_smux_ext_loopback {
+union cgxx_smux_ext_loopback {
 	u64 u;
-	struct cavm_cgxx_smux_ext_loopback_s {
+	struct cgxx_smux_ext_loopback_s {
 		u64 thresh                           : 6;
 		u64 reserved_6_7                     : 2;
 		u64 depth                            : 6;
@@ -4726,12 +4812,12 @@ union cavm_cgxx_smux_ext_loopback {
 		u64 en                               : 1;
 		u64 reserved_17_63                   : 47;
 	} s;
-	/* struct cavm_cgxx_smux_ext_loopback_s cn; */
+	/* struct cgxx_smux_ext_loopback_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_EXT_LOOPBACK(u64 a)
+static inline u64 CGXX_SMUX_EXT_LOOPBACK(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_EXT_LOOPBACK(u64 a)
+static inline u64 CGXX_SMUX_EXT_LOOPBACK(u64 a)
 {
 	return 0x20208 + 0x40000 * a;
 }
@@ -4757,21 +4843,21 @@ static inline u64 CAVM_CGXX_SMUX_EXT_LOOPBACK(u64 a)
  * Hardware can only autogenerate backpressure via HiGig2 messages
  * (optionally, when [HG2TX_EN] = 1) with the HiGig2 protocol.
  */
-union cavm_cgxx_smux_hg2_control {
+union cgxx_smux_hg2_control {
 	u64 u;
-	struct cavm_cgxx_smux_hg2_control_s {
+	struct cgxx_smux_hg2_control_s {
 		u64 logl_en                          : 16;
 		u64 phys_en                          : 1;
 		u64 hg2rx_en                         : 1;
 		u64 hg2tx_en                         : 1;
 		u64 reserved_19_63                   : 45;
 	} s;
-	/* struct cavm_cgxx_smux_hg2_control_s cn; */
+	/* struct cgxx_smux_hg2_control_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_HG2_CONTROL(u64 a)
+static inline u64 CGXX_SMUX_HG2_CONTROL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_HG2_CONTROL(u64 a)
+static inline u64 CGXX_SMUX_HG2_CONTROL(u64 a)
 {
 	return 0x20210 + 0x40000 * a;
 }
@@ -4783,9 +4869,9 @@ static inline u64 CAVM_CGXX_SMUX_HG2_CONTROL(u64 a)
  * MMSI control and status registers for frame preemption mode. Refer to
  * IEEE 802.3br, Clause 99.
  */
-union cavm_cgxx_smux_mmsi_ctl_sta {
+union cgxx_smux_mmsi_ctl_sta {
 	u64 u;
-	struct cavm_cgxx_smux_mmsi_ctl_sta_s {
+	struct cgxx_smux_mmsi_ctl_sta_s {
 		u64 p_en                             : 1;
 		u64 dis_v                            : 1;
 		u64 afs                              : 2;
@@ -4795,12 +4881,12 @@ union cavm_cgxx_smux_mmsi_ctl_sta {
 		u64 v_time                           : 24;
 		u64 reserved_56_63                   : 8;
 	} s;
-	/* struct cavm_cgxx_smux_mmsi_ctl_sta_s cn; */
+	/* struct cgxx_smux_mmsi_ctl_sta_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_MMSI_CTL_STA(u64 a)
+static inline u64 CGXX_SMUX_MMSI_CTL_STA(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_MMSI_CTL_STA(u64 a)
+static inline u64 CGXX_SMUX_MMSI_CTL_STA(u64 a)
 {
 	return 0x20220 + 0x40000 * a;
 }
@@ -4810,20 +4896,20 @@ static inline u64 CAVM_CGXX_SMUX_MMSI_CTL_STA(u64 a)
  *
  * CGX SMU RX Bad Column High Registers
  */
-union cavm_cgxx_smux_rx_bad_col_ctrl {
+union cgxx_smux_rx_bad_col_ctrl {
 	u64 u;
-	struct cavm_cgxx_smux_rx_bad_col_ctrl_s {
+	struct cgxx_smux_rx_bad_col_ctrl_s {
 		u64 lane_rxc                         : 16;
 		u64 state                            : 3;
 		u64 val                              : 1;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_cgxx_smux_rx_bad_col_ctrl_s cn; */
+	/* struct cgxx_smux_rx_bad_col_ctrl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_BAD_COL_CTRL(u64 a)
+static inline u64 CGXX_SMUX_RX_BAD_COL_CTRL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_BAD_COL_CTRL(u64 a)
+static inline u64 CGXX_SMUX_RX_BAD_COL_CTRL(u64 a)
 {
 	return 0x20060 + 0x40000 * a;
 }
@@ -4833,17 +4919,17 @@ static inline u64 CAVM_CGXX_SMUX_RX_BAD_COL_CTRL(u64 a)
  *
  * CGX SMU RX Bad Column Low Registers
  */
-union cavm_cgxx_smux_rx_bad_col_data_hi {
+union cgxx_smux_rx_bad_col_data_hi {
 	u64 u;
-	struct cavm_cgxx_smux_rx_bad_col_data_hi_s {
+	struct cgxx_smux_rx_bad_col_data_hi_s {
 		u64 lane_rxd                         : 64;
 	} s;
-	/* struct cavm_cgxx_smux_rx_bad_col_data_hi_s cn; */
+	/* struct cgxx_smux_rx_bad_col_data_hi_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_BAD_COL_DATA_HI(u64 a)
+static inline u64 CGXX_SMUX_RX_BAD_COL_DATA_HI(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_BAD_COL_DATA_HI(u64 a)
+static inline u64 CGXX_SMUX_RX_BAD_COL_DATA_HI(u64 a)
 {
 	return 0x20058 + 0x40000 * a;
 }
@@ -4853,17 +4939,17 @@ static inline u64 CAVM_CGXX_SMUX_RX_BAD_COL_DATA_HI(u64 a)
  *
  * CGX SMU RX Bad Column Low Registers
  */
-union cavm_cgxx_smux_rx_bad_col_data_lo {
+union cgxx_smux_rx_bad_col_data_lo {
 	u64 u;
-	struct cavm_cgxx_smux_rx_bad_col_data_lo_s {
+	struct cgxx_smux_rx_bad_col_data_lo_s {
 		u64 lane_rxd                         : 64;
 	} s;
-	/* struct cavm_cgxx_smux_rx_bad_col_data_lo_s cn; */
+	/* struct cgxx_smux_rx_bad_col_data_lo_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_BAD_COL_DATA_LO(u64 a)
+static inline u64 CGXX_SMUX_RX_BAD_COL_DATA_LO(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_BAD_COL_DATA_LO(u64 a)
+static inline u64 CGXX_SMUX_RX_BAD_COL_DATA_LO(u64 a)
 {
 	return 0x20050 + 0x40000 * a;
 }
@@ -4873,18 +4959,18 @@ static inline u64 CAVM_CGXX_SMUX_RX_BAD_COL_DATA_LO(u64 a)
  *
  * CGX SMU RX Control Registers
  */
-union cavm_cgxx_smux_rx_ctl {
+union cgxx_smux_rx_ctl {
 	u64 u;
-	struct cavm_cgxx_smux_rx_ctl_s {
+	struct cgxx_smux_rx_ctl_s {
 		u64 status                           : 2;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_cgxx_smux_rx_ctl_s cn; */
+	/* struct cgxx_smux_rx_ctl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_CTL(u64 a)
+static inline u64 CGXX_SMUX_RX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_CTL(u64 a)
+static inline u64 CGXX_SMUX_RX_CTL(u64 a)
 {
 	return 0x20048 + 0x40000 * a;
 }
@@ -4900,18 +4986,18 @@ static inline u64 CAVM_CGXX_SMUX_RX_CTL(u64 a)
  * the PREAMBLE + SFD (CGX()_SMU()_RX_FRM_CTL[PRE_CHK] = 1) and any
  * optional UDD skip data (CGX()_SMU()_RX_UDD_SKP[LEN]).
  */
-union cavm_cgxx_smux_rx_decision {
+union cgxx_smux_rx_decision {
 	u64 u;
-	struct cavm_cgxx_smux_rx_decision_s {
+	struct cgxx_smux_rx_decision_s {
 		u64 cnt                              : 5;
 		u64 reserved_5_63                    : 59;
 	} s;
-	/* struct cavm_cgxx_smux_rx_decision_s cn; */
+	/* struct cgxx_smux_rx_decision_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_DECISION(u64 a)
+static inline u64 CGXX_SMUX_RX_DECISION(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_DECISION(u64 a)
+static inline u64 CGXX_SMUX_RX_DECISION(u64 a)
 {
 	return 0x20038 + 0x40000 * a;
 }
@@ -4922,9 +5008,9 @@ static inline u64 CAVM_CGXX_SMUX_RX_DECISION(u64 a)
  * CGX SMU RX Frame Check Registers The CSRs provide the enable bits for
  * a subset of errors passed to CMR encoded.
  */
-union cavm_cgxx_smux_rx_frm_chk {
+union cgxx_smux_rx_frm_chk {
 	u64 u;
-	struct cavm_cgxx_smux_rx_frm_chk_s {
+	struct cgxx_smux_rx_frm_chk_s {
 		u64 reserved_0_2                     : 3;
 		u64 jabber                           : 1;
 		u64 fcserr_d                         : 1;
@@ -4934,12 +5020,12 @@ union cavm_cgxx_smux_rx_frm_chk {
 		u64 skperr                           : 1;
 		u64 reserved_9_63                    : 55;
 	} s;
-	/* struct cavm_cgxx_smux_rx_frm_chk_s cn; */
+	/* struct cgxx_smux_rx_frm_chk_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_FRM_CHK(u64 a)
+static inline u64 CGXX_SMUX_RX_FRM_CHK(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_FRM_CHK(u64 a)
+static inline u64 CGXX_SMUX_RX_FRM_CHK(u64 a)
 {
 	return 0x20028 + 0x40000 * a;
 }
@@ -4959,9 +5045,9 @@ static inline u64 CAVM_CGXX_SMUX_RX_FRM_CHK(u64 a)
  * be handled by the processing cores. PAUSE packets should not be
  * forwarded.
  */
-union cavm_cgxx_smux_rx_frm_ctl {
+union cgxx_smux_rx_frm_ctl {
 	u64 u;
-	struct cavm_cgxx_smux_rx_frm_ctl_s {
+	struct cgxx_smux_rx_frm_ctl_s {
 		u64 pre_chk                          : 1;
 		u64 pre_strp                         : 1;
 		u64 ctl_drp                          : 1;
@@ -4972,12 +5058,12 @@ union cavm_cgxx_smux_rx_frm_ctl {
 		u64 ptp_mode                         : 1;
 		u64 reserved_13_63                   : 51;
 	} s;
-	/* struct cavm_cgxx_smux_rx_frm_ctl_s cn; */
+	/* struct cgxx_smux_rx_frm_ctl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_FRM_CTL(u64 a)
+static inline u64 CGXX_SMUX_RX_FRM_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_FRM_CTL(u64 a)
+static inline u64 CGXX_SMUX_RX_FRM_CTL(u64 a)
 {
 	return 0x20020 + 0x40000 * a;
 }
@@ -4990,9 +5076,9 @@ static inline u64 CAVM_CGXX_SMUX_RX_FRM_CTL(u64 a)
  * the received packet's work queue entry. CGX()_SMU()_RX_FRM_CHK
  * provides a bit mask for configuring which conditions set the error.
  */
-union cavm_cgxx_smux_rx_int {
+union cgxx_smux_rx_int {
 	u64 u;
-	struct cavm_cgxx_smux_rx_int_s {
+	struct cgxx_smux_rx_int_s {
 		u64 jabber                           : 1;
 		u64 fcserr                           : 1;
 		u64 rcverr                           : 1;
@@ -5009,12 +5095,12 @@ union cavm_cgxx_smux_rx_int {
 		u64 badrsp                           : 1;
 		u64 reserved_14_63                   : 50;
 	} s;
-	/* struct cavm_cgxx_smux_rx_int_s cn; */
+	/* struct cgxx_smux_rx_int_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_INT(u64 a)
+static inline u64 CGXX_SMUX_RX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_INT(u64 a)
+static inline u64 CGXX_SMUX_RX_INT(u64 a)
 {
 	return 0x20000 + 0x40000 * a;
 }
@@ -5025,9 +5111,9 @@ static inline u64 CAVM_CGXX_SMUX_RX_INT(u64 a)
  * CGX SMU Receive Interrupt Enable Clear Registers This register clears
  * interrupt enable bits.
  */
-union cavm_cgxx_smux_rx_int_ena_w1c {
+union cgxx_smux_rx_int_ena_w1c {
 	u64 u;
-	struct cavm_cgxx_smux_rx_int_ena_w1c_s {
+	struct cgxx_smux_rx_int_ena_w1c_s {
 		u64 jabber                           : 1;
 		u64 fcserr                           : 1;
 		u64 rcverr                           : 1;
@@ -5044,12 +5130,12 @@ union cavm_cgxx_smux_rx_int_ena_w1c {
 		u64 badrsp                           : 1;
 		u64 reserved_14_63                   : 50;
 	} s;
-	/* struct cavm_cgxx_smux_rx_int_ena_w1c_s cn; */
+	/* struct cgxx_smux_rx_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_SMUX_RX_INT_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_SMUX_RX_INT_ENA_W1C(u64 a)
 {
 	return 0x20010 + 0x40000 * a;
 }
@@ -5060,9 +5146,9 @@ static inline u64 CAVM_CGXX_SMUX_RX_INT_ENA_W1C(u64 a)
  * CGX SMU Receive Interrupt Enable Set Registers This register sets
  * interrupt enable bits.
  */
-union cavm_cgxx_smux_rx_int_ena_w1s {
+union cgxx_smux_rx_int_ena_w1s {
 	u64 u;
-	struct cavm_cgxx_smux_rx_int_ena_w1s_s {
+	struct cgxx_smux_rx_int_ena_w1s_s {
 		u64 jabber                           : 1;
 		u64 fcserr                           : 1;
 		u64 rcverr                           : 1;
@@ -5079,12 +5165,12 @@ union cavm_cgxx_smux_rx_int_ena_w1s {
 		u64 badrsp                           : 1;
 		u64 reserved_14_63                   : 50;
 	} s;
-	/* struct cavm_cgxx_smux_rx_int_ena_w1s_s cn; */
+	/* struct cgxx_smux_rx_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_SMUX_RX_INT_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_SMUX_RX_INT_ENA_W1S(u64 a)
 {
 	return 0x20018 + 0x40000 * a;
 }
@@ -5095,9 +5181,9 @@ static inline u64 CAVM_CGXX_SMUX_RX_INT_ENA_W1S(u64 a)
  * CGX SMU Receive Interrupt Set Registers This register sets interrupt
  * bits.
  */
-union cavm_cgxx_smux_rx_int_w1s {
+union cgxx_smux_rx_int_w1s {
 	u64 u;
-	struct cavm_cgxx_smux_rx_int_w1s_s {
+	struct cgxx_smux_rx_int_w1s_s {
 		u64 jabber                           : 1;
 		u64 fcserr                           : 1;
 		u64 rcverr                           : 1;
@@ -5114,12 +5200,12 @@ union cavm_cgxx_smux_rx_int_w1s {
 		u64 badrsp                           : 1;
 		u64 reserved_14_63                   : 50;
 	} s;
-	/* struct cavm_cgxx_smux_rx_int_w1s_s cn; */
+	/* struct cgxx_smux_rx_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_INT_W1S(u64 a)
+static inline u64 CGXX_SMUX_RX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_INT_W1S(u64 a)
+static inline u64 CGXX_SMUX_RX_INT_W1S(u64 a)
 {
 	return 0x20008 + 0x40000 * a;
 }
@@ -5133,18 +5219,18 @@ static inline u64 CAVM_CGXX_SMUX_RX_INT_W1S(u64 a)
  * checking is performed before preamble is stripped or PTP is inserted.
  * If present, preamble is counted as eight bytes of the incoming packet.
  */
-union cavm_cgxx_smux_rx_jabber {
+union cgxx_smux_rx_jabber {
 	u64 u;
-	struct cavm_cgxx_smux_rx_jabber_s {
+	struct cgxx_smux_rx_jabber_s {
 		u64 cnt                              : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_smux_rx_jabber_s cn; */
+	/* struct cgxx_smux_rx_jabber_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_JABBER(u64 a)
+static inline u64 CGXX_SMUX_RX_JABBER(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_JABBER(u64 a)
+static inline u64 CGXX_SMUX_RX_JABBER(u64 a)
 {
 	return 0x20030 + 0x40000 * a;
 }
@@ -5165,20 +5251,20 @@ static inline u64 CAVM_CGXX_SMUX_RX_JABBER(u64 a)
  * UDD bytes will be sent down the packet interface as part of the
  * packet.  The UDD bytes are never stripped from the actual packet.
  */
-union cavm_cgxx_smux_rx_udd_skp {
+union cgxx_smux_rx_udd_skp {
 	u64 u;
-	struct cavm_cgxx_smux_rx_udd_skp_s {
+	struct cgxx_smux_rx_udd_skp_s {
 		u64 len                              : 7;
 		u64 reserved_7                       : 1;
 		u64 fcssel                           : 1;
 		u64 reserved_9_63                    : 55;
 	} s;
-	/* struct cavm_cgxx_smux_rx_udd_skp_s cn; */
+	/* struct cgxx_smux_rx_udd_skp_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_UDD_SKP(u64 a)
+static inline u64 CGXX_SMUX_RX_UDD_SKP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_UDD_SKP(u64 a)
+static inline u64 CGXX_SMUX_RX_UDD_SKP(u64 a)
 {
 	return 0x20040 + 0x40000 * a;
 }
@@ -5188,19 +5274,19 @@ static inline u64 CAVM_CGXX_SMUX_RX_UDD_SKP(u64 a)
  *
  * CGX SMU RX Wake-on-LAN Control 0 Registers
  */
-union cavm_cgxx_smux_rx_wol_ctrl0 {
+union cgxx_smux_rx_wol_ctrl0 {
 	u64 u;
-	struct cavm_cgxx_smux_rx_wol_ctrl0_s {
+	struct cgxx_smux_rx_wol_ctrl0_s {
 		u64 dmac                             : 48;
 		u64 pswd_len                         : 4;
 		u64 reserved_52_63                   : 12;
 	} s;
-	/* struct cavm_cgxx_smux_rx_wol_ctrl0_s cn; */
+	/* struct cgxx_smux_rx_wol_ctrl0_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_CTRL0(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_CTRL0(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_CTRL0(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_CTRL0(u64 a)
 {
 	return 0x20068 + 0x40000 * a;
 }
@@ -5210,17 +5296,17 @@ static inline u64 CAVM_CGXX_SMUX_RX_WOL_CTRL0(u64 a)
  *
  * CGX SMU RX Wake-on-LAN Control 1 Registers
  */
-union cavm_cgxx_smux_rx_wol_ctrl1 {
+union cgxx_smux_rx_wol_ctrl1 {
 	u64 u;
-	struct cavm_cgxx_smux_rx_wol_ctrl1_s {
+	struct cgxx_smux_rx_wol_ctrl1_s {
 		u64 pswd                             : 64;
 	} s;
-	/* struct cavm_cgxx_smux_rx_wol_ctrl1_s cn; */
+	/* struct cgxx_smux_rx_wol_ctrl1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_CTRL1(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_CTRL1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_CTRL1(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_CTRL1(u64 a)
 {
 	return 0x20070 + 0x40000 * a;
 }
@@ -5231,18 +5317,18 @@ static inline u64 CAVM_CGXX_SMUX_RX_WOL_CTRL1(u64 a)
  * CGX SMU RX WOL Interrupt Registers These registers allow WOL
  * interrupts to be sent to the control processor.
  */
-union cavm_cgxx_smux_rx_wol_int {
+union cgxx_smux_rx_wol_int {
 	u64 u;
-	struct cavm_cgxx_smux_rx_wol_int_s {
+	struct cgxx_smux_rx_wol_int_s {
 		u64 wol_rcvd                         : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_smux_rx_wol_int_s cn; */
+	/* struct cgxx_smux_rx_wol_int_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_INT(u64 a)
 {
 	return 0x20078 + 0x40000 * a;
 }
@@ -5253,18 +5339,18 @@ static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT(u64 a)
  * CGX SMU RX WOL Interrupt Enable Clear Registers This register clears
  * interrupt enable bits.
  */
-union cavm_cgxx_smux_rx_wol_int_ena_w1c {
+union cgxx_smux_rx_wol_int_ena_w1c {
 	u64 u;
-	struct cavm_cgxx_smux_rx_wol_int_ena_w1c_s {
+	struct cgxx_smux_rx_wol_int_ena_w1c_s {
 		u64 wol_rcvd                         : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_smux_rx_wol_int_ena_w1c_s cn; */
+	/* struct cgxx_smux_rx_wol_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_INT_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_INT_ENA_W1C(u64 a)
 {
 	return 0x20088 + 0x40000 * a;
 }
@@ -5275,18 +5361,18 @@ static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_ENA_W1C(u64 a)
  * CGX SMU RX WOL Interrupt Enable Set Registers This register sets
  * interrupt enable bits.
  */
-union cavm_cgxx_smux_rx_wol_int_ena_w1s {
+union cgxx_smux_rx_wol_int_ena_w1s {
 	u64 u;
-	struct cavm_cgxx_smux_rx_wol_int_ena_w1s_s {
+	struct cgxx_smux_rx_wol_int_ena_w1s_s {
 		u64 wol_rcvd                         : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_smux_rx_wol_int_ena_w1s_s cn; */
+	/* struct cgxx_smux_rx_wol_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_INT_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_INT_ENA_W1S(u64 a)
 {
 	return 0x20090 + 0x40000 * a;
 }
@@ -5297,18 +5383,18 @@ static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_ENA_W1S(u64 a)
  * CGX SMU RX WOL Interrupt Set Registers This register sets interrupt
  * bits.
  */
-union cavm_cgxx_smux_rx_wol_int_w1s {
+union cgxx_smux_rx_wol_int_w1s {
 	u64 u;
-	struct cavm_cgxx_smux_rx_wol_int_w1s_s {
+	struct cgxx_smux_rx_wol_int_w1s_s {
 		u64 wol_rcvd                         : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_smux_rx_wol_int_w1s_s cn; */
+	/* struct cgxx_smux_rx_wol_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_W1S(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_W1S(u64 a)
+static inline u64 CGXX_SMUX_RX_WOL_INT_W1S(u64 a)
 {
 	return 0x20080 + 0x40000 * a;
 }
@@ -5318,18 +5404,18 @@ static inline u64 CAVM_CGXX_SMUX_RX_WOL_INT_W1S(u64 a)
  *
  * CGX SMU SMAC Registers
  */
-union cavm_cgxx_smux_smac {
+union cgxx_smux_smac {
 	u64 u;
-	struct cavm_cgxx_smux_smac_s {
+	struct cgxx_smux_smac_s {
 		u64 smac                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_smux_smac_s cn; */
+	/* struct cgxx_smux_smac_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_SMAC(u64 a)
+static inline u64 CGXX_SMUX_SMAC(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_SMAC(u64 a)
+static inline u64 CGXX_SMUX_SMAC(u64 a)
 {
 	return 0x20108 + 0x40000 * a;
 }
@@ -5341,21 +5427,21 @@ static inline u64 CAVM_CGXX_SMUX_SMAC(u64 a)
  * interactions between FCS and PAD, see also the description of
  * CGX()_SMU()_TX_MIN_PKT[MIN_SIZE].
  */
-union cavm_cgxx_smux_tx_append {
+union cgxx_smux_tx_append {
 	u64 u;
-	struct cavm_cgxx_smux_tx_append_s {
+	struct cgxx_smux_tx_append_s {
 		u64 preamble                         : 1;
 		u64 pad                              : 1;
 		u64 fcs_d                            : 1;
 		u64 fcs_c                            : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_cgxx_smux_tx_append_s cn; */
+	/* struct cgxx_smux_tx_append_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_APPEND(u64 a)
+static inline u64 CGXX_SMUX_TX_APPEND(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_APPEND(u64 a)
+static inline u64 CGXX_SMUX_TX_APPEND(u64 a)
 {
 	return 0x20100 + 0x40000 * a;
 }
@@ -5365,9 +5451,9 @@ static inline u64 CAVM_CGXX_SMUX_TX_APPEND(u64 a)
  *
  * CGX SMU Transmit Control Registers
  */
-union cavm_cgxx_smux_tx_ctl {
+union cgxx_smux_tx_ctl {
 	u64 u;
-	struct cavm_cgxx_smux_tx_ctl_s {
+	struct cgxx_smux_tx_ctl_s {
 		u64 dic_en                           : 1;
 		u64 uni_en                           : 1;
 		u64 x4a_dis                          : 1;
@@ -5379,12 +5465,12 @@ union cavm_cgxx_smux_tx_ctl {
 		u64 hg_pause_hgi                     : 2;
 		u64 reserved_11_63                   : 53;
 	} s;
-	/* struct cavm_cgxx_smux_tx_ctl_s cn; */
+	/* struct cgxx_smux_tx_ctl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_CTL(u64 a)
+static inline u64 CGXX_SMUX_TX_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_CTL(u64 a)
+static inline u64 CGXX_SMUX_TX_CTL(u64 a)
 {
 	return 0x20178 + 0x40000 * a;
 }
@@ -5394,18 +5480,18 @@ static inline u64 CAVM_CGXX_SMUX_TX_CTL(u64 a)
  *
  * CGX SMU TX Drop Counters Registers
  */
-union cavm_cgxx_smux_tx_dack {
+union cgxx_smux_tx_dack {
 	u64 u;
-	struct cavm_cgxx_smux_tx_dack_s {
+	struct cgxx_smux_tx_dack_s {
 		u64 dpi_sdrop_ack                    : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_smux_tx_dack_s cn; */
+	/* struct cgxx_smux_tx_dack_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_DACK(u64 a)
+static inline u64 CGXX_SMUX_TX_DACK(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_DACK(u64 a)
+static inline u64 CGXX_SMUX_TX_DACK(u64 a)
 {
 	return 0x201b0 + 0x40000 * a;
 }
@@ -5415,18 +5501,18 @@ static inline u64 CAVM_CGXX_SMUX_TX_DACK(u64 a)
  *
  * CGX SMU TX Drop Counters Registers
  */
-union cavm_cgxx_smux_tx_dcnt {
+union cgxx_smux_tx_dcnt {
 	u64 u;
-	struct cavm_cgxx_smux_tx_dcnt_s {
+	struct cgxx_smux_tx_dcnt_s {
 		u64 dpi_sdrop_cnt                    : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_smux_tx_dcnt_s cn; */
+	/* struct cgxx_smux_tx_dcnt_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_DCNT(u64 a)
+static inline u64 CGXX_SMUX_TX_DCNT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_DCNT(u64 a)
+static inline u64 CGXX_SMUX_TX_DCNT(u64 a)
 {
 	return 0x201a8 + 0x40000 * a;
 }
@@ -5439,9 +5525,9 @@ static inline u64 CAVM_CGXX_SMUX_TX_DCNT(u64 a)
  * Those registers take effect only when EEE is supported and enabled for
  * a given LMAC.
  */
-union cavm_cgxx_smux_tx_eee {
+union cgxx_smux_tx_eee {
 	u64 u;
-	struct cavm_cgxx_smux_tx_eee_s {
+	struct cgxx_smux_tx_eee_s {
 		u64 idle_thresh                      : 28;
 		u64 reserved_28                      : 1;
 		u64 force_lpi                        : 1;
@@ -5452,12 +5538,12 @@ union cavm_cgxx_smux_tx_eee {
 		u64 tx_lpi_wake                      : 1;
 		u64 tx_lpi                           : 1;
 	} s;
-	/* struct cavm_cgxx_smux_tx_eee_s cn; */
+	/* struct cgxx_smux_tx_eee_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_EEE(u64 a)
+static inline u64 CGXX_SMUX_TX_EEE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_EEE(u64 a)
+static inline u64 CGXX_SMUX_TX_EEE(u64 a)
 {
 	return 0x20190 + 0x40000 * a;
 }
@@ -5468,9 +5554,9 @@ static inline u64 CAVM_CGXX_SMUX_TX_EEE(u64 a)
  * INTERNAL: CGX SMU TX EEE TIMER STATUS Registers  Reserved. Internal:
  * These registers configure SMU TX EEE timing parameters.
  */
-union cavm_cgxx_smux_tx_eee_timer_status {
+union cgxx_smux_tx_eee_timer_status {
 	u64 u;
-	struct cavm_cgxx_smux_tx_eee_timer_status_s {
+	struct cgxx_smux_tx_eee_timer_status_s {
 		u64 lpi_wake_cnt                     : 16;
 		u64 reserved_16_30                   : 15;
 		u64 wake_timer_done                  : 1;
@@ -5478,12 +5564,12 @@ union cavm_cgxx_smux_tx_eee_timer_status {
 		u64 reserved_62                      : 1;
 		u64 link_timer_done                  : 1;
 	} s;
-	/* struct cavm_cgxx_smux_tx_eee_timer_status_s cn; */
+	/* struct cgxx_smux_tx_eee_timer_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_EEE_TIMER_STATUS(u64 a)
+static inline u64 CGXX_SMUX_TX_EEE_TIMER_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_EEE_TIMER_STATUS(u64 a)
+static inline u64 CGXX_SMUX_TX_EEE_TIMER_STATUS(u64 a)
 {
 	return 0x201a0 + 0x40000 * a;
 }
@@ -5494,20 +5580,20 @@ static inline u64 CAVM_CGXX_SMUX_TX_EEE_TIMER_STATUS(u64 a)
  * INTERNAL: CGX SMU TX EEE TIMING Parameter Registers  Reserved.
  * Internal: These registers configure SMU TX EEE timing parameters.
  */
-union cavm_cgxx_smux_tx_eee_timing {
+union cgxx_smux_tx_eee_timing {
 	u64 u;
-	struct cavm_cgxx_smux_tx_eee_timing_s {
+	struct cgxx_smux_tx_eee_timing_s {
 		u64 w_sys_tx_min                     : 16;
 		u64 reserved_16_31                   : 16;
 		u64 link_ok_min                      : 30;
 		u64 reserved_62_63                   : 2;
 	} s;
-	/* struct cavm_cgxx_smux_tx_eee_timing_s cn; */
+	/* struct cgxx_smux_tx_eee_timing_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_EEE_TIMING(u64 a)
+static inline u64 CGXX_SMUX_TX_EEE_TIMING(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_EEE_TIMING(u64 a)
+static inline u64 CGXX_SMUX_TX_EEE_TIMING(u64 a)
 {
 	return 0x20198 + 0x40000 * a;
 }
@@ -5530,9 +5616,9 @@ static inline u64 CAVM_CGXX_SMUX_TX_EEE_TIMING(u64 a)
  * 8 as 8 for other MACs. When CGX()_SMU()_TX_CTL[DIC_EN] is cleared, SMU
  * TX can work correctly with any IFG1 and IFG2.
  */
-union cavm_cgxx_smux_tx_ifg {
+union cgxx_smux_tx_ifg {
 	u64 u;
-	struct cavm_cgxx_smux_tx_ifg_s {
+	struct cgxx_smux_tx_ifg_s {
 		u64 ifg1                             : 4;
 		u64 ifg2                             : 4;
 		u64 mia_amt                          : 2;
@@ -5540,12 +5626,12 @@ union cavm_cgxx_smux_tx_ifg {
 		u64 mia_cnt                          : 8;
 		u64 reserved_24_63                   : 40;
 	} s;
-	/* struct cavm_cgxx_smux_tx_ifg_s cn; */
+	/* struct cgxx_smux_tx_ifg_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_IFG(u64 a)
+static inline u64 CGXX_SMUX_TX_IFG(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_IFG(u64 a)
+static inline u64 CGXX_SMUX_TX_IFG(u64 a)
 {
 	return 0x20160 + 0x40000 * a;
 }
@@ -5555,9 +5641,9 @@ static inline u64 CAVM_CGXX_SMUX_TX_IFG(u64 a)
  *
  * CGX SMU TX Interrupt Registers
  */
-union cavm_cgxx_smux_tx_int {
+union cgxx_smux_tx_int {
 	u64 u;
-	struct cavm_cgxx_smux_tx_int_s {
+	struct cgxx_smux_tx_int_s {
 		u64 undflw                           : 1;
 		u64 xchange                          : 1;
 		u64 fake_commit                      : 1;
@@ -5566,12 +5652,12 @@ union cavm_cgxx_smux_tx_int {
 		u64 dpi_sdrop                        : 1;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_cgxx_smux_tx_int_s cn; */
+	/* struct cgxx_smux_tx_int_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_INT(u64 a)
+static inline u64 CGXX_SMUX_TX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_INT(u64 a)
+static inline u64 CGXX_SMUX_TX_INT(u64 a)
 {
 	return 0x20140 + 0x40000 * a;
 }
@@ -5582,9 +5668,9 @@ static inline u64 CAVM_CGXX_SMUX_TX_INT(u64 a)
  * CGX SMU TX Interrupt Enable Clear Registers This register clears
  * interrupt enable bits.
  */
-union cavm_cgxx_smux_tx_int_ena_w1c {
+union cgxx_smux_tx_int_ena_w1c {
 	u64 u;
-	struct cavm_cgxx_smux_tx_int_ena_w1c_s {
+	struct cgxx_smux_tx_int_ena_w1c_s {
 		u64 undflw                           : 1;
 		u64 xchange                          : 1;
 		u64 fake_commit                      : 1;
@@ -5593,12 +5679,12 @@ union cavm_cgxx_smux_tx_int_ena_w1c {
 		u64 dpi_sdrop                        : 1;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_cgxx_smux_tx_int_ena_w1c_s cn; */
+	/* struct cgxx_smux_tx_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_SMUX_TX_INT_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_SMUX_TX_INT_ENA_W1C(u64 a)
 {
 	return 0x20150 + 0x40000 * a;
 }
@@ -5609,9 +5695,9 @@ static inline u64 CAVM_CGXX_SMUX_TX_INT_ENA_W1C(u64 a)
  * CGX SMU TX Interrupt Enable Set Registers This register sets interrupt
  * enable bits.
  */
-union cavm_cgxx_smux_tx_int_ena_w1s {
+union cgxx_smux_tx_int_ena_w1s {
 	u64 u;
-	struct cavm_cgxx_smux_tx_int_ena_w1s_s {
+	struct cgxx_smux_tx_int_ena_w1s_s {
 		u64 undflw                           : 1;
 		u64 xchange                          : 1;
 		u64 fake_commit                      : 1;
@@ -5620,12 +5706,12 @@ union cavm_cgxx_smux_tx_int_ena_w1s {
 		u64 dpi_sdrop                        : 1;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_cgxx_smux_tx_int_ena_w1s_s cn; */
+	/* struct cgxx_smux_tx_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_SMUX_TX_INT_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_SMUX_TX_INT_ENA_W1S(u64 a)
 {
 	return 0x20158 + 0x40000 * a;
 }
@@ -5635,9 +5721,9 @@ static inline u64 CAVM_CGXX_SMUX_TX_INT_ENA_W1S(u64 a)
  *
  * CGX SMU TX Interrupt Set Registers This register sets interrupt bits.
  */
-union cavm_cgxx_smux_tx_int_w1s {
+union cgxx_smux_tx_int_w1s {
 	u64 u;
-	struct cavm_cgxx_smux_tx_int_w1s_s {
+	struct cgxx_smux_tx_int_w1s_s {
 		u64 undflw                           : 1;
 		u64 xchange                          : 1;
 		u64 fake_commit                      : 1;
@@ -5646,12 +5732,12 @@ union cavm_cgxx_smux_tx_int_w1s {
 		u64 dpi_sdrop                        : 1;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_cgxx_smux_tx_int_w1s_s cn; */
+	/* struct cgxx_smux_tx_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_INT_W1S(u64 a)
+static inline u64 CGXX_SMUX_TX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_INT_W1S(u64 a)
+static inline u64 CGXX_SMUX_TX_INT_W1S(u64 a)
 {
 	return 0x20148 + 0x40000 * a;
 }
@@ -5662,18 +5748,18 @@ static inline u64 CAVM_CGXX_SMUX_TX_INT_W1S(u64 a)
  * CGX SMU TX Minimum-Size-Packet Registers Internal: [MIN_SIZE] less
  * than 16 will be ignored by hardware which will use 16 instead.
  */
-union cavm_cgxx_smux_tx_min_pkt {
+union cgxx_smux_tx_min_pkt {
 	u64 u;
-	struct cavm_cgxx_smux_tx_min_pkt_s {
+	struct cgxx_smux_tx_min_pkt_s {
 		u64 min_size                         : 8;
 		u64 reserved_8_63                    : 56;
 	} s;
-	/* struct cavm_cgxx_smux_tx_min_pkt_s cn; */
+	/* struct cgxx_smux_tx_min_pkt_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_MIN_PKT(u64 a)
+static inline u64 CGXX_SMUX_TX_MIN_PKT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_MIN_PKT(u64 a)
+static inline u64 CGXX_SMUX_TX_MIN_PKT(u64 a)
 {
 	return 0x20118 + 0x40000 * a;
 }
@@ -5684,18 +5770,18 @@ static inline u64 CAVM_CGXX_SMUX_TX_MIN_PKT(u64 a)
  * CGX SMU TX PAUSE-Packet DMAC-Field Registers This register provides
  * the DMAC value that is placed in outbound PAUSE packets.
  */
-union cavm_cgxx_smux_tx_pause_pkt_dmac {
+union cgxx_smux_tx_pause_pkt_dmac {
 	u64 u;
-	struct cavm_cgxx_smux_tx_pause_pkt_dmac_s {
+	struct cgxx_smux_tx_pause_pkt_dmac_s {
 		u64 dmac                             : 48;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_smux_tx_pause_pkt_dmac_s cn; */
+	/* struct cgxx_smux_tx_pause_pkt_dmac_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_DMAC(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_PKT_DMAC(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_DMAC(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_PKT_DMAC(u64 a)
 {
 	return 0x20168 + 0x40000 * a;
 }
@@ -5706,20 +5792,20 @@ static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_DMAC(u64 a)
  * CGX SMU TX PAUSE-Packet Transmission-Interval Registers This register
  * specifies how often PAUSE packets are sent.
  */
-union cavm_cgxx_smux_tx_pause_pkt_interval {
+union cgxx_smux_tx_pause_pkt_interval {
 	u64 u;
-	struct cavm_cgxx_smux_tx_pause_pkt_interval_s {
+	struct cgxx_smux_tx_pause_pkt_interval_s {
 		u64 interval                         : 16;
 		u64 hg2_intra_interval               : 16;
 		u64 hg2_intra_en                     : 1;
 		u64 reserved_33_63                   : 31;
 	} s;
-	/* struct cavm_cgxx_smux_tx_pause_pkt_interval_s cn; */
+	/* struct cgxx_smux_tx_pause_pkt_interval_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_INTERVAL(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_PKT_INTERVAL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_INTERVAL(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_PKT_INTERVAL(u64 a)
 {
 	return 0x20120 + 0x40000 * a;
 }
@@ -5729,18 +5815,18 @@ static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_INTERVAL(u64 a)
  *
  * CGX SMU TX PAUSE Packet Time Registers
  */
-union cavm_cgxx_smux_tx_pause_pkt_time {
+union cgxx_smux_tx_pause_pkt_time {
 	u64 u;
-	struct cavm_cgxx_smux_tx_pause_pkt_time_s {
+	struct cgxx_smux_tx_pause_pkt_time_s {
 		u64 p_time                           : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_smux_tx_pause_pkt_time_s cn; */
+	/* struct cgxx_smux_tx_pause_pkt_time_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_TIME(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_PKT_TIME(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_TIME(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_PKT_TIME(u64 a)
 {
 	return 0x20110 + 0x40000 * a;
 }
@@ -5751,18 +5837,18 @@ static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_TIME(u64 a)
  * CGX SMU TX PAUSE-Packet P_TYPE-Field Registers This register provides
  * the P_TYPE field that is placed in outbound PAUSE packets.
  */
-union cavm_cgxx_smux_tx_pause_pkt_type {
+union cgxx_smux_tx_pause_pkt_type {
 	u64 u;
-	struct cavm_cgxx_smux_tx_pause_pkt_type_s {
+	struct cgxx_smux_tx_pause_pkt_type_s {
 		u64 p_type                           : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_smux_tx_pause_pkt_type_s cn; */
+	/* struct cgxx_smux_tx_pause_pkt_type_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_TYPE(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_PKT_TYPE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_TYPE(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_PKT_TYPE(u64 a)
 {
 	return 0x20170 + 0x40000 * a;
 }
@@ -5772,19 +5858,19 @@ static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_PKT_TYPE(u64 a)
  *
  * CGX SMU TX Time-to-Backpressure Registers
  */
-union cavm_cgxx_smux_tx_pause_togo {
+union cgxx_smux_tx_pause_togo {
 	u64 u;
-	struct cavm_cgxx_smux_tx_pause_togo_s {
+	struct cgxx_smux_tx_pause_togo_s {
 		u64 p_time                           : 16;
 		u64 msg_time                         : 16;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_smux_tx_pause_togo_s cn; */
+	/* struct cgxx_smux_tx_pause_togo_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_TOGO(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_TOGO(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_TOGO(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_TOGO(u64 a)
 {
 	return 0x20130 + 0x40000 * a;
 }
@@ -5794,18 +5880,18 @@ static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_TOGO(u64 a)
  *
  * CGX SMU TX PAUSE Zero Registers
  */
-union cavm_cgxx_smux_tx_pause_zero {
+union cgxx_smux_tx_pause_zero {
 	u64 u;
-	struct cavm_cgxx_smux_tx_pause_zero_s {
+	struct cgxx_smux_tx_pause_zero_s {
 		u64 send                             : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_smux_tx_pause_zero_s cn; */
+	/* struct cgxx_smux_tx_pause_zero_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_ZERO(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_ZERO(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_ZERO(u64 a)
+static inline u64 CGXX_SMUX_TX_PAUSE_ZERO(u64 a)
 {
 	return 0x20138 + 0x40000 * a;
 }
@@ -5815,18 +5901,18 @@ static inline u64 CAVM_CGXX_SMUX_TX_PAUSE_ZERO(u64 a)
  *
  * CGX SMU TX Soft PAUSE Registers
  */
-union cavm_cgxx_smux_tx_soft_pause {
+union cgxx_smux_tx_soft_pause {
 	u64 u;
-	struct cavm_cgxx_smux_tx_soft_pause_s {
+	struct cgxx_smux_tx_soft_pause_s {
 		u64 p_time                           : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_smux_tx_soft_pause_s cn; */
+	/* struct cgxx_smux_tx_soft_pause_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_SOFT_PAUSE(u64 a)
+static inline u64 CGXX_SMUX_TX_SOFT_PAUSE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_SOFT_PAUSE(u64 a)
+static inline u64 CGXX_SMUX_TX_SOFT_PAUSE(u64 a)
 {
 	return 0x20128 + 0x40000 * a;
 }
@@ -5836,9 +5922,9 @@ static inline u64 CAVM_CGXX_SMUX_TX_SOFT_PAUSE(u64 a)
  *
  * CGX SMU TX Threshold Registers
  */
-union cavm_cgxx_smux_tx_thresh {
+union cgxx_smux_tx_thresh {
 	u64 u;
-	struct cavm_cgxx_smux_tx_thresh_s {
+	struct cgxx_smux_tx_thresh_s {
 		u64 cnt                              : 12;
 		u64 reserved_12_15                   : 4;
 		u64 dpi_thresh                       : 5;
@@ -5848,12 +5934,12 @@ union cavm_cgxx_smux_tx_thresh {
 		u64 ecnt                             : 12;
 		u64 reserved_44_63                   : 20;
 	} s;
-	/* struct cavm_cgxx_smux_tx_thresh_s cn; */
+	/* struct cgxx_smux_tx_thresh_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SMUX_TX_THRESH(u64 a)
+static inline u64 CGXX_SMUX_TX_THRESH(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SMUX_TX_THRESH(u64 a)
+static inline u64 CGXX_SMUX_TX_THRESH(u64 a)
 {
 	return 0x20180 + 0x40000 * a;
 }
@@ -5873,9 +5959,9 @@ static inline u64 CAVM_CGXX_SMUX_TX_THRESH(u64 a)
  * CGX()_SPU()_AN_LP_BASE to determine the highest common denominator
  * technology.
  */
-union cavm_cgxx_spux_an_adv {
+union cgxx_spux_an_adv {
 	u64 u;
-	struct cavm_cgxx_spux_an_adv_s {
+	struct cgxx_spux_an_adv_s {
 		u64 s                                : 5;
 		u64 e                                : 5;
 		u64 pause                            : 1;
@@ -5903,12 +5989,12 @@ union cavm_cgxx_spux_an_adv {
 		u64 fec_req                          : 1;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_spux_an_adv_s cn; */
+	/* struct cgxx_spux_an_adv_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_AN_ADV(u64 a)
+static inline u64 CGXX_SPUX_AN_ADV(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_AN_ADV(u64 a)
+static inline u64 CGXX_SPUX_AN_ADV(u64 a)
 {
 	return 0x10198 + 0x40000 * a;
 }
@@ -5925,9 +6011,9 @@ static inline u64 CAVM_CGXX_SPUX_AN_ADV(u64 a)
  * [RS_FEC] will be set to indicate whether/which FEC operation has been
  * negotiated and will be clear otherwise.
  */
-union cavm_cgxx_spux_an_bp_status {
+union cgxx_spux_an_bp_status {
 	u64 u;
-	struct cavm_cgxx_spux_an_bp_status_s {
+	struct cgxx_spux_an_bp_status_s {
 		u64 bp_an_able                       : 1;
 		u64 n1g_kx                           : 1;
 		u64 n10g_kx4                         : 1;
@@ -5948,12 +6034,12 @@ union cavm_cgxx_spux_an_bp_status {
 		u64 rs_fec                           : 1;
 		u64 reserved_18_63                   : 46;
 	} s;
-	/* struct cavm_cgxx_spux_an_bp_status_s cn; */
+	/* struct cgxx_spux_an_bp_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_AN_BP_STATUS(u64 a)
+static inline u64 CGXX_SPUX_AN_BP_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_AN_BP_STATUS(u64 a)
+static inline u64 CGXX_SPUX_AN_BP_STATUS(u64 a)
 {
 	return 0x101b8 + 0x40000 * a;
 }
@@ -5963,9 +6049,9 @@ static inline u64 CAVM_CGXX_SPUX_AN_BP_STATUS(u64 a)
  *
  * CGX SPU Autonegotiation Control Registers
  */
-union cavm_cgxx_spux_an_control {
+union cgxx_spux_an_control {
 	u64 u;
-	struct cavm_cgxx_spux_an_control_s {
+	struct cgxx_spux_an_control_s {
 		u64 reserved_0_8                     : 9;
 		u64 an_restart                       : 1;
 		u64 reserved_10_11                   : 2;
@@ -5977,12 +6063,12 @@ union cavm_cgxx_spux_an_control {
 		u64 usx_an_arb_link_chk_en           : 1;
 		u64 reserved_18_63                   : 46;
 	} s;
-	/* struct cavm_cgxx_spux_an_control_s cn; */
+	/* struct cgxx_spux_an_control_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_AN_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_AN_CONTROL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_AN_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_AN_CONTROL(u64 a)
 {
 	return 0x10188 + 0x40000 * a;
 }
@@ -5996,9 +6082,9 @@ static inline u64 CAVM_CGXX_SPUX_AN_CONTROL(u64 a)
  * 802.3 section 73.6 for details.) CGX()_SPU()_AN_STATUS[PAGE_RX] is set
  * when this register is updated by hardware.
  */
-union cavm_cgxx_spux_an_lp_base {
+union cgxx_spux_an_lp_base {
 	u64 u;
-	struct cavm_cgxx_spux_an_lp_base_s {
+	struct cgxx_spux_an_lp_base_s {
 		u64 s                                : 5;
 		u64 e                                : 5;
 		u64 pause                            : 1;
@@ -6026,12 +6112,12 @@ union cavm_cgxx_spux_an_lp_base {
 		u64 fec_req                          : 1;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_spux_an_lp_base_s cn; */
+	/* struct cgxx_spux_an_lp_base_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_AN_LP_BASE(u64 a)
+static inline u64 CGXX_SPUX_AN_LP_BASE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_AN_LP_BASE(u64 a)
+static inline u64 CGXX_SPUX_AN_LP_BASE(u64 a)
 {
 	return 0x101a0 + 0x40000 * a;
 }
@@ -6044,9 +6130,9 @@ static inline u64 CAVM_CGXX_SPUX_AN_LP_BASE(u64 a)
  * code word received from the link partner during autonegotiation, if
  * any. See IEEE 802.3 section 73.7.7 for details.
  */
-union cavm_cgxx_spux_an_lp_xnp {
+union cgxx_spux_an_lp_xnp {
 	u64 u;
-	struct cavm_cgxx_spux_an_lp_xnp_s {
+	struct cgxx_spux_an_lp_xnp_s {
 		u64 m_u                              : 11;
 		u64 toggle                           : 1;
 		u64 ack2                             : 1;
@@ -6056,12 +6142,12 @@ union cavm_cgxx_spux_an_lp_xnp {
 		u64 u                                : 32;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_spux_an_lp_xnp_s cn; */
+	/* struct cgxx_spux_an_lp_xnp_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_AN_LP_XNP(u64 a)
+static inline u64 CGXX_SPUX_AN_LP_XNP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_AN_LP_XNP(u64 a)
+static inline u64 CGXX_SPUX_AN_LP_XNP(u64 a)
 {
 	return 0x101b0 + 0x40000 * a;
 }
@@ -6071,9 +6157,9 @@ static inline u64 CAVM_CGXX_SPUX_AN_LP_XNP(u64 a)
  *
  * CGX SPU Autonegotiation Status Registers
  */
-union cavm_cgxx_spux_an_status {
+union cgxx_spux_an_status {
 	u64 u;
-	struct cavm_cgxx_spux_an_status_s {
+	struct cgxx_spux_an_status_s {
 		u64 lp_an_able                       : 1;
 		u64 reserved_1                       : 1;
 		u64 link_status                      : 1;
@@ -6086,12 +6172,12 @@ union cavm_cgxx_spux_an_status {
 		u64 prl_flt                          : 1;
 		u64 reserved_10_63                   : 54;
 	} s;
-	/* struct cavm_cgxx_spux_an_status_s cn; */
+	/* struct cgxx_spux_an_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_AN_STATUS(u64 a)
+static inline u64 CGXX_SPUX_AN_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_AN_STATUS(u64 a)
+static inline u64 CGXX_SPUX_AN_STATUS(u64 a)
 {
 	return 0x10190 + 0x40000 * a;
 }
@@ -6109,9 +6195,9 @@ static inline u64 CAVM_CGXX_SPUX_AN_STATUS(u64 a)
  * link segment set their NP bits to 0. See IEEE 802.3 section 73.7.7 for
  * details.
  */
-union cavm_cgxx_spux_an_xnp_tx {
+union cgxx_spux_an_xnp_tx {
 	u64 u;
-	struct cavm_cgxx_spux_an_xnp_tx_s {
+	struct cgxx_spux_an_xnp_tx_s {
 		u64 m_u                              : 11;
 		u64 toggle                           : 1;
 		u64 ack2                             : 1;
@@ -6121,12 +6207,12 @@ union cavm_cgxx_spux_an_xnp_tx {
 		u64 u                                : 32;
 		u64 reserved_48_63                   : 16;
 	} s;
-	/* struct cavm_cgxx_spux_an_xnp_tx_s cn; */
+	/* struct cgxx_spux_an_xnp_tx_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_AN_XNP_TX(u64 a)
+static inline u64 CGXX_SPUX_AN_XNP_TX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_AN_XNP_TX(u64 a)
+static inline u64 CGXX_SPUX_AN_XNP_TX(u64 a)
 {
 	return 0x101a8 + 0x40000 * a;
 }
@@ -6147,9 +6233,9 @@ static inline u64 CAVM_CGXX_SPUX_AN_XNP_TX(u64 a)
  * service interfaces are identical. Logical interfaces (lanes) map to
  * SerDes lanes via CGX()_CMR()_CONFIG[LANE_TO_SDS] (programmable).
  */
-union cavm_cgxx_spux_br_algn_status {
+union cgxx_spux_br_algn_status {
 	u64 u;
-	struct cavm_cgxx_spux_br_algn_status_s {
+	struct cgxx_spux_br_algn_status_s {
 		u64 block_lock                       : 20;
 		u64 reserved_20_29                   : 10;
 		u64 alignd                           : 1;
@@ -6157,12 +6243,12 @@ union cavm_cgxx_spux_br_algn_status {
 		u64 marker_lock                      : 20;
 		u64 reserved_61_63                   : 3;
 	} s;
-	/* struct cavm_cgxx_spux_br_algn_status_s cn; */
+	/* struct cgxx_spux_br_algn_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_ALGN_STATUS(u64 a)
+static inline u64 CGXX_SPUX_BR_ALGN_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_ALGN_STATUS(u64 a)
+static inline u64 CGXX_SPUX_BR_ALGN_STATUS(u64 a)
 {
 	return 0x10050 + 0x40000 * a;
 }
@@ -6183,7 +6269,7 @@ static inline u64 CAVM_CGXX_SPUX_BR_ALGN_STATUS(u64 a)
  * received on that service interface.  In RS-FEC mode the LNx_MAPPING
  * field is valid when that lane has achieved alignment marker lock on
  * the receive side (i.e. the associated
- * CGX(0..2)_SPU(0..3)_RSFEC_STATUS[AMPS_LOCK] = 1), and is invalid
+ * CGX(0..3)_SPU(0..3)_RSFEC_STATUS[AMPS_LOCK] = 1), and is invalid
  * otherwise. When valid, it returns the actual detected receive FEC lane
  * number based on the received alignment marker contents received on
  * that logical lane therefore expect for RS-FEC that LNx_MAPPING = x.
@@ -6195,18 +6281,18 @@ static inline u64 CAVM_CGXX_SPUX_BR_ALGN_STATUS(u64 a)
  * SerDes lane mapping, and this register specifies the service interface
  * (or lane) to PCS lane mapping.
  */
-union cavm_cgxx_spux_br_lane_mapx {
+union cgxx_spux_br_lane_mapx {
 	u64 u;
-	struct cavm_cgxx_spux_br_lane_mapx_s {
+	struct cgxx_spux_br_lane_mapx_s {
 		u64 ln_mapping                       : 6;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_cgxx_spux_br_lane_mapx_s cn; */
+	/* struct cgxx_spux_br_lane_mapx_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_LANE_MAPX(u64 a, u64 b)
+static inline u64 CGXX_SPUX_BR_LANE_MAPX(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_LANE_MAPX(u64 a, u64 b)
+static inline u64 CGXX_SPUX_BR_LANE_MAPX(u64 a, u64 b)
 {
 	return 0x10600 + 0x40000 * a + 8 * b;
 }
@@ -6216,27 +6302,30 @@ static inline u64 CAVM_CGXX_SPUX_BR_LANE_MAPX(u64 a, u64 b)
  *
  * CGX SPU BASE-R PMD Control Registers
  */
-union cavm_cgxx_spux_br_pmd_control {
+union cgxx_spux_br_pmd_control {
 	u64 u;
-	struct cavm_cgxx_spux_br_pmd_control_s {
+	struct cgxx_spux_br_pmd_control_s {
 		u64 train_restart                    : 1;
 		u64 train_en                         : 1;
 		u64 use_lane_poly                    : 1;
 		u64 max_wait_disable                 : 1;
 		u64 reserved_4_63                    : 60;
 	} s;
-	struct cavm_cgxx_spux_br_pmd_control_cn96xx {
+	struct cgxx_spux_br_pmd_control_cn96xx {
 		u64 train_restart                    : 1;
 		u64 train_en                         : 1;
 		u64 use_lane_poly                    : 1;
 		u64 reserved_3_63                    : 61;
 	} cn96xx;
-	/* struct cavm_cgxx_spux_br_pmd_control_s cnf95xx; */
+	/* struct cgxx_spux_br_pmd_control_cn96xx cn98xx; */
+	/* struct cgxx_spux_br_pmd_control_s cnf95xxp1; */
+	/* struct cgxx_spux_br_pmd_control_cn96xx cnf95xxp2; */
+	/* struct cgxx_spux_br_pmd_control_cn96xx loki; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_CONTROL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_CONTROL(u64 a)
 {
 	return 0x100a8 + 0x40000 * a;
 }
@@ -6262,20 +6351,20 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_CONTROL(u64 a)
  * be written by software. The lane fields in this register are indexed
  * by logical PCS lane ID.
  */
-union cavm_cgxx_spux_br_pmd_ld_cup {
+union cgxx_spux_br_pmd_ld_cup {
 	u64 u;
-	struct cavm_cgxx_spux_br_pmd_ld_cup_s {
+	struct cgxx_spux_br_pmd_ld_cup_s {
 		u64 ln0_cup                          : 16;
 		u64 ln1_cup                          : 16;
 		u64 ln2_cup                          : 16;
 		u64 ln3_cup                          : 16;
 	} s;
-	/* struct cavm_cgxx_spux_br_pmd_ld_cup_s cn; */
+	/* struct cgxx_spux_br_pmd_ld_cup_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_LD_CUP(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_LD_CUP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_LD_CUP(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_LD_CUP(u64 a)
 {
 	return 0x100c8 + 0x40000 * a;
 }
@@ -6300,20 +6389,20 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_LD_CUP(u64 a)
  * be written by software. The lane fields in this register are indexed
  * by logical PCS lane ID.
  */
-union cavm_cgxx_spux_br_pmd_ld_rep {
+union cgxx_spux_br_pmd_ld_rep {
 	u64 u;
-	struct cavm_cgxx_spux_br_pmd_ld_rep_s {
+	struct cgxx_spux_br_pmd_ld_rep_s {
 		u64 ln0_rep                          : 16;
 		u64 ln1_rep                          : 16;
 		u64 ln2_rep                          : 16;
 		u64 ln3_rep                          : 16;
 	} s;
-	/* struct cavm_cgxx_spux_br_pmd_ld_rep_s cn; */
+	/* struct cgxx_spux_br_pmd_ld_rep_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_LD_REP(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_LD_REP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_LD_REP(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_LD_REP(u64 a)
 {
 	return 0x100d0 + 0x40000 * a;
 }
@@ -6334,20 +6423,20 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_LD_REP(u64 a)
  * CGX()_SPU()_BR_PMD_CONTROL[TRAIN_EN] is set. The lane fields in this
  * register are indexed by logical PCS lane ID.
  */
-union cavm_cgxx_spux_br_pmd_lp_cup {
+union cgxx_spux_br_pmd_lp_cup {
 	u64 u;
-	struct cavm_cgxx_spux_br_pmd_lp_cup_s {
+	struct cgxx_spux_br_pmd_lp_cup_s {
 		u64 ln0_cup                          : 16;
 		u64 ln1_cup                          : 16;
 		u64 ln2_cup                          : 16;
 		u64 ln3_cup                          : 16;
 	} s;
-	/* struct cavm_cgxx_spux_br_pmd_lp_cup_s cn; */
+	/* struct cgxx_spux_br_pmd_lp_cup_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_LP_CUP(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_LP_CUP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_LP_CUP(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_LP_CUP(u64 a)
 {
 	return 0x100b8 + 0x40000 * a;
 }
@@ -6368,20 +6457,20 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_LP_CUP(u64 a)
  * CGX()_SPU()_BR_PMD_CONTROL[TRAIN_EN] is set. The lane fields in this
  * register are indexed by logical PCS lane ID.
  */
-union cavm_cgxx_spux_br_pmd_lp_rep {
+union cgxx_spux_br_pmd_lp_rep {
 	u64 u;
-	struct cavm_cgxx_spux_br_pmd_lp_rep_s {
+	struct cgxx_spux_br_pmd_lp_rep_s {
 		u64 ln0_rep                          : 16;
 		u64 ln1_rep                          : 16;
 		u64 ln2_rep                          : 16;
 		u64 ln3_rep                          : 16;
 	} s;
-	/* struct cavm_cgxx_spux_br_pmd_lp_rep_s cn; */
+	/* struct cgxx_spux_br_pmd_lp_rep_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_LP_REP(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_LP_REP(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_LP_REP(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_LP_REP(u64 a)
 {
 	return 0x100c0 + 0x40000 * a;
 }
@@ -6396,21 +6485,21 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_LP_REP(u64 a)
  * The remaining fields (LN2_*, LN3_*) are only valid for 40GBASE-R and
  * 100GBASE-R.
  */
-union cavm_cgxx_spux_br_pmd_status {
+union cgxx_spux_br_pmd_status {
 	u64 u;
-	struct cavm_cgxx_spux_br_pmd_status_s {
+	struct cgxx_spux_br_pmd_status_s {
 		u64 ln0_train_status                 : 4;
 		u64 ln1_train_status                 : 4;
 		u64 ln2_train_status                 : 4;
 		u64 ln3_train_status                 : 4;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_spux_br_pmd_status_s cn; */
+	/* struct cgxx_spux_br_pmd_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_STATUS(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_PMD_STATUS(u64 a)
+static inline u64 CGXX_SPUX_BR_PMD_STATUS(u64 a)
 {
 	return 0x100b0 + 0x40000 * a;
 }
@@ -6420,9 +6509,9 @@ static inline u64 CAVM_CGXX_SPUX_BR_PMD_STATUS(u64 a)
  *
  * CGX SPU BASE-R Status 1 Registers
  */
-union cavm_cgxx_spux_br_status1 {
+union cgxx_spux_br_status1 {
 	u64 u;
-	struct cavm_cgxx_spux_br_status1_s {
+	struct cgxx_spux_br_status1_s {
 		u64 blk_lock                         : 1;
 		u64 hi_ber                           : 1;
 		u64 prbs31                           : 1;
@@ -6431,12 +6520,12 @@ union cavm_cgxx_spux_br_status1 {
 		u64 rcv_lnk                          : 1;
 		u64 reserved_13_63                   : 51;
 	} s;
-	/* struct cavm_cgxx_spux_br_status1_s cn; */
+	/* struct cgxx_spux_br_status1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_STATUS1(u64 a)
+static inline u64 CGXX_SPUX_BR_STATUS1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_STATUS1(u64 a)
+static inline u64 CGXX_SPUX_BR_STATUS1(u64 a)
 {
 	return 0x10030 + 0x40000 * a;
 }
@@ -6456,9 +6545,9 @@ static inline u64 CAVM_CGXX_SPUX_BR_STATUS1(u64 a)
  * from section 3.45 have been combined into the contiguous, 22-bit
  * [ERR_BLKS] field.
  */
-union cavm_cgxx_spux_br_status2 {
+union cgxx_spux_br_status2 {
 	u64 u;
-	struct cavm_cgxx_spux_br_status2_s {
+	struct cgxx_spux_br_status2_s {
 		u64 reserved_0_13                    : 14;
 		u64 latched_ber                      : 1;
 		u64 latched_lock                     : 1;
@@ -6467,12 +6556,12 @@ union cavm_cgxx_spux_br_status2 {
 		u64 err_blks                         : 22;
 		u64 reserved_62_63                   : 2;
 	} s;
-	/* struct cavm_cgxx_spux_br_status2_s cn; */
+	/* struct cgxx_spux_br_status2_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_STATUS2(u64 a)
+static inline u64 CGXX_SPUX_BR_STATUS2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_STATUS2(u64 a)
+static inline u64 CGXX_SPUX_BR_STATUS2(u64 a)
 {
 	return 0x10038 + 0x40000 * a;
 }
@@ -6483,9 +6572,9 @@ static inline u64 CAVM_CGXX_SPUX_BR_STATUS2(u64 a)
  * CGX SPU BASE-R Test-Pattern Control Registers Refer to the test
  * pattern methodology described in 802.3 sections 49.2.8 and 82.2.10.
  */
-union cavm_cgxx_spux_br_tp_control {
+union cgxx_spux_br_tp_control {
 	u64 u;
-	struct cavm_cgxx_spux_br_tp_control_s {
+	struct cgxx_spux_br_tp_control_s {
 		u64 dp_sel                           : 1;
 		u64 tp_sel                           : 1;
 		u64 rx_tp_en                         : 1;
@@ -6497,12 +6586,12 @@ union cavm_cgxx_spux_br_tp_control {
 		u64 pr_tp_data_type                  : 1;
 		u64 reserved_10_63                   : 54;
 	} s;
-	/* struct cavm_cgxx_spux_br_tp_control_s cn; */
+	/* struct cgxx_spux_br_tp_control_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_TP_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_BR_TP_CONTROL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_TP_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_BR_TP_CONTROL(u64 a)
 {
 	return 0x10040 + 0x40000 * a;
 }
@@ -6513,18 +6602,18 @@ static inline u64 CAVM_CGXX_SPUX_BR_TP_CONTROL(u64 a)
  * CGX SPU BASE-R Test-Pattern Error-Count Registers This register
  * provides the BASE-R PCS test-pattern error counter.
  */
-union cavm_cgxx_spux_br_tp_err_cnt {
+union cgxx_spux_br_tp_err_cnt {
 	u64 u;
-	struct cavm_cgxx_spux_br_tp_err_cnt_s {
+	struct cgxx_spux_br_tp_err_cnt_s {
 		u64 err_cnt                          : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_spux_br_tp_err_cnt_s cn; */
+	/* struct cgxx_spux_br_tp_err_cnt_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_TP_ERR_CNT(u64 a)
+static inline u64 CGXX_SPUX_BR_TP_ERR_CNT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_TP_ERR_CNT(u64 a)
+static inline u64 CGXX_SPUX_BR_TP_ERR_CNT(u64 a)
 {
 	return 0x10048 + 0x40000 * a;
 }
@@ -6535,18 +6624,18 @@ static inline u64 CAVM_CGXX_SPUX_BR_TP_ERR_CNT(u64 a)
  * CGX SPU BASE-R Test-Pattern Seed A Registers Refer to the test pattern
  * methodology described in 802.3 sections 49.2.8 and 82.2.10.
  */
-union cavm_cgxx_spux_br_tp_seed_a {
+union cgxx_spux_br_tp_seed_a {
 	u64 u;
-	struct cavm_cgxx_spux_br_tp_seed_a_s {
+	struct cgxx_spux_br_tp_seed_a_s {
 		u64 tp_seed_a                        : 58;
 		u64 reserved_58_63                   : 6;
 	} s;
-	/* struct cavm_cgxx_spux_br_tp_seed_a_s cn; */
+	/* struct cgxx_spux_br_tp_seed_a_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_TP_SEED_A(u64 a)
+static inline u64 CGXX_SPUX_BR_TP_SEED_A(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_TP_SEED_A(u64 a)
+static inline u64 CGXX_SPUX_BR_TP_SEED_A(u64 a)
 {
 	return 0x10060 + 0x40000 * a;
 }
@@ -6557,18 +6646,18 @@ static inline u64 CAVM_CGXX_SPUX_BR_TP_SEED_A(u64 a)
  * CGX SPU BASE-R Test-Pattern Seed B Registers Refer to the test pattern
  * methodology described in 802.3 sections 49.2.8 and 82.2.10.
  */
-union cavm_cgxx_spux_br_tp_seed_b {
+union cgxx_spux_br_tp_seed_b {
 	u64 u;
-	struct cavm_cgxx_spux_br_tp_seed_b_s {
+	struct cgxx_spux_br_tp_seed_b_s {
 		u64 tp_seed_b                        : 58;
 		u64 reserved_58_63                   : 6;
 	} s;
-	/* struct cavm_cgxx_spux_br_tp_seed_b_s cn; */
+	/* struct cgxx_spux_br_tp_seed_b_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BR_TP_SEED_B(u64 a)
+static inline u64 CGXX_SPUX_BR_TP_SEED_B(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BR_TP_SEED_B(u64 a)
+static inline u64 CGXX_SPUX_BR_TP_SEED_B(u64 a)
 {
 	return 0x10068 + 0x40000 * a;
 }
@@ -6578,21 +6667,21 @@ static inline u64 CAVM_CGXX_SPUX_BR_TP_SEED_B(u64 a)
  *
  * CGX SPU BASE-X Status Registers
  */
-union cavm_cgxx_spux_bx_status {
+union cgxx_spux_bx_status {
 	u64 u;
-	struct cavm_cgxx_spux_bx_status_s {
+	struct cgxx_spux_bx_status_s {
 		u64 lsync                            : 4;
 		u64 reserved_4_10                    : 7;
 		u64 pattst                           : 1;
 		u64 alignd                           : 1;
 		u64 reserved_13_63                   : 51;
 	} s;
-	/* struct cavm_cgxx_spux_bx_status_s cn; */
+	/* struct cgxx_spux_bx_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_BX_STATUS(u64 a)
+static inline u64 CGXX_SPUX_BX_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_BX_STATUS(u64 a)
+static inline u64 CGXX_SPUX_BX_STATUS(u64 a)
 {
 	return 0x10028 + 0x40000 * a;
 }
@@ -6602,9 +6691,24 @@ static inline u64 CAVM_CGXX_SPUX_BX_STATUS(u64 a)
  *
  * CGX SPU Control 1 Registers
  */
-union cavm_cgxx_spux_control1 {
+union cgxx_spux_control1 {
 	u64 u;
-	struct cavm_cgxx_spux_control1_s {
+	struct cgxx_spux_control1_s {
+		u64 reserved_0_1                     : 2;
+		u64 spd                              : 4;
+		u64 spdsel0                          : 1;
+		u64 reserved_7_10                    : 4;
+		u64 lo_pwr                           : 1;
+		u64 reserved_12                      : 1;
+		u64 spdsel1                          : 1;
+		u64 loopbck                          : 1;
+		u64 reset                            : 1;
+		u64 usxgmii_type                     : 3;
+		u64 usxgmii_rate                     : 3;
+		u64 disable_am                       : 1;
+		u64 reserved_23_63                   : 41;
+	} s;
+	struct cgxx_spux_control1_cn96xxp1 {
 		u64 reserved_0_1                     : 2;
 		u64 spd                              : 4;
 		u64 spdsel0                          : 1;
@@ -6617,13 +6721,16 @@ union cavm_cgxx_spux_control1 {
 		u64 usxgmii_type                     : 3;
 		u64 usxgmii_rate                     : 3;
 		u64 reserved_22_63                   : 42;
-	} s;
-	/* struct cavm_cgxx_spux_control1_s cn; */
+	} cn96xxp1;
+	/* struct cgxx_spux_control1_s cn96xxp3; */
+	/* struct cgxx_spux_control1_cn96xxp1 cn98xx; */
+	/* struct cgxx_spux_control1_cn96xxp1 cnf95xx; */
+	/* struct cgxx_spux_control1_cn96xxp1 loki; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_CONTROL1(u64 a)
+static inline u64 CGXX_SPUX_CONTROL1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_CONTROL1(u64 a)
+static inline u64 CGXX_SPUX_CONTROL1(u64 a)
 {
 	return 0x10000 + 0x40000 * a;
 }
@@ -6633,18 +6740,18 @@ static inline u64 CAVM_CGXX_SPUX_CONTROL1(u64 a)
  *
  * CGX SPU Control 2 Registers
  */
-union cavm_cgxx_spux_control2 {
+union cgxx_spux_control2 {
 	u64 u;
-	struct cavm_cgxx_spux_control2_s {
+	struct cgxx_spux_control2_s {
 		u64 pcs_type                         : 4;
 		u64 reserved_4_63                    : 60;
 	} s;
-	/* struct cavm_cgxx_spux_control2_s cn; */
+	/* struct cgxx_spux_control2_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_CONTROL2(u64 a)
+static inline u64 CGXX_SPUX_CONTROL2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_CONTROL2(u64 a)
+static inline u64 CGXX_SPUX_CONTROL2(u64 a)
 {
 	return 0x10018 + 0x40000 * a;
 }
@@ -6654,19 +6761,19 @@ static inline u64 CAVM_CGXX_SPUX_CONTROL2(u64 a)
  *
  * CGX SPU Forward Error Correction Ability Registers
  */
-union cavm_cgxx_spux_fec_abil {
+union cgxx_spux_fec_abil {
 	u64 u;
-	struct cavm_cgxx_spux_fec_abil_s {
+	struct cgxx_spux_fec_abil_s {
 		u64 fec_abil                         : 1;
 		u64 err_abil                         : 1;
 		u64 reserved_2_63                    : 62;
 	} s;
-	/* struct cavm_cgxx_spux_fec_abil_s cn; */
+	/* struct cgxx_spux_fec_abil_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_FEC_ABIL(u64 a)
+static inline u64 CGXX_SPUX_FEC_ABIL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_FEC_ABIL(u64 a)
+static inline u64 CGXX_SPUX_FEC_ABIL(u64 a)
 {
 	return 0x100d8 + 0x40000 * a;
 }
@@ -6676,21 +6783,21 @@ static inline u64 CAVM_CGXX_SPUX_FEC_ABIL(u64 a)
  *
  * CGX SPU Forward Error Correction Control Registers
  */
-union cavm_cgxx_spux_fec_control {
+union cgxx_spux_fec_control {
 	u64 u;
-	struct cavm_cgxx_spux_fec_control_s {
+	struct cgxx_spux_fec_control_s {
 		u64 fec_en                           : 2;
 		u64 err_en                           : 1;
 		u64 fec_byp_ind_en                   : 1;
 		u64 fec_byp_cor_en                   : 1;
 		u64 reserved_5_63                    : 59;
 	} s;
-	/* struct cavm_cgxx_spux_fec_control_s cn; */
+	/* struct cgxx_spux_fec_control_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_FEC_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_FEC_CONTROL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_FEC_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_FEC_CONTROL(u64 a)
 {
 	return 0x100e0 + 0x40000 * a;
 }
@@ -6710,18 +6817,18 @@ static inline u64 CAVM_CGXX_SPUX_FEC_CONTROL(u64 a)
  * increment operation is lost. The counters are writable for test
  * purposes, rather than read-only as specified in IEEE 802.3.
  */
-union cavm_cgxx_spux_fec_lnx_rsfec_err {
+union cgxx_spux_fec_lnx_rsfec_err {
 	u64 u;
-	struct cavm_cgxx_spux_fec_lnx_rsfec_err_s {
+	struct cgxx_spux_fec_lnx_rsfec_err_s {
 		u64 symb_err_cnt                     : 32;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_spux_fec_lnx_rsfec_err_s cn; */
+	/* struct cgxx_spux_fec_lnx_rsfec_err_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_FEC_LNX_RSFEC_ERR(u64 a, u64 b)
+static inline u64 CGXX_SPUX_FEC_LNX_RSFEC_ERR(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_FEC_LNX_RSFEC_ERR(u64 a, u64 b)
+static inline u64 CGXX_SPUX_FEC_LNX_RSFEC_ERR(u64 a, u64 b)
 {
 	return 0x10900 + 0x40000 * a + 8 * b;
 }
@@ -6731,9 +6838,9 @@ static inline u64 CAVM_CGXX_SPUX_FEC_LNX_RSFEC_ERR(u64 a, u64 b)
  *
  * CGX SPU Interrupt Registers
  */
-union cavm_cgxx_spux_int {
+union cgxx_spux_int {
 	u64 u;
-	struct cavm_cgxx_spux_int_s {
+	struct cgxx_spux_int_s {
 		u64 rx_link_up                       : 1;
 		u64 rx_link_down                     : 1;
 		u64 err_blk                          : 1;
@@ -6757,12 +6864,12 @@ union cavm_cgxx_spux_int {
 		u64 usx_an_cpt                       : 1;
 		u64 reserved_21_63                   : 43;
 	} s;
-	/* struct cavm_cgxx_spux_int_s cn; */
+	/* struct cgxx_spux_int_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_INT(u64 a)
+static inline u64 CGXX_SPUX_INT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_INT(u64 a)
+static inline u64 CGXX_SPUX_INT(u64 a)
 {
 	return 0x10220 + 0x40000 * a;
 }
@@ -6773,9 +6880,9 @@ static inline u64 CAVM_CGXX_SPUX_INT(u64 a)
  * CGX SPU Interrupt Enable Clear Registers This register clears
  * interrupt enable bits.
  */
-union cavm_cgxx_spux_int_ena_w1c {
+union cgxx_spux_int_ena_w1c {
 	u64 u;
-	struct cavm_cgxx_spux_int_ena_w1c_s {
+	struct cgxx_spux_int_ena_w1c_s {
 		u64 rx_link_up                       : 1;
 		u64 rx_link_down                     : 1;
 		u64 err_blk                          : 1;
@@ -6799,12 +6906,12 @@ union cavm_cgxx_spux_int_ena_w1c {
 		u64 usx_an_cpt                       : 1;
 		u64 reserved_21_63                   : 43;
 	} s;
-	/* struct cavm_cgxx_spux_int_ena_w1c_s cn; */
+	/* struct cgxx_spux_int_ena_w1c_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_SPUX_INT_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_INT_ENA_W1C(u64 a)
+static inline u64 CGXX_SPUX_INT_ENA_W1C(u64 a)
 {
 	return 0x10230 + 0x40000 * a;
 }
@@ -6815,9 +6922,9 @@ static inline u64 CAVM_CGXX_SPUX_INT_ENA_W1C(u64 a)
  * CGX SPU Interrupt Enable Set Registers This register sets interrupt
  * enable bits.
  */
-union cavm_cgxx_spux_int_ena_w1s {
+union cgxx_spux_int_ena_w1s {
 	u64 u;
-	struct cavm_cgxx_spux_int_ena_w1s_s {
+	struct cgxx_spux_int_ena_w1s_s {
 		u64 rx_link_up                       : 1;
 		u64 rx_link_down                     : 1;
 		u64 err_blk                          : 1;
@@ -6841,12 +6948,12 @@ union cavm_cgxx_spux_int_ena_w1s {
 		u64 usx_an_cpt                       : 1;
 		u64 reserved_21_63                   : 43;
 	} s;
-	/* struct cavm_cgxx_spux_int_ena_w1s_s cn; */
+	/* struct cgxx_spux_int_ena_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_SPUX_INT_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_INT_ENA_W1S(u64 a)
+static inline u64 CGXX_SPUX_INT_ENA_W1S(u64 a)
 {
 	return 0x10238 + 0x40000 * a;
 }
@@ -6856,9 +6963,9 @@ static inline u64 CAVM_CGXX_SPUX_INT_ENA_W1S(u64 a)
  *
  * CGX SPU Interrupt Set Registers This register sets interrupt bits.
  */
-union cavm_cgxx_spux_int_w1s {
+union cgxx_spux_int_w1s {
 	u64 u;
-	struct cavm_cgxx_spux_int_w1s_s {
+	struct cgxx_spux_int_w1s_s {
 		u64 rx_link_up                       : 1;
 		u64 rx_link_down                     : 1;
 		u64 err_blk                          : 1;
@@ -6882,12 +6989,12 @@ union cavm_cgxx_spux_int_w1s {
 		u64 usx_an_cpt                       : 1;
 		u64 reserved_21_63                   : 43;
 	} s;
-	/* struct cavm_cgxx_spux_int_w1s_s cn; */
+	/* struct cgxx_spux_int_w1s_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_INT_W1S(u64 a)
+static inline u64 CGXX_SPUX_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_INT_W1S(u64 a)
+static inline u64 CGXX_SPUX_INT_W1S(u64 a)
 {
 	return 0x10228 + 0x40000 * a;
 }
@@ -6910,18 +7017,18 @@ static inline u64 CAVM_CGXX_SPUX_INT_W1S(u64 a)
  * increment operation is lost. The counters are writable for test
  * purposes, rather than read-only as specified in IEEE 802.3.
  */
-union cavm_cgxx_spux_lnx_br_bip_err_cnt {
+union cgxx_spux_lnx_br_bip_err_cnt {
 	u64 u;
-	struct cavm_cgxx_spux_lnx_br_bip_err_cnt_s {
+	struct cgxx_spux_lnx_br_bip_err_cnt_s {
 		u64 bip_err_cnt                      : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_spux_lnx_br_bip_err_cnt_s cn; */
+	/* struct cgxx_spux_lnx_br_bip_err_cnt_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_LNX_BR_BIP_ERR_CNT(u64 a, u64 b)
+static inline u64 CGXX_SPUX_LNX_BR_BIP_ERR_CNT(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_LNX_BR_BIP_ERR_CNT(u64 a, u64 b)
+static inline u64 CGXX_SPUX_LNX_BR_BIP_ERR_CNT(u64 a, u64 b)
 {
 	return 0x10500 + 0x40000 * a + 8 * b;
 }
@@ -6944,18 +7051,18 @@ static inline u64 CAVM_CGXX_SPUX_LNX_BR_BIP_ERR_CNT(u64 a, u64 b)
  * zeros and the increment operation is lost. The counters are writable
  * for test purposes, rather than read-only as specified in IEEE 802.3.
  */
-union cavm_cgxx_spux_lnx_fec_corr_blks {
+union cgxx_spux_lnx_fec_corr_blks {
 	u64 u;
-	struct cavm_cgxx_spux_lnx_fec_corr_blks_s {
+	struct cgxx_spux_lnx_fec_corr_blks_s {
 		u64 ln_corr_blks                     : 32;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_spux_lnx_fec_corr_blks_s cn; */
+	/* struct cgxx_spux_lnx_fec_corr_blks_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_LNX_FEC_CORR_BLKS(u64 a, u64 b)
+static inline u64 CGXX_SPUX_LNX_FEC_CORR_BLKS(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_LNX_FEC_CORR_BLKS(u64 a, u64 b)
+static inline u64 CGXX_SPUX_LNX_FEC_CORR_BLKS(u64 a, u64 b)
 {
 	return 0x10700 + 0x40000 * a + 8 * b;
 }
@@ -6978,18 +7085,18 @@ static inline u64 CAVM_CGXX_SPUX_LNX_FEC_CORR_BLKS(u64 a, u64 b)
  * zeros and the increment operation is lost. The counters are writable
  * for test purposes, rather than read-only as specified in IEEE 802.3.
  */
-union cavm_cgxx_spux_lnx_fec_uncorr_blks {
+union cgxx_spux_lnx_fec_uncorr_blks {
 	u64 u;
-	struct cavm_cgxx_spux_lnx_fec_uncorr_blks_s {
+	struct cgxx_spux_lnx_fec_uncorr_blks_s {
 		u64 ln_uncorr_blks                   : 32;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_spux_lnx_fec_uncorr_blks_s cn; */
+	/* struct cgxx_spux_lnx_fec_uncorr_blks_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_LNX_FEC_UNCORR_BLKS(u64 a, u64 b)
+static inline u64 CGXX_SPUX_LNX_FEC_UNCORR_BLKS(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_LNX_FEC_UNCORR_BLKS(u64 a, u64 b)
+static inline u64 CGXX_SPUX_LNX_FEC_UNCORR_BLKS(u64 a, u64 b)
 {
 	return 0x10800 + 0x40000 * a + 8 * b;
 }
@@ -6999,9 +7106,9 @@ static inline u64 CAVM_CGXX_SPUX_LNX_FEC_UNCORR_BLKS(u64 a, u64 b)
  *
  * CGX SPU BASE-X Transmit/Receive States Registers
  */
-union cavm_cgxx_spux_lpcs_states {
+union cgxx_spux_lpcs_states {
 	u64 u;
-	struct cavm_cgxx_spux_lpcs_states_s {
+	struct cgxx_spux_lpcs_states_s {
 		u64 deskew_sm                        : 3;
 		u64 reserved_3                       : 1;
 		u64 deskew_am_found                  : 20;
@@ -7010,12 +7117,12 @@ union cavm_cgxx_spux_lpcs_states {
 		u64 br_rx_sm                         : 3;
 		u64 reserved_31_63                   : 33;
 	} s;
-	/* struct cavm_cgxx_spux_lpcs_states_s cn; */
+	/* struct cgxx_spux_lpcs_states_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_LPCS_STATES(u64 a)
+static inline u64 CGXX_SPUX_LPCS_STATES(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_LPCS_STATES(u64 a)
+static inline u64 CGXX_SPUX_LPCS_STATES(u64 a)
 {
 	return 0x10208 + 0x40000 * a;
 }
@@ -7031,9 +7138,9 @@ static inline u64 CAVM_CGXX_SPUX_LPCS_STATES(u64 a)
  * logical PCS lane. Only bit 0 of vector is used for 10GBASE-R, and only
  * bits 1:0 of vector are used for RXAUI."
  */
-union cavm_cgxx_spux_misc_control {
+union cgxx_spux_misc_control {
 	u64 u;
-	struct cavm_cgxx_spux_misc_control_s {
+	struct cgxx_spux_misc_control_s {
 		u64 txplrt                           : 1;
 		u64 rxplrt                           : 1;
 		u64 xor_txplrt                       : 4;
@@ -7044,12 +7151,12 @@ union cavm_cgxx_spux_misc_control {
 		u64 rx_edet_signal_ok                : 1;
 		u64 reserved_14_63                   : 50;
 	} s;
-	/* struct cavm_cgxx_spux_misc_control_s cn; */
+	/* struct cgxx_spux_misc_control_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_MISC_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_MISC_CONTROL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_MISC_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_MISC_CONTROL(u64 a)
 {
 	return 0x10218 + 0x40000 * a;
 }
@@ -7062,18 +7169,18 @@ static inline u64 CAVM_CGXX_SPUX_MISC_CONTROL(u64 a)
  * described in 802.3 section 91.6.8 (for 100G and extended to 50G) and
  * 802.3by-2016 section 108.6.7 (for 25G and extended to USXGMII).
  */
-union cavm_cgxx_spux_rsfec_corr {
+union cgxx_spux_rsfec_corr {
 	u64 u;
-	struct cavm_cgxx_spux_rsfec_corr_s {
+	struct cgxx_spux_rsfec_corr_s {
 		u64 cw_cnt                           : 32;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_spux_rsfec_corr_s cn; */
+	/* struct cgxx_spux_rsfec_corr_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_RSFEC_CORR(u64 a)
+static inline u64 CGXX_SPUX_RSFEC_CORR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_RSFEC_CORR(u64 a)
+static inline u64 CGXX_SPUX_RSFEC_CORR(u64 a)
 {
 	return 0x10088 + 0x40000 * a;
 }
@@ -7086,9 +7193,9 @@ static inline u64 CAVM_CGXX_SPUX_RSFEC_CORR(u64 a)
  * 802.3 section 91.6 (for 100G and extended to 50G) and 802.3by-2016
  * section 108-6 (for 25G and extended to USXGMII).
  */
-union cavm_cgxx_spux_rsfec_status {
+union cgxx_spux_rsfec_status {
 	u64 u;
-	struct cavm_cgxx_spux_rsfec_status_s {
+	struct cgxx_spux_rsfec_status_s {
 		u64 fec_lane_mapping                 : 8;
 		u64 fec_align_status                 : 1;
 		u64 amps_lock                        : 4;
@@ -7097,12 +7204,12 @@ union cavm_cgxx_spux_rsfec_status {
 		u64 fec_byp_cor_abil                 : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_spux_rsfec_status_s cn; */
+	/* struct cgxx_spux_rsfec_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_RSFEC_STATUS(u64 a)
+static inline u64 CGXX_SPUX_RSFEC_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_RSFEC_STATUS(u64 a)
+static inline u64 CGXX_SPUX_RSFEC_STATUS(u64 a)
 {
 	return 0x10080 + 0x40000 * a;
 }
@@ -7116,18 +7223,18 @@ static inline u64 CAVM_CGXX_SPUX_RSFEC_STATUS(u64 a)
  * 50G) and 802.3by-2016 section 108.6.8 (for 25G and extended to
  * USXGMII).
  */
-union cavm_cgxx_spux_rsfec_uncorr {
+union cgxx_spux_rsfec_uncorr {
 	u64 u;
-	struct cavm_cgxx_spux_rsfec_uncorr_s {
+	struct cgxx_spux_rsfec_uncorr_s {
 		u64 cw_cnt                           : 32;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_spux_rsfec_uncorr_s cn; */
+	/* struct cgxx_spux_rsfec_uncorr_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_RSFEC_UNCORR(u64 a)
+static inline u64 CGXX_SPUX_RSFEC_UNCORR(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_RSFEC_UNCORR(u64 a)
+static inline u64 CGXX_SPUX_RSFEC_UNCORR(u64 a)
 {
 	return 0x10090 + 0x40000 * a;
 }
@@ -7140,18 +7247,18 @@ static inline u64 CAVM_CGXX_SPUX_RSFEC_UNCORR(u64 a)
  * state diagram enters the RX_WTF state indicating that a wake time
  * fault has been detected.
  */
-union cavm_cgxx_spux_rx_eee_wake {
+union cgxx_spux_rx_eee_wake {
 	u64 u;
-	struct cavm_cgxx_spux_rx_eee_wake_s {
+	struct cgxx_spux_rx_eee_wake_s {
 		u64 wtf_error_counter                : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_spux_rx_eee_wake_s cn; */
+	/* struct cgxx_spux_rx_eee_wake_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_RX_EEE_WAKE(u64 a)
+static inline u64 CGXX_SPUX_RX_EEE_WAKE(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_RX_EEE_WAKE(u64 a)
+static inline u64 CGXX_SPUX_RX_EEE_WAKE(u64 a)
 {
 	return 0x103e0 + 8 * a;
 }
@@ -7163,9 +7270,9 @@ static inline u64 CAVM_CGXX_SPUX_RX_EEE_WAKE(u64 a)
  * Internal: This register specifies receiver LPI timing parameters Tqr,
  * Twr and Twtf.
  */
-union cavm_cgxx_spux_rx_lpi_timing {
+union cgxx_spux_rx_lpi_timing {
 	u64 u;
-	struct cavm_cgxx_spux_rx_lpi_timing_s {
+	struct cgxx_spux_rx_lpi_timing_s {
 		u64 twtf                             : 20;
 		u64 twr                              : 20;
 		u64 tqr                              : 20;
@@ -7173,12 +7280,12 @@ union cavm_cgxx_spux_rx_lpi_timing {
 		u64 rx_lpi_fw                        : 1;
 		u64 rx_lpi_en                        : 1;
 	} s;
-	/* struct cavm_cgxx_spux_rx_lpi_timing_s cn; */
+	/* struct cgxx_spux_rx_lpi_timing_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_RX_LPI_TIMING(u64 a)
+static inline u64 CGXX_SPUX_RX_LPI_TIMING(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_RX_LPI_TIMING(u64 a)
+static inline u64 CGXX_SPUX_RX_LPI_TIMING(u64 a)
 {
 	return 0x103c0 + 8 * a;
 }
@@ -7190,18 +7297,18 @@ static inline u64 CAVM_CGXX_SPUX_RX_LPI_TIMING(u64 a)
  * Internal: This register specifies receiver LPI timing parameters
  * hold_off_timer.
  */
-union cavm_cgxx_spux_rx_lpi_timing2 {
+union cgxx_spux_rx_lpi_timing2 {
 	u64 u;
-	struct cavm_cgxx_spux_rx_lpi_timing2_s {
+	struct cgxx_spux_rx_lpi_timing2_s {
 		u64 hold_off_timer                   : 20;
 		u64 reserved_20_63                   : 44;
 	} s;
-	/* struct cavm_cgxx_spux_rx_lpi_timing2_s cn; */
+	/* struct cgxx_spux_rx_lpi_timing2_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_RX_LPI_TIMING2(u64 a)
+static inline u64 CGXX_SPUX_RX_LPI_TIMING2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_RX_LPI_TIMING2(u64 a)
+static inline u64 CGXX_SPUX_RX_LPI_TIMING2(u64 a)
 {
 	return 0x10420 + 8 * a;
 }
@@ -7211,9 +7318,9 @@ static inline u64 CAVM_CGXX_SPUX_RX_LPI_TIMING2(u64 a)
  *
  * CGX SPU Receiver Marker Interval Count Control Registers
  */
-union cavm_cgxx_spux_rx_mrk_cnt {
+union cgxx_spux_rx_mrk_cnt {
 	u64 u;
-	struct cavm_cgxx_spux_rx_mrk_cnt_s {
+	struct cgxx_spux_rx_mrk_cnt_s {
 		u64 mrk_cnt                          : 20;
 		u64 reserved_20_43                   : 24;
 		u64 by_mrk_100g                      : 1;
@@ -7221,12 +7328,12 @@ union cavm_cgxx_spux_rx_mrk_cnt {
 		u64 ram_mrk_cnt                      : 8;
 		u64 reserved_56_63                   : 8;
 	} s;
-	/* struct cavm_cgxx_spux_rx_mrk_cnt_s cn; */
+	/* struct cgxx_spux_rx_mrk_cnt_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_RX_MRK_CNT(u64 a)
+static inline u64 CGXX_SPUX_RX_MRK_CNT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_RX_MRK_CNT(u64 a)
+static inline u64 CGXX_SPUX_RX_MRK_CNT(u64 a)
 {
 	return 0x103a0 + 8 * a;
 }
@@ -7236,9 +7343,9 @@ static inline u64 CAVM_CGXX_SPUX_RX_MRK_CNT(u64 a)
  *
  * CGX SPU PCS Speed Ability Registers
  */
-union cavm_cgxx_spux_spd_abil {
+union cgxx_spux_spd_abil {
 	u64 u;
-	struct cavm_cgxx_spux_spd_abil_s {
+	struct cgxx_spux_spd_abil_s {
 		u64 tengb                            : 1;
 		u64 tenpasst                         : 1;
 		u64 usxgmii                          : 1;
@@ -7248,12 +7355,12 @@ union cavm_cgxx_spux_spd_abil {
 		u64 hundredgb                        : 1;
 		u64 reserved_7_63                    : 57;
 	} s;
-	/* struct cavm_cgxx_spux_spd_abil_s cn; */
+	/* struct cgxx_spux_spd_abil_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_SPD_ABIL(u64 a)
+static inline u64 CGXX_SPUX_SPD_ABIL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_SPD_ABIL(u64 a)
+static inline u64 CGXX_SPUX_SPD_ABIL(u64 a)
 {
 	return 0x10010 + 0x40000 * a;
 }
@@ -7263,9 +7370,9 @@ static inline u64 CAVM_CGXX_SPUX_SPD_ABIL(u64 a)
  *
  * CGX SPU Status 1 Registers
  */
-union cavm_cgxx_spux_status1 {
+union cgxx_spux_status1 {
 	u64 u;
-	struct cavm_cgxx_spux_status1_s {
+	struct cgxx_spux_status1_s {
 		u64 reserved_0                       : 1;
 		u64 lpable                           : 1;
 		u64 rcv_lnk                          : 1;
@@ -7277,12 +7384,12 @@ union cavm_cgxx_spux_status1 {
 		u64 tx_lpi_received                  : 1;
 		u64 reserved_12_63                   : 52;
 	} s;
-	/* struct cavm_cgxx_spux_status1_s cn; */
+	/* struct cgxx_spux_status1_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_STATUS1(u64 a)
+static inline u64 CGXX_SPUX_STATUS1(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_STATUS1(u64 a)
+static inline u64 CGXX_SPUX_STATUS1(u64 a)
 {
 	return 0x10008 + 0x40000 * a;
 }
@@ -7292,9 +7399,9 @@ static inline u64 CAVM_CGXX_SPUX_STATUS1(u64 a)
  *
  * CGX SPU Status 2 Registers
  */
-union cavm_cgxx_spux_status2 {
+union cgxx_spux_status2 {
 	u64 u;
-	struct cavm_cgxx_spux_status2_s {
+	struct cgxx_spux_status2_s {
 		u64 tengb_r                          : 1;
 		u64 tengb_x                          : 1;
 		u64 tengb_w                          : 1;
@@ -7311,12 +7418,12 @@ union cavm_cgxx_spux_status2 {
 		u64 dev                              : 2;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_spux_status2_s cn; */
+	/* struct cgxx_spux_status2_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_STATUS2(u64 a)
+static inline u64 CGXX_SPUX_STATUS2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_STATUS2(u64 a)
+static inline u64 CGXX_SPUX_STATUS2(u64 a)
 {
 	return 0x10020 + 0x40000 * a;
 }
@@ -7327,9 +7434,9 @@ static inline u64 CAVM_CGXX_SPUX_STATUS2(u64 a)
  * INTERNAL: CGX SPU TX EEE LPI Timing Parameters Registers  Reserved.
  * Internal: Transmit LPI timing parameters Tsl, Tql and Tul
  */
-union cavm_cgxx_spux_tx_lpi_timing {
+union cgxx_spux_tx_lpi_timing {
 	u64 u;
-	struct cavm_cgxx_spux_tx_lpi_timing_s {
+	struct cgxx_spux_tx_lpi_timing_s {
 		u64 tql                              : 19;
 		u64 reserved_19_31                   : 13;
 		u64 tul                              : 12;
@@ -7340,12 +7447,12 @@ union cavm_cgxx_spux_tx_lpi_timing {
 		u64 tx_lpi_fw                        : 1;
 		u64 tx_lpi_en                        : 1;
 	} s;
-	/* struct cavm_cgxx_spux_tx_lpi_timing_s cn; */
+	/* struct cgxx_spux_tx_lpi_timing_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_TX_LPI_TIMING(u64 a)
+static inline u64 CGXX_SPUX_TX_LPI_TIMING(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_TX_LPI_TIMING(u64 a)
+static inline u64 CGXX_SPUX_TX_LPI_TIMING(u64 a)
 {
 	return 0x10400 + 8 * a;
 }
@@ -7356,9 +7463,9 @@ static inline u64 CAVM_CGXX_SPUX_TX_LPI_TIMING(u64 a)
  * INTERNAL: CGX SPU TX EEE LPI Timing2 Parameters Registers  Reserved.
  * Internal: This register specifies transmit LPI timer parameters.
  */
-union cavm_cgxx_spux_tx_lpi_timing2 {
+union cgxx_spux_tx_lpi_timing2 {
 	u64 u;
-	struct cavm_cgxx_spux_tx_lpi_timing2_s {
+	struct cgxx_spux_tx_lpi_timing2_s {
 		u64 t1u                              : 8;
 		u64 reserved_8_11                    : 4;
 		u64 twl                              : 12;
@@ -7368,12 +7475,12 @@ union cavm_cgxx_spux_tx_lpi_timing2 {
 		u64 tbyp                             : 12;
 		u64 reserved_60_63                   : 4;
 	} s;
-	/* struct cavm_cgxx_spux_tx_lpi_timing2_s cn; */
+	/* struct cgxx_spux_tx_lpi_timing2_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_TX_LPI_TIMING2(u64 a)
+static inline u64 CGXX_SPUX_TX_LPI_TIMING2(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_TX_LPI_TIMING2(u64 a)
+static inline u64 CGXX_SPUX_TX_LPI_TIMING2(u64 a)
 {
 	return 0x10440 + 8 * a;
 }
@@ -7383,9 +7490,9 @@ static inline u64 CAVM_CGXX_SPUX_TX_LPI_TIMING2(u64 a)
  *
  * CGX SPU Transmitter Marker Interval Count Control Registers
  */
-union cavm_cgxx_spux_tx_mrk_cnt {
+union cgxx_spux_tx_mrk_cnt {
 	u64 u;
-	struct cavm_cgxx_spux_tx_mrk_cnt_s {
+	struct cgxx_spux_tx_mrk_cnt_s {
 		u64 mrk_cnt                          : 20;
 		u64 reserved_20_43                   : 24;
 		u64 by_mrk_100g                      : 1;
@@ -7393,12 +7500,12 @@ union cavm_cgxx_spux_tx_mrk_cnt {
 		u64 ram_mrk_cnt                      : 8;
 		u64 reserved_56_63                   : 8;
 	} s;
-	/* struct cavm_cgxx_spux_tx_mrk_cnt_s cn; */
+	/* struct cgxx_spux_tx_mrk_cnt_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_TX_MRK_CNT(u64 a)
+static inline u64 CGXX_SPUX_TX_MRK_CNT(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_TX_MRK_CNT(u64 a)
+static inline u64 CGXX_SPUX_TX_MRK_CNT(u64 a)
 {
 	return 0x10380 + 8 * a;
 }
@@ -7416,9 +7523,9 @@ static inline u64 CAVM_CGXX_SPUX_TX_MRK_CNT(u64 a)
  * common denominator technology. The format for this register is from
  * USXGMII Multiport specification section 1.1.2 Table 2.
  */
-union cavm_cgxx_spux_usx_an_adv {
+union cgxx_spux_usx_an_adv {
 	u64 u;
-	struct cavm_cgxx_spux_usx_an_adv_s {
+	struct cgxx_spux_usx_an_adv_s {
 		u64 set                              : 1;
 		u64 reserved_1_6                     : 6;
 		u64 eee_clk_stop_abil                : 1;
@@ -7429,12 +7536,12 @@ union cavm_cgxx_spux_usx_an_adv {
 		u64 lnk_st                           : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_spux_usx_an_adv_s cn; */
+	/* struct cgxx_spux_usx_an_adv_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_USX_AN_ADV(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_ADV(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_USX_AN_ADV(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_ADV(u64 a)
 {
 	return 0x101d0 + 0x40000 * a;
 }
@@ -7444,9 +7551,9 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_ADV(u64 a)
  *
  * CGX SPU USXGMII Autonegotiation Control Register
  */
-union cavm_cgxx_spux_usx_an_control {
+union cgxx_spux_usx_an_control {
 	u64 u;
-	struct cavm_cgxx_spux_usx_an_control_s {
+	struct cgxx_spux_usx_an_control_s {
 		u64 reserved_0_8                     : 9;
 		u64 rst_an                           : 1;
 		u64 reserved_10_11                   : 2;
@@ -7455,12 +7562,12 @@ union cavm_cgxx_spux_usx_an_control {
 		u64 an_reset                         : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_spux_usx_an_control_s cn; */
+	/* struct cgxx_spux_usx_an_control_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_USX_AN_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_CONTROL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_USX_AN_CONTROL(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_CONTROL(u64 a)
 {
 	return 0x101c0 + 0x40000 * a;
 }
@@ -7471,20 +7578,20 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_CONTROL(u64 a)
  * CGX SPU USXGMII Autonegotiation Expansion Register This register is
  * only used to signal page reception.
  */
-union cavm_cgxx_spux_usx_an_expansion {
+union cgxx_spux_usx_an_expansion {
 	u64 u;
-	struct cavm_cgxx_spux_usx_an_expansion_s {
+	struct cgxx_spux_usx_an_expansion_s {
 		u64 reserved_0                       : 1;
 		u64 an_page_received                 : 1;
 		u64 next_page_able                   : 1;
 		u64 reserved_3_63                    : 61;
 	} s;
-	/* struct cavm_cgxx_spux_usx_an_expansion_s cn; */
+	/* struct cgxx_spux_usx_an_expansion_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_USX_AN_EXPANSION(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_EXPANSION(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_USX_AN_EXPANSION(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_EXPANSION(u64 a)
 {
 	return 0x101e0 + 0x40000 * a;
 }
@@ -7495,18 +7602,18 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_EXPANSION(u64 a)
  * CGX SPU USXGMII Flow Control Registers This register is used by
  * software to affect USXGMII AN hardware behavior.
  */
-union cavm_cgxx_spux_usx_an_flow_ctrl {
+union cgxx_spux_usx_an_flow_ctrl {
 	u64 u;
-	struct cavm_cgxx_spux_usx_an_flow_ctrl_s {
+	struct cgxx_spux_usx_an_flow_ctrl_s {
 		u64 start_idle_detect                : 1;
 		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct cavm_cgxx_spux_usx_an_flow_ctrl_s cn; */
+	/* struct cgxx_spux_usx_an_flow_ctrl_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_USX_AN_FLOW_CTRL(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_FLOW_CTRL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_USX_AN_FLOW_CTRL(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_FLOW_CTRL(u64 a)
 {
 	return 0x101e8 + 0x40000 * a;
 }
@@ -7516,18 +7623,18 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_FLOW_CTRL(u64 a)
  *
  * CGX SPU USXGMII Link Timer Registers This is the link timer register.
  */
-union cavm_cgxx_spux_usx_an_link_timer {
+union cgxx_spux_usx_an_link_timer {
 	u64 u;
-	struct cavm_cgxx_spux_usx_an_link_timer_s {
+	struct cgxx_spux_usx_an_link_timer_s {
 		u64 count                            : 16;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_spux_usx_an_link_timer_s cn; */
+	/* struct cgxx_spux_usx_an_link_timer_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_USX_AN_LINK_TIMER(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_LINK_TIMER(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_USX_AN_LINK_TIMER(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_LINK_TIMER(u64 a)
 {
 	return 0x101f0 + 0x40000 * a;
 }
@@ -7542,9 +7649,9 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_LINK_TIMER(u64 a)
  * CGX()_SPU()_USX_AN_EXPANSION[AN_PAGE_RECEIVED] is set when this
  * register is updated by hardware.
  */
-union cavm_cgxx_spux_usx_an_lp_abil {
+union cgxx_spux_usx_an_lp_abil {
 	u64 u;
-	struct cavm_cgxx_spux_usx_an_lp_abil_s {
+	struct cgxx_spux_usx_an_lp_abil_s {
 		u64 set                              : 1;
 		u64 reserved_1_6                     : 6;
 		u64 eee_clk_stop_abil                : 1;
@@ -7555,12 +7662,12 @@ union cavm_cgxx_spux_usx_an_lp_abil {
 		u64 lnk_st                           : 1;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct cavm_cgxx_spux_usx_an_lp_abil_s cn; */
+	/* struct cgxx_spux_usx_an_lp_abil_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_USX_AN_LP_ABIL(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_LP_ABIL(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_USX_AN_LP_ABIL(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_LP_ABIL(u64 a)
 {
 	return 0x101d8 + 0x40000 * a;
 }
@@ -7570,9 +7677,9 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_LP_ABIL(u64 a)
  *
  * CGX SPU USXGMII Autonegotiation Status Register
  */
-union cavm_cgxx_spux_usx_an_status {
+union cgxx_spux_usx_an_status {
 	u64 u;
-	struct cavm_cgxx_spux_usx_an_status_s {
+	struct cgxx_spux_usx_an_status_s {
 		u64 extnd                            : 1;
 		u64 reserved_1                       : 1;
 		u64 lnk_st                           : 1;
@@ -7581,12 +7688,12 @@ union cavm_cgxx_spux_usx_an_status {
 		u64 an_cpt                           : 1;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_cgxx_spux_usx_an_status_s cn; */
+	/* struct cgxx_spux_usx_an_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPUX_USX_AN_STATUS(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPUX_USX_AN_STATUS(u64 a)
+static inline u64 CGXX_SPUX_USX_AN_STATUS(u64 a)
 {
 	return 0x101c8 + 0x40000 * a;
 }
@@ -7596,9 +7703,24 @@ static inline u64 CAVM_CGXX_SPUX_USX_AN_STATUS(u64 a)
  *
  * CGX SPU Debug Control Registers
  */
-union cavm_cgxx_spu_dbg_control {
+union cgxx_spu_dbg_control {
 	u64 u;
-	struct cavm_cgxx_spu_dbg_control_s {
+	struct cgxx_spu_dbg_control_s {
+		u64 marker_rxp                       : 15;
+		u64 reserved_15                      : 1;
+		u64 scramble_dis                     : 1;
+		u64 reserved_17_18                   : 2;
+		u64 br_pmd_train_soft_en             : 1;
+		u64 reserved_20_27                   : 8;
+		u64 timestamp_norm_dis               : 1;
+		u64 an_nonce_match_dis               : 1;
+		u64 br_ber_mon_dis                   : 1;
+		u64 rf_cw_mon_erly_restart_dis       : 1;
+		u64 us_clk_period                    : 12;
+		u64 ms_clk_period                    : 12;
+		u64 reserved_56_63                   : 8;
+	} s;
+	struct cgxx_spu_dbg_control_cn96xxp1 {
 		u64 marker_rxp                       : 15;
 		u64 reserved_15                      : 1;
 		u64 scramble_dis                     : 1;
@@ -7612,13 +7734,17 @@ union cavm_cgxx_spu_dbg_control {
 		u64 us_clk_period                    : 12;
 		u64 ms_clk_period                    : 12;
 		u64 reserved_56_63                   : 8;
-	} s;
-	/* struct cavm_cgxx_spu_dbg_control_s cn; */
+	} cn96xxp1;
+	/* struct cgxx_spu_dbg_control_s cn96xxp3; */
+	/* struct cgxx_spu_dbg_control_s cn98xx; */
+	/* struct cgxx_spu_dbg_control_cn96xxp1 cnf95xxp1; */
+	/* struct cgxx_spu_dbg_control_s cnf95xxp2; */
+	/* struct cgxx_spu_dbg_control_s loki; */
 };
 
-static inline u64 CAVM_CGXX_SPU_DBG_CONTROL(void)
+static inline u64 CGXX_SPU_DBG_CONTROL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPU_DBG_CONTROL(void)
+static inline u64 CGXX_SPU_DBG_CONTROL(void)
 {
 	return 0x10300;
 }
@@ -7629,18 +7755,18 @@ static inline u64 CAVM_CGXX_SPU_DBG_CONTROL(void)
  * CGX SPU SerDes Lane Skew Status Registers This register provides
  * SerDes lane skew status. One register per physical SerDes lane.
  */
-union cavm_cgxx_spu_sdsx_skew_status {
+union cgxx_spu_sdsx_skew_status {
 	u64 u;
-	struct cavm_cgxx_spu_sdsx_skew_status_s {
+	struct cgxx_spu_sdsx_skew_status_s {
 		u64 skew_status                      : 32;
 		u64 reserved_32_63                   : 32;
 	} s;
-	/* struct cavm_cgxx_spu_sdsx_skew_status_s cn; */
+	/* struct cgxx_spu_sdsx_skew_status_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPU_SDSX_SKEW_STATUS(u64 a)
+static inline u64 CGXX_SPU_SDSX_SKEW_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPU_SDSX_SKEW_STATUS(u64 a)
+static inline u64 CGXX_SPU_SDSX_SKEW_STATUS(u64 a)
 {
 	return 0x10340 + 8 * a;
 }
@@ -7651,9 +7777,9 @@ static inline u64 CAVM_CGXX_SPU_SDSX_SKEW_STATUS(u64 a)
  * CGX SPU SerDes States Registers This register provides SerDes lane
  * states. One register per physical SerDes lane.
  */
-union cavm_cgxx_spu_sdsx_states {
+union cgxx_spu_sdsx_states {
 	u64 u;
-	struct cavm_cgxx_spu_sdsx_states_s {
+	struct cgxx_spu_sdsx_states_s {
 		u64 bx_sync_sm                       : 4;
 		u64 br_sh_cnt                        : 11;
 		u64 br_block_lock                    : 1;
@@ -7675,12 +7801,12 @@ union cavm_cgxx_spu_sdsx_states {
 		u64 am_lock_invld_cnt                : 2;
 		u64 reserved_52_63                   : 12;
 	} s;
-	/* struct cavm_cgxx_spu_sdsx_states_s cn; */
+	/* struct cgxx_spu_sdsx_states_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPU_SDSX_STATES(u64 a)
+static inline u64 CGXX_SPU_SDSX_STATES(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPU_SDSX_STATES(u64 a)
+static inline u64 CGXX_SPU_SDSX_STATES(u64 a)
 {
 	return 0x10360 + 8 * a;
 }
@@ -7694,22 +7820,22 @@ static inline u64 CAVM_CGXX_SPU_SDSX_STATES(u64 a)
  * soft- reset state in USXGMII mode, the CGX will transmit Remote Fault
  * BASE-R blocks.
  */
-union cavm_cgxx_spu_usxgmii_control {
+union cgxx_spu_usxgmii_control {
 	u64 u;
-	struct cavm_cgxx_spu_usxgmii_control_s {
+	struct cgxx_spu_usxgmii_control_s {
 		u64 enable                           : 1;
 		u64 usxgmii_type                     : 3;
 		u64 sds_id                           : 2;
 		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct cavm_cgxx_spu_usxgmii_control_s cn; */
+	/* struct cgxx_spu_usxgmii_control_s cn; */
 };
 
-static inline u64 CAVM_CGXX_SPU_USXGMII_CONTROL(void)
+static inline u64 CGXX_SPU_USXGMII_CONTROL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 CAVM_CGXX_SPU_USXGMII_CONTROL(void)
+static inline u64 CGXX_SPU_USXGMII_CONTROL(void)
 {
 	return 0x10920;
 }
 
-#endif /* __CAVM_CSRS_CGX_H__ */
+#endif /* __CSRS_CGX_H__ */
