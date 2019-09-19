@@ -117,3 +117,27 @@ ssize_t atf_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
 
 	return regs.regs[0];
 }
+
+/*
+ * on entry,
+ *   nonce_len: <= 0, query for buffer address
+ *               > 0 specifies nonce length
+ *
+ * returns,
+ *   signed value: <0 - error code
+ *                  0 - success
+ */
+ssize_t atf_attest(long nonce_len)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = OCTEONTX_ATTESTATION_QUERY;
+	/* X1 - nonce len */
+	regs.regs[1] = nonce_len;
+	/* X2 - subfunction (useful for adding future cmd extensions) */
+	regs.regs[2] = 0;
+
+	smc_call(&regs);
+
+	return regs.regs[0];
+}

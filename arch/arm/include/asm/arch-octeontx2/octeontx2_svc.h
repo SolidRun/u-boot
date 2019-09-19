@@ -34,4 +34,9 @@
 #define OCTEONTX2_MDIO_DBG_READ		0xc2000d01
 #define OCTEONTX2_MDIO_DBG_WRITE	0xc2000d02
 
+/* X1:  0 - query for buffer ptr
+ *     !0 - nonce len
+ */
+#define OCTEONTX_ATTESTATION_QUERY	0xc2000d03
+
 #endif /* __OCTEONTX2_SVC_H__ */
