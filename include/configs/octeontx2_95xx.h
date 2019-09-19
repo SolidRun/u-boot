@@ -85,7 +85,7 @@
 
 #define CONFIG_SYS_MAXARGS		64	/** max command args */
 
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
 
 #undef CONFIG_SYS_PROMPT
 #define CONFIG_SYS_PROMPT		env_get("prompt")
