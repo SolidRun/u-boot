@@ -75,12 +75,12 @@ void octeontx_parse_phy_info(void)
 
 	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
 	if (offset > 1) {
-		for (bgx_id = 0; bgx_id < CONFIG_MAX_BGX_PER_NODE; bgx_id++) {
-			int phy_addr[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = -1};
-			bool autoneg_dis[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
-			int mdio_bus[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = -1};
-			bool lmac_reg[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
-			bool lmac_enable[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
+		for (bgx_id = 0; bgx_id < MAX_BGX_PER_NODE; bgx_id++) {
+			int phy_addr[LMAC_CNT] = {[0 ... LMAC_CNT - 1] = -1};
+			bool autoneg_dis[LMAC_CNT] = {[0 ... LMAC_CNT - 1] = 0};
+			int mdio_bus[LMAC_CNT] = {[0 ... LMAC_CNT - 1] = -1};
+			bool lmac_reg[LMAC_CNT] = {[0 ... LMAC_CNT - 1] = 0};
+			bool lmac_enable[LMAC_CNT] = {[0 ... LMAC_CNT - 1] = 0};
 
 			snprintf(bgxname, sizeof(bgxname),
 				 "bgx%d", bgx_id);

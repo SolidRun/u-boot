@@ -16,6 +16,7 @@
 #include <pci.h>
 #include <asm/io.h>
 
+#include <asm/arch/octeontx.h>
 #include <asm/arch/octeontx_vnic.h>
 
 #include "nic_reg.h"
@@ -437,7 +438,7 @@ static void nic_get_hw_info(struct nicpf *nic)
 
 	switch (sdevid) {
 	case PCI_SUBSYS_DEVID_88XX_NIC_PF:
-		hw->bgx_cnt = CONFIG_MAX_BGX_PER_NODE;
+		hw->bgx_cnt = MAX_BGX_PER_NODE;
 		hw->chans_per_lmac = 16;
 		hw->chans_per_bgx = 128;
 		hw->cpi_cnt = 2048;
@@ -450,7 +451,7 @@ static void nic_get_hw_info(struct nicpf *nic)
 		hw->model_id = 0x88;
 		break;
 	case PCI_SUBSYS_DEVID_81XX_NIC_PF:
-		hw->bgx_cnt = CONFIG_MAX_BGX_PER_NODE;
+		hw->bgx_cnt = MAX_BGX_PER_NODE;
 		hw->chans_per_lmac = 8;
 		hw->chans_per_bgx = 32;
 		hw->chans_per_rgx = 8;
@@ -465,7 +466,7 @@ static void nic_get_hw_info(struct nicpf *nic)
 		hw->model_id = 0x81;
 		break;
 	case PCI_SUBSYS_DEVID_83XX_NIC_PF:
-		hw->bgx_cnt = CONFIG_MAX_BGX_PER_NODE;
+		hw->bgx_cnt = MAX_BGX_PER_NODE;
 		hw->chans_per_lmac = 8;
 		hw->chans_per_bgx = 32;
 		hw->chans_per_lbk = 64;

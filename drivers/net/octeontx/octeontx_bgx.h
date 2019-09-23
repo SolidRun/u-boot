@@ -8,6 +8,8 @@
 #ifndef OCTEONT_BGX_H
 #define OCTEONT_BGX_H
 
+#include <asm/arch/octeontx.h>
+
 #define    MAX_LMAC_PER_BGX			4
 #define    MAX_BGX_CHANS_PER_LMAC		16
 #define    MAX_DMAC_PER_LMAC			8
@@ -15,7 +17,7 @@
 
 #define    MAX_DMAC_PER_LMAC_TNS_BYPASS_MODE	2
 
-#define    MAX_LMAC	(CONFIG_MAX_BGX_PER_NODE * MAX_LMAC_PER_BGX)
+#define    MAX_LMAC	(MAX_BGX_PER_NODE * MAX_LMAC_PER_BGX)
 
 #define    NODE_ID_MASK				0x300000000000
 #define    NODE_ID(x)				(((x) & NODE_ID_MASK) >> 44)

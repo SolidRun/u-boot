@@ -1,16 +1,12 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2019 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
 #ifndef __OCTEONTX2_LOKI_H__
 #define __OCTEONTX2_LOKI_H__
-
-/* Generic Interrupt Controller Definitions */
-#define GICD_BASE			(0x801000000000)
-#define GICR_BASE			(0x801000002000)
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
@@ -44,11 +40,8 @@
 #define CONFIG_LAST_STAGE_INIT
 /* #define CONFIG_CMD_MDIO_DBG */
 
-/**
- * Only allow the Ethernet MAC address environment variable to be
- * overwritten once.
- */
-#define CONFIG_OVERWRITE_ETHADDR_ONCE
+/* Allow environment variable to be overwritten */
+#define CONFIG_ENV_OVERWRITE
 
 /** Reduce hashes printed out */
 #define CONFIG_TFTP_TSIZE
@@ -102,9 +95,8 @@
 #define CONFIG_SUPPORT_EMMC_RPMB
 #define CONFIG_SUPPORT_EMMC_BOOT
 
-#define CONFIG_MMC_OCTEONTX
-#ifndef CONFIG_BLK
-# define CONFIG_BLK
+#if defined(CONFIG_MMC_OCTEONTX)
+#define MMC_SUPPORTS_TUNING
 #endif
 
 #endif /* __OCTEONTX2_LOKI_H__ */

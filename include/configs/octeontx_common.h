@@ -1,17 +1,12 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
-
-#ifndef __OCTEONTX_81XX_H__
-#define __OCTEONTX_81XX_H__
-
-/* Generic Interrupt Controller Definitions */
-#define GICD_BASE			(0x801000000000)
-#define GICR_BASE			(0x801000002000)
+#ifndef __OCTEONTX_COMMON_H__
+#define __OCTEONTX_COMMON_H__
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
@@ -40,18 +35,8 @@
 
 #define CONFIG_NR_DRAM_BANKS		1
 
-/**
- * Only allow the Ethernet MAC address environment variable to be
- * overwritten once.
- */
-#define CONFIG_OVERWRITE_ETHADDR_ONCE
-
-/** Maximum number of BGX interfaces per CPU node */
-#define CONFIG_MAX_BGX_PER_NODE		3
-
-/** Maximum total number of BGX interfaces across all nodes */
-#define CONFIG_MAX_BGX			3
-#define CONFIG_OCTEONTX_XCV
+/* Allow environment variable to be overwritten */
+#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_MISC_INIT_R
 
@@ -95,7 +80,7 @@
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-#define CONFIG_ENV_SECT_SIZE		(64*1024)
+#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 #define CONFIG_ENV_SPI_MAX_HZ		12500000
 #define CONFIG_ENV_SPI_MODE		0
 #define CONFIG_ENV_SPI_BUS		0
@@ -120,9 +105,4 @@
 #define CONFIG_SUPPORT_EMMC_RPMB
 #define CONFIG_CMD_BKOPS_ENABLE
 
-#define CONFIG_MMC_OCTEONTX
-#ifndef CONFIG_BLK
-# define CONFIG_BLK
-#endif
-
-#endif /* __OCTEONTX_81XX_H__ */
+#endif /* __OCTEONTX_COMMON_H__ */

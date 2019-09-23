@@ -1,18 +1,14 @@
-if ARCH_OCTEONTX
+if TARGET_OCTEONTX_81XX || TARGET_OCTEONTX_83XX
 
-choice
-	prompt "Target board"
+config SYS_VENDOR
+	string
+	default	"Marvell"
 
-config	TARGET_OCTEONTX_83XX
-	bool "OcteonTX CN83XX"
-
-config	TARGET_OCTEONTX_81XX
-	bool "OcteonTX CN81XX"
-
-endchoice
+config SYS_BOARD
+	string
+	default "octeontx"
 
 config SYS_CONFIG_NAME
-	default "octeontx_81xx" if TARGET_OCTEONTX_81XX
-	default "octeontx_83xx" if TARGET_OCTEONTX_83XX
+	default "octeontx_common"
 
 endif

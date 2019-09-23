@@ -13,6 +13,20 @@
 #define is_board_model(model)  (g_cavm_bdt.prod_id == (model))
 
 #define MAX_LMAC_PER_BGX 4
+#define LMAC_CNT MAX_LMAC_PER_BGX
+
+#if defined(CONFIG_TARGET_OCTEONTX_81XX)
+
+/** Maximum number of BGX interfaces per CPU node */
+#define MAX_BGX_PER_NODE	3
+#define OCTEONTX_XCV	/* RGMII Interface */
+
+#elif defined(CONFIG_TARGET_OCTEONTX_83XX)
+
+/** Maximum number of BGX interfaces per CPU node */
+#define MAX_BGX_PER_NODE	4
+
+#endif
 
 /** Reg offsets */
 #define CAVM_MIO_FUS_DAT2	0x87E003001410ULL

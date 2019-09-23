@@ -37,7 +37,7 @@ void octeontx2_cleanup_ethaddr(void)
 	for (int i = 0; i < 20; i++) {
 		sprintf(ename, i ? "eth%daddr" : "ethaddr", i);
 		if (env_get(ename))
-			env_set_force(ename, NULL);
+			env_set(ename, NULL);
 	}
 }
 

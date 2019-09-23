@@ -69,9 +69,9 @@ struct bgx {
 	bool			is_rgx;
 };
 
-struct bgx_board_info bgx_board_info[CONFIG_MAX_BGX];
+struct bgx_board_info bgx_board_info[MAX_BGX_PER_NODE];
 
-struct bgx *bgx_vnic[CONFIG_MAX_BGX];
+struct bgx *bgx_vnic[MAX_BGX_PER_NODE];
 bool is_altpkg;
 extern int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr);
 
@@ -150,7 +150,7 @@ static bool is_bgx_port_valid(int bgx, int lmac)
 
 struct lmac *bgx_get_lmac(int node, int bgx_idx, int lmacid)
 {
-	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
+	struct bgx *bgx = bgx_vnic[(node * MAX_BGX_PER_NODE) + bgx_idx];
 
 	if (bgx)
 		return &bgx->lmac[lmacid];
@@ -160,7 +160,7 @@ struct lmac *bgx_get_lmac(int node, int bgx_idx, int lmacid)
 
 const u8 *bgx_get_lmac_mac(int node, int bgx_idx, int lmacid)
 {
-	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
+	struct bgx *bgx = bgx_vnic[(node * MAX_BGX_PER_NODE) + bgx_idx];
 
 	if (bgx)
 		return bgx->lmac[lmacid].mac;
@@ -170,7 +170,7 @@ const u8 *bgx_get_lmac_mac(int node, int bgx_idx, int lmacid)
 
 void bgx_set_lmac_mac(int node, int bgx_idx, int lmacid, const u8 *mac)
 {
-	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
+	struct bgx *bgx = bgx_vnic[(node * MAX_BGX_PER_NODE) + bgx_idx];
 
 	if (!bgx)
 		return;
@@ -185,9 +185,9 @@ void bgx_get_count(int node, int *bgx_count)
 	struct bgx *bgx;
 
 	*bgx_count = 0;
-	for (i = 0; i < CONFIG_MAX_BGX_PER_NODE; i++) {
-		bgx = bgx_vnic[node * CONFIG_MAX_BGX_PER_NODE + i];
-		debug("bgx_vnic[%u]: %p\n", node * CONFIG_MAX_BGX_PER_NODE + i,
+	for (i = 0; i < MAX_BGX_PER_NODE; i++) {
+		bgx = bgx_vnic[node * MAX_BGX_PER_NODE + i];
+		debug("bgx_vnic[%u]: %p\n", node * MAX_BGX_PER_NODE + i,
 		      bgx);
 		if (bgx)
 			*bgx_count |= (1 << i);
@@ -199,7 +199,7 @@ int bgx_get_lmac_count(int node, int bgx_idx)
 {
 	struct bgx *bgx;
 
-	bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
+	bgx = bgx_vnic[(node * MAX_BGX_PER_NODE) + bgx_idx];
 	if (bgx)
 		return bgx->lmac_count;
 
@@ -208,7 +208,7 @@ int bgx_get_lmac_count(int node, int bgx_idx)
 
 void bgx_lmac_rx_tx_enable(int node, int bgx_idx, int lmacid, bool enable)
 {
-	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
+	struct bgx *bgx = bgx_vnic[(node * MAX_BGX_PER_NODE) + bgx_idx];
 	u64 cfg;
 
 	if (!bgx)
@@ -245,7 +245,7 @@ void bgx_lmac_internal_loopback(int node, int bgx_idx,
 	struct lmac *lmac;
 	u64    cfg;
 
-	bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
+	bgx = bgx_vnic[(node * MAX_BGX_PER_NODE) + bgx_idx];
 	if (!bgx)
 		return;
 
@@ -915,7 +915,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 			       __func__, lmac->phydev->dev->name);
 		}
 
-#ifdef CONFIG_OCTEONTX_XCV
+#ifdef OCTEONTX_XCV
 		if (lmac->qlm_mode == QLM_MODE_RGMII)
 			xcv_setup_link(lmac->phydev->link, lmac->phydev->speed);
 #endif
@@ -1451,7 +1451,7 @@ int octeontx_bgx_probe(struct udevice *dev)
 	}
 	is_altpkg = g_cavm_bdt.alt_pkg;
 
-#ifdef CONFIG_OCTEONTX_XCV
+#ifdef OCTEONTX_XCV
 	/* Use FAKE BGX2 for RGX interface */
 	if ((((uintptr_t)bgx->reg_base >> 24) & 0xf) == 0x8) {
 		bgx->bgx_id = 2;
@@ -1471,7 +1471,7 @@ int octeontx_bgx_probe(struct udevice *dev)
 
 	node = node_id(bgx->reg_base);
 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 3;
-	bgx->bgx_id = (node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx;
+	bgx->bgx_id = (node * MAX_BGX_PER_NODE) + bgx_idx;
 
 	if (is_board_model(CN81XX))
 		inc = 2;
@@ -1504,7 +1504,7 @@ int octeontx_bgx_probe(struct udevice *dev)
 		bgx->lmac[lmac].lmacid = lmac;
 	}
 
-#ifdef CONFIG_OCTEONTX_XCV
+#ifdef OCTEONTX_XCV
 skip_qlm_config:
 #endif
 	bgx_vnic[bgx->bgx_id] = bgx;

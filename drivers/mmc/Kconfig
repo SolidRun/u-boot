@@ -38,30 +38,6 @@ config SPL_DM_MMC
 	  appear as block devices in U-Boot and can support filesystems such
 	  as EXT4 and FAT.
 
-config MMC_OCTEONTX
-	bool "Marvell OcteonTX Multimedia Card Interface support"
-	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
-	depends on DM_MMC
-	help
-	  This selects the OcteonTX Multimedia card Interface.
-	  If you have an OcteonTX board with a Multimedia Card slot,
-	  say Y here.  If unsure, say N.
-
-config MMC_SUPPORTS_TUNING
-	depends on MMC_OCTEONTX
-	bool "Support for HW partitioning command(eMMC)"
-	default	y
-	help
-	  This adds support for tuning in OcteonTX MMC driver.
-
-
-config MMC_HW_PARTITIONING
-	bool "Support for HW partitioning command(eMMC)"
-	default y
-	help
-	  This adds a command and an API to do hardware partitioning on eMMC
-	  devices.
-
 if MMC
 
 config MMC_SPI
@@ -304,6 +280,17 @@ config MMC_PCI
 	help
 	  This selects PCI-based MMC controllers.
 	  If you have an MMC controller on a PCI bus, say Y here.
+
+	  If unsure, say N.
+
+config MMC_OCTEONTX
+	bool "Marvell OcteonTX Multimedia Card Interface support"
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	depends on DM_MMC
+	help
+	  This selects the OcteonTX Multimedia card Interface.
+	  If you have an OcteonTX board with a Multimedia Card slot,
+	  say Y here.
 
 	  If unsure, say N.
 
