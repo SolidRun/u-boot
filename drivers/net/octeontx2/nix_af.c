@@ -24,6 +24,10 @@
 #include "lmt.h"
 #include "cgx.h"
 
+static struct nix_aq_cq_dis cq_dis ALIGNED;
+static struct nix_aq_rq_dis rq_dis ALIGNED;
+static struct nix_aq_sq_dis sq_dis ALIGNED;
+
 /***************
  * NPA API
  ***************/
@@ -754,21 +758,6 @@ int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
 			  u32 cq_count, u32 rq_count, u32 sq_count)
 {
 	union nixx_af_rx_sw_sync sw_sync;
-	struct nix_aq_cq_request {
-		union nix_aq_res_s	resp;
-		union nix_cq_ctx_s	cq0;
-		union nix_cq_ctx_s	cq1;
-	} cq_req ALIGNED;
-	struct nix_aq_rq_request {
-		union nix_aq_res_s	resp;
-		union nix_rq_ctx_s	rq0;
-		union nix_rq_ctx_s	rq1;
-	} rq_req ALIGNED;
-	struct nix_aq_sq_request {
-		union nix_aq_res_s	resp;
-		union nix_sq_ctx_s	sq0;
-		union nix_sq_ctx_s	sq1;
-	} sq_req ALIGNED;
 	union nixx_af_lf_rst lf_rst;
 	int index, err;
 
@@ -783,15 +772,15 @@ int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
 	} while (sw_sync.s.ena);
 
 	for (index = 0; index < rq_count; index++) {
-		memset((void *)&rq_req, 0, sizeof(rq_req));
-		rq_req.rq0.s.ena = 0;	/* Context */
-		rq_req.rq1.s.ena = 1;	/* Mask */
+		memset((void *)&rq_dis, 0, sizeof(rq_dis));
+		rq_dis.rq.s.ena = 0;	/* Context */
+		rq_dis.mrq.s.ena = 1;	/* Mask */
 		__iowmb();
 
 		err = nix_aq_issue_command(nix_af, lf,
 					   NIX_AQ_INSTOP_E_WRITE,
 					   NIX_AQ_CTYPE_E_RQ,
-					   index, &rq_req.resp);
+					   index, &rq_dis.resp);
 		if (err) {
 			printf("%s: Error disabling LF %d RQ(%d)\n",
 			       __func__, lf, index);
@@ -801,15 +790,15 @@ int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
 	}
 
 	for (index = 0; index < sq_count; index++) {
-		memset((void *)&sq_req, 0, sizeof(sq_req));
-		sq_req.sq0.s.ena = 0;	/* Context */
-		sq_req.sq1.s.ena = 1;	/* Mask */
+		memset((void *)&sq_dis, 0, sizeof(sq_dis));
+		sq_dis.sq.s.ena = 0;	/* Context */
+		sq_dis.msq.s.ena = 1;	/* Mask */
 		__iowmb();
 
 		err = nix_aq_issue_command(nix_af, lf,
 					   NIX_AQ_INSTOP_E_WRITE,
 					   NIX_AQ_CTYPE_E_SQ,
-					   index, &sq_req.resp);
+					   index, &sq_dis.resp);
 		if (err) {
 			printf("%s: Error disabling LF %d SQ(%d)\n",
 			       __func__, lf, index);
@@ -819,15 +808,15 @@ int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
 	}
 
 	for (index = 0; index < cq_count; index++) {
-		memset((void *)&cq_req, 0, sizeof(cq_req));
-		cq_req.cq0.s.ena = 0;	/* Context */
-		cq_req.cq1.s.ena = 1;	/* Mask */
+		memset((void *)&cq_dis, 0, sizeof(cq_dis));
+		cq_dis.cq.s.ena = 0;	/* Context */
+		cq_dis.mcq.s.ena = 1;	/* Mask */
 		__iowmb();
 
 		err = nix_aq_issue_command(nix_af, lf,
 					   NIX_AQ_INSTOP_E_WRITE,
 					   NIX_AQ_CTYPE_E_CQ,
-					   index, &cq_req.resp);
+					   index, &cq_dis.resp);
 		if (err) {
 			printf("%s: Error disabling LF %d CQ(%d)\n",
 			       __func__, lf, index);

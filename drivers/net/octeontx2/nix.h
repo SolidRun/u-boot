@@ -219,6 +219,24 @@ struct nix {
 	u8				xqe_sz;
 };
 
+struct nix_aq_cq_dis {
+	union nix_aq_res_s	resp ALIGNED;
+	union nix_cq_ctx_s	cq ALIGNED;
+	union nix_cq_ctx_s	mcq ALIGNED;
+};
+
+struct nix_aq_rq_dis {
+	union nix_aq_res_s	resp ALIGNED;
+	union nix_rq_ctx_s	rq ALIGNED;
+	union nix_rq_ctx_s	mrq ALIGNED;
+};
+
+struct nix_aq_sq_dis {
+	union nix_aq_res_s	resp ALIGNED;
+	union nix_sq_ctx_s	sq ALIGNED;
+	union nix_sq_ctx_s	msq ALIGNED;
+};
+
 struct nix_aq_cq_request {
 	union nix_aq_res_s	resp ALIGNED;
 	union nix_cq_ctx_s	cq ALIGNED;
