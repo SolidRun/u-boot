@@ -252,10 +252,10 @@ static int cgx_lmac_init(struct cgx *cgx)
 int cgx_probe(struct udevice *dev)
 {
 	struct cgx *cgx = dev_get_priv(dev);
-	size_t size;
 	int err;
 
-	cgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+	cgx->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+				       PCI_REGION_MEM);
 	cgx->dev = dev;
 	cgx->cgx_id = ((u64)(cgx->reg_base) >> 24) & 0x7;
 

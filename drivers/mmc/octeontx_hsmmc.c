@@ -3087,7 +3087,6 @@ U_BOOT_DRIVER(octeontx_hsmmc_slot) = {
  */
 static int octeontx_mmc_host_probe(struct udevice *dev)
 {
-	size_t size;
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	struct octeontx_mmc_host *host = dev_get_priv(dev);
 	union mio_emm_int emm_int;
@@ -3104,7 +3103,8 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 	memset(host, 0, sizeof(*host));
-	host->base_addr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+	host->base_addr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+					 PCI_REGION_MEM);
 	if (!host->base_addr) {
 		pr_err("%s: Error: MMC base address not found\n", __func__);
 		return -1;

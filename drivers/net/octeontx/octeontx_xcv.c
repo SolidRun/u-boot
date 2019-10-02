@@ -25,13 +25,6 @@
 #include <asm/arch/octeontx_xcv.h>
 #include <asm/arch/octeontx_vnic.h>
 
-struct lxcv {
-	void __iomem		*reg_base;
-	struct pci_dev		*pdev;
-};
-
-struct lxcv *xcv;
-
 /* Initialize XCV block */
 void xcv_init_hw(void)
 {
@@ -133,33 +126,3 @@ void xcv_setup_link(bool link_up, int link_speed)
 		reset.u = readq(XCVX_BASE + XCVX_RESET(0));
 	}
 }
-
-int octeontx_xcv_probe(struct udevice *dev)
-{
-	size_t size;
-
-	xcv = dev_get_priv(dev);
-	if (!xcv)
-		return -ENOMEM;
-
-	xcv->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
-
-	return 0;
-}
-
-static const struct misc_ops octeontx_xcv_ops = {
-};
-
-static const struct udevice_id octeontx_xcv_ids[] = {
-	{ .compatible = "cavium,xcv" },
-	{}
-};
-
-U_BOOT_DRIVER(octeontx_xcv) = {
-	.name   = "octeontx_xcv",
-	.id     = UCLASS_MISC,
-	.probe  = octeontx_xcv_probe,
-	.of_match = octeontx_xcv_ids,
-	.ops    = &octeontx_xcv_ops,
-	.priv_auto_alloc_size = sizeof(struct lxcv),
-};

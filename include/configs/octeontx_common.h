@@ -38,8 +38,6 @@
 /* Allow environment variable to be overwritten */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_MISC_INIT_R
-
 /** Reduce hashes printed out */
 #define CONFIG_TFTP_TSIZE
 
@@ -104,5 +102,12 @@
 #define CONFIG_SUPPORT_EMMC_BOOT
 #define CONFIG_SUPPORT_EMMC_RPMB
 #define CONFIG_CMD_BKOPS_ENABLE
+
+#if defined(CONFIG_NAND_OCTEONTX)
+#define CONFIG_MTD_DEVICE
+/*#define CONFIG_MTD_CONCAT */
+#define CONFIG_SYS_MAX_NAND_DEVICE 8
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#endif
 
 #endif /* __OCTEONTX_COMMON_H__ */

@@ -1,7 +1,7 @@
-/*
+/* SPDX-License-Identifier:    GPL-2.0
+ *
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -143,7 +143,7 @@ static inline int octeontx_cmd_queue_write(int queue_id, bool use_locking,
 	u64 *cmd_ptr;
 	struct bch_q *qptr = &octeontx_bch_q[queue_id];
 
-	if (unlikely((cmd_count < 1) || (cmd_count > 32)))
+	if (unlikely(cmd_count < 1 || cmd_count > 32))
 		return -EINVAL;
 	if (unlikely(!cmds))
 		return -EINVAL;

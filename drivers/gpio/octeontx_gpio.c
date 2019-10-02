@@ -51,7 +51,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO_BIT_CFG_RX_DAT(x)	((x) & 0x1)
 
 /** PCI ID on NCB bus */
-#define PCI_DEVICE_ID_CAVIUM_GPIO	0xa00a
+#define PCI_DEVICE_ID_OCTEONTX_GPIO	0xa00a
 
 union gpio_const {
 	u64 u;
@@ -159,7 +159,6 @@ static int octeontx_gpio_probe(struct udevice *dev)
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct octeontx_gpio *priv = dev_get_priv(dev);
 	union gpio_const gpio_const;
-	size_t size;
 	char *end;
 	const char *status;
 
@@ -172,7 +171,8 @@ static int octeontx_gpio_probe(struct udevice *dev)
 	}
 
 	dev->req_seq = PCI_FUNC(bdf);
-	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+	priv->baseaddr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+					PCI_REGION_MEM);
 
 	if (!priv->baseaddr) {
 		debug("%s(%s): Could not get base address\n",
@@ -197,13 +197,11 @@ static int octeontx_gpio_probe(struct udevice *dev)
 
 static const struct udevice_id octeontx_gpio_ids[] = {
 	{ .compatible = "cavium,thunder-8890-gpio" },
-	{ .compatible = "cavium,gpio" },
-	{ .compatible = "cavium,thunderx-gpio" },
 	{ }
 };
 
-U_BOOT_DRIVER(cavium_pci_gpio) = {
-	.name	= "gpio_cavium",
+U_BOOT_DRIVER(octeontx_gpio) = {
+	.name	= "octeontx_gpio",
 	.id	= UCLASS_GPIO,
 	.of_match = of_match_ptr(octeontx_gpio_ids),
 	.probe = octeontx_gpio_probe,
@@ -212,9 +210,9 @@ U_BOOT_DRIVER(cavium_pci_gpio) = {
 	.flags	= DM_FLAG_PRE_RELOC,
 };
 
-static struct pci_device_id cavium_pci_gpio_supported[] = {
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_CAVIUM_GPIO) },
+static struct pci_device_id octeontx_gpio_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_GPIO) },
 	{ },
 };
 
-U_BOOT_PCI_DEVICE(cavium_pci_gpio, cavium_pci_gpio_supported);
+U_BOOT_PCI_DEVICE(octeontx_gpio, octeontx_gpio_supported);

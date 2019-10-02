@@ -125,9 +125,18 @@ config NAND_LPC32XX_SLC
 
 config NAND_OCTEONTX
 	bool "Support for OcteonTX NAND controller"
+	select SYS_NAND_SELF_INIT
 	imply CMD_NAND
 	help
-	  This enables Nand flash controller found on the OcteonTX processors.
+	 This enables Nand flash controller found on the OcteonTX processors.
+
+config NAND_OCTEONTX_HW_ECC
+	bool "Support Hardware ECC for OcteonTX NAND controller"
+	depends on NAND_OCTEONTX
+	default y
+	help
+	 This enables Hardware BCH engine found on the OcteonTX processors to
+	 support ECC for NAND flash controller.
 
 config NAND_OMAP_GPMC
 	bool "Support OMAP GPMC NAND controller"

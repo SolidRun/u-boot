@@ -1,10 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
-
 
 #include <common.h>
 #include <malloc.h>
@@ -170,7 +169,6 @@ exit:
 static int octeontx_pci_bchpf_probe(struct udevice *dev)
 {
 	struct bch_device *bch;
-	size_t size;
 	int ret;
 
 	debug("%s(%s)\n", __func__, dev->name);
@@ -178,7 +176,7 @@ static int octeontx_pci_bchpf_probe(struct udevice *dev)
 	if (!bch)
 		return -ENOMEM;
 
-	bch->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+	bch->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
 	bch->dev = dev;
 
 	debug("%s: base address: %p\n", __func__, bch->reg_base);
@@ -359,7 +357,6 @@ static int octeontx_pci_bchvf_probe(struct udevice *dev)
 	union bch_vqx_ctl ctl;
 	union bch_vqx_cmd_buf cbuf;
 	int err;
-	size_t size;
 
 	debug("%s(%s)\n", __func__, dev->name);
 	vf = dev_get_priv(dev);
@@ -369,7 +366,7 @@ static int octeontx_pci_bchvf_probe(struct udevice *dev)
 	vf->dev = dev;
 
 	/* Map PF's configuration registers */
-	vf->reg_base = dm_pci_map_bar(dev, 9, &size, PCI_REGION_MEM);
+	vf->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
 	debug("%s: reg base: %p\n", __func__, vf->reg_base);
 
 	err = octeontx_cmd_queue_initialize(dev, QID_BCH, QDEPTH - 1, 0,

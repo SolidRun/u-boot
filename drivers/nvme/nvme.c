@@ -776,13 +776,11 @@ static int nvme_probe(struct udevice *udev)
 {
 	int ret;
 	struct nvme_dev *ndev = dev_get_priv(udev);
-	size_t size;
 
 	ndev->instance = trailing_strtol(udev->name);
 
 	INIT_LIST_HEAD(&ndev->namespaces);
-	ndev->bar = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0, &size,
-			PCI_REGION_MEM);
+	ndev->bar = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
 	if (readl(&ndev->bar->csts) == -1) {
 		ret = -ENODEV;
 		printf("Error: %s: Out of memory!\n", udev->name);

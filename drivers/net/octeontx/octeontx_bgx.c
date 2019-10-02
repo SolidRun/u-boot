@@ -42,6 +42,7 @@ struct lmac {
 	int			dmac;
 	u8			mac[6];
 	bool			link_up;
+	bool			init_pend;
 	int			lmacid; /* ID within BGX */
 	int			phy_addr; /* ID on board */
 	struct udevice		*dev;
@@ -73,7 +74,7 @@ struct bgx_board_info bgx_board_info[MAX_BGX_PER_NODE];
 
 struct bgx *bgx_vnic[MAX_BGX_PER_NODE];
 bool is_altpkg;
-extern int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr);
+extern int rxaui_phy_xs_init(struct mii_dev *bus, int phy_addr);
 
 /* APIs to read/write BGXX CSRs */
 static u64 bgx_reg_read(struct bgx *bgx, uint8_t lmac, u64 offset)
@@ -563,7 +564,7 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 		debug("mii_name: %s\n", mii_name);
 		lmac->mii_bus = miiphy_get_dev_by_name(mii_name);
 		lmac->phy_addr = phy->phy_addr;
-		__cavm_if_phy_xs_init(lmac->mii_bus, lmac->phy_addr);
+		rxaui_phy_xs_init(lmac->mii_bus, lmac->phy_addr);
 	}
 
 	return 0;
@@ -849,6 +850,42 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 	return 0;
 }
 
+static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
+{
+	struct lmac *lmac;
+	u64 cfg;
+
+	lmac = &bgx->lmac[lmacid];
+
+	debug("%s: lmac: %p, lmacid = %d\n", __func__, lmac, lmacid);
+
+	if (lmac->qlm_mode == QLM_MODE_SGMII ||
+	    lmac->qlm_mode == QLM_MODE_RGMII ||
+	    lmac->qlm_mode == QLM_MODE_QSGMII) {
+		if (bgx_lmac_sgmii_init(bgx, lmacid)) {
+			debug("bgx_lmac_sgmii_init failed\n");
+			return -1;
+		}
+		cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND);
+		cfg |= ((1ull << 2) | (1ull << 1)); /* FCS and PAD */
+		bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND, cfg);
+		bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_MIN_PKT, 60 - 1);
+	} else {
+		if (bgx_lmac_xaui_init(bgx, lmacid, lmac->lmac_type))
+			return -1;
+		cfg = bgx_reg_read(bgx, lmacid, BGX_SMUX_TX_APPEND);
+		cfg |= ((1ull << 2) | (1ull << 1)); /* FCS and PAD */
+		bgx_reg_modify(bgx, lmacid, BGX_SMUX_TX_APPEND, cfg);
+		bgx_reg_write(bgx, lmacid, BGX_SMUX_TX_MIN_PKT, 60 + 4);
+	}
+
+	/* Enable lmac */
+	bgx_reg_modify(bgx, lmacid, BGX_CMRX_CFG,
+		       CMR_EN | CMR_PKT_RX_EN | CMR_PKT_TX_EN);
+
+	return 0;
+}
+
 int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 {
 	int ret;
@@ -865,7 +902,16 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 	debug("%s: %d, lmac: %d/%d/%d %p\n",
 	      __FILE__, __LINE__,
 	      node, bgx_idx, lmacid, lmac);
-
+	if (lmac->init_pend) {
+		ret = bgx_lmac_enable(lmac->bgx, lmacid);
+		if (ret < 0) {
+			printf("BGX%d LMAC%d lmac_enable failed\n", bgx_idx,
+			       lmacid);
+			return ret;
+		}
+		lmac->init_pend = 0;
+		mdelay(100);
+	}
 	if (lmac->qlm_mode == QLM_MODE_SGMII ||
 	    lmac->qlm_mode == QLM_MODE_RGMII ||
 	    lmac->qlm_mode == QLM_MODE_QSGMII) {
@@ -978,43 +1024,6 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 	       (lmac->link_up) ? "up" : "down");
 
 	return lmac->link_up;
-}
-
-static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
-{
-	struct lmac *lmac;
-	u64 cfg;
-
-	lmac = &bgx->lmac[lmacid];
-	lmac->bgx = bgx;
-
-	debug("%s: lmac: %p, lmacid = %d\n", __func__, lmac, lmacid);
-
-	if (lmac->qlm_mode == QLM_MODE_SGMII ||
-	    lmac->qlm_mode == QLM_MODE_RGMII ||
-	    lmac->qlm_mode == QLM_MODE_QSGMII) {
-		if (bgx_lmac_sgmii_init(bgx, lmacid)) {
-			debug("bgx_lmac_sgmii_init failed\n");
-			return -1;
-		}
-		cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND);
-		cfg |= ((1ull << 2) | (1ull << 1)); /* FCS and PAD */
-		bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND, cfg);
-		bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_MIN_PKT, 60 - 1);
-	} else {
-		if (bgx_lmac_xaui_init(bgx, lmacid, lmac->lmac_type))
-			return -1;
-		cfg = bgx_reg_read(bgx, lmacid, BGX_SMUX_TX_APPEND);
-		cfg |= ((1ull << 2) | (1ull << 1)); /* FCS and PAD */
-		bgx_reg_modify(bgx, lmacid, BGX_SMUX_TX_APPEND, cfg);
-		bgx_reg_write(bgx, lmacid, BGX_SMUX_TX_MIN_PKT, 60 + 4);
-	}
-
-	/* Enable lmac */
-	bgx_reg_modify(bgx, lmacid, BGX_CMRX_CFG,
-		       CMR_EN | CMR_PKT_RX_EN | CMR_PKT_TX_EN);
-
-	return 0;
 }
 
 void bgx_lmac_disable(struct bgx *bgx, uint8_t lmacid)
@@ -1436,15 +1445,14 @@ int octeontx_bgx_remove(struct udevice *dev)
 
 int octeontx_bgx_probe(struct udevice *dev)
 {
-	int err;
 	struct bgx *bgx = dev_get_priv(dev);
 	u8 lmac = 0;
 	int qlm[4] = {-1, -1, -1, -1};
 	int bgx_idx, node;
-	size_t size;
 	int inc = 1;
 
-	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+	bgx->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+				       PCI_REGION_MEM);
 	if (!bgx->reg_base) {
 		debug("No PCI region found\n");
 		return 0;
@@ -1472,7 +1480,6 @@ int octeontx_bgx_probe(struct udevice *dev)
 	node = node_id(bgx->reg_base);
 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 3;
 	bgx->bgx_id = (node * MAX_BGX_PER_NODE) + bgx_idx;
-
 	if (is_board_model(CN81XX))
 		inc = 2;
 	else if (is_board_model(CN83XX) && (bgx_idx == 2))
@@ -1513,37 +1520,31 @@ skip_qlm_config:
 
 	bgx_init_hw(bgx);
 
-	/* Enable all LMACs */
+	/* Init LMACs */
 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
 		struct lmac *tlmac = &bgx->lmac[lmac];
 
 		tlmac->dev = dev;
-		err = bgx_lmac_enable(bgx, lmac);
-		if (err) {
-			printf("BGX%d failed to enable lmac%d\n",
-			       bgx->bgx_id, lmac);
-		}
+		tlmac->init_pend = 1;
+		tlmac->bgx = bgx;
 	}
 
 	return 0;
 }
-
-static const struct misc_ops octeontx_bgx_ops = {
-};
-
-static const struct udevice_id octeontx_bgx_ids[] = {
-	{ .compatible = "cavium,thunder-8890-bgx" },
-	{}
-};
 
 U_BOOT_DRIVER(octeontx_bgx) = {
 	.name	= "octeontx_bgx",
 	.id	= UCLASS_MISC,
 	.probe	= octeontx_bgx_probe,
 	.remove	= octeontx_bgx_remove,
-	.of_match = octeontx_bgx_ids,
-	.ops	= &octeontx_bgx_ops,
 	.priv_auto_alloc_size = sizeof(struct bgx),
 	.flags  = DM_FLAG_OS_PREPARE,
 };
 
+static struct pci_device_id octeontx_bgx_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_BGX) },
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_RGX) },
+	{}
+};
+
+U_BOOT_PCI_DEVICE(octeontx_bgx, octeontx_bgx_supported);

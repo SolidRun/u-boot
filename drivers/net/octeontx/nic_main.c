@@ -713,7 +713,6 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
 int nic_initialize(struct udevice *dev)
 {
 	struct nicpf *nic = dev_get_priv(dev);
-	size_t size;
 
 	nic->udev = dev;
 	nic->hw = calloc(1, sizeof(struct hw_info));
@@ -721,7 +720,8 @@ int nic_initialize(struct udevice *dev)
 		return -ENOMEM;
 
 	/* MAP PF's configuration registers */
-	nic->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+	nic->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+				       PCI_REGION_MEM);
 	if (!nic->reg_base) {
 		printf("Cannot map config register space, aborting\n");
 		goto exit;
@@ -754,32 +754,23 @@ int octeontx_nic_probe(struct udevice *dev)
 	int ret = 0;
 	struct nicpf *nicpf = dev_get_priv(dev);
 
+	nicpf->udev = dev;
 	ret = nic_initialize(dev);
 	if (ret < 0) {
-		printf("couldn't initialize NIC PF");
+		printf("couldn't initialize NIC PF\n");
 		return ret;
 	}
 	ret = pci_sriov_init(dev, nicpf->num_vf_en);
 	if (ret < 0)
-		printf("enabling SRIOV failed for num VFs %d",
+		printf("enabling SRIOV failed for num VFs %d\n",
 		       nicpf->num_vf_en);
 	return ret;
 }
-
-static const struct misc_ops octeontx_nic_ops = {
-};
-
-static const struct udevice_id octeontx_nic_ids[] = {
-	{ .compatible = "cavium,nic" },
-	{}
-};
 
 U_BOOT_DRIVER(octeontx_nic) = {
 	.name	= "octeontx_nic",
 	.id	= UCLASS_MISC,
 	.probe	= octeontx_nic_probe,
-	.of_match = octeontx_nic_ids,
-	.ops	= &octeontx_nic_ops,
 	.priv_auto_alloc_size = sizeof(struct nicpf),
 };
 

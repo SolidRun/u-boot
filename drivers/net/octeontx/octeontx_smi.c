@@ -16,6 +16,8 @@
 #include <environment.h>
 #include <linux/ctype.h>
 
+#define PCI_DEVICE_ID_OCTEONTX_SMI 0xA02B
+
 DECLARE_GLOBAL_DATA_PTR;
 
 enum octeontx_smi_mode {
@@ -259,7 +261,7 @@ int octeontx_smi_reset(struct mii_dev *bus)
 /* PHY XS initialization, primarily for RXAUI
  *
  */
-int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr)
+int rxaui_phy_xs_init(struct mii_dev *bus, int phy_addr)
 {
 	int reg;
 	ulong start_time;
@@ -313,7 +315,6 @@ read_error:
 
 int octeontx_smi_probe(struct udevice *dev)
 {
-	size_t size;
 	int ret, subnode, cnt = 0, node = dev->node.of_offset;
 	struct mii_dev *bus;
 	struct octeontx_smi_priv *priv;
@@ -321,7 +322,7 @@ int octeontx_smi_probe(struct udevice *dev)
 
 	debug("SMI PCI device: %x\n", bdf);
 	dev->req_seq = PCI_FUNC(bdf);
-	if (!dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM)) {
+	if (!dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM)) {
 		printf("Failed to map PCI region for bdf %x\n", bdf);
 		return -1;
 	}
@@ -361,9 +362,6 @@ int octeontx_smi_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct misc_ops octeontx_smi_ops = {
-};
-
 static const struct udevice_id octeontx_smi_ids[] = {
 	{ .compatible = "cavium,thunder-8890-mdio-nexus" },
 	{}
@@ -374,6 +372,11 @@ U_BOOT_DRIVER(octeontx_smi) = {
 	.id	= UCLASS_MISC,
 	.probe	= octeontx_smi_probe,
 	.of_match = octeontx_smi_ids,
-	.ops	= &octeontx_smi_ops,
 };
 
+static struct pci_device_id octeontx_smi_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_SMI) },
+	{}
+};
+
+U_BOOT_PCI_DEVICE(octeontx_smi, octeontx_smi_supported);

@@ -1,7 +1,7 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -349,12 +349,13 @@ enum tm_idx {
 	t1, t2, t3, t4, t5, t6, t7, /* settable per ONFI-timing mode */
 };
 
-#ifdef CONFIG_OCTEONTX_BCH
+#ifdef CONFIG_NAND_OCTEONTX_HW_ECC
 struct octeontx_probe_device {
 	struct list_head list;
 	struct udevice *dev;
 };
 
+static struct bch_vf *bch_vf;
 /** Deferred devices due to BCH not being ready */
 LIST_HEAD(octeontx_pci_nand_deferred_devices);
 #endif
@@ -436,8 +437,6 @@ static const struct mtd_ooblayout_ops nand_ooblayout_lp_ops = {
 	.free = nand_ooblayout_free_lp,
 };
 
-static struct bch_vf *bch_vf;
-
 static inline struct octeontx_nand_chip *to_otx_nand(struct nand_chip *nand)
 {
 	return container_of(nand, struct octeontx_nand_chip, nand);
@@ -462,6 +461,7 @@ static inline void nand_set_flash_node(struct nand_chip *chip,
 	chip->flash_node = ofnode_to_offset(node);
 }
 
+#if defined(CONFIG_NAND_OCTEONTX_HW_ECC)
 static int octeontx_nand_calc_ecc_layout(struct nand_chip *nand)
 {
 	struct nand_ecclayout *layout = nand->ecc.layout;
@@ -498,6 +498,7 @@ fail:
 		kfree(layout);
 	return -1;
 }
+#endif
 
 /*
  * Read a single byte from the temporary buffer. Used after READID
@@ -1384,8 +1385,8 @@ static int octeontx_nand_waitfunc(struct mtd_info *mtd, struct nand_chip *chip)
 
 /* check compatibility with ONFI timing mode#N, and optionally apply */
 /* TODO: Implement chipnr support? */
-static int octeontx_nand_setup_data_interface(struct mtd_info *mtd, int chipnr,
-	const struct nand_data_interface *conf)
+static int octeontx_nand_setup_dat_intf(struct mtd_info *mtd, int chipnr,
+					const struct nand_data_interface *conf)
 {
 	static const bool check_only;
 	struct nand_chip *nand = mtd_to_nand(mtd);
@@ -1440,7 +1441,7 @@ static int octeontx_nand_setup_data_interface(struct mtd_info *mtd, int chipnr,
 	return rc;
 }
 
-#if defined(CONFIG_OCTEONTX_BCH)
+#if defined(CONFIG_NAND_OCTEONTX_HW_ECC)
 
 static void octeontx_bch_reset(void)
 {
@@ -1456,8 +1457,8 @@ static void octeontx_bch_reset(void)
  * Return 0 on success or -1 on failure
  */
 static int octeontx_nand_bch_calculate_ecc_internal(struct mtd_info *mtd,
-						   dma_addr_t ihandle,
-						   u8 *code)
+						    dma_addr_t ihandle,
+						    u8 *code)
 {
 	struct nand_chip *nand = mtd_to_nand(mtd);
 	struct octeontx_nfc *tn = to_otx_nfc(nand->controller);
@@ -1522,8 +1523,8 @@ static int octeontx_nand_bch_calculate(struct mtd_info *mtd,
 					   nand->ecc.size, DMA_TO_DEVICE);
 	int ret;
 
-	ret = octeontx_nand_bch_calculate_ecc_internal(
-			mtd, handle, (void *)ecc_code);
+	ret = octeontx_nand_bch_calculate_ecc_internal(mtd, handle,
+						       (void *)ecc_code);
 
 	return ret;
 }
@@ -1566,8 +1567,7 @@ static int octeontx_nand_bch_correct(struct mtd_info *mtd, u_char *dat,
 	}
 
 	memcpy(data_buffer, dat, nand->ecc.size);
-	memcpy(data_buffer + nand->ecc.size,
-			read_ecc, nand->ecc.bytes);
+	memcpy(data_buffer + nand->ecc.size, read_ecc, nand->ecc.bytes);
 
 	for (i = 0; i < nand->ecc.bytes; i++)
 		data_buffer[nand->ecc.size + i] ^= tn->eccmask[i];
@@ -1800,7 +1800,7 @@ static int octeontx_nand_calc_bch_ecc_strength(struct nand_chip *nand)
 	int need;
 
 	while (index > 0 && !(ecc->options & NAND_ECC_MAXIMIZE) &&
-			strengths[index - 1] >= ecc->strength)
+	       strengths[index - 1] >= ecc->strength)
 		index--;
 
 	do {
@@ -1857,7 +1857,7 @@ static int octeontx_bch_save_empty_eccmask(struct nand_chip *nand)
 
 	return rc;
 }
-#endif /*CONFIG_OCTEONTX_BCH*/
+#endif /*CONFIG_NAND_OCTEONTX_HW_ECC*/
 
 static void octeontx_nfc_chip_sizing(struct nand_chip *nand)
 {
@@ -1889,7 +1889,7 @@ static void octeontx_nfc_chip_sizing(struct nand_chip *nand)
 		if (ecc->size && ecc->size != mtd->writesize)
 			nsteps = mtd->writesize / ecc->size;
 		else if (mtd->writesize > def_ecc_size &&
-				!(mtd->writesize & (def_ecc_size - 1)))
+			 !(mtd->writesize & (def_ecc_size - 1)))
 			nsteps = mtd->writesize / def_ecc_size;
 		ecc->steps = nsteps;
 		ecc->size = mtd->writesize / nsteps;
@@ -1906,7 +1906,7 @@ static void octeontx_nfc_chip_sizing(struct nand_chip *nand)
 		if (!mtd->subpage_sft && !(ecc->steps & (ecc->steps - 1)))
 			mtd->subpage_sft = fls(ecc->steps) - 1;
 
-#if defined(CONFIG_OCTEONTX_BCH)
+#if defined(CONFIG_NAND_OCTEONTX_HW_ECC)
 		debug("%s: ecc mode: %d\n", __func__, ecc->mode);
 		if (ecc->mode != NAND_ECC_SOFT &&
 		    !octeontx_nand_calc_bch_ecc_strength(nand)) {
@@ -1934,7 +1934,7 @@ static void octeontx_nfc_chip_sizing(struct nand_chip *nand)
 			octeontx_nand_calc_ecc_layout(nand);
 			octeontx_bch_save_empty_eccmask(nand);
 		}
-#endif /*CONFIG_OCTEONTX_BCH*/
+#endif /*CONFIG_NAND_OCTEONTX_HW_ECC*/
 	}
 }
 
@@ -1979,7 +1979,7 @@ static int octeontx_nfc_chip_init(struct octeontx_nfc *tn, struct udevice *dev,
 	nand->write_buf = octeontx_nand_write_buf;
 	nand->onfi_set_features = octeontx_nand_set_features;
 	nand->onfi_get_features = octeontx_nand_get_features;
-	nand->setup_data_interface = octeontx_nand_setup_data_interface;
+	nand->setup_data_interface = octeontx_nand_setup_dat_intf;
 
 	mtd = nand_to_mtd(nand);
 	debug("%s: mtd: %p\n", __func__, mtd);
@@ -2082,14 +2082,13 @@ static int octeontx_pci_nand_probe(struct udevice *dev)
 {
 	struct octeontx_nfc *tn = dev_get_priv(dev);
 	int ret;
-	size_t size;
 	static bool probe_done;
 
 	debug("%s(%s) tn: %p\n", __func__, dev->name, tn);
 	if (probe_done)
 		return 0;
 
-#ifdef CONFIG_OCTEONTX_BCH
+#ifdef CONFIG_NAND_OCTEONTX_HW_ECC
 	bch_vf = octeontx_bch_getv();
 	if (!bch_vf) {
 		struct octeontx_probe_device *probe_dev;
@@ -2113,7 +2112,7 @@ static int octeontx_pci_nand_probe(struct udevice *dev)
 	tn->dev = dev;
 	INIT_LIST_HEAD(&tn->chips);
 
-	tn->base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+	tn->base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
 	if (!tn->base) {
 		ret = -EINVAL;
 		goto release;
@@ -2187,7 +2186,7 @@ int octeontx_pci_nand_disable(struct udevice *dev)
 	return 0;
 }
 
-#ifdef CONFIG_OCTEONTX_BCH
+#ifdef CONFIG_NAND_OCTEONTX_HW_ECC
 /**
  * Since it's possible (and even likely) that the NAND device will be probed
  * before the BCH device has been probed, we may need to defer the probing.
@@ -2250,7 +2249,7 @@ void board_nand_init(void)
 	struct udevice *dev;
 	int ret;
 
-#ifdef CONFIG_OCTEONTX_BCH
+#ifdef CONFIG_NAND_OCTEONTX_HW_ECC
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_GET_DRIVER(octeontx_pci_bchpf),
 					  &dev);

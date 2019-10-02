@@ -400,8 +400,6 @@ static int nicvf_recv(struct udevice *dev, int flags, uchar **packetp)
 			puts("\n");
 		}
 #endif
-		//net_process_received_packet(pkt, pkt_len);
-		//nicvf_refill_rbdr(nic);
 		*packetp = pkt;
 	}
 
@@ -451,44 +449,67 @@ int nicvf_open(struct udevice *dev)
 	return 0;
 }
 
-struct nicpf *nicvf_get_nicpf(void)
+int nicvf_write_hwaddr(struct udevice *dev)
+{
+	unsigned char ethaddr[ARP_HLEN];
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	/* If lower level firmware fails to set proper MAC
+	 * u-boot framework updates MAC to random address.
+	 * Use this hook to update mac address in environment.
+	 */
+	if (!eth_env_get_enetaddr_by_index("eth", dev->seq, ethaddr)) {
+		eth_env_set_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
+		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
+	}
+	return 0;
+}
+
+static void nicvf_probe_mdio_devices(void)
 {
 	struct udevice *pdev;
 	int err;
+	static int probed;
 
-	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
-				 PCI_DEVICE_ID_OCTEONTX_NIC_PF,
-				 0, &pdev);
+	if (probed)
+		return;
+
+	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA02B, 0,
+				 &pdev);
 	if (err)
-		printf("%s couldn't find NIC PF device..VF probe failed\n",
-		       __func__);
-
-	return err ? NULL : dev_get_priv(pdev);
+		debug("%s couldn't find SMI device\n", __func__);
+	probed = 1;
 }
 
-static int vfid;
 int nicvf_initialize(struct udevice *dev)
 {
 	struct nicvf *nicvf = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	int    ret = 0, bgx, lmac;
-	size_t size;
 	char   name[16];
 	unsigned char ethaddr[ARP_HLEN];
-	struct nicpf *pfptr;
+	struct udevice *pfdev;
+	struct nicpf *pf;
+	static int vfid;
 
-	nicvf->nicpf = nicvf_get_nicpf();
-	if (!nicvf->nicpf) {
-		printf("%s couldn't get pf device\n", __func__);
+	if (dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
+			       PCI_DEVICE_ID_OCTEONTX_NIC_PF, 0, &pfdev)) {
+		printf("%s NIC PF device not found..VF probe failed\n",
+		       __func__);
 		return -1;
 	}
+	pf = dev_get_priv(pfdev);
 	nicvf->vf_id = vfid++;
 	nicvf->dev = dev;
+	nicvf->nicpf = pf;
+
+	nicvf_probe_mdio_devices();
 
 	/* Enable TSO support */
 	nicvf->hw_tso = true;
 
-	nicvf->reg_base = dm_pci_map_bar(dev, 9, &size, PCI_REGION_MEM);
+	nicvf->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+					 PCI_REGION_MEM);
 
 	debug("nicvf->reg_base: %p\n", nicvf->reg_base);
 
@@ -506,9 +527,8 @@ int nicvf_initialize(struct udevice *dev)
 	debug("%s name %s\n", __func__, name);
 	device_set_name(dev, name);
 
-	pfptr = nicvf->nicpf;
-	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(pfptr->vf_lmac_map[nicvf->vf_id]);
-	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(pfptr->vf_lmac_map[nicvf->vf_id]);
+	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(pf->vf_lmac_map[nicvf->vf_id]);
+	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(pf->vf_lmac_map[nicvf->vf_id]);
 	debug("%s VF %d BGX %d LMAC %d\n", __func__, nicvf->vf_id, bgx, lmac);
 	debug("%s PF %p pfdev %p VF %p vfdev %p vf->pdata %p\n",
 	      __func__, nicvf->nicpf, nicvf->nicpf->udev, nicvf, nicvf->dev,
@@ -518,10 +538,12 @@ int nicvf_initialize(struct udevice *dev)
 
 	debug("%s bgx %d lmac %d ethaddr %pM\n", __func__, bgx, lmac, ethaddr);
 
-	memcpy(pdata->enetaddr, ethaddr, ARP_HLEN);
-	debug("%s enetaddr %pM ethaddr %pM\n", __func__, pdata->enetaddr,
-	      ethaddr);
-	eth_env_set_enetaddr_by_index("eth", dev->seq, ethaddr);
+	if (is_valid_ethaddr(ethaddr)) {
+		memcpy(pdata->enetaddr, ethaddr, ARP_HLEN);
+		eth_env_set_enetaddr_by_index("eth", dev->seq, ethaddr);
+	}
+	debug("%s enetaddr %pM ethaddr %pM\n", __func__,
+	      pdata->enetaddr, ethaddr);
 
 fail:
 	return ret;
@@ -538,18 +560,13 @@ static const struct eth_ops octeontx_vnic_ops = {
 	.send  = nicvf_xmit,
 	.recv  = nicvf_recv,
 	.free_pkt = nicvf_free_pkt,
-};
-
-static const struct udevice_id octeontx_vnic_ids[] = {
-	{ .compatible = "cavium,vnic" },
-	{}
+	.write_hwaddr = nicvf_write_hwaddr,
 };
 
 U_BOOT_DRIVER(octeontx_vnic) = {
 	.name	= "vnic",
 	.id	= UCLASS_ETH,
 	.probe	= octeontx_vnic_probe,
-	.of_match = octeontx_vnic_ids,
 	.ops	= &octeontx_vnic_ops,
 	.priv_auto_alloc_size = sizeof(struct nicvf),
 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),

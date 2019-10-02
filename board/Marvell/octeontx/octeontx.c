@@ -137,24 +137,6 @@ int board_early_init_r(void)
 	return 0;
 }
 
-int misc_init_r(void)
-{
-	struct udevice *bus;
-
-	eth_common_init();
-
-	/*
-	 * Enumerate all miscellaneous devices.
-	 * So BGX/NIC/vNIC devices will be enumerated too.
-	 */
-	for (uclass_first_device_check(UCLASS_MISC, &bus);
-	     bus;
-	     uclass_next_device_check(&bus)) {
-		;
-	}
-	return 0;
-}
-
 int board_init(void)
 {
 	octeontx_parse_phy_info();
@@ -182,7 +164,9 @@ int dram_init(void)
  */
 int board_late_init(void)
 {
+	struct udevice *dev;
 	char boardname[20];
+	int err, bgx_cnt, i;
 
 	debug("%s()\n", __func__);
 
@@ -197,6 +181,25 @@ int board_late_init(void)
 	snprintf(boardname, sizeof(boardname), "%s> ", g_cavm_bdt.type);
 	env_set("prompt", boardname);
 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
+
+	/* Probe MAC(BGX) and NIC PF devices before Network stack init */
+	bgx_cnt = is_board_model(CN81XX) ? 2 : 4;
+	for (i = 0; i < bgx_cnt; i++) {
+		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA026, i,
+					 &dev);
+		if (err)
+			debug("%s BGX%d device not found\n", __func__, i);
+	}
+	if (is_board_model(CN81XX)) {
+		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA054, 0,
+					 &dev);
+		if (err)
+			debug("%s RGX device not found\n", __func__);
+	}
+	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA01E, 0, &dev);
+	if (err)
+		debug("NIC PF device not found\n");
+
 	return 0;
 }
 

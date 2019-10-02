@@ -312,12 +312,12 @@ int dm_pciauto_config_device(struct udevice *dev)
 	struct pci_region *pci_io;
 	unsigned int sub_bus = PCI_BUS(dm_pci_get_bdf(dev));
 	unsigned short class;
-	bool enum_only;
+	bool enum_only = false;
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *ctlr_hose = dev_get_uclass_priv(ctlr);
 	int n;
 
-	enum_only = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+//	enum_only = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
 #ifdef CONFIG_PCI_ENUM_ONLY
 	enum_only = true;
 #endif

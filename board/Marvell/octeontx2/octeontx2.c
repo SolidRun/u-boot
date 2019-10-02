@@ -220,11 +220,9 @@ int misc_init_r(void)
 {
 	struct udevice *bus;
 
-	eth_common_init();
 	/*
-	 * Enumerate all known miscellaneous devices.
-	 * Enumeration has the side-effect of probing them,
-	 * so CGX and RVU AF devices will get enumerated.
+	 * Enumerate all known miscellaneous devices
+	 * so CGX and RVU AF devices will be probed.
 	 */
 	for (uclass_first_device_check(UCLASS_MISC, &bus);
 	     bus;

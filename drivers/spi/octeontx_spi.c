@@ -623,11 +623,11 @@ static int octeontx_pci_spi_probe(struct udevice *dev)
 {
 	struct octeontx_spi *priv = dev_get_priv(dev);
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
-	size_t size;
 
 	debug("SPI PCI device: %x\n", bdf);
 	dev->req_seq = PCI_FUNC(bdf);
-	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+	priv->baseaddr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+					PCI_REGION_MEM);
 
 	debug("SPI bus %s %d at %p\n", dev->name, dev->seq, priv->baseaddr);
 

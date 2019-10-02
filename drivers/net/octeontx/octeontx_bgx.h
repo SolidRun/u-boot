@@ -10,6 +10,10 @@
 
 #include <asm/arch/octeontx.h>
 
+/* PCI device IDs */
+#define	PCI_DEVICE_ID_OCTEONTX_BGX	0xA026
+#define	PCI_DEVICE_ID_OCTEONTX_RGX	0xA054
+
 #define    MAX_LMAC_PER_BGX			4
 #define    MAX_BGX_CHANS_PER_LMAC		16
 #define    MAX_DMAC_PER_LMAC			8
