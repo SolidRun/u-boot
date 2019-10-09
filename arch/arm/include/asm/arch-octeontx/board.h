@@ -185,6 +185,8 @@ union rst_boot {
 /** Function definitions */
 int octeontx_board_has_pmp(void);
 const char *fdt_get_board_model(void);
+const char *fdt_get_board_serial(void);
+const char *fdt_get_board_revision(void);
 void fdt_parse_phy_info(void);
 void fdt_board_get_ethaddr(int bgx, int lmac, unsigned char *eth);
 

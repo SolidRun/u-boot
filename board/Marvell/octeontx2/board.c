@@ -195,7 +195,8 @@ void board_init_serial_bootcmd(void)
  */
 int board_late_init(void)
 {
-	char boardname[20];
+	char boardname[32];
+	char boardserial[150], boardrev[150];
 	long val;
 
 	/*
@@ -208,12 +209,25 @@ int board_late_init(void)
 	env_set("prompt", boardname);
 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
 
+	if (fdt_get_board_revision()) {
+		snprintf(boardrev, sizeof(boardrev), "%s",
+			 fdt_get_board_revision());
+		env_set("boardrev", boardrev);
+	}
+
+	if (fdt_get_board_serial()) {
+		snprintf(boardserial, sizeof(boardserial), "%s",
+			 fdt_get_board_serial());
+		env_set("serial#", boardserial);
+	}
+
 	val = env_get_hex("disable_ooo", 0);
 	smc_configure_ooo(val);
 
 #ifdef CONFIG_OCTEONTX_SERIAL_BOOTCMD
 	board_init_serial_bootcmd();
 #endif
+	env_save();
 	return 0;
 }
 

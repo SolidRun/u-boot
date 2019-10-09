@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern unsigned long fdt_base_addr;
 
-int fdt_get_bdk_node(void)
+static int fdt_get_bdk_node(void)
 {
 	int node, ret;
 	const void *fdt = gd->fdt_blob;
@@ -91,6 +91,38 @@ int fdt_get_board_mac_cnt(void)
 		printf("Error: cannot retrieve mac num override prop\n");
 	}
 	return mac_count;
+}
+
+const char *fdt_get_board_serial(void)
+{
+	const void *fdt = gd->fdt_blob;
+	int node, len = 64;
+	const char *str = NULL;
+
+	node = fdt_get_bdk_node();
+	if (!node)
+		return NULL;
+
+	str = fdt_getprop(fdt, node, "BOARD-SERIAL", &len);
+	if (!str)
+		printf("Error: cannot retrieve board serial from fdt\n");
+	return str;
+}
+
+const char *fdt_get_board_revision(void)
+{
+	const void *fdt = gd->fdt_blob;
+	int node, len = 64;
+	const char *str = NULL;
+
+	node = fdt_get_bdk_node();
+	if (!node)
+		return NULL;
+
+	str = fdt_getprop(fdt, node, "BOARD-REVISION", &len);
+	if (!str)
+		printf("Error: cannot retrieve board revision from fdt\n");
+	return str;
 }
 
 const char *fdt_get_board_model(void)

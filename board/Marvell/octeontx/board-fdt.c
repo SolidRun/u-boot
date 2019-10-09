@@ -155,29 +155,72 @@ void fdt_parse_phy_info(void)
 }
 #endif
 
-const char *fdt_get_board_model(void)
+static int fdt_get_bdk_node(void)
 {
+	int node, ret;
 	const void *fdt = gd->fdt_blob;
-	int ret, node, len = 16;
-	const char *str = NULL;
 
 	if (!fdt) {
 		printf("ERROR: %s: no valid device tree found\n", __func__);
-		return NULL;
+		return 0;
 	}
 
 	ret = fdt_check_header(fdt);
 	if (ret < 0) {
 		printf("fdt: %s\n", fdt_strerror(ret));
-		return NULL;
+		return 0;
 	}
 
 	node = fdt_path_offset(fdt, "/cavium,bdk");
 	if (node < 0) {
 		printf("%s: /cavium,bdk is missing from device tree: %s\n",
 		       __func__, fdt_strerror(node));
-		return NULL;
+		return 0;
 	}
+	return node;
+}
+
+const char *fdt_get_board_serial(void)
+{
+	const void *fdt = gd->fdt_blob;
+	int node, len = 64;
+	const char *str = NULL;
+
+	node = fdt_get_bdk_node();
+	if (!node)
+		return NULL;
+
+	str = fdt_getprop(fdt, node, "BOARD-SERIAL", &len);
+	if (!str)
+		printf("Error: cannot retrieve board serial from fdt\n");
+	return str;
+}
+
+const char *fdt_get_board_revision(void)
+{
+	const void *fdt = gd->fdt_blob;
+	int node, len = 64;
+	const char *str = NULL;
+
+	node = fdt_get_bdk_node();
+	if (!node)
+		return NULL;
+
+	str = fdt_getprop(fdt, node, "BOARD-REVISION", &len);
+	if (!str)
+		printf("Error: cannot retrieve board revision from fdt\n");
+	return str;
+}
+
+const char *fdt_get_board_model(void)
+{
+	const void *fdt = gd->fdt_blob;
+	int node, len = 16;
+	const char *str = NULL;
+
+	node = fdt_get_bdk_node();
+	if (!node)
+		return NULL;
 
 	str = fdt_getprop(fdt, node, "BOARD-MODEL", &len);
 	if (!str)
