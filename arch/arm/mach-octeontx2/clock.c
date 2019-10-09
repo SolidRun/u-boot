@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/board.h>
 #include <asm/arch/clock.h>
 
 /**
@@ -14,7 +15,7 @@
  */
 u64 octeontx_get_io_clock(void)
 {
-	union cavm_rst_boot rst_boot;
+	union rst_boot rst_boot;
 
 	rst_boot.u = readq(RST_BOOT);
 
@@ -26,7 +27,7 @@ u64 octeontx_get_io_clock(void)
  */
 u64 octeontx_get_core_clock(void)
 {
-	union cavm_rst_boot rst_boot;
+	union rst_boot rst_boot;
 
 	rst_boot.u = readq(RST_BOOT);
 

@@ -19,7 +19,7 @@
  *
  * @return Value of memory location before increment
  */
-static inline s64 cavm_atomic_fetch_and_add64_nosync(s64 *ptr, s64 incr)
+static inline s64 atomic_fetch_and_add64_nosync(s64 *ptr, s64 incr)
 {
 	s64 result;
 	/* Atomic add with no ordering */
@@ -30,18 +30,18 @@ static inline s64 cavm_atomic_fetch_and_add64_nosync(s64 *ptr, s64 incr)
 	return result;
 }
 
-static inline void cavm_lmt_cancel(const struct nix *nix)
+static inline void lmt_cancel(const struct nix *nix)
 {
 	writeq(0, nix->lmt_base + LMT_LF_LMTCANCEL());
 }
 
-static inline u64 *cavm_lmt_store_ptr(struct nix *nix)
+static inline u64 *lmt_store_ptr(struct nix *nix)
 {
 	return (u64 *)((u8 *)(nix->lmt_base) +
 				       LMT_LF_LMTLINEX(0));
 }
 
-static inline s64 cavm_lmt_submit(u64 io_address)
+static inline s64 lmt_submit(u64 io_address)
 {
 	s64 result = 0;
 

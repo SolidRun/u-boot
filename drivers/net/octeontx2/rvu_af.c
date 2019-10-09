@@ -13,7 +13,7 @@
 #include <errno.h>
 #include <linux/list.h>
 #include <asm/io.h>
-#include <asm/arch/octeontx2.h>
+#include <asm/arch/board.h>
 #include <asm/arch/csrs/csrs-npa.h>
 #include "nix.h"
 
@@ -156,17 +156,11 @@ int rvu_af_remove(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id rvu_af_ids[] = {
-	{ .compatible = "cavium,rvu-af" },
-	{}
-};
-
 U_BOOT_DRIVER(rvu_af) = {
 	.name   = "rvu_af",
 	.id     = UCLASS_MISC,
 	.probe  = rvu_af_probe,
 	.remove = rvu_af_remove,
-	.of_match = rvu_af_ids,
 	.priv_auto_alloc_size = sizeof(struct rvu_af),
 };
 

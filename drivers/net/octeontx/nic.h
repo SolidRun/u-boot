@@ -9,7 +9,7 @@
 #define	NIC_H
 
 #include <linux/netdevice.h>
-#include "octeontx_bgx.h"
+#include "bgx.h"
 
 /**
  * Macro to get the physical address of a CSR on a node

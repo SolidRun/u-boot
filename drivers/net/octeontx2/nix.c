@@ -17,7 +17,7 @@
 #include <asm/io.h>
 #include <linux/types.h>
 #include <linux/log2.h>
-#include <asm/arch/octeontx2.h>
+#include <asm/arch/board.h>
 #include <asm/arch/csrs/csrs-lmt.h>
 #include "nix.h"
 #include "lmt.h"
@@ -91,8 +91,8 @@ static int npa_setup_pool(struct npa *npa, u32 pool_id,
 		aura_descr.f0.s.addr = (u64)buffers[index];
 		aura_descr.f1.u = 0;
 		aura_descr.f1.s.aura = pool_id;
-		cavm_st128(npa->npa_base + NPA_LF_AURA_OP_FREE0(),
-			   aura_descr.f0.u, aura_descr.f1.u);
+		st128(npa->npa_base + NPA_LF_AURA_OP_FREE0(),
+		      aura_descr.f0.u, aura_descr.f1.u);
 	}
 
 	return 0;
@@ -453,7 +453,7 @@ u64 npa_aura_op_alloc(struct npa *npa, u64 aura_id)
 {
 	union npa_lf_aura_op_allocx op_allocx;
 
-	op_allocx.u = cavm_atomic_fetch_and_add64_nosync(npa->npa_base +
+	op_allocx.u = atomic_fetch_and_add64_nosync(npa->npa_base +
 			NPA_LF_AURA_OP_ALLOCX(0), aura_id);
 	return op_allocx.s.addr;
 }
@@ -463,7 +463,7 @@ u64 nix_cq_op_status(struct nix *nix, u64 cq_id)
 	union nixx_lf_cq_op_status op_status;
 	s64 *reg = nix->nix_base + NIXX_LF_CQ_OP_STATUS();
 
-	op_status.u = cavm_atomic_fetch_and_add64_nosync(reg, cq_id << 32);
+	op_status.u = atomic_fetch_and_add64_nosync(reg, cq_id << 32);
 	return op_status.u;
 }
 
@@ -473,7 +473,7 @@ static inline void nix_write_lmt(struct nix *nix, void *buffer,
 {
 	int i;
 
-	u64 *lmt_ptr = cavm_lmt_store_ptr(nix);
+	u64 *lmt_ptr = lmt_store_ptr(nix);
 	u64 *ptr = buffer;
 
 	debug("%s lmt_ptr %p %p\n", __func__, nix->lmt_base, lmt_ptr);
@@ -575,7 +575,7 @@ int nix_lf_xmit(struct udevice *dev, void *pkt, int pkt_len)
 	do {
 		nix_write_lmt(nix, &tx_dr, (dr_sz - 1) * 2);
 		__iowmb();
-		result = cavm_lmt_submit((u64)(nix->nix_base +
+		result = lmt_submit((u64)(nix->nix_base +
 					       NIXX_LF_OP_SENDX(0)));
 		WATCHDOG_RESET();
 	} while (result == 0);
@@ -614,8 +614,8 @@ void nix_lf_flush_rx(struct udevice *dev)
 
 		seg = (dma_addr_t *)(&rx_dr->rx_sg + 1);
 
-		cavm_st128(nix->npa->npa_base + NPA_LF_AURA_OP_FREE0(),
-			   seg[0], (1ULL << 63) | NPA_POOL_RX);
+		st128(nix->npa->npa_base + NPA_LF_AURA_OP_FREE0(),
+		      seg[0], (1ULL << 63) | NPA_POOL_RX);
 
 		debug("%s return %llx to NPA\n", __func__, seg[0]);
 		nix_pf_reg_write(nix, NIXX_LF_CQ_OP_DOOR(),
@@ -637,8 +637,8 @@ int nix_lf_free_pkt(struct udevice *dev, uchar *pkt, int pkt_len)
 
 	/* Return rx packet to NPA */
 	debug("%s return %p to NPA\n", __func__, pkt);
-	cavm_st128(nix->npa->npa_base + NPA_LF_AURA_OP_FREE0(),
-		   (u64)pkt, (1ULL << 63) | NPA_POOL_RX);
+	st128(nix->npa->npa_base + NPA_LF_AURA_OP_FREE0(), (u64)pkt,
+	      (1ULL << 63) | NPA_POOL_RX);
 	nix_pf_reg_write(nix, NIXX_LF_CQ_OP_DOOR(),
 			 (NIX_CQ_RX << 32) | 1);
 

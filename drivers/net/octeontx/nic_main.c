@@ -16,13 +16,9 @@
 #include <pci.h>
 #include <asm/io.h>
 
-#include <asm/arch/octeontx.h>
-#include <asm/arch/octeontx_vnic.h>
-
 #include "nic_reg.h"
 #include "nic.h"
 #include "q_struct.h"
-#include "octeontx_bgx.h"
 
 #define ETH_HLEN 6
 

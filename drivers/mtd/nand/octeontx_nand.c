@@ -1871,7 +1871,7 @@ static void octeontx_nfc_chip_sizing(struct nand_chip *nand)
 	      __func__, nand, chip->row_bytes, chip->col_bytes, ecc->mode);
 
 	/*
-	 * HW_BCH using Cavium BCH engine, or SOFT_BCH laid out in
+	 * HW_BCH using OcteonTX BCH engine, or SOFT_BCH laid out in
 	 * HW_BCH-compatible fashion, depending on devtree advice
 	 * and kernel config.
 	 * BCH/NFC hardware capable of subpage ops, not implemented.
@@ -2217,7 +2217,7 @@ int octeontx_pci_nand_deferred_probe(void)
 #endif
 
 static const struct pci_device_id octeontx_nfc_pci_id_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_CAVIUM, 0xa04f) },
+	{ PCI_VDEVICE(CAVIUM, 0xA04F) },
 	{}
 };
 

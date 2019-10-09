@@ -7,8 +7,6 @@
 
 #include <config.h>
 #include <linux/linkage.h>
-#include <asm/arch/octeontx_svc.h>
-
 #include <asm/macro.h>
 
 .align 8
@@ -33,4 +31,3 @@ ENTRY(lowlevel_init)
 	mov	lr, x29			/* Restore LR */
 	ret
 ENDPROC(lowlevel_init)
-

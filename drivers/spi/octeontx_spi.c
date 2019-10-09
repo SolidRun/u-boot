@@ -15,7 +15,7 @@
 #include <watchdog.h>
 
 #if defined(CONFIG_ARCH_OCTEONTX2)
-#include <asm/arch/octeontx2.h>
+#include <asm/arch/board.h>
 #define USE_TBI_CLK
 #endif
 

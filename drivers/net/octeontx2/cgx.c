@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <linux/list.h>
-#include <asm/arch/octeontx2.h>
+#include <asm/arch/board.h>
 #include <asm/arch/csrs/csrs-cgx.h>
 #include "cgx.h"
 

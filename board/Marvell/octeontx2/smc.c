@@ -9,8 +9,7 @@
 #include <asm/io.h>
 
 #include <asm/system.h>
-#include <asm/arch/octeontx2_svc.h>
-#include <asm/arch/atf.h>
+#include <asm/arch/smc.h>
 
 #include <asm/psci.h>
 
@@ -18,7 +17,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-ssize_t atf_dram_size(unsigned int node)
+ssize_t smc_dram_size(unsigned int node)
 {
 	struct pt_regs regs;
 
@@ -29,7 +28,7 @@ ssize_t atf_dram_size(unsigned int node)
 	return regs.regs[0];
 }
 
-ssize_t atf_disable_rvu_lfs(unsigned int node)
+ssize_t smc_disable_rvu_lfs(unsigned int node)
 {
 	struct pt_regs regs;
 
@@ -40,7 +39,7 @@ ssize_t atf_disable_rvu_lfs(unsigned int node)
 	return regs.regs[0];
 }
 
-ssize_t atf_configure_ooo(unsigned int val)
+ssize_t smc_configure_ooo(unsigned int val)
 {
 	struct pt_regs regs;
 
@@ -51,7 +50,7 @@ ssize_t atf_configure_ooo(unsigned int val)
 	return regs.regs[0];
 }
 
-ssize_t atf_flsf_fw_booted(void)
+ssize_t smc_flsf_fw_booted(void)
 {
 	struct pt_regs regs;
 
@@ -61,7 +60,7 @@ ssize_t atf_flsf_fw_booted(void)
 	return regs.regs[0];
 }
 
-ssize_t atf_flsf_clr_force_2ndry(void)
+ssize_t smc_flsf_clr_force_2ndry(void)
 {
 	struct pt_regs regs;
 
@@ -71,7 +70,7 @@ ssize_t atf_flsf_clr_force_2ndry(void)
 	return regs.regs[0];
 }
 
-ssize_t atf_mdio_dbg_read(int cgx_lmac, int mode, int phyaddr, int devad,
+ssize_t smc_mdio_dbg_read(int cgx_lmac, int mode, int phyaddr, int devad,
 			  int reg)
 {
 	struct pt_regs regs;
@@ -87,7 +86,7 @@ ssize_t atf_mdio_dbg_read(int cgx_lmac, int mode, int phyaddr, int devad,
 	return regs.regs[0];
 }
 
-ssize_t atf_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
+ssize_t smc_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
 			   int reg, int val)
 {
 	struct pt_regs regs;
@@ -113,7 +112,7 @@ ssize_t atf_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
  *   signed value: <0 - error code
  *                  0 - success
  */
-ssize_t atf_attest(long nonce_len)
+ssize_t smc_attest(long nonce_len)
 {
 	struct pt_regs regs;
 

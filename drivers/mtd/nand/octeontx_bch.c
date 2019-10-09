@@ -198,19 +198,13 @@ static int octeontx_pci_bchpf_probe(struct udevice *dev)
 }
 
 static const struct pci_device_id octeontx_bchpf_pci_id_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_CAVIUM, BCH_PCI_PF_DEVICE_ID) },
+	{ PCI_VDEVICE(CAVIUM, BCH_PCI_PF_DEVICE_ID) },
 	{},
 };
 
 static const struct pci_device_id octeontx_bchvf_pci_id_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_CAVIUM, BCH_PCI_VF_DEVICE_ID)},
+	{ PCI_VDEVICE(CAVIUM, BCH_PCI_VF_DEVICE_ID)},
 	{},
-};
-
-U_BOOT_DRIVER(octeontx_bchpf) = {
-	.name	= CAVIUM_BCHPF_DRIVER_NAME,
-	.id	= UCLASS_MISC,
-	.probe = octeontx_pci_bchpf_probe,
 };
 
 /**
@@ -411,7 +405,7 @@ static int octeontx_pci_bchpf_remove(struct udevice *dev)
 }
 
 U_BOOT_DRIVER(octeontx_pci_bchpf) = {
-	.name	= CAVIUM_BCHPF_DRIVER_NAME,
+	.name	= BCHPF_DRIVER_NAME,
 	.id	= UCLASS_MISC,
 	.probe	= octeontx_pci_bchpf_probe,
 	.remove = octeontx_pci_bchpf_remove,
@@ -420,7 +414,7 @@ U_BOOT_DRIVER(octeontx_pci_bchpf) = {
 };
 
 U_BOOT_DRIVER(octeontx_pci_bchvf) = {
-	.name	= CAVIUM_BCHVF_DRIVER_NAME,
+	.name	= BCHVF_DRIVER_NAME,
 	.id	= UCLASS_MISC,
 	.probe = octeontx_pci_bchvf_probe,
 	.priv_auto_alloc_size = sizeof(struct bch_vf),

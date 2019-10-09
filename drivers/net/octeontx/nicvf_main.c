@@ -14,13 +14,9 @@
 #include <malloc.h>
 #include <asm/io.h>
 
-#include <asm/arch/octeontx_vnic.h>
-#include <asm/arch/octeontx.h>
-
 #include "nic_reg.h"
 #include "nic.h"
 #include "nicvf_queues.h"
-#include "octeontx_bgx.h"
 
 #define ETH_ALEN 6
 
@@ -534,7 +530,7 @@ int nicvf_initialize(struct udevice *dev)
 	      __func__, nicvf->nicpf, nicvf->nicpf->udev, nicvf, nicvf->dev,
 	      pdata);
 
-	octeontx_board_get_ethaddr(bgx, lmac, ethaddr);
+	fdt_board_get_ethaddr(bgx, lmac, ethaddr);
 
 	debug("%s bgx %d lmac %d ethaddr %pM\n", __func__, bgx, lmac, ethaddr);
 

@@ -17,7 +17,7 @@
 #include <linux/types.h>
 #include <linux/list.h>
 #include <linux/log2.h>
-#include <asm/arch/octeontx2.h>
+#include <asm/arch/board.h>
 #include "asm/arch/csrs/csrs-npc.h"
 #include "asm/arch/csrs/csrs-lmt.h"
 #include "nix.h"

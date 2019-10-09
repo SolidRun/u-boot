@@ -9,8 +9,7 @@
 #include <asm/io.h>
 
 #include <asm/system.h>
-#include <asm/arch/octeontx_svc.h>
-#include <asm/arch/atf.h>
+#include <asm/arch/smc.h>
 
 #include <asm/psci.h>
 
@@ -18,7 +17,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-ssize_t atf_dram_size(unsigned int node)
+ssize_t smc_dram_size(unsigned int node)
 {
 	struct pt_regs regs;
 

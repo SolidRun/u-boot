@@ -5,5 +5,5 @@
 # * https://spdx.org/licenses
 # */
 
-obj-y	:= octeontx.o atf.o
-obj-$(CONFIG_OF_LIBFDT) += fdt.o
+obj-y	:= board.o smc.o soc-utils.o
+obj-$(CONFIG_OF_LIBFDT) += board-fdt.o

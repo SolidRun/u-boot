@@ -5,5 +5,5 @@
 # * https://spdx.org/licenses
 # */
 
-obj-$(CONFIG_NET_OCTEONTX) += octeontx_bgx.o nic_main.o nicvf_queues.o \
-		nicvf_main.o octeontx_xcv.o
+obj-$(CONFIG_NET_OCTEONTX) += bgx.o nic_main.o nicvf_queues.o nicvf_main.o \
+				xcv.o

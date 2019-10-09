@@ -7,12 +7,12 @@
 
 #include <common.h>
 #include <command.h>
-#include <asm/arch/atf.h>
+#include <asm/arch/smc.h>
 
 static int do_fsafe_clr(
 	cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	(void)atf_flsf_clr_force_2ndry();
+	(void)smc_flsf_clr_force_2ndry();
 	return CMD_RET_SUCCESS;
 }
 

@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/types.h>
-#include <asm/arch/octeontx2.h>
+#include <asm/arch/board.h>
 #include "cgx.h"
 #include "nix.h"
 
@@ -100,15 +100,9 @@ int rvu_pf_remove(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id rvu_pf_ids[] = {
-	{ .compatible = "cavium,rvu-pf" },
-	{}
-};
-
 U_BOOT_DRIVER(rvu_pf) = {
 	.name   = "rvu_pf",
 	.id     = UCLASS_ETH,
-	.of_match = rvu_pf_ids,
 	.probe	= rvu_pf_probe,
 	.remove = rvu_pf_remove,
 	.ops    = &nix_eth_ops,

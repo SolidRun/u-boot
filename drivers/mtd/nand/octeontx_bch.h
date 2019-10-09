@@ -41,8 +41,8 @@
 #define BCH_VQX_CMD_PTR(z)		0x20ull
 #define BCH_VQX_DOORBELL(z)		0x800ull
 
-#define CAVIUM_BCHPF_DRIVER_NAME	"cavium-bchpf"
-#define CAVIUM_BCHVF_DRIVER_NAME	"cavium-bchvf"
+#define BCHPF_DRIVER_NAME	"octeontx-bchpf"
+#define BCHVF_DRIVER_NAME	"octeontx-bchvf"
 
 struct bch_device {
 	struct list_head list;

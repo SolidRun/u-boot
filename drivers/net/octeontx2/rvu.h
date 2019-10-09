@@ -78,7 +78,7 @@ struct rvu_pf {
  * @param	val0	first 64 bits to write
  * @param	val1	second 64 bits to write
  */
-static inline void cavm_st128(void *dest, u64 val0, u64 val1)
+static inline void st128(void *dest, u64 val0, u64 val1)
 {
 	__asm__ __volatile__("stp %x[x0], %x[x1], [%[pm]]" :
 		: [x0]"r"(val0), [x1]"r"(val1), [pm]"r"(dest)
@@ -92,7 +92,7 @@ static inline void cavm_st128(void *dest, u64 val0, u64 val1)
  * @param[out]	val0		first 64 bits of data
  * @param[out]	val1		second 64 bits of data
  */
-static inline void cavm_ld128(const u64 *src, u64 *val0, u64 *val1)
+static inline void ld128(const u64 *src, u64 *val0, u64 *val1)
 {
 	__asm__ __volatile__ ("ldp %x[x0], %x[x1], [%[pm]]" :
 		 : [x0]"r"(*val0), [x1]"r"(*val1), [pm]"r"(src));

@@ -15,7 +15,7 @@ static struct mm_region octeontx_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
-		.size = 0x40000000000UL,
+		.size = 0x4000000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_NON_SHARE
 	}, {

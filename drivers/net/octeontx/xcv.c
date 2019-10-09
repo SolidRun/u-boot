@@ -22,8 +22,9 @@
  #include <fdt_support.h>
 #endif
 
-#include <asm/arch/octeontx_xcv.h>
-#include <asm/arch/octeontx_vnic.h>
+#include <asm/arch/csrs/csrs-xcv.h>
+
+#define XCVX_BASE		0x87E0DB000000ULL
 
 /* Initialize XCV block */
 void xcv_init_hw(void)

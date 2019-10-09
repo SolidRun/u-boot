@@ -19,19 +19,13 @@
 #include <fdtdec.h>
 #include <asm/arch/csrs/csrs-mio_emm.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/board.h>
 #include <linux/list.h>
 #include <div64.h>
 #include <watchdog.h>
 #include <power/regulator.h>
 #include <console.h>	/* for ctrlc */
 #include "octeontx_hsmmc.h"
-#if defined(CONFIG_ARCH_OCTEONTX)
-# include <asm/arch/octeontx.h>
-#elif defined(CONFIG_ARCH_OCTEONTX2)
-# include <asm/arch/octeontx2.h>
-#else
-# error Unsupported architecture!
-#endif
 
 #define PCI_DEVICE_ID_OCTEONTX_EMMC	0xA010
 
@@ -45,8 +39,8 @@
 #define MMC_DEFAULT_DATA_OUT_TAP		39
 #define MMC_DEFAULT_HS200_CMD_IN_TAP		24
 #define MMC_DEFAULT_HS200_DATA_IN_TAP		24
-#define MMC_DEFAULT_HS200_CMD_OUT_TAP	(is_board_model(CN95XX) ? 10 : 5)
-#define MMC_DEFAULT_HS200_DATA_OUT_TAP	(is_board_model(CN95XX) ? 10 : 5)
+#define MMC_DEFAULT_HS200_CMD_OUT_TAP	(otx_is_soc(CN95XX) ? 10 : 5)
+#define MMC_DEFAULT_HS200_DATA_OUT_TAP	(otx_is_soc(CN95XX) ? 10 : 5)
 #define MMC_DEFAULT_SD_UHS_SDR104_CMD_OUT_TAP	MMC_DEFAULT_HS200_CMD_OUT_TAP
 #define MMC_DEFAULT_SD_UHS_SDR104_DATA_OUT_TAP	MMC_DEFAULT_HS200_DATA_OUT_TAP
 #define MMC_LEGACY_DEFAULT_CMD_OUT_TAP		39
@@ -3090,8 +3084,6 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	struct octeontx_mmc_host *host = dev_get_priv(dev);
 	union mio_emm_int emm_int;
-	const char *board_model;
-	ofnode node;
 #if defined(CONFIG_ARCH_OCTEONTX2)
 	u8 rev;
 #endif
@@ -3119,14 +3111,10 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	host->node = dev->node;
 	dev->req_seq = PCI_FUNC(bdf);
 	host->last_slotid = -1;
-	node = ofnode_path("/cavium,bdk");
-	if (ofnode_valid(node)) {
-		board_model = ofnode_read_string(node, "BOARD-MODEL");
-		if (board_model && !strncmp(board_model, "ASIM-", 5))
-			host->is_asim = true;
-		if (board_model && !strncmp(board_model, "EMUL-", 5))
-			host->is_emul = true;
-	}
+	if (otx_is_platform(PLATFORM_ASIM))
+		host->is_asim = true;
+	if (otx_is_platform(PLATFORM_EMULATOR))
+		host->is_emul = true;
 	/* Force reset of eMMC */
 	writeq(0, host->base_addr + MIO_EMM_CFG());
 	debug("%s: Clearing MIO_EMM_CFG\n", __func__);
@@ -3142,7 +3130,7 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 #ifdef CONFIG_ARCH_OCTEONTX2
 	/* Flags for issues to work around */
 	dm_pci_read_config8(dev, PCI_REVISION_ID, &rev);
-	if (is_board_model(CN96XX)) {
+	if (otx_is_soc(CN96XX)) {
 		switch (rev) {
 		case 0:
 			host->calibrate_glitch = true;
@@ -3151,7 +3139,7 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 		default:
 			break;
 		}
-	} else if (is_board_model(CN95XX)) {
+	} else if (otx_is_soc(CN95XX)) {
 		if (!rev)
 			host->cond_clock_glitch = true;
 	}

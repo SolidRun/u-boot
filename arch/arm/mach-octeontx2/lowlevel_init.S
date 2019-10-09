@@ -31,4 +31,3 @@ ENTRY(lowlevel_init)
 	mov	lr, x29			/* Restore LR */
 	ret
 ENDPROC(lowlevel_init)
-

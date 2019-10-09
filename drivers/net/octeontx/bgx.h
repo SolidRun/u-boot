@@ -5,10 +5,10 @@
  * https://spdx.org/licenses
  */
 
-#ifndef OCTEONT_BGX_H
-#define OCTEONT_BGX_H
+#ifndef BGX_H
+#define BGX_H
 
-#include <asm/arch/octeontx.h>
+#include <asm/arch/board.h>
 
 /* PCI device IDs */
 #define	PCI_DEVICE_ID_OCTEONTX_BGX	0xA026
@@ -256,4 +256,4 @@ enum LMAC_TYPE {
 	BGX_MODE_INVALID = 7,
 };
 
-#endif /* OCTEONT_BGX_H */
+#endif /* BGX_H */
