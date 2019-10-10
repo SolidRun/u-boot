@@ -1,8 +1,7 @@
-// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * https://spdx.org/licenses
+ * SPDX-License-Identifier:    GPL-2.0
  */
 
 #include <common.h>
@@ -157,36 +156,113 @@ int misc_init_r(void)
 	}
 	return 0;
 }
+#if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
+	CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)) &&	\
+	!CONFIG_IS_ENABLED(CONSOLE_MUX)
+# error CONFIG_CONSOLE_MUX must be enabled!
+#endif
 
-#ifdef CONFIG_OCTEONTX_SERIAL_BOOTCMD
-void board_init_serial_bootcmd(void)
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
+static int init_bootcmd_console(void)
 {
-	struct udevice *bootcmd_dev = NULL;
-	int ret;
+	int ret = 0;
 	char *stdinname = env_get("stdin");
+	struct udevice *bootcmd_dev = NULL;
+	char iomux_name[128];
 
+	debug("%s: stdin before: %s\n", __func__,
+	      stdinname ? stdinname : "NONE");
 	if (!stdinname) {
 		env_set("stdin", "serial");
 		stdinname = env_get("stdin");
 	}
-
-	/* This will cause the pci-bootcmd driver to be probed. */
 	ret = uclass_get_device_by_name(UCLASS_SERIAL, "pci-bootcmd",
 					&bootcmd_dev);
-	if (!ret && bootcmd_dev)
-		debug("%s: %s found!\n", __func__, bootcmd_dev->name);
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
-	if (stdinname && bootcmd_dev) {
-		char iomux_name[64];
-
-		snprintf(iomux_name, sizeof(iomux_name),
-			 "%s,%s", stdinname, bootcmd_dev->name);
+	if (!ret && bootcmd_dev) {
+		snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
+			 stdinname, bootcmd_dev->name);
 		ret = iomux_doenv(stdin, iomux_name);
-		if (ret)
-			printf("%s: Error adding %s to stdin\n",
+	}
+	if (ret)
+		printf("%s: Error enabling the PCI bootcmd input console\n",
+		       __func__);
+	else
+		env_set("stdin", iomux_name);
+	debug("%s: Set iomux and stdin to %s (ret: %d)\n",
+	      __func__, iomux_name, ret);
+	return ret;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)
+static int init_pcie_console(void)
+{
+	int ret = 0;
+	char *stdinname = env_get("stdin");
+	char *stdoutname = env_get("stdout");
+	char *stderrname = env_get("stderr");
+	struct udevice *pcie_console_dev = NULL;
+	char iomux_name[128];
+
+	debug("%s: stdin: %s, stdout: %s, stderr: %s\n", __func__, stdinname,
+	      stdoutname, stderrname);
+	if (!stdinname) {
+		env_set("stdin", "serial");
+		stdinname = env_get("stdin");
+	}
+	if (!stdoutname) {
+		env_set("stdout", "serial");
+		stdoutname = env_get("stdout");
+	}
+	if (!stderrname) {
+		env_set("stderr", "serial");
+		stderrname = env_get("stderr");
+	}
+
+	if (!stdinname || !stdoutname || !stderrname) {
+		printf("%s: Error setting environment variables for serial\n",
+		       __func__);
+		return -1;
+	}
+
+	ret = uclass_get_device_by_name(UCLASS_SERIAL, "pci-console",
+					&pcie_console_dev);
+	if (!ret && pcie_console_dev) {
+		snprintf(iomux_name, sizeof(iomux_name), "%s,%s", stdinname,
+			 pcie_console_dev->name);
+		ret = iomux_doenv(stdin, iomux_name);
+		if (!ret) {
+			env_set("stdin", iomux_name);
+
+			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
+				 stdoutname,
+				 pcie_console_dev->name);
+			ret = iomux_doenv(stdout, iomux_name);
+		} else {
+			printf("%s: Error setting I/O stdin MUX to %s\n",
+			       __func__, iomux_name);
+		}
+		if (!ret)
+			env_set("stdout", iomux_name);
+		else
+			printf("%s: Error setting I/O stdout MUX to %s\n",
+			       __func__, iomux_name);
+		if (!ret) {
+			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
+				 stderrname,
+				 pcie_console_dev->name);
+			ret = iomux_doenv(stderr, iomux_name);
+		}
+		if (!ret)
+			env_set("stderr", iomux_name);
+		else
+			printf("%s: Error setting I/O stderr MUX to %s\n",
 			       __func__, iomux_name);
 	}
-#endif
+	debug("%s: stdin: %s, stdout: %s, stderr: %s, ret: %d\n",
+	      __func__, env_get("stdin"), env_get("stdout"),
+	      env_get("stderr"), ret);
+	return ret;
 }
 #endif
 
@@ -199,7 +275,10 @@ int board_late_init(void)
 	char boardserial[150], boardrev[150];
 	long val;
 
+	debug("%s()\n", __func__);
+
 	/*
+	 * Now that pci_init initializes env device.
 	 * Try to cleanup ethaddr env variables, this is needed
 	 * as with each boot, configuration of QLM can change.
 	 */
@@ -224,10 +303,16 @@ int board_late_init(void)
 	val = env_get_hex("disable_ooo", 0);
 	smc_configure_ooo(val);
 
-#ifdef CONFIG_OCTEONTX_SERIAL_BOOTCMD
-	board_init_serial_bootcmd();
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
+	if (init_bootcmd_console())
+		printf("Failed to init bootcmd input\n");
+#endif
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)
+	if (init_pcie_console())
+		printf("Failed to init pci console\n");
 #endif
 	env_save();
+
 	return 0;
 }
 
