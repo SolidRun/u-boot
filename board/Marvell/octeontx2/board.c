@@ -43,6 +43,7 @@ void octeontx2_board_get_mac_addr(u8 index, u8 *mac_addr)
 
 	board_mac_num = fdt_get_board_mac_cnt();
 	if ((!is_zero_ethaddr((u8 *)&board_mac_addr)) && board_mac_num) {
+		tmp_mac = board_mac_addr;
 		tmp_mac += index;
 		tmp_mac = swab64(tmp_mac) >> 16;
 		memcpy(mac_addr, (u8 *)&tmp_mac, ARP_HLEN);
