@@ -283,7 +283,7 @@
 	 * Lane 2: USB HOST 0
 	 * Lane 3: SATA1
 	 * Lane 4: SFI (10G)
-	 * Lane 5: SGMII3
+	 * Lane 5: SGMII2
 	 */
 	phy0 {
 		phy-type = <PHY_TYPE_SGMII1>;
@@ -302,6 +302,7 @@
 		phy-type = <PHY_TYPE_SFI>;
 	};
 	phy5 {
-		phy-type = <PHY_TYPE_SGMII3>;
+		phy-type = <PHY_TYPE_SGMII2>;
+		phy-speed = <PHY_SPEED_3_125G>;
 	};
 };
