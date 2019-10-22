@@ -10,15 +10,20 @@
 #include <asm/io.h>
 #include <asm/arch/soc.h>
 #include <mvebu/mvebu_chip_sar.h>
+#include <dm/device.h>
 
 #define CP_DEV_ID_STATUS_REG		(MVEBU_REGISTER(0x2400240))
 #define DEVICE_ID_STATUS_MASK		0xffff
 #define AP_DEV_ID_STATUS_REG		(SOC_REGS_PHY_BASE + 0x6F8240)
+#define JTAG_DEV_ID_STATUS_REG		(SOC_REGS_PHY_BASE + 0x6F8244)
 #define AP_DEV_ID_STATUS_MASK		0xfff
+#define AP_DEV_REV_ID_STATUS_MASK	0xf0000000
 #define SW_REV_STATUS_OFFSET		16
+#define AP_REV_STATUS_OFFSET		28
 #define SW_REV_STATUS_MASK		0xf
 
 #define A8040_DEVICE_ID			0x8040
+#define CN9130_DEVICE_ID		0x7025
 
 #define AP807_ID			0x807
 
@@ -50,13 +55,18 @@ struct soc_info {
 };
 
 static struct soc_info soc_info_table[] = {
+	{ {0x7025, 0}, "cn9130-A1",	{0x807, 2}, {0x115, 0}, 1, 1, 0},
+	{ {0x7025, 0}, "cn9131-A1",	{0x807, 2}, {0x115, 0}, 1, 2, 0},
+	{ {0x7025, 0}, "cn9132-A1",	{0x807, 2}, {0x115, 0}, 1, 3, 0},
+	{ {0x6025, 0}, "Armada3900-A1",	{0x807, 1}, {0x115, 0}, 1, 1, 0},
+	{ {0x6025, 0}, "Armada3900-A3",	{0x807, 2}, {0x115, 0}, 1, 1, 0},
 	{ {0x7045, 0}, "Armada3900-A0", {0x807, 0}, {0x115, 0}, 1, 1, 0},
-	{ {0x7040, 1}, "Armada7040-A1", {0x806, 1}, {0x110, 1}, 1, 1 },
-	{ {0x7040, 2}, "Armada7040-A2", {0x806, 1}, {0x110, 2}, 1, 1 },
-	{ {0x7045, 0}, "Armada7040-B0", {0x806, 2}, {0x115, 0}, 1, 1 },
-	{ {0x8040, 1}, "Armada8040-A1", {0x806, 1}, {0x110, 1}, 1, 2 },
-	{ {0x8040, 2}, "Armada8040-A2", {0x806, 1}, {0x110, 2}, 1, 2 },
-	{ {0x8045, 0}, "Armada8040-B0", {0x806, 2}, {0x115, 0}, 1, 2 },
+	{ {0x7040, 1}, "Armada7040-A1", {0x806, 1}, {0x110, 1}, 1, 1, 0},
+	{ {0x7040, 2}, "Armada7040-A2", {0x806, 1}, {0x110, 2}, 1, 1, 0},
+	{ {0x7045, 0}, "Armada7040-B0", {0x806, 2}, {0x115, 0}, 1, 1, 0},
+	{ {0x8040, 1}, "Armada8040-A1", {0x806, 1}, {0x110, 1}, 1, 2, 0},
+	{ {0x8040, 2}, "Armada8040-A2", {0x806, 1}, {0x110, 2}, 1, 2, 0},
+	{ {0x8045, 0}, "Armada8040-B0", {0x806, 2}, {0x115, 0}, 1, 2, 0},
 };
 
 static int get_soc_type_rev(u32 *type, u32 *rev)
@@ -72,6 +82,13 @@ static int get_ap_soc_type(u32 *type)
 {
 	*type = readl(AP_DEV_ID_STATUS_REG) & AP_DEV_ID_STATUS_MASK;
 
+	return 0;
+}
+
+static int get_ap_soc_rev(u32 *rev)
+{
+	*rev = (readl(JTAG_DEV_ID_STATUS_REG) & AP_DEV_REV_ID_STATUS_MASK)
+					>> AP_REV_STATUS_OFFSET;
 	return 0;
 }
 
@@ -97,24 +114,46 @@ static int get_soc_table_index(u32 *index)
 {
 	u32 soc_type;
 	u32 rev, i, ret = 1;
-	u32 ap_type, sub_rev;
+	u32 ap_type, sub_rev, ap_rev;
 
 	*index = 0;
 	get_soc_type_rev(&soc_type, &rev);
 	get_ap_soc_type(&ap_type);
+	get_ap_soc_rev(&ap_rev);
 
-	for (i = 0; i < ARRAY_SIZE(soc_info_table) && ret != 0; i++) {
-		if ((soc_type != soc_info_table[i].soc.module_type) ||
-		    (rev != soc_info_table[i].soc.module_rev) ||
-		    ap_type != soc_info_table[i].ap.module_type)
-			continue;
+	/* specific checks needed for 9131,9132, */
+	/* since their soc+ap characteristics same as 9130*/
+	if ((of_machine_is_compatible("marvell,cn9131-db"))) {
+		for (i = 0; i < ARRAY_SIZE(soc_info_table) && ret != 0; i++) {
+			if (strcmp(soc_info_table[i].soc_name,
+				   "cn9131-A1") != 0)
+				continue;
+			*index = i;
+			ret = 0;
+		}
+	} else if ((of_machine_is_compatible("marvell,cn9132-db"))) {
+		for (i = 0; i < ARRAY_SIZE(soc_info_table) && ret != 0; i++) {
+			if (strcmp(soc_info_table[i].soc_name,
+				   "cn9132-A1") != 0)
+				continue;
+			*index = i;
+			ret = 0;
+		}
+	} else	{
+		for (i = 0; i < ARRAY_SIZE(soc_info_table) && ret != 0; i++) {
+			if ((soc_type != soc_info_table[i].soc.module_type) ||
+			    (rev != soc_info_table[i].soc.module_rev) ||
+				ap_type != soc_info_table[i].ap.module_type ||
+				(ap_rev != soc_info_table[i].ap.module_rev))
+				continue;
 
-		if (!get_soc_sub_rev(&sub_rev) &&
-		    (sub_rev != soc_info_table[i].sub_rev))
-			continue;
+			if (!get_soc_sub_rev(&sub_rev) &&
+			    (sub_rev != soc_info_table[i].sub_rev))
+				continue;
 
-		*index = i;
-		ret = 0;
+			*index = i;
+			ret = 0;
+		}
 	}
 
 	if (ret)
