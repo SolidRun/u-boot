@@ -35,6 +35,7 @@ enum sw_attestation_tlv_type {
 	ATT_IMG_ATF_BL31,
 	ATT_IMG_ATF_BL33,
 	ATT_SIG_NONCE,
+	ATT_IMG_FIT_KERNEL,
 
 	ATT_TLV_TYPE_COUNT,
 };

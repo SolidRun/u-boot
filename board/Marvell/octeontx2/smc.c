@@ -105,22 +105,34 @@ ssize_t smc_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
 
 /*
  * on entry,
- *   nonce_len: <= 0, query for buffer address
- *               > 0 specifies nonce length
+ *   subcmd:  one of OCTEONTX_ATTESTATION_QUERY_SUBCMD_xxx
+ *   ctx_arg: subcmd-specific argument
  *
  * returns,
  *   signed value: <0 - error code
  *                  0 - success
  */
-ssize_t smc_attest(long nonce_len)
+ssize_t smc_attest(long subcmd, long ctx_arg)
 {
 	struct pt_regs regs;
 
 	regs.regs[0] = OCTEONTX_ATTESTATION_QUERY;
-	/* X1 - nonce len */
-	regs.regs[1] = nonce_len;
-	/* X2 - subfunction (useful for adding future cmd extensions) */
-	regs.regs[2] = 0;
+	regs.regs[1] = ctx_arg;
+	regs.regs[2] = subcmd;
+
+	switch (subcmd) {
+	/* deprecated sub-command */
+	case OCTEONTX_ATTESTATION_QUERY_SUBCMD_LEGACY:
+		return -1;
+
+	case OCTEONTX_ATTESTATION_QUERY_SUBCMD_BUFFER:
+	case OCTEONTX_ATTESTATION_QUERY_SUBCMD_INFO:
+		/* no args */
+		break;
+
+	default:
+		return -1;
+	}
 
 	smc_call(&regs);
 
