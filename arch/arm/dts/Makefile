@@ -222,7 +222,15 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-385-atl-x530.dtb			\
 	armada-385-atl-x530DP.dtb		\
 	armada-xp-db-xc3-24g4xg.dtb		\
-	armada-xp-crs305-1g-4s.dtb
+	armada-xp-crs305-1g-4s.dtb		\
+	cn9130-crb-A.dtb			\
+	cn9130-crb-B.dtb			\
+	cn9130-db-A.dtb				\
+	cn9130-db-B.dtb				\
+	cn9131-db-A.dtb				\
+	cn9131-db-B.dtb				\
+	cn9132-db-A.dtb				\
+	cn9132-db-B.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
 	uniphier-ld11-global.dtb \
