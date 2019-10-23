@@ -241,7 +241,7 @@ int cgx_intf_link_up_dwn(u8 cgx, u8 lmac, u8 up_dwn, u64 *lnk_sts)
 	int ret;
 	union cgx_cmd_s cmd;
 
-	cmd.cmd.id  = up_dwn ? CGX_CMD_LINK_BRING_UP : CGX_CMD_LINK_BRING_DOWN;
+	cmd.cmd.id = up_dwn ? CGX_CMD_LINK_BRING_UP : CGX_CMD_LINK_BRING_DOWN;
 
 	ret = cgx_intf_req(cgx, lmac, cmd, &scr0.u, 1);
 	if (ret)
@@ -281,6 +281,120 @@ int cgx_intf_prbs(u8 qlm, u8 mode, u32 time)
 	if (ret)
 		return -1;
 
+	return 0;
+}
+
+enum cgx_mode {
+	MODE_10G_C2C,
+	MODE_10G_C2M,
+	MODE_10G_KR,
+	MODE_25G_C2C,
+	MODE_25G_2_C2C,
+	MODE_50G_C2C,
+	MODE_50G_4_C2C
+};
+
+static char intf_speed_to_str[][8] = {
+	"10M",
+	"100M",
+	"1G",
+	"2.5G",
+	"5G",
+	"10G",
+	"20G",
+	"25G",
+	"40G",
+	"50G",
+	"80G",
+	"100G",
+};
+
+static void mode_to_args(int mode, struct cgx_mode_change_args *args)
+{
+	args->an = 0;
+	args->duplex = 0;
+	args->port = 0;
+
+	switch (mode) {
+	case MODE_10G_C2C:
+		args->speed = CGX_LINK_10G;
+		args->mode = BIT_ULL(CGX_MODE_10G_C2C_BIT);
+		break;
+	case MODE_10G_C2M:
+		args->speed = CGX_LINK_10G;
+		args->mode = BIT_ULL(CGX_MODE_10G_C2M_BIT);
+		break;
+	case MODE_10G_KR:
+		args->speed = CGX_LINK_10G;
+		args->mode = BIT_ULL(CGX_MODE_10G_KR_BIT);
+		args->an = 1;
+		break;
+	case MODE_25G_C2C:
+		args->speed = CGX_LINK_25G;
+		args->mode = BIT_ULL(CGX_MODE_25G_C2C_BIT);
+		break;
+	case MODE_25G_2_C2C:
+		args->speed = CGX_LINK_25G;
+		args->mode = BIT_ULL(CGX_MODE_25G_2_C2C_BIT);
+		break;
+	case MODE_50G_C2C:
+		args->speed = CGX_LINK_50G;
+		args->mode = BIT_ULL(CGX_MODE_50G_C2C_BIT);
+		break;
+	case MODE_50G_4_C2C:
+		args->speed = CGX_LINK_50G;
+		args->mode = BIT_ULL(CGX_MODE_50G_4_C2C_BIT);
+	}
+}
+
+int cgx_intf_set_mode(struct udevice *ethdev, int mode)
+{
+	struct rvu_pf *rvu = dev_get_priv(ethdev);
+	struct nix *nix = rvu->nix;
+	union cgx_scratchx0 scr0;
+	int ret;
+	union cgx_cmd_s cmd;
+
+	cmd.cmd.id = CGX_CMD_MODE_CHANGE;
+
+	mode_to_args(mode, &cmd.mode_change_args);
+
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   cmd, &scr0.u, 0);
+	if (ret) {
+		printf("Mode change command failed for %s\n", ethdev->name);
+		return -1;
+	}
+
+	cmd.cmd.id = CGX_CMD_GET_LINK_STS;
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   cmd, &scr0.u, 1);
+	if (ret) {
+		printf("Get Link Status failed for %s\n", ethdev->name);
+		return -1;
+	}
+
+	printf("Current Link Status: ");
+	if (scr0.s.link_sts.speed) {
+		printf("%s\n", intf_speed_to_str[scr0.s.link_sts.speed]);
+		switch (scr0.s.link_sts.fec) {
+		case 0:
+			printf("FEC_NONE\n");
+			break;
+		case 1:
+			printf("FEC_BASE_R\n");
+			break;
+		case 2:
+			printf("FEC_RS\n");
+			break;
+		}
+		printf("Auto Negotiation %sabled\n",
+		       scr0.s.link_sts.an ? "En" : "Dis");
+		printf("%s Duplex\n",
+		       scr0.s.link_sts.full_duplex ? "Full" : "Half");
+	} else {
+		printf("Down\n");
+	}
 	return 0;
 }
 

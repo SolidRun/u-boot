@@ -48,7 +48,8 @@ enum cgx_error_type {
 	CGX_ERR_SET_FEC_INVALID,
 	CGX_ERR_SET_FEC_FAIL,
 	CGX_ERR_MODULE_INVALID,
-	CGX_ERR_MODULE_NOT_PRESENT,	/* = 27 */
+	CGX_ERR_MODULE_NOT_PRESENT,
+	CGX_ERR_SPEED_CHANGE_INVALID,	/* = 28 */
 	/* FIXME : add more error types when adding support for new modes */
 };
 
@@ -99,7 +100,7 @@ enum cgx_cmd_id {
 	CGX_CMD_GET_PHY_MOD_TYPE, /* line-side modulation type: NRZ or PAM4 */
 	CGX_CMD_SET_PHY_MOD_TYPE,
 	CGX_CMD_PRBS,
-	CGX_CMD_DISPLAY_EYE,
+	CGX_CMD_DISPLAY_EYE, /* = 27 */
 };
 
 /* async event ids */
@@ -125,6 +126,41 @@ enum cgx_cmd_own {
 	/* set by kernel/uefi/u-boot after posting a new request to ATF */
 	CGX_OWN_FIRMWARE,
 };
+
+/* Supported LINK MODE enums
+ * Each link mode is a bit mask of these
+ * enums which are represented as bits
+ */
+typedef enum {
+	CGX_MODE_SGMII_BIT = 0,
+	CGX_MODE_1000_BASEX_BIT,
+	CGX_MODE_QSGMII_BIT,
+	CGX_MODE_10G_C2C_BIT,
+	CGX_MODE_10G_C2M_BIT,
+	CGX_MODE_10G_KR_BIT,
+	CGX_MODE_20G_C2C_BIT,
+	CGX_MODE_25G_C2C_BIT,
+	CGX_MODE_25G_C2M_BIT,
+	CGX_MODE_25G_2_C2C_BIT,
+	CGX_MODE_25G_CR_BIT,
+	CGX_MODE_25G_KR_BIT,
+	CGX_MODE_40G_C2C_BIT,
+	CGX_MODE_40G_C2M_BIT,
+	CGX_MODE_40G_CR4_BIT,
+	CGX_MODE_40G_KR4_BIT,
+	CGX_MODE_40GAUI_C2C_BIT,
+	CGX_MODE_50G_C2C_BIT,
+	CGX_MODE_50G_C2M_BIT,
+	CGX_MODE_50G_4_C2C_BIT,
+	CGX_MODE_50G_CR_BIT,
+	CGX_MODE_50G_KR_BIT,
+	CGX_MODE_80GAUI_C2C_BIT,
+	CGX_MODE_100G_C2C_BIT,
+	CGX_MODE_100G_C2M_BIT,
+	CGX_MODE_100G_CR4_BIT,
+	CGX_MODE_100G_KR4_BIT,
+	CGX_MODE_MAX_BIT /* = 29 */
+} cgx_mode_t;
 
 /* scratchx(0) CSR used for ATF->non-secure SW communication.
  * This acts as the status register
@@ -305,6 +341,16 @@ struct cgx_mtu_args {
 	u64 reserved2:40;
 };
 
+/* command argument to be passed for cmd ID - CGX_CMD_MODE_CHANGE */
+struct cgx_mode_change_args {
+	uint64_t reserved1:8;
+	uint64_t speed:4; /* cgx_link_speed enum */
+	uint64_t duplex:1; /* 0 - full duplex, 1 - half duplex */
+	uint64_t an:1;	/* 0 - disable AN, 1 - enable AN */
+	uint64_t port:8; /* device port */
+	uint64_t mode:42;
+};
+
 /* command argument to be passed for cmd ID - CGX_CMD_LINK_CHANGE */
 struct cgx_link_change_args {		/* start from bit 8 */
 	u64 reserved1:8;
@@ -353,8 +399,9 @@ union cgx_cmd_s {
 	struct cgx_cmd cmd;
 	struct cgx_ctl_args cmd_args;
 	struct cgx_mtu_args mtu_size;
-	struct cgx_link_change_args lnk_args; /* Input CGX_CMD_LINK_CHANGE */
+	struct cgx_link_change_args lnk_args; /* Input to CGX_CMD_LINK_CHANGE */
 	struct cgx_set_mode_args mode_args;
+	struct cgx_mode_change_args mode_change_args;
 	struct cgx_set_fec_args fec_args;
 	struct cgx_set_phy_mod_args phy_mod_args;
 	/* any other arg for command id * like : mtu, dmac filtering control */
