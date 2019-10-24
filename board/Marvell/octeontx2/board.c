@@ -10,6 +10,7 @@
 #include <dm/uclass-internal.h>
 #include <malloc.h>
 #include <errno.h>
+#include <environment.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <linux/libfdt.h>
