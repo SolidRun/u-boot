@@ -78,7 +78,7 @@
 &cp1_pcie0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&cp1_pcie_reset_pins>;
-	marvell,reset-gpio = <&cp1_gpio0 0 GPIO_ACTIVE_HIGH>;
+	marvell,reset-gpio = <&cp1_gpio0 0 GPIO_ACTIVE_LOW>;
 	status = "okay";
 	num-lanes = <2>;
 		/* non-prefetchable memory */
