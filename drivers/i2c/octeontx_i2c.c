@@ -784,13 +784,13 @@ static void twsi_calc_div(unsigned int speed, int *m_div, int *n_div)
 
 #if defined(CONFIG_ARCH_OCTEONTX)
 	io_clock_hz = octeontx_get_io_clock();
-	tclk = io_clock_hz / 2 * (TWSI_THP + 1);
+	tclk = io_clock_hz / (2 * (TWSI_THP + 1));
 #elif defined(CONFIG_ARCH_OCTEONTX2)
 	/* Refclk src in mode register defaults to 100MHz clock */
 	io_clock_hz = 100000000; /* 100 Mhz */
 	tclk = io_clock_hz / (TWSI_THP + 2);
 #endif
-	debug("%s( io_clock %u)\n", __func__, io_clock_hz);
+	debug("%s( io_clock %u tclk %u)\n", __func__, io_clock_hz, tclk);
 
 	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.
 	 * Compute the clocks M divider based on the SCLK.
