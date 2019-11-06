@@ -147,8 +147,11 @@ int arch_fixup_memory_node(void *blob)
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	/* remove "cavium, bdk" node from DT */
-	int ret = 0, offset;
+	int nodeoff, node, bdk_node, ret;
+	const char *board_model, *board_rev;
+	const char *board_mac_addr, *board_serial;
+	char temp_brd_mdl[32], temp_brd_mac[32];
+	char temp_brd_srl[32], temp_brd_rev[32];
 
 	ret = fdt_check_header(blob);
 	if (ret < 0) {
@@ -157,22 +160,83 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 
 	if (blob) {
-		offset = fdt_path_offset(blob, "/cavium,bdk");
-		if (offset < 0) {
+		nodeoff = fdt_path_offset(blob, "/cavium,bdk");
+		if (nodeoff < 0) {
 			printf("ERROR: FDT BDK node not found\n");
-			return offset;
+			return nodeoff;
 		}
 
-		/* delete node */
-		ret = fdt_del_node(blob, offset);
+		/* Collect all relevant info for the board that is needed */
+		board_model = fdt_getprop(blob, nodeoff, "BOARD-MODEL", NULL);
+		if (!board_model) {
+			printf("Can't find BOARD-MODEL\n");
+			return -ENOENT;
+		}
+
+		board_serial = fdt_getprop(blob, nodeoff, "BOARD-SERIAL", NULL);
+		if (!board_serial) {
+			printf("Can't find BOARD-SERIAL\n");
+			return -ENOENT;
+		}
+
+		board_mac_addr = fdt_getprop(blob, nodeoff,
+					     "BOARD-MAC-ADDRESS", NULL);
+		if (!board_mac_addr) {
+			printf("Can't find BOARD-MAC-ADDRESS\n");
+			return -ENOENT;
+		}
+
+		board_rev = fdt_getprop(blob, nodeoff, "BOARD-REVISION", NULL);
+		if (!board_rev) {
+			printf("Can't find BOARD-REVISION\n");
+			return -ENOENT;
+		}
+
+		/* Hold in temprary storage */
+		strncpy(temp_brd_mdl, board_model, sizeof(temp_brd_mdl));
+		strncpy(temp_brd_srl, board_serial, sizeof(temp_brd_srl));
+		strncpy(temp_brd_mac, board_mac_addr, sizeof(temp_brd_mac));
+		strncpy(temp_brd_rev, board_rev, sizeof(temp_brd_rev));
+
+		/* Delete cavium,bdk node */
+		ret = fdt_del_node(blob, nodeoff);
 		if (ret < 0) {
 			printf("WARNING : could not remove cavium, bdk node\n");
 			return ret;
 		}
-
 		debug("%s deleted 'cavium,bdk' node\n", __func__);
-	}
 
+		/*
+		 * Add a new node at root level which would have
+		 * necessary info
+		 */
+		node = fdt_add_subnode(blob, 0, "octeontx_brd");
+		if (node < 0) {
+			printf("Cannot create node octeontx_brd: %s\n",
+			       fdt_strerror(node));
+			return -EIO;
+		}
+		if (fdt_setprop_string(blob, node, "BOARD-SERIAL",
+				       temp_brd_srl)) {
+			puts("Can't set BOARD-SERIAL\n");
+			return -EIO;
+		}
+		if (fdt_setprop_string(blob, node,
+				       "BOARD-MAC-ADDRESS", temp_brd_mac)) {
+			puts("Can't set BOARD-MAC-ADDRESS\n");
+			return -EIO;
+		}
+		if (fdt_setprop_string(blob, node,
+				       "BOARD-REVISION", temp_brd_rev)) {
+			puts("Can't set BOARD-REVISION\n");
+			return -EIO;
+		}
+		if (fdt_setprop_string(blob, node,
+				       "BOARD-MODEL", temp_brd_mdl)) {
+			puts("Cannot set BOARD-MODEL\n");
+			return -EIO;
+		}
+	}
 	return 0;
 }
 
