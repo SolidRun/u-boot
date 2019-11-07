@@ -22,6 +22,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define BOOTCMD_NAME	"pci-bootcmd"
+#define CONSOLE_NAME	"pci-console"
+
 extern unsigned long fdt_base_addr;
 extern void cgx_intf_shutdown(void);
 
@@ -169,6 +172,7 @@ static int init_bootcmd_console(void)
 	int ret = 0;
 	char *stdinname = env_get("stdin");
 	struct udevice *bootcmd_dev = NULL;
+	bool stdin_set;
 	char iomux_name[128];
 
 	debug("%s: stdin before: %s\n", __func__,
@@ -177,18 +181,25 @@ static int init_bootcmd_console(void)
 		env_set("stdin", "serial");
 		stdinname = env_get("stdin");
 	}
-	ret = uclass_get_device_by_name(UCLASS_SERIAL, "pci-bootcmd",
+	stdin_set = !!strstr(stdinname, BOOTCMD_NAME);
+	ret = uclass_get_device_by_name(UCLASS_SERIAL, BOOTCMD_NAME,
 					&bootcmd_dev);
-	if (!ret && bootcmd_dev) {
-		snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
-			 stdinname, bootcmd_dev->name);
+	if (ret) {
+		pr_err("%s: Error getting %s serial class\n", __func__,
+		       BOOTCMD_NAME);
+	} else if (bootcmd_dev) {
+		if (stdin_set)
+			strncpy(iomux_name, stdinname, sizeof(iomux_name));
+		else
+			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
+				 stdinname, bootcmd_dev->name);
 		ret = iomux_doenv(stdin, iomux_name);
+		if (ret)
+			pr_err("%s: Error %d enabling the PCI bootcmd input console \"%s\"\n",
+			       __func__, ret, iomux_name);
+		if (!stdin_set)
+			env_set("stdin", iomux_name);
 	}
-	if (ret)
-		printf("%s: Error enabling the PCI bootcmd input console\n",
-		       __func__);
-	else
-		env_set("stdin", iomux_name);
 	debug("%s: Set iomux and stdin to %s (ret: %d)\n",
 	      __func__, iomux_name, ret);
 	return ret;
@@ -203,6 +214,7 @@ static int init_pcie_console(void)
 	char *stdoutname = env_get("stdout");
 	char *stderrname = env_get("stderr");
 	struct udevice *pcie_console_dev = NULL;
+	bool stdin_set, stdout_set, stderr_set;
 	char iomux_name[128];
 
 	debug("%s: stdin: %s, stdout: %s, stderr: %s\n", __func__, stdinname,
@@ -226,43 +238,72 @@ static int init_pcie_console(void)
 		return -1;
 	}
 
-	ret = uclass_get_device_by_name(UCLASS_SERIAL, "pci-console",
-					&pcie_console_dev);
-	if (!ret && pcie_console_dev) {
-		snprintf(iomux_name, sizeof(iomux_name), "%s,%s", stdinname,
-			 pcie_console_dev->name);
-		ret = iomux_doenv(stdin, iomux_name);
-		if (!ret) {
-			env_set("stdin", iomux_name);
+	stdin_set = !!strstr(stdinname, CONSOLE_NAME);
+	stdout_set = !!strstr(stdoutname, CONSOLE_NAME);
+	stderr_set = !!strstr(stderrname, CONSOLE_NAME);
 
-			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
-				 stdoutname,
-				 pcie_console_dev->name);
-			ret = iomux_doenv(stdout, iomux_name);
-		} else {
-			printf("%s: Error setting I/O stdin MUX to %s\n",
-			       __func__, iomux_name);
-		}
-		if (!ret)
-			env_set("stdout", iomux_name);
-		else
-			printf("%s: Error setting I/O stdout MUX to %s\n",
-			       __func__, iomux_name);
-		if (!ret) {
-			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
-				 stderrname,
-				 pcie_console_dev->name);
-			ret = iomux_doenv(stderr, iomux_name);
-		}
-		if (!ret)
-			env_set("stderr", iomux_name);
-		else
-			printf("%s: Error setting I/O stderr MUX to %s\n",
-			       __func__, iomux_name);
+	pr_debug("stdin: %d, \"%s\", stdout: %d, \"%s\", stderr: %d, \"%s\"\n",
+		 stdin_set, stdinname, stdout_set, stdoutname,
+		 stderr_set, stderrname);
+	ret = uclass_get_device_by_name(UCLASS_SERIAL, CONSOLE_NAME,
+					&pcie_console_dev);
+	if (ret || !pcie_console_dev) {
+		debug("%s: No PCI console device %s found\n", __func__,
+		      CONSOLE_NAME);
+		return 0;
 	}
+
+	if (stdin_set)
+		strncpy(iomux_name, stdinname, sizeof(iomux_name));
+	else
+		snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
+			 stdinname, pcie_console_dev->name);
+
+	ret = iomux_doenv(stdin, iomux_name);
+	if (ret) {
+		pr_err("%s: Error setting I/O stdin MUX to %s\n",
+		       __func__, iomux_name);
+		return ret;
+	}
+
+	if (!stdin_set)
+		env_set("stdin", iomux_name);
+
+	if (stdout_set)
+		strncpy(iomux_name, stdoutname, sizeof(iomux_name));
+	else
+		snprintf(iomux_name, sizeof(iomux_name), "%s,%s", stdoutname,
+			 pcie_console_dev->name);
+
+	ret = iomux_doenv(stdout, iomux_name);
+	if (ret) {
+		pr_err("%s: Error setting I/O stdout MUX to %s\n",
+		       __func__, iomux_name);
+		return ret;
+	}
+	if (!stdout_set)
+		env_set("stdout", iomux_name);
+
+	if (stderr_set)
+		strncpy(iomux_name, stderrname, sizeof(iomux_name));
+	else
+		snprintf(iomux_name, sizeof(iomux_name), "%s,%s", stderrname,
+			 pcie_console_dev->name);
+
+	ret = iomux_doenv(stderr, iomux_name);
+	if (ret) {
+		pr_err("%s: Error setting I/O stderr MUX to %s\n",
+		       __func__, iomux_name);
+		return ret;
+	}
+
+	if (!stderr_set)
+		env_set("stderr", iomux_name);
+
 	debug("%s: stdin: %s, stdout: %s, stderr: %s, ret: %d\n",
 	      __func__, env_get("stdin"), env_get("stdout"),
 	      env_get("stderr"), ret);
+
 	return ret;
 }
 #endif
