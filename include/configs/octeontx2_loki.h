@@ -33,10 +33,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
 
-#define CONFIG_NR_DRAM_BANKS		1
-
-#define CONFIG_MISC_INIT_R
-
 #define CONFIG_LAST_STAGE_INIT
 /* #define CONFIG_CMD_MDIO_DBG */
 
@@ -48,19 +44,6 @@
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-#define CONFIG_BOOTP_PXE
-#define CONFIG_BOOTP_TFTP_SERVERIP
-
-/***** SPI Defines *********/
-#ifdef CONFIG_DM_SPI_FLASH
-#define CONFIG_SF_DEFAULT_SPEED 12500000
-#define CONFIG_SF_DEFAULT_MODE	0
-#define CONFIG_SF_DEFAULT_BUS	0
-#define CONFIG_SF_DEFAULT_CS	0
-#endif
 
 /** Extra environment settings */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
@@ -74,10 +57,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
-#define CONFIG_ENV_SPI_MAX_HZ		12500000
-#define CONFIG_ENV_SPI_MODE		0
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
 #endif
 
 /* Monitor Command Prompt */
