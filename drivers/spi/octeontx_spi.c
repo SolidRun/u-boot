@@ -16,6 +16,7 @@
 
 #if defined(CONFIG_ARCH_OCTEONTX2)
 #include <asm/arch/board.h>
+#include <spi-mem.h>
 #define USE_TBI_CLK
 #endif
 
@@ -470,9 +471,9 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	mpi_cfg.s.tb100_en = 1;
 #endif
 	mpi_cfg.s.iomode = 0;
-	if (flags & SPI_XFER_DUAL)
+	if (flags & (SPI_TX_DUAL | SPI_RX_DUAL))
 		mpi_cfg.s.iomode = 2;
-	if (flags & SPI_XFER_QUAD)
+	if (flags & (SPI_TX_QUAD | SPI_RX_QUAD))
 		mpi_cfg.s.iomode = 3;
 
 	if (mpi_cfg.u != readq(baseaddr + MPI_CFG)) {
@@ -576,6 +577,87 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	return 0;
 }
+
+static bool octeontx_spi_supports_op(struct spi_slave *slave,
+				     const struct spi_mem_op *op)
+{
+	/* For now, support only below combinations
+	 * 1-1-1
+	 * 1-1-2 1-2-2
+	 * 1-1-4 1-4-4
+	 */
+	if (op->cmd.buswidth != 1)
+		return false;
+	return true;
+}
+
+static int octeontx_spi_exec_op(struct spi_slave *slave,
+				const struct spi_mem_op *op)
+{
+	unsigned long flags = SPI_XFER_BEGIN;
+	const void *tx;
+	void *rx;
+	u8 buf[8];
+	u8 *addr;
+	int i, temp, ret;
+
+	if (op->cmd.buswidth != 1)
+		return -ENOTSUPP;
+
+	/* Send CMD */
+	i = 0;
+	buf[i++] = op->cmd.opcode;
+
+	if (!op->data.nbytes && !op->addr.nbytes && !op->dummy.nbytes)
+		flags |= SPI_XFER_END;
+
+	ret = octeontx_spi_xfer(slave->dev, (i * 8), (void *)&buf, NULL,
+				flags);
+	if (ret < 0)
+		return ret;
+	/* Send Address and dummy */
+	if (op->addr.nbytes) {
+		addr = (u8 *)&op->addr.val;
+		for (temp = 0; temp < op->addr.nbytes; temp++)
+			buf[i++] = *(u8 *)(addr + op->addr.nbytes - 1 - temp);
+		for (temp = 0; temp < op->dummy.nbytes; temp++)
+			buf[i++] = 0xff;
+		if (op->addr.buswidth == 2)
+			flags |= SPI_RX_DUAL;
+		if (op->addr.buswidth == 4)
+			flags |= SPI_RX_QUAD;
+
+		if (!op->data.nbytes)
+			flags |= SPI_XFER_END;
+		ret = octeontx_spi_xfer(slave->dev, (i - 1) * 8,
+					(void *)&buf[1], NULL,
+					flags);
+		if (ret < 0)
+			return ret;
+	}
+	if (!op->data.nbytes)
+		return 0;
+
+	/* Send/Receive Data */
+	flags |= SPI_XFER_END;
+	if (op->data.buswidth == 2)
+		flags |= SPI_RX_DUAL;
+	if (op->data.buswidth == 4)
+		flags |= SPI_RX_QUAD;
+
+	rx = (op->data.dir == SPI_MEM_DATA_IN) ? op->data.buf.in : NULL;
+	tx = (op->data.dir == SPI_MEM_DATA_OUT) ? op->data.buf.out : NULL;
+
+	ret = octeontx_spi_xfer(slave->dev, (op->data.nbytes * 8), tx, rx,
+				flags);
+	return ret;
+}
+
+static const struct spi_controller_mem_ops octeontx_spi_mem_ops = {
+	.supports_op = octeontx_spi_supports_op,
+	.exec_op = octeontx_spi_exec_op,
+};
+
 #endif
 
 /**
@@ -640,6 +722,9 @@ static const struct dm_spi_ops octeontx_spi_ops = {
 	.xfer		= octeontx_spi_xfer,
 	.set_speed	= octeontx_spi_set_speed,
 	.set_mode	= octeontx_spi_set_mode,
+#if !defined(CONFIG_ARCH_OCTEONTX)
+	.mem_ops	= &octeontx_spi_mem_ops,
+#endif
 };
 
 static const struct udevice_id octeontx_spi_ids[] = {
@@ -656,3 +741,10 @@ U_BOOT_DRIVER(octeontx_pci_spi) = {
 	.priv_auto_alloc_size	= sizeof(struct octeontx_spi),
 	.ops			= &octeontx_spi_ops,
 };
+
+static struct pci_device_id octeontx_spi_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, 0xa00b) },
+	{ },
+};
+
+U_BOOT_PCI_DEVICE(octeontx_pci_spi, octeontx_spi_supported);
