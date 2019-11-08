@@ -110,6 +110,10 @@ config TARGET_DB_88F6820_AMC
 	bool "Support DB-88F6820-AMC"
 	select 88F6820
 
+config TARGET_DB_88F6820_AP
+	bool "Support DB-88F6820-AP"
+	select 88F6820
+
 config TARGET_TURRIS_OMNIA
 	bool "Support Turris Omnia"
 	select 88F6820
@@ -180,6 +184,7 @@ config SYS_BOARD
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
+	default "db-88f6820-ap" if TARGET_DB_88F6820_AP
 	default "turris_omnia" if TARGET_TURRIS_OMNIA
 	default "turris_mox" if TARGET_TURRIS_MOX
 	default "mvebu_armada-8k" if TARGET_MVEBU_ARMADA_8K
@@ -200,6 +205,7 @@ config SYS_CONFIG_NAME
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
+	default "db-88f6820-ap" if TARGET_DB_88F6820_AP
 	default "mvebu_armada-8k" if TARGET_MVEBU_ARMADA_8K
 	default "octeontx2_cn913x" if TARGET_OCTEONTX2_CN913x
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
@@ -219,6 +225,7 @@ config SYS_VENDOR
 	default "Marvell" if TARGET_DB_88F6720
 	default "Marvell" if TARGET_DB_88F6820_GP
 	default "Marvell" if TARGET_DB_88F6820_AMC
+	default "Marvell" if TARGET_DB_88F6820_AP
 	default "Marvell" if TARGET_MVEBU_ARMADA_8K
 	default "Marvell" if TARGET_DB_XC3_24G4XG
 	default "Marvell" if TARGET_MVEBU_DB_88F7040
