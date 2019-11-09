@@ -144,24 +144,26 @@ int dram_init(void)
 	return 0;
 }
 
-/**
- * Board misc devices initialization routine.
- */
-int misc_init_r(void)
+#ifdef CONFIG_NET_OCTEONTX2
+void board_late_probe_devices(void)
 {
-	struct udevice *bus;
+	struct udevice *dev;
+	int err, cgx_cnt, i;
 
-	/*
-	 * Enumerate all known miscellaneous devices
-	 * so CGX and RVU AF devices will be probed.
-	 */
-	for (uclass_first_device_check(UCLASS_MISC, &bus);
-	     bus;
-	     uclass_next_device_check(&bus)) {
-		;
+	/* Probe MAC(CGX) and NIC AF devices before Network stack init */
+	cgx_cnt = otx_is_soc(CN98XX) ? 5 : 3;
+	for (i = 0; i < cgx_cnt; i++) {
+		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA059, i,
+					 &dev);
+		if (err)
+			debug("%s CGX%d device not found\n", __func__, i);
 	}
-	return 0;
+	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA065, 0, &dev);
+	if (err)
+		debug("NIC AF device not found\n");
 }
+#endif
+
 #if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
 	CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)) &&	\
 	!CONFIG_IS_ENABLED(CONSOLE_MUX)
@@ -346,6 +348,10 @@ int board_late_init(void)
 
 	val = env_get_hex("disable_ooo", 0);
 	smc_configure_ooo(val);
+
+#ifdef CONFIG_NET_OCTEONTX2
+	board_late_probe_devices();
+#endif
 
 #if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
 	if (init_bootcmd_console())
