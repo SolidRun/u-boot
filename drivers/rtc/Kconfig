@@ -63,6 +63,13 @@ config RTC_DS1307
 	  Support for Dallas Semiconductor (now Maxim) DS1307 and DS1338/9 and
 	  compatible Real Time Clock devices.
 
+config RTC_DS1337
+	bool "Enable DS1337 driver"
+	depends on DM_RTC
+	help
+	  Support for Dallas Semiconductor (now Maxim) DS1337/39 and DS1388 and
+	  compatible Real Time Clock devices.
+
 config RTC_ISL1208
 	bool "Enable ISL1208 driver"
 	depends on DM_RTC
@@ -119,13 +126,6 @@ config RTC_MV
 	help
 	  Enable Marvell RTC driver. This driver supports the rtc that is present
 	  on some Marvell SoCs.
-
-config RTC_DS1337
-	bool "Enable DS1337 driver"
-	depends on DM_RTC
-	help
-	  Support for Dallas Semiconductor (now Maxim) DS1337 and
-	  compatible Real Time Clock devices.
 
 config RTC_S35392A
 	bool "Enable S35392A driver"
