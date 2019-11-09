@@ -231,6 +231,7 @@ union rst_boot {
 };
 
 /** Function definitions */
+void mem_map_fill(void);
 int fdt_get_board_mac_cnt(void);
 u64 fdt_get_board_mac_addr(void);
 const char *fdt_get_board_model(void);

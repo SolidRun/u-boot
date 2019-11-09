@@ -183,6 +183,7 @@ union rst_boot {
 };
 
 /** Function definitions */
+void mem_map_fill(void);
 int octeontx_board_has_pmp(void);
 const char *fdt_get_board_model(void);
 const char *fdt_get_board_serial(void);
