@@ -415,7 +415,7 @@ static int initr_onenand(void)
 }
 #endif
 
-#if defined(CONFIG_MMC) || defined(CONFIG_DM_MMC)
+#ifdef CONFIG_MMC
 static int initr_mmc(void)
 {
 	puts("MMC:   ");
@@ -457,6 +457,7 @@ static int initr_env(void)
 	env_set_hex("fdtcontroladdr",
 		    (unsigned long)map_to_sysmem(gd->fdt_blob));
 #endif
+
 	/* Initialize from environment */
 	load_addr = env_get_ulong("loadaddr", 16, load_addr);
 
@@ -749,7 +750,7 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CMD_ONENAND
 	initr_onenand,
 #endif
-#if defined(CONFIG_MMC) || defined(CONFIG_DM_MMC)
+#ifdef CONFIG_MMC
 	initr_mmc,
 #endif
 	initr_env,

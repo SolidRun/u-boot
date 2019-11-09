@@ -960,3 +960,9 @@ U_BOOT_DRIVER(octeontx_pci_twsi) = {
 	.ops	= &octeontx_i2c_ops,
 };
 
+static struct pci_device_id octeontx_twsi_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, 0xa012) },
+	{ },
+};
+
+U_BOOT_PCI_DEVICE(octeontx_pci_twsi, octeontx_twsi_supported);

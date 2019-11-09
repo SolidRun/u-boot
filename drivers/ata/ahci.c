@@ -1211,9 +1211,6 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 	ret = ahci_init_one(uc_priv, dev);
 	if (ret)
 		return ret;
-
-	uc_plat->max_id = uc_priv->n_ports;
-
 	ret = ahci_start_ports(uc_priv);
 	if (ret)
 		return ret;
@@ -1238,15 +1235,15 @@ int ahci_probe_scsi_pci(struct udevice *ahci_dev)
 	ulong base;
 	u16 vendor, device;
 
-	base = (uintptr_t)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5,
-					 PCI_REGION_MEM);
+	base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5,
+				     PCI_REGION_MEM);
 
 	dm_pci_read_config16(ahci_dev, PCI_VENDOR_ID, &vendor);
 	dm_pci_read_config16(ahci_dev, PCI_DEVICE_ID, &device);
 
 	if (vendor == 0x177d && device == 0xa01c)
-		base = (uintptr_t)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_0,
-						 PCI_REGION_MEM);
+		base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_0,
+					     PCI_REGION_MEM);
 	return ahci_probe_scsi(ahci_dev, base);
 }
 #endif
@@ -1273,3 +1270,4 @@ __weak int scsi_bus_reset(struct udevice *dev)
 
 	return 0;
 }
+#endif

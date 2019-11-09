@@ -12,12 +12,8 @@
 
 /** Reg offsets */
 #define RST_BOOT		0x87E006001600ULL
-#define RST_CHIP_DOM_W1S	0x87E006001810ULL
 
 #define CPC_BOOT_OWNERX(a)	0x86D000000160ULL + (8 * (a))
-
-#define GTI_CWD_POKEX	0x802000050000ULL
-#define GTI_CWD_WDOGX	0x802000040000ULL
 
 /* attestation definitions shared with ATF (see 'plat_octeontx.h') */
 
@@ -109,54 +105,6 @@ union rst_boot {
 		u64 reserved_61_62                   : 2;
 		u64 chipkill                         : 1;
 	} s;
-	struct rst_boot_cn81xx {
-		u64 rboot_pin                        : 1;
-		u64 rboot                            : 1;
-		u64 lboot                            : 10;
-		u64 lboot_ext23                      : 6;
-		u64 lboot_ext45                      : 6;
-		u64 lboot_jtg                        : 1;
-		u64 lboot_ckill                      : 1;
-		u64 reserved_26_29                   : 4;
-		u64 lboot_oci                        : 3;
-		u64 pnr_mul                          : 6;
-		u64 reserved_39                      : 1;
-		u64 c_mul                            : 7;
-		u64 reserved_47_54                   : 8;
-		u64 dis_scan                         : 1;
-		u64 dis_huk                          : 1;
-		u64 vrm_err                          : 1;
-		u64 jt_tstmode                       : 1;
-		u64 ckill_ppdis                      : 1;
-		u64 trusted_mode                     : 1;
-		u64 ejtagdis                         : 1;
-		u64 jtcsrdis                         : 1;
-		u64 chipkill                         : 1;
-	} cn81xx;
-	struct rst_boot_cn83xx {
-		u64 rboot_pin                        : 1;
-		u64 rboot                            : 1;
-		u64 lboot                            : 10;
-		u64 lboot_ext23                      : 6;
-		u64 lboot_ext45                      : 6;
-		u64 lboot_jtg                        : 1;
-		u64 lboot_ckill                      : 1;
-		u64 lboot_pf_flr                     : 4;
-		u64 lboot_oci                        : 3;
-		u64 pnr_mul                          : 6;
-		u64 reserved_39                      : 1;
-		u64 c_mul                            : 7;
-		u64 reserved_47_54                   : 8;
-		u64 dis_scan                         : 1;
-		u64 dis_huk                          : 1;
-		u64 vrm_err                          : 1;
-		u64 jt_tstmode                       : 1;
-		u64 ckill_ppdis                      : 1;
-		u64 trusted_mode                     : 1;
-		u64 ejtagdis                         : 1;
-		u64 jtcsrdis                         : 1;
-		u64 chipkill                         : 1;
-	} cn83xx;
 	struct rst_boot_cn96xx {
 		u64 rboot_pin                        : 1;
 		u64 rboot                            : 1;

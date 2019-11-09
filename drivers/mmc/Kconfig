@@ -13,9 +13,15 @@ config MMC
 
 config MMC_WRITE
 	bool "support for MMC/SD write operations"
+	depends on MMC
 	default y
 	help
 	  Enable write access to MMC and SD Cards
+
+config MMC_BROKEN_CD
+	bool "Poll for broken card detection case"
+	help
+	  If card  detection feature is broken, just poll to detect.
 
 config DM_MMC
 	bool "Enable MMC controllers using Driver Model"
@@ -289,7 +295,7 @@ config MMC_OCTEONTX
 	depends on DM_MMC
 	help
 	  This selects the OcteonTX Multimedia card Interface.
-	  If you have an OcteonTX board with a Multimedia Card slot,
+	  If you have an OcteonTX/TX2 board with a Multimedia Card slot,
 	  say Y here.
 
 	  If unsure, say N.

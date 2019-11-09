@@ -39,7 +39,6 @@
 #define EXTRACT_SDMMC_CHANGE_VERSION(x)	\
 	((u32)(x) & 0xff)
 
-#define SD_VERSION_4		MAKE_SD_VERSION(4, 0, 0)
 #define SD_VERSION_3		MAKE_SD_VERSION(3, 0, 0)
 #define SD_VERSION_2		MAKE_SD_VERSION(2, 0, 0)
 #define SD_VERSION_1_0		MAKE_SD_VERSION(1, 0, 0)
@@ -158,13 +157,6 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define OCR_BUSY		0x80000000
 #define OCR_HCS			0x40000000
 #define OCR_S18R		0x1000000
-#define MMC_HS_TIMING		0x00000100
-#define MMC_HS_DDR_52MHz_12V	0x8
-#define MMC_HS_DDR_52MHz_18_3V	0x4
-#define MMC_HS_52MHZ		0x2
-#define MMC_HS_26MHz		0x1
-
-#define OCR_XPC			0x10000000
 #define OCR_VOLTAGE_MASK	0x007FFF80
 #define OCR_ACCESS_MODE		0x60000000
 
@@ -234,25 +226,15 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define EXT_CSD_BUS_WIDTH		183	/* R/W */
 #define EXT_CSD_STROBE_SUPPORT		184	/* R/W */
 #define EXT_CSD_HS_TIMING		185	/* R/W */
-#define EXT_CSD_POWER_CLASS		187	/* R/W */
 #define EXT_CSD_REV			192	/* RO */
 #define EXT_CSD_CARD_TYPE		196	/* RO */
 #define EXT_CSD_PART_SWITCH_TIME	199	/* RO */
-#define EXT_CSD_PWR_CL_52_195		200	/* RO */
-#define EXT_CSD_PWR_CL_26_195		201	/* RO */
-#define EXT_CSD_PWR_CL_52_360		202	/* RO */
-#define EXT_CSD_PWR_CL_26_360		203	/* RO */
 #define EXT_CSD_SEC_CNT			212	/* RO, 4 bytes */
 #define EXT_CSD_HC_WP_GRP_SIZE		221	/* RO */
 #define EXT_CSD_HC_ERASE_GRP_SIZE	224	/* RO */
 #define EXT_CSD_BOOT_MULT		226	/* RO */
 #define EXT_CSD_GENERIC_CMD6_TIME       248     /* RO */
 #define EXT_CSD_BKOPS_SUPPORT		502	/* RO */
-#define EXT_CSD_PWR_CL_200_195		236	/* RO */
-#define EXT_CSD_PWR_CL_200_360		237	/* RO */
-#define EXT_CSD_PWR_CL_DDR_52_195	238	/* RO */
-#define EXT_CSD_PWR_CL_DDR_52_360	239	/* RO */
-#define EXT_CSD_GENERIC_CMD6_TIME	248	/* RO in 10ms increments */
 
 /*
  * EXT_CSD field definitions
@@ -266,8 +248,6 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define EXT_CSD_CARD_TYPE_52	(1 << 1)	/* Card can run at 52MHz */
 #define EXT_CSD_CARD_TYPE_DDR_1_8V	(1 << 2)
 #define EXT_CSD_CARD_TYPE_DDR_1_2V	(1 << 3)
-#define EXT_CSD_CARD_TYPE_HS400_1_8V	(1 << 6)	/* HS400 DDR, 1.8V */
-#define EXT_CSD_CARD_TYPE_HS400_1_2V	(1 << 7)	/* HS400 DDR, 1.2V */
 #define EXT_CSD_CARD_TYPE_DDR_52	(EXT_CSD_CARD_TYPE_DDR_1_8V \
 					| EXT_CSD_CARD_TYPE_DDR_1_2V)
 
@@ -753,15 +733,11 @@ int mmc_voltage_to_mv(enum mmc_voltage voltage);
  * @disable:	flag indicating if the clock must on or off
  * @return 0 if OK, -ve on error
  */
-#if !CONFIG_IS_ENABLED(MMC_OCTEONTX)
 int mmc_set_clock(struct mmc *mmc, uint clock, bool disable);
 
 #define MMC_CLK_ENABLE		false
 #define MMC_CLK_DISABLE		true
 
-#else
-void mmc_set_clock(struct mmc *mmc, uint clock);
-#endif
 struct mmc *find_mmc_device(int dev_num);
 int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);
@@ -886,12 +862,8 @@ int mmc_power_init(struct mmc *mmc);
  * mmc_get_blk_desc() - Get the block descriptor for an MMC device
  *
  * @mmc:	MMC device
- * @devnum:	device number
  * @return block device if found, else NULL
  */
-#ifdef CONFIG_MMC_OCTEONTX
-struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum);
-#else
 struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
-#endif
+
 #endif /* _MMC_H_ */

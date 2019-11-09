@@ -13,7 +13,7 @@
 #include <misc.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <environment.h>
+#include <env.h>
 #include <linux/ctype.h>
 
 #define PCI_DEVICE_ID_OCTEONTX_SMI 0xA02B

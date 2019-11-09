@@ -34,11 +34,6 @@ void show_regs(struct pt_regs *regs)
 {
 	int i;
 
-	printf("MPIDR:     %lx\n", read_mpidr());
-	printf("FAR:       %lx\n", read_far());
-	printf("SPSR:      %lx\n", read_spsr());
-	printf("Rel. offs: %lx\n", gd->reloc_off);
-
 	if (gd->flags & GD_FLG_RELOC)
 		printf("elr: %016lx lr : %016lx (reloc)\n",
 		       regs->elr - gd->reloc_off,

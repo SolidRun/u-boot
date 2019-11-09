@@ -234,7 +234,6 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define setbits_le64(addr, set) setbits(le64, addr, set)
 #define clrsetbits_le64(addr, clear, set) clrsetbits(le64, addr, clear, set)
 
-
 /*
  * Now, pick up the machine-defined IO definitions
  */

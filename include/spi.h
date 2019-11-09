@@ -65,116 +65,6 @@ struct dm_spi_slave_platdata {
 #endif /* CONFIG_DM_SPI */
 
 /**
- * enum spi_flash_protocol - SPI flash command protocol
- */
-#define SPI_FPROTO_INST_SHIFT	16
-#define SPI_FPROTO_INST_MASK	GENMASK(23, 16)
-#define SPI_FPROTO_INST(nbits)					\
-	((((unsigned long)(nbits)) << SPI_FPROTO_INST_SHIFT) &	\
-	 SPI_FPROTO_INST_MASK)
-
-#define SPI_FPROTO_ADDR_SHIFT	8
-#define SPI_FPROTO_ADDR_MASK	GENMASK(15, 8)
-#define SPI_FPROTO_ADDR(nbits)					\
-	((((unsigned long)(nbits)) << SPI_FPROTO_ADDR_SHIFT) &	\
-	 SPI_FPROTO_ADDR_MASK)
-
-#define SPI_FPROTO_DATA_SHIFT	0
-#define SPI_FPROTO_DATA_MASK	GENMASK(7, 0)
-#define SPI_FPROTO_DATA(nbits)					\
-	((((unsigned long)(nbits)) << SPI_FPROTO_DATA_SHIFT) &	\
-	 SPI_FPROTO_DATA_MASK)
-
-#define SPI_FPROTO(inst_nbits, addr_nbits, data_nbits)	\
-	(SPI_FPROTO_INST(inst_nbits) |			\
-	 SPI_FPROTO_ADDR(addr_nbits) |			\
-	 SPI_FPROTO_DATA(data_nbits))
-
-enum spi_flash_protocol {
-	SPI_FPROTO_1_1_1 = SPI_FPROTO(1, 1, 1),
-	SPI_FPROTO_1_1_2 = SPI_FPROTO(1, 1, 2),
-	SPI_FPROTO_1_1_4 = SPI_FPROTO(1, 1, 4),
-	SPI_FPROTO_1_2_2 = SPI_FPROTO(1, 2, 2),
-	SPI_FPROTO_1_4_4 = SPI_FPROTO(1, 4, 4),
-	SPI_FPROTO_2_2_2 = SPI_FPROTO(2, 2, 2),
-	SPI_FPROTO_4_4_4 = SPI_FPROTO(4, 4, 4),
-};
-
-static inline
-u8 spi_flash_protocol_get_inst_nbits(enum spi_flash_protocol proto)
-{
-	return ((unsigned long)(proto & SPI_FPROTO_INST_MASK)) >>
-		SPI_FPROTO_INST_SHIFT;
-}
-
-static inline
-u8 spi_flash_protocol_get_addr_nbits(enum spi_flash_protocol proto)
-{
-	return ((unsigned long)(proto & SPI_FPROTO_ADDR_MASK)) >>
-		SPI_FPROTO_ADDR_SHIFT;
-}
-
-static inline
-u8 spi_flash_protocol_get_data_nbits(enum spi_flash_protocol proto)
-{
-	return ((unsigned long)(proto & SPI_FPROTO_DATA_MASK)) >>
-		SPI_FPROTO_DATA_SHIFT;
-}
-
-/**
- * struct spi_flash_command - SPI flash command structure
- *
- * @instr:		Opcode sent to the SPI slave during instr clock cycles.
- * @mode:		Value sent to the SPI slave during mode clock cycles.
- * @num_mode_cycles:	Number of mode clock cycles.
- * @num_wait_states:	Number of wait-state clock cycles.
- * @addr_len:		Number of bytes sent during address clock cycles:
- *			should be 0, 3, or 4.
- * @addr:		Value sent to the SPI slave during address clock cycles.
- * @data_len:		Number of bytes to be sent during data clock cycles.
- * @tx_data:		Data sent to the SPI slave during data clock cycles.
- * @rx_data:		Data read from the SPI slave during data clock cycles.
- */
-struct spi_flash_command {
-	enum spi_flash_protocol proto;
-	u8 flags;
-#define SPI_FCMD_TYPE		GENMASK(2, 0)
-#define SPI_FCMD_READ		(0x0U << 0)
-#define SPI_FCMD_WRITE		(0x1U << 0)
-#define SPI_FCMD_ERASE		(0x2U << 0)
-#define SPI_FCMD_READ_REG	(0x3U << 0)
-#define SPI_FCMD_WRITE_REG	(0x4U << 0)
-
-	u8 inst;
-	u8 mode;
-	u8 num_mode_cycles;
-	u8 num_wait_states;
-	u8 addr_len;
-	u32 addr;
-	size_t data_len;
-	const void *tx_data;
-	void *rx_data;
-};
-
-/**
- * Initialize a 'struct spi_flash_command'.
- *
- * @cmd:		Pointer to the 'struct spi_flash_command' to initialize.
- * @instr:		Instruction opcode.
- * @addr_len:		Number of address bytes.
- */
-static inline void
-spi_flash_command_init(struct spi_flash_command *cmd,
-		       u8 inst, u8 addr_len, u8 flags)
-{
-	memset(cmd, 0, sizeof(*cmd));
-	cmd->proto = SPI_FPROTO_1_1_1;
-	cmd->inst = inst;
-	cmd->addr_len = addr_len;
-	cmd->flags = flags;
-}
-
-/**
  * struct spi_slave - Representation of a SPI slave
  *
  * For driver model this is the per-child data used by the SPI bus. It can
@@ -572,26 +462,6 @@ struct dm_spi_ops {
 	 *	   is invalid, other -ve value on error
 	 */
 	int (*cs_info)(struct udevice *bus, uint cs, struct spi_cs_info *info);
-
-	/**
-	 * Check whether the given SPI flash command is supported.
-	 *
-	 * @bus:	The SPI bus
-	 * @cmd:	The SPI flash command to check.
-	 * @return:	true if supported, false otherwise
-	 */
-	bool (*is_flash_command_supported)(struct udevice *bus,
-					   const struct spi_flash_command *cmd);
-
-	/**
-	 * Execute a SPI flash command
-	 *
-	 * @bus:	The SPI bus
-	 * @cmd:	The SPI flash command to execute.
-	 * @return 0 if OK, -ve on error
-	 */
-	int (*exec_flash_command)(struct udevice *bus,
-				  const struct spi_flash_command *cmd);
 };
 
 struct dm_spi_emul_ops {
@@ -779,24 +649,6 @@ void dm_spi_release_bus(struct udevice *dev);
  */
 int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags);
-
-/**
- * Check whether the given SPI flash command is supported.
- *
- * @dev:	The SPI slave device
- * @cmd:	The SPI flash command
- */
-bool dm_spi_is_flash_command_supported(struct udevice *dev,
-				       const struct spi_flash_command *cmd);
-
-/**
- * Execute the given SPI flash command.
- *
- * @dev:	The SPI slave device
- * @cmd:	The SPI flash command
- */
-int dm_spi_exec_flash_command(struct udevice *dev,
-			      const struct spi_flash_command *cmd);
 
 /* Access the operations for a SPI device */
 #define spi_get_ops(dev)	((struct dm_spi_ops *)(dev)->driver->ops)

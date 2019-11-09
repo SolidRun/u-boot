@@ -142,12 +142,7 @@ static int mmc_set_env_part(struct mmc *mmc)
 	int dev = mmc_get_env_dev();
 	int ret = 0;
 
-	env_mmc_orig_hwpart =
-#ifdef CONFIG_MMC_OCTEONTX
-		mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV)->hwpart;
-#else
-		mmc_get_blk_desc(mmc)->hwpart;
-#endif
+	env_mmc_orig_hwpart = mmc_get_blk_desc(mmc)->hwpart;
 	ret = blk_select_hwpart_devnum(IF_TYPE_MMC, dev, part);
 	if (ret)
 		puts("MMC partition switch failed\n");
@@ -192,11 +187,8 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
 			    unsigned long offset, const void *buffer)
 {
 	uint blk_start, blk_cnt, n;
-#ifdef CONFIG_MMC_OCTEONTX
-	struct blk_desc *desc = mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV);
-#else
 	struct blk_desc *desc = mmc_get_blk_desc(mmc);
-#endif
+
 	blk_start	= ALIGN(offset, mmc->write_bl_len) / mmc->write_bl_len;
 	blk_cnt		= ALIGN(size, mmc->write_bl_len) / mmc->write_bl_len;
 
@@ -305,11 +297,8 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 			   unsigned long offset, const void *buffer)
 {
 	uint blk_start, blk_cnt, n;
-#ifdef CONFIG_MMC_OCTEONTX
-	struct blk_desc *desc = mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV);
-#else
 	struct blk_desc *desc = mmc_get_blk_desc(mmc);
-#endif
+
 	blk_start	= ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
 	blk_cnt		= ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
 

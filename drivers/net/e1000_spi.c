@@ -104,14 +104,14 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	}
 
 	/* TODO: Use max_hz somehow */
-	E1000_DBG(hw, "EEPROM SPI access requested\n");
+	E1000_DBG(hw->nic, "EEPROM SPI access requested\n");
 	return &hw->spi;
 }
 
 void spi_free_slave(struct spi_slave *spi)
 {
 	__maybe_unused struct e1000_hw *hw = e1000_hw_from_spi(spi);
-	E1000_DBG(hw, "EEPROM SPI access released\n");
+	E1000_DBG(hw->nic, "EEPROM SPI access released\n");
 }
 
 int spi_claim_bus(struct spi_slave *spi)

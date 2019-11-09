@@ -878,7 +878,7 @@ int npc_lf_admin_setup(struct nix *nix)
 			 NPC_AF_INTFX_KEX_CFG(NPC_INTF_E_NIXX_RX(0)),
 			 kex_cfg.u);
 
-	/* Errata #35786 */
+	/* HW Issue */
 	kex_cfg.u = 0;
 	kex_cfg.s.parse_nibble_ena = 0x7;
 	npc_af_reg_write(nix_af,
@@ -1021,7 +1021,7 @@ int nix_af_setup(struct nix_af *nix_af)
 		return -1;
 	}
 	af_cfg.s.af_be = 0;
-	af_cfg.u |= 0x5E;	/* Errata 35057 */
+	af_cfg.u |= 0x5E;	/* HW Issue */
 	nix_af_reg_write(nix_af, NIXX_AF_CFG(), af_cfg.u);
 
 	/* Perform Calibration */

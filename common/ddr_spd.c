@@ -82,40 +82,6 @@ crc16(char *ptr, int count)
 	return crc & 0xffff;
 }
 
-const char *ddr3_modtype_str(const ddr3_spd_eeprom_t *spd)
-{
-	switch(spd->module_type) {
-	case DDR3_SPD_MODULETYPE_RDIMM:
-		return "Registered DIMM";
-	case DDR3_SPD_MODULETYPE_UDIMM:
-		return "Unbuffered DIMM";
-	case DDR3_SPD_MODULETYPE_SO_DIMM:
-		return "SODIMM";
-	case DDR3_SPD_MODULETYPE_MICRO_DIMM:
-		return "Micro DIMM";
-	case DDR3_SPD_MODULETYPE_MINI_RDIMM:
-		return "Mini RDIMM";
-	case DDR3_SPD_MODULETYPE_MINI_UDIMM:
-		return "Mini UDIMM";
-	case DDR3_SPD_MODULETYPE_MINI_CDIMM:
-		return "Mini CDIMM";
-	case DDR3_SPD_MODULETYPE_72B_SO_UDIMM:
-		return "ECC Unbuffered SODIMM";
-	case DDR3_SPD_MODULETYPE_72B_SO_RDIMM:
-		return "ECC Registered SODIMM";
-	case DDR3_SPD_MODULETYPE_72B_SO_CDIMM:
-		return "ECC CDIMM";
-	case DDR3_SPD_MODULETYPE_LRDIMM:
-		return "LRDIMM";
-	case DDR3_SPD_MODULETYPE_16B_SO_DIMM:
-		return "16B SODIMM";
-	case DDR3_SPD_MODULETYPE_32B_SO_DIMM:
-		return "32B SODIMM";
-	}
-
-	return "Unknown module";
-}
-
 unsigned int
 ddr3_spd_check(const ddr3_spd_eeprom_t *spd)
 {

@@ -1149,15 +1149,6 @@ config CMD_SATA
 	  Attachment, where AT refers to an IBM AT (Advanced Technology)
 	  computer released in 1984.
 
-config CMD_NVME
-	bool "NVMe"
-	depends on NVME
-	help
-	  NVMe support.
-	  This enables nvme commands in command line
-	  You can use comamnd "nvme" to show what commands it supports
-	  such as "nvme info" "nvme list".
-
 config CMD_SAVES
 	bool "saves - Save a file over serial in S-Record format"
 	help
@@ -1275,7 +1266,6 @@ config CMD_AXI
 	  Interface) busses, a on-chip interconnect specification for managing
 	  functional blocks in SoC designs, which is also often used in designs
 	  involving FPGAs (e.g.  communication with IP cores in Xilinx FPGAs).
-
 endmenu
 
 

@@ -11,8 +11,6 @@
 #include <dm/lists.h>
 #include "mmc_private.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		    struct mmc_data *data)
 {
@@ -196,9 +194,10 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 
 struct mmc *mmc_get_mmc_dev(struct udevice *dev)
 {
+	struct mmc_uclass_priv *upriv;
+
 	if (!device_active(dev))
 		return NULL;
-	struct mmc_uclass_priv *upriv;
 	upriv = dev_get_uclass_priv(dev);
 	return upriv->mmc;
 }
@@ -216,7 +215,7 @@ struct mmc *find_mmc_device(int dev_num)
 		printf("MMC Device %d not found\n", dev_num);
 #endif
 		return NULL;
-        }
+	}
 
 	mmc_dev = dev_get_parent(dev);
 
@@ -292,8 +291,7 @@ void print_mmc_devices(char separator)
 		else
 			mmc_type = NULL;
 
-		printf("%s: %d", m->cfg->name,
-			mmc_get_blk_desc(m)->devnum);
+		printf("%s: %d", m->cfg->name, mmc_get_blk_desc(m)->devnum);
 		if (mmc_type)
 			printf(" (%s)", mmc_type);
 	}
@@ -360,8 +358,10 @@ int mmc_unbind(struct udevice *dev)
 static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 {
 	struct udevice *mmc_dev = dev_get_parent(bdev);
-	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
 	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
+	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
+	int ret;
+
 	if (desc->hwpart == hwpart)
 		return 0;
 

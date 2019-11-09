@@ -18,8 +18,6 @@
 #include "nic.h"
 #include "nicvf_queues.h"
 
-#define ETH_ALEN 6
-
 /* Register read/write APIs */
 void nicvf_reg_write(struct nicvf *nic, u64 offset, u64 val)
 {

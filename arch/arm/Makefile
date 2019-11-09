@@ -43,8 +43,6 @@ tune-$(CONFIG_CPU_ARM1176)	=
 tune-$(CONFIG_CPU_V7A)		=-mtune=generic-armv7-a
 tune-$(CONFIG_CPU_V7R)		=
 tune-$(CONFIG_ARM64)		=
-tune-$(CONFIG_OCTEONTX)		=
-tune-$(CONFIG_OCTEONTX2)	=
 
 # Evaluate tune cc-option calls now
 tune-y := $(tune-y)

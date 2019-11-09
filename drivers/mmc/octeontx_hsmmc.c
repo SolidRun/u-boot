@@ -3149,45 +3149,6 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	return 0;
 }
 
-static int octeontx_mmc_host_bind(struct udevice *parent)
-{
-	struct udevice *dev;
-	ofnode node;
-	int err;
-
-	debug("%s(%s): bind\n", __func__, parent->name);
-	dev_for_each_subnode(node, parent) {
-		struct uclass *uc;
-		int slot = ofnode_read_u32_default(node, "reg", -1);
-		char name[32];
-
-		if (slot < 0) {
-			pr_warn("Warning: mmc slot in device tree missing reg\n");
-			continue;
-		}
-		snprintf(name, sizeof(name), "octeontx-hsmmc%d", slot);
-		err = device_bind_driver_to_node(parent, "octeontx_hsmmc_slot",
-						 ofnode_get_name(node), node,
-						 &dev);
-		if (err) {
-			pr_err("%s(%s): Error %d binding slot %s\n", __func__,
-			       parent->name, err, name);
-			continue;
-		}
-		pr_info("%s: bound %s\n", parent->name, dev->name);
-		err = uclass_get(UCLASS_MMC, &uc);
-		if (err) {
-			pr_err("%s(%s: Could not get MMC uclass\n", __func__,
-			       parent->name);
-			continue;
-		}
-		dev->uclass = uc;
-		debug("  uclass priv: %p\n", uc->priv);
-	}
-
-	return 0;
-}
-
 /**
  * This performs some initial setup before a probe occurs.
  *
@@ -3257,7 +3218,6 @@ static const struct udevice_id octeontx_hsmmc_host_ids[] = {
 U_BOOT_DRIVER(octeontx_hsmmc_host) = {
 	.name	= "octeontx_hsmmc_host",
 	.id	= UCLASS_MISC,
-	.bind	= octeontx_mmc_host_bind,
 	.of_match = of_match_ptr(octeontx_hsmmc_host_ids),
 	.probe	= octeontx_mmc_host_probe,
 	.priv_auto_alloc_size = sizeof(struct octeontx_mmc_host),
@@ -3265,3 +3225,9 @@ U_BOOT_DRIVER(octeontx_hsmmc_host) = {
 	.flags	= DM_FLAG_PRE_RELOC,
 };
 
+static struct pci_device_id octeontx_mmc_supported[] = {
+	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_EMMC) },
+	{ },
+};
+
+U_BOOT_PCI_DEVICE(octeontx_hsmmc_host, octeontx_mmc_supported);

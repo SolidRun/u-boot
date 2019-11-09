@@ -20,8 +20,6 @@
 #include "nic.h"
 #include "q_struct.h"
 
-#define ETH_HLEN 6
-
 unsigned long rounddown_pow_of_two(unsigned long n)
 {
 	n |= n >> 1;

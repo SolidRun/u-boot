@@ -9,7 +9,6 @@
 #include <dm.h>
 #include <malloc.h>
 #include <errno.h>
-#include <environment.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
@@ -150,14 +149,3 @@ int show_board_info(void)
 	return 0;
 }
 
-#ifdef CONFIG_HW_WATCHDOG
-void hw_watchdog_reset(void)
-{
-	writeq(~0ULL, GTI_CWD_POKEX);
-}
-
-void hw_watchdog_disable(void)
-{
-	writeq(0ULL, GTI_CWD_WDOGX);
-}
-#endif

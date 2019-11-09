@@ -3,9 +3,9 @@
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
+obj-y += mmc.o
 obj-$(CONFIG_$(SPL_)DM_MMC) += mmc-uclass.o
 obj-$(CONFIG_$(SPL_)MMC_WRITE) += mmc_write.o
-obj-$(CONFIG_MMC) += mmc.o
 
 ifndef CONFIG_$(SPL_)BLK
 obj-y += mmc_legacy.o

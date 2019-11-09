@@ -64,22 +64,6 @@ U_BOOT_CMD(
 	"     `blk#' from memory address `addr'"
 );
 
-#if !defined(CONFIG_CMD_SATA) && defined(CONFIG_SCSI_AHCI)
-U_BOOT_CMD(
-	sata, 5, 1, do_scsi,
-	"SATA sub-system",
-	"reset - reset SATA controller\n"
-	"sata info  - show available SATA devices\n"
-	"sata init  - (re-)scan SATA bus\n"
-	"sata device [dev] - show or set current device\n"
-	"sata part [dev] - print partition table of one or all SATA devices\n"
-	"sata read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
-	"     to memory address `addr'\n"
-	"sata write addr blk# cnt - write `cnt' blocks starting at block\n"
-	"     `blk#' from memory address `addr'"
-);
-#endif
-
 U_BOOT_CMD(
 	scsiboot, 3, 1, do_scsiboot,
 	"boot from SCSI device",

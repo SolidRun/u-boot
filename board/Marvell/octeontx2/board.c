@@ -1,7 +1,8 @@
+// SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2018 Marvell International Ltd.
  *
- * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
  */
 
 #include <common.h>
@@ -10,7 +11,6 @@
 #include <dm/uclass-internal.h>
 #include <malloc.h>
 #include <errno.h>
-#include <environment.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <linux/libfdt.h>
@@ -400,18 +400,6 @@ void acquire_flash_arb(bool acquire)
 		} while (ownerx.s.boot_wait);
 	}
 }
-
-#ifdef CONFIG_HW_WATCHDOG
-void hw_watchdog_reset(void)
-{
-	writeq(~0ULL, GTI_CWD_POKEX);
-}
-
-void hw_watchdog_disable(void)
-{
-	writeq(0ULL, GTI_CWD_WDOGX);
-}
-#endif
 
 #ifdef CONFIG_LAST_STAGE_INIT
 int last_stage_init(void)

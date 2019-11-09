@@ -447,20 +447,6 @@ static inline struct octeontx_nfc *to_otx_nfc(struct nand_hw_control *ctrl)
 	return container_of(ctrl, struct octeontx_nfc, controller);
 }
 
-/** Ported from Linux 4.9.0 include/linux/mtd/mtd.h for compatibility */
-static inline void mtd_set_of_node(struct mtd_info *mtd, ofnode node)
-{
-	mtd->dev->node = node;
-}
-
-/** Ported from Linux 4.9.0 include/linux/mtd/nand.h for compatibility */
-static inline void nand_set_flash_node(struct nand_chip *chip,
-				       ofnode node)
-{
-	mtd_set_of_node(&chip->mtd, node);
-	chip->flash_node = ofnode_to_offset(node);
-}
-
 #if defined(CONFIG_NAND_OCTEONTX_HW_ECC)
 static int octeontx_nand_calc_ecc_layout(struct nand_chip *nand)
 {

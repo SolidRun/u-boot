@@ -461,6 +461,9 @@
 #define PCI_EA_FIRST_ENT	4	/* First EA Entry in List */
 #define  PCI_EA_ES		0x00000007 /* Entry Size */
 #define  PCI_EA_BEI		0x000000f0 /* BAR Equivalent Indicator */
+/* 9-14 map to VF BARs 0-5 respectively */
+#define  PCI_EA_BEI_VF_BAR0	9
+#define  PCI_EA_BEI_VF_BAR5	14
 /* Base, MaxOffset registers */
 /* bit 0 is reserved */
 #define  PCI_EA_IS_64		0x00000002	/* 64-bit field flag */
@@ -471,37 +474,17 @@
 #define  PCI_EXP_DEVCAP_FLR     0x10000000 /* Function Level Reset */
 #define PCI_EXP_DEVCTL		8	/* Device Control */
 #define  PCI_EXP_DEVCTL_BCR_FLR 0x8000  /* Bridge Configuration Retry / FLR */
-
-/* Enhanced Allocation Registers */
-#define PCI_EA_NUM_ENT		2	/* Number of Capability Entries */
-#define  PCI_EA_NUM_ENT_MASK	0x3f	/* Num Entries Mask */
-#define PCI_EA_FIRST_ENT	4	/* First EA Entry in List */
-#define  PCI_EA_ES		0x00000007 /* Entry Size */
-#define  PCI_EA_BEI		0x000000f0 /* BAR Equivalent Indicator */
-/* 9-14 map to VF BARs 0-5 respectively */
-#define  PCI_EA_BEI_VF_BAR0	9
-#define  PCI_EA_BEI_VF_BAR5	14
-/* Base, MaxOffset registers */
-/* bit 0 is reserved */
-#define  PCI_EA_IS_64		0x00000002	/* 64-bit field flag */
-#define  PCI_EA_FIELD_MASK	0xfffffffc	/* For Base & Max Offset */
-
-/* Single Root I/O Virtualization */
+/* Single Root I/O Virtualization Registers */
 #define PCI_SRIOV_CAP		0x04	/* SR-IOV Capabilities */
 #define PCI_SRIOV_CTRL		0x08	/* SR-IOV Control */
 #define  PCI_SRIOV_CTRL_VFE	0x01	/* VF Enable */
-#define  PCI_SRIOV_CTRL_VFM	0x02	/* VF Migration Enable */
 #define  PCI_SRIOV_CTRL_MSE	0x08	/* VF Memory Space Enable */
-#define PCI_SRIOV_STATUS	0x0a	/* SR-IOV Status */
-#define  PCI_SRIOV_STATUS_VFM	0x01	/* VF Migration Status */
 #define PCI_SRIOV_INITIAL_VF	0x0c	/* Initial VFs */
 #define PCI_SRIOV_TOTAL_VF	0x0e	/* Total VFs */
 #define PCI_SRIOV_NUM_VF	0x10	/* Number of VFs */
 #define PCI_SRIOV_VF_OFFSET	0x14	/* First VF Offset */
 #define PCI_SRIOV_VF_STRIDE	0x16	/* Following VF Stride */
 #define PCI_SRIOV_VF_DID	0x1a	/* VF Device ID */
-#define PCI_SRIOV_BAR		0x24	/* VF BAR0 */
-#define  PCI_SRIOV_NUM_BARS	6	/* Number of VF BARs */
 
 /* Include the ID list */
 
@@ -802,6 +785,8 @@ extern int pci_hose_find_cap_start(struct pci_controller *hose, pci_dev_t dev,
 extern int pci_find_cap(struct pci_controller *hose, pci_dev_t dev, int pos,
 			int cap);
 
+int pci_find_next_ext_capability(struct pci_controller *hose,
+				 pci_dev_t dev, int start, int cap);
 int pci_hose_find_ext_capability(struct pci_controller *hose,
 				 pci_dev_t dev, int cap);
 
@@ -1372,7 +1357,7 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
  * 32b/64b BARs.  Note that duplicate BEI entries are not supported.
  *
  * @dev:	Device to check
- * @bar:	Bar number to read (numbered from 0)
+ * @bar:	Bar register offset (PCI_BASE_ADDRESS_...)
  * @flags:	Flags for the region type (PCI_REGION_...)
  * @return: pointer to the virtual address to use or 0 on error
  */
@@ -1502,25 +1487,6 @@ int dm_pci_flr(struct udevice *dev);
 	dm_pci_virt_to_bus((dev), (addr), PCI_REGION_IO)
 #define dm_pci_io_to_virt(dev, addr, len, map_flags) \
 	dm_pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
-
-/**
- * dm_pci_find_capability() - find a capability offset for a given device
- *
- * @dev: 	Device to check
- * @cap:	Capability ID
- * @return: capability offset if found, 0 otherwise
- */
-int dm_pci_find_capability(struct udevice *dev, int cap);
-
-/**
- * dm_pci_find_ext_capability() - find an extended capability
- * 		offset for a given device
- *
- * @dev: 	Device to check
- * @cap:	Capability ID
- * @return: capability offset if found, 0 otherwise
- */
-int dm_pci_find_ext_capability(struct udevice *dev, int cap);
 
 /**
  * dm_pci_find_device() - find a device by vendor/device ID

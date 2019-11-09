@@ -11,7 +11,6 @@
 #include <dm.h>
 #include <errno.h>
 #include <pci.h>
-#include <dm/device-internal.h>
 
 /* the user can define CONFIG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */
 #ifndef CONFIG_SYS_PCI_CACHE_LINE_SIZE
@@ -317,7 +316,6 @@ int dm_pciauto_config_device(struct udevice *dev)
 	struct pci_controller *ctlr_hose = dev_get_uclass_priv(ctlr);
 	int n;
 
-//	enum_only = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
 #ifdef CONFIG_PCI_ENUM_ONLY
 	enum_only = true;
 #endif

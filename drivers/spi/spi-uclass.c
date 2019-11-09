@@ -92,30 +92,6 @@ int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return spi_get_ops(bus)->xfer(dev, bitlen, dout, din, flags);
 }
 
-bool dm_spi_is_flash_command_supported(struct udevice *dev,
-				       const struct spi_flash_command *cmd)
-{
-	struct udevice *bus = dev->parent;
-	struct dm_spi_ops *ops = spi_get_ops(bus);
-
-	if (ops->is_flash_command_supported)
-		return ops->is_flash_command_supported(dev, cmd);
-
-	return false;
-}
-
-int dm_spi_exec_flash_command(struct udevice *dev,
-			      const struct spi_flash_command *cmd)
-{
-	struct udevice *bus = dev->parent;
-	struct dm_spi_ops *ops = spi_get_ops(bus);
-
-	if (ops->exec_flash_command)
-		return ops->exec_flash_command(dev, cmd);
-
-	return -EINVAL;
-}
-
 int spi_claim_bus(struct spi_slave *slave)
 {
 	return log_ret(dm_spi_claim_bus(slave->dev));
@@ -192,10 +168,6 @@ static int spi_post_probe(struct udevice *bus)
 		ops->set_mode += gd->reloc_off;
 	if (ops->cs_info)
 		ops->cs_info += gd->reloc_off;
-	if (ops->is_flash_command_supported)
-		ops->is_flash_command_supported += gd->reloc_off;
-	if (ops->exec_flash_command)
-		ops->exec_flash_command += gd->reloc_off;
 #endif
 
 	return 0;
@@ -324,7 +296,6 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 {
 	struct udevice *bus, *dev;
 	struct dm_spi_slave_platdata *plat;
-	struct dm_spi_bus *spi;
 	bool created = false;
 	int ret;
 
@@ -338,7 +309,6 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		return ret;
 	}
 	ret = spi_find_chip_select(bus, cs, &dev);
-	spi = dev_get_uclass_priv(bus);
 
 	/*
 	 * If there is no such device, create one automatically. This means
@@ -388,9 +358,6 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		speed = plat->max_hz;
 		mode = plat->mode;
 	}
-	if (spi->max_hz)
-		speed = min(speed, (int)spi->max_hz);
-
 	ret = spi_set_speed_mode(bus, speed, mode);
 	if (ret)
 		goto err;

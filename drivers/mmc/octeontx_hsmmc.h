@@ -36,6 +36,8 @@
 
 #define MAX_NO_OF_TAPS			64
 
+#define EXT_CSD_POWER_CLASS		187	/* R/W */
+
 struct octeontx_mmc_host;
 
 /** MMC/SD slot data structure */

@@ -18,7 +18,6 @@
 #include <asm/byteorder.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
-#include <linux/sizes.h>
 #include <u-boot/zlib.h>
 
 DECLARE_GLOBAL_DATA_PTR;

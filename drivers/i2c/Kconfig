@@ -367,11 +367,11 @@ config SYS_I2C_SANDBOX
 	  which specifies the driver to use.  See sandbox.dts as an example.
 
 config SYS_I2C_OCTEONTX
-	bool "OcteonTX i2c driver"
+	bool "OcteonTX I2C driver"
 	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2) && DM_I2C
 	default y
 	help
-	 Enable I2C support for OcteonTX line of processors.
+	 Enable I2C support for OcteonTX/TX2 line of processors.
 
 config SYS_I2C_S3C24X0
 	bool "Samsung I2C driver"
@@ -404,13 +404,6 @@ config SYS_I2C_TEGRA
 	depends on TEGRA
 	help
 	  Support for NVIDIA I2C controller available in Tegra SoCs.
-
-config SYS_I2C_THUNDERX
-	bool "ThunderX i2c driver"
-	depends on ARCH_THUNDERX && DM_I2C
-	default y
-	help
-	 Enable I2C support for Cavium ThunderX line of processors.
 
 config SYS_I2C_UNIPHIER
 	bool "UniPhier I2C driver"

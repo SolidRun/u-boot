@@ -68,7 +68,7 @@ extern void board_get_env_spi_bus_cs(int *bus, int *cs);
 				     CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE,
 				     &new);
 	if (ret) {
-		set_default_env("!spi_flash_probe_bus_cs() failed");
+		env_set_default("spi_flash_probe_bus_cs() failed", 0);
 		return ret;
 	}
 #endif

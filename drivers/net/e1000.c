@@ -5789,7 +5789,6 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
 		plat = dev_get_platdata(dev);
 		mac = plat->enetaddr;
 	}
-	hw = dev_get_priv(dev);
 #else
 	hw = e1000_find_card(cardnum);
 	if (hw)
