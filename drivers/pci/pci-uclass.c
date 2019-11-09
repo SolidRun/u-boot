@@ -609,12 +609,11 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 	if (ea_pos) {
 		dm_pci_read_config8(bus, ea_pos + sizeof(u32) + sizeof(u8), &reg);
 		sub_bus = reg;
-		debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
 	} else {
 		sub_bus = pci_get_bus_max() + 1;
-		debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
-		dm_pciauto_prescan_setup_bridge(bus, sub_bus);
 	}
+	debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
+	dm_pciauto_prescan_setup_bridge(bus, sub_bus);
 
 	ret = device_probe(bus);
 	if (ret) {
@@ -630,8 +629,8 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 			return -EPIPE;
 		}
 		sub_bus = pci_get_bus_max();
-		dm_pciauto_postscan_setup_bridge(bus, sub_bus);
 	}
+	dm_pciauto_postscan_setup_bridge(bus, sub_bus);
 
 	return sub_bus;
 }
@@ -688,7 +687,8 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 	      find_id->vendor, find_id->device);
 
 	/* Determine optional OF node */
-	pci_dev_find_ofnode(parent, bdf, &node);
+	if (ofnode_valid(dev_ofnode(parent)))
+		pci_dev_find_ofnode(parent, bdf, &node);
 
 	start = ll_entry_start(struct pci_driver_entry, pci_driver_entry);
 	n_ents = ll_entry_count(struct pci_driver_entry, pci_driver_entry);
@@ -912,14 +912,17 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 			continue;
 		}
 
-		pos = hose->region_count++;
+		pos = -1;
+#if !CONFIG_IS_ENABLED(PCI_REGION_MULTI_ENTRY)
+		for (i = 0; i < hose->region_count; i++) {
+			if (hose->regions[i].flags == type)
+				pos = i;
+		}
+#endif
+		if (pos == -1)
+			pos = hose->region_count++;
 		debug(" - type=%d, pos=%d\n", type, pos);
 		pci_set_region(hose->regions + pos, pci_addr, addr, size, type);
-	}
-
-	if(hose->region_count == MAX_PCI_REGIONS) {
-		printf("PCI region count reached limit, cannot add local memory region");
-		return 1;
 	}
 
 	/* Add a region for our local memory */
@@ -1362,7 +1365,7 @@ static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
 	phys_addr_t addr;
 
 	/* In case of Virtual Function devices, device is Physical function,
-	 * so pdata will point to required VF specific info
+	 * so pdata will point to required VF specific data.
 	 */
 	if (pdata->is_virtfn)
 		bar_id += PCI_EA_BEI_VF_BAR0;
@@ -1389,7 +1392,7 @@ static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
 			addr |= ((u64)ea_entry) << 32;
 		}
 
-		/* In case of Virtual Function devices using VF0 BAR
+		/* In case of Virtual Function devices using BAR
 		 * base and size, add offset for VFn BAR(1, 2, 3...n)
 		 */
 		if (pdata->is_virtfn) {
@@ -1401,7 +1404,7 @@ static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
 			/* Fill up lower 2 bits */
 			sz |= (~PCI_EA_FIELD_MASK);
 			if (ea_entry & PCI_EA_IS_64) {
-				/* Offset 2nd DW */
+				/* MaxOffset 2nd DW */
 				dm_pci_read_config32(dev, ea_off + 16,
 						     &ea_entry);
 				sz |= ((u64)ea_entry) << 32;
@@ -1583,7 +1586,7 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
 	if (!pos) {
 		printf("Error: SRIOV capability not found\n");
-		return -ENODEV;
+		return -ENOENT;
 	}
 
 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_CTRL, &ctrl);
@@ -1672,7 +1675,7 @@ int pci_sriov_get_totalvfs(struct udevice *pdev)
 	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
 	if (!pos) {
 		printf("Error: SRIOV capability not found\n");
-		return -ENODEV;
+		return -ENOENT;
 	}
 
 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
