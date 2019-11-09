@@ -261,8 +261,8 @@ static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 	return 0;
 }
 
-static void pci_octeontx2_pem_errata(struct udevice *bus, uint offset,
-				     enum pci_size_t size)
+static void pci_octeontx2_pem_workaround(struct udevice *bus, uint offset,
+					 enum pci_size_t size)
 {
 #if defined(CONFIG_ARCH_OCTEONTX2)
 	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
@@ -406,7 +406,7 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 	}
 	debug("tmp long %lx %lx\n", addr, value);
 
-	pci_octeontx2_pem_errata(bus, offset, size);
+	pci_octeontx2_pem_workaround(bus, offset, size);
 
 	switch (size) {
 	case PCI_SIZE_8:

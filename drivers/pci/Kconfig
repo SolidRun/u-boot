@@ -106,11 +106,11 @@ config PCI_TEGRA
 	  with a total of 5 lanes. Some boards require this for Ethernet
 	  support to work (e.g. beaver, jetson-tk1).
 
-config PCI_OCTEONTX_ECAM
-	bool "OcteonTX ECAM support"
+config PCI_OCTEONTX
+	bool "OcteonTX PCI support"
 	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	help
-	  Enable support for the OcteonTX/TX2 SoC family ECAM controllers.
+	  Enable support for the OcteonTX/TX2 SoC family ECAM/PEM controllers.
 	  These controllers provide PCI configuration access to all on-board
 	  peripherals so it should only be disabled for testing purposes
 
