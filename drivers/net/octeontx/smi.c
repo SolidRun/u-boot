@@ -12,6 +12,7 @@
 #include <phy.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <env.h>
 #include <linux/ctype.h>
 #include <linux/delay.h>
 
