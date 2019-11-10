@@ -465,6 +465,8 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	mpi_cfg = octeontx_spi_set_mpicfg(dev);
 
+	/* TRITX must be set to 1 for proper operation */
+	mpi_cfg.s.tritx = 1;
 	mpi_cfg.s.legacy_dis = 1;
 	mpi_cfg.s.cs_sticky = 1;
 #ifdef USE_TBI_CLK
