@@ -398,6 +398,51 @@ int cgx_intf_set_mode(struct udevice *ethdev, int mode)
 	return 0;
 }
 
+int cgx_intf_get_mode(struct udevice *ethdev)
+{
+	struct rvu_pf *rvu = dev_get_priv(ethdev);
+	struct nix *nix = rvu->nix;
+	union cgx_scratchx0 scr0;
+	int ret;
+	union cgx_cmd_s cmd;
+
+	cmd.cmd.id = CGX_CMD_GET_LINK_STS;
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   cmd, &scr0.u, 1);
+	if (ret) {
+		printf("Get link status failed for %s\n", ethdev->name);
+		return -1;
+	}
+	printf("Current Interface Mode: ");
+	switch (scr0.s.link_sts.mode) {
+	case CGX_MODE_10G_C2C_BIT:
+		printf("10G_C2C\n");
+		break;
+	case CGX_MODE_10G_C2M_BIT:
+		printf("10G_C2M\n");
+		break;
+	case CGX_MODE_10G_KR_BIT:
+		printf("10G_KR\n");
+		break;
+	case CGX_MODE_25G_C2C_BIT:
+		printf("25G_C2C\n");
+		break;
+	case CGX_MODE_25G_2_C2C_BIT:
+		printf("25G_2_C2C\n");
+		break;
+	case CGX_MODE_50G_C2C_BIT:
+		printf("50G_C2C\n");
+		break;
+	case CGX_MODE_50G_4_C2C_BIT:
+		printf("50G_4_C2C\n");
+		break;
+	default:
+		printf("Unknown\n");
+		break;
+	}
+	return 0;
+}
+
 int cgx_intf_get_fec(struct udevice *ethdev)
 {
 	struct rvu_pf *rvu = dev_get_priv(ethdev);
