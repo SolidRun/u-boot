@@ -100,6 +100,8 @@ int board_late_init(void)
 {
 	char boardname[32];
 	char boardserial[150], boardrev[150];
+	bool save_env = false;
+	const char *str;
 
 	/*
 	 * Try to cleanup ethaddr env variables, this is needed
@@ -112,22 +114,27 @@ int board_late_init(void)
 
 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
 
-	if (fdt_get_board_revision()) {
-		snprintf(boardrev, sizeof(boardrev), "%s",
-			 fdt_get_board_revision());
+	str = fdt_get_board_revision();
+	if (str) {
+		snprintf(boardrev, sizeof(boardrev), "%s", str);
+		if (strcmp(boardrev, env_get("boardrev")))
+			save_env = true;
 		env_set("boardrev", boardrev);
 	}
 
-	if (fdt_get_board_serial()) {
-		snprintf(boardserial, sizeof(boardserial), "%s",
-			 fdt_get_board_serial());
+	str = fdt_get_board_serial();
+	if (str) {
+		snprintf(boardserial, sizeof(boardserial), "%s", str);
+		if (strcmp(boardserial, env_get("serial#")))
+			save_env = true;
 		env_set("serial#", boardserial);
 	}
 
 #ifdef CONFIG_NET_OCTEONTX
 	board_late_probe_devices();
 #endif
-	env_save();
+	if (save_env)
+		env_save();
 	return 0;
 }
 
