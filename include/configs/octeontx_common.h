@@ -39,6 +39,11 @@
 /** Reduce hashes printed out */
 #define CONFIG_TFTP_TSIZE
 
+/* Autoboot options */
+#define CONFIG_RESET_TO_RETRY
+#define CONFIG_BOOT_RETRY_TIME		-1
+#define CONFIG_BOOT_RETRY_MIN		30
+
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
