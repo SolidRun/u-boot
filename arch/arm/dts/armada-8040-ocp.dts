@@ -301,8 +301,8 @@
 		phy-type = <COMPHY_TYPE_UNCONNECTED>;
 	};
 	phy4 {
-		phy-type = <COMPHY_TYPE_SFI0>;
-		phy-speed = <COMPHY_SPEED_10_3125G>;
+		phy-type = <COMPHY_TYPE_SGMII0>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
 	};
 	phy5 {
 		phy-type = <COMPHY_TYPE_UNCONNECTED>;
@@ -316,6 +316,6 @@
 /* 10G SFI/copper */
 &cp1_eth0 {
 	status = "okay";
-	phy-mode = "sfi";
+	phy-mode = "sgmii";
 	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 10 GPIO_ACTIVE_HIGH>;
 };
