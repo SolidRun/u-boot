@@ -383,8 +383,15 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 {
 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 	struct spi_reg *reg = plat->spireg;
 	u32 data, prescale;
+
+	if (hz > spi->max_hz) {
+		debug("%s: limit speed to the max_hz of the bus %d\n",
+		      __func__, spi->max_hz);
+		hz = spi->max_hz;
+	}
 
 	data = readl(&reg->cfg);
 
