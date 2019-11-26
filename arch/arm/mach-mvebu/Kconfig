@@ -248,6 +248,9 @@ choice
 config MVEBU_SPL_BOOT_DEVICE_SPI
 	bool "SPI NOR flash"
 
+config MVEBU_SPL_BOOT_DEVICE_NAND
+	bool "NAND flash"
+
 config MVEBU_SPL_BOOT_DEVICE_MMC
 	bool "SDIO/MMC card"
 	select SPL_LIBDISK_SUPPORT
