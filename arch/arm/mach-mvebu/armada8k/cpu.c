@@ -54,6 +54,17 @@ static struct mm_region mvebu_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE
 	},
+#if defined(CONFIG_PCIE_DW_MVEBU_EP)
+	{
+		/* PCIe OCP regions */
+		.phys = MV_PCIE_EP_REGION_BASE,
+		.virt = MV_PCIE_EP_REGION_BASE,
+		.size = MV_PCIE_EP_REGION_SIZE,
+
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE
+	},
+#endif
 	{
 		0,
 	}
