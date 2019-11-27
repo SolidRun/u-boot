@@ -8,7 +8,7 @@
 #include "cn9130-db.dtsi"
 
 / {
-	model = "Marvell CN9130 development board (CP NOR) setup(A)";
+	model = "Marvell CN9130 development board (CP NAND) setup(B)";
 	compatible = "marvell,cn9130-db", "marvell,cn91xx", "marvell,cn9030-vd",
 		     "marvell,cn9030", "marvell,armada-ap806-quad",
 		     "marvell,armada-ap806";
@@ -19,7 +19,6 @@
 
 	aliases {
 		i2c0 = &cp0_i2c0;
-		spi0 = &cp0_spi1;
 		gpio0 = &ap_gpio0;
 		gpio1 = &cp0_gpio0;
 		gpio2 = &cp0_gpio1;
