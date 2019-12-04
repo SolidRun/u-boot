@@ -151,7 +151,7 @@ void board_late_probe_devices(void)
 	int err, cgx_cnt, i;
 
 	/* Probe MAC(CGX) and NIC AF devices before Network stack init */
-	cgx_cnt = otx_is_soc(CN98XX) ? 5 : 3;
+	cgx_cnt = otx_is_soc(CN98XX) ? 5 : otx_is_soc(F95MM) ? 2 : 3;
 	for (i = 0; i < cgx_cnt; i++) {
 		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA059, i,
 					 &dev);
@@ -391,6 +391,8 @@ int show_board_info(void)
 		str = "LOKI";
 	if (otx_is_soc(CN98XX))
 		str = "CN98XX";
+	if (otx_is_soc(F95MM))
+		str = "F95MM";
 	printf("OcteonTX2 %s ARM V8 Core\n", str);
 
 	printf("Board: %s\n", fdt_get_board_model());
