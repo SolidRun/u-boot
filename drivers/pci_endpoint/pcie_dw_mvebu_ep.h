@@ -48,6 +48,8 @@
 #define PCIE_ATU_FUNC(x)		(((x) & 0x7) << 16)
 #define PCIE_ATU_UPPER_TARGET		0x91C
 
+#define PCIE_SRIOV_DEVID_OFFSET		0x192
+
 #define MAX_ATU_REGIONS			16
 #define MAX_ATU_SIZE			(4ul * SZ_1G)
 

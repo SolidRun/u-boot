@@ -169,6 +169,7 @@ static int pcie_dw_armada_write_header(struct udevice *dev, uint func_id,
 
 	writew(hdr->vendorid, cfg_addr + PCI_VENDOR_ID);
 	writew(hdr->deviceid, cfg_addr + PCI_DEVICE_ID);
+	writew(hdr->vf_deviceid, cfg_addr + PCIE_SRIOV_DEVID_OFFSET);
 
 	writeb(hdr->revid,  cfg_addr + PCI_REVISION_ID);
 	writeb(hdr->progif_code,  cfg_addr + PCI_CLASS_PROG);

@@ -60,6 +60,13 @@ static int uio_pci_ep_probe(struct udevice *dev)
 	}
 	hdr.deviceid = val;
 
+	ret = dev_read_u32(dev, "vf-device-id", &val);
+	if (ret) {
+		printf("missing vf-device-id from DT node\n");
+		return ret;
+	}
+	hdr.vf_deviceid = val;
+
 	ret = dev_read_u32(dev, "class-code", &val);
 	if (ret) {
 		printf("missing class-code from DT node\n");
