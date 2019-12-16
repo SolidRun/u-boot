@@ -116,7 +116,7 @@
 /*
  * Assume minimum flash/eMMC boot partition size of 4MB
  * and save the environment at the end of the boot device
- * There is one exclusion from this rule - the EspressoBIN board with eMMC.
+ * There are some exclusions from this rule, for instance EspressoBIN board.
  * The eMMC device found on some EspressoBIN V7 boards has 2MB boot partition.
  */
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
@@ -126,9 +126,11 @@
 #define CONFIG_ENV_OFFSET		0x400000
 #else
 #if defined(CONFIG_ENV_IS_IN_MMC) && \
-defined(CONFIG_TARGET_MVEBU_ARMADA_37XX) && defined(CONFIG_MV88E6XXX_SWITCH)
-/* This one should be EspressoBin, since A3700 DB does not have
- * MV88E6XXX switch enabled. Is there any other way to detect it?
+((defined(CONFIG_TARGET_MVEBU_ARMADA_37XX) && \
+	defined(CONFIG_MV88E6XXX_SWITCH))  || \
+defined(CONFIG_TARGET_OCTEONTX2_CN913x) && (CONFIG_MVEBU_BOOT_PART != 0))
+/* A3700 + MV88E6XXX == EspressoBIN board OR
+ * CN913x CRB that boots from eMMC partition BOOT0/BOOT1 (ID 1/2)
  */
 #define CONFIG_ENV_OFFSET		(0x200000 - CONFIG_ENV_SIZE)
 #else
