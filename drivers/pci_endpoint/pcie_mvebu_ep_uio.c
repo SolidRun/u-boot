@@ -29,7 +29,9 @@ struct uio_pci {
 };
 
 /* make sure we have at least one mem regions to map the host ram */
-#define MAX_BAR_MAP	4
+#define MAX_BAR_MAP		4
+#define PCIE_EP_ALL_BARS	0x3f
+
 
 static int uio_pci_ep_probe(struct udevice *dev)
 {
@@ -93,6 +95,7 @@ static int uio_pci_ep_probe(struct udevice *dev)
 		bar_mask |= 1 << bar_id;
 
 		bar.barno = bar_id;
+		bar.phys_addr = res.start;
 		bar.size = resource_size(&res);
 		if (!is_power_of_2(bar.size)) {
 			printf("BAR-%d size in not power of 2\n", bar_id);
@@ -111,10 +114,10 @@ static int uio_pci_ep_probe(struct udevice *dev)
 		}
 	}
 
-	for (bar_id = 0; bar_id < MAX_BAR_MAP; bar_id++) {
-		if (bar_mask & (1 << bar_id))
-			continue;
-		pci_ep_clear_bar(uio_pci->ep, 0, bar_id);
+	bar_mask = PCIE_EP_ALL_BARS & ~bar_mask;
+	for (bar_id = 0; bar_mask >>= 1; bar_id++) {
+		if (bar_mask & 1)
+			pci_ep_clear_bar(uio_pci->ep, 0, bar_id);
 	}
 
 	/* remap host RAM to local memory space  using shift mapping.
