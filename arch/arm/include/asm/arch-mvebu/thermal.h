@@ -18,16 +18,19 @@ struct thermal_unit_config {
 	s32 tsen_ready;
 	void __iomem *regs_base;
 	/* thermal functionality */
-	u32 (*ptr_thermal_sensor_probe)(struct thermal_unit_config *);
-	s32 (*ptr_thermal_sensor_read)(struct thermal_unit_config *);
+	u32 (*ptr_thermal_sensor_probe)(struct thermal_unit_config *cfg);
+	s32 (*ptr_thermal_sensor_read)(struct thermal_unit_config *cfg,
+				       int *temp);
 };
 
 /* Thermal sensors APIs */
-s32 mvebu_thermal_sensor_read(struct thermal_unit_config *thermal_config);
+s32 mvebu_thermal_sensor_read(struct thermal_unit_config *thermal_config,
+			      int *temp);
 u32 mvebu_thermal_sensor_probe(struct thermal_unit_config *thermal_config);
 
 /* External Thermal sensors APIs */
-s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *thermal_config);
+s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *thermal_config,
+				  int *temp);
 u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *thermal_config);
 
 #endif /* _THERMAL_H_ */

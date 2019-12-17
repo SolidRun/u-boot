@@ -92,9 +92,7 @@ int mvebu_thermal_read(struct udevice *dev, int *temp)
 		return -1;
 	}
 
-	*temp = thermal_cfg->ptr_thermal_sensor_read(thermal_cfg);
-
-	return 0;
+	return thermal_cfg->ptr_thermal_sensor_read(thermal_cfg, temp);
 }
 
 static const struct dm_thermal_ops mvebu_thermal_ops = {

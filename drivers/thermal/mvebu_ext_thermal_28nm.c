@@ -34,9 +34,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define THERMAL_SEN_OUTPUT_MSB				512
 #define THERMAL_SEN_OUTPUT_COMP				1024
 
-s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen)
+s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
 {
 	u32 reg;
+	int ret = 0;
 
 	if (!tsen->tsen_ready) {
 		printf("External Thermal Sensor was not initialized\n");
@@ -55,8 +56,10 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen)
 	if (reg >= THERMAL_SEN_OUTPUT_MSB)
 		reg -= THERMAL_SEN_OUTPUT_COMP;
 
-	return ((tsen->tsen_gain * ((s32)reg)) + tsen->tsen_offset) /
+	*temp = ((tsen->tsen_gain * ((s32)reg)) + tsen->tsen_offset) /
 	       tsen->tsen_divisor;
+
+	return ret;
 }
 
 u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *tsen)
