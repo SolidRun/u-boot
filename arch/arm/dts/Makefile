@@ -226,6 +226,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-crs305-1g-4s.dtb		\
 	cn9130-crb-A.dtb			\
 	cn9130-crb-B.dtb			\
+	cn9130-crb-C.dtb			\
 	cn9130-db-A.dtb				\
 	cn9130-db-B.dtb				\
 	cn9131-db-A.dtb				\
