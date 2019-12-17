@@ -230,7 +230,16 @@
 #define BOOT_FROM_SPI		0x3
 #endif
 
+/* FW related definitions */
+#define MV_SIP_DFX			0x82000014
+#define MV_SIP_DFX_THERMAL_INIT		1
+#define MV_SIP_DFX_THERMAL_READ		2
+#define MV_SIP_DFX_THERMAL_IS_VALID	3
+
 #ifndef __ASSEMBLY__
+#include <asm/types.h>
+
+int mvebu_dfx_smc(u32 addr, u32 *reg);
 void soc_print_device_info(void);
 int soc_get_ap_cp_num(void *ap_num, void *cp_num);
 void soc_print_system_cache_info(void);

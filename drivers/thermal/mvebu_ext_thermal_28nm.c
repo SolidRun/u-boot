@@ -44,6 +44,16 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
 		return 0;
 	}
 
+	if (tsen->fw_smc_support) {
+		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_READ, temp);
+		if (ret)
+			return ret;
+
+		*temp = *temp / tsen->tsen_divisor;
+
+		return ret;
+	}
+
 	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_STATS);
 	reg = ((reg & THERMAL_SEN_CTRL_STATS_TEMP_OUT_MASK) >>
 	      THERMAL_SEN_CTRL_STATS_TEMP_OUT_OFFSET);
@@ -62,12 +72,44 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
 	return ret;
 }
 
+static u32 mvebu_thermal_ext_fw_validation(struct thermal_unit_config *tsen)
+{
+	u32 reg = 0, timeout = 0;
+	int ret;
+
+	debug("%s: fw smc support\n", __func__);
+
+	tsen->fw_smc_support = true;
+
+	while ((reg) == 0 && timeout < THERMAL_TIMEOUT) {
+		udelay(10);
+		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_IS_VALID, &reg);
+		timeout++;
+	}
+
+	if (reg == 0) {
+		pr_err("%s: thermal.%lx: external sensor is not ready\n",
+		       __func__, (uintptr_t)tsen->regs_base);
+		return -1;
+	}
+
+	debug("thermal.%lx: Initialization done\n", (uintptr_t)tsen->regs_base);
+
+	return ret;
+}
+
 u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *tsen)
 {
-	u32 reg, timeout = 0;
+	u32 reg = 0, timeout = 0;
+	int ret;
 
 	debug("thermal.%lx Initializing sensor unit\n",
 	      (uintptr_t)tsen->regs_base);
+
+	/* Try init thermal sensor via firmware, if fails try legacy */
+	ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_INIT, 0x0);
+	if (ret == SMCCC_RET_SUCCESS)
+		return mvebu_thermal_ext_fw_validation(tsen);
 
 	/* Initialize thermal sensor hardware reset once */
 	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_LSB);

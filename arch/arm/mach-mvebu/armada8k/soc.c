@@ -69,6 +69,21 @@ static struct soc_info soc_info_table[] = {
 	{ {0x8045, 0}, "Armada8040-B0", {0x806, 2}, {0x115, 0}, 1, 2, 0},
 };
 
+int mvebu_dfx_smc(u32 addr, u32 *reg)
+{
+	struct pt_regs pregs = {0};
+
+	pregs.regs[0] = MV_SIP_DFX;
+	pregs.regs[1] = addr;
+
+	smc_call(&pregs);
+
+	if (pregs.regs[0] == 0 && reg)
+		*reg = pregs.regs[1];
+
+	return pregs.regs[0];
+}
+
 static int get_soc_type_rev(u32 *type, u32 *rev)
 {
 	*type = readl(CP_DEV_ID_STATUS_REG) & DEVICE_ID_STATUS_MASK;

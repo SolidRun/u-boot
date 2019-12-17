@@ -21,6 +21,7 @@ struct thermal_unit_config {
 	u32 (*ptr_thermal_sensor_probe)(struct thermal_unit_config *cfg);
 	s32 (*ptr_thermal_sensor_read)(struct thermal_unit_config *cfg,
 				       int *temp);
+	u32 fw_smc_support;
 };
 
 /* Thermal sensors APIs */
