@@ -8,6 +8,7 @@
 #include <common.h>
 #include <console.h>
 #include <dm.h>
+#include <dm/uclass-internal.h>
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>
@@ -20,8 +21,11 @@
 #include <asm/arch/board.h>
 #include <dm/util.h>
 
-#define BOOTCMD_NAME	"pci-bootcmd"
 DECLARE_GLOBAL_DATA_PTR;
+
+#define BOOTCMD_NAME	"pci-bootcmd"
+#define CONSOLE_NAME	"pci-console@0"
+
 extern unsigned long fdt_base_addr;
 
 void octeontx_cleanup_ethaddr(void)
@@ -95,8 +99,9 @@ void board_late_probe_devices(void)
 }
 #endif
 
-#if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) &&	\
-	!CONFIG_IS_ENABLED(CONSOLE_MUX))
+#if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
+	CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)) &&	\
+	!CONFIG_IS_ENABLED(CONSOLE_MUX)
 # error CONFIG_CONSOLE_MUX must be enabled!
 #endif
 
@@ -141,6 +146,108 @@ static int init_bootcmd_console(void)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)
+static int init_pcie_console(void)
+{
+	int ret = 0;
+	char *stdinname = env_get("stdin");
+	char *stdoutname = env_get("stdout");
+	char *stderrname = env_get("stderr");
+	struct udevice *pcie_console_dev = NULL;
+	bool stdin_set, stdout_set, stderr_set;
+	char iomux_name[128];
+
+	debug("%s: stdin: %s, stdout: %s, stderr: %s\n", __func__, stdinname,
+	      stdoutname, stderrname);
+	if (!stdinname) {
+		env_set("stdin", "serial");
+		stdinname = env_get("stdin");
+	}
+	if (!stdoutname) {
+		env_set("stdout", "serial");
+		stdoutname = env_get("stdout");
+	}
+	if (!stderrname) {
+		env_set("stderr", "serial");
+		stderrname = env_get("stderr");
+	}
+
+	if (!stdinname || !stdoutname || !stderrname) {
+		printf("%s: Error setting environment variables for serial\n",
+		       __func__);
+		return -1;
+	}
+
+	stdin_set = !!strstr(stdinname, CONSOLE_NAME);
+	stdout_set = !!strstr(stdoutname, CONSOLE_NAME);
+	stderr_set = !!strstr(stderrname, CONSOLE_NAME);
+
+	pr_debug("stdin: %d, \"%s\", stdout: %d, \"%s\", stderr: %d, \"%s\"\n",
+		 stdin_set, stdinname, stdout_set, stdoutname,
+		 stderr_set, stderrname);
+	ret = uclass_get_device_by_name(UCLASS_SERIAL, CONSOLE_NAME,
+					&pcie_console_dev);
+	if (ret || !pcie_console_dev) {
+		debug("%s: No PCI console device %s found\n", __func__,
+		      CONSOLE_NAME);
+		return 0;
+	}
+
+	if (stdin_set)
+		strncpy(iomux_name, stdinname, sizeof(iomux_name));
+	else
+		snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
+			 stdinname, pcie_console_dev->name);
+
+	ret = iomux_doenv(stdin, iomux_name);
+	if (ret) {
+		pr_err("%s: Error setting I/O stdin MUX to %s\n",
+		       __func__, iomux_name);
+		return ret;
+	}
+
+	if (!stdin_set)
+		env_set("stdin", iomux_name);
+
+	if (stdout_set)
+		strncpy(iomux_name, stdoutname, sizeof(iomux_name));
+	else
+		snprintf(iomux_name, sizeof(iomux_name), "%s,%s", stdoutname,
+			 pcie_console_dev->name);
+
+	ret = iomux_doenv(stdout, iomux_name);
+	if (ret) {
+		pr_err("%s: Error setting I/O stdout MUX to %s\n",
+		       __func__, iomux_name);
+		return ret;
+	}
+	if (!stdout_set)
+		env_set("stdout", iomux_name);
+
+	if (stderr_set)
+		strncpy(iomux_name, stderrname, sizeof(iomux_name));
+	else
+		snprintf(iomux_name, sizeof(iomux_name), "%s,%s", stderrname,
+			 pcie_console_dev->name);
+
+	ret = iomux_doenv(stderr, iomux_name);
+	if (ret) {
+		pr_err("%s: Error setting I/O stderr MUX to %s\n",
+		       __func__, iomux_name);
+		return ret;
+	}
+
+	if (!stderr_set)
+		env_set("stderr", iomux_name);
+
+	debug("%s: stdin: %s, stdout: %s, stderr: %s, ret: %d\n",
+	      __func__, env_get("stdin"), env_get("stdout"),
+	      env_get("stderr"), ret);
+
+	return ret;
+}
+#endif
+
 /**
  * Board late initialization routine.
  */
@@ -180,12 +287,16 @@ int board_late_init(void)
 		env_set("serial#", boardserial);
 	}
 
+#ifdef CONFIG_NET_OCTEONTX
+	board_late_probe_devices();
+#endif
 #if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
 	if (init_bootcmd_console())
 		printf("Failed to init bootcmd input\n");
 #endif
-#ifdef CONFIG_NET_OCTEONTX
-	board_late_probe_devices();
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)
+	if (init_pcie_console())
+		printf("Failed to init pci console\n");
 #endif
 	if (save_env)
 		env_save();
