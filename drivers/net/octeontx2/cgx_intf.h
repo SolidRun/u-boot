@@ -104,6 +104,8 @@ enum cgx_cmd_id {
 	CGX_CMD_GET_PHY_FEC_STATS,
 	CGX_CMD_DISPLAY_SERDES,
 	CGX_CMD_AN_LOOPBACK,	/* = 30 */
+	CGX_CMD_GET_PERSIST_IGNORE,
+	CGX_CMD_SET_PERSIST_IGNORE,
 };
 
 /* async event ids */
@@ -277,6 +279,13 @@ struct cgx_get_phy_mod_type_s {
 	u64 reserved2:54;
 };
 
+/* Resp to cmd ID - CGX_CMD_GET_PERSIST_IGNORE */
+struct cgx_get_flash_ignore_s {
+	uint64_t reserved1:9;
+	uint64_t ignore:1;
+	uint64_t reserved2:54;
+};
+
 union cgx_rsp_sts {
 	/* Fixed, applicable for all commands/events */
 	struct cgx_evt_sts_s evt_sts;
@@ -302,6 +311,8 @@ union cgx_rsp_sts {
 	struct cgx_get_an_s an;
 	/* response to CGX_CMD_GET_PHY_MOD_TYPE */
 	struct cgx_get_phy_mod_type_s phy_mod_type;
+	/* response to CGX_CMD_GET_PERSIST_IGNORE */
+	struct cgx_get_flash_ignore_s persist;
 #ifdef NT_FW_CONFIG
 	/* response to CGX_CMD_GET_MKEX_SIZE */
 	struct cgx_mcam_profile_sz_s prfl_sz;
@@ -384,6 +395,13 @@ struct cgx_set_phy_mod_args {
 	u64 reserved2:55;
 };
 
+/* command argument to be passed for cmd ID - CGX_CMD_SET_PERSIST_IGNORE */
+struct cgx_set_flash_ignore_args {
+	uint64_t reserved1:8;
+	uint64_t ignore:1;
+	uint64_t reserved2:55;
+};
+
 struct cgx_prbs_args {
 	u64 reserved1:8; /* start from bit 8 */
 	u64 qlm:8;
@@ -408,6 +426,7 @@ union cgx_cmd_s {
 	struct cgx_mode_change_args mode_change_args;
 	struct cgx_set_fec_args fec_args;
 	struct cgx_set_phy_mod_args phy_mod_args;
+	struct cgx_set_flash_ignore_args persist_args;
 	/* any other arg for command id * like : mtu, dmac filtering control */
 	struct cgx_prbs_args prbs_args;
 	struct cgx_display_eye_args dsp_eye_args;

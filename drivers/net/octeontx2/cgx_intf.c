@@ -580,6 +580,49 @@ int cgx_intf_set_an_lbk(struct udevice *ethdev, int enable)
 	}
 	printf("AN loopback %s for %s\n", enable ? "set" : "clear",
 	       ethdev->name);
+
+	return 0;
+}
+
+int cgx_intf_get_ignore(struct udevice *ethdev)
+{
+	struct rvu_pf *rvu = dev_get_priv(ethdev);
+	struct nix *nix = rvu->nix;
+	union cgx_scratchx0 scr0;
+	int ret;
+	union cgx_cmd_s cmd;
+
+	cmd.cmd.id = CGX_CMD_GET_PERSIST_IGNORE;
+
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   cmd, &scr0.u, 1);
+	if (ret) {
+		printf("Get ignore command failed for %s\n", ethdev->name);
+		return -1;
+	}
+	printf("Persist settings %signored for %s\n",
+	       scr0.s.persist.ignore ? "" : "not ", ethdev->name);
+	return 0;
+}
+
+int cgx_intf_set_ignore(struct udevice *ethdev, int ignore)
+{
+	struct rvu_pf *rvu = dev_get_priv(ethdev);
+	struct nix *nix = rvu->nix;
+	union cgx_scratchx0 scr0;
+	int ret;
+	union cgx_cmd_s cmd;
+
+	cmd.cmd.id = CGX_CMD_SET_PERSIST_IGNORE;
+	cmd.persist_args.ignore = ignore;
+
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   cmd, &scr0.u, 0);
+	if (ret) {
+		printf("Set ignore command failed for %s\n", ethdev->name);
+		return -1;
+	}
+
 	return 0;
 }
 
