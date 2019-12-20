@@ -23,7 +23,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define BOOTCMD_NAME	"pci-bootcmd"
-#define CONSOLE_NAME	"pci-console"
+#define CONSOLE_NAME	"pci-console@0"
 
 extern unsigned long fdt_base_addr;
 extern void cgx_intf_shutdown(void);
