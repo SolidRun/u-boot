@@ -111,6 +111,13 @@ config CMD_MVEBU_EFUSE
 	  For details about eFuse command please see help of eFuse
 	  in uboot
 
+config CMD_MVEBU_DDR_PHY
+	bool "enable ddr_phy register access"
+	depends on TARGET_OCTEONTX2_CN913x
+	default y
+	help
+	  Write/Read Phy registers
+
 config CMD_MVEBU_RX_TRAINING
 	bool "rx_training"
 	depends on TARGET_MVEBU_ARMADA_8K || TARGET_OCTEONTX2_CN913x

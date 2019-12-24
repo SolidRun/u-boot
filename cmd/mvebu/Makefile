@@ -17,3 +17,4 @@ obj-$(CONFIG_CMD_MVEBU_HW_INFO) += hw_info.o
 obj-$(CONFIG_CMD_MVEBU_SAR) += sar.o
 obj-$(CONFIG_CMD_MVEBU_MV_FW_INFO) += mv_fw_info.o
 obj-$(CONFIG_CMD_MVEBU_MV_GET_COUNTERS) += mv_get_counters.o
+obj-$(CONFIG_CMD_MVEBU_DDR_PHY) += ddr_phy.o

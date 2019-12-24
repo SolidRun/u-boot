@@ -232,6 +232,9 @@
 
 /* FW related definitions */
 #define MV_SIP_DFX			0x82000014
+#define MV_SIP_DDR_PHY_WRITE		0x82000015
+#define MV_SIP_DDR_PHY_READ		0x82000016
+
 #define MV_SIP_DFX_THERMAL_INIT		1
 #define MV_SIP_DFX_THERMAL_READ		2
 #define MV_SIP_DFX_THERMAL_IS_VALID	3
