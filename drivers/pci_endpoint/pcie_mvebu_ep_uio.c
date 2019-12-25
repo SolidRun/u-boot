@@ -115,7 +115,7 @@ static int uio_pci_ep_probe(struct udevice *dev)
 	}
 
 	bar_mask = PCIE_EP_ALL_BARS & ~bar_mask;
-	for (bar_id = 0; bar_mask >>= 1; bar_id++) {
+	for (bar_id = 0; bar_mask; bar_mask >>= 1, bar_id++) {
 		if (bar_mask & 1)
 			pci_ep_clear_bar(uio_pci->ep, 0, bar_id);
 	}
