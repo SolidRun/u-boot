@@ -42,18 +42,30 @@ static int pcie_dw_mvebu_ep_setup_bar(struct udevice *dev, uint func_id,
 		v = bar->flags & (~PCI_BASE_ADDRESS_IO_MASK);
 		writel(v, bar_addr);
 	} else {
-		/* clear the top 32 bits of the size */
-		if (bar->flags & PCI_BASE_ADDRESS_MEM_TYPE_64) {
-			writel((bar->size - 1) >> 32, bar_mask + 4);
+		/* clear the top 32 bits of the address */
+		if (bar->flags & PCI_BASE_ADDRESS_MEM_TYPE_64)
 			writel(0, bar_addr + 4);
-		}
+
 		v = bar->flags & (~PCI_BASE_ADDRESS_MEM_MASK);
 		writel(v, bar_addr);
 	}
 
-	/* Set size and enable bar */
-	v = ((bar->size - 1) & U32_MAX) | BAR_ENABLE_MASK;
-	writel(v, bar_mask);
+	/*
+	 * Set the BAR using resizable BAR capability registers
+	 * The minimum (and the default) BAR size is 1MB
+	 * Once the Resizable BAR capability register is set
+	 * the resizable BAR control register at next offset gets
+	 * updated automatically.
+	 */
+	if (bar->size > SZ_1M && PCIE_BAR_IS_RESIZABLE(bar->barno)) {
+		/* BAR size should be power of 2 already */
+		v = ((bar->size >> 20) & PCIE_RESBAR_EXT_CAP_REG_MASK);
+		v <<= PCIE_RESBAR_EXT_CAP_REG_SHIFT;
+		writel(v, pl_regs + PCIE_RESBAR_EXT_CAP_REG(bar->barno));
+	}
+
+	/* Enable bar */
+	setbits_le32(bar_mask, BAR_ENABLE_MASK);
 
 	/* Setup the internal target for the BAR.
 	 * When the PCIe host accesses the bar

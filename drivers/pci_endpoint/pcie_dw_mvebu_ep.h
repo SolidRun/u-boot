@@ -50,6 +50,19 @@
 
 #define PCIE_SRIOV_DEVID_OFFSET		0x192
 
+#define PCIE_RESBAR_EXT_CAP_HDR_REG	0x25c
+#define PCIE_RESBAR_EXT_CAP_REG(bar)			\
+	({ typeof(bar) _BAR_ = (bar);			\
+		PCIE_RESBAR_EXT_CAP_HDR_REG + 4 +	\
+		(((_BAR_) / 2 + (_BAR_) % 2) & 0x3) * 8; })
+#define PCIE_RESBAR_EXT_CAP_REG_MASK	0x000fffff
+#define PCIE_RESBAR_EXT_CAP_REG_SHIFT	4
+
+#define PCIE_BAR_IS_RESIZABLE(bar)		\
+	({ typeof(bar) _BAR_ = (bar);		\
+		(_BAR_) == 5 || (_BAR_) == 4 ||	\
+		(_BAR_) == 2 || (_BAR_) == 0; })
+
 #define MAX_ATU_REGIONS			16
 #define MAX_ATU_SIZE			(4ul * SZ_1G)
 
