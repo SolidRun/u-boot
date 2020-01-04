@@ -1,6 +1,6 @@
 // SPDX-License-Identifier:    GPL-2.0
 /*
- * Copyright (C) 201i9 Marvell International Ltd.
+ * Copyright (C) 2019 Marvell International Ltd.
  *
  * https://spdx.org/licenses
  */
@@ -640,6 +640,10 @@ static void octeontx_mmc_print_registers2(struct mmc *mmc,
 	       io_ctl.s.slew ? "high" : "low");
 	emm_debug.u = readq(host->base_addr + MIO_EMM_DEBUG());
 	printf("\nMIO_EMM_DEBUG:                0x%016llx\n", emm_debug.u);
+	printf("      21: rdsync_rst            0x%x\n",
+	       emm_debug.s.rdsync_rst);
+	printf("      20: emmc_clk_disable      0x%x\n",
+	       emm_debug.s.emmc_clk_disable);
 	printf("   19-16: dma_sm:               0x%x\n", emm_debug.s.dma_sm);
 	printf("   15-12: data_sm:              0x%x\n", emm_debug.s.data_sm);
 	printf("    11-8: cmd_sm:               0x%x\n", emm_debug.s.cmd_sm);
@@ -1630,18 +1634,42 @@ static void octeontx_mmc_set_emm_timing(struct mmc *mmc,
 					union mio_emm_timing emm_timing)
 {
 	union mio_emm_cfg emm_cfg;
+	struct octeontx_mmc_slot *slot = mmc->priv;
+	union mio_emm_debug emm_debug;
 
-	pr_debug("%s(%s, 0x%llx) din: %u\n", __func__, mmc->dev->name,
-		 emm_timing.u, emm_timing.s.data_in_tap);
+	debug("%s(%s, 0x%llx) din: %u\n", __func__, mmc->dev->name,
+	      emm_timing.u, emm_timing.s.data_in_tap);
 
-	emm_cfg.u = read_csr(mmc, MIO_EMM_CFG());
-	emm_cfg.s.bus_ena = 1 << 3;
-	write_csr(mmc, MIO_EMM_CFG(), emm_cfg.u);
+	udelay(1);
+	if (slot->host->tap_requires_noclk) {
+		/* Turn off the clock */
+		emm_debug.u = read_csr(mmc, MIO_EMM_DEBUG());
+		emm_debug.s.emmc_clk_disable = 1;
+		write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+		udelay(1);
+		emm_debug.s.rdsync_rst = 1;
+		write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+	} else {
+		emm_cfg.u = read_csr(mmc, MIO_EMM_CFG());
+		emm_cfg.s.bus_ena = 1 << 3;
+		write_csr(mmc, MIO_EMM_CFG(), emm_cfg.u);
+	}
 	udelay(1);
 	write_csr(mmc, MIO_EMM_TIMING(), emm_timing.u);
 	udelay(1);
-	emm_cfg.s.bus_ena = 1 << mmc_to_slot(mmc)->bus_id;
-	write_csr(mmc, MIO_EMM_CFG(), emm_cfg.u);
+
+	if (slot->host->tap_requires_noclk) {
+		/* Turn on the clock */
+		emm_debug.s.rdsync_rst = 0;
+		write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+		udelay(1);
+		emm_debug.s.emmc_clk_disable = 0;
+		write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+		udelay(1);
+	} else {
+		emm_cfg.s.bus_ena = 1 << mmc_to_slot(mmc)->bus_id;
+		write_csr(mmc, MIO_EMM_CFG(), emm_cfg.u);
+	}
 }
 
 struct adj {
@@ -1680,6 +1708,7 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 {
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 	union mio_emm_timing timing;
+	union mio_emm_debug emm_debug;
 	int tap;
 	int err;
 	int run = 0;
@@ -1711,6 +1740,17 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 	 */
 	for (tap = 0; tap <= MAX_NO_OF_TAPS; tap++, prev_ok = !err) {
 		if (tap < MAX_NO_OF_TAPS) {
+			if (slot->host->tap_requires_noclk) {
+				/* Turn off the clock */
+				emm_debug.u = read_csr(mmc, MIO_EMM_DEBUG());
+				emm_debug.s.emmc_clk_disable = 1;
+				write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+				udelay(1);
+				emm_debug.s.rdsync_rst = 1;
+				write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+				udelay(1);
+			}
+
 			timing.u = read_csr(mmc, MIO_EMM_TIMING());
 			timing.u &= ~(0x3full << adj->mask_shift);
 			timing.u |= (u64)tap << adj->mask_shift;
@@ -1720,6 +1760,16 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 			      timing.s.cmd_out_tap, timing.s.data_in_tap,
 			      timing.s.data_out_tap);
 
+			if (slot->host->tap_requires_noclk) {
+				/* Turn off the clock */
+				emm_debug.s.rdsync_rst = 0;
+				write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+				udelay(1);
+				emm_debug.u = read_csr(mmc, MIO_EMM_DEBUG());
+				emm_debug.s.emmc_clk_disable = 0;
+				write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+				udelay(1);
+			}
 			for (count = 0; count < 2; count++) {
 				err = adj->test(mmc, opcode, NULL);
 				if (err) {
@@ -2194,6 +2244,7 @@ static int octeontx_mmc_configure_delay(struct mmc *mmc)
 		      slot->taps.s.cmd_out_tap, slot->taps.s.data_in_tap,
 		      slot->taps.s.data_out_tap);
 	octeontx_mmc_set_timing(mmc);
+	debug("%s: Done\n", __func__);
 #endif
 	return 0;
 }
@@ -2274,6 +2325,7 @@ static void do_switch(struct mmc *mmc, union mio_emm_switch emm_switch)
 		udelay(100);
 		emm_switch.s.bus_id = bus_id;
 	}
+	debug("%s(%s, 0x%llx)\n", __func__, mmc->dev->name, emm_switch.u);
 	write_csr(mmc, MIO_EMM_SWITCH(), emm_switch.u);
 
 	start = get_timer(0);
@@ -2391,7 +2443,27 @@ static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
 		/* Restore registers */
 		emm_cfg.s.bus_ena = bus_ena;
 		write_csr(mmc, MIO_EMM_CFG(), emm_cfg.u);
+		if (host->tap_requires_noclk) {
+			/* Turn off the clock */
+			emm_debug.u = read_csr(mmc, MIO_EMM_DEBUG());
+			emm_debug.s.emmc_clk_disable = 1;
+			write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+			udelay(1);
+			emm_debug.s.rdsync_rst = 1;
+			write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+			udelay(1);
+		}
+
 		write_csr(mmc, MIO_EMM_TIMING(), emm_timing.u);
+		if (host->tap_requires_noclk) {
+			/* Turn the clock back on */
+			udelay(1);
+			emm_debug.s.rdsync_rst = 0;
+			write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+			udelay(1);
+			emm_debug.s.emmc_clk_disable = 0;
+			write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
+		}
 		udelay(1);
 		write_csr(mmc, MIO_EMM_IO_CTL(), emm_io_ctl.u);
 		bus_id = emm_switch.s.bus_id;
@@ -3136,7 +3208,11 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 			host->calibrate_glitch = true;
 			host->cond_clock_glitch = true;
 			break;
+		case 1:
+			break;
 		default:
+			debug("CN96XX rev C0+ detected\n");
+			host->tap_requires_noclk = true;
 			break;
 		}
 	} else if (otx_is_soc(CN95XX)) {

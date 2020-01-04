@@ -124,6 +124,7 @@ struct octeontx_mmc_host {
 	bool		is_emul:1;
 	bool		calibrate_glitch:1;
 	bool		cond_clock_glitch:1;
+	bool		tap_requires_noclk:1;
 };
 
 /*
