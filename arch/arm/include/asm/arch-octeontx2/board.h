@@ -187,5 +187,5 @@ const char *fdt_get_board_serial(void);
 const char *fdt_get_board_revision(void);
 void octeontx2_board_get_mac_addr(u8 index, u8 *mac_addr);
 void acquire_flash_arb(bool acquire);
-
+u64 fdt_get_preserved_mem_size(unsigned int node);
 #endif /* __BOARD_H__ */
