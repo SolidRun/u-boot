@@ -18,9 +18,9 @@
 		ranges;
 
 		/* The PCI console memory must be reserved */
-		console_reserved: pci-console-nexus@7f000000 {
+		console_reserved: pci-console-nexus@3f000000 {
 			compatible = "marvell,pci-console-nexus-memory";
-			reg = <0 0x7f000000 0 0x100000>;
+			reg = <0 0x3f000000 0 0x1000000>;
 			no-map;
 		};
 	};
@@ -55,10 +55,6 @@
 };
 
 &cp0_pci_ep_uio {
-	reg = <0 0 0 0x100000>,
-	      <0 0x7f000000 0 0x1000000>,
-	      <0x80 0x00000000 0x8 0x000000000>;
-	reg-names = "bar0", "bar2", "host-map";
 	status = "okay";
 };
 

@@ -274,8 +274,11 @@
 
 		CP110_LABEL(pci_ep_uio): pci-ep-uio {
 			compatible = "marvell,pci-ep-uio";
-			reg = <0 0 0 0x100000>, <0x80 0x00000000 0x8 0x000000000>;
-			reg-names = "bar0", "host-map";
+			reg = <0x00 0x00000000 0x0 0x00100000>,
+			      <0x00 0x3f000000 0x0 0x01000000>,
+			      <0x00 0xf0000000 0x0 0x01000000>,
+			      <0x80 0x00000000 0x8 0x00000000>;
+			reg-names = "bar0", "bar2", "bar4", "host-map";
 			device-id = <0x7080>;
 			vf-device-id = <0x7081>;
 			class-code = <0x2>;
