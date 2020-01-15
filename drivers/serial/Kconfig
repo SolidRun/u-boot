@@ -712,7 +712,7 @@ config OWL_SERIAL
 
 config OCTEONTX_SERIAL_BOOTCMD
 	bool "OcteonTX/OcteonTX2 PCI remote bootcmd input"
-	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_MVEBU)
 	depends on DM_SERIAL
 	select SYS_IS_IN_ENV
 	select CONSOLE_MUX

@@ -62,6 +62,10 @@
 	status = "okay";
 };
 
+&cp0_bootcmd {
+	status = "okay";
+};
+
 &cp0_usb3_0 {
 	status = "okay";
 };

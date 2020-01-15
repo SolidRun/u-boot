@@ -108,6 +108,10 @@
 	status = "okay";
 };
 
+&cp0_bootcmd {
+	status = "okay";
+};
+
 &cp0_i2c0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&cp0_i2c0_pins>;

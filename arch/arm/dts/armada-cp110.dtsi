@@ -286,6 +286,14 @@
 			status = "disabled";
 		};
 
+		CP110_LABEL(bootcmd): pci-bootcmd@3ffff000 {
+			/* remote bootcmd buffer location */
+			compatible = "marvell,pci-bootcmd";
+			reg = <0 0x3ffff000 0 0x1000>;
+			skip-init;
+			status = "disabled";
+		};
+
 		CP110_LABEL(pcie0): pcie0@600000 {
 			compatible = "marvell,armada8k-pcie", "snps,dw-pcie";
 			reg =

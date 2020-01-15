@@ -118,6 +118,10 @@
 	status = "okay";
 };
 
+&cp0_bootcmd {
+	status = "okay";
+};
+
 &cp0_pinctl {
 /*
  * [0-32] = 0xff: Keep default CP1_shared_pins
