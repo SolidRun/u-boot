@@ -29,7 +29,7 @@ struct uio_pci {
 };
 
 /* make sure we have at least one mem regions to map the host ram */
-#define MAX_BAR_MAP		4
+#define MAX_BAR_MAP		6
 #define PCIE_EP_ALL_BARS	0x3f
 
 
