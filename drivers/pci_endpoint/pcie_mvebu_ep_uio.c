@@ -103,8 +103,11 @@ static int uio_pci_ep_probe(struct udevice *dev)
 		}
 
 		/* Now create the BAR to match the memory region */
-		bar.flags = PCI_BASE_ADDRESS_SPACE_MEMORY |
-			    PCI_BASE_ADDRESS_MEM_TYPE_32;
+		bar.flags = PCI_BASE_ADDRESS_SPACE_MEMORY;
+		if (bar_id < 4)
+			bar.flags |= PCI_BASE_ADDRESS_MEM_TYPE_64;
+		else
+			bar.flags |= PCI_BASE_ADDRESS_MEM_TYPE_32;
 		pci_ep_set_bar(uio_pci->ep, 0, &bar);
 
 		/* First 2 BARs in HW are 64 bit BARs and consume 2 BAR slots */
