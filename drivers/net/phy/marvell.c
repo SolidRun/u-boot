@@ -720,7 +720,8 @@ static int m88e2110_config(struct phy_device *phydev)
 		/* Disabled 10G advertisement */
 		phy_write(phydev, 7, 0x20, 0x1e1);
 	} else {
-		if (phydev->interface == PHY_INTERFACE_MODE_SGMII_2500) {
+		if (phydev->interface == PHY_INTERFACE_MODE_SGMII_2500 ||
+		    phydev->interface == PHY_INTERFACE_MODE_2500BASEX) {
 			/* Disabled 10G/5G advertisements */
 			phy_write(phydev, 7, 0x20, 0xa1);
 		} else {
