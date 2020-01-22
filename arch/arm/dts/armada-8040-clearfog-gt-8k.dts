@@ -317,7 +317,6 @@
 /* 2.5G to Topaz switch */
 &cp1_eth2 {
 	status = "okay";
-	phy-mode = "sgmii";
-	phy-speed = <2500>;
+	phy-mode = "sgmii-2500";
 	phy-reset-gpios = <&cp1_gpio0 24 GPIO_ACTIVE_LOW>;
 };

@@ -278,8 +278,7 @@
 /* 2.5G SGMII */
 &cp1_eth2 {
 	status = "okay";
-	phy-mode = "sgmii";
-	phy-speed = <2500>;
+	phy-mode = "sgmii-2500";
 	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 24 GPIO_ACTIVE_HIGH>;
 };
 
