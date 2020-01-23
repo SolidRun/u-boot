@@ -103,6 +103,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&ap_emmc_pins>;
 	bus-width = <8>;
+	no-1-8-v;
 	status = "okay";
 };
 
