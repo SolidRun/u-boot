@@ -237,7 +237,7 @@
 	status = "okay";
 	phy-mode = "sfi";
 	phy = <&sfi_phy0>;
-	phy-reset-gpios = <&cp1_gpio0 31 GPIO_ACTIVE_HIGH>;
+	phy-reset-gpios = <&cp1_gpio0 31 GPIO_ACTIVE_LOW>;
 	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 29 GPIO_ACTIVE_HIGH>;
 };
 
@@ -264,7 +264,7 @@
 	status = "okay";
 	phy-mode = "sfi";
 	phy = <&sfi_phy8>;
-	phy-reset-gpios = <&cp1_gpio0 9 GPIO_ACTIVE_HIGH>;
+	phy-reset-gpios = <&cp1_gpio0 9 GPIO_ACTIVE_LOW>;
 	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 10 GPIO_ACTIVE_HIGH>;
 };
 
