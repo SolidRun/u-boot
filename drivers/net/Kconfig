@@ -297,6 +297,8 @@ config MVNETA
 config MVPP2
 	bool "Marvell Armada 375/7K/8K network interface support"
 	depends on ARMADA_375 || ARMADA_8K
+	select DM_MDIO
+	select MVMDIO
 	select PHYLIB
 	help
 	  This driver supports the network interface units in the
