@@ -13,26 +13,26 @@
  * warranty of any kind, whether express or implied.
  */
 
+#include <asm-generic/gpio.h>
+#include <asm/arch/cpu.h>
+#include <asm/arch/soc.h>
+#include <asm/io.h>
 #include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <fdt_support.h>
+#include <linux/compat.h>
+#include <linux/errno.h>
+#include <linux/mbus.h>
+#include <linux/mdio.h>
+#include <malloc.h>
+#include <miiphy.h>
 #include <net.h>
 #include <netdev.h>
-#include <config.h>
-#include <malloc.h>
-#include <asm/io.h>
-#include <linux/errno.h>
 #include <phy.h>
-#include <miiphy.h>
 #include <watchdog.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/soc.h>
-#include <linux/compat.h>
-#include <linux/mbus.h>
-#include <asm-generic/gpio.h>
-#include <fdt_support.h>
-#include <linux/mdio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
