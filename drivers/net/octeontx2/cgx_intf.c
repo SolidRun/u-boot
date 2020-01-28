@@ -561,6 +561,28 @@ int cgx_intf_set_phy_mod_type(struct udevice *ethdev, int type)
 	return 0;
 }
 
+int cgx_intf_set_an_lbk(struct udevice *ethdev, int enable)
+{
+	struct rvu_pf *rvu = dev_get_priv(ethdev);
+	struct nix *nix = rvu->nix;
+	union cgx_scratchx0 scr0;
+	int ret;
+	union cgx_cmd_s cmd;
+
+	cmd.cmd.id = CGX_CMD_AN_LOOPBACK;
+	cmd.cmd_args.enable = enable;
+
+	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+			   cmd, &scr0.u, 0);
+	if (ret) {
+		printf("Set AN loopback command failed on %s\n", ethdev->name);
+		return -1;
+	}
+	printf("AN loopback %s for %s\n", enable ? "set" : "clear",
+	       ethdev->name);
+	return 0;
+}
+
 int cgx_intf_display_eye(u8 qlm, u8 lane)
 {
 	union cgx_scratchx0 scr0;
