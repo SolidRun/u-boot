@@ -50,6 +50,7 @@ struct octeontx_mmc_slot {
 	int			bus_id;		/** slot number */
 	uint			bus_width;
 	uint			max_width;
+	int			hs200_tap_adj;
 	u64			clock;
 	struct gpio_desc	cd_gpio;
 	struct gpio_desc	wp_gpio;
@@ -57,7 +58,7 @@ struct octeontx_mmc_slot {
 	enum bus_mode		mode;
 	union mio_emm_switch	cached_switch;
 	union mio_emm_switch	want_switch;
-	union mio_emm_rca		cached_rca;
+	union mio_emm_rca	cached_rca;
 	union mio_emm_timing	taps;	/* otx2: MIO_EMM_TIMING */
 	union mio_emm_timing	hs200_taps;
 	/* These are used to see if our tuning is still valid or not */
@@ -85,6 +86,7 @@ struct octeontx_mmc_slot {
 	bool			wp_inverted:1;
 	bool			disable_ddr:1;
 	bool			non_removable:1;
+	bool			read_after_tune:1;
 };
 
 struct octeontx_mmc_cr_mods {

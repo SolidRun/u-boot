@@ -1717,6 +1717,8 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 	int best_run = 0;
 	int best_start = -1;
 	bool prev_ok = false;
+	u64 tap_status = 0;
+	const int tap_adj = slot->hs200_tap_adj;
 #ifdef DEBUG
 	char how[MAX_NO_OF_TAPS + 1] = "";
 #endif
@@ -1795,6 +1797,7 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 				      read_csr(mmc, MIO_EMM_RSP_STS()),
 				      read_csr(mmc, MIO_EMM_RSP_LO()));
 			}
+			tap_status |= (u64)(!err) << tap;
 #ifdef DEBUG
 			how[tap] = "-+"[!err];
 #endif
@@ -1857,7 +1860,15 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 	}
 
 	tap = best_start + best_run / 2;
+	if (adj->hs200_only && (tap + tap_adj >= 0) && (tap + tap_adj < 64) &&
+	    tap_status & (1ULL << (tap + tap_adj))) {
+		debug("Adjusting tap from %d by %d to %d\n",
+		      tap, tap_adj, tap + tap_adj);
+		tap += tap_adj;
+	}
 #ifdef DEBUG
+	if (adj->test == mmc_send_tuning && tap < 58 && how[tap + 5] == '+')
+		tap += 5;
 	how[tap] = '@';
 	debug("%s/%s %d/%d/%d %s\n", mmc->dev->name,
 	      adj->name, best_start, tap, best_start + best_run, how);
@@ -1890,6 +1901,7 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 	int err;
 	struct adj *a;
 	bool is_hs200;
+	char env_name[64];
 
 	pr_info("%s re-tuning, opcode 0x%x\n", dev->name, opcode);
 
@@ -1916,9 +1928,47 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 	octeontx_mmc_set_output_bus_timing(mmc);
 
 	for (a = adj; a->name; a++) {
+		ulong in_tap;
+
+		if (!strcmp(a->name, "CMD_IN")) {
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_cmd_in_tap", slot->bus_id);
+			in_tap = env_get_ulong(env_name, 10, (ulong)-1);
+			if (in_tap != (ulong)-1) {
+				if (mmc->selected_mode == MMC_HS_200 ||
+				    a->hs200_only)
+					slot->hs200_taps.s.cmd_in_tap = in_tap;
+				else
+					slot->taps.s.cmd_in_tap = in_tap;
+				continue;
+			}
+		} else if (a->hs200_only &&
+			   !strcmp(a->name, "DATA_IN(HS200)")) {
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_data_in_tap_hs200", slot->bus_id);
+			in_tap = env_get_ulong(env_name, 10, (ulong)-1);
+			if (in_tap != (ulong)-1) {
+				debug("%s(%s): Overriding HS200 data in tap to %d\n",
+				      __func__, dev->name, (int)in_tap);
+				slot->hs200_taps.s.data_in_tap = in_tap;
+				continue;
+			}
+		} else if (!a->hs200_only && !strcmp(a->name, "DATA_IN")) {
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_data_in_tap", slot->bus_id);
+			in_tap = env_get_ulong(env_name, 10, (ulong)-1);
+			if (in_tap != (ulong)-1) {
+				debug("%s(%s): Overriding non-HS200 data in tap to %d\n",
+				      __func__, dev->name, (int)in_tap);
+				slot->taps.s.data_in_tap = in_tap;
+				continue;
+			}
+		}
+
 		debug("%s(%s): Testing: %s, mode: %s, opcode: %u\n", __func__,
 		      dev->name, a->name, mmc_mode_name(mmc->selected_mode),
 		      opcode);
+
 		/* Skip DDR only test when not in DDR mode */
 		if (a->ddr_only && !mmc->ddr_mode) {
 			debug("%s(%s): Skipping %s due to non-DDR mode\n",
@@ -1956,6 +2006,26 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 		slot->hs200_tuned = true;
 	else
 		slot->tuned = true;
+
+	snprintf(env_name, sizeof(env_name), "emmc%d_read_after_tune",
+		 slot->bus_id);
+	if (slot->read_after_tune || env_get_yesno(env_name)) {
+		struct mmc_cmd cmd;
+		struct mmc_data data;
+		u8 buffer[mmc->read_bl_len];
+
+		cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
+		cmd.cmdarg = 0;
+		cmd.resp_type = MMC_RSP_R1;
+		data.dest = (void *)buffer;
+		data.blocks = 1;
+		data.blocksize = mmc->read_bl_len;
+		data.flags = MMC_DATA_READ;
+
+		err = octeontx_mmc_read_blocks(mmc, &cmd, &data);
+		debug("%s(%s): read block returned %d\n",
+		      __func__, dev->name, err);
+	}
 
 	return 0;
 }
@@ -2947,6 +3017,12 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 	slot->cfg.f_min = 400000;
 	slot->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
+	slot->hs200_tap_adj =
+		ofnode_read_s32_default(dev->node,
+					"marvell,hs200-tap-adjust", 0);
+	dev_dbg(dev, "hs200-tap-adjust: %d\n", slot->hs200_tap_adj);
+	slot->read_after_tune =
+		ofnode_read_bool(dev->node, "marvell,read-after-tune");
 	err = ofnode_read_u32_array(dev->node, "voltage-ranges", voltages, 2);
 	if (err) {
 		slot->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
