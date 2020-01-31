@@ -644,6 +644,7 @@ static int octeontx_spi_exec_op(struct spi_slave *slave,
 			flags |= SPI_XFER_END;
 		ret = octeontx_spi_xfer(slave->dev, i * 8, (void *)buf, NULL,
 					flags);
+		free(buf);
 		if (ret < 0)
 			return ret;
 	}
