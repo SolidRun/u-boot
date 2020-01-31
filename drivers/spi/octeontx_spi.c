@@ -603,7 +603,7 @@ static int octeontx_spi_exec_op(struct spi_slave *slave,
 	unsigned long flags = SPI_XFER_BEGIN;
 	const void *tx;
 	void *rx;
-	u8 buf[8];
+	u8 opcode, *buf;
 	u8 *addr;
 	int i, temp, ret;
 
@@ -612,17 +612,24 @@ static int octeontx_spi_exec_op(struct spi_slave *slave,
 
 	/* Send CMD */
 	i = 0;
-	buf[i++] = op->cmd.opcode;
+	opcode = op->cmd.opcode;
 
 	if (!op->data.nbytes && !op->addr.nbytes && !op->dummy.nbytes)
 		flags |= SPI_XFER_END;
 
-	ret = octeontx_spi_xfer(slave->dev, (i * 8), (void *)&buf, NULL,
+	ret = octeontx_spi_xfer(slave->dev, 8, (void *)&opcode, NULL,
 				flags);
 	if (ret < 0)
 		return ret;
+
 	/* Send Address and dummy */
 	if (op->addr.nbytes) {
+		/* Alloc buffer for address+dummy */
+		buf = (u8 *)calloc(1, op->addr.nbytes + op->dummy.nbytes);
+		if (!buf) {
+			printf("%s Out of memory\n", __func__);
+			return -ENOMEM;
+		}
 		addr = (u8 *)&op->addr.val;
 		for (temp = 0; temp < op->addr.nbytes; temp++)
 			buf[i++] = *(u8 *)(addr + op->addr.nbytes - 1 - temp);
@@ -635,8 +642,7 @@ static int octeontx_spi_exec_op(struct spi_slave *slave,
 
 		if (!op->data.nbytes)
 			flags |= SPI_XFER_END;
-		ret = octeontx_spi_xfer(slave->dev, (i - 1) * 8,
-					(void *)&buf[1], NULL,
+		ret = octeontx_spi_xfer(slave->dev, i * 8, (void *)buf, NULL,
 					flags);
 		if (ret < 0)
 			return ret;
