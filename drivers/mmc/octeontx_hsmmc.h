@@ -38,6 +38,9 @@
 
 #define EXT_CSD_POWER_CLASS		187	/* R/W */
 
+/* default HS400 tuning block number */
+#define DEFAULT_HS400_TUNING_BLOCK	1
+
 struct octeontx_mmc_host;
 
 /** MMC/SD slot data structure */
@@ -47,11 +50,13 @@ struct octeontx_mmc_slot {
 	struct octeontx_mmc_host *host;
 	struct udevice		*dev;
 	void			*base_addr;	/** Same as host base_addr */
+	u64			clock;
 	int			bus_id;		/** slot number */
 	uint			bus_width;
 	uint			max_width;
 	int			hs200_tap_adj;
-	u64			clock;
+	int			hs400_tap_adj;
+	int			hs400_tuning_block;
 	struct gpio_desc	cd_gpio;
 	struct gpio_desc	wp_gpio;
 	struct gpio_desc	power_gpio;
@@ -61,6 +66,7 @@ struct octeontx_mmc_slot {
 	union mio_emm_rca	cached_rca;
 	union mio_emm_timing	taps;	/* otx2: MIO_EMM_TIMING */
 	union mio_emm_timing	hs200_taps;
+	union mio_emm_timing	hs400_taps;
 	/* These are used to see if our tuning is still valid or not */
 	enum bus_mode		last_mode;
 	u32			last_clock;
@@ -77,6 +83,7 @@ struct octeontx_mmc_slot {
 	bool			is_acmd:1;
 	bool			tuned:1;
 	bool			hs200_tuned:1;
+	bool			hs400_tuned:1;
 	bool			is_1_8v:1;
 	bool			is_3_3v:1;
 	bool			is_ddr:1;
@@ -86,7 +93,6 @@ struct octeontx_mmc_slot {
 	bool			wp_inverted:1;
 	bool			disable_ddr:1;
 	bool			non_removable:1;
-	bool			read_after_tune:1;
 };
 
 struct octeontx_mmc_cr_mods {
@@ -127,6 +133,7 @@ struct octeontx_mmc_host {
 	bool		calibrate_glitch:1;
 	bool		cond_clock_glitch:1;
 	bool		tap_requires_noclk:1;
+	bool		hs400_skew_needed:1;
 };
 
 /*
