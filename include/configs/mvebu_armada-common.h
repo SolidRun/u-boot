@@ -113,6 +113,14 @@
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
 
+#ifdef CONFIG_MVEBU_NAND_BOOT
+/* In case of NAND, we want to start the environment on page boundary
+ * Linux DTS uses 2MB partition size for u-boot.
+ */
+#define CONFIG_ENV_SIZE			(256 << 10)
+#define CONFIG_ENV_OFFSET		(0x200000 - CONFIG_ENV_SIZE)
+
+#else /* !CONFIG_MVEBU_NAND_BOOT */
 /*
  * Assume minimum flash/eMMC boot partition size of 4MB
  * and save the environment at the end of the boot device
@@ -121,10 +129,7 @@
  */
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
 #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
-#ifdef CONFIG_MVEBU_NAND_BOOT
-/* In case of NAND, we want to start the environment on page boundary */
-#define CONFIG_ENV_OFFSET		0x400000
-#else
+
 #if defined(CONFIG_ENV_IS_IN_MMC) && \
 ((defined(CONFIG_TARGET_MVEBU_ARMADA_37XX) && \
 	defined(CONFIG_MV88E6XXX_SWITCH))  || \
@@ -136,7 +141,7 @@ defined(CONFIG_TARGET_OCTEONTX2_CN913x) && (CONFIG_MVEBU_BOOT_PART != 0))
 #else
 #define CONFIG_ENV_OFFSET		(0x400000 - CONFIG_ENV_SIZE)
 #endif
-#endif
+#endif /* CONFIG_MVEBU_NAND_BOOT */
 
 /*
  * Device ID and Boot partition defined in external script
