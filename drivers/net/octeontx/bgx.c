@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <miiphy.h>
 #include <asm/io.h>
+#include <asm/arch/board.h>
 
 #ifdef CONFIG_OF_LIBFDT
  #include <linux/libfdt.h>
@@ -173,6 +174,9 @@ void bgx_set_lmac_mac(int node, int bgx_idx, int lmacid, const u8 *mac)
 		return;
 
 	memcpy(bgx->lmac[lmacid].mac, mac, 6);
+#ifdef ALLOW_USER_MAC_ADDR
+	fdt_board_update_macaddr(bgx_idx, lmacid, (char *)mac);
+#endif
 }
 
 /* Return number of BGX present in HW */

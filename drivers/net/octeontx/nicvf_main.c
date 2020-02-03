@@ -447,6 +447,7 @@ int nicvf_write_hwaddr(struct udevice *dev)
 {
 	unsigned char ethaddr[ARP_HLEN];
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct nicvf *nic = dev_get_priv(dev);
 
 	/* If lower level firmware fails to set proper MAC
 	 * u-boot framework updates MAC to random address.
@@ -455,6 +456,11 @@ int nicvf_write_hwaddr(struct udevice *dev)
 	if (!eth_env_get_enetaddr_by_index("eth", dev->seq, ethaddr)) {
 		eth_env_set_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
 		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
+	}
+	eth_env_get_enetaddr_by_index("eth", dev->seq, ethaddr);
+	if (memcmp(ethaddr, pdata->enetaddr, ARP_HLEN)) {
+		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
+		nicvf_hw_set_mac_addr(nic, dev);
 	}
 	return 0;
 }
