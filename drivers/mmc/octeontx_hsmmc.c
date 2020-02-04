@@ -1032,6 +1032,7 @@ static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout,
 		} else {
 			if (rsp_sts.s.blk_crc_err ||
 			    (rsp_sts.s.dma_pend && !rsp_sts.s.dma_val)) {
+				err = true;
 #ifdef DEBUG
 				octeontx_mmc_print_rsp_errors(mmc, rsp_sts);
 #endif
