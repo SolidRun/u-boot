@@ -21,6 +21,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define MVEBU_RAW_READ_DISABLE	1
+
 #define TIMEOUT_DRAIN_FIFO	5	/* in ms */
 #define	CHIP_DELAY_TIMEOUT	200
 #define NAND_STOP_DELAY		40
@@ -1198,6 +1200,7 @@ static int pxa3xx_nand_read_page_hwecc(struct mtd_info *mtd,
 	return info->max_bitflips;
 }
 
+#ifndef MVEBU_RAW_READ_DISABLE
 static int pxa3xx_nand_read_page_raw(struct mtd_info *mtd,
 				     struct nand_chip *chip, uint8_t *buf,
 				     int oob_required, int page)
@@ -1260,6 +1263,7 @@ static int pxa3xx_nand_read_oob_raw(struct mtd_info *mtd,
 	return chip->ecc.read_page_raw(mtd, chip, chip->buffers->databuf, true,
 				       page);
 }
+#endif /* MVEBU_RAW_READ_DISABLE */
 
 static uint8_t pxa3xx_nand_read_byte(struct mtd_info *mtd)
 {
@@ -1692,8 +1696,15 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 
 		nand_set_controller_data(chip, host);
 		chip->ecc.read_page	= pxa3xx_nand_read_page_hwecc;
+#ifndef MVEBU_RAW_READ_DISABLE
+		/*
+		 * TODO: RAW read support seems to be broken in NFCv2,
+		 * reported working on NFCv1 (A38x).
+		 * The code needs further debug.
+		 */
 		chip->ecc.read_page_raw	= pxa3xx_nand_read_page_raw;
 		chip->ecc.read_oob_raw	= pxa3xx_nand_read_oob_raw;
+#endif
 		chip->ecc.write_page	= pxa3xx_nand_write_page_hwecc;
 		chip->controller        = &info->controller;
 		chip->waitfunc		= pxa3xx_nand_waitfunc;
