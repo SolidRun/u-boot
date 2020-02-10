@@ -45,11 +45,11 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
 	}
 
 	if (tsen->fw_smc_support) {
-		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_READ, temp);
+		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_READ, &reg);
 		if (ret)
 			return ret;
 
-		*temp = *temp / tsen->tsen_divisor;
+		*temp = reg / tsen->tsen_divisor;
 
 		return ret;
 	}
@@ -75,7 +75,6 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
 static u32 mvebu_thermal_ext_fw_validation(struct thermal_unit_config *tsen)
 {
 	u32 reg = 0, timeout = 0;
-	int ret;
 
 	debug("%s: fw smc support\n", __func__);
 
@@ -83,7 +82,7 @@ static u32 mvebu_thermal_ext_fw_validation(struct thermal_unit_config *tsen)
 
 	while ((reg) == 0 && timeout < THERMAL_TIMEOUT) {
 		udelay(10);
-		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_IS_VALID, &reg);
+		mvebu_dfx_smc(MV_SIP_DFX_THERMAL_IS_VALID, &reg);
 		timeout++;
 	}
 
@@ -95,7 +94,7 @@ static u32 mvebu_thermal_ext_fw_validation(struct thermal_unit_config *tsen)
 
 	debug("thermal.%lx: Initialization done\n", (uintptr_t)tsen->regs_base);
 
-	return ret;
+	return 0;
 }
 
 u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *tsen)
