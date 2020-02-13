@@ -225,5 +225,5 @@
 &cp0_eth2 {
 	status = "okay";
 	phy = <&nbaset_phy0>;
-	phy-mode = "sgmii";
+	phy-mode = "sgmii-2500";
 };
