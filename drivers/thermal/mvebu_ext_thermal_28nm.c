@@ -75,18 +75,20 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
 static u32 mvebu_thermal_ext_fw_validation(struct thermal_unit_config *tsen)
 {
 	u32 reg = 0, timeout = 0;
+	int ret = SMCCC_RET_SUCCESS;
 
 	debug("%s: fw smc support\n", __func__);
 
 	tsen->fw_smc_support = true;
 
-	while ((reg) == 0 && timeout < THERMAL_TIMEOUT) {
+	while (reg == 0 && timeout < THERMAL_TIMEOUT &&
+	       ret == SMCCC_RET_SUCCESS) {
 		udelay(10);
-		mvebu_dfx_smc(MV_SIP_DFX_THERMAL_IS_VALID, &reg);
+		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_IS_VALID, &reg);
 		timeout++;
 	}
 
-	if (reg == 0) {
+	if (reg == 0 || ret != SMCCC_RET_SUCCESS) {
 		pr_err("%s: thermal.%lx: external sensor is not ready\n",
 		       __func__, (uintptr_t)tsen->regs_base);
 		return -1;
