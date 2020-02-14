@@ -78,6 +78,8 @@ struct octeontx_mmc_slot {
 	uint			dat_cnt;	/* otx: sample data in delay */
 	uint			drive;		/* Current drive */
 	uint			slew;		/* clock skew */
+	uint			cmd_out_hs200_delay;
+	uint			data_out_hs200_delay;
 	uint			clk_period;
 	bool			valid:1;
 	bool			is_acmd:1;
@@ -128,6 +130,7 @@ struct octeontx_mmc_host {
 	uint		per_tap_delay;
 	uint		num_slots;
 	bool		initialized:1;
+	bool		timing_calibrated:1;
 	bool		is_asim:1;
 	bool		is_emul:1;
 	bool		calibrate_glitch:1;
