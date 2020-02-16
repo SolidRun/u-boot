@@ -95,15 +95,28 @@ static int get_soc_type_rev(u32 *type, u32 *rev)
 
 static int get_ap_soc_type(u32 *type)
 {
-	*type = readl(AP_DEV_ID_STATUS_REG) & AP_DEV_ID_STATUS_MASK;
+	int ret;
+
+	/* Try read it with firmware use, if fails try legacy */
+	ret = mvebu_dfx_sread(type, AP_DEV_ID_STATUS_REG);
+	if (ret != SMCCC_RET_SUCCESS)
+		*type = readl(AP_DEV_ID_STATUS_REG);
+
+	*type &= AP_DEV_ID_STATUS_MASK;
 
 	return 0;
 }
 
 static int get_ap_soc_rev(u32 *rev)
 {
-	*rev = (readl(JTAG_DEV_ID_STATUS_REG) & AP_DEV_REV_ID_STATUS_MASK)
-					>> AP_REV_STATUS_OFFSET;
+	int ret;
+
+	/* Try read it with firmware use, if fails try legacy */
+	ret = mvebu_dfx_sread(rev, JTAG_DEV_ID_STATUS_REG);
+	if (ret != SMCCC_RET_SUCCESS)
+		*rev = readl(JTAG_DEV_ID_STATUS_REG);
+
+	*rev = (*rev & AP_DEV_REV_ID_STATUS_MASK) >> AP_REV_STATUS_OFFSET;
 	return 0;
 }
 
