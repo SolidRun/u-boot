@@ -239,12 +239,22 @@
 #define MV_SIP_DFX_THERMAL_READ		2
 #define MV_SIP_DFX_THERMAL_IS_VALID	3
 
+#define MV_SIP_DFX_SREAD		20
+#define MV_SIP_DFX_SWRITE		21
+
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
 
-int mvebu_dfx_smc(u32 addr, u32 *reg);
+int mvebu_dfx_smc(u32 subfid, u32 *reg, u32 addr, u32 val);
 void soc_print_device_info(void);
 int soc_get_ap_cp_num(void *ap_num, void *cp_num);
 void soc_print_system_cache_info(void);
+
+#define mvebu_dfx_smc_thermal(subfid, preg)	\
+				mvebu_dfx_smc(subfid, preg, 0, 0)
+#define mvebu_dfx_sread(preg, addr)		\
+				mvebu_dfx_smc(MV_SIP_DFX_SREAD, preg, addr, 0)
+#define mvebu_dfx_swrite(addr, val)		\
+				mvebu_dfx_smc(MV_SIP_DFX_SWRITE, 0, addr, val)
 #endif /* __ASSEMBLY__ */
 #endif /* _MVEBU_SOC_H */

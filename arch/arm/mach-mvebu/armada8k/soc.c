@@ -69,17 +69,22 @@ static struct soc_info soc_info_table[] = {
 	{ {0x8045, 0}, "Armada8040-B0", {0x806, 2}, {0x115, 0}, 1, 2, 0},
 };
 
-int mvebu_dfx_smc(u32 addr, u32 *reg)
+int mvebu_dfx_smc(u32 subfid, u32 *reg, u32 addr, u32 val)
 {
 	struct pt_regs pregs = {0};
 
 	pregs.regs[0] = MV_SIP_DFX;
-	pregs.regs[1] = addr;
+	pregs.regs[1] = subfid;
+	pregs.regs[2] = addr;
+	pregs.regs[3] = val;
 
 	smc_call(&pregs);
 
 	if (pregs.regs[0] == 0 && reg)
 		*reg = pregs.regs[1];
+
+	debug("%s: sub-fid %d, reg_val 0x%x, addr 0x%x, val 0x%x, ret %ld\n",
+	      __func__, subfid, reg ? *reg : -1, addr, val, pregs.regs[0]);
 
 	return pregs.regs[0];
 }
