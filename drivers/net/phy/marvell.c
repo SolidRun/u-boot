@@ -105,16 +105,14 @@
 
 /* 88E2110 PHY defines */
 #define MIIM_88E2110_PHY_STATUS		0x8008
-#define MIIM_88E2110_PHYSTAT_SPEED	0xc000
-#define MIIM_88E2110_PHYSTAT_10GBIT	0xc000
+#define MIIM_88E2110_PHYSTAT_SPEED	0xc00c
 #define MIIM_88E2110_PHYSTAT_GBIT	0x8000
 #define MIIM_88E2110_PHYSTAT_100	0x4000
 #define MIIM_88E2110_PHYSTAT_DUPLEX	0x2000
 #define MIIM_88E2110_PHYSTAT_SPDDONE	0x0800
 #define MIIM_88E2110_PHYSTAT_LINK	0x0400
-#define MIIM_88E2110_PHYSTAT_SPEED_5G	0x000c
-#define MIIM_88E2110_PHYSTAT_5GBIT	0x0008
-#define MIIM_88E2110_PHYSTAT_2_5GBIT	0x0004
+#define MIIM_88E2110_PHYSTAT_5GBIT	0xc008
+#define MIIM_88E2110_PHYSTAT_2_5GBIT	0xc004
 
 static int m88e1xxx_phy_extread(struct phy_device *phydev, int addr,
 				int devaddr, int regnum)
@@ -747,7 +745,6 @@ static int m88e2110_config(struct phy_device *phydev)
  */
 static uint m88e2110_parse_status(struct phy_device *phydev)
 {
-	unsigned int speed;
 	unsigned int mii_reg;
 
 	mii_reg = phy_read(phydev, 3, MIIM_88E2110_PHY_STATUS);
@@ -784,21 +781,13 @@ static uint m88e2110_parse_status(struct phy_device *phydev)
 	else
 		phydev->duplex = DUPLEX_HALF;
 
-	speed = mii_reg & MIIM_88E2110_PHYSTAT_SPEED;
-
-	switch (speed) {
-	case MIIM_88E2110_PHYSTAT_10GBIT:
-		switch (mii_reg & MIIM_88E2110_PHYSTAT_SPEED_5G) {
-		case MIIM_88E2110_PHYSTAT_5GBIT:
-			phydev->speed = SPEED_5000;
-			break;
-		case MIIM_88E2110_PHYSTAT_2_5GBIT:
-			phydev->speed = SPEED_2500;
-			break;
-		default:
-			puts(" Unknown speed detected\n");
-			break;
-		}
+	switch (mii_reg & MIIM_88E2110_PHYSTAT_SPEED) {
+	case MIIM_88E2110_PHYSTAT_5GBIT:
+		phydev->speed = SPEED_5000;
+		break;
+	case MIIM_88E2110_PHYSTAT_2_5GBIT:
+		phydev->speed = SPEED_2500;
+		break;
 	case MIIM_88E2110_PHYSTAT_GBIT:
 		phydev->speed = SPEED_1000;
 		break;
