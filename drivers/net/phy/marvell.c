@@ -749,12 +749,11 @@ static uint m88e2110_parse_status(struct phy_device *phydev)
 
 	mii_reg = phy_read(phydev, 3, MIIM_88E2110_PHY_STATUS);
 
-	if ((mii_reg & MIIM_88E2110_PHYSTAT_LINK) &&
-	    !(mii_reg & MIIM_88E2110_PHYSTAT_SPDDONE)) {
+	if (!(mii_reg & MIIM_88E2110_PHYSTAT_LINK)) {
 		int i = 0;
 
 		puts("Waiting for PHY realtime link");
-		while (!(mii_reg & MIIM_88E2110_PHYSTAT_SPDDONE)) {
+		while (!(mii_reg & MIIM_88E2110_PHYSTAT_LINK)) {
 			/* Timeout reached ? */
 			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
 				puts(" TIMEOUT !\n");
@@ -769,12 +768,12 @@ static uint m88e2110_parse_status(struct phy_device *phydev)
 		}
 		puts(" done\n");
 		mdelay(500);	/* another 500 ms (results in faster booting) */
-	} else {
-		if (mii_reg & MIIM_88E2110_PHYSTAT_LINK)
-			phydev->link = 1;
-		else
-			phydev->link = 0;
 	}
+
+	if (mii_reg & MIIM_88E2110_PHYSTAT_LINK)
+		phydev->link = 1;
+	else
+		phydev->link = 0;
 
 	if (mii_reg & MIIM_88E2110_PHYSTAT_DUPLEX)
 		phydev->duplex = DUPLEX_FULL;
