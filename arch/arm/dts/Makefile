@@ -192,8 +192,6 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-388-helios4.dtb			\
 	armada-385-db-88f6820-amc.dtb		\
 	armada-385-turris-omnia.dtb		\
-	armada-3900-vd-A.dtb			\
-	armada-3900-vd-B.dtb			\
 	armada-7020-amc.dtb			\
 	armada-7020-comexp.dtb                  \
 	armada-7040-pcac.dtb	                \
