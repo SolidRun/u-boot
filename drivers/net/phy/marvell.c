@@ -709,11 +709,17 @@ static int m88e2110_probe(struct phy_device *phydev)
 static int m88e2110_config(struct phy_device *phydev)
 {
 	u16 reg;
+	ofnode node = phy_get_ofnode(phydev);
 
-	/* Perform lane swap */
-	reg = phy_read(phydev, 1, 0xc000);
-	reg |= 0x1;
-	phy_write(phydev, 1, 0xc000, reg);
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
+	if (ofnode_read_bool(node, "enet-phy-lane-swap")) {
+		/* Perform lane swap */
+		reg = phy_read(phydev, 1, 0xc000);
+		reg |= 0x1;
+		phy_write(phydev, 1, 0xc000, reg);
+	}
 
 	/* Configure auto-negotiation advertisement */
 	if (phydev->interface == PHY_INTERFACE_MODE_SFI) {
