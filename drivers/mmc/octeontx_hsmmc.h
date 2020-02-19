@@ -80,6 +80,8 @@ struct octeontx_mmc_slot {
 	uint			slew;		/* clock skew */
 	uint			cmd_out_hs200_delay;
 	uint			data_out_hs200_delay;
+	uint			cmd_out_hs400_delay;
+	uint			data_out_hs400_delay;
 	uint			clk_period;
 	bool			valid:1;
 	bool			is_acmd:1;
