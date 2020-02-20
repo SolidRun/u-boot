@@ -226,6 +226,9 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	cn9130-crb-A.dtb			\
 	cn9130-crb-B.dtb			\
 	cn9130-crb-C.dtb			\
+	cn9130-crb-r1p3-A.dtb			\
+	cn9130-crb-r1p3-B.dtb			\
+	cn9130-crb-r1p3-C.dtb			\
 	cn9130-db-A.dtb				\
 	cn9130-db-B.dtb				\
 	cn9130-db-C.dtb				\
