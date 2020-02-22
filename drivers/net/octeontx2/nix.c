@@ -736,6 +736,10 @@ int nix_lf_setup_mac(struct udevice *dev)
 		eth_env_set_enetaddr_by_index("eth", rvu->dev->seq,
 					      pdata->enetaddr);
 		cgx_lmac_mac_filter_setup(nix->lmac);
+		/* Update user given MAC address to ATF for update
+		 * in sh_fwdata to use in Linux.
+		 */
+		cgx_intf_set_macaddr(dev);
 		debug("%s: lMAC %pM\n", __func__, nix->lmac->mac_addr);
 		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
 	}

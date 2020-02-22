@@ -106,6 +106,7 @@ enum cgx_cmd_id {
 	CGX_CMD_AN_LOOPBACK,	/* = 30 */
 	CGX_CMD_GET_PERSIST_IGNORE,
 	CGX_CMD_SET_PERSIST_IGNORE,
+	CGX_CMD_SET_MAC_ADDR,
 };
 
 /* async event ids */
@@ -402,6 +403,13 @@ struct cgx_set_flash_ignore_args {
 	uint64_t reserved2:55;
 };
 
+/* command argument to be passed for cmd ID - CGX_CMD_SET_MAC_ADDR */
+struct cgx_mac_addr_args {
+	uint64_t reserved1:8;
+	uint64_t addr:48;
+	uint64_t pf_id:8;
+};
+
 struct cgx_prbs_args {
 	u64 reserved1:8; /* start from bit 8 */
 	u64 qlm:8;
@@ -427,6 +435,7 @@ union cgx_cmd_s {
 	struct cgx_set_fec_args fec_args;
 	struct cgx_set_phy_mod_args phy_mod_args;
 	struct cgx_set_flash_ignore_args persist_args;
+	struct cgx_mac_addr_args mac_args;
 	/* any other arg for command id * like : mtu, dmac filtering control */
 	struct cgx_prbs_args prbs_args;
 	struct cgx_display_eye_args dsp_eye_args;
