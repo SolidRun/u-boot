@@ -29,6 +29,7 @@ typedef enum {
 
 platform_t read_platform(void);
 u8 read_partnum(void);
+u8 read_partvar(void);
 const char *read_board_name(void);
 
 #endif /* __SOC_H */

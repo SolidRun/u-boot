@@ -37,6 +37,11 @@ static inline u64 read_midr(void)
 	return result;
 }
 
+u8 read_partvar(void)
+{
+	return ((read_midr() >> 20) & 0xF);
+}
+
 u8 read_partnum(void)
 {
 	return ((read_midr() >> 4) & 0xFF);

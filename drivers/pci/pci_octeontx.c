@@ -15,6 +15,7 @@
 #include <asm/io.h>
 
 #if defined(CONFIG_ARCH_OCTEONTX2)
+#include <asm/arch/soc.h>
 
 #define PEM_CFG_WR 0x18
 #define PEM_CFG_RD 0x20
@@ -212,6 +213,18 @@ static int pci_octeontx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 	return 0;
 }
 
+#if defined(CONFIG_ARCH_OCTEONTX2)
+static inline bool use_workaround(void)
+{
+	u8 var = read_partvar();
+
+	/* HW issue workaround should be applied only to older silicons */
+	if (otx_is_soc(CN96XX) && var <= 1)
+		return true;
+
+	return false;
+}
+
 static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 					 uint offset, ulong *valuep,
 					 enum pci_size_t size)
@@ -264,7 +277,6 @@ static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 static void pci_octeontx2_pem_workaround(struct udevice *bus, uint offset,
 					 enum pci_size_t size)
 {
-#if defined(CONFIG_ARCH_OCTEONTX2)
 	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
 	u64 rval, wval;
 	u32 cfg_off, data;
@@ -353,7 +365,6 @@ static void pci_octeontx2_pem_workaround(struct udevice *bus, uint offset,
 
 	wval = readq(waddr);
 	debug("%s EP_CTL waddr %llx => wval %llx\n", __func__, waddr, wval);
-#endif
 }
 
 static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
@@ -406,7 +417,8 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 	}
 	debug("tmp long %lx %lx\n", addr, value);
 
-	pci_octeontx2_pem_workaround(bus, offset, size);
+	if (use_workaround())
+		pci_octeontx2_pem_workaround(bus, offset, size);
 
 	switch (size) {
 	case PCI_SIZE_8:
@@ -430,6 +442,7 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 
 	return 0;
 }
+#endif
 
 static int pci_octeontx_ofdata_to_platdata(struct udevice *dev)
 {
@@ -486,26 +499,6 @@ static const struct udevice_id pci_octeontx_ecam_ids[] = {
 	{ }
 };
 
-static const struct dm_pci_ops pci_octeontx_pem_ops = {
-	.read_config	= pci_octeontx_pem_read_config,
-	.write_config	= pci_octeontx_pem_write_config,
-};
-
-static const struct udevice_id pci_octeontx_pem_ids[] = {
-	{ .compatible = "cavium,pci-host-thunder-pem" },
-	{ }
-};
-
-static const struct dm_pci_ops pci_octeontx2_pem_ops = {
-	.read_config	= pci_octeontx2_pem_read_config,
-	.write_config	= pci_octeontx2_pem_write_config,
-};
-
-static const struct udevice_id pci_octeontx2_pem_ids[] = {
-	{ .compatible = "marvell,pci-host-octeontx2-pem" },
-	{ }
-};
-
 U_BOOT_DRIVER(pci_octeontx_ecam) = {
 	.name	= "pci_octeontx_ecam",
 	.id	= UCLASS_PCI,
@@ -517,14 +510,14 @@ U_BOOT_DRIVER(pci_octeontx_ecam) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(pci_octeontx2_pcie) = {
-	.name	= "pci_octeontx2_pem",
-	.id	= UCLASS_PCI,
-	.of_match = pci_octeontx2_pem_ids,
-	.ops	= &pci_octeontx2_pem_ops,
-	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
-	.probe	= pci_octeontx_ecam_probe,
-	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
+static const struct dm_pci_ops pci_octeontx_pem_ops = {
+	.read_config	= pci_octeontx_pem_read_config,
+	.write_config	= pci_octeontx_pem_write_config,
+};
+
+static const struct udevice_id pci_octeontx_pem_ids[] = {
+	{ .compatible = "cavium,pci-host-thunder-pem" },
+	{ }
 };
 
 U_BOOT_DRIVER(pci_octeontx_pcie) = {
@@ -536,3 +529,25 @@ U_BOOT_DRIVER(pci_octeontx_pcie) = {
 	.probe	= pci_octeontx_ecam_probe,
 	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
 };
+
+#if defined(CONFIG_ARCH_OCTEONTX2)
+static const struct dm_pci_ops pci_octeontx2_pem_ops = {
+	.read_config	= pci_octeontx2_pem_read_config,
+	.write_config	= pci_octeontx2_pem_write_config,
+};
+
+static const struct udevice_id pci_octeontx2_pem_ids[] = {
+	{ .compatible = "marvell,pci-host-octeontx2-pem" },
+	{ }
+};
+
+U_BOOT_DRIVER(pci_octeontx2_pcie) = {
+	.name	= "pci_octeontx2_pem",
+	.id	= UCLASS_PCI,
+	.of_match = pci_octeontx2_pem_ids,
+	.ops	= &pci_octeontx2_pem_ops,
+	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
+	.probe	= pci_octeontx_ecam_probe,
+	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
+};
+#endif
