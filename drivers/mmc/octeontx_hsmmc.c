@@ -62,7 +62,7 @@
 #define MMC_SD_UHS_SDR50_CMD_OUT_TAP		26
 #define MMC_SD_UHS_SDR50_DATA_OUT_TAP		26
 #define MMC_DEFAULT_TAP_DELAY			4
-
+#define TOTAL_NO_OF_TAPS			512
 static void octeontx_mmc_switch_to(struct mmc *mmc);
 static int octeontx_mmc_configure_delay(struct mmc *mmc);
 #ifdef MMC_SUPPORTS_TUNING
@@ -1902,31 +1902,41 @@ static int octeontx_tune_hs400(struct mmc *mmc)
 	if (env_get_yesno("emmc_export_hs400_taps") > 0) {
 		debug("%s(%s): Exporting HS400 taps\n",
 		      __func__, mmc->dev->name);
-		snprintf(env_name, sizeof(env_name), "emmc%d_data_in_tap_debug",
+		env_set_ulong("emmc_timing_tap", slot->host->timing_taps);
+		snprintf(env_name, sizeof(env_name),
+			 "emmc%d_hs400_data_in_tap_debug",
 			 slot->bus_id);
 		env_set(env_name, how);
-		snprintf(env_name, sizeof(env_name), "emmc%d_data_in_tap_val",
+		snprintf(env_name, sizeof(env_name),
+			 "emmc%d_hs400_data_in_tap_val",
 			 slot->bus_id);
 		env_set_ulong(env_name, tap);
-		snprintf(env_name, sizeof(env_name), "emmc%d_data_in_tap_start",
+		snprintf(env_name, sizeof(env_name),
+			 "emmc%d_hs400_data_in_tap_start",
 			 slot->bus_id);
 		env_set_ulong(env_name, best_start);
-		snprintf(env_name, sizeof(env_name), "emmc%d_data_in_tap_end",
+		snprintf(env_name, sizeof(env_name),
+			 "emmc%d_hs400_data_in_tap_end",
 			 slot->bus_id);
 		env_set_ulong(env_name, best_start + best_run);
-		snprintf(env_name, sizeof(env_name), "emmc%d_cmd_in_tap",
+		snprintf(env_name, sizeof(env_name),
+			 "emmc%d_hs400_cmd_in_tap",
 			 slot->bus_id);
 		env_set_ulong(env_name, slot->hs400_taps.s.cmd_in_tap);
-		snprintf(env_name, sizeof(env_name), "emmc%d_cmd_out_tap",
+		snprintf(env_name, sizeof(env_name),
+			 "emmc%d_hs400_cmd_out_tap",
 			 slot->bus_id);
 		env_set_ulong(env_name, slot->hs400_taps.s.cmd_out_tap);
-		snprintf(env_name, sizeof(env_name), "emmc%d_cmd_out_delay",
+		snprintf(env_name, sizeof(env_name),
+			 "emmc%d_hs400_cmd_out_delay",
 			 slot->bus_id);
 		env_set_ulong(env_name, slot->cmd_out_hs400_delay);
-		snprintf(env_name, sizeof(env_name), "emmc%d_data_out_tap",
+		snprintf(env_name, sizeof(env_name),
+			 "emmc%d_hs400_data_out_tap",
 			 slot->bus_id);
 		env_set_ulong(env_name, slot->hs400_taps.s.data_out_tap);
-		snprintf(env_name, sizeof(env_name), "emmc%d_data_out_delay",
+		snprintf(env_name, sizeof(env_name),
+			 "emmc%d_hs400_data_out_delay",
 			 slot->bus_id);
 		env_set_ulong(env_name, slot->data_out_hs400_delay);
 	} else {
@@ -1986,9 +1996,7 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 	bool prev_ok = false;
 	u64 tap_status = 0;
 	const int tap_adj = slot->hs200_tap_adj;
-#ifdef DEBUG
 	char how[MAX_NO_OF_TAPS + 1] = "";
-#endif
 	bool is_hs200 = mmc->selected_mode == MMC_HS_200;
 
 	debug("%s(%s, %s, %d), hs200: %d\n", __func__, mmc->dev->name,
@@ -2067,9 +2075,7 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 				      read_csr(mmc, MIO_EMM_RSP_LO()));
 			}
 			tap_status |= (u64)(!err) << tap;
-#ifdef DEBUG
 			how[tap] = "-+"[!err];
-#endif
 		} else {
 			/*
 			 * Putting the end+1 case in the loop simplifies
@@ -2095,9 +2101,7 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 			}
 		}
 	}
-#ifdef DEBUG
 	how[tap - 1] = '\0';
-#endif
 	if (best_start < 0) {
 		printf("%s(%s, %s): %lldMHz tuning %s failed\n", __func__,
 		       mmc->dev->name, adj->name, slot->clock / 1000000,
@@ -2129,11 +2133,10 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 		      tap, tap_adj, tap + tap_adj);
 		tap += tap_adj;
 	}
-#ifdef DEBUG
 	how[tap] = '@';
 	debug("%s/%s %d/%d/%d %s\n", mmc->dev->name,
 	      adj->name, best_start, tap, best_start + best_run, how);
-#endif
+
 	if (is_hs200) {
 		slot->hs200_taps.u &= ~(0x3full << adj->mask_shift);
 		slot->hs200_taps.u |= (u64)tap << adj->mask_shift;
@@ -2141,7 +2144,6 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 		slot->taps.u &= ~(0x3full << adj->mask_shift);
 		slot->taps.u |= (u64)tap << adj->mask_shift;
 	}
-
 
 #ifdef DEBUG
 	if (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200) {
@@ -2162,6 +2164,56 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 	}
 #endif
 	octeontx_mmc_set_timing(mmc);
+
+	if (is_hs200 && env_get_yesno("emmc_export_hs200_taps")) {
+		char env_name[64];
+
+		env_set_ulong("emmc_timing_tap", slot->host->timing_taps);
+		switch (opcode) {
+		case MMC_CMD_SEND_TUNING_BLOCK:
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_hs200_data_in_tap_debug",
+				 slot->bus_id);
+			env_set(env_name, how);
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_hs200_data_in_tap_val", slot->bus_id);
+			env_set_ulong(env_name, tap);
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_hs200_data_in_tap_start",
+				 slot->bus_id);
+			env_set_ulong(env_name, best_start);
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_hs200_data_in_tap_end",
+				 slot->bus_id);
+			env_set_ulong(env_name, best_start + best_run);
+			break;
+		case MMC_CMD_SEND_STATUS:
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_hs200_cmd_in_tap_debug",
+				 slot->bus_id);
+			env_set(env_name, how);
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_hs200_cmd_in_tap_val", slot->bus_id);
+			env_set_ulong(env_name, tap);
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_hs200_cmd_in_tap_start",
+				 slot->bus_id);
+			env_set_ulong(env_name, best_start);
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_hs200_cmd_in_tap_end",
+				 slot->bus_id);
+			env_set_ulong(env_name, best_start + best_run);
+			break;
+		default:
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_hs200_data_out_tap", slot->bus_id);
+			env_set_ulong(env_name, slot->data_out_hs200_delay);
+			snprintf(env_name, sizeof(env_name),
+				 "emmc%d_hs200_cmd_out_tap", slot->bus_id);
+			env_set_ulong(env_name, slot->cmd_out_hs200_delay);
+			break;
+		}
+	}
 
 	return 0;
 }
@@ -2333,7 +2385,7 @@ static u32 octeontx_mmc_calc_clk_period(struct mmc *mmc)
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 	struct octeontx_mmc_host *host = slot->host;
 
-	return (host->sys_freq + (mmc->clock * 2) - 1) / mmc->clock;
+	return DIV_ROUND_UP(host->sys_freq, mmc->clock);
 }
 
 static int octeontx_mmc_set_ios(struct udevice *dev)
@@ -2796,8 +2848,7 @@ static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay)
 	}
 	debug("%s(%s, %d) timing taps: %llu\n", __func__, mmc->dev->name,
 	      delay, host->timing_taps);
-	return min((int)((delay + host->timing_taps - 1) / host->timing_taps),
-		   63);
+	return min_t(int, DIV_ROUND_UP(delay, host->timing_taps), 63);
 }
 
 /**
@@ -2911,7 +2962,7 @@ static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
 		}
 	}
 	/* Round up */
-	host->timing_taps = ((10 * 1000 * emm_tap.s.delay) + 511) / 512;
+	host->timing_taps = (10 * 1000 * emm_tap.s.delay) / TOTAL_NO_OF_TAPS;
 	debug("%s(%s): timing taps: %llu, delay: %u\n",
 	      __func__, mmc->dev->name, host->timing_taps, emm_tap.s.delay);
 	host->timing_calibrated = true;
