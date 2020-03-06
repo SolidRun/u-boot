@@ -1061,6 +1061,7 @@ static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout,
 				pr_err("%s: Trying DMA resume...\n", __func__);
 			}
 			emm_dma.s.dma_val = 1;
+			emm_dma.s.dat_null = 1;
 			write_csr(mmc, MIO_EMM_DMA(), emm_dma.u);
 		} else if (!rsp_sts.s.dma_val && emm_dma_int.s.done) {
 			break;
