@@ -63,7 +63,7 @@
 		(_BAR_) == 5 || (_BAR_) == 4 ||	\
 		(_BAR_) == 2 || (_BAR_) == 0; })
 
-#define MAX_ATU_REGIONS			16
+#define MAX_ATU_REGIONS			8
 #define MAX_ATU_SIZE			(4ul * SZ_1G)
 
 #define  BAR_ENABLE_OFFSET		0
