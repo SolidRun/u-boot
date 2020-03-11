@@ -24,6 +24,8 @@
 #include <asm/io.h>
 #include "pcie_dw_mvebu_ep.h"
 
+#define ATU_NUM_OF_VFS_TO_MAP		4
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static int pcie_dw_mvebu_ep_setup_bar(struct udevice *dev, uint func_id,
@@ -131,14 +133,16 @@ static int pcie_dw_mvebu_ep_remap_host(struct udevice *dev, uint func_id,
 	void *pl_regs = ep->pl_regs;
 	u32  v, region = 0;
 	u64  remain_size = size;
+	u32  vf_num;
 
 	/* ATU window size must be power of 2 */
 	if (!is_power_of_2(size))
 		return -EINVAL;
 
+	/* Setup outbound regions for PF */
 	while (remain_size > 0) {
-		if (region > MAX_ATU_REGIONS) {
-			printf("Insufficient ATU regions to map hosts\n");
+		if (region > (MAX_ATU_REGIONS - ATU_NUM_OF_VFS_TO_MAP)) {
+			printf("Insufficient ATU regions to map host\n");
 			return -1;
 		}
 
@@ -167,6 +171,42 @@ static int pcie_dw_mvebu_ep_remap_host(struct udevice *dev, uint func_id,
 		addr += MAX_ATU_SIZE;
 		pci_addr += MAX_ATU_SIZE;
 		remain_size -= MAX_ATU_SIZE;
+	}
+
+	/* Setup outbound regions for VFs */
+	/* Continue with the next available region and address.
+	 * They have already advanced by the PF loop.
+	 */
+	for (vf_num = 0; vf_num < ATU_NUM_OF_VFS_TO_MAP;
+	     vf_num++, addr += MAX_ATU_SIZE, region++) {
+		v = PCIE_ATU_REGION_OUTBOUND;
+		v |= get_out_region_idx(func_id, region);
+		writel(v, pl_regs + PCIE_ATU_VIEWPORT);
+
+		writel(addr & U32_MAX, pl_regs + PCIE_ATU_LOWER_BASE);
+		writel(addr >> 32, pl_regs + PCIE_ATU_UPPER_BASE);
+
+		/* We always point to lower 4GB on host side for all VFs */
+		v = 0;
+		writel(v, pl_regs + PCIE_ATU_LOWER_TARGET);
+		writel(v, pl_regs + PCIE_ATU_UPPER_TARGET);
+
+		/* Single region per VF. Region size is set to maximum */
+		v = MAX_ATU_SIZE - 1;
+		writel(v, pl_regs + PCIE_ATU_LIMIT);
+
+		/* Same PF for all VFs */
+		v = (func_id & PCIE_ATU_CR1_FUNC_MASK)
+				<< PCIE_ATU_CR1_FUNC_OFF;
+		writel(v, pl_regs + PCIE_ATU_CR1);
+
+		/* bind this region to VF number */
+		v = (vf_num & PCIE_ATU_CR3_VF_NUM_MASK)
+				| PCIE_ATU_CR3_VF_ACTIVE;
+		writel(v, pl_regs + PCIE_ATU_CR3);
+
+		v = PCIE_ATU_CR2_REGION_EN;
+		writel(v, pl_regs + PCIE_ATU_CR2);
 	}
 
 	return 0;

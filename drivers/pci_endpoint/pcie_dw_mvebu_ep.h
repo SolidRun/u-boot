@@ -47,6 +47,9 @@
 #define PCIE_ATU_DEV(x)			(((x) & 0x1f) << 19)
 #define PCIE_ATU_FUNC(x)		(((x) & 0x7) << 16)
 #define PCIE_ATU_UPPER_TARGET		0x91C
+#define PCIE_ATU_CR3			0x920
+#define PCIE_ATU_CR3_VF_ACTIVE		(0x1 << 31)
+#define PCIE_ATU_CR3_VF_NUM_MASK	(0x7)
 
 #define PCIE_SRIOV_DEVID_OFFSET		0x192
 
