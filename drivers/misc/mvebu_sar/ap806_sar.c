@@ -148,11 +148,17 @@ static const u32 pll_freq_tbl[16][4] = {
 
 static u32 sar_get_clock_freq_mode(struct udevice *dev)
 {
-	u32 i;
+	u32 i, clock_freq;
 	struct dm_sar_pdata *priv = dev_get_priv(dev);
+	int ret;
 
-	u32 clock_freq = (readl(priv->sar_base) & SAR_CLOCK_FREQ_MODE_MASK) >>
-			  SAR_CLOCK_FREQ_MODE_OFFSET;
+	ret = mvebu_dfx_sread(&clock_freq, (uintptr_t)priv->sar_base);
+	if (ret != SMCCC_RET_SUCCESS) /* try legacy read */
+		clock_freq = (readl(priv->sar_base));
+
+	clock_freq = (clock_freq & SAR_CLOCK_FREQ_MODE_MASK) >>
+		      SAR_CLOCK_FREQ_MODE_OFFSET;
+
 	for (i = 0; i < 16; i++) {
 		if (pll_freq_tbl[i][3] == clock_freq)
 			return i;
@@ -191,8 +197,12 @@ static int ap806_sar_dump(struct udevice *dev)
 	u32 reg, val;
 	struct sar_info *sar;
 	struct dm_sar_pdata *priv = dev_get_priv(dev);
+	int ret;
 
-	reg = readl(priv->sar_base);
+	ret = mvebu_dfx_sread(&reg, (uintptr_t)priv->sar_base);
+	if (ret != SMCCC_RET_SUCCESS) /* try legacy */
+		reg = readl(priv->sar_base);
+
 	printf("AP806 SAR register 0 [0x%08x]:\n", reg);
 	printf("----------------------------------\n");
 	sar = ap806_sar_0;
@@ -202,7 +212,11 @@ static int ap806_sar_dump(struct udevice *dev)
 		sar++;
 	}
 
-	reg = readl(priv->sar_base + AP806_SAR_1_REG);
+	ret = mvebu_dfx_sread(&reg,
+			      (uintptr_t)(priv->sar_base + AP806_SAR_1_REG));
+	if (ret != SMCCC_RET_SUCCESS) /* try legacy */
+		reg = readl(priv->sar_base + AP806_SAR_1_REG);
+
 	printf("\nAP806 SAR register 1 [0x%08x]:\n", reg);
 	printf("----------------------------------\n");
 	sar = ap806_sar_1;
