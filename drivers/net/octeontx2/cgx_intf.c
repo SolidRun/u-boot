@@ -668,3 +668,21 @@ int cgx_intf_display_eye(u8 qlm, u8 lane)
 
 	return 0;
 }
+
+int cgx_intf_display_serdes(u8 qlm, u8 lane)
+{
+	union cgx_scratchx0 scr0;
+	int ret;
+	union cgx_cmd_s cmd;
+
+	cmd.cmd.id = CGX_CMD_DISPLAY_SERDES;
+
+	cmd.dsp_eye_args.qlm = qlm;
+	cmd.dsp_eye_args.lane = lane;
+
+	ret = cgx_intf_req(0, 0, cmd, &scr0.u, 0);
+	if (ret)
+		return -1;
+
+	return 0;
+}

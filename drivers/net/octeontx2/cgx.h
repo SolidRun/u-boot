@@ -102,5 +102,6 @@ int cgx_intf_get_mac_addr(u8 cgx, u8 lmac, u8 *mac);
 int cgx_intf_set_macaddr(struct udevice *dev);
 int cgx_intf_prbs(u8 qlm, u8 mode, u32 time);
 int cgx_intf_display_eye(u8 qlm, u8 lane);
+int cgx_intf_display_serdes(u8 qlm, u8 lane);
 
 #endif /* __CGX_H__ */
