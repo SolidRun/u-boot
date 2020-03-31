@@ -974,26 +974,29 @@ static void octeontx_mmc_cleanup_dma(struct mmc *mmc,
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 	union mio_emm_dma emm_dma;
 	ulong start;
+	int retries = 3;
 
-	debug("%s(%s): rsp_sts: 0x%llx, rsp_lo: 0x%llx, dma_int: 0x%llx\n",
-	      __func__, mmc->dev->name, rsp_sts.u,
-	      read_csr(mmc, MIO_EMM_RSP_LO()),
-	      read_csr(mmc, MIO_EMM_DMA_INT()));
-	emm_dma.u = read_csr(mmc, MIO_EMM_DMA());
-	emm_dma.s.dma_val = 1;
-	emm_dma.s.dat_null = 1;
-	emm_dma.s.bus_id = slot->bus_id;
-	write_csr(mmc, MIO_EMM_DMA(), emm_dma.u);
-	start = get_timer(0);
 	do {
-		rsp_sts.u = read_csr(mmc, MIO_EMM_RSP_STS());
-		WATCHDOG_RESET();
-	} while (get_timer(start) < 100 && rsp_sts.s.dma_val);
-	if (rsp_sts.s.dma_val) {
+		debug("%s(%s): rsp_sts: 0x%llx, rsp_lo: 0x%llx, dma_int: 0x%llx\n",
+		      __func__, mmc->dev->name, rsp_sts.u,
+		      read_csr(mmc, MIO_EMM_RSP_LO()),
+		      read_csr(mmc, MIO_EMM_DMA_INT()));
+		emm_dma.u = read_csr(mmc, MIO_EMM_DMA());
+		emm_dma.s.dma_val = 1;
+		emm_dma.s.dat_null = 1;
+		emm_dma.s.bus_id = slot->bus_id;
+		write_csr(mmc, MIO_EMM_DMA(), emm_dma.u);
+		start = get_timer(0);
+		do {
+			rsp_sts.u = read_csr(mmc, MIO_EMM_RSP_STS());
+			WATCHDOG_RESET();
+		} while (get_timer(start) < 100 &&
+			 (rsp_sts.s.dma_val || rsp_sts.s.dma_pend));
+	} while (retries-- >= 0 && rsp_sts.s.dma_pend);
+	if (rsp_sts.s.dma_val)
 		pr_err("%s(%s): Error: could not clean up DMA.  RSP_STS: 0x%llx, RSP_LO: 0x%llx\n",
 		       __func__, mmc->dev->name, rsp_sts.u,
 		       read_csr(mmc, MIO_EMM_RSP_LO()));
-	}
 	debug("  rsp_sts after clearing up DMA: 0x%llx\n",
 	      read_csr(mmc, MIO_EMM_RSP_STS()));
 }
@@ -1018,7 +1021,7 @@ static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout,
 	bool timed_out = false;
 	bool err = false;
 
-	debug("%s(%s, %lu)\n", __func__, mmc->dev->name, timeout);
+	debug("%s(%s, %lu, %d)\n", __func__, mmc->dev->name, timeout, verbose);
 
 	do {
 		emm_dma_int.u = read_csr(mmc, MIO_EMM_DMA_INT());
@@ -1039,7 +1042,7 @@ static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout,
 			if (rsp_sts.s.blk_crc_err ||
 			    (rsp_sts.s.dma_pend && !rsp_sts.s.dma_val)) {
 				err = true;
-#ifdef DEBUG
+#if defined(DEBUG)
 				octeontx_mmc_print_rsp_errors(mmc, rsp_sts);
 #endif
 				break;
@@ -1063,6 +1066,7 @@ static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout,
 			emm_dma.s.dma_val = 1;
 			emm_dma.s.dat_null = 1;
 			write_csr(mmc, MIO_EMM_DMA(), emm_dma.u);
+			udelay(10);
 		} else if (!rsp_sts.s.dma_val && emm_dma_int.s.done) {
 			break;
 		}
