@@ -150,8 +150,21 @@ void board_late_probe_devices(void)
 	struct udevice *dev;
 	int err, cgx_cnt, i;
 
+	switch (read_partnum()) {
+	case CN98XX:
+		cgx_cnt = 5;
+		break;
+	case F95MM:
+		cgx_cnt = 2;
+		break;
+	case LOKI:
+		cgx_cnt = 4;
+		break;
+	default:
+		cgx_cnt = 3;
+		break;
+	}
 	/* Probe MAC(CGX) and NIC AF devices before Network stack init */
-	cgx_cnt = otx_is_soc(CN98XX) ? 5 : otx_is_soc(F95MM) ? 2 : 3;
 	for (i = 0; i < cgx_cnt; i++) {
 		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA059, i,
 					 &dev);
