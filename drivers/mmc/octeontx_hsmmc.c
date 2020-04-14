@@ -1014,6 +1014,7 @@ static void octeontx_mmc_cleanup_dma(struct mmc *mmc,
 static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout,
 				 bool verbose)
 {
+	struct octeontx_mmc_host *host = mmc_to_host(mmc);
 	ulong start_time = get_timer(0);
 	union mio_emm_dma_int emm_dma_int;
 	union mio_emm_rsp_sts rsp_sts;
@@ -1021,8 +1022,10 @@ static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout,
 	bool timed_out = false;
 	bool err = false;
 
-	debug("%s(%s, %lu, %d)\n", __func__, mmc->dev->name, timeout, verbose);
+	debug("%s(%s, %lu, %d), delay: %uus\n", __func__, mmc->dev->name,
+	      timeout, verbose, host->dma_wait_delay);
 
+	udelay(host->dma_wait_delay);
 	do {
 		emm_dma_int.u = read_csr(mmc, MIO_EMM_DMA_INT());
 		rsp_sts.u = read_csr(mmc, MIO_EMM_RSP_STS());
@@ -3731,6 +3734,8 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 		host->is_asim = true;
 	if (otx_is_platform(PLATFORM_EMULATOR))
 		host->is_emul = true;
+	host->dma_wait_delay =
+		ofnode_read_u32_default(dev->node, "marvell,dma-wait-delay", 1);
 	/* Force reset of eMMC */
 	writeq(0, host->base_addr + MIO_EMM_CFG());
 	debug("%s: Clearing MIO_EMM_CFG\n", __func__);

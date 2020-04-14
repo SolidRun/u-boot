@@ -131,6 +131,7 @@ struct octeontx_mmc_host {
 	int		max_width;
 	uint		per_tap_delay;
 	uint		num_slots;
+	uint		dma_wait_delay;	/* Delay before polling DMA in usecs */
 	bool		initialized:1;
 	bool		timing_calibrated:1;
 	bool		is_asim:1;
