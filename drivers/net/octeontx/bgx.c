@@ -1231,6 +1231,30 @@ static void bgx_init_hw(struct bgx *bgx)
 			bgx_reg_write(bgx, count, BGX_CMRX_CFG,
 				      (tlmac->lmac_type << 8) |
 				      tlmac->lane_to_sds);
+
+			if (tlmac->lmac_type == BGX_MODE_SGMII) {
+				if (tlmac->is_1gx) {
+					/* This is actually 1000BASE-X, so
+					 * mark the LMAC as such.
+					 */
+					bgx_reg_modify(bgx, count,
+						       BGX_GMP_PCS_MISCX_CTL,
+						       PCS_MISC_CTL_MODE);
+				}
+
+				if (!bgx_board_info[bgx->bgx_id].
+						phy_info[lmacid].autoneg_dis) {
+					/* The Linux DTS does not disable
+					 * autoneg for this LMAC (in SGMII or
+					 * 1000BASE-X mode), so that means
+					 * enable autoneg.
+					 */
+					bgx_reg_modify(bgx, count,
+						       BGX_GMP_PCS_MRX_CTL,
+						       PCS_MRX_CTL_AN_EN);
+				}
+			}
+
 			count += 1;
 		}
 	}
