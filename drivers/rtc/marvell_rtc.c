@@ -96,7 +96,10 @@ void marvell_rtc_errata(struct udevice *dev)
 
 	/* Get the rtc register base address */
 	struct rtc_unit_config *rtc_cfg = dev_get_priv(dev);
-	uintptr_t rtc_base = (uintptr_t)rtc_cfg->rtc_base;
+	uintptr_t rtc_base;
+
+	rtc_cfg->rtc_base = (void *)devfdt_get_addr_index(dev, 0);
+	rtc_base = (uintptr_t)rtc_cfg->rtc_base;
 
 	/* Update RTC-MBUS bridge timing parameters */
 	/* Functional Errata Ref #:
