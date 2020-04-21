@@ -239,7 +239,8 @@ void mv88e6xxx_display_switch_info(struct mv88e6xxx_dev *dev)
 	if (product_num == PORT_SWITCH_ID_PROD_NUM_6390 ||
 	    product_num == PORT_SWITCH_ID_PROD_NUM_6390X ||
 	    product_num == PORT_SWITCH_ID_PROD_NUM_6290 ||
-	    product_num == PORT_SWITCH_ID_PROD_NUM_6190) {
+	    product_num == PORT_SWITCH_ID_PROD_NUM_6190 ||
+	    product_num == PORT_SWITCH_ID_PROD_NUM_6193X) {
 		printf("Switch    : SOHO\n");
 		printf("Series    : Peridot\n");
 		printf("Product # : %X\n", product_num);
@@ -320,9 +321,10 @@ int mv88e6xxx_get_switch_id(struct mv88e6xxx_dev *dev)
 
 	product_num = id >> 4;
 	if ((product_num == PORT_SWITCH_ID_PROD_NUM_6190) ||
-	    (product_num == PORT_SWITCH_ID_PROD_NUM_6290) ||
-	    (product_num == PORT_SWITCH_ID_PROD_NUM_6390) ||
-	    (product_num == PORT_SWITCH_ID_PROD_NUM_6390X)) {
+	   (product_num == PORT_SWITCH_ID_PROD_NUM_6193X) ||
+	   (product_num == PORT_SWITCH_ID_PROD_NUM_6290)  ||
+	   (product_num == PORT_SWITCH_ID_PROD_NUM_6390)  ||
+	   (product_num == PORT_SWITCH_ID_PROD_NUM_6390X)) {
 		/* Peridot switch port device address starts from 0 */
 		REG_PORT_BASE = REG_PORT_BASE_PERIDOT;
 		return id;
@@ -586,7 +588,7 @@ static int do_sw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		       argv[1]);
 
 	default:
-		break;
+		return CMD_RET_USAGE;
 	}
 	return 0;
 }
