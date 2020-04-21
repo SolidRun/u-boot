@@ -18,3 +18,4 @@ obj-$(CONFIG_CMD_MVEBU_SAR) += sar.o
 obj-$(CONFIG_CMD_MVEBU_MV_FW_INFO) += mv_fw_info.o
 obj-$(CONFIG_CMD_MVEBU_MV_GET_COUNTERS) += mv_get_counters.o
 obj-$(CONFIG_CMD_MVEBU_DDR_PHY) += ddr_phy.o
+obj-$(CONFIG_CMD_MV88E6XXX_UTIL) += mv88e6xxx-util.o
