@@ -412,10 +412,11 @@ struct cgx_mac_addr_args {
 
 struct cgx_prbs_args {
 	u64 reserved1:8; /* start from bit 8 */
+	u64 lane:8;
 	u64 qlm:8;
 	u64 stop_on_error:1;
 	u64 mode:8;
-	u64 time:39;
+	u64 time:31;
 };
 
 struct cgx_display_eye_args {

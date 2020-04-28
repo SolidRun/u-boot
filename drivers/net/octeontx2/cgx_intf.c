@@ -265,7 +265,7 @@ void cgx_intf_shutdown(void)
 	cgx_intf_req(0, 0, cmd, &scr0.u, 1);
 }
 
-int cgx_intf_prbs(u8 qlm, u8 mode, u32 time)
+int cgx_intf_prbs(u8 qlm, u8 mode, u32 time, u8 lane)
 {
 	union cgx_scratchx0 scr0;
 	int ret;
@@ -276,6 +276,7 @@ int cgx_intf_prbs(u8 qlm, u8 mode, u32 time)
 	cmd.prbs_args.qlm = qlm;
 	cmd.prbs_args.mode = mode;
 	cmd.prbs_args.time = time;
+	cmd.prbs_args.lane = lane;
 
 	ret = cgx_intf_req(0, 0, cmd, &scr0.u, 0);
 	if (ret)
