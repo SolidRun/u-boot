@@ -585,42 +585,67 @@ int cgx_intf_set_an_lbk(struct udevice *ethdev, int enable)
 	return 0;
 }
 
-int cgx_intf_get_ignore(struct udevice *ethdev)
+int cgx_intf_get_ignore(struct udevice *ethdev, int cgx, int lmac)
 {
-	struct rvu_pf *rvu = dev_get_priv(ethdev);
-	struct nix *nix = rvu->nix;
+	struct rvu_pf *rvu;
+	struct nix *nix;
 	union cgx_scratchx0 scr0;
-	int ret;
+	int ret, cgx_id = cgx, lmac_id = lmac;
 	union cgx_cmd_s cmd;
 
+	if (ethdev) {
+		rvu = dev_get_priv(ethdev);
+		nix = rvu->nix;
+		cgx_id = nix->lmac->cgx->cgx_id;
+		lmac_id = nix->lmac->lmac_id;
+	}
 	cmd.cmd.id = CGX_CMD_GET_PERSIST_IGNORE;
 
-	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
-			   cmd, &scr0.u, 1);
+	ret = cgx_intf_req(cgx_id, lmac_id, cmd, &scr0.u, 1);
 	if (ret) {
-		printf("Get ignore command failed for %s\n", ethdev->name);
+		if (ethdev)
+			printf("Get ignore command failed for %s\n",
+			       ethdev->name);
+		else
+			printf("Get ignore command failed for CGX%d LMAC%d\n",
+			       cgx_id, lmac_id);
 		return -1;
 	}
-	printf("Persist settings %signored for %s\n",
-	       scr0.s.persist.ignore ? "" : "not ", ethdev->name);
+	if (ethdev)
+		printf("Persist settings %signored for %s\n",
+		       scr0.s.persist.ignore ? "" : "not ", ethdev->name);
+	else
+		printf("Persist settings %signored for CGX%d LMAC%d\n",
+		       scr0.s.persist.ignore ? "" : "not ", cgx_id, lmac_id);
+
 	return 0;
 }
 
-int cgx_intf_set_ignore(struct udevice *ethdev, int ignore)
+int cgx_intf_set_ignore(struct udevice *ethdev, int cgx, int lmac, int ignore)
 {
-	struct rvu_pf *rvu = dev_get_priv(ethdev);
-	struct nix *nix = rvu->nix;
+	struct rvu_pf *rvu;
+	struct nix *nix;
 	union cgx_scratchx0 scr0;
-	int ret;
+	int ret, cgx_id = cgx, lmac_id = lmac;
 	union cgx_cmd_s cmd;
 
+	if (ethdev) {
+		rvu = dev_get_priv(ethdev);
+		nix = rvu->nix;
+		cgx_id = nix->lmac->cgx->cgx_id;
+		lmac_id = nix->lmac->lmac_id;
+	}
 	cmd.cmd.id = CGX_CMD_SET_PERSIST_IGNORE;
 	cmd.persist_args.ignore = ignore;
 
-	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
-			   cmd, &scr0.u, 0);
+	ret = cgx_intf_req(cgx_id, lmac_id, cmd, &scr0.u, 0);
 	if (ret) {
-		printf("Set ignore command failed for %s\n", ethdev->name);
+		if (ethdev)
+			printf("Set ignore command failed for %s\n",
+			       ethdev->name);
+		else
+			printf("Set ignore command failed for CGX%d LMAC%d\n",
+			       cgx_id, lmac_id);
 		return -1;
 	}
 
