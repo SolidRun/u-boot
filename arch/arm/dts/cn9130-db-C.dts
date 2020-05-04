@@ -100,14 +100,6 @@
 		     0xe 0xe 0xe>;
 };
 
-&cp0_pci_ep_uio {
-	status = "okay";
-};
-
-&cp0_pcie_ep {
-	status = "okay";
-};
-
 &cp0_bootcmd {
 	status = "okay";
 };
