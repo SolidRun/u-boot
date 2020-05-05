@@ -3774,6 +3774,8 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	} else if (otx_is_soc(CN95XX)) {
 		if (!rev)
 			host->cond_clock_glitch = true;
+	} else if (otx_is_soc(CN98XX) || otx_is_soc(F95MM)) {
+		host->tap_requires_noclk = true;
 	}
 #endif
 	host_probed = true;
