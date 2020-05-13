@@ -16,6 +16,9 @@
 
 #if defined(CONFIG_ARCH_OCTEONTX2)
 #include <asm/arch/board.h>
+#endif
+
+#if !defined(CONFIG_ARCH_OCTEONTX)
 #include <spi-mem.h>
 #define USE_TBI_CLK
 #endif
@@ -302,7 +305,7 @@ static int octeontx_spi_claim_bus(struct udevice *dev)
 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
 		return -EINVAL;
 
-#if !defined(CONFIG_ARCH_OCTEONTX)
+#if defined(CONFIG_ARCH_OCTEONTX2)
 	acquire_flash_arb(true);
 #endif
 
@@ -334,7 +337,7 @@ static int octeontx_spi_release_bus(struct udevice *dev)
 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
 		return -EINVAL;
 
-#if !defined(CONFIG_ARCH_OCTEONTX)
+#if defined(CONFIG_ARCH_OCTEONTX2)
 	acquire_flash_arb(false);
 #endif
 
