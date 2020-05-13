@@ -86,6 +86,7 @@ machine-$(CONFIG_ARCH_TEGRA)		+= tegra
 machine-$(CONFIG_ARCH_U8500)		+= u8500
 machine-$(CONFIG_ARCH_OCTEONTX)		+= octeontx
 machine-$(CONFIG_ARCH_OCTEONTX2)	+= octeontx2
+machine-$(CONFIG_ARCH_OCTEONTX3)	+= octeontx3
 machine-$(CONFIG_ARCH_UNIPHIER)		+= uniphier
 machine-$(CONFIG_ARCH_VERSAL)		+= versal
 machine-$(CONFIG_ARCH_VERSAL_NET)	+= versal-net
