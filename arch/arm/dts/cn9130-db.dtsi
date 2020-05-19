@@ -110,6 +110,8 @@
 	pinctrl-0 = <&ap_emmc_pins>;
 	vqmmc-supply = <&ap_reg_mmc_vccq>;
 	bus-width = <8>;
+	mmc-ddr-1_8v;
+	mmc-hs400-1_8v;
 	status = "okay";
 };
 
