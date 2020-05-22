@@ -335,7 +335,7 @@ config MMC_PCI
 
 config MMC_OCTEONTX
 	bool "Marvell Octeon Multimedia Card Interface support"
-	depends on (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	depends on (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_OCTEONTX3)
 	depends on DM_MMC
 	help
 	  This selects the Octeon Multimedia card Interface.
