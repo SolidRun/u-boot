@@ -70,7 +70,7 @@ fi
 stty -F $port raw ignbrk time 5 $default_baudrate
 counter=0
 while [ $counter -lt $pattern_repeat ]; do
-    echo -n -e "0xBB\x11\x22\x33\x44\x55\x66\x77" >> $tmpfile
+    echo -n -e "\xBB\x11\x22\x33\x44\x55\x66\x77" >> $tmpfile
     let counter=counter+1
 done
 
