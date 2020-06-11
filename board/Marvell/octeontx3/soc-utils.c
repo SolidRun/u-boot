@@ -42,12 +42,9 @@ u8 read_partvar(void)
 	return ((read_midr() >> 20) & 0xF);
 }
 
-#define FUS_CACHE0_REG 0x87e003001000
 u8 read_partnum(void)
 {
-	u64 fus_cache0 = readq(FUS_CACHE0_REG);
-
-	return (u8)(fus_cache0 & 0xff);
+	return ((read_midr() >> 4) & 0xFF);
 }
 
 const char *read_board_name(void)
