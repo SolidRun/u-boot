@@ -39,6 +39,10 @@
 	};
 };
 
+&cp0_pcie0{
+	status = "disabled";
+};
+
 &cp1_ethernet {
 	status = "okay";
 };
