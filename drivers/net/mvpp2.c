@@ -63,6 +63,25 @@ do {									\
 #define MTU			1500
 #define RX_BUFFER_SIZE		(ALIGN(MTU + WRAP, ARCH_DMA_MINALIGN))
 
+/* Common PHY */
+#define COMPHY_TRX_TRAIN_CTRL_REG_0_OFFS	0xA2C
+#define COMPHY_TRX_TRAIN_COMPHY_OFFS		0x1000
+#define COMPHY_TRX_TRAIN_RX_TRAIN_ENABLE	0x1
+#define COMPHY_TRX_RELATIVE_ADDR(comphy_num)				      \
+				  (priv->sdip_base +			      \
+				   COMPHY_TRX_TRAIN_CTRL_REG_0_OFFS +	      \
+				   (comphy_num) * COMPHY_TRX_TRAIN_COMPHY_OFFS)
+
+#define COMPHY_SEL_REG_OFFS			0x140
+#define COMPHY2_SEL_BIT_OFFS			8
+#define COMPHY4_SEL_BIT_OFFS			16
+#define COMPHY2_SEL_MASK			0xF00
+#define COMPHY4_SEL_MASK			0xF000
+#define COMPHY2_MODE_CHECK(val)						      \
+			(((val) & COMPHY2_SEL_MASK) >> COMPHY2_SEL_BIT_OFFS)
+#define COMPHY4_MODE_CHECK(val)						      \
+			(((val) & COMPHY4_SEL_MASK) >> COMPHY4_SEL_BIT_OFFS)
+
 /* RX Fifo Registers */
 #define MVPP2_RX_DATA_FIFO_SIZE_REG(port)	(0x00 + 4 * (port))
 #define MVPP2_RX_ATTR_FIFO_SIZE_REG(port)	(0x20 + 4 * (port))
@@ -881,6 +900,8 @@ struct mvpp2 {
 	void __iomem *mpcs_base;
 	void __iomem *xpcs_base;
 	void __iomem *rfu1_base;
+
+	void __iomem *sdip_base;
 
 	u32 netc_config;
 
@@ -4670,7 +4691,8 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 {
 	struct mvpp2 *priv = port->priv;
 	struct mvpp2_txq_pcpu *txq_pcpu;
-	int queue, cpu, err;
+	int queue, cpu, err, comphy_num;
+	u32 val;
 
 	if (port->first_rxq + rxq_number >
 	    MVPP2_MAX_PORTS * priv->max_port_rxqs)
@@ -4762,6 +4784,32 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 	err = mvpp2_swf_bm_pool_init(port);
 	if (err)
 		return err;
+
+	/* Force rx training on 10G port */
+	if (port->phy_interface == PHY_INTERFACE_MODE_SFI) {
+		if (port->gop_id == 2) { /* 10G port2 associated with comphy4 */
+			comphy_num = 4;
+		/* check whether COMPHY 2 or 4 is set to SFI mode */
+		} else {
+			val = readl(priv->rfu1_base + COMPHY_SEL_REG_OFFS);
+			if (COMPHY2_MODE_CHECK(val) == 1) {
+				comphy_num = 2;
+			} else if (COMPHY4_MODE_CHECK(val) == 2) {
+				comphy_num = 4;
+			} else { /* should not reach here */
+				netdev_err(port->dev,
+					   "Failed to find COMPHY lane\n");
+				return 0;
+			}
+		}
+
+		val = readl(COMPHY_TRX_RELATIVE_ADDR(comphy_num));
+		val |= COMPHY_TRX_TRAIN_RX_TRAIN_ENABLE;
+		writel(val, COMPHY_TRX_RELATIVE_ADDR(comphy_num));
+		mdelay(200);
+		val &= ~COMPHY_TRX_TRAIN_RX_TRAIN_ENABLE;
+		writel(val, COMPHY_TRX_RELATIVE_ADDR(comphy_num));
+	}
 
 	return 0;
 }
@@ -5355,6 +5403,8 @@ static int mvpp2_base_probe(struct udevice *dev)
 		priv->mpcs_base = priv->iface_base + MVPP22_MPCS;
 		priv->xpcs_base = priv->iface_base + MVPP22_XPCS;
 		priv->rfu1_base = priv->iface_base + MVPP22_RFU1;
+
+		priv->sdip_base = (void *)devfdt_get_addr_index(dev, 2);
 	}
 
 	if (priv->hw_version == MVPP21)
