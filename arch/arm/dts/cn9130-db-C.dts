@@ -231,3 +231,7 @@
 &cp0_sata0 {
 	status = "okay";
 };
+
+&cp0_pcie0{
+	status = "disabled";
+};
