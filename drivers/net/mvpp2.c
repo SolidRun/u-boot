@@ -76,7 +76,7 @@ do {									\
 #define COMPHY2_SEL_BIT_OFFS			8
 #define COMPHY4_SEL_BIT_OFFS			16
 #define COMPHY2_SEL_MASK			0xF00
-#define COMPHY4_SEL_MASK			0xF000
+#define COMPHY4_SEL_MASK			0xF0000
 #define COMPHY2_MODE_CHECK(val)						      \
 			(((val) & COMPHY2_SEL_MASK) >> COMPHY2_SEL_BIT_OFFS)
 #define COMPHY4_MODE_CHECK(val)						      \
