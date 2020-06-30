@@ -12,8 +12,10 @@
 #error "CONFIG_FIT and CONFIG_OF_LIBFDT are required for auto-update feature"
 #endif
 
-#if defined(CONFIG_UPDATE_TFTP) && !defined(CONFIG_MTD_NOR_FLASH)
-#error "CONFIG_UPDATE_TFTP and !CONFIG_MTD_NOR_FLASH needed for legacy behaviour"
+#if defined(CONFIG_UPDATE_TFTP) && \
+	!(defined(CONFIG_MTD_NOR_FLASH) || defined(CONFIG_SPI_FLASH_MTD))
+#error "CONFIG_UPDATE_TFTP and !(CONFIG_MTD_NOR_FLASH || CONFIG_SPI_FLASH_MTD) \
+	needed for legacy behaviour"
 #endif
 
 #include <command.h>
@@ -25,6 +27,7 @@
 #include <dfu.h>
 #include <errno.h>
 #include <mtd/cfi_flash.h>
+#include <spi_flash.h>
 
 /* env variable holding the location of the update file */
 #define UPDATE_FILE_ENV		"updatefile"
@@ -169,11 +172,9 @@ static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
 
 	return 0;
 }
-#endif
 
-static int update_flash(ulong addr_source, ulong addr_first, ulong size)
+static int update_nor_flash(ulong addr_source, ulong addr_first, ulong size)
 {
-#ifdef CONFIG_MTD_NOR_FLASH
 	ulong addr_last = addr_first + size - 1;
 
 	/* round last address to the sector boundary */
@@ -209,8 +210,86 @@ static int update_flash(ulong addr_source, ulong addr_first, ulong size)
 		printf("Error: could not protect flash sectors\n");
 		return 1;
 	}
-#endif
+
 	return 0;
+}
+#elif defined(CONFIG_SPI_FLASH_MTD)
+static int update_spi_flash(ulong addr_source, ulong addr_first, ulong size)
+{
+	struct spi_flash *flash;
+	u32 flash_offs = (u32)addr_first;
+	u32 length = (u32)size;
+	u32 erase_bytes;
+	void *buf = (void *)addr_source;
+	int ret;
+
+	if (addr_first != flash_offs || size != length) {
+		printf("Error: Address or size is larger then U32_MAX\n");
+		return -EINVAL;
+	}
+
+	/* Probe the SPI bus to get the flash device */
+	flash = spi_flash_probe(CONFIG_ENV_SPI_BUS,
+				CONFIG_ENV_SPI_CS,
+				CONFIG_SF_DEFAULT_SPEED,
+				CONFIG_SF_DEFAULT_MODE);
+	if (!flash) {
+		printf("Error: Failed to probe SPI Flash\n");
+		return -ENOMEDIUM;
+	}
+
+	if (flash_offs % flash->erase_size) {
+		printf("Error: Address 0x%08lx is misaligned\n",
+		       flash_offs);
+		return -EFAULT;
+	}
+
+	erase_bytes = length +
+			(flash->erase_size - length % flash->erase_size);
+	if ((flash_offs + erase_bytes) > flash->size) {
+		printf("Error: end address exceeds addressing space\n");
+		return -EFAULT;
+	}
+
+#ifdef CONFIG_SPI_FLASH_PROTECTION
+	ret = spi_flash_protect(flash, addrflash_offs_flash, length, 0);
+	if (ret) {
+		printf("Error: could not unprotect flash sectors\n");
+		return ret;
+	}
+#endif
+	printf("Erasing 0x%08lx - 0x%08lx ... ",
+	       flash_offs, flash_offs + erase_bytes);
+	ret = spi_flash_erase(flash, flash_offs, erase_bytes);
+	if (ret) {
+		printf("Error: could not erase flash\n");
+		return ret;
+	}
+
+	printf("Copying to flash ...");
+	ret = spi_flash_write(flash, flash_offs, length, buf);
+	if (ret) {
+		printf("Error: could not copy to flash\n");
+		return ret;
+	}
+	printf("done\n");
+
+#ifdef CONFIG_SPI_FLASH_PROTECTION
+	ret = spi_flash_protect(flash, addrflash_offs_flash, length, 1);
+	if (ret)
+		printf("Error: could not protect flash sectors\n");
+#endif
+	return ret;
+}
+#endif /* CONFIG_MTD_NOR_FLASH || CONFIG_SPI_FLASH_MTD */
+
+static int update_flash(ulong addr_source, ulong addr_first, ulong size)
+{
+#ifdef CONFIG_MTD_NOR_FLASH
+	return update_nor_flash(addr_source, addr_first, size);
+#elif defined(CONFIG_SPI_FLASH_MTD)
+	return update_spi_flash(addr_source, addr_first, size);
+#endif
 }
 
 static int update_fit_getparams(const void *fit, int noffset, ulong *addr,
@@ -257,8 +336,8 @@ int update_tftp(ulong addr, char *interface, char *devstring)
 	/* get the file name of the update file */
 	filename = env_get(UPDATE_FILE_ENV);
 	if (filename == NULL) {
-		printf("failed, env. variable '%s' not found\n",
-							UPDATE_FILE_ENV);
+		printf("Skip auto-update, env. variable '%s' not found\n",
+		       UPDATE_FILE_ENV);
 		return 1;
 	}
 
