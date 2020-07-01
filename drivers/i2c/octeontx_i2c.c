@@ -81,6 +81,9 @@
 #define TWSI_TWSI_SW		0x1008
 #define TWSI_INT		0x1010
 #define TWSI_SW_TWSI_EXT	0x1018
+#define TWSI_MODE		0x1038
+
+#define FREQ_400KHZ		400000
 
 union twsx_sw_twsi {
 	u64 u;
@@ -97,6 +100,18 @@ union twsx_sw_twsi {
 		u64 eia:1;
 		u64 slonly:1;
 		u64 v:1;
+	} s;
+};
+
+union twsx_mode {
+	u64 u;
+	struct {
+		u64 hs_mode:1;
+		u64 stretch:1;
+		u64 block_mode:1;
+		u64 bus_mon_rst:1;
+		u64 refclk_src:1;
+		u64 reserved_5_63:59;
 	} s;
 };
 
@@ -776,11 +791,13 @@ static int twsi_read_data(void *baseaddr, u8 slave_addr,
 	return 0;
 }
 
-static void twsi_calc_div(unsigned int speed, int *m_div, int *n_div)
+static void twsi_calc_div(unsigned int speed, int *m_div, int *n_div,
+			  int *thp_div)
 {
-	int io_clock_hz;
+	int io_clock_hz, act_speed;
 	int tclk, fsamp;
-	int ndiv, mdiv;
+	int ndiv, mdiv, ds = 10, thp = TWSI_THP;
+	int delta = 1000000, calc_delta;
 
 #if defined(CONFIG_ARCH_OCTEONTX)
 	io_clock_hz = octeontx_get_io_clock();
@@ -788,7 +805,13 @@ static void twsi_calc_div(unsigned int speed, int *m_div, int *n_div)
 #elif defined(CONFIG_ARCH_OCTEONTX2)
 	/* Refclk src in mode register defaults to 100MHz clock */
 	io_clock_hz = 100000000; /* 100 Mhz */
-	tclk = io_clock_hz / (TWSI_THP + 2);
+	/* Use SCLK for higher speeds */
+	if (speed > FREQ_400KHZ) {
+		io_clock_hz = octeontx_get_io_clock();
+		ds = 15;
+		thp = 2;
+	}
+	tclk = io_clock_hz / (thp + 2);
 #endif
 	debug("%s( io_clock %u tclk %u)\n", __func__, io_clock_hz, tclk);
 
@@ -804,25 +827,57 @@ static void twsi_calc_div(unsigned int speed, int *m_div, int *n_div)
 	 */
 	for (ndiv = 0; ndiv < 8; ndiv++) {
 		fsamp = tclk / (1 << ndiv);
-		mdiv = fsamp / speed / 10;
-		mdiv -= 1;
-		if (mdiv < 16)
-			break;
+		for (mdiv = 0; mdiv < 16; mdiv++) {
+			act_speed = fsamp / ds;
+			act_speed /= (mdiv + 1);
+
+			debug("fsamp %u n %u m %u\n", fsamp, ndiv, mdiv);
+			debug("Actual speed %u\n", act_speed);
+			if (act_speed > speed)
+				continue;
+
+			calc_delta = speed - act_speed;
+			debug("calc_delta %u delta %u\n", calc_delta, delta);
+			if (calc_delta < delta) {
+				delta = calc_delta;
+				*m_div = mdiv;
+				*n_div = ndiv;
+				*thp_div = thp;
+				debug("mdiv %u ndiv %u thp %u\n", *m_div,
+				      *n_div, *thp_div);
+			}
+		}
 	}
-	*m_div = mdiv;
-	*n_div = ndiv;
 }
 
 static int twsi_init(void *baseaddr, unsigned int speed, int slaveaddr)
 {
-	int n_div, m_div;
+	int n_div, m_div, thp;
 	union twsx_sw_twsi sw_twsi;
+	union twsx_mode mode;
 
 	debug("%s(%p, %u, 0x%x)\n", __func__, baseaddr, speed, slaveaddr);
 
-	twsi_calc_div(speed, &m_div, &n_div);
+	twsi_calc_div(speed, &m_div, &n_div, &thp);
 	if (m_div >= 16)
 		return -1;
+
+	mode.u = readq(baseaddr + TWSI_MODE);
+	if (speed > FREQ_400KHZ) {
+		mode.s.hs_mode = 1;
+		mode.s.refclk_src = 1;
+	} else {
+		mode.s.hs_mode = 0;
+		mode.s.refclk_src = 0;
+	}
+	writeq(mode.u, baseaddr + TWSI_MODE);
+
+	sw_twsi.u = 0;
+	sw_twsi.s.v = 1;	/* Clear valid bit */
+	sw_twsi.s.op = 0x4;	/* TWSI_CLK register */
+	sw_twsi.s.r = 0;
+	sw_twsi.s.data = thp;
+	twsi_write_sw(baseaddr, sw_twsi);
 
 	sw_twsi.u = 0;
 	sw_twsi.s.v = 1;	/* Clear valid bit */
@@ -897,15 +952,33 @@ static int octeontx_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 static int octeontx_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 {
 	struct octeontx_twsi *twsi = dev_get_priv(bus);
-	int m_div, n_div;
+	int m_div, n_div, thp;
 	union twsx_sw_twsi sw_twsi;
+	union twsx_mode mode;
 	void *baseaddr = twsi->baseaddr;
 
 	debug("%s(%p, %u)\n", __func__, bus, speed);
 
-	twsi_calc_div(speed, &m_div, &n_div);
+	twsi_calc_div(speed, &m_div, &n_div, &thp);
 	if (m_div >= 16)
 		return -1;
+
+	mode.u = readq(baseaddr + TWSI_MODE);
+	if (speed > FREQ_400KHZ) {
+		mode.s.hs_mode = 1;
+		mode.s.refclk_src = 1;
+	} else {
+		mode.s.hs_mode = 0;
+		mode.s.refclk_src = 0;
+	}
+	writeq(mode.u, baseaddr + TWSI_MODE);
+
+	sw_twsi.u = 0;
+	sw_twsi.s.v = 1;	/* Clear valid bit */
+	sw_twsi.s.op = 0x4;	/* TWSI_CLK register */
+	sw_twsi.s.r = 0;
+	sw_twsi.s.data = thp;
+	twsi_write_sw(baseaddr, sw_twsi);
 
 	sw_twsi.u = 0;
 	sw_twsi.s.v = 1;		/* Clear valid bit */
