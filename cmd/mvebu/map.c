@@ -76,7 +76,7 @@
 #define AMB_ATTR_OFFSET			8
 #define AMB_ATTR_MASK			0xFF
 #define AMB_SIZE_OFFSET			16
-#define AMB_SIZE_MASK			0xFF
+#define AMB_SIZE_MASK			0xFFFF
 
 #define AMB_WIN_BASE_OFFSET(ap, cp, win) (MVEBU_AMB_ADEC_BASE(ap, cp) + \
 						0x4 + 0x8 * (win))
