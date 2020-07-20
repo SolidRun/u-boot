@@ -29,11 +29,11 @@ int mvebu_efuse_ld_read(struct udevice *dev, int row_id, u32 *val)
 	ctrl_reg = priv->control_reg;
 	row_widths = priv->pdata->row_bit_width;
 
-	/* when read_only flag is set, which means read LD0 */
+	/* when ID eFUSE Select bit is set, which means read LD1 */
 	if (device_is_compatible(dev, "marvell,mvebu-fuse-ld-user"))
-		clrbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
-	else
 		setbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
+	else
+		clrbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
 
 	for (i = 0; i < GET_LEN(row_widths); i++)
 		*(val + i) = readl(otp_mem + 4 * i);
@@ -54,7 +54,7 @@ int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
 	ctrl_reg = priv->control_reg;
 	row_widths = priv->pdata->row_bit_width;
 
-	if (device_is_compatible(dev, "marvell,mvebu-fuse-ld-user")) {
+	if (device_is_compatible(dev, "marvell,mvebu-fuse-ld-prop")) {
 		printf("This efuse row is LD0 and read-only\n");
 		return -EINVAL;
 	}
