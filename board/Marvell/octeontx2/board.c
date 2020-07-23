@@ -353,8 +353,8 @@ int board_late_init(void)
 	str = fdt_get_board_revision();
 	if (str) {
 		snprintf(boardrev, sizeof(boardrev), "%s", str);
-		str = env_get("boardrev");
-		if (strcmp(boardrev, str))
+		if (env_get("boardrev") &&
+		    strcmp(boardrev, env_get("boardrev")))
 			save_env = true;
 		env_set("boardrev", boardrev);
 	}
@@ -362,8 +362,8 @@ int board_late_init(void)
 	str = fdt_get_board_serial();
 	if (str) {
 		snprintf(boardserial, sizeof(boardserial), "%s", str);
-		str = env_get("serial#");
-		if (strcmp(boardserial, str))
+		if (env_get("serial#") &&
+		    strcmp(boardserial, env_get("serial#")))
 			save_env = true;
 		env_set("serial#", boardserial);
 	}
