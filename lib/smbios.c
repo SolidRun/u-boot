@@ -95,6 +95,20 @@ struct smbios_write_method {
 	const char *subnode_name;
 };
 
+struct smbios_type8 type8_data[3] = {
+	{
+		0, 0, 0, 0, 0xFF, 0,  DMTF_TYPE8_RJ45, DMTF_TYPE8_NETWORK_PORT
+	},
+
+	{
+		0, 0, 0, 0, DMTF_TYPE8_ACCESS_BUS, 0,  DMTF_TYPE8_ACCESS_BUS, DMTF_TYPE8_USB
+	},
+
+	{
+		0, 0, 0, 0, DMTF_TYPE8_ACCESS_BUS, 0,  DMTF_TYPE8_ACCESS_BUS, DMTF_TYPE8_USB
+	},
+};
+
 /**
  * smbios_add_string() - add a string to the string area
  *
@@ -509,6 +523,43 @@ static int smbios_write_type7(ulong *current, int handle)
 	return len;
 }
 
+static int smbios_write_type8_dm(ulong *current, int handle, int index)
+{
+	struct smbios_type8 *t;
+	int len = sizeof(struct smbios_type8);
+
+	char type8_reference_designator[MAX_PORTS][10] = {
+		"RJ45", "USB 1", "USB 2"
+	};
+
+	t = map_sysmem(*current, len);
+	memset(t, 0, sizeof(struct smbios_type8));
+	fill_smbios_header(t, SMBIOS_PORT_INFORMATION, len, handle + index);
+
+	t->internal_reference_designator = smbios_add_string(t->eos, type8_reference_designator[index]);
+	t->external_reference_designator = smbios_add_string(t->eos, type8_reference_designator[index]);
+
+	t->internal_connector_type = type8_data[index].internal_connector_type;
+	t->external_connector_type = type8_data[index].external_connector_type;
+	t->port_type = type8_data[index].port_type;
+
+	len = t->length + smbios_string_table_len(t->eos);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type8(ulong *current, int handle)
+{
+	u32 no_of_handles = MAX_PORTS, i = 0, len = 0;
+
+	for (; i < no_of_handles; i++)
+		len += smbios_write_type8_dm(current, handle, i);
+
+	return len;
+}
+
 static int smbios_write_type32(ulong *current, int handle,
 			       struct smbios_ctx *ctx)
 {
@@ -549,6 +600,7 @@ static struct smbios_write_method smbios_write_funcs[] = {
 	{ smbios_write_type3, "chassis", },
 	{ smbios_write_type4, },
 	{ smbios_write_type7, },
+	{ smbios_write_type8, },
 	{ smbios_write_type32, },
 	{ smbios_write_type127 },
 };
