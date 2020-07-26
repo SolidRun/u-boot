@@ -16,6 +16,9 @@
 #ifdef CONFIG_BOARD_CONFIG_EEPROM
 #include <mvebu/cfg_eeprom.h>
 #endif
+#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+#include <asm/armv8/sec_firmware.h>
+#endif
 
 #define CP_USB20_BASE_REG(cp, p)	(MVEBU_REGS_BASE_CP(0, cp) + \
 						0x00580000 + 0x1000 * (p))
@@ -117,5 +120,18 @@ int board_late_init(void)
 	if (init_bootcmd_console())
 		printf("Failed to init bootcmd input\n");
 #endif
+	return 0;
+}
+
+void ft_cpu_setup(void *blob, bd_t *bd)
+{
+#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+	fdt_fixup_kaslr(blob);
+#endif
+}
+
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
 	return 0;
 }
