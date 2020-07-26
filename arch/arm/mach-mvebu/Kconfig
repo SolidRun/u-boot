@@ -34,12 +34,16 @@ config ARMADA_XP
 config ARMADA_3700
 	bool
 	select ARM64
+	select ARCH_SUPPORT_TFABOOT
+	select ARMV8_SEC_FIRMWARE_SUPPORT
 
 # Armada 7K and 8K are very similar - use only one Kconfig symbol for both
 config ARMADA_8K
 	bool
 	select ARM64
 	select HAVE_MVEBU_EFUSE
+	select ARCH_SUPPORT_TFABOOT
+	select ARMV8_SEC_FIRMWARE_SUPPORT
 
 # Armada PLL frequency (used for NAND clock generation)
 config SYS_MVEBU_PLL_CLOCK
