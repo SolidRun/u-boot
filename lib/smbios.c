@@ -18,6 +18,8 @@
 #endif
 #include <linux/bitops.h>
 
+static u32 smbios_struct_count;
+
 /* cache details in needed in type 7 */
 struct cache_details cache_data[NO_OF_CACHE] = {
 	{"CACHE-D-L1", DMTF_TYPE7_CACHE_L1, DMTF_TYPE7_SINGLE_BIT_ECC, DMTF_TYPE7_2_WAY_SET_ASSOCIATIVE, DMTF_TYPE7_DATA_CACHE, DMTF_TYPE7_32K},
@@ -133,6 +135,7 @@ static int smbios_write_type0(ulong *current, int handle)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -156,6 +159,7 @@ static int smbios_write_type1(ulong *current, int handle)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -176,6 +180,7 @@ static int smbios_write_type2(ulong *current, int handle)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -198,6 +203,7 @@ static int smbios_write_type3(ulong *current, int handle)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -297,6 +303,7 @@ static int smbios_write_type4(ulong *current, int handle)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -325,6 +332,7 @@ static int smbios_write_type7_dm(ulong *current, int handle, int index)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -362,6 +370,7 @@ static int smbios_write_type8_dm(ulong *current, int handle, int index)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -398,6 +407,7 @@ static int smbios_write_type9_dm(ulong *current, int handle, int index)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -429,6 +439,7 @@ static int smbios_write_type13(ulong *current, int handle)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -452,6 +463,7 @@ static int smbios_write_type16(ulong *current, int handle)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -479,6 +491,7 @@ static int smbios_write_type17_dm(ulong *current, int handle, int index)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -511,6 +524,7 @@ static int smbios_write_type19_dm(ulong *current, int handle, int index)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -543,6 +557,7 @@ static int smbios_write_type20_dm(ulong *current, int handle, int index)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -575,6 +590,7 @@ static int smbios_write_type41_dm(ulong *current, int handle, int index)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -600,6 +616,7 @@ static int smbios_write_type32(ulong *current, int handle)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -615,6 +632,7 @@ static int smbios_write_type127(ulong *current, int handle)
 	*current += len;
 	unmap_sysmem(t);
 
+	smbios_struct_count++;
 	return len;
 }
 
@@ -693,7 +711,7 @@ ulong write_smbios_table(ulong addr)
 	}
 	se->struct_table_address = table_addr;
 
-	se->struct_count = handle;
+	se->struct_count = smbios_struct_count;
 
 	/* calculate checksums */
 	istart = (char *)se + SMBIOS_INTERMEDIATE_OFFSET;
