@@ -12,7 +12,7 @@
 
 /* SMBIOS spec version implemented */
 #define SMBIOS_MAJOR_VER	3
-#define SMBIOS_MINOR_VER	0
+#define SMBIOS_MINOR_VER	2
 
 enum {
 	SMBIOS_STR_MAX	= 64,	/* Maximum length allowed for a string */
