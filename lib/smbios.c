@@ -362,21 +362,41 @@ static int smbios_write_type3(ulong *current, int handle,
 static void smbios_write_type4_dm(struct smbios_type4 *t,
 				  struct smbios_ctx *ctx)
 {
+	u8 proc_type = 0;
+	u8 voltage = 0;
+	u8 core_count = 0;
+	u8 core_enabled = 0;
+	u8 thread_count = 0;
+	u16 max_speed = 0;
+	u16 proc_char = 0;
+	u8 status = 0;
 	u16 processor_family = SMBIOS_PROCESSOR_FAMILY_UNKNOWN;
 	const char *vendor = "Unknown";
 	const char *name = "Unknown";
+	const char *serial_number = "Unknown";
+	const char *asset_tag = "Unknown";
+	const char *part_number = "Unknown";
+	const char *socket_designation = "Unknown";
 
 #ifdef CONFIG_CPU
 	char processor_name[49];
 	char vendor_name[49];
 	struct udevice *cpu = NULL;
+	struct cpu_info info;
 
 	uclass_find_first_device(UCLASS_CPU, &cpu);
 	if (cpu) {
 		struct cpu_plat *plat = dev_get_parent_plat(cpu);
 
-		if (plat->family)
-			processor_family = plat->family;
+		cpu_get_info(cpu, &info);
+		processor_family = is_proc_arm(info.cpu_type);
+		if (processor_family) {
+			t->processor_family = DMTF_CHECK_FAMILY2;
+			t->processor_family2 = processor_family;
+		} else {
+			t->processor_family = processor_family;
+		}
+
 		t->processor_id[0] = plat->id[0];
 		t->processor_id[1] = plat->id[1];
 
@@ -384,12 +404,37 @@ static void smbios_write_type4_dm(struct smbios_type4 *t,
 			vendor = vendor_name;
 		if (!cpu_get_desc(cpu, processor_name, sizeof(processor_name)))
 			name = processor_name;
+
+		core_count = cpu_get_count(dev);
+		status = plat->status;
+		proc_type = plat->proc_type;
+		voltage = plat->voltage;
+		core_enabled = plat->core_enabled;
+		thread_count = plat->thread_count;
+		max_speed = plat->max_speed;
+		proc_char = plat->proc_char;
+		serial_number = plat->serial_number;
+		asset_tag = plat->asset_tag;
+		part_number = plat->part_number;
+		socket_designation = plat->socket_designation;
 	}
 #endif
 
 	t->processor_family = processor_family;
 	t->processor_manufacturer = smbios_add_string(ctx, vendor);
 	t->processor_version = smbios_add_string(ctx, name);
+	t->status =  status;
+	t->processor_type = proc_type;
+	t->voltage = voltage;
+	t->core_count = core_count;
+	t->core_enabled = core_enabled;
+	t->thread_count = thread_count;
+	t->max_speed = max_speed;
+	t->processor_characteristics = proc_char;
+	t->serial_number = smbios_add_string(ctx, serial_number);
+	t->asset_tag = smbios_add_string(ctx, asset_tag);
+	t->part_number = smbios_add_string(ctx, part_number);
+	t->socket_designation = smbios_add_string(ctx, socket_designation);
 }
 
 static int smbios_write_type4(ulong *current, int handle,
@@ -405,11 +450,11 @@ static int smbios_write_type4(ulong *current, int handle,
 	t->processor_type = SMBIOS_PROCESSOR_TYPE_CENTRAL;
 	smbios_write_type4_dm(t, ctx);
 	t->status = SMBIOS_PROCESSOR_STATUS_ENABLED;
+
+	t->l1_cache_handle = 0x500;
+	t->l2_cache_handle = 0x502;
+	t->l3_cache_handle = 0xFFFF;
 	t->processor_upgrade = SMBIOS_PROCESSOR_UPGRADE_NONE;
-	t->l1_cache_handle = 0xffff;
-	t->l2_cache_handle = 0xffff;
-	t->l3_cache_handle = 0xffff;
-	t->processor_family2 = t->processor_family;
 
 	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
@@ -503,10 +548,11 @@ ulong write_smbios_table(ulong addr)
 		if (IS_ENABLED(CONFIG_OF_CONTROL) && method->subnode_name)
 			ctx.node = ofnode_find_subnode(parent_node,
 						       method->subnode_name);
-		tmp = method->write((ulong *)&addr, handle++, &ctx);
+		tmp = method->write((ulong *)&addr, handle, &ctx);
 
 		max_struct_size = max(max_struct_size, tmp);
 		len += tmp;
+		handle += 0x100;
 	}
 
 	memcpy(se->anchor, "_SM_", 4);
