@@ -371,6 +371,9 @@ int board_late_init(void)
 	val = env_get_hex("disable_ooo", 0);
 	smc_configure_ooo(val);
 
+	val = env_get_hex("enable_wfe", 0);
+	smc_configure_wfe(val);
+
 #ifdef CONFIG_NET_OCTEONTX2
 	board_late_probe_devices();
 #endif
