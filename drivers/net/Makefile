@@ -72,6 +72,7 @@ obj-$(CONFIG_NET_OCTEONTX2) += octeontx2/
 obj-$(CONFIG_NET_CN10K) += cn10k/
 obj-$(CONFIG_OCTEONTX2_CGX_INTF) += octeontx2/cgx_intf.o
 obj-$(CONFIG_OCTEONTX_SMI) += octeontx/smi.o
+obj-$(CONFIG_CN10K_ETH_INTF) += cn10k/eth_intf.o
 obj-$(CONFIG_PCH_GBE) += pch_gbe.o
 obj-$(CONFIG_PCNET) += pcnet.o
 obj-$(CONFIG_PIC32_ETH) += pic32_mdio.o pic32_eth.o
