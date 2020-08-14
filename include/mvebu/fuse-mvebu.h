@@ -31,6 +31,7 @@ struct mvebu_fuse_block_data {
 	void	*control_reg;
 	void	*target_otp_mem;
 	bool	hd_ld_flag;
+	bool	extra_bit_flag;
 	char	block_name[64];
 };
 

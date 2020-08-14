@@ -62,6 +62,7 @@
 				compatible = "marvell,mvebu-fuse-ld-prop";
 				reg = <0x400008 0x4>;
 				otp-mem = <0x400F00>;
+				extra-bit-per-63 = <1>;
 				status = "disabled";
 			};
 
@@ -69,6 +70,7 @@
 				compatible = "marvell,mvebu-fuse-ld-user";
 				reg = <0x400008 0x4>;
 				otp-mem = <0x400F00>;
+				extra-bit-per-63 = <1>;
 				status = "disabled";
 			};
 

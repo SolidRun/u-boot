@@ -13,6 +13,7 @@
 
 #define GET_LEN(width)  DIV_ROUND_UP(width, 32)
 #define ROW_WORDS_LEN	8
+#define MAX_CP_LD_BITS	252
 
 static int valid_prog_words;
 static u32 prog_val[ROW_WORDS_LEN];
@@ -44,7 +45,7 @@ int mvebu_efuse_ld_read(struct udevice *dev, int row_id, u32 *val)
 int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
 {
 	void __iomem *otp_mem, *ctrl_reg;
-	int row_base, i, row_widths;
+	int row_base, i, row_widths, real_bit;
 	struct mvebu_fuse_block_data *priv = dev_get_priv(dev);
 	u32 fuse_read_value[ROW_WORDS_LEN];
 
@@ -58,6 +59,7 @@ int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
 		printf("This efuse row is LD0 and read-only\n");
 		return -EINVAL;
 	}
+
 	/* select LD1 for fuse burn */
 	setbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
 
@@ -66,9 +68,24 @@ int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
 
 	/* enable security bit to lock LD efuse row for further programming */
 	setbits_le32(ctrl_reg, MVEBU_EFUSE_CTRL_LD_SEC_EN_MASK);
+
 	/* read fuse row value before burn fuse */
-	for (i = 0; i < GET_LEN(row_widths); i++)
-		fuse_read_value[i] = readl(otp_mem + 4 * i);
+	if (!priv->extra_bit_flag) {
+		for (i = 0; i < GET_LEN(row_widths); i++)
+			fuse_read_value[i] = readl(otp_mem + 4 * i);
+	} else {
+		for (i = 0; i < row_widths && i < MAX_CP_LD_BITS; i++) {
+			if ((i % 32) == 0)
+				fuse_read_value[i / 32] = 0;
+
+			real_bit = i + i / 63;
+			fuse_read_value[i / 32] |=
+				((readl(otp_mem + 4 * (real_bit / 32))
+					& BIT_MASK(real_bit % 32))
+					>> (real_bit % 32)) << (i % 32);
+		}
+	}
+
 	/* fuse row value burn */
 	for (i = 0; i < GET_LEN(row_widths); i++) {
 		fuse_read_value[i] |= *(new_val + i);

@@ -174,6 +174,10 @@ static int fuse_probe(struct udevice *dev)
 		(((phys_addr_t)fdtdec_get_int(blob, node,
 			"otp-mem", 0)) & 0x00ffffff));
 
+	priv->extra_bit_flag =
+		fdtdec_get_int(blob, node, "extra-bit-per-63", 0) ?
+				true : false;
+
 	if (device_is_compatible(dev, "marvell,mvebu-fuse-hd"))
 		priv->hd_ld_flag = true;
 	else
