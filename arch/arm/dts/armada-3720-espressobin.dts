@@ -119,13 +119,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc_pins>;
 	status = "disabled";
-
-	#address-cells = <1>;
-	#size-cells = <0>;
-	mmccard: mmccard@0 {
-		compatible = "mmc-card";
-		reg = <0>;
-	};
 };
 
 &spi0 {

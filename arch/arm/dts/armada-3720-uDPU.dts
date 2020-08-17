@@ -180,13 +180,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdio_pins>;
 	status = "okay";
-
-	#address-cells = <1>;
-	#size-cells = <0>;
-	mmccard: mmccard@0 {
-		compatible = "mmc-card";
-		reg = <0>;
-	};
 };
 
 &uart0 {
