@@ -311,7 +311,7 @@ static int octeontx_cmd_queue_initialize(struct udevice *dev, int queue_id,
 	/* some params are for later merge with CPT or cn83xx */
 	struct bch_q *q = &octeontx_bch_q[queue_id];
 	unsigned long paddr;
-	union bch_cmd *qb;
+	u64 *chunk_buffer;
 	int chunk = max_depth + 1;
 	int i, size;
 
@@ -321,15 +321,15 @@ static int octeontx_cmd_queue_initialize(struct udevice *dev, int queue_id,
 		return -EINVAL;
 
 	size = NQS * chunk * sizeof(u64);
-	qb = dma_alloc_coherent(size, &paddr);
-	if (!qb)
+	chunk_buffer = dma_alloc_coherent(size, &paddr);
+	if (!chunk_buffer)
 		return -ENOMEM;
 	q->base_paddr = paddr;
 	q->dev = dev;
 	q->index = 0;
 	q->max_depth = max_depth;
 	q->pool_size_m1 = pool_size;
-	q->base_vaddr = (u64 *)qb;
+	q->base_vaddr = chunk_buffer;
 
 	for (i = 0; i < NQS; i++) {
 		u64 *ixp;
@@ -338,7 +338,7 @@ static int octeontx_cmd_queue_initialize(struct udevice *dev, int queue_id,
 		int jnext = j * chunk;
 		dma_addr_t jbase = q->base_paddr + jnext * sizeof(u64);
 
-		ixp = &qb->u[inext];
+		ixp = &chunk_buffer[inext];
 		*ixp = jbase;
 	}
 
