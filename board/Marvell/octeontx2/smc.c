@@ -39,7 +39,7 @@ ssize_t smc_disable_rvu_lfs(unsigned int node)
 	return regs.regs[0];
 }
 
-ssize_t smc_configure_ooo(unsigned int val)
+ssize_t smc_configure_ooo(u64 val)
 {
 	struct pt_regs regs;
 
@@ -50,7 +50,7 @@ ssize_t smc_configure_ooo(unsigned int val)
 	return regs.regs[0];
 }
 
-ssize_t smc_configure_wfe(unsigned int val)
+ssize_t smc_configure_wfe(u64 val)
 {
 	struct pt_regs regs;
 
