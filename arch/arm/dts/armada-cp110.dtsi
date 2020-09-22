@@ -238,9 +238,7 @@
 
 			CP110_LABEL(ethernet): ethernet@0 {
 				compatible = "marvell,armada-7k-pp22";
-				reg = <0x0 0x100000>,
-				      <0x129000 0xb000>,
-				      <0x120000 0x6000>;
+				reg = <0x0 0x100000>, <0x129000 0xb000>;
 				status = "disabled";
 				dma-coherent;
 
