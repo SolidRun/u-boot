@@ -131,6 +131,9 @@
 #define SPINOR_REG_MXIC_DC_20		0x0		/* Setting dummy cycles to 20 */
 #define MXIC_MAX_DC			20		/* Maximum value of dummy cycles */
 
+/* Used for Macronix flashes only. */
+#define SPINOR_OP_RD_CR		0x15	/* Read CR register */
+
 /* Used for Spansion flashes only. */
 #define SPINOR_OP_BRWR		0x17	/* Bank register write */
 #define SPINOR_OP_BRRD		0x16	/* Bank register read */
@@ -181,6 +184,7 @@
 
 /* Configuration Register bits. */
 #define CR_QUAD_EN_SPAN		BIT(1)	/* Spansion Quad I/O */
+#define CR_TB_MX		BIT(3)	/* Macronix Top/Bottom Select */
 
 /* Status Register 2 bits. */
 #define SR2_QUAD_EN_BIT7	BIT(7)
