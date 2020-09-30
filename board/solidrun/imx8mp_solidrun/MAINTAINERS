@@ -1,0 +1,6 @@
+i.MX8MP SOLIDRUN BOARD
+M:	Tal Pilo <tal.pilo@solid-run.com>
+S:	Maintained
+F:	board/solidrun/imx8mp_solidrun/
+F:	include/configs/imx8mp_solidrun.h
+F:	configs/imx8mp_solidrun_defconfig
