@@ -2,6 +2,7 @@ if ARCH_IMX8M
 
 config IMX8M
 	bool
+	select BINMAN
 	select GICV3 if ARMV8_PSCI
 	select HAS_CAAM
 	select LTO
@@ -336,6 +337,18 @@ config TARGET_IMX8MP_DDR4_EVK
 	select ARCH_MISC_INIT
 	select SPL_CRYPTO if SPL
 
+config TARGET_IMX8MP_SOLIDRUN
+	bool "SolidRun MX8M Plus SOM based products"
+
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select FSL_BLOB
+	select ARCH_MISC_INIT
+	select EEPROM_TLV_LIB
+	select SPL_CRYPTO if SPL
+
 config TARGET_PICO_IMX8MQ
 	bool "Support Technexion Pico iMX8MQ"
 	select IMX8MQ
@@ -477,6 +490,7 @@ source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/polyhex/imx8mp_debix_model_a/Kconfig"
 source "board/purism/librem5/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
+source "board/solidrun/imx8mp_solidrun/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
 source "board/variscite/imx8mn_var_som/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
