@@ -923,6 +923,7 @@ efi_status_t efi_net_register(void)
 	struct udevice *net_dev;
 	struct efi_net_obj *netobj;
 	int dev_idx;
+	efi_status_t r;
 	uchar mac_addr[ARP_HLEN];
 
 	net_dev = NULL;
@@ -1132,6 +1133,12 @@ out_of_resources:
 	while (dev_idx--)
 		free(net_dev_array[dev_idx]);
 	/* free(transmit_buffer) not needed yet */
+	free(transmit_buffer);
+	if (receive_buffer)
+		for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++)
+			free(receive_buffer[i]);
+	free(receive_buffer);
+	free(receive_lengths);
 	printf("ERROR: Out of memory\n");
 	return EFI_OUT_OF_RESOURCES;
 }
