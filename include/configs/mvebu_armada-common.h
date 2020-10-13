@@ -114,11 +114,9 @@
 #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
 
 #ifdef CONFIG_MVEBU_NAND_BOOT
-/* In case of NAND, we want to start the environment on page boundary
- * Linux DTS uses 2MB partition size for u-boot.
- */
+/* In case of NAND, we want to start the environment on page boundary */
 #define CONFIG_ENV_SIZE			(256 << 10)
-#define CONFIG_ENV_OFFSET		(0x200000 - CONFIG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET		(0x400000 - CONFIG_ENV_SIZE)
 
 #else /* !CONFIG_MVEBU_NAND_BOOT */
 /*
