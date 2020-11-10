@@ -392,7 +392,8 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 	efi_restore_gd();
 
 out:
-	free(load_options);
+	if (load_options)
+		free(load_options);
 
 	if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
 		if (efi_initrd_deregister() != EFI_SUCCESS)
