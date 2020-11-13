@@ -20,6 +20,206 @@
 		serial1 = &uart1;
 	};
 
+	uboot-smbios {
+		type0 {
+			#bios-char-cells = <2>;
+			bios-chars = <0x10880 0x0>;
+			bios-chars-ext1 = <0x01>;
+			bios-chars-ext2 = <0x08>;
+		};
+
+		type1 {
+			manufacturer = "Marvell";
+			prod-name = "OcteonTX2";
+			wakeup-type = <0x08>;
+		};
+
+		type3 {
+			manufacturer = "Marvell";
+			type = <0x17>;
+		};
+
+		type4@0 {
+			socket = "Socket 0";
+			processor-type = <0x03>;
+			processor-family = <0xFE>;
+			processor-family2 = <0x101>;
+			processor-manufacturer = "Marvell";
+			processor-id = <0x00>;
+			processor-version = "";
+			voltage = <0x02>;
+			external-clock = <0x00>;
+			maxspeed = <0x898>;
+			curspeed = <0x898>;
+			status = "okay";
+			processor-upgrade = <0x01>;
+			serial-number = " ";
+			asset-tag = " ";
+			part-number = " ";
+			core-count = <0x18>;
+			core-enabled = <0x18>;
+			thread-count = <0x18>;
+			processor-characteristics = <0x6C>;
+		};
+
+		type7@0 {
+			socket = "CACHE-D-L1";
+			cache-config = <0x180>;
+			maxsize = <0x20>;
+			installed-size = <0x20>;
+			supported-sram = <0x48>;
+			current-sram = <0x48>;
+			cache-speed = <0x0>;
+			ecorr-type = <0x05>;
+			cache-type = <0x04>;
+			associativity = <0x04>;
+		};
+
+		type7@1 {
+			socket = "CACHE-D-L1";
+			cache-config = <0x180>;
+			maxsize = <0x30>;
+			installed-size = <0x30>;
+			supported-sram = <0x48>;
+			current-sram = <0x48>;
+			cache-speed = <0x0>;
+			ecorr-type = <0x04>;
+			cache-type = <0x03>;
+			associativity = <0x04>;
+		};
+
+		type7@2 {
+			socket = "CACHE-L2";
+			cache-config = <0x180>;
+			maxsize = <0x200>;
+			installed-size = <0x200>;
+			supported-sram = <0x48>;
+			current-sram = <0x48>;
+			cache-speed = <0x0>;
+			ecorr-type = <0x05>;
+			cache-type = <0x05>;
+			associativity = <0x08>;
+		};
+
+		type8@0 {
+			type = <0>;
+			length = <0>;
+			handle = <0>;
+			internal-reference-designator = <0>;
+			internal-connector-type = <0xFF>;
+			external-reference-designator = <0>;
+			external-connector-type = <0x0B>;
+			port-type = <0x1F>;
+		};
+
+		type8@1 {
+			type = <0>;
+			length = <0>;
+			handle = <0>;
+			internal-reference-designator = <0>;
+			internal-connector-type = <0x12>;
+			external-reference-designator = <0>;
+			external-connector_type = <0x12>;
+			port-type = <0x10>;
+		};
+
+		type8@2 {
+			type = <0>;
+			length = <0>;
+			handle = <0>;
+			internal-reference-designator = <0>;
+			internal-connector-type = <0x12>;
+			external-reference-designator = <0>;
+			external-connector-type = <0x12>;
+			port-type = <0x10>;
+		};
+
+		type9@0 {
+			slot-designation = "PCIe Slot 1";
+			slot-type = <0xA8>;
+			slot-data_bus_width = <0x0A>;
+			current-usage = <0x03>;
+			slot-length = <0x04>;
+			slot-id = <1>;
+			slot-characteristics-1 = <0x04>;
+		};
+
+		type9@1 {
+			slot-designation = "PCIe Slot 2";
+			slot-type = <0xA8>;
+			slot-data_bus_width = <0x0A>;
+			current-usage = <0x03>;
+			slot-length = <0x04>;
+			slot-id = <2>;
+			slot-characteristics-1 = <0x04>;
+		};
+
+		type13 {
+			type = <0>;
+			length = <0>;
+			handle = <0>;
+			installable-languages = <1>;
+			flags = <0>;
+			current-language = "en|US|iso8859-1";
+		};
+
+		type16 {
+			location = <0x03>;
+			use = <0x03>;
+			err-corr = <0x05>;
+			max-capacity = <0x4000000>;
+			memerr-info = <0xFFFE>;
+			mem-slots = <0x01>;
+			ext-max-capacitys = <0x000 0x00000000>;
+		};
+
+		type17@0 {
+			array-handle = <0x600>;
+			errinfo-handle = <0xFFFE>;
+			total-width = <0x48>;
+			data-width = <0x40>;
+			size = <0>;
+			ext-size = <0>;
+			form-factor = <0x09>;
+			device-set = <1>;
+			device-loc = "DDR0 DIMM0";
+			mem-type = <0x1A>;
+			nonvol-size = <0>;
+			#vol-size-cells = <2>;
+			vol-sizes = <0xFFFFFFFF 0xFFFFFFFF>;
+			#cache-size-cells = <2>;
+			cache-sizes = <0xFFFFFFFF 0xFFFFFFFF>;
+			#log-size-cells = <2>;
+			log-sizes = <0xFFFFFFFF 0xFFFFFFFF>;
+			speed = <0>;
+			configured-memory-speed = <0>;
+			attributes = <0>;
+			module-product-id = <0>;
+			minimum_voltage = <0>;
+			maximum_voltage = <0>;
+			configured_voltage = <0>;
+			serial-number = "UNKNOWN1";
+			module-manufacturer-id = "UNKNOWN2";
+			manufacturer = "UNKNOWN3";
+			part-number = "UNKNOWN4";
+		};
+
+		type19@0 {
+			start-addr = <0xFFFFFFFF>;
+			end-addr = <0xFFFFFFFF>;
+			array-handle = <0x600>;
+			part-width = <0>;
+			#ext-start-addr-cells = <2>;
+			ext-start-addrs = <0x0 0x0>;
+			#ext-end-addr-cells = <2>;
+			ext-end-addrs = <0x0 0x0>;
+		};
+
+		type32 {
+			boot-status = <0x0>;
+		};
+	};
+
 	psci {
 		compatible = "arm,psci-0.2";
 		method = "smc";
