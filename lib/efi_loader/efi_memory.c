@@ -460,7 +460,14 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 {
 	u64 len = pages << EFI_PAGE_SHIFT;
 	efi_status_t ret;
-	uint64_t addr;
+	uint64_t addr, align_addr;
+
+	/* EFI runtime data must be 64KB aligned */
+	/* Increase length to 64KB boundary */
+	if (memory_type == EFI_RUNTIME_SERVICES_DATA) {
+		len += (SZ_64K - 1);
+		len &= ~(SZ_64K - 1);
+	}
 
 	/* Check import parameters */
 	if (memory_type >= EFI_PERSISTENT_MEMORY_TYPE &&
@@ -494,6 +501,16 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	default:
 		/* UEFI doesn't specify other allocation types */
 		return EFI_INVALID_PARAMETER;
+	}
+
+	/* EFI runtime data must be 64KB aligned */
+	/* Fix up returned memory area to start at 64KB boundary */
+	if (memory_type == EFI_RUNTIME_SERVICES_DATA) {
+		align_addr = addr + (SZ_64K - 1);
+		align_addr &= ~(SZ_64K - 1);
+		len = len - (align_addr - addr);
+		addr = align_addr;
+		pages = (len >> EFI_PAGE_SHIFT);
 	}
 
 	/* Reserve that map in our memory maps */
