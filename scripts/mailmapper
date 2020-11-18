@@ -72,7 +72,10 @@ shortlog = subprocess.check_output(['git', 'shortlog', '-s', '-n'])
 
 commits_per_name = {}
 
-for line in shortlog.splitlines():
+# in Python2, 'shortlog' is a str
+#for line in shortlog.splitlines():
+# in Python3, 'shortlog' is a bytes array, convert and assign string to 'line'
+for line in (shortlog.decode(errors="replace")).splitlines():
     try:
         commits, name = line.split(None, 1)
     except ValueError:
@@ -86,7 +89,10 @@ shortlog = subprocess.check_output(['git', 'shortlog', '-s', '-n', '-e'])
 mail_vs_name = {}
 output = {}
 
-for line in shortlog.splitlines():
+# in Python2, 'shortlog' is a str
+#for line in shortlog.splitlines():
+# in Python3, 'shortlog' is a bytes array, convert and assign string to 'line'
+for line in (shortlog.decode(errors="replace")).splitlines():
     # tmp, mail = line.rsplit(None, 1) is not safe
     # because weird email addresses might include whitespaces
     try:
