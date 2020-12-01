@@ -1,8 +1,9 @@
+// SPDX-License-Identifier:    GPL-2.0+
 /*
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
- * Copyright (C) 2019 Marvell International Ltd.
+ * Copyright (C) 2020 Marvell International Ltd.
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * https://spdx.org/licenses
  */
 
 #include <common.h>
@@ -113,13 +114,14 @@ static int init_bootcmd_console(void)
 	return ret;
 }
 #endif
-
+u64 fdt_get_board_info(void);
 int board_late_init(void)
 {
 #if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
 	if (init_bootcmd_console())
 		printf("Failed to init bootcmd input\n");
 #endif
+	fdt_get_board_info();
 	return 0;
 }
 
