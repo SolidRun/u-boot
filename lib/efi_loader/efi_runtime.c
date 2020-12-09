@@ -947,7 +947,7 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
 	.get_next_variable_name = efi_get_next_variable_name,
 	.set_variable = efi_set_variable,
 	.get_next_high_mono_count = (void *)&efi_unimplemented,
-	.reset_system = &efi_reset_system_boottime,
+	.reset_system = &efi_reset_system,
 #ifdef CONFIG_EFI_RUNTIME_UPDATE_CAPSULE
 	.update_capsule = efi_update_capsule,
 	.query_capsule_caps = efi_query_capsule_caps,
