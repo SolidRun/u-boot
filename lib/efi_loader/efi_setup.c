@@ -348,6 +348,10 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+	ret = efi_spinor_protocol_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 	/* Initialize EFI runtime services */
 	ret = efi_reset_system_init();
 	if (ret != EFI_SUCCESS)

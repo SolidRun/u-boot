@@ -1032,6 +1032,9 @@ u16 *efi_create_indexed_name(u16 *buffer, size_t buffer_size, const char *name,
 			     unsigned int index);
 efi_string_t efi_convert_string(const char *str);
 
+/* Create EFI_SPI_NOR_FLASH_PROTOCOL */
+efi_status_t efi_spinor_protocol_register(void);
+
 extern const struct efi_firmware_management_protocol efi_fmp_fit;
 extern const struct efi_firmware_management_protocol efi_fmp_raw;
 
