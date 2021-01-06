@@ -12,6 +12,7 @@
 #include <efi_loader.h>
 #include <errno.h>
 #include <malloc.h>
+#include <efi_loader.h>
 
 /**
  * codepage_437 - Unicode to codepage 437 translation table
@@ -388,7 +389,7 @@ int u16_strcasecmp(const u16 *s1, const u16 *s2)
  *		> 0 if the first different u16 in s1 is greater than the
  *		corresponding u16 in s2
  */
-int u16_strncmp(const u16 *s1, const u16 *s2, size_t n)
+int __efi_runtime u16_strncmp(const u16 *s1, const u16 *s2, size_t n)
 {
 	int ret = 0;
 

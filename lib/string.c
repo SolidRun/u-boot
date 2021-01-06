@@ -21,7 +21,7 @@
 #include <linux/string.h>
 #include <linux/ctype.h>
 #include <malloc.h>
-
+#include <efi_loader.h>
 
 /**
  * strncasecmp - Case insensitive, length-limited string comparison
@@ -594,7 +594,7 @@ __used void * memcpy(void *dest, const void *src, size_t count)
  *
  * Unlike memcpy(), memmove() copes with overlapping areas.
  */
-__used void * memmove(void * dest,const void *src,size_t count)
+void * memmove(void *dest, const void *src, size_t count)
 {
 	char *tmp, *s;
 
@@ -630,7 +630,7 @@ __used void * memmove(void * dest,const void *src,size_t count)
  * @ct: Another area of memory
  * @count: The size of the area.
  */
-__used int memcmp(const void * cs,const void * ct,size_t count)
+int __efi_runtime memcmp(const void *cs, const void *ct, size_t count)
 {
 	const unsigned char *su1, *su2;
 	int res = 0;

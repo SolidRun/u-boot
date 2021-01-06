@@ -16,8 +16,12 @@
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <u-boot/crc.h>
+#include <spi_flash.h>
+#include <asm/arch/board.h>
+#include <asm/arch/smc.h>
 
 #define PART_STR_LEN 10
+__efi_runtime_data struct efi_var_file *efi_var_mem_base = (struct efi_var_file *)EFI_VAR_MEM_BASE;
 
 /* GUID used by Shim to store the MOK database */
 #define SHIM_LOCK_GUID \
@@ -31,11 +35,12 @@ static const efi_guid_t shim_lock_guid = SHIM_LOCK_GUID;
 #include <asm/arch/board.h>
 
 static struct spi_flash *flash;
-static int efi_var_offset;
+__efi_runtime_data int efi_var_offset;
+__efi_runtime_data int bus;
+__efi_runtime_data int cs;
 
 static efi_status_t __maybe_unused efi_init_spi_flash(void)
 {
-	int cs, bus;
 	unsigned int speed = CONFIG_SF_DEFAULT_SPEED;
 	unsigned int mode = CONFIG_SF_DEFAULT_MODE;
 	struct udevice *new;
@@ -92,18 +97,18 @@ static efi_status_t __maybe_unused efi_set_blk_dev_to_system_partition(void)
 	return EFI_SUCCESS;
 }
 
-efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp, loff_t *lenp,
-					    u32 check_attr_mask)
+efi_status_t __efi_runtime efi_var_collect(struct efi_var_file **bufp, loff_t *lenp,
+					   u32 check_attr_mask)
 {
 	size_t len = EFI_VAR_BUF_SIZE;
 	struct efi_var_file *buf;
 	struct efi_var_entry *var, *old_var;
 	size_t old_var_name_length = 2;
 
-	*bufp = NULL; /* Avoid double free() */
-	buf = calloc(1, len);
+	buf = (struct efi_var_file *)efi_var_mem_base;
 	if (!buf)
 		return EFI_OUT_OF_RESOURCES;
+	efi_memset_runtime(buf, 0, EFI_VAR_BUF_SIZE);
 	var = buf->var;
 	old_var = var;
 	for (;;) {
@@ -116,16 +121,15 @@ efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp, loff_t *
 			return EFI_BUFFER_TOO_SMALL;
 
 		var_name_length = (uintptr_t)buf + len - (uintptr_t)var->name;
-		memcpy(var->name, old_var->name, old_var_name_length);
-		guidcpy(&var->guid, &old_var->guid);
-		ret = efi_get_next_variable_name_int(
-				&var_name_length, var->name, &var->guid);
+		efi_memcpy_runtime(var->name, old_var->name, old_var_name_length);
+		efi_memcpy_runtime(&var->guid, &old_var->guid, sizeof(efi_guid_t));
+		ret = efi_get_next_variable_name_int(&var_name_length, var->name, &var->guid);
 		if (ret == EFI_NOT_FOUND)
 			break;
-		if (ret != EFI_SUCCESS) {
-			free(buf);
+
+		if (ret != EFI_SUCCESS)
 			return ret;
-		}
+
 		old_var_name_length = var_name_length;
 		old_var = var;
 
@@ -134,10 +138,9 @@ efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp, loff_t *
 		ret = efi_get_variable_int(var->name, &var->guid,
 					   &var->attr, &data_length, data,
 					   &var->time);
-		if (ret != EFI_SUCCESS) {
-			free(buf);
+		if (ret != EFI_SUCCESS)
 			return ret;
-		}
+
 		if ((var->attr & check_attr_mask) == check_attr_mask) {
 			var->length = data_length;
 			var = (struct efi_var_entry *)ALIGN((uintptr_t)data + data_length, 8);
@@ -163,7 +166,7 @@ efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp, loff_t *
  *
  * Return:	status code
  */
-efi_status_t efi_var_to_file(void)
+efi_status_t __efi_runtime efi_var_to_file(void)
 {
 #ifdef CONFIG_EFI_VARIABLE_FILE_STORE
 	efi_status_t ret;
@@ -176,22 +179,28 @@ efi_status_t efi_var_to_file(void)
 		goto error;
 
 #if IS_ENABLED(CONFIG_EFI_VARIABLE_IN_SPI_FLASH)
-	ret = efi_init_spi_flash();
-	if (ret != EFI_SUCCESS)
-		goto error;
-	/*
-	 * VAR Buffer size is fixed for 16K so assume the file is stored
-	 * at configured offset in data flash.
-	 * Erase sector - 64KB usually.
-	 */
-	r = spi_flash_erase(flash, efi_var_offset,
-			    flash->erase_size);
-	if (ret != EFI_SUCCESS)
-		goto error;
-	r = spi_flash_write(flash, efi_var_offset,
-			    len, (void *)map_to_sysmem((void *)buf));
-	if (r)
-		ret = EFI_DEVICE_ERROR;
+	if (systab.boottime) {
+		ret = efi_init_spi_flash();
+		if (ret != EFI_SUCCESS)
+			goto error;
+		/*
+		 * VAR Buffer size is fixed for 16K so assume the file is stored
+		 * at configured offset in data flash.
+		 * Erase sector - 64KB usually.
+		 */
+		r = spi_flash_erase(flash, efi_var_offset,
+				    flash->erase_size);
+		if (ret != EFI_SUCCESS)
+			goto error;
+		r = spi_flash_write(flash, efi_var_offset,
+				    len, (void *)map_to_sysmem((void *)buf));
+		if (r)
+			ret = EFI_DEVICE_ERROR;
+	} else {
+		/* SMC call to write variable store to flash device */
+		ret = smc_write_efi_var((u64)EFI_VAR_MEM_BASE,
+					EFI_VAR_BUF_SIZE, bus, cs);
+	}
 #else
 	loff_t actlen;
 
@@ -206,7 +215,6 @@ efi_status_t efi_var_to_file(void)
 error:
 	if (ret != EFI_SUCCESS)
 		log_err("Failed to persist EFI variables\n");
-	free(buf);
 	return ret;
 #else
 	return EFI_SUCCESS;
@@ -282,22 +290,22 @@ efi_status_t efi_var_from_file(void)
 	}
 
 #if IS_ENABLED(CONFIG_EFI_VARIABLE_IN_SPI_FLASH)
-	ret = efi_init_spi_flash();
-	if (ret != EFI_SUCCESS)
-		goto error;
-	/*
-	 * VAR Buffer size is fixed for 16K so assume the file is stored
-	 * at offset configured.
-	 */
-	r = spi_flash_read(flash, efi_var_offset, EFI_VAR_BUF_SIZE,
-			   (void *)map_to_sysmem((void *)buf));
-	len = buf->length;
+		ret = efi_init_spi_flash();
+		if (ret != EFI_SUCCESS)
+			goto error;
+		/*
+		 * VAR Buffer size is fixed for 16K so assume the file is stored
+		 * at offset configured.
+		 */
+		r = spi_flash_read(flash, efi_var_offset,
+				   EFI_VAR_BUF_SIZE, (void *)map_to_sysmem((void *)buf));
+		len = buf->length;
 #else
-	ret = efi_set_blk_dev_to_system_partition();
-	if (ret != EFI_SUCCESS)
-		goto error;
-	r = fs_read(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, EFI_VAR_BUF_SIZE,
-		    &len);
+		ret = efi_set_blk_dev_to_system_partition();
+		if (ret != EFI_SUCCESS)
+			goto error;
+		r = fs_read(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, EFI_VAR_BUF_SIZE,
+			    &len);
 #endif
 
 	if (r || len < sizeof(struct efi_var_file)) {
