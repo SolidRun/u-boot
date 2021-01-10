@@ -348,10 +348,11 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+#ifdef CONFIG_EFI_SPI_NOR_FLASH_PROTOCOL
 	ret = efi_spinor_protocol_register();
 	if (ret != EFI_SUCCESS)
 		goto out;
-
+#endif
 	/* Initialize EFI runtime services */
 	ret = efi_reset_system_init();
 	if (ret != EFI_SUCCESS)
