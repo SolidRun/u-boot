@@ -3014,8 +3014,8 @@ static int octeontx_mmc_set_output_bus_timing(struct mmc *mmc)
 
 	octeontx_mmc_calibrate_delay(mmc);
 
-	cout_delay = slot->cmd_in_taps_delay[mmc->selected_mode];
-	dout_delay = slot->data_in_taps_delay[mmc->selected_mode];
+	cout_delay = slot->cmd_out_taps_delay[mmc->selected_mode];
+	dout_delay = slot->data_out_taps_delay[mmc->selected_mode];
 
 	if (mmc->selected_mode == MMC_HS_200) {
 		snprintf(env_name, sizeof(env_name), "mmc%d_hs200_dout_delay_ps",
