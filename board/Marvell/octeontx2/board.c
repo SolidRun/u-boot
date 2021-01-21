@@ -9,6 +9,7 @@
 #include <console.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
+#include <dm/device-internal.h>
 #include <malloc.h>
 #include <errno.h>
 #include <asm/io.h>
@@ -90,6 +91,42 @@ void board_get_env_spi_bus_cs(int *bus, int *cs)
 	*cs = env_cs;
 }
 
+void probe_network_devices(bool probe)
+{
+	struct udevice *dev;
+	int err, cgx_cnt, i;
+
+	switch (read_partnum()) {
+	case CN98XX:
+		cgx_cnt = 5;
+		break;
+	case F95MM:
+		cgx_cnt = 2;
+		break;
+	case LOKI:
+	case F95O:
+		cgx_cnt = 4;
+		break;
+	default:
+		cgx_cnt = 3;
+		break;
+	}
+	/* MAC(CGX) and RVU AF devices */
+	for (i = 0; i < cgx_cnt; i++) {
+		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA059, i,
+					 &dev);
+		if (err)
+			debug("%s CGX%d device not found\n", __func__, i);
+		if (!probe)
+			device_remove(dev, DM_REMOVE_NORMAL);
+	}
+	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA065, 0, &dev);
+	if (err)
+		debug("NIC AF device not found\n");
+	if (!probe)
+		device_remove(dev, DM_REMOVE_NORMAL);
+}
+
 void board_quiesce_devices(void)
 {
 	struct uclass *uc_dev;
@@ -107,12 +144,10 @@ void board_quiesce_devices(void)
 	cgx_intf_shutdown();
 #endif
 
-	/* Removes all CGX and RVU AF devices */
-	ret = uclass_get(UCLASS_MISC, &uc_dev);
-	if (uc_dev)
-		ret = uclass_destroy(uc_dev);
-	if (ret)
-		printf("couldn't remove misc (cgx/rvu_af) devices\n");
+#ifdef CONFIG_NET_OCTEONTX2
+	/* Remove MAC(CGX) and RVU AF devices */
+	probe_network_devices(false);
+#endif
 
 	/* SMC call - removes all LF<->PF mappings */
 	smc_disable_rvu_lfs(0);
@@ -143,40 +178,6 @@ int dram_init(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_NET_OCTEONTX2
-void board_late_probe_devices(void)
-{
-	struct udevice *dev;
-	int err, cgx_cnt, i;
-
-	switch (read_partnum()) {
-	case CN98XX:
-		cgx_cnt = 5;
-		break;
-	case F95MM:
-		cgx_cnt = 2;
-		break;
-	case LOKI:
-	case F95O:
-		cgx_cnt = 4;
-		break;
-	default:
-		cgx_cnt = 3;
-		break;
-	}
-	/* Probe MAC(CGX) and NIC AF devices before Network stack init */
-	for (i = 0; i < cgx_cnt; i++) {
-		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA059, i,
-					 &dev);
-		if (err)
-			debug("%s CGX%d device not found\n", __func__, i);
-	}
-	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA065, 0, &dev);
-	if (err)
-		debug("NIC AF device not found\n");
-}
-#endif
 
 #if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
 	CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)) &&	\
@@ -379,7 +380,7 @@ int board_late_init(void)
 	smc_configure_wfe_mask(val);
 
 #ifdef CONFIG_NET_OCTEONTX2
-	board_late_probe_devices();
+	probe_network_devices(true);
 #endif
 
 #if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
