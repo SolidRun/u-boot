@@ -599,6 +599,7 @@ struct efi_device_path_acpi_path {
 #  define DEVICE_PATH_SUB_TYPE_MSG_URI		0x18
 #  define DEVICE_PATH_SUB_TYPE_MSG_SD		0x1a
 #  define DEVICE_PATH_SUB_TYPE_MSG_MMC		0x1d
+#  define DEVICE_PATH_SUB_TYPE_MSG_SPI		0x1e
 
 struct efi_device_path_atapi {
 	struct efi_device_path dp;
