@@ -55,14 +55,14 @@
 static const u32 default_cmd_out_bus_timings[MMC_MODES_END] = {
 	5000, /* MMC_LEGACY */
 	8000, /* SD_LEGACY */
-	4000, /* MMC_HS */
-	3500, /* SD_HS */
-	4000, /* MMC_HS_52 */
-	4000, /* MMC_DDR_52 */
-	3500, /* UHS_SDR12 */
-	3500, /* UHS_SDR25 */
-	3500, /* UHS_SDR50 */
-	4000, /* UHS_DDR50 */
+	2500, /* MMC_HS */
+	2000, /* SD_HS */
+	2500, /* MMC_HS_52 */
+	1500, /* MMC_DDR_52 */
+	3000, /* UHS_SDR12 */
+	2000, /* UHS_SDR25 */
+	2000, /* UHS_SDR50 */
+	1500, /* UHS_DDR50 */
 	800, /* UHS_SDR104 */
 	800, /* MMC_HS_200 */
 	800, /* MMC_HS_400 */
@@ -70,20 +70,20 @@ static const u32 default_cmd_out_bus_timings[MMC_MODES_END] = {
 };
 
 static const u32 default_cmd_in_bus_timings[MMC_MODES_END] = {
-	5000, /* MMC_LEGACY */
-	8000, /* SD_LEGACY */
+	4000, /* MMC_LEGACY */
+	4000, /* SD_LEGACY */
 	4000, /* MMC_HS */
-	3500, /* SD_HS */
+	4000, /* SD_HS */
 	4000, /* MMC_HS_52 */
 	4000, /* MMC_DDR_52 */
-	3500, /* UHS_SDR12 */
-	3500, /* UHS_SDR25 */
-	3500, /* UHS_SDR50 */
+	4000, /* UHS_SDR12 */
+	4000, /* UHS_SDR25 */
+	4000, /* UHS_SDR50 */
 	4000, /* UHS_DDR50 */
-	800, /* UHS_SDR104 */
-	800, /* MMC_HS_200 */
-	800, /* MMC_HS_400 */
-	800, /* MMC_HS_400_ES */
+	4000, /* UHS_SDR104 */
+	4000, /* MMC_HS_200 */
+	4000, /* MMC_HS_400 */
+	4000, /* MMC_HS_400_ES */
 };
 
 static void octeontx_mmc_switch_to(struct mmc *mmc);
