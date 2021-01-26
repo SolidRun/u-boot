@@ -9,8 +9,6 @@
  * Device Tree file for Marvell Armada AP806/AP807.
  */
 
-#include <dt-bindings/interrupt-controller/arm-gic.h>
-
 /dts-v1/;
 / {
 	compatible = "marvell,armada-ap806";
@@ -311,11 +309,6 @@
 				reg-io-width = <1>;
 				status = "disabled";
 
-			};
-
-			watchdog: watchdog@610000 {
-				compatible = "arm,sbsa-gwdt";
-				reg = <0x610000 0x1000>, <0x600000 0x1000>;
 			};
 
 			ap_sdhci0: sdhci@6e0000 {
