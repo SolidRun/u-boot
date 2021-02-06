@@ -158,6 +158,7 @@ void board_late_probe_devices(void)
 		cgx_cnt = 2;
 		break;
 	case LOKI:
+	case F95O:
 		cgx_cnt = 4;
 		break;
 	default:
@@ -415,6 +416,8 @@ int show_board_info(void)
 		str = "CN98XX";
 	if (otx_is_soc(F95MM))
 		str = "F95MM";
+	if (otx_is_soc(F95O))
+		str = "F95O";
 	printf("OcteonTX2 %s ARM V8 Core\n", str);
 
 	printf("Board: %s\n", fdt_get_board_model());
