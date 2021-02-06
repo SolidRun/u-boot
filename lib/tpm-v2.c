@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <tpm-common.h>
 #include <tpm-v2.h>
 #include <linux/bitops.h>
