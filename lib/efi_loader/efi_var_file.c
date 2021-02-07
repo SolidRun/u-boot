@@ -17,13 +17,14 @@
 #include <efi_variable.h>
 #include <u-boot/crc.h>
 #include <spi_flash.h>
-#ifdef CONFIG_ARCH_CN10K
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_OCTEONTX2)
 #include <asm/arch/board.h>
 #include <asm/arch/smc.h>
 #endif
 
 #define PART_STR_LEN 10
 __efi_runtime_data struct efi_var_file *efi_var_mem_base = (struct efi_var_file *)EFI_VAR_MEM_BASE;
+__efi_runtime_data struct efi_var_file *efi_var_mem_base_phy = (struct efi_var_file *)EFI_VAR_MEM_BASE;
 
 /* GUID used by Shim to store the MOK database */
 #define SHIM_LOCK_GUID \
@@ -200,7 +201,7 @@ efi_status_t __efi_runtime efi_var_to_file(void)
 			ret = EFI_DEVICE_ERROR;
 	} else {
 		/* SMC call to write variable store to flash device */
-		ret = smc_write_efi_var((u64)EFI_VAR_MEM_BASE,
+		ret = smc_write_efi_var((u64)efi_var_mem_base_phy,
 					EFI_VAR_BUF_SIZE, bus, cs);
 	}
 #else
