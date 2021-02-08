@@ -127,6 +127,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MVNETA_TXQ_CMD                           0x2448
 #define      MVNETA_TXQ_DISABLE_SHIFT            8
 #define      MVNETA_TXQ_ENABLE_MASK              0x000000ff
+#define MVNETA_RX_DISCARD_FRAME_COUNT		 0x2484
+#define MVNETA_OVERRUN_FRAME_COUNT		 0x2488
 #define MVNETA_ACC_MODE                          0x2500
 #define MVNETA_CPU_MAP(cpu)                      (0x2540 + ((cpu) << 2))
 #define      MVNETA_CPU_RXQ_ACCESS_ALL_MASK      0x000000ff
@@ -193,7 +195,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define      MVNETA_GMAC_CONFIG_FULL_DUPLEX      BIT(12)
 #define      MVNETA_GMAC_AN_DUPLEX_EN            BIT(13)
 #define      MVNETA_GMAC_SAMPLE_TX_CFG_EN        BIT(15)
-#define MVNETA_MIB_COUNTERS_BASE                 0x3080
+#define MVNETA_MIB_COUNTERS_BASE                 0x3000
 #define      MVNETA_MIB_LATE_COLLISION           0x7c
 #define MVNETA_DA_FILT_SPEC_MCAST                0x3400
 #define MVNETA_DA_FILT_OTH_MCAST                 0x3500
@@ -435,6 +437,9 @@ static void mvneta_mib_counters_clear(struct mvneta_port *pp)
 	/* Perform dummy reads from MIB counters */
 	for (i = 0; i < MVNETA_MIB_LATE_COLLISION; i += 4)
 		mvreg_read(pp, (MVNETA_MIB_COUNTERS_BASE + i));
+
+	dummy = mvreg_read(pp, MVNETA_RX_DISCARD_FRAME_COUNT);
+	dummy = mvreg_read(pp, MVNETA_OVERRUN_FRAME_COUNT);
 }
 
 /* Rx descriptors helper methods */
@@ -589,7 +594,6 @@ static void mvneta_port_up(struct mvneta_port *pp)
 	u32 q_map;
 
 	/* Enable all initialized TXs. */
-	mvneta_mib_counters_clear(pp);
 	q_map = 0;
 	for (queue = 0; queue < txq_number; queue++) {
 		struct mvneta_tx_queue *txq = &pp->txqs[queue];
@@ -842,6 +846,8 @@ static void mvneta_defaults_set(struct mvneta_port *pp)
 	mvneta_set_ucast_table(pp, -1);
 	mvneta_set_special_mcast_table(pp, -1);
 	mvneta_set_other_mcast_table(pp, -1);
+
+	mvneta_mib_counters_clear(pp);
 }
 
 /* Set unicast address */
