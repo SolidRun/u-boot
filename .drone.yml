@@ -1,0 +1,109 @@
+---
+kind: pipeline
+name: announce-start
+
+clone:
+  disable: true
+
+platform:
+  os: linux
+
+steps:
+  - name: announce
+    image: container.solid-build.xyz/drone/plugins/slack:latest
+    settings:
+      webhook:
+        from_secret: ryver_webhook
+      channel: drone
+      icon_url: https://img.icons8.com/office/80/000000/test-partial-passed.png
+      template: >
+        Start building i.MX8MQ U-Boot from {{repo.name}}/{{build.branch}} (#{{build.number}})
+
+---
+kind: pipeline
+name: build
+
+clone:
+  disable: true
+
+platform:
+  os: linux
+
+workspace:
+  path: /work
+
+steps:
+- name: fetch
+  image: container.solid-build.xyz/bsp/imx8mq-uboot-builder
+  commands:
+  - /bin/bash /entry.sh -u $(id -u) -g $(id -g) -- init --depth=1
+  - /bin/bash /entry.sh -u $(id -u) -g $(id -g) -- sync
+  - /bin/bash /entry.sh -u $(id -u) -g $(id -g) -- blobs --accept-eula
+
+- name: compile HummingBoard Pulse / microSD
+  image: container.solid-build.xyz/bsp/imx8mq-uboot-builder
+  commands:
+  - /bin/bash /entry.sh -u $(id -u) -g $(id -g) -- build -d hbp -b microsd
+
+- name: compile CuBox Pulse / microSD
+  image: container.solid-build.xyz/bsp/imx8mq-uboot-builder
+  commands:
+  - /bin/bash /entry.sh -u $(id -u) -g $(id -g) -- build -d cbp -b microsd
+
+- name: publish
+  image: plugins/s3
+  settings:
+    source: u-boot-*.bin
+    target: /public/u-boot-imx8mq/${DRONE_BUILD_NUMBER}
+    bucket: drone-artifacts
+    path_style: true
+    endpoint:
+      from_secret: minio_endpoint
+    access_key:
+      from_secret: minio_id
+    secret_key:
+      from_secret: minio_secret
+
+---
+kind: pipeline
+name: announce-success
+
+clone:
+  disable: true
+
+platform:
+  os: linux
+
+steps:
+  - name: announce
+    image: container.solid-build.xyz/drone/plugins/slack:latest
+    settings:
+      webhook:
+        from_secret: ryver_webhook
+      channel: drone
+      icon_url: https://img.icons8.com/office/80/000000/test-passed.png
+      template: >
+        {{#success build.status}}
+          Finished building i.MX8MQ U-Boot from {{repo.name}}/{{build.branch}} (#{{build.number}}).
+          
+          Assets:
+          - https://minio.cloud.solid-build.xyz/drone-artifacts/public/u-boot-imx8mq/{{build.number}}/u-boot-hbp-microsd.bin
+          - https://minio.cloud.solid-build.xyz/drone-artifacts/public/u-boot-imx8mq/{{build.number}}/u-boot-cbp-microsd.bin
+          
+        {{else}}
+          Failed building i.MX8MQ U-Boot from {{repo.name}}/{{build.branch}} (#{{build.number}}):heavy_exclamation_mark:
+          
+        {{/success}}
+        commit: {{build.commit}}
+        Author: {{build.author}}
+        {{build.message}}
+        
+        Build Logs: https://ci.solid-build.xyz/Josua-SR/u-boot/{{build.number}}
+
+depends_on:
+- build
+
+trigger:
+  status:
+  - success
+  - failure
