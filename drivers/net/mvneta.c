@@ -438,8 +438,8 @@ static void mvneta_mib_counters_clear(struct mvneta_port *pp)
 	for (i = 0; i < MVNETA_MIB_LATE_COLLISION; i += 4)
 		mvreg_read(pp, (MVNETA_MIB_COUNTERS_BASE + i));
 
-	dummy = mvreg_read(pp, MVNETA_RX_DISCARD_FRAME_COUNT);
-	dummy = mvreg_read(pp, MVNETA_OVERRUN_FRAME_COUNT);
+	mvreg_read(pp, MVNETA_RX_DISCARD_FRAME_COUNT);
+	mvreg_read(pp, MVNETA_OVERRUN_FRAME_COUNT);
 }
 
 /* Rx descriptors helper methods */
