@@ -1642,13 +1642,15 @@ static int octeontx_mmc_test_cmd(struct mmc *mmc, u32 opcode, int *statp)
 	return err;
 }
 
-static int octeontx_mmc_test_get_ext_csd(struct mmc *mmc, u32 opcode,
-					 int *statp)
+/* Currently unused, meant for future use */
+static __attribute__((unused)) int
+octeontx_mmc_test_get_ext_csd(struct mmc *mmc, u32 opcode, int *statp)
 {
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 	int err;
-	u8 ext_csd[MMC_MAX_BLOCK_LEN];
+
+	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
 
 	debug("%s(%s, %u, %p)\n",  __func__, mmc->dev->name, opcode, statp);
 	memset(&cmd, 0, sizeof(cmd));
@@ -1659,13 +1661,28 @@ static int octeontx_mmc_test_get_ext_csd(struct mmc *mmc, u32 opcode,
 
 	data.dest = (char *)ext_csd;
 	data.blocks = 1;
-	data.blocksize = MMC_MAX_BLOCK_LEN;
+	data.blocksize = mmc->read_bl_len;
 	data.flags = MMC_DATA_READ;
 
 	err = octeontx_mmc_send_cmd(mmc, &cmd, &data);
 	if (statp)
 		*statp = cmd.response[0];
 
+	if (!err) {
+		if (mmc->ext_csd[EXT_CSD_PARTITIONING_SUPPORT]
+			== ext_csd[EXT_CSD_PARTITIONING_SUPPORT] &&
+		    mmc->ext_csd[EXT_CSD_HC_WP_GRP_SIZE]
+			== ext_csd[EXT_CSD_HC_WP_GRP_SIZE] &&
+		    mmc->ext_csd[EXT_CSD_REV]
+			== ext_csd[EXT_CSD_REV] &&
+		    mmc->ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
+			== ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] &&
+		    memcmp(&mmc->ext_csd[EXT_CSD_SEC_CNT],
+			   &ext_csd[EXT_CSD_SEC_CNT], 4) == 0)
+			return 0;
+
+		err = -EBADMSG;
+	}
 	return err;
 }
 
@@ -1905,6 +1922,8 @@ static int octeontx_tune_hs400(struct mmc *mmc)
 	if (best_start < 0) {
 		printf("%s(%s): %lldMHz tuning failed for HS400\n",
 		       __func__, mmc->dev->name, slot->clock / 1000000);
+		log_info("%s/DATA_IN(HS400) %d/%d/%d %s\n", mmc->dev->name,
+			 best_start, tap, best_start + best_run, how);
 		return -EINVAL;
 	}
 	tap = best_start + best_run / 2;
@@ -1924,9 +1943,8 @@ static int octeontx_tune_hs400(struct mmc *mmc)
 			tap = best_start + 2;
 	}
 	how[tap] = '@';
-	debug("Tuning: %s\n", how);
-	debug("%s(%s): HS400 tap: best run start: %d, length: %d, tap: %d\n",
-	      __func__, mmc->dev->name, best_start, best_run, tap);
+	log_info("%s/DATA_IN(HS400) %d/%d/%d %s\n", mmc->dev->name,
+		 best_start, tap, best_start + best_run, how);
 	slot->hs400_taps = slot->hs200_taps;
 	slot->hs400_taps.s.data_in_tap = tap;
 	slot->data_in_taps_delay[MMC_HS_400] = tap * slot->host->timing_taps;
@@ -1992,14 +2010,10 @@ struct adj {
 };
 
 struct adj adj[] = {
-	{ "CMD_IN", 48, octeontx_mmc_test_cmd, MMC_CMD_SEND_STATUS,
-	  false, false, false, 2, },
-/*	{ "CMD_OUT", 32, octeontx_mmc_test_cmd, MMC_CMD_SEND_STATUS, },*/
+	{ "CMD_IN(HS200)", 48, octeontx_mmc_test_cmd, MMC_CMD_SEND_STATUS,
+	  false, true, false, 3, },
 	{ "DATA_IN(HS200)", 16, mmc_send_tuning,
 		MMC_CMD_SEND_TUNING_BLOCK_HS200, false, true, false, 2, },
-	{ "DATA_IN", 16, octeontx_mmc_test_get_ext_csd, 0, false, false,
-	  true, 2, },
-/*	{ "DATA_OUT", 0, octeontx_mmc_test_cmd, 0, true, false},*/
 	{ NULL, },
 };
 
@@ -2081,7 +2095,7 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 				write_csr(mmc, MIO_EMM_DEBUG(), emm_debug.u);
 				udelay(1);
 			}
-			for (count = 0; count < 2; count++) {
+			for (count = 0; count < adj->num_runs; count++) {
 				err = adj->test(mmc, opcode, NULL);
 				if (err) {
 					debug("%s(%s, %s): tap %d failed, count: %d, rsp_sts: 0x%llx, rsp_lo: 0x%llx\n",
@@ -2138,6 +2152,8 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 		printf("%s(%s, %s): %lldMHz tuning %s failed\n", __func__,
 		       mmc->dev->name, adj->name, slot->clock / 1000000,
 		       adj->name);
+		log_info("%s/%s %d/%d/%d %s\n", mmc->dev->name,
+			 adj->name, best_start, tap, best_start + best_run, how);
 		return -EINVAL;
 	}
 
@@ -2166,8 +2182,8 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
 		tap += tap_adj;
 	}
 	how[tap] = '@';
-	debug("%s/%s %d/%d/%d %s\n", mmc->dev->name,
-	      adj->name, best_start, tap, best_start + best_run, how);
+	log_info("%s/%s %d/%d/%d %s\n", mmc->dev->name,
+		 adj->name, best_start, tap, best_start + best_run, how);
 
 	if (is_hs200) {
 		slot->hs200_taps.u &= ~(0x3full << adj->mask_shift);
@@ -2404,6 +2420,67 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 
 	return 0;
 }
+
+static int octeontx_mmc_tune_hs200_mode(struct udevice *dev, u32 opcode)
+{
+	struct mmc *mmc = dev_to_mmc(dev);
+	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
+
+	/* MMC_HS_200 is handled internally by mmc core.
+	 * The execution path is slightly different,
+	 * however timing override holds
+	 */
+	if (mmc->selected_mode == MMC_HS_200) {
+		if (slot->in_timings_ctl & BIT(MMC_HS_200)) {
+			log_info("Tuning for %s mode has been overridden by user settings\n",
+				 mmc_mode_name(MMC_HS_200));
+			return 0;
+		}
+	}
+
+	return octeontx_mmc_execute_tuning(dev, opcode);
+}
+
+static int octeontx_mmc_tune_mode(struct mmc *mmc)
+{
+	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
+	struct octeontx_mmc_host *host = slot->host;
+	enum bus_mode mode = mmc->selected_mode;
+	int err;
+
+	/* Tuning for MMC_HS_200 mode is done by core code */
+	if (mode != MMC_HS_400 && mode != MMC_HS &&
+	    mode != MMC_HS_52 && mode != MMC_DDR_52)
+		return 0;
+
+	if (slot->in_timings_ctl & BIT(mode)) {
+		log_info("Tuning for %s mode has been overridden by user settings\n",
+			 mmc_mode_name(mode));
+		return 0;
+	}
+
+	if (mode == MMC_HS_400 && !slot->hs400_tuned) {
+		err = octeontx_tune_hs400(mmc);
+	} else {
+		err = octeontx_mmc_execute_tuning(mmc->dev, 0);
+		if (!err) {
+			u32 *timing;
+
+			timing = &slot->cmd_in_taps_delay[mmc->selected_mode];
+			*timing = slot->taps.s.cmd_in_tap * host->timing_taps;
+
+			timing = &slot->data_in_taps_delay[mmc->selected_mode];
+			*timing = slot->taps.s.data_in_tap * host->timing_taps;
+		}
+	}
+
+	if (err)
+		dev_warn(mmc->dev,
+			 "Tuning exited early due to errors (%d), running with default timings",
+			 err);
+	return err;
+}
+
 #endif /* MMC_SUPPORTS_TUNING) */
 
 /**
@@ -2539,12 +2616,10 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 	      mode.s.hs_timing, mode.s.hs200_timing, mode.s.hs400_timing);
 
 #ifdef MMC_SUPPORTS_TUNING
-	if (mmc->selected_mode == MMC_HS_400 && !slot->hs400_tuned) {
-		debug("%s: Tuning HS400 mode\n", __func__);
-		err = octeontx_tune_hs400(mmc);
-		if (err)
-			return err;
-	}
+	/* Perform tuning for all supported MMC modes */
+	err = octeontx_mmc_tune_mode(mmc);
+	if (err)
+		return err;
 #endif
 
 	return octeontx_mmc_configure_delay(mmc);
@@ -2593,8 +2668,12 @@ static void octeontx_mmc_set_timing(struct mmc *mmc)
 		timing = slot->hs200_taps;
 		break;
 	case MMC_HS_400:
-		timing = slot->hs400_tuned ?
-				slot->hs400_taps : slot->hs200_taps;
+		if (slot->hs400_tuned)
+			timing = slot->hs400_taps;
+		else if (slot->hs200_tuned)
+			timing = slot->hs200_taps;
+		else
+			timing = slot->hs400_taps; /* User overrides for timings */
 		break;
 	default:
 		timing = slot->taps;
@@ -3715,7 +3794,7 @@ static const struct dm_mmc_ops octeontx_hsmmc_ops = {
 	.get_cd = octeontx_mmc_get_cd,
 	.get_wp = octeontx_mmc_get_wp,
 #ifdef MMC_SUPPORTS_TUNING
-	.execute_tuning = octeontx_mmc_execute_tuning,
+	.execute_tuning = octeontx_mmc_tune_hs200_mode,
 #endif
 };
 
