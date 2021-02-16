@@ -42,8 +42,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MASK_CMD_CONFLICT_ERROR			BIT(8)
 
 #define SDHC_SLOT_EMMC_CTRL			0x0130
-#define ENABLE_DATA_STROBE_SHIFT		24
-#define ENABLE_DATA_STROBE			BIT(ENABLE_DATA_STROBE_SHIFT)
+#define ENABLE_DATA_STROBE			BIT(24)
+#define ENABLE_RESP_STROBE			BIT(25)
 #define SET_EMMC_RSTN_SHIFT			16
 #define EMMC_VCCQ_MASK				0x3
 #define EMMC_VCCQ_1_8V				0x1
@@ -364,7 +364,7 @@ static void xenon_emmc_phy_disable_data_strobe(struct sdhci_host *host)
 
 	/* Disable SDHC Data Strobe */
 	reg = sdhci_readl(host, SDHC_SLOT_EMMC_CTRL);
-	reg &= ~ENABLE_DATA_STROBE;
+	reg &= ~(ENABLE_DATA_STROBE | ENABLE_RESP_STROBE);
 	sdhci_writel(host, reg, SDHC_SLOT_EMMC_CTRL);
 
 	reg = sdhci_readl(host, EMMC_PHY_PAD_CONTROL1);
@@ -440,6 +440,9 @@ static void xenon_emmc_phy_strobe_delay_adj(struct sdhci_host *host)
 	/* Enable SDHC Data Strobe */
 	reg = sdhci_readl(host, SDHC_SLOT_EMMC_CTRL);
 	reg |= ENABLE_DATA_STROBE;
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+	reg |= ENABLE_RESP_STROBE;
+#endif
 	sdhci_writel(host, reg, SDHC_SLOT_EMMC_CTRL);
 
 	/* Set Data Strobe Pull down */
@@ -448,6 +451,13 @@ static void xenon_emmc_phy_strobe_delay_adj(struct sdhci_host *host)
 	reg &= ~EMMC5_1_FC_QSP_PU;
 	sdhci_writel(host, reg, EMMC_PHY_PAD_CONTROL1);
 }
+
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+static int xenon_emmc_phy_set_enhanced_strobe(struct udevice *dev)
+{
+	return 0;
+}
+#endif
 
 static int xenon_emmc_phy_config_tuning(struct sdhci_host *host)
 {
@@ -749,6 +759,8 @@ static const struct sdhci_ops xenon_sdhci_ops = {
 	.set_ios_post = xenon_sdhci_set_ios_post
 };
 
+static struct dm_mmc_ops xenon_sdhci_mmc_ops;
+
 static int xenon_sdhci_probe(struct udevice *dev)
 {
 	struct xenon_sdhci_plat *plat = dev_get_platdata(dev);
@@ -813,7 +825,10 @@ static int xenon_sdhci_probe(struct udevice *dev)
 
 	host->ops = &xenon_sdhci_ops;
 	host->max_clk = XENON_MMC_MAX_CLK;
-
+	xenon_sdhci_mmc_ops = sdhci_ops;
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+	xenon_sdhci_mmc_ops.set_enhanced_strobe = xenon_emmc_phy_set_enhanced_strobe;
+#endif
 	/* Disable auto clock gating during init */
 	xenon_mmc_set_acg(host, false);
 
@@ -898,7 +913,7 @@ U_BOOT_DRIVER(xenon_sdhci_drv) = {
 	.id		= UCLASS_MMC,
 	.of_match	= xenon_sdhci_ids,
 	.ofdata_to_platdata = xenon_sdhci_ofdata_to_platdata,
-	.ops		= &sdhci_ops,
+	.ops		= &xenon_sdhci_mmc_ops,
 	.bind		= xenon_sdhci_bind,
 	.probe		= xenon_sdhci_probe,
 	.priv_auto_alloc_size = sizeof(struct xenon_sdhci_priv),
