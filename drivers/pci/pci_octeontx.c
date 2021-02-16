@@ -225,6 +225,79 @@ static inline bool use_workaround(void)
 	return false;
 }
 
+static int pci_octeontx2_pem_bridge_read(struct udevice *bus, pci_dev_t bdf,
+					 uint offset, ulong *valuep,
+					 enum pci_size_t size)
+{
+	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
+	struct pci_controller *hose = dev_get_uclass_priv(bus);
+	uintptr_t address;
+	u32 b, d, f;
+	u64 raddr, rval;
+	uint where;
+
+	b = PCI_BUS(bdf) - hose->first_busno;
+	d = PCI_DEV(bdf);
+	f = PCI_FUNC(bdf);
+	address = (b << 20) | (d << 15) | (f << 12);
+	address += pcie->cfg.start;
+
+	debug("%s %02x.%02x.%02x: u%d %x (%lx) %lx\n",
+	      __func__, b, d, f, size, offset, address, *valuep);
+	raddr = pcie->pem.start + PEM_CFG_RD;
+
+	if (PCI_DEVFN(d, f) != 0ul) {
+		*valuep = pci_conv_32_to_size(~0UL, offset, size);
+		return 0;
+	}
+	where = offset & ~3ull;
+	writeq(where, raddr);
+	rval = readq(raddr);
+	rval >>= 32;
+	where = offset;
+
+	/* HW reset value at few config space locations are
+	 * garbage, fix them.
+	 */
+	switch (where & ~3) {
+	case 0x00: /* DevID & VenID */
+		rval = 0xA02D177D;
+		break;
+	case 0x04:
+		rval = 0x00100006;
+		break;
+	case 0x08:
+		rval = 0x06040100;
+		break;
+	case 0x0c:
+		rval = 0x00010000;
+		break;
+	case 0x18:
+		rval = 0x00010100;
+		break;
+	default:
+		break;
+	}
+
+	rval >>= (8 * (where & 3));
+	switch (size) {
+	case PCI_SIZE_8:
+		rval &= 0xff;
+		break;
+	case PCI_SIZE_16:
+		rval &= 0xffff;
+		break;
+	default:
+		break;
+	}
+	debug("%s u%d %x %llx\n", __func__, size, offset, rval);
+	*valuep = rval;
+
+	debug("%s %02x.%02x.%02x: u%d %x (%lx) -> %lx\n",
+	      __func__, b, d, f, size, offset, address, *valuep);
+	return 0;
+}
+
 static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 					 uint offset, ulong *valuep,
 					 enum pci_size_t size)
@@ -234,7 +307,7 @@ static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 	uintptr_t address;
 	u32 b, d, f;
 
-	b = PCI_BUS(bdf) + 1 - hose->first_busno;
+	b = PCI_BUS(bdf) - hose->first_busno;
 	d = PCI_DEV(bdf);
 	f = PCI_FUNC(bdf);
 
@@ -250,6 +323,10 @@ static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
 
 	if (b == 1 && d > 0)
 		return 0;
+
+	if (!b)
+		return pci_octeontx2_pem_bridge_read(bus, bdf, offset, valuep,
+						     size);
 
 	switch (size) {
 	case PCI_SIZE_8:
@@ -378,7 +455,7 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 	u32 data;
 	int tmp;
 
-	b = PCI_BUS(bdf) + 1 - hose->first_busno;
+	b = PCI_BUS(bdf) - hose->first_busno;
 	d = PCI_DEV(bdf);
 	f = PCI_FUNC(bdf);
 
@@ -395,27 +472,29 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 		return 0;
 
 	addr = (address + offset) & ~0x3UL;
-	switch (size) {
-	case PCI_SIZE_8:
-		tmp = (address + offset) & 0x3;
-		size = PCI_SIZE_32;
-		data = readl(addr);
-		debug("tmp 8 long %lx %x\n", addr, data);
-		tmp *= 8;
-		value = (data & ~(0xFFUL << tmp)) | ((value & 0xFF) << tmp);
-	break;
-	case PCI_SIZE_16:
-		tmp = (address + offset) & 0x3;
-		size = PCI_SIZE_32;
-		data = readl(addr);
-		debug("tmp 16 long %lx %x\n", addr, data);
-		tmp *= 8;
-		value = (data & 0xFFFF) | (value << tmp);
-	break;
-	case PCI_SIZE_32:
-	break;
+	if (use_workaround() || !b) {
+		switch (size) {
+		case PCI_SIZE_8:
+			tmp = (address + offset) & 0x3;
+			size = PCI_SIZE_32;
+			data = readl(addr);
+			debug("tmp 8 long %lx %x\n", addr, data);
+			tmp *= 8;
+			value = (data & ~(0xFFUL << tmp)) | ((value & 0xFF) << tmp);
+		break;
+		case PCI_SIZE_16:
+			tmp = (address + offset) & 0x3;
+			size = PCI_SIZE_32;
+			data = readl(addr);
+			debug("tmp 16 long %lx %x\n", addr, data);
+			tmp *= 8;
+			value = (data & 0xFFFF) | (value << tmp);
+		break;
+		case PCI_SIZE_32:
+		break;
+		}
+		debug("tmp long %lx %lx\n", addr, value);
 	}
-	debug("tmp long %lx %lx\n", addr, value);
 
 	if (use_workaround())
 		pci_octeontx2_pem_workaround(bus, offset, size);
