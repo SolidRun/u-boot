@@ -84,6 +84,8 @@ struct octeontx_mmc_slot {
 	/* XXXX_in_taps_delay fields controls input timings for all bus modes */
 	uint			cmd_in_taps_delay[MMC_MODES_END];
 	uint			data_in_taps_delay[MMC_MODES_END];
+	/* Following flags control in timings settngs for eMMC bus */
+	u32			in_timings_ctl;
 	uint			clk_period;
 	bool			valid:1;
 	bool			is_acmd:1;
