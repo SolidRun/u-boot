@@ -336,7 +336,7 @@ efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 
 	/* Write non-volatile EFI variables to file */
 	if ((attributes & EFI_VARIABLE_NON_VOLATILE &&
-	     ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS) || delete)
+	     ret == EFI_SUCCESS) || delete)
 		ret = efi_var_to_file();
 
 	return ret;
@@ -427,6 +427,8 @@ void efi_variables_boot_exit_notify(void)
 efi_status_t efi_init_variables(void)
 {
 	efi_status_t ret;
+	u32 mtc;
+	efi_uintn_t mtc_size = 4;
 
 	ret = efi_var_mem_init();
 	if (ret != EFI_SUCCESS)
@@ -442,6 +444,25 @@ efi_status_t efi_init_variables(void)
 			log_err("Invalid EFI variable seed\n");
 	}
 
+
+	/* Initialize high 32-bit monotonic counter */
+	ret = efi_get_variable_int(L"MTC", &efi_global_variable_guid, NULL,
+				   &mtc_size, &mtc, NULL);
+	/* Does not exist, initialize count to zero */
+	if (ret) {
+		mtc = 0;
+		log_info("Init Monotonic Count to zero\n");
+	}
+
+	/* Increment for current reset */
+	mtc++;
+	ret = efi_set_variable_int(L"MTC", &efi_global_variable_guid,
+				   EFI_VARIABLE_RUNTIME_ACCESS |
+				   EFI_VARIABLE_NON_VOLATILE |
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS,
+				   mtc_size, &mtc, false);
+	if (ret)
+		log_err("Monotonic Count variable not set\n");
 
 	return efi_init_secure_state();
 }
