@@ -187,6 +187,12 @@ int arch_early_init_r(void)
 	/* Cause the SATA device to do its early init */
 	uclass_first_device(UCLASS_AHCI, &dev);
 
+	/*
+	 * Force the SPI bus probe for cases when first bus is located
+	 * on slave CP and SPI flash is not the default boot device.
+	 */
+	uclass_first_device(UCLASS_SPI, &dev);
+
 #ifdef CONFIG_DM_PCI
 	/* Trigger PCIe devices detection */
 	pci_init();
