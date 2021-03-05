@@ -106,6 +106,8 @@
 	pinctrl-0 = <&sdio_pins>;
 	bus-width = <4>;
 	vqmmc-supply = <&vcc_sd_reg0>;
+	cd-gpios = <&gpionb 3 GPIO_ACTIVE_LOW>;
+	marvell,pad-type = "sd";
 	status = "okay";
 };
 
