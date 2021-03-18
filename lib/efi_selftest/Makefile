@@ -50,6 +50,7 @@ efi_selftest_variables_runtime.o \
 efi_selftest_watchdog.o \
 
 obj-$(CONFIG_EFI_SPI_NOR_FLASH_PROTOCOL) += efi_selftest_spinor.o
+obj-$(CONFIG_EFI_PCI_IO_PROTOCOL) += efi_selftest_pci_io.o
 
 obj-$(CONFIG_EFI_ECPT) += efi_selftest_ecpt.o
 obj-$(CONFIG_NETDEVICES) += efi_selftest_snp.o

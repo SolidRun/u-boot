@@ -829,6 +829,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			      struct efi_device_path **file);
 ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 			    const size_t maxlen);
+struct efi_device_path *efi_dp_from_pci(struct udevice *dev);
 struct efi_device_path *efi_dp_from_spi(struct udevice *flash_dev, int bus, int cs);
 
 #define EFI_DP_TYPE(_dp, _type, _subtype) \
@@ -1041,6 +1042,8 @@ efi_status_t efi_spinor_protocol_register(void);
 
 extern const struct efi_firmware_management_protocol efi_fmp_fit;
 extern const struct efi_firmware_management_protocol efi_fmp_raw;
+
+efi_status_t efi_pci_io_protocol_register(void);
 
 /* Capsule update */
 efi_status_t EFIAPI efi_update_capsule(
