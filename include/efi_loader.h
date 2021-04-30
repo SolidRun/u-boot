@@ -1060,6 +1060,9 @@ efi_status_t EFIAPI efi_query_capsule_caps(
 		u64 *maximum_capsule_size,
 		u32 *reset_type);
 
+efi_status_t efi_switch_config_protocol_register(void);
+
+
 efi_status_t efi_capsule_authenticate(const void *capsule,
 				      efi_uintn_t capsule_size,
 				      void **image, efi_uintn_t *image_size);
