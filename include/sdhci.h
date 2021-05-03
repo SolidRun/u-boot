@@ -165,6 +165,7 @@
 #define  SDHCI_CTRL_EXEC_TUNING	0x0040
 #define  SDHCI_CTRL_TUNED_CLK	0x0080
 #define  SDHCI_CTRL_PRESET_VAL_ENABLE	0x8000
+#define  SDHCI_CTRL_A64B_ADDR	0x2000
 
 #define SDHCI_CAPABILITIES	0x40
 #define  SDHCI_TIMEOUT_CLK_MASK	0x0000003F
@@ -287,9 +288,9 @@ struct sdhci_ops {
 	int	(*set_enhanced_strobe)(struct sdhci_host *host);
 };
 
-#define ADMA_MAX_LEN	65532
+#define ADMA_MAX_LEN	65536
 #ifdef CONFIG_DMA_ADDR_T_64BIT
-#define ADMA_DESC_LEN	16
+#define ADMA_DESC_LEN	12
 #else
 #define ADMA_DESC_LEN	8
 #endif
