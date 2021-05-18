@@ -465,10 +465,8 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 
 	/* EFI runtime data must be 64KB aligned */
 	/* Increase length to 64KB boundary */
-	if (memory_type == EFI_RUNTIME_SERVICES_DATA) {
+	if (memory_type == EFI_RUNTIME_SERVICES_DATA)
 		len += (SZ_64K - 1);
-		len &= ~(SZ_64K - 1);
-	}
 
 	/* Check import parameters */
 	if (memory_type >= EFI_PERSISTENT_MEMORY_TYPE &&
