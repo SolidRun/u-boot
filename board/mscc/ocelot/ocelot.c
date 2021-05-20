@@ -4,14 +4,18 @@
  */
 
 #include <common.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/addrspace.h>
 #include <asm/types.h>
-#include <environment.h>
 #include <spi.h>
 #include <led.h>
 #include <wait_bit.h>
 #include <miiphy.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

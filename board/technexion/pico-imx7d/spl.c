@@ -5,6 +5,9 @@
  * Author: Richard Hu <richard.hu@technexion.com>
  */
 
+#include <common.h>
+#include <cpu_func.h>
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
@@ -13,7 +16,7 @@
 #include <asm/arch-mx7/mx7-ddr.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/gpio.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <spl.h>
 
 #if defined(CONFIG_SPL_BUILD)
@@ -21,6 +24,10 @@
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {
+	/* Break into full U-Boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
 	return 0;
 }
 #endif
@@ -120,7 +127,7 @@ void board_init_f(ulong dummy)
 	board_init_r(NULL, 0);
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }
 
@@ -151,7 +158,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return 1;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	imx_iomux_v3_setup_multiple_pads(usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
 	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);

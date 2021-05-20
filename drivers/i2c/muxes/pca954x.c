@@ -9,6 +9,9 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <log.h>
+#include <malloc.h>
+#include <asm/global_data.h>
 
 #include <asm-generic/gpio.h>
 
@@ -17,6 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 enum pca_type {
 	PCA9543,
 	PCA9544,
+	PCA9546,
 	PCA9547,
 	PCA9548,
 	PCA9646
@@ -45,6 +49,10 @@ static const struct chip_desc chips[] = {
 	[PCA9544] = {
 		.enable = 0x4,
 		.muxtype = pca954x_ismux,
+		.width = 4,
+	},
+	[PCA9546] = {
+		.muxtype = pca954x_isswi,
 		.width = 4,
 	},
 	[PCA9547] = {
@@ -94,13 +102,14 @@ static const struct i2c_mux_ops pca954x_ops = {
 static const struct udevice_id pca954x_ids[] = {
 	{ .compatible = "nxp,pca9543", .data = PCA9543 },
 	{ .compatible = "nxp,pca9544", .data = PCA9544 },
+	{ .compatible = "nxp,pca9546", .data = PCA9546 },
 	{ .compatible = "nxp,pca9547", .data = PCA9547 },
 	{ .compatible = "nxp,pca9548", .data = PCA9548 },
 	{ .compatible = "nxp,pca9646", .data = PCA9646 },
 	{ }
 };
 
-static int pca954x_ofdata_to_platdata(struct udevice *dev)
+static int pca954x_of_to_plat(struct udevice *dev)
 {
 	struct pca954x_priv *priv = dev_get_priv(dev);
 	const struct chip_desc *chip = &chips[dev_get_driver_data(dev)];
@@ -125,7 +134,7 @@ static int pca954x_ofdata_to_platdata(struct udevice *dev)
 
 static int pca954x_probe(struct udevice *dev)
 {
-	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+	if (CONFIG_IS_ENABLED(DM_GPIO)) {
 		struct pca954x_priv *priv = dev_get_priv(dev);
 		int err;
 
@@ -146,7 +155,7 @@ static int pca954x_probe(struct udevice *dev)
 
 static int pca954x_remove(struct udevice *dev)
 {
-	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+	if (CONFIG_IS_ENABLED(DM_GPIO)) {
 		struct pca954x_priv *priv = dev_get_priv(dev);
 
 		if (dm_gpio_is_valid(&priv->gpio_mux_reset))
@@ -163,6 +172,6 @@ U_BOOT_DRIVER(pca954x) = {
 	.probe = pca954x_probe,
 	.remove = pca954x_remove,
 	.ops = &pca954x_ops,
-	.ofdata_to_platdata = pca954x_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct pca954x_priv),
+	.of_to_plat = pca954x_of_to_plat,
+	.priv_auto	= sizeof(struct pca954x_priv),
 };

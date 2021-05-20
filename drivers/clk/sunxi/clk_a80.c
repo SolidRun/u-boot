@@ -11,6 +11,7 @@
 #include <asm/arch/ccu.h>
 #include <dt-bindings/clock/sun9i-a80-ccu.h>
 #include <dt-bindings/reset/sun9i-a80-ccu.h>
+#include <linux/bitops.h>
 
 static const struct ccu_clk_gate a80_gates[] = {
 	[CLK_SPI0]		= GATE(0x430, BIT(31)),
@@ -93,7 +94,7 @@ U_BOOT_DRIVER(clk_sun9i_a80) = {
 	.name		= "sun9i_a80_ccu",
 	.id		= UCLASS_CLK,
 	.of_match	= a80_ccu_ids,
-	.priv_auto_alloc_size	= sizeof(struct ccu_priv),
+	.priv_auto	= sizeof(struct ccu_priv),
 	.ops		= &sunxi_clk_ops,
 	.probe		= sunxi_clk_probe,
 	.bind		= a80_clk_bind,

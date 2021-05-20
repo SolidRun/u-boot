@@ -7,7 +7,8 @@
 
 #include <common.h>
 #include <efi_loader.h>
-#include <asm/acpi_table.h>
+#include <log.h>
+#include <acpi/acpi_table.h>
 
 static const efi_guid_t acpi_guid = EFI_ACPI_TABLE_GUID;
 
@@ -24,7 +25,7 @@ efi_status_t efi_acpi_register(void)
 
 	/* Reserve 64kiB page for ACPI */
 	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
-				 EFI_RUNTIME_SERVICES_DATA, 16, &acpi);
+				 EFI_ACPI_RECLAIM_MEMORY, 16, &acpi);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
@@ -33,7 +34,6 @@ efi_status_t efi_acpi_register(void)
 	 * a 4k-aligned address, so it is safe to assume that
 	 * write_acpi_tables() will write the table at that address.
 	 */
-	assert(!(acpi & 0xf));
 	write_acpi_tables(acpi);
 
 	/* And expose them to our EFI payload */

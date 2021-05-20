@@ -13,13 +13,18 @@
  */
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
+#include <env.h>
+#include <gzip.h>
 #include <image.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <watchdog.h>
 #if defined(CONFIG_BZIP2)
 #include <bzlib.h>
 #endif
 #include <asm/byteorder.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 
 #ifndef CONFIG_SYS_XIMG_LEN
@@ -28,14 +33,14 @@
 #endif
 
 static int
-do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	ulong		addr = load_addr;
+	ulong		addr = image_load_addr;
 	ulong		dest = 0;
 	ulong		data, len;
 	int		verify;
 	int		part = 0;
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	ulong		count;
 	image_header_t	*hdr = NULL;
 #endif
@@ -67,7 +72,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	switch (genimg_get_format((void *)addr)) {
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
 
 		printf("## Copying part %d from legacy image "
@@ -131,7 +136,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			"at %08lx ...\n", uname, addr);
 
 		fit_hdr = (const void *)addr;
-		if (!fit_check_format(fit_hdr)) {
+		if (fit_check_format(fit_hdr, IMAGE_SIZE_INVAL)) {
 			puts("Bad FIT image format\n");
 			return 1;
 		}
@@ -217,7 +222,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			}
 			break;
 #endif
-#if defined(CONFIG_BZIP2) && defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_BZIP2) && defined(CONFIG_LEGACY_IMAGE_FORMAT)
 		case IH_COMP_BZIP2:
 			{
 				int i;

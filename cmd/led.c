@@ -54,7 +54,7 @@ static int list_leds(void)
 	for (uclass_find_first_device(UCLASS_LED, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		struct led_uc_plat *plat = dev_get_uclass_platdata(dev);
+		struct led_uc_plat *plat = dev_get_uclass_plat(dev);
 
 		if (!plat->label)
 			continue;
@@ -71,7 +71,7 @@ static int list_leds(void)
 	return 0;
 }
 
-int do_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_led(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	enum led_state_t cmd;
 	const char *led_label;
@@ -137,6 +137,6 @@ U_BOOT_CMD(
 	led, 4, 1, do_led,
 	"manage LEDs",
 	"<led_label> on|off|toggle" BLINK "\tChange LED state\n"
-	"led [<led_label>]\tGet LED state\n"
+	"led <led_label>\tGet LED state\n"
 	"led list\t\tshow a list of LEDs"
 );

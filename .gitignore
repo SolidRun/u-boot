@@ -7,6 +7,7 @@
 #
 .*
 *.a
+*.asn1.[ch]
 *.bin
 *.cfgout
 *.dtb
@@ -17,6 +18,7 @@
 *.gcda
 *.gcno
 *.i
+*.img
 *.lex.c
 *.lst
 *.mod.c
@@ -90,3 +92,6 @@ GTAGS
 *.orig
 *~
 \#*#
+
+# Python cache
+__pycache__

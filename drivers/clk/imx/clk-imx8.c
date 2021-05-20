@@ -7,6 +7,8 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/clock.h>
 #include <dt-bindings/clock/imx8qxp-clock.h>
@@ -27,7 +29,7 @@ __weak ulong imx8_clk_set_rate(struct clk *clk, unsigned long rate)
 
 __weak int __imx8_clk_enable(struct clk *clk, bool enable)
 {
-	return -ENOTSUPP;
+	return -EINVAL;
 }
 
 static int imx8_clk_disable(struct clk *clk)
@@ -49,7 +51,7 @@ int soc_clk_dump(void)
 	int i, ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-					  DM_GET_DRIVER(imx8_clk), &dev);
+					  DM_DRIVER_GET(imx8_clk), &dev);
 	if (ret)
 		return ret;
 
@@ -68,7 +70,7 @@ int soc_clk_dump(void)
 
 		clk_free(&clk);
 
-		if (ret == -ENOTSUPP) {
+		if (ret == -EINVAL) {
 			printf("clk ID %lu not supported yet\n",
 			       imx8_clk_names[i].id);
 			continue;

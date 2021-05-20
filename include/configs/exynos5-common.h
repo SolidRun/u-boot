@@ -49,8 +49,6 @@
 
 /* Boot Argument Buffer Size */
 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5E00000)
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
 #define CONFIG_RD_LVL
@@ -74,8 +72,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE	0x00000000
 
-#define CONFIG_SYS_MMC_ENV_DEV		0
-
 #define CONFIG_SECURE_BL1_ONLY
 
 /* Secure FW size configuration */
@@ -89,7 +85,6 @@
 #define CONFIG_RES_BLOCK_SIZE	(512)
 #define CONFIG_BL1_SIZE	(16 << 10) /*16 K reserved for BL1*/
 #define CONFIG_BL2_SIZE	(512UL << 10UL) /* 512 KB */
-#define CONFIG_ENV_SIZE	(16 << 10) /* 16 KB */
 
 #define CONFIG_BL1_OFFSET	(CONFIG_RES_BLOCK_SIZE + CONFIG_SEC_FW_SIZE)
 #define CONFIG_BL2_OFFSET	(CONFIG_BL1_OFFSET + CONFIG_BL1_SIZE)
@@ -108,10 +103,6 @@
 
 /* SPI */
 
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
-#endif
-
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_ENV_SROM_BANK		1
@@ -128,9 +119,9 @@
 #define EXYNOS_IRAM_SECONDARY_BASE	0x02020018
 
 #define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 2) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
-	func(MMC, mmc, 2) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 

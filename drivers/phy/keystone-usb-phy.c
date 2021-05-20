@@ -6,9 +6,13 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/device.h>
 #include <generic-phy.h>
 #include <asm/io.h>
+#include <asm/arch/psc_defs.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 /* USB PHY control register offsets */
 #define USB_PHY_CTL_UTMI		0x0000
@@ -22,14 +26,24 @@
 #define PHY_REF_SSP_EN			BIT(29)
 
 struct keystone_usb_phy {
+	u32 psc_domain;
 	void __iomem *reg;
 };
 
 static int keystone_usb_init(struct phy *phy)
 {
 	u32 val;
+	int rc;
 	struct udevice *dev = phy->dev;
 	struct keystone_usb_phy *keystone = dev_get_priv(dev);
+
+	/* Release USB from reset */
+	rc = psc_enable_module(keystone->psc_domain);
+	if (rc) {
+		debug("Cannot enable USB module");
+		return -rc;
+	}
+	mdelay(10);
 
 	/*
 	 * VBUSVLDEXTSEL has a default value of 1 in BootCfg but shouldn't.
@@ -72,12 +86,23 @@ static int keystone_usb_power_off(struct phy *phy)
 
 static int keystone_usb_exit(struct phy *phy)
 {
+	struct udevice *dev = phy->dev;
+	struct keystone_usb_phy *keystone = dev_get_priv(dev);
+
+	if (psc_disable_module(keystone->psc_domain))
+		debug("failed to disable USB module!\n");
+
 	return 0;
 }
 
 static int keystone_usb_phy_probe(struct udevice *dev)
 {
+	int rc;
 	struct keystone_usb_phy *keystone = dev_get_priv(dev);
+
+	rc = dev_read_u32(dev, "psc-domain", &keystone->psc_domain);
+	if (rc)
+		return rc;
 
 	keystone->reg = dev_remap_addr_index(dev, 0);
 	if (!keystone->reg) {
@@ -105,5 +130,5 @@ U_BOOT_DRIVER(keystone_usb_phy) = {
 	.of_match = keystone_usb_phy_ids,
 	.ops = &keystone_usb_phy_ops,
 	.probe = keystone_usb_phy_probe,
-	.priv_auto_alloc_size = sizeof(struct keystone_usb_phy),
+	.priv_auto	= sizeof(struct keystone_usb_phy),
 };

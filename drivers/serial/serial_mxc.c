@@ -9,6 +9,7 @@
 #include <watchdog.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
+#include <asm/global_data.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <serial.h>
 #include <linux/compiler.h>
@@ -264,7 +265,7 @@ __weak struct serial_device *default_serial_console(void)
 
 int mxc_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct mxc_serial_platdata *plat = dev->platdata;
+	struct mxc_serial_plat *plat = dev_get_plat(dev);
 	u32 clk = imx_get_uartclk();
 
 	_mxc_serial_setbrg(plat->reg, clk, baudrate, plat->use_dte);
@@ -274,7 +275,7 @@ int mxc_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int mxc_serial_probe(struct udevice *dev)
 {
-	struct mxc_serial_platdata *plat = dev->platdata;
+	struct mxc_serial_plat *plat = dev_get_plat(dev);
 
 	_mxc_serial_init(plat->reg, plat->use_dte);
 
@@ -283,7 +284,7 @@ static int mxc_serial_probe(struct udevice *dev)
 
 static int mxc_serial_getc(struct udevice *dev)
 {
-	struct mxc_serial_platdata *plat = dev->platdata;
+	struct mxc_serial_plat *plat = dev_get_plat(dev);
 	struct mxc_uart *const uart = plat->reg;
 
 	if (readl(&uart->ts) & UTS_RXEMPTY)
@@ -294,7 +295,7 @@ static int mxc_serial_getc(struct udevice *dev)
 
 static int mxc_serial_putc(struct udevice *dev, const char ch)
 {
-	struct mxc_serial_platdata *plat = dev->platdata;
+	struct mxc_serial_plat *plat = dev_get_plat(dev);
 	struct mxc_uart *const uart = plat->reg;
 
 	if (!(readl(&uart->ts) & UTS_TXEMPTY))
@@ -307,7 +308,7 @@ static int mxc_serial_putc(struct udevice *dev, const char ch)
 
 static int mxc_serial_pending(struct udevice *dev, bool input)
 {
-	struct mxc_serial_platdata *plat = dev->platdata;
+	struct mxc_serial_plat *plat = dev_get_plat(dev);
 	struct mxc_uart *const uart = plat->reg;
 	uint32_t sr2 = readl(&uart->sr2);
 
@@ -325,12 +326,12 @@ static const struct dm_serial_ops mxc_serial_ops = {
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int mxc_serial_ofdata_to_platdata(struct udevice *dev)
+static int mxc_serial_of_to_plat(struct udevice *dev)
 {
-	struct mxc_serial_platdata *plat = dev->platdata;
+	struct mxc_serial_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -342,6 +343,8 @@ static int mxc_serial_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id mxc_serial_ids[] = {
+	{ .compatible = "fsl,imx21-uart" },
+	{ .compatible = "fsl,imx53-uart" },
 	{ .compatible = "fsl,imx6sx-uart" },
 	{ .compatible = "fsl,imx6ul-uart" },
 	{ .compatible = "fsl,imx7d-uart" },
@@ -355,14 +358,12 @@ U_BOOT_DRIVER(serial_mxc) = {
 	.id	= UCLASS_SERIAL,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = mxc_serial_ids,
-	.ofdata_to_platdata = mxc_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mxc_serial_platdata),
+	.of_to_plat = mxc_serial_of_to_plat,
+	.plat_auto	= sizeof(struct mxc_serial_plat),
 #endif
 	.probe = mxc_serial_probe,
 	.ops	= &mxc_serial_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
-#endif
 };
 #endif
 

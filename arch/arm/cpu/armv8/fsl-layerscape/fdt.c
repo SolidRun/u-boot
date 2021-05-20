@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <efi_loader.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <phy.h>
@@ -22,7 +26,7 @@
 #endif
 #include <fsl_sec.h>
 #include <asm/arch-fsl-layerscape/soc.h>
-#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+#if CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT)
 #include <asm/armv8/sec_firmware.h>
 #endif
 #include <asm/arch/speed.h>
@@ -30,6 +34,14 @@
 
 int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc)
 {
+	const char *conn;
+
+	/* Do NOT apply fixup for backplane modes specified in DT */
+	if (phyc == PHY_INTERFACE_MODE_XGMII) {
+		conn = fdt_getprop(blob, offset, "phy-connection-type", NULL);
+		if (is_backplane_mode(conn))
+			return 0;
+	}
 	return fdt_setprop_string(blob, offset, "phy-connection-type",
 					 phy_string_for_interface(phyc));
 }
@@ -42,7 +54,6 @@ void ft_fixup_cpu(void *blob)
 	fdt32_t *reg;
 	int addr_cells;
 	u64 val, core_id;
-	size_t *boot_code_size = &(__secondary_boot_code_size);
 	u32 mask = cpu_pos_mask();
 	int off_prev = -1;
 
@@ -70,7 +81,7 @@ void ft_fixup_cpu(void *blob)
 						    "device_type", "cpu", 4);
 	}
 
-#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && \
+#if CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT) && \
 	defined(CONFIG_SEC_FIRMWARE_ARMV8_PSCI)
 	int node;
 	u32 psci_ver;
@@ -133,12 +144,11 @@ remove_psci_node:
 						    "cpu", 4);
 	}
 
-	fdt_add_mem_rsv(blob, (uintptr_t)&secondary_boot_code,
-			*boot_code_size);
+	fdt_add_mem_rsv(blob, (uintptr_t)secondary_boot_code_start,
+			secondary_boot_code_size);
 #if CONFIG_IS_ENABLED(EFI_LOADER)
-	efi_add_memory_map((uintptr_t)&secondary_boot_code,
-			   ALIGN(*boot_code_size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
-			   EFI_RESERVED_MEMORY_TYPE, false);
+	efi_add_memory_map((uintptr_t)secondary_boot_code_start,
+			   secondary_boot_code_size, EFI_RESERVED_MEMORY_TYPE);
 #endif
 }
 #endif
@@ -373,7 +383,7 @@ static void fdt_fixup_msi(void *blob)
 }
 #endif
 
-#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+#if CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT)
 /* Remove JR node used by SEC firmware */
 void fdt_fixup_remove_jr(void *blob)
 {
@@ -390,10 +400,12 @@ void fdt_fixup_remove_jr(void *blob)
 
 	while (jr_node != -FDT_ERR_NOTFOUND) {
 		reg = (fdt32_t *)fdt_getprop(blob, jr_node, "reg", &len);
-		jr_offset = fdt_read_number(reg, addr_cells);
-		if (jr_offset == used_jr) {
-			fdt_del_node(blob, jr_node);
-			break;
+		if (reg) {
+			jr_offset = fdt_read_number(reg, addr_cells);
+			if (jr_offset == used_jr) {
+				fdt_del_node(blob, jr_node);
+				break;
+			}
 		}
 		jr_node = fdt_node_offset_by_compatible(blob, jr_node,
 							"fsl,sec-v4.0-job-ring");
@@ -401,19 +413,84 @@ void fdt_fixup_remove_jr(void *blob)
 }
 #endif
 
-void ft_cpu_setup(void *blob, bd_t *bd)
+#ifdef CONFIG_ARCH_LS1028A
+static void fdt_disable_multimedia(void *blob, unsigned int svr)
+{
+	int off;
+
+	if (IS_MULTIMEDIA_EN(svr))
+		return;
+
+	/* Disable eDP/LCD node */
+	off = fdt_node_offset_by_compatible(blob, -1, "arm,mali-dp500");
+	if (off != -FDT_ERR_NOTFOUND)
+		fdt_status_disabled(blob, off);
+
+	/* Disable GPU node */
+	off = fdt_node_offset_by_compatible(blob, -1, "fsl,ls1028a-gpu");
+	if (off != -FDT_ERR_NOTFOUND)
+		fdt_status_disabled(blob, off);
+}
+#endif
+
+#ifdef CONFIG_PCIE_ECAM_GENERIC
+__weak void fdt_fixup_ecam(void *blob)
+{
+}
+#endif
+
+/*
+ * If it is a non-E part the crypto is disabled on the following SoCs:
+ *  - LS1043A
+ *  - LS1088A
+ *  - LS2080A
+ *  - LS2088A
+ * and their personalities.
+ *
+ * On all other SoCs just the export-controlled ciphers are disabled, that
+ * means that the following is still working:
+ *  - hashing (using MDHA - message digest hash accelerator)
+ *  - random number generation (using RNG4)
+ *  - cyclic redundancy checking (using CRCA)
+ *  - runtime integrity checker (RTIC)
+ *
+ * The linux driver will figure out what is available and what is not.
+ * Therefore, we just remove the crypto node on the SoCs which have no crypto
+ * support at all.
+ */
+static bool crypto_is_disabled(unsigned int svr)
+{
+	if (IS_E_PROCESSOR(svr))
+		return false;
+
+	if (IS_SVR_DEV(svr, SVR_DEV(SVR_LS1043A)))
+		return true;
+
+	if (IS_SVR_DEV(svr, SVR_DEV(SVR_LS1088A)))
+		return true;
+
+	if (IS_SVR_DEV(svr, SVR_DEV(SVR_LS2080A)))
+		return true;
+
+	if (IS_SVR_DEV(svr, SVR_DEV(SVR_LS2088A)))
+		return true;
+
+	return false;
+}
+
+void ft_cpu_setup(void *blob, struct bd_info *bd)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	unsigned int svr = gur_in32(&gur->svr);
 
 	/* delete crypto node if not on an E-processor */
-	if (!IS_E_PROCESSOR(svr))
+	if (crypto_is_disabled(svr))
 		fdt_fixup_crypto_node(blob, 0);
 #if CONFIG_SYS_FSL_SEC_COMPAT >= 4
 	else {
 		ccsr_sec_t __iomem *sec;
 
-#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+#if CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT)
 		fdt_fixup_remove_jr(blob);
 		fdt_fixup_kaslr(blob);
 #endif
@@ -435,7 +512,11 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_path_u32(blob, "/sysclk", "clock-frequency",
 			     CONFIG_SYS_CLK_FREQ, 1);
 
-#ifdef CONFIG_PCI
+#ifdef CONFIG_GIC_V3_ITS
+	ls_gic_rd_tables_init(blob);
+#endif
+
+#if defined(CONFIG_PCIE_LAYERSCAPE) || defined(CONFIG_PCIE_LAYERSCAPE_GEN4)
 	ft_pci_setup(blob, bd);
 #endif
 
@@ -461,5 +542,11 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #endif
 #ifdef CONFIG_HAS_FEATURE_ENHANCED_MSI
 	fdt_fixup_msi(blob);
+#endif
+#ifdef CONFIG_ARCH_LS1028A
+	fdt_disable_multimedia(blob, svr);
+#endif
+#ifdef CONFIG_PCIE_ECAM_GENERIC
+	fdt_fixup_ecam(blob);
 #endif
 }

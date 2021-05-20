@@ -9,10 +9,14 @@
  */
 
 #include <common.h>
+#include <env.h>
+#include <init.h>
 #include <miiphy.h>
 #include <input.h>
 #include <mmc.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
+#include <serial.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/sizes.h>
@@ -39,32 +43,6 @@ int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
 	return 0;
-}
-
-static iomux_v3_cfg_t const uart1_pads[] = {
-	MX6_PAD_SD3_DAT7__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_SD3_DAT6__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const uart2_pads[] = {
-	MX6_PAD_SD4_DAT4__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_SD4_DAT5__UART2_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_SD4_DAT6__UART2_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_SD4_DAT7__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const uart3_pads[] = {
-	MX6_PAD_EIM_D23__UART3_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D24__UART3_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D25__UART3_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_EB3__UART3_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static void setup_iomux_uart(void)
-{
-	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
-	imx_iomux_v3_setup_multiple_pads(uart2_pads, ARRAY_SIZE(uart2_pads));
-	imx_iomux_v3_setup_multiple_pads(uart3_pads, ARRAY_SIZE(uart3_pads));
 }
 
 static iomux_v3_cfg_t const nand_pads[] = {
@@ -134,7 +112,6 @@ int overwrite_console(void)
 
 int board_early_init_f(void)
 {
-	setup_iomux_uart();
 	setup_nand_pins();
 	return 0;
 }
@@ -176,73 +153,54 @@ int spl_start_uboot(void)
 }
 #endif
 
-/* SD interface */
-#define USDHC_PAD_CTRL							\
-	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |	\
-	 PAD_CTL_SRE_FAST | PAD_CTL_HYS)
-
-static iomux_v3_cfg_t const usdhc1_pads[] = {
-	MX6_PAD_SD1_CLK__SD1_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_CMD__SD1_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT0__SD1_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT1__SD1_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT2__SD1_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT3__SD1_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const usdhc2_pads[] = {
-	MX6_PAD_SD2_DAT0__SD2_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT1__SD2_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT2__SD2_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT3__SD2_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_CLK__SD2_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_CMD__SD2_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_GPIO_4__GPIO1_IO04	| MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
-};
-
-#ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg usdhc_cfg[] = {
-	{USDHC1_BASE_ADDR}, /* SOM */
-	{USDHC2_BASE_ADDR}  /* Baseboard */
-};
-
-int board_mmc_init(bd_t *bis)
+void board_boot_order(u32 *spl_boot_list)
 {
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	unsigned int reg = readl(&psrc->sbmr1) >> 11;
-	/*
-	 * Upon reading BOOT_CFG register the following map is done:
-	 * Bit 11 and 12 of BOOT_CFG register can determine the current
-	 * mmc port
-	 * 0x1                  SD1-SOM
-	 * 0x2                  SD2-Baseboard
-	 */
+	u32 boot_mode = imx6_src_get_boot_mode() & IMX6_BMODE_MASK;
+	unsigned int bmode = readl(&src_base->sbmr2);
 
-	reg &= 0x3; /* Only care about bottom 2 bits */
+	/* If bmode is serial or USB phy is active, return serial */
+	if (((bmode >> 24) & 0x03) == 0x01 || is_usbotg_phy_active()) {
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
+		return;
+	}
 
-	switch (reg) {
-	case 0:
-		SETUP_IOMUX_PADS(usdhc1_pads);
-		usdhc_cfg[0].esdhc_base = USDHC1_BASE_ADDR;
-		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-		gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
+	switch (boot_mode >> IMX6_BMODE_SHIFT) {
+	case IMX6_BMODE_NAND_MIN ... IMX6_BMODE_NAND_MAX:
+		spl_boot_list[0] = BOOT_DEVICE_NAND;
 		break;
-	case 1:
-		SETUP_IOMUX_PADS(usdhc2_pads);
-		usdhc_cfg[1].esdhc_base = USDHC2_BASE_ADDR;
-		usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-		gd->arch.sdhc_clk = usdhc_cfg[1].sdhc_clk;
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
+	case IMX6_BMODE_MMC:
+	case IMX6_BMODE_EMMC:
+		/*
+		 * Upon reading BOOT_CFG register the following map is done:
+		 * Bit 11 and 12 of BOOT_CFG register can determine the current
+		 * mmc port
+		 * 0x1                  SD1-SOM
+		 * 0x2                  SD2-Baseboard
+		 */
+
+		reg &= 0x3; /* Only care about bottom 2 bits */
+		switch (reg) {
+		case 0:
+			spl_boot_list[0] = BOOT_DEVICE_MMC1;
+			break;
+		case 1:
+			spl_boot_list[0] = BOOT_DEVICE_MMC2;
+			break;
+		}
+		break;
+	default:
+		/* By default use USB downloader */
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
 		break;
 	}
 
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[reg]);
+	/* As a last resort, use serial downloader */
+	spl_boot_list[1] = BOOT_DEVICE_BOARD;
 }
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	return 1;
-}
-#endif
 
 static void ccgr_init(void)
 {
@@ -357,13 +315,10 @@ void board_init_f(ulong dummy)
 	/* setup GP timer */
 	timer_init();
 
+	/* Enable device tree and early DM support*/
+	spl_early_init();
+
 	/* UART clocks enabled and gd valid - init serial console */
 	preloader_console_init();
-
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	/* load/boot image from boot device */
-	board_init_r(NULL, 0);
 }
 #endif

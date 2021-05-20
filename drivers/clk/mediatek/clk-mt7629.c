@@ -8,9 +8,11 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/arch-mediatek/reset.h>
 #include <asm/io.h>
 #include <dt-bindings/clock/mt7629-clk.h>
+#include <linux/bitops.h>
 
 #include "clk-mtk.h"
 
@@ -539,6 +541,29 @@ static const struct mtk_gate sgmii_cgs[] = {
 	GATE_SGMII(CLK_SGMII_CDR_FB, CLK_TOP_SSUSB_CDR_FB, 5),
 };
 
+static const struct mtk_gate_regs ssusb_cg_regs = {
+	.set_ofs = 0x30,
+	.clr_ofs = 0x30,
+	.sta_ofs = 0x30,
+};
+
+#define GATE_SSUSB(_id, _parent, _shift) {			\
+	.id = _id,						\
+	.parent = _parent,					\
+	.regs = &ssusb_cg_regs,					\
+	.shift = _shift,					\
+	.flags = CLK_GATE_NO_SETCLR_INV | CLK_PARENT_TOPCKGEN,	\
+}
+
+static const struct mtk_gate ssusb_cgs[] = {
+	GATE_SSUSB(CLK_SSUSB_U2_PHY_1P_EN, CLK_TOP_TO_U2_PHY_1P, 0),
+	GATE_SSUSB(CLK_SSUSB_U2_PHY_EN, CLK_TOP_TO_U2_PHY, 1),
+	GATE_SSUSB(CLK_SSUSB_REF_EN, CLK_TOP_TO_USB3_REF, 5),
+	GATE_SSUSB(CLK_SSUSB_SYS_EN, CLK_TOP_TO_USB3_SYS, 6),
+	GATE_SSUSB(CLK_SSUSB_MCU_EN, CLK_TOP_TO_USB3_MCU, 7),
+	GATE_SSUSB(CLK_SSUSB_DMA_EN, CLK_TOP_TO_USB3_DMA, 8),
+};
+
 static const struct mtk_clk_tree mt7629_clk_tree = {
 	.xtal_rate = 40 * MHZ,
 	.xtal2_rate = 20 * MHZ,
@@ -608,9 +633,9 @@ static int mt7629_ethsys_bind(struct udevice *dev)
 	int ret = 0;
 
 #if CONFIG_IS_ENABLED(RESET_MEDIATEK)
-	ret = mediatek_reset_bind(dev, ETHSYS_RST_CTRL_OFS, 1);
+	ret = mediatek_reset_bind(dev, ETHSYS_HIFSYS_RST_CTRL_OFS, 1);
 	if (ret)
-		debug("Warning: failed to bind ethsys reset controller\n");
+		debug("Warning: failed to bind reset controller\n");
 #endif
 
 	return ret;
@@ -619,6 +644,11 @@ static int mt7629_ethsys_bind(struct udevice *dev)
 static int mt7629_sgmiisys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, sgmii_cgs);
+}
+
+static int mt7629_ssusbsys_probe(struct udevice *dev)
+{
+	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, ssusb_cgs);
 }
 
 static const struct udevice_id mt7629_apmixed_compat[] = {
@@ -651,6 +681,11 @@ static const struct udevice_id mt7629_sgmiisys_compat[] = {
 	{ }
 };
 
+static const struct udevice_id mt7629_ssusbsys_compat[] = {
+	{ .compatible = "mediatek,mt7629-ssusbsys" },
+	{ }
+};
+
 static const struct udevice_id mt7629_mcucfg_compat[] = {
 	{ .compatible = "mediatek,mt7629-mcucfg" },
 	{ }
@@ -669,7 +704,7 @@ U_BOOT_DRIVER(mtk_clk_apmixedsys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7629_apmixed_compat,
 	.probe = mt7629_apmixedsys_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_clk_priv),
+	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_apmixedsys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
@@ -679,7 +714,7 @@ U_BOOT_DRIVER(mtk_clk_topckgen) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7629_topckgen_compat,
 	.probe = mt7629_topckgen_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_clk_priv),
+	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
@@ -689,7 +724,7 @@ U_BOOT_DRIVER(mtk_clk_infracfg) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7629_infracfg_compat,
 	.probe = mt7629_infracfg_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
+	.priv_auto	= sizeof(struct mtk_cg_priv),
 	.ops = &mtk_clk_gate_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
@@ -699,7 +734,7 @@ U_BOOT_DRIVER(mtk_clk_pericfg) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7629_pericfg_compat,
 	.probe = mt7629_pericfg_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
+	.priv_auto	= sizeof(struct mtk_cg_priv),
 	.ops = &mtk_clk_gate_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
@@ -710,7 +745,7 @@ U_BOOT_DRIVER(mtk_clk_ethsys) = {
 	.of_match = mt7629_ethsys_compat,
 	.probe = mt7629_ethsys_probe,
 	.bind = mt7629_ethsys_bind,
-	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
+	.priv_auto	= sizeof(struct mtk_cg_priv),
 	.ops = &mtk_clk_gate_ops,
 };
 
@@ -719,6 +754,15 @@ U_BOOT_DRIVER(mtk_clk_sgmiisys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7629_sgmiisys_compat,
 	.probe = mt7629_sgmiisys_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
+	.priv_auto	= sizeof(struct mtk_cg_priv),
+	.ops = &mtk_clk_gate_ops,
+};
+
+U_BOOT_DRIVER(mtk_clk_ssusbsys) = {
+	.name = "mt7629-clock-ssusbsys",
+	.id = UCLASS_CLK,
+	.of_match = mt7629_ssusbsys_compat,
+	.probe = mt7629_ssusbsys_probe,
+	.priv_auto	= sizeof(struct mtk_cg_priv),
 	.ops = &mtk_clk_gate_ops,
 };

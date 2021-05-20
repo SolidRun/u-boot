@@ -5,6 +5,10 @@
  */
 
 #include <common.h>
+#include <env.h>
+#include <hang.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mx6-ddr.h>
@@ -13,7 +17,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
-#include <environment.h>
+#include <env.h>
 #include <i2c.h>
 #include <spl.h>
 
@@ -727,8 +731,16 @@ void board_boot_order(u32 *spl_boot_list)
 /* its our chance to print info about boot device */
 void spl_board_init(void)
 {
+	u32 boot_device;
+	int board_type;
+
 	/* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 */
-	u32 boot_device = spl_boot_device();
+	boot_device = spl_boot_device();
+
+	/* read eeprom again now that we have gd */
+	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
+	if (board_type == GW_UNKNOWN)
+		hang();
 
 	switch (boot_device) {
 	case BOOT_DEVICE_MMC1:

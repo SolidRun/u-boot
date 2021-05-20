@@ -2,13 +2,13 @@
 # Copyright (c) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
 #
-# Entry-type module for 'u-boot'
+# Entry-type module for Intel flash descriptor
 #
 
 import struct
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob_ext import Entry_blob_ext
 
 FD_SIGNATURE   = struct.pack('<L', 0x0ff0a55a)
 MAX_REGIONS    = 5
@@ -25,7 +25,7 @@ class Region:
         self.limit = ((val & 0x0fff0000) >> 4) | 0xfff
         self.size = self.limit - self.base + 1
 
-class Entry_intel_descriptor(Entry_blob):
+class Entry_intel_descriptor(Entry_blob_ext):
     """Intel flash descriptor block (4KB)
 
     Properties / Entry arguments:
@@ -45,19 +45,36 @@ class Entry_intel_descriptor(Entry_blob):
     See README.x86 for information about x86 binary blobs.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self._regions = []
 
+    def Pack(self, offset):
+        """Put this entry at the start of the image"""
+        if self.offset is None:
+            offset = self.section.GetStartOffset()
+        return super().Pack(offset)
+
     def GetOffsets(self):
+        info = {}
+        if self.missing:
+            # Return zero offsets so that these entries get placed somewhere
+            if self.HasSibling('intel-me'):
+                info['intel-me'] = [0, None]
+            return info
         offset = self.data.find(FD_SIGNATURE)
         if offset == -1:
-            self.Raise('Cannot find FD signature')
+            self.Raise('Cannot find Intel Flash Descriptor (FD) signature')
         flvalsig, flmap0, flmap1, flmap2 = struct.unpack('<LLLL',
                                                 self.data[offset:offset + 16])
         frba = ((flmap0 >> 16) & 0xff) << 4
         for i in range(MAX_REGIONS):
             self._regions.append(Region(self.data, frba, i))
 
-        # Set the offset for ME only, for now, since the others are not used
-        return {'intel-me': [self._regions[REGION_ME].base,
-                             self._regions[REGION_ME].size]}
+        # Set the offset for ME (Management Engine) and IFWI (Integrated
+        # Firmware Image), for now, since the others are not used.
+        if self.HasSibling('intel-me'):
+            info['intel-me'] = [self._regions[REGION_ME].base,
+                                self._regions[REGION_ME].size]
+        if self.HasSibling('intel-ifwi'):
+            info['intel-ifwi'] = [self._regions[REGION_BIOS].base, None]
+        return info

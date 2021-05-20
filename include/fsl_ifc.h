@@ -10,6 +10,7 @@
 #ifdef CONFIG_FSL_IFC
 #include <config.h>
 #include <common.h>
+#include <part.h>
 #ifdef CONFIG_ARM
 #include <asm/arch/soc.h>
 #endif
@@ -51,6 +52,8 @@
 /* Machine Select */
 #define CSPR_MSEL			0x00000006
 #define CSPR_MSEL_SHIFT			1
+/* External Transceiver Enable */
+#define CSPR_TE			0x00000010
 /* NOR */
 #define CSPR_MSEL_NOR			0x00000000
 /* NAND */
@@ -137,7 +140,7 @@
 #define CSOR_NOR_ADM_SHIFT_SHIFT	13
 #define CSOR_NOR_ADM_SHIFT(n)	((n) << CSOR_NOR_ADM_SHIFT_SHIFT)
 /* Type of the NOR device hooked */
-#define CSOR_NOR_NOR_MODE_AYSNC_NOR	0x00000000
+#define CSOR_NOR_NOR_MODE_ASYNC_NOR	0x00000000
 #define CSOR_NOR_NOR_MODE_AVD_NOR	0x00000020
 /* Time for Read Enable High to Output High Impedance */
 #define CSOR_NOR_TRHZ_MASK		0x0000001C

@@ -10,6 +10,9 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
+#include <malloc.h>
 #include <pci.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
@@ -17,6 +20,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <errno.h>
 #include <asm/arch/sys_proto.h>
@@ -469,7 +473,7 @@ static int imx6_pcie_assert_core_reset(struct imx_pcie_priv *priv,
 	 * If both LTSSM_ENABLE and REF_SSP_ENABLE are active we have a strong
 	 * indication that the bootloader activated the link.
 	 */
-	if (is_mx6dq() && prepare_for_boot) {
+	if ((is_mx6dq() || is_mx6sdl()) && prepare_for_boot) {
 		u32 val, gpr1, gpr12;
 
 		gpr1 = readl(&iomuxc_regs->gpr[1]);
@@ -747,7 +751,7 @@ void pci_init_board(void)
 	imx_pcie_init();
 }
 #else
-static int imx_pcie_dm_read_config(struct udevice *dev, pci_dev_t bdf,
+static int imx_pcie_dm_read_config(const struct udevice *dev, pci_dev_t bdf,
 				   uint offset, ulong *value,
 				   enum pci_size_t size)
 {
@@ -795,7 +799,7 @@ static int imx_pcie_dm_remove(struct udevice *dev)
 	return 0;
 }
 
-static int imx_pcie_ofdata_to_platdata(struct udevice *dev)
+static int imx_pcie_of_to_plat(struct udevice *dev)
 {
 	struct imx_pcie_priv *priv = dev_get_priv(dev);
 
@@ -814,6 +818,7 @@ static const struct dm_pci_ops imx_pcie_ops = {
 
 static const struct udevice_id imx_pcie_ids[] = {
 	{ .compatible = "fsl,imx6q-pcie" },
+	{ .compatible = "fsl,imx6sx-pcie" },
 	{ }
 };
 
@@ -824,8 +829,8 @@ U_BOOT_DRIVER(imx_pcie) = {
 	.ops			= &imx_pcie_ops,
 	.probe			= imx_pcie_dm_probe,
 	.remove			= imx_pcie_dm_remove,
-	.ofdata_to_platdata	= imx_pcie_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct imx_pcie_priv),
+	.of_to_plat	= imx_pcie_of_to_plat,
+	.priv_auto	= sizeof(struct imx_pcie_priv),
 	.flags			= DM_FLAG_OS_PREPARE,
 };
 #endif

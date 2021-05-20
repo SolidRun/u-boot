@@ -14,6 +14,7 @@
 #include <serial.h>
 #include <asm/io.h>
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 /* UART Registers */
 #define	OWL_UART_CTL			(0x0000)
@@ -101,7 +102,7 @@ static int owl_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-static int owl_serial_ofdata_to_platdata(struct	udevice	*dev)
+static int owl_serial_of_to_plat(struct	udevice	*dev)
 {
 	struct owl_serial_priv *priv = dev_get_priv(dev);
 
@@ -120,7 +121,7 @@ static const struct dm_serial_ops owl_serial_ops = {
 };
 
 static const struct udevice_id owl_serial_ids[] = {
-	{ .compatible =	"actions,s900-serial" },
+	{ .compatible = "actions,owl-uart" },
 	{ }
 };
 
@@ -128,8 +129,8 @@ U_BOOT_DRIVER(serial_owl) = {
 	.name = "serial_owl",
 	.id = UCLASS_SERIAL,
 	.of_match = owl_serial_ids,
-	.ofdata_to_platdata = owl_serial_ofdata_to_platdata,
-	.priv_auto_alloc_size =	sizeof(struct owl_serial_priv),
+	.of_to_plat = owl_serial_of_to_plat,
+	.priv_auto	=	sizeof(struct owl_serial_priv),
 	.probe = owl_serial_probe,
 	.ops = &owl_serial_ops,
 };

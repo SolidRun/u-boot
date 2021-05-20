@@ -7,32 +7,34 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <hang.h>
+#include <image.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <mach/spl.h>
 #include <spl.h>
+#include <asm/arch/sys_proto.h>
 
 void board_fit_image_post_process(void **p_image, size_t *p_size)
 {
-	struct udevice *dev;
-	struct ti_sci_handle *ti_sci;
-	struct ti_sci_proc_ops *proc_ops;
+	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
+	struct ti_sci_proc_ops *proc_ops = &ti_sci->ops.proc_ops;
 	u64 image_addr;
 	u32 image_size;
 	int ret;
 
-	/* Get handle to Device Management and Security Controller (SYSFW) */
-	ret = uclass_get_device_by_name(UCLASS_FIRMWARE, "dmsc", &dev);
-	if (ret) {
-		printf("Failed to get handle to SYSFW (%d)\n", ret);
-		hang();
-	}
-	ti_sci = (struct ti_sci_handle *)(ti_sci_get_handle_from_sysfw(dev));
-	proc_ops = &ti_sci->ops.proc_ops;
-
 	image_addr = (uintptr_t)*p_image;
+	image_size = *p_size;
 
 	debug("Authenticating image at address 0x%016llx\n", image_addr);
+	debug("Authenticating image of size %d bytes\n", image_size);
+
+	flush_dcache_range((unsigned long)image_addr,
+			   ALIGN((unsigned long)image_addr + image_size,
+				 ARCH_DMA_MINALIGN));
 
 	/* Authenticate image */
 	ret = proc_ops->proc_auth_boot_image(ti_sci, &image_addr, &image_size);
@@ -40,6 +42,11 @@ void board_fit_image_post_process(void **p_image, size_t *p_size)
 		printf("Authentication failed!\n");
 		hang();
 	}
+
+	if (image_size)
+		invalidate_dcache_range((unsigned long)image_addr,
+					ALIGN((unsigned long)image_addr +
+					      image_size, ARCH_DMA_MINALIGN));
 
 	/*
 	 * The image_size returned may be 0 when the authentication process has

@@ -7,7 +7,13 @@
 
 #include <console.h>
 #include <common.h>
+#include <compiler.h>
+#include <cpu_func.h>
+#include <log.h>
 #include <zynqmppl.h>
+#include <zynqmp_firmware.h>
+#include <asm/cache.h>
+#include <linux/bitops.h>
 #include <linux/sizes.h>
 #include <asm/arch/sys_proto.h>
 #include <memalign.h>
@@ -151,9 +157,9 @@ static ulong zynqmp_align_dma_buffer(u32 *buf, u32 len, u32 swap)
 
 		buf = new_buf;
 	} else if ((swap != SWAP_DONE) &&
-		   (zynqmp_pmufw_version() <= PMUFW_V1_0)) {
+		   (zynqmp_firmware_version() <= PMUFW_V1_0)) {
 		/* For bitstream which are aligned */
-		u32 *new_buf = (u32 *)buf;
+		new_buf = buf;
 
 		printf("%s: Bitstream is not swapped(%d) - swap it\n", __func__,
 		       swap);
@@ -204,7 +210,7 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	bool xilfpga_old = false;
 
-	if (zynqmp_pmufw_version() <= PMUFW_V1_0) {
+	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
 		puts("WARN: PMUFW v1.0 or less is detected\n");
 		puts("WARN: Not all bitstream formats are supported\n");
 		puts("WARN: Please upgrade PMUFW\n");
@@ -226,14 +232,15 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	buf_hi = upper_32_bits(bin_buf);
 
 	if (xilfpga_old)
-		ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
-				 (u32)(uintptr_t)bsizeptr, bstype, ret_payload);
+		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
+					buf_hi, (u32)(uintptr_t)bsizeptr,
+					bstype, ret_payload);
 	else
-		ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
-				 (u32)bsize, 0, ret_payload);
+		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
+					buf_hi, (u32)bsize, 0, ret_payload);
 
 	if (ret)
-		puts("PL FPGA LOAD fail\n");
+		printf("PL FPGA LOAD failed with err: 0x%08x\n", ret);
 
 	return ret;
 }
@@ -271,7 +278,8 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 	buf_lo = lower_32_bits((ulong)buf);
 	buf_hi = upper_32_bits((ulong)buf);
 
-	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
+	ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
+				buf_hi,
 			 (u32)(uintptr_t)fpga_sec_info->userkey_addr,
 			 flag, ret_payload);
 	if (ret)
@@ -288,8 +296,8 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 	int ret;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
-	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_STATUS, 0, 0, 0,
-			 0, ret_payload);
+	ret = xilinx_pm_request(PM_FPGA_GET_STATUS, 0, 0, 0,
+				0, ret_payload);
 	if (!ret)
 		printf("PCAP status\t0x%x\n", ret_payload[1]);
 
@@ -298,7 +306,7 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
-#if defined CONFIG_CMD_FPGA_LOAD_SECURE
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE) && !defined(CONFIG_SPL_BUILD)
 	.loads = zynqmp_loads,
 #endif
 	.info = zynqmp_pcap_info,

@@ -11,6 +11,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/of_access.h>
@@ -18,6 +21,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <linux/ioport.h>
 #include <linux/mbus.h>
@@ -70,14 +74,18 @@ struct mvebu_pcie {
 	void __iomem *membase;
 	struct resource mem;
 	void __iomem *iobase;
+	struct resource io;
 	u32 port;
 	u32 lane;
 	int devfn;
 	u32 lane_mask;
-	pci_dev_t dev;
+	int first_busno;
+	int local_dev;
 	char name[16];
 	unsigned int mem_target;
 	unsigned int mem_attr;
+	unsigned int io_target;
+	unsigned int io_attr;
 };
 
 /*
@@ -87,6 +95,7 @@ struct mvebu_pcie {
  */
 static void __iomem *mvebu_pcie_membase = (void __iomem *)MBUS_PCI_MEM_BASE;
 #define PCIE_MEM_SIZE	(128 << 20)
+static void __iomem *mvebu_pcie_iobase = (void __iomem *)MBUS_PCI_IO_BASE;
 
 static inline bool mvebu_pcie_link_up(struct mvebu_pcie *pcie)
 {
@@ -136,45 +145,47 @@ static inline struct mvebu_pcie *hose_to_pcie(struct pci_controller *hose)
 	return container_of(hose, struct mvebu_pcie, hose);
 }
 
-static int mvebu_pcie_read_config(struct udevice *bus, pci_dev_t bdf,
+static int mvebu_pcie_valid_addr(struct mvebu_pcie *pcie, pci_dev_t bdf)
+{
+	/*
+	 * There are two devices visible on local bus:
+	 *   * on slot configured by function mvebu_pcie_set_local_dev_nr()
+	 *     (by default this register is set to 0) there is a
+	 *     "Marvell Memory controller", which isn't useful in root complex
+	 *     mode,
+	 *   * on all other slots the real PCIe card connected to the PCIe slot.
+	 *
+	 * We therefore allow access only to the real PCIe card.
+	 */
+	if (PCI_BUS(bdf) == pcie->first_busno &&
+	    PCI_DEV(bdf) != !pcie->local_dev)
+		return 0;
+
+	return 1;
+}
+
+static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 				  uint offset, ulong *valuep,
 				  enum pci_size_t size)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(bus);
-	int local_bus = PCI_BUS(pcie->dev);
-	int local_dev = PCI_DEV(pcie->dev);
-	u32 reg;
+	struct mvebu_pcie *pcie = dev_get_plat(bus);
 	u32 data;
 
-	debug("PCIE CFG read:  (b,d,f)=(%2d,%2d,%2d) ",
+	debug("PCIE CFG read: (b,d,f)=(%2d,%2d,%2d) ",
 	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
 
-	/* Only allow one other device besides the local one on the local bus */
-	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) != local_dev) {
-		if (local_dev == 0 && PCI_DEV(bdf) != 1) {
-			debug("- out of range\n");
-			/*
-			 * If local dev is 0, the first other dev can
-			 * only be 1
-			 */
-			*valuep = pci_get_ff(size);
-			return 0;
-		} else if (local_dev != 0 && PCI_DEV(bdf) != 0) {
-			debug("- out of range\n");
-			/*
-			 * If local dev is not 0, the first other dev can
-			 * only be 0
-			 */
-			*valuep = pci_get_ff(size);
-			return 0;
-		}
+	if (!mvebu_pcie_valid_addr(pcie, bdf)) {
+		debug("- out of range\n");
+		*valuep = pci_get_ff(size);
+		return 0;
 	}
 
 	/* write address */
-	reg = PCIE_CONF_ADDR(bdf, offset);
-	writel(reg, pcie->base + PCIE_CONF_ADDR_OFF);
+	writel(PCIE_CONF_ADDR(bdf, offset), pcie->base + PCIE_CONF_ADDR_OFF);
+
+	/* read data */
 	data = readl(pcie->base + PCIE_CONF_DATA_OFF);
-	debug("(addr,val)=(0x%04x, 0x%08x)\n", offset, data);
+	debug("(addr,size,val)=(0x%04x, %d, 0x%08x)\n", offset, size, data);
 	*valuep = pci_conv_32_to_size(data, offset, size);
 
 	return 0;
@@ -184,33 +195,22 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 				   uint offset, ulong value,
 				   enum pci_size_t size)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(bus);
-	int local_bus = PCI_BUS(pcie->dev);
-	int local_dev = PCI_DEV(pcie->dev);
+	struct mvebu_pcie *pcie = dev_get_plat(bus);
 	u32 data;
 
 	debug("PCIE CFG write: (b,d,f)=(%2d,%2d,%2d) ",
 	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
-	debug("(addr,val)=(0x%04x, 0x%08lx)\n", offset, value);
+	debug("(addr,size,val)=(0x%04x, %d, 0x%08lx)\n", offset, size, value);
 
-	/* Only allow one other device besides the local one on the local bus */
-	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) != local_dev) {
-		if (local_dev == 0 && PCI_DEV(bdf) != 1) {
-			/*
-			 * If local dev is 0, the first other dev can
-			 * only be 1
-			 */
-			return 0;
-		} else if (local_dev != 0 && PCI_DEV(bdf) != 0) {
-			/*
-			 * If local dev is not 0, the first other dev can
-			 * only be 0
-			 */
-			return 0;
-		}
+	if (!mvebu_pcie_valid_addr(pcie, bdf)) {
+		debug("- out of range\n");
+		return 0;
 	}
 
+	/* write address */
 	writel(PCIE_CONF_ADDR(bdf, offset), pcie->base + PCIE_CONF_ADDR_OFF);
+
+	/* write data */
 	data = pci_conv_size_to_32(0, value, offset, size);
 	writel(data, pcie->base + PCIE_CONF_DATA_OFF);
 
@@ -274,10 +274,10 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
 
 static int mvebu_pcie_probe(struct udevice *dev)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(dev);
+	struct mvebu_pcie *pcie = dev_get_plat(dev);
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
-	static int bus;
+	int bus = dev_seq(dev);
 	u32 reg;
 
 	debug("%s: PCIe %d.%d - up, base %08x\n", __func__,
@@ -288,9 +288,11 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	      readl(pcie->base), mvebu_pcie_get_local_bus_nr(pcie),
 	      mvebu_pcie_get_local_dev_nr(pcie));
 
+	pcie->first_busno = bus;
+	pcie->local_dev = 1;
+
 	mvebu_pcie_set_local_bus_nr(pcie, bus);
-	mvebu_pcie_set_local_dev_nr(pcie, 0);
-	pcie->dev = PCI_BDF(bus, 0, 0);
+	mvebu_pcie_set_local_dev_nr(pcie, pcie->local_dev);
 
 	pcie->mem.start = (u32)mvebu_pcie_membase;
 	pcie->mem.end = pcie->mem.start + PCIE_MEM_SIZE - 1;
@@ -303,19 +305,27 @@ static int mvebu_pcie_probe(struct udevice *dev)
 		       (u32)pcie->mem.start, PCIE_MEM_SIZE);
 	}
 
+	pcie->io.start = (u32)mvebu_pcie_iobase;
+	pcie->io.end = pcie->io.start + MBUS_PCI_IO_SIZE - 1;
+	mvebu_pcie_iobase += MBUS_PCI_IO_SIZE;
+
+	if (mvebu_mbus_add_window_by_id(pcie->io_target, pcie->io_attr,
+					(phys_addr_t)pcie->io.start,
+					MBUS_PCI_IO_SIZE)) {
+		printf("PCIe unable to add mbus window for IO at %08x+%08x\n",
+		       (u32)pcie->io.start, MBUS_PCI_IO_SIZE);
+	}
+
 	/* Setup windows and configure host bridge */
 	mvebu_pcie_setup_wins(pcie);
 
 	/* Master + slave enable. */
 	reg = readl(pcie->base + PCIE_CMD_OFF);
 	reg |= PCI_COMMAND_MEMORY;
+	reg |= PCI_COMMAND_IO;
 	reg |= PCI_COMMAND_MASTER;
 	reg |= BIT(10);		/* disable interrupts */
 	writel(reg, pcie->base + PCIE_CMD_OFF);
-
-	/* Set BAR0 to internal registers */
-	writel(SOC_REGS_PHY_BASE, pcie->base + PCIE_BAR_LO_OFF(0));
-	writel(0, pcie->base + PCIE_BAR_HI_OFF(0));
 
 	/* PCI memory space */
 	pci_set_region(hose->regions + 0, pcie->mem.start,
@@ -324,9 +334,13 @@ static int mvebu_pcie_probe(struct udevice *dev)
 		       0, 0,
 		       gd->ram_size,
 		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-	hose->region_count = 2;
+	pci_set_region(hose->regions + 2, pcie->io.start,
+		       pcie->io.start, MBUS_PCI_IO_SIZE, PCI_REGION_IO);
+	hose->region_count = 3;
 
-	bus++;
+	/* Set BAR0 to internal registers */
+	writel(SOC_REGS_PHY_BASE, pcie->base + PCIE_BAR_LO_OFF(0));
+	writel(0, pcie->base + PCIE_BAR_HI_OFF(0));
 
 	return 0;
 }
@@ -407,9 +421,9 @@ static int mvebu_get_tgt_attr(ofnode node, int devfn,
 	return -ENOENT;
 }
 
-static int mvebu_pcie_ofdata_to_platdata(struct udevice *dev)
+static int mvebu_pcie_of_to_plat(struct udevice *dev)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(dev);
+	struct mvebu_pcie *pcie = dev_get_plat(dev);
 	int ret = 0;
 
 	/* Get port number, lane number and memory target / attr */
@@ -436,6 +450,14 @@ static int mvebu_pcie_ofdata_to_platdata(struct udevice *dev)
 				 &pcie->mem_target, &pcie->mem_attr);
 	if (ret < 0) {
 		printf("%s: cannot get tgt/attr for mem window\n", pcie->name);
+		goto err;
+	}
+
+	ret = mvebu_get_tgt_attr(dev_ofnode(dev->parent), pcie->devfn,
+				 IORESOURCE_IO,
+				 &pcie->io_target, &pcie->io_attr);
+	if (ret < 0) {
+		printf("%s: cannot get tgt/attr for IO window\n", pcie->name);
 		goto err;
 	}
 
@@ -467,8 +489,8 @@ static struct driver pcie_mvebu_drv = {
 	.id			= UCLASS_PCI,
 	.ops			= &mvebu_pcie_ops,
 	.probe			= mvebu_pcie_probe,
-	.ofdata_to_platdata	= mvebu_pcie_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mvebu_pcie),
+	.of_to_plat	= mvebu_pcie_of_to_plat,
+	.plat_auto	= sizeof(struct mvebu_pcie),
 };
 
 /*
@@ -498,8 +520,8 @@ static int mvebu_pcie_bind(struct udevice *parent)
 			return -ENOMEM;
 
 		/* Create child device UCLASS_PCI and bind it */
-		device_bind_ofnode(parent, &pcie_mvebu_drv, pcie->name, pcie,
-				   subnode, &dev);
+		device_bind(parent, &pcie_mvebu_drv, pcie->name, pcie, subnode,
+			    &dev);
 	}
 
 	return 0;

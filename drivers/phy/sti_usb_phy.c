@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #include <common.h>
+#include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <bitfield.h>
 #include <dm.h>
@@ -176,5 +178,5 @@ U_BOOT_DRIVER(sti_usb_phy) = {
 	.of_match = sti_usb_phy_ids,
 	.probe = sti_usb_phy_probe,
 	.ops = &sti_usb_phy_ops,
-	.priv_auto_alloc_size = sizeof(struct sti_usb_phy),
+	.priv_auto	= sizeof(struct sti_usb_phy),
 };

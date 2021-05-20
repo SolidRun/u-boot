@@ -7,6 +7,11 @@
 
 #include <common.h>
 #include <dm.h>
+#include <eeprom.h>
+#include <image.h>
+#include <init.h>
+#include <net.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
@@ -18,109 +23,20 @@
 #include <asm/io.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
 #include <ahci.h>
 #include <dwc_ahsata.h>
-#include <environment.h>
+#include <env.h>
 #include <errno.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <fuse.h>
-#include <i2c.h>
-#include <miiphy.h>
+#include <i2c_eeprom.h>
 #include <mmc.h>
-#include <net.h>
-#include <netdev.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define I2C_PAD_CTRL							\
-	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
-	PAD_CTL_HYS | PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-
-#define EEPROM_I2C_ADDRESS	0x50
-
-#define PC			MUX_PAD_CTRL(I2C_PAD_CTRL)
-
-static struct i2c_pads_info dh6sdl_i2c_pad_info0 = {
-	.scl = {
-		.i2c_mode  = MX6DL_PAD_EIM_D21__I2C1_SCL | PC,
-		.gpio_mode = MX6DL_PAD_EIM_D21__GPIO3_IO21 | PC,
-		.gp = IMX_GPIO_NR(3, 21)
-	},
-	.sda = {
-		 .i2c_mode = MX6DL_PAD_EIM_D28__I2C1_SDA | PC,
-		 .gpio_mode = MX6DL_PAD_EIM_D28__GPIO3_IO28 | PC,
-		 .gp = IMX_GPIO_NR(3, 28)
-	 }
-};
-
-static struct i2c_pads_info dh6sdl_i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode  = MX6DL_PAD_KEY_COL3__I2C2_SCL | PC,
-		.gpio_mode = MX6DL_PAD_KEY_COL3__GPIO4_IO12 | PC,
-		.gp = IMX_GPIO_NR(4, 12)
-	},
-	.sda = {
-		 .i2c_mode = MX6DL_PAD_KEY_ROW3__I2C2_SDA | PC,
-		 .gpio_mode = MX6DL_PAD_KEY_ROW3__GPIO4_IO13 | PC,
-		 .gp = IMX_GPIO_NR(4, 13)
-	 }
-};
-
-static struct i2c_pads_info dh6sdl_i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode  = MX6DL_PAD_GPIO_3__I2C3_SCL | PC,
-		.gpio_mode = MX6DL_PAD_GPIO_3__GPIO1_IO03 | PC,
-		.gp = IMX_GPIO_NR(1, 3)
-	},
-	.sda = {
-		 .i2c_mode = MX6DL_PAD_GPIO_6__I2C3_SDA | PC,
-		 .gpio_mode = MX6DL_PAD_GPIO_6__GPIO1_IO06 | PC,
-		 .gp = IMX_GPIO_NR(1, 6)
-	 }
-};
-
-static struct i2c_pads_info dh6dq_i2c_pad_info0 = {
-	.scl = {
-		.i2c_mode  = MX6Q_PAD_EIM_D21__I2C1_SCL | PC,
-		.gpio_mode = MX6Q_PAD_EIM_D21__GPIO3_IO21 | PC,
-		.gp = IMX_GPIO_NR(3, 21)
-	},
-	.sda = {
-		 .i2c_mode = MX6Q_PAD_EIM_D28__I2C1_SDA | PC,
-		 .gpio_mode = MX6Q_PAD_EIM_D28__GPIO3_IO28 | PC,
-		 .gp = IMX_GPIO_NR(3, 28)
-	 }
-};
-
-static struct i2c_pads_info dh6dq_i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode  = MX6Q_PAD_KEY_COL3__I2C2_SCL | PC,
-		.gpio_mode = MX6Q_PAD_KEY_COL3__GPIO4_IO12 | PC,
-		.gp = IMX_GPIO_NR(4, 12)
-	},
-	.sda = {
-		 .i2c_mode = MX6Q_PAD_KEY_ROW3__I2C2_SDA | PC,
-		 .gpio_mode = MX6Q_PAD_KEY_ROW3__GPIO4_IO13 | PC,
-		 .gp = IMX_GPIO_NR(4, 13)
-	 }
-};
-
-static struct i2c_pads_info dh6dq_i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode  = MX6Q_PAD_GPIO_3__I2C3_SCL | PC,
-		.gpio_mode = MX6Q_PAD_GPIO_3__GPIO1_IO03 | PC,
-		.gp = IMX_GPIO_NR(1, 3)
-	},
-	.sda = {
-		 .i2c_mode = MX6Q_PAD_GPIO_6__I2C3_SDA | PC,
-		 .gpio_mode = MX6Q_PAD_GPIO_6__GPIO1_IO06 | PC,
-		 .gp = IMX_GPIO_NR(1, 6)
-	 }
-};
 
 int dram_init(void)
 {
@@ -137,24 +53,6 @@ int overwrite_console(void)
 	return 1;
 }
 
-#ifdef CONFIG_FEC_MXC
-static void eth_phy_reset(void)
-{
-	/* Reset PHY */
-	gpio_direction_output(IMX_GPIO_NR(5, 0) , 0);
-	udelay(500);
-	gpio_set_value(IMX_GPIO_NR(5, 0), 1);
-
-	/* Enable VIO */
-	gpio_direction_output(IMX_GPIO_NR(1, 7) , 0);
-
-	/*
-	 * KSZ9021 PHY needs at least 10 mSec after PHY reset
-	 * is released to stabilize
-	 */
-	mdelay(10);
-}
-
 static int setup_fec_clock(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
@@ -165,38 +63,9 @@ static int setup_fec_clock(void)
 	return enable_fec_anatop_clock(0, ENET_50MHZ);
 }
 
-int board_eth_init(bd_t *bis)
-{
-	uint32_t base = IMX_FEC_BASE;
-	struct mii_dev *bus = NULL;
-	struct phy_device *phydev = NULL;
-
-	gpio_request(IMX_GPIO_NR(5, 0), "PHY-reset");
-	gpio_request(IMX_GPIO_NR(1, 7), "VIO");
-
-	setup_fec_clock();
-
-	eth_phy_reset();
-
-	bus = fec_get_miibus(base, -1);
-	if (!bus)
-		return -EINVAL;
-
-	/* Scan PHY 0 */
-	phydev = phy_find_by_mask(bus, 0xf, PHY_INTERFACE_MODE_RGMII);
-	if (!phydev) {
-		printf("Ethernet PHY not found!\n");
-		return -EINVAL;
-	}
-
-	return fec_probe(bis, -1, base, bus, phydev);
-}
-#endif
-
 #ifdef CONFIG_USB_EHCI_MX6
 static void setup_usb(void)
 {
-	gpio_request(IMX_GPIO_NR(3, 31), "USB-VBUS");
 	/*
 	 * Set daisy chain for otg_pin_id on MX6Q.
 	 * For MX6DL, this bit is reserved.
@@ -211,26 +80,12 @@ int board_usb_phy_mode(int port)
 	else
 		return USB_INIT_DEVICE;
 }
-
-int board_ehci_power(int port, int on)
-{
-	switch (port) {
-	case 0:
-		break;
-	case 1:
-		gpio_direction_output(IMX_GPIO_NR(3, 31), !!on);
-		break;
-	default:
-		printf("MXC USB port %d not yet supported\n", port);
-		return -EINVAL;
-	}
-
-	return 0;
-}
 #endif
 
 static int setup_dhcom_mac_from_fuse(void)
 {
+	struct udevice *dev;
+	ofnode eeprom;
 	unsigned char enetaddr[6];
 	int ret;
 
@@ -245,13 +100,19 @@ static int setup_dhcom_mac_from_fuse(void)
 		return 0;
 	}
 
-	ret = i2c_set_bus_num(2);
+	eeprom = ofnode_path("/soc/aips-bus@2100000/i2c@21a8000/eeprom@50");
+	if (!ofnode_valid(eeprom)) {
+		printf("Invalid hardware path to EEPROM!\n");
+		return -ENODEV;
+	}
+
+	ret = uclass_get_device_by_ofnode(UCLASS_I2C_EEPROM, eeprom, &dev);
 	if (ret) {
-		printf("Error switching I2C bus!\n");
+		printf("Cannot find EEPROM!\n");
 		return ret;
 	}
 
-	ret = i2c_read(EEPROM_I2C_ADDRESS, 0xfa, 0x1, enetaddr, 0x6);
+	ret = i2c_eeprom_read(dev, 0xfa, enetaddr, 0x6);
 	if (ret) {
 		printf("Error reading configuration EEPROM!\n");
 		return ret;
@@ -282,19 +143,7 @@ int board_init(void)
 	/* Enable eim_slow clocks */
 	setbits_le32(&mxc_ccm->CCGR6, 0x1 << MXC_CCM_CCGR6_EMI_SLOW_OFFSET);
 
-#ifdef CONFIG_SYS_I2C_MXC
-	if (is_mx6dq()) {
-		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &dh6dq_i2c_pad_info0);
-		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &dh6dq_i2c_pad_info1);
-		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &dh6dq_i2c_pad_info2);
-	} else {
-		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &dh6sdl_i2c_pad_info0);
-		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &dh6sdl_i2c_pad_info1);
-		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &dh6sdl_i2c_pad_info2);
-	}
-#endif
-
-	setup_dhcom_mac_from_fuse();
+	setup_fec_clock();
 
 	return 0;
 }
@@ -305,7 +154,7 @@ static const struct boot_mode board_boot_modes[] = {
 	{"sd2",	 MAKE_CFGVAL(0x40, 0x28, 0x00, 0x00)},
 	{"sd3",	 MAKE_CFGVAL(0x40, 0x30, 0x00, 0x00)},
 	/* 8 bit bus width */
-	{"emmc", MAKE_CFGVAL(0x40, 0x38, 0x00, 0x00)},
+	{"emmc", MAKE_CFGVAL(0x60, 0x58, 0x00, 0x00)},
 	{NULL,	 0},
 };
 #endif
@@ -338,6 +187,8 @@ int board_late_init(void)
 {
 	u32 hw_code;
 	char buf[16];
+
+	setup_dhcom_mac_from_fuse();
 
 	hw_code = board_get_hwcode();
 
@@ -372,3 +223,18 @@ int checkboard(void)
 	puts("Board: DHCOM i.MX6\n");
 	return 0;
 }
+
+#ifdef CONFIG_MULTI_DTB_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (is_mx6dq()) {
+		if (!strcmp(name, "imx6q-dhcom-pdk2"))
+			return 0;
+	} else if (is_mx6sdl()) {
+		if (!strcmp(name, "imx6dl-dhcom-pdk2"))
+			return 0;
+	}
+
+	return -1;
+}
+#endif

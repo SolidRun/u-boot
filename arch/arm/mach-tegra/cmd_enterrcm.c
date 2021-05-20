@@ -25,18 +25,22 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <cpu_func.h>
+#include <irq_func.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/pmc.h>
+#include <linux/delay.h>
 
-static int do_enterrcm(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_enterrcm(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	puts("Entering RCM...\n");
 	udelay(50000);
 
 	tegra_pmc_writel(2, PMC_SCRATCH0);
 	disable_interrupts();
-	reset_cpu(0);
+	reset_cpu();
 
 	return 0;
 }

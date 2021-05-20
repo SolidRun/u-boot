@@ -28,11 +28,6 @@ config TARGET_CADDY2
 	bool "Support caddy2"
 	select ARCH_MPC8349
 
-config TARGET_MPC8308RDB
-	bool "Support MPC8308RDB"
-	select ARCH_MPC8308
-	select SYS_FSL_ERRATUM_ESDHC111
-
 config TARGET_MPC8313ERDB_NOR
 	bool "Support MPC8313ERDB_NOR"
 	select ARCH_MPC8313
@@ -75,18 +70,6 @@ config TARGET_MPC8349EMDS_SDRAM
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_HAS_DDR2
 
-config TARGET_MPC8349ITX
-	bool "Support MPC8349ITX"
-	select ARCH_MPC8349
-	imply CMD_IRQ
-
-config TARGET_MPC837XEMDS
-	bool "Support MPC837XEMDS"
-	select ARCH_MPC837X
-	select BOARD_EARLY_INIT_F
-	imply CMD_SATA
-	imply FSL_SATA
-
 config TARGET_MPC837XERDB
 	bool "Support MPC837XERDB"
 	select ARCH_MPC837X
@@ -100,80 +83,48 @@ config TARGET_IDS8313
 
 config TARGET_KMETER1
 	bool "Support kmeter1"
-	select ARCH_MPC8360
-	imply CMD_CRAMFS
-	imply CMD_DIAG
-	imply FS_CRAMFS
+	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_KMCOGE5NE
 	bool "Support kmcoge5ne"
-	select ARCH_MPC8360
-	imply CMD_CRAMFS
-	imply CMD_DIAG
-	imply FS_CRAMFS
-
-config TARGET_SUVD3
-	bool "Support suvd3"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
-
-config TARGET_KMVECT1
-	bool "Support kmvect1"
-	select ARCH_MPC8309
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_KMTEGR1
 	bool "Support kmtegr1"
-	select ARCH_MPC8309
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_TUXX1
 	bool "Support tuxx1"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_KMSUPX5
 	bool "Support kmsupx5"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_TUGE1
 	bool "Support tuge1"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_KMOPTI2
 	bool "Support kmopti2"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_KMTEPR2
 	bool "Support kmtepr2"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_TQM834X
 	bool "Support TQM834x"
 	select ARCH_MPC8349
 
-config TARGET_HRCON
-	bool "Support hrcon"
-	select ARCH_MPC8308
-	select SYS_FSL_ERRATUM_ESDHC111
-
-config TARGET_STRIDER
-	bool "Support strider"
-	select ARCH_MPC8308
-	select SYS_FSL_ERRATUM_ESDHC111
-	imply CMD_PCA953X
 
 config TARGET_GAZERBEAM
 	bool "Support gazerbeam"
@@ -246,6 +197,8 @@ config ARCH_MPC8309
 	select MPC83XX_QUICC_ENGINE
 	select MPC83XX_PCI_SUPPORT
 	select MPC83XX_SECOND_I2C_SUPPORT
+	select SYS_FSL_ERRATUM_ESDHC111
+	select FSL_ELBC
 
 config ARCH_MPC831X
 	bool
@@ -257,6 +210,7 @@ config ARCH_MPC8313
 	bool
 	select ARCH_MPC831X
 	select MPC83XX_SECOND_I2C_SUPPORT
+	select FSL_ELBC
 
 config ARCH_MPC8315
 	bool
@@ -264,6 +218,7 @@ config ARCH_MPC8315
 	select MPC83XX_PCIE1_SUPPORT
 	select MPC83XX_PCIE2_SUPPORT
 	select MPC83XX_SATA_SUPPORT
+	select FSL_ELBC
 
 config ARCH_MPC832X
 	bool
@@ -300,6 +255,7 @@ config ARCH_MPC837X
 	select MPC83XX_SATA_SUPPORT
 	select MPC83XX_LDP_PIN
 	select MPC83XX_SECOND_I2C_SUPPORT
+	select FSL_ELBC
 
 config SYS_IMMR
 	hex "Value for IMMR"
@@ -343,18 +299,18 @@ endif
 
 endmenu
 
+config FSL_ELBC
+	bool
+
 source "board/esd/vme8349/Kconfig"
-source "board/freescale/mpc8308rdb/Kconfig"
 source "board/freescale/mpc8313erdb/Kconfig"
 source "board/freescale/mpc8315erdb/Kconfig"
 source "board/freescale/mpc8323erdb/Kconfig"
 source "board/freescale/mpc832xemds/Kconfig"
 source "board/freescale/mpc8349emds/Kconfig"
-source "board/freescale/mpc8349itx/Kconfig"
-source "board/freescale/mpc837xemds/Kconfig"
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
-source "board/keymile/km83xx/Kconfig"
+source "board/keymile/Kconfig"
 source "board/mpc8308_p1m/Kconfig"
 source "board/sbc8349/Kconfig"
 source "board/tqc/tqm834x/Kconfig"

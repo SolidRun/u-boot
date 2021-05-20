@@ -11,19 +11,19 @@ config DM_I2C
 	  Enable driver model for I2C. The I2C uclass interface: probe, read,
 	  write and speed, is implemented with the bus drivers operations,
 	  which provide methods for bus setting and data transfer. Each chip
-	  device (bus child) info is kept as parent platdata. The interface
-	  is defined in include/i2c.h. When i2c bus driver supports the i2c
-	  uclass, but the device drivers not, then DM_I2C_COMPAT config can
-	  be used as compatibility layer.
+	  device (bus child) info is kept as parent plat. The interface
+	  is defined in include/i2c.h.
 
-config DM_I2C_COMPAT
-	bool "Enable I2C compatibility layer"
-	depends on DM
+config SPL_DM_I2C
+	bool "Enable Driver Model for I2C drivers in SPL"
+	depends on SPL_DM && DM_I2C
+	default y
 	help
-	  Enable old-style I2C functions for compatibility with existing code.
-	  This option can be enabled as a temporary measure to avoid needing
-	  to convert all code for a board in a single commit. It should not
-	  be enabled for any board in an official release.
+	  Enable driver model for I2C. The I2C uclass interface: probe, read,
+	  write and speed, is implemented with the bus drivers operations,
+	  which provide methods for bus setting and data transfer. Each chip
+	  device (bus child) info is kept as parent platdata. The interface
+	  is defined in include/i2c.h.
 
 config I2C_CROS_EC_TUNNEL
 	tristate "Chrome OS EC tunnel I2C bus"
@@ -72,6 +72,16 @@ config DM_I2C_GPIO
 	  bindings are supported.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
 
+config SPL_DM_I2C_GPIO
+	bool "Enable Driver Model for software emulated I2C bus driver in SPL"
+	depends on SPL_DM && DM_I2C_GPIO && SPL_DM_GPIO && SPL_GPIO_SUPPORT
+	default y
+	help
+	  Enable the i2c bus driver emulation by using the GPIOs. The bus GPIO
+	  configuration is given by the device tree. Kernel-style device tree
+	  bindings are supported.
+	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
+
 config SYS_I2C_AT91
 	bool "Atmel I2C driver"
 	depends on DM_I2C && ARCH_AT91
@@ -82,6 +92,14 @@ config SYS_I2C_AT91
 	  i2c-gpio driver unless your system can cope with this limitation.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-at91.txt
 
+config SYS_I2C_IPROC
+	bool "Broadcom I2C driver"
+	depends on DM_I2C
+	help
+	  Broadcom I2C driver.
+	  Add support for Broadcom I2C driver.
+	  Say yes here to to enable the Broadco I2C driver.
+
 config SYS_I2C_FSL
        bool "Freescale I2C bus driver"
        depends on DM_I2C
@@ -91,10 +109,18 @@ config SYS_I2C_FSL
 
 config SYS_I2C_CADENCE
 	tristate "Cadence I2C Controller"
-	depends on DM_I2C && (ARCH_ZYNQ || ARM64)
+	depends on DM_I2C
 	help
 	  Say yes here to select Cadence I2C Host Controller. This controller is
 	  e.g. used by Xilinx Zynq.
+
+config SYS_I2C_CA
+	tristate "Cortina-Access I2C Controller"
+	depends on DM_I2C && CORTINA_PLATFORM
+	default n
+	help
+	  Add support for the Cortina Access I2C host controller.
+	  Say yes here to select Cortina-Access I2C Host Controller.
 
 config SYS_I2C_DAVINCI
 	bool "Davinci I2C Controller"
@@ -217,7 +243,7 @@ endif
 if SYS_I2C_MXC_I2C1
 config SYS_MXC_I2C1_SPEED
 	int "I2C Channel 1 speed"
-	default 40000000 if TARGET_LS2080A_SIMU || TARGET_LS2080A_EMU
+	default 40000000 if TARGET_LS2080A_EMU
 	default 100000
 	help
 	 MXC I2C Channel 1 speed
@@ -232,7 +258,7 @@ endif
 if SYS_I2C_MXC_I2C2
 config SYS_MXC_I2C2_SPEED
 	int "I2C Channel 2 speed"
-	default 40000000 if TARGET_LS2080A_SIMU || TARGET_LS2080A_EMU
+	default 40000000 if TARGET_LS2080A_EMU
 	default 100000
 	help
 	 MXC I2C Channel 2 speed
@@ -328,9 +354,25 @@ config SYS_MXC_I2C8_SLAVE
 	 MXC I2C8 Slave
 endif
 
+config SYS_I2C_NEXELL
+	bool "Nexell I2C driver"
+	depends on DM_I2C
+	help
+	  Add support for the Nexell I2C driver. This is used with various
+	  Nexell parts such as S5Pxx18 series SoCs. All chips
+	  have several I2C ports and all are provided, controlled by the
+	  device tree.
+
+config SYS_I2C_OCORES
+	bool "ocores I2C driver"
+	depends on DM_I2C
+	help
+	  Add support for ocores I2C controller. For details see
+	  https://opencores.org/projects/i2c
+
 config SYS_I2C_OMAP24XX
 	bool "TI OMAP2+ I2C driver"
-	depends on ARCH_OMAP2PLUS
+	depends on ARCH_OMAP2PLUS || ARCH_K3
 	help
 	  Add support for the OMAP2+ I2C driver.
 
@@ -377,6 +419,16 @@ config SYS_I2C_SANDBOX
 	  bus. Devices can be attached to the bus using the device tree
 	  which specifies the driver to use.  See sandbox.dts as an example.
 
+config SYS_I2C_OCTEON
+	bool "Octeon II/III/TX/TX2 I2C driver"
+	depends on (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2) && DM_I2C
+	default y
+	help
+	  Add support for the Marvell Octeon I2C driver. This is used with
+	  various Octeon parts such as Octeon II/III and OcteonTX/TX2. All
+	  chips have several I2C ports and all are provided, controlled by
+	  the device tree.
+
 config SYS_I2C_S3C24X0
 	bool "Samsung I2C driver"
 	depends on ARCH_EXYNOS4 && DM_I2C
@@ -405,7 +457,7 @@ config SYS_I2C_STM32F7
 
 config SYS_I2C_TEGRA
 	bool "NVIDIA Tegra internal I2C controller"
-	depends on TEGRA
+	depends on ARCH_TEGRA
 	help
 	  Support for NVIDIA I2C controller available in Tegra SoCs.
 
@@ -427,7 +479,7 @@ config SYS_I2C_UNIPHIER_F
 
 config SYS_I2C_VERSATILE
 	bool "Arm Ltd Versatile I2C bus driver"
-	depends on DM_I2C && (TARGET_VEXPRESS_CA15_TC2 || TARGET_VEXPRESS64_JUNO)
+	depends on DM_I2C && TARGET_VEXPRESS64_JUNO
 	help
 	  Add support for the Arm Ltd Versatile Express I2C driver. The I2C host
 	  controller is present in the development boards manufactured by Arm Ltd.

@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP Mini Configuration
  *
- * (C) Copyright 2015 - 2018, Xilinx, Inc.
+ * (C) Copyright 2015 - 2020, Xilinx, Inc.
  *
  * Siva Durga Prasad <siva.durga.paladugu@xilinx.com>
  * Michal Simek <michal.simek@xilinx.com>
@@ -64,13 +64,13 @@
 &qspi {
 	status = "okay";
 	flash0: flash@0 {
-		compatible = "n25q512a11", "spi-flash";
+		compatible = "n25q512a11", "jedec,spi-nor";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
-		spi-max-frequency = <10000000>;
+		spi-max-frequency = <40000000>;
 	};
 };
 

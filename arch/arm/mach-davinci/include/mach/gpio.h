@@ -18,15 +18,11 @@
 #define davinci_gpio_bank67 ((struct davinci_gpio *)DAVINCI_GPIO_BANK67)
 #define davinci_gpio_bank8 ((struct davinci_gpio *)DAVINCI_GPIO_BANK8)
 
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 #define gpio_status()		gpio_info()
 #endif
 #define GPIO_NAME_SIZE		20
-#if !defined(CONFIG_SOC_DA850)
-#define MAX_NUM_GPIOS		128
-#else
 #define MAX_NUM_GPIOS		144
-#endif
 #define GPIO_BANK(gp)		(davinci_gpio_bank01 + ((gp) >> 5))
 
 void gpio_info(void);

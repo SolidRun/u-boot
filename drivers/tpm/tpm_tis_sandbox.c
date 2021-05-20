@@ -8,7 +8,7 @@
 #include <tpm-v1.h>
 #include <asm/state.h>
 #include <asm/unaligned.h>
-#include <linux/crc8.h>
+#include <u-boot/crc.h>
 
 /* TPM NVRAM location indices. */
 #define FIRMWARE_NV_INDEX		0x1007
@@ -355,11 +355,11 @@ static const struct udevice_id sandbox_tpm_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(sandbox_tpm) = {
-	.name   = "sandbox_tpm",
+U_BOOT_DRIVER(google_sandbox_tpm) = {
+	.name   = "google_sandbox_tpm",
 	.id     = UCLASS_TPM,
 	.of_match = sandbox_tpm_ids,
 	.ops    = &sandbox_tpm_ops,
 	.probe	= sandbox_tpm_probe,
-	.priv_auto_alloc_size = sizeof(struct tpm_state),
+	.priv_auto	= sizeof(struct tpm_state),
 };

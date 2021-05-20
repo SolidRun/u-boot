@@ -6,8 +6,10 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <dm/read.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <misc.h>
 
@@ -107,7 +109,7 @@ static int vexpress_config_probe(struct udevice *dev)
 	if (!priv)
 		return -ENOMEM;
 
-	dev->uclass_priv = priv;
+	dev_get_uclass_priv(dev) = priv;
 	priv->addr = ofnode_get_addr(args.node);
 
 	return dev_read_u32(dev, "arm,vexpress,site", &priv->site);

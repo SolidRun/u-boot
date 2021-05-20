@@ -118,17 +118,27 @@
 	  "setenv efi_fdtfile ${soc}-${board}${boardver}.dtb; "           \
 	"fi; "
 #else
+#ifndef BOOTENV_EFI_SET_FDTFILE_FALLBACK
 #define BOOTENV_EFI_SET_FDTFILE_FALLBACK
 #endif
+#endif
 
-
-#define BOOTENV_SHARED_EFI                                                \
-	"boot_efi_binary="                                                \
+#ifdef CONFIG_CMD_BOOTEFI_BOOTMGR
+#define BOOTENV_EFI_BOOTMGR                                               \
+	"boot_efi_bootmgr="                                               \
 		"if fdt addr ${fdt_addr_r}; then "                        \
 			"bootefi bootmgr ${fdt_addr_r};"                  \
 		"else "                                                   \
-			"bootefi bootmgr ${fdtcontroladdr};"              \
-		"fi;"                                                     \
+			"bootefi bootmgr;"                                \
+		"fi\0"
+#else
+#define BOOTENV_EFI_BOOTMGR
+#endif
+
+#define BOOTENV_SHARED_EFI                                                \
+	BOOTENV_EFI_BOOTMGR                                               \
+	\
+	"boot_efi_binary="                                                \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
 			"${kernel_addr_r} efi/boot/"BOOTEFI_NAME"; "      \
 		"if fdt addr ${fdt_addr_r}; then "                        \
@@ -152,6 +162,7 @@
 				"run load_efi_dtb; "                      \
 			"fi;"                                             \
 		"done;"                                                   \
+		"run boot_efi_bootmgr;"                                   \
 		"if test -e ${devtype} ${devnum}:${distro_bootpart} "     \
 					"efi/boot/"BOOTEFI_NAME"; then "  \
 				"echo Found EFI removable media binary "  \
@@ -189,6 +200,7 @@
 		"fi\0" \
 	\
 	"nvme_boot=" \
+		BOOTENV_RUN_PCI_ENUM \
 		BOOTENV_RUN_NVME_INIT \
 		BOOTENV_SHARED_BLKDEV_BODY(nvme)
 #define BOOTENV_DEV_NVME	BOOTENV_DEV_BLKDEV
@@ -229,10 +241,23 @@
 #endif
 
 #ifdef CONFIG_IDE
-#define BOOTENV_SHARED_IDE	BOOTENV_SHARED_BLKDEV(ide)
+#define BOOTENV_RUN_IDE_INIT "run ide_init; "
+#define BOOTENV_SET_IDE_NEED_INIT "setenv ide_need_init; "
+#define BOOTENV_SHARED_IDE \
+	"ide_init=" \
+		"if ${ide_need_init}; then " \
+			"setenv ide_need_init false; " \
+			"ide reset; " \
+		"fi\0" \
+	\
+	"ide_boot=" \
+		BOOTENV_RUN_IDE_INIT \
+		BOOTENV_SHARED_BLKDEV_BODY(ide)
 #define BOOTENV_DEV_IDE		BOOTENV_DEV_BLKDEV
 #define BOOTENV_DEV_NAME_IDE	BOOTENV_DEV_NAME_BLKDEV
 #else
+#define BOOTENV_RUN_IDE_INIT
+#define BOOTENV_SET_IDE_NEED_INIT
 #define BOOTENV_SHARED_IDE
 #define BOOTENV_DEV_IDE \
 	BOOT_TARGET_DEVICES_references_IDE_without_CONFIG_IDE
@@ -241,11 +266,11 @@
 #endif
 
 #if defined(CONFIG_DM_PCI)
-#define BOOTENV_RUN_NET_PCI_ENUM "run boot_net_pci_enum; "
+#define BOOTENV_RUN_PCI_ENUM "run boot_pci_enum; "
 #define BOOTENV_SHARED_PCI \
-	"boot_net_pci_enum=pci enum\0"
+	"boot_pci_enum=pci enum\0"
 #else
-#define BOOTENV_RUN_NET_PCI_ENUM
+#define BOOTENV_RUN_PCI_ENUM
 #define BOOTENV_SHARED_PCI
 #endif
 
@@ -268,10 +293,24 @@
 #endif
 
 #ifdef CONFIG_CMD_VIRTIO
-#define BOOTENV_SHARED_VIRTIO	BOOTENV_SHARED_BLKDEV(virtio)
+#define BOOTENV_RUN_VIRTIO_INIT "run virtio_init; "
+#define BOOTENV_SET_VIRTIO_NEED_INIT "virtio_need_init=; "
+#define BOOTENV_SHARED_VIRTIO \
+	"virtio_init=" \
+		"if ${virtio_need_init}; then " \
+			"virtio_need_init=false; " \
+			"virtio scan; " \
+		"fi\0" \
+	\
+	"virtio_boot=" \
+		BOOTENV_RUN_PCI_ENUM \
+		BOOTENV_RUN_VIRTIO_INIT \
+		BOOTENV_SHARED_BLKDEV_BODY(virtio)
 #define BOOTENV_DEV_VIRTIO	BOOTENV_DEV_BLKDEV
 #define BOOTENV_DEV_NAME_VIRTIO	BOOTENV_DEV_NAME_BLKDEV
 #else
+#define BOOTENV_RUN_VIRTIO_INIT
+#define BOOTENV_SET_VIRTIO_NEED_INIT
 #define BOOTENV_SHARED_VIRTIO
 #define BOOTENV_DEV_VIRTIO \
 	BOOT_TARGET_DEVICES_references_VIRTIO_without_CONFIG_CMD_VIRTIO
@@ -336,8 +375,9 @@
 #endif
 #define BOOTENV_DEV_DHCP(devtypeu, devtypel, instance) \
 	"bootcmd_dhcp=" \
+		"setenv devtype " #devtypel "; " \
 		BOOTENV_RUN_NET_USB_START \
-		BOOTENV_RUN_NET_PCI_ENUM \
+		BOOTENV_RUN_PCI_ENUM \
 		"if dhcp ${scriptaddr} ${boot_script_dhcp}; then " \
 			"source ${scriptaddr}; " \
 		"fi;" \
@@ -356,7 +396,7 @@
 #define BOOTENV_DEV_PXE(devtypeu, devtypel, instance) \
 	"bootcmd_pxe=" \
 		BOOTENV_RUN_NET_USB_START \
-		BOOTENV_RUN_NET_PCI_ENUM \
+		BOOTENV_RUN_PCI_ENUM \
 		"dhcp; " \
 		"if pxe get; then " \
 			"pxe boot; " \
@@ -451,6 +491,8 @@
 	\
 	"distro_bootcmd=" BOOTENV_SET_SCSI_NEED_INIT                      \
 		BOOTENV_SET_NVME_NEED_INIT                                \
+		BOOTENV_SET_IDE_NEED_INIT                                 \
+		BOOTENV_SET_VIRTIO_NEED_INIT                              \
 		"for target in ${boot_targets}; do "                      \
 			"run bootcmd_${target}; "                         \
 		"done\0"

@@ -8,9 +8,12 @@
 
 import collections
 import struct
+import sys
+
+from patman import tools
 
 # constants imported from lib/fmap.h
-FMAP_SIGNATURE = '__FMAP__'
+FMAP_SIGNATURE = b'__FMAP__'
 FMAP_VER_MAJOR = 1
 FMAP_VER_MINOR = 0
 FMAP_STRLEN = 32
@@ -50,6 +53,8 @@ FmapArea = collections.namedtuple('FmapArea', FMAP_AREA_NAMES)
 
 
 def NameToFmap(name):
+    if type(name) == bytes:
+        name = name.decode('utf-8')
     return name.replace('\0', '').replace('-', '_').upper()
 
 def ConvertName(field_names, fields):
@@ -65,7 +70,7 @@ def ConvertName(field_names, fields):
             value: value of that field (string for the ones we support)
     """
     name_index = field_names.index('name')
-    fields[name_index] = NameToFmap(fields[name_index])
+    fields[name_index] = tools.ToBytes(NameToFmap(fields[name_index]))
 
 def DecodeFmap(data):
     """Decode a flashmap into a header and list of areas

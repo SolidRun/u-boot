@@ -10,11 +10,15 @@
 #include <clk.h>
 #include <dm.h>
 #include <dma.h>
+#include <log.h>
+#include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
 #include <reset.h>
 #include <wait_bit.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
+#include <linux/delay.h>
 
 #define ETH_PORT_STR			"brcm,enetsw-port"
 
@@ -245,8 +249,7 @@ static int bcm6368_eth_adjust_link(struct udevice *dev)
 
 		/* link changed */
 		if (!up) {
-			dev_info(&priv->pdev->dev, "link DOWN on %s\n",
-				 port->name);
+			dev_info(dev, "link DOWN on %s\n", port->name);
 			writeb_be(ETH_PORTOV_ENABLE_MASK,
 				  priv->base + ETH_PORTOV_REG(i));
 			writeb_be(ETH_PTCTRL_RXDIS_MASK |
@@ -503,7 +506,7 @@ static int bcm6368_mdio_init(const char *name, struct bcm6368_eth_priv *priv)
 
 static int bcm6368_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct bcm6368_eth_priv *priv = dev_get_priv(dev);
 	int num_ports, ret, i;
 	ofnode node;
@@ -634,7 +637,7 @@ U_BOOT_DRIVER(bcm6368_eth) = {
 	.id = UCLASS_ETH,
 	.of_match = bcm6368_eth_ids,
 	.ops = &bcm6368_eth_ops,
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
-	.priv_auto_alloc_size = sizeof(struct bcm6368_eth_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct bcm6368_eth_priv),
 	.probe = bcm6368_eth_probe,
 };

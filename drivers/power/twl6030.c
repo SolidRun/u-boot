@@ -4,6 +4,7 @@
  * Texas Instruments, <www.ti.com>
  */
 #include <config.h>
+#include <linux/delay.h>
 
 #include <twl6030.h>
 
@@ -269,7 +270,7 @@ void twl6030_usb_device_settings()
 	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_MISC2, value);
 }
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 int twl6030_i2c_write_u8(u8 chip_no, u8 reg, u8 val)
 {
 	struct udevice *dev;

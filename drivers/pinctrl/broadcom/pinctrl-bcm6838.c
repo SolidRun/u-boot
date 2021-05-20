@@ -4,6 +4,7 @@
 #include <dm.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <dm/device_compat.h>
 #include <dm/pinctrl.h>
 
 #define BCM6838_CMD_LOAD_MUX            0x21
@@ -156,6 +157,6 @@ U_BOOT_DRIVER(bcm6838_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = bcm6838_pinctrl_match,
 	.ops = &bcm6838_pinctrl_ops,
-	.priv_auto_alloc_size = sizeof(struct bcm6838_pinctrl_priv),
+	.priv_auto	= sizeof(struct bcm6838_pinctrl_priv),
 	.probe = bcm6838_pinctrl_probe,
 };

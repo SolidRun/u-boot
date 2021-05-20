@@ -10,7 +10,10 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <pwm.h>
+#include <asm/global_data.h>
+#include <dm/device_compat.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -87,7 +90,7 @@ static int pwm_regulator_set_voltage(struct udevice *dev, int uvolt)
 	return ret;
 }
 
-static int pwm_regulator_ofdata_to_platdata(struct udevice *dev)
+static int pwm_regulator_of_to_plat(struct udevice *dev)
 {
 	struct pwm_regulator_info *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args args;
@@ -120,9 +123,9 @@ static int pwm_regulator_ofdata_to_platdata(struct udevice *dev)
 static int pwm_regulator_probe(struct udevice *dev)
 {
 	struct pwm_regulator_info *priv = dev_get_priv(dev);
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	uc_pdata->type = REGULATOR_TYPE_BUCK;
 	uc_pdata->mode_count = 0;
@@ -152,6 +155,6 @@ U_BOOT_DRIVER(pwm_regulator) = {
 	.ops = &pwm_regulator_ops,
 	.probe = pwm_regulator_probe,
 	.of_match = pwm_regulator_ids,
-	.ofdata_to_platdata	= pwm_regulator_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct pwm_regulator_info),
+	.of_to_plat	= pwm_regulator_of_to_plat,
+	.priv_auto	= sizeof(struct pwm_regulator_info),
 };

@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 struct bcm6345_gpio_priv {
 	void __iomem *reg_dirout;
@@ -113,6 +114,6 @@ U_BOOT_DRIVER(bcm6345_gpio) = {
 	.id = UCLASS_GPIO,
 	.of_match = bcm6345_gpio_ids,
 	.ops = &bcm6345_gpio_ops,
-	.priv_auto_alloc_size = sizeof(struct bcm6345_gpio_priv),
+	.priv_auto	= sizeof(struct bcm6345_gpio_priv),
 	.probe = bcm6345_gpio_probe,
 };

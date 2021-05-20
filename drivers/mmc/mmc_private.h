@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2008,2010 Freescale Semiconductor, Inc
+ * Copyright 2020 NXP
  * Andy Fleming
  *
  * Based (loosely) on the Linux code
@@ -11,13 +12,11 @@
 
 #include <mmc.h>
 
-extern int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			struct mmc_data *data);
-extern int mmc_send_status(struct mmc *mmc, int timeout);
-extern int mmc_set_blocklen(struct mmc *mmc, int len);
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
-void mmc_adapter_card_type_ident(void);
-#endif
+int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data);
+int mmc_send_status(struct mmc *mmc, unsigned int *status);
+int mmc_poll_for_busy(struct mmc *mmc, int timeout);
+
+int mmc_set_blocklen(struct mmc *mmc, int len);
 
 #if CONFIG_IS_ENABLED(BLK)
 ulong mmc_bread(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,

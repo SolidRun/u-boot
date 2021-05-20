@@ -8,8 +8,15 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <eeprom.h>
+#include <image.h>
+#include <asm/global_data.h>
+#include <dm/uclass.h>
+#include <env.h>
+#include <fdt_support.h>
 #include <i2c.h>
+#include <init.h>
+#include <net.h>
 #include <linux/errno.h>
 #include <spl.h>
 #include <usb.h>
@@ -26,8 +33,6 @@
 #include <power/pmic.h>
 #include <power/tps65218.h>
 #include <power/tps62362.h>
-#include <miiphy.h>
-#include <cpsw.h>
 #include <linux/usb/gadget.h>
 #include <dwc3-uboot.h>
 #include <dwc3-omap-uboot.h>
@@ -388,7 +393,7 @@ void scale_vcores_generic(u32 m)
 {
 	int mpu_vdd, ddr_volt;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	if (i2c_probe(TPS65218_CHIP_PM))
 		return;
 #else
@@ -446,7 +451,7 @@ void scale_vcores_idk(u32 m)
 {
 	int mpu_vdd;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	if (i2c_probe(TPS62362_I2C_ADDR))
 		return;
 #else
@@ -487,7 +492,7 @@ void gpi2c_init(void)
 
 	if (first_time) {
 		enable_i2c0_pin_mux();
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED,
 			 CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
@@ -627,14 +632,14 @@ void sdram_init(void)
 int power_init_board(void)
 {
 	int rc;
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	struct pmic *p = NULL;
 #endif
 	if (board_is_idk()) {
 		rc = power_tps62362_init(0);
 		if (rc)
 			goto done;
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		p = pmic_get("TPS62362");
 		if (!p || pmic_probe(p))
 			goto done;
@@ -644,7 +649,7 @@ int power_init_board(void)
 		rc = power_tps65218_init(0);
 		if (rc)
 			goto done;
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		p = pmic_get("TPS65218_PMIC");
 		if (!p || pmic_probe(p))
 			goto done;
@@ -720,6 +725,7 @@ static int device_okay(const char *path)
 
 int board_late_init(void)
 {
+	struct udevice *dev;
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info_env(NULL);
 
@@ -737,6 +743,10 @@ int board_late_init(void)
 	if (device_okay("/ocp/omap_dwc3@483c0000"))
 		enable_usb_clocks(1);
 #endif
+
+	/* Just probe the potentially supported cdce913 device */
+	uclass_get_device_by_name(UCLASS_CLK, "cdce913@65", &dev);
+
 	return 0;
 }
 #endif
@@ -846,111 +856,8 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 #endif /* defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP) */
 #endif /* !CONFIG_IS_ENABLED(DM_USB_GADGET) */
 
-#ifdef CONFIG_DRIVER_TI_CPSW
-
-static void cpsw_control(int enabled)
-{
-	/* Additional controls can be added here */
-	return;
-}
-
-static struct cpsw_slave_data cpsw_slaves[] = {
-	{
-		.slave_reg_ofs	= 0x208,
-		.sliver_reg_ofs	= 0xd80,
-		.phy_addr	= 16,
-	},
-	{
-		.slave_reg_ofs	= 0x308,
-		.sliver_reg_ofs	= 0xdc0,
-		.phy_addr	= 1,
-	},
-};
-
-static struct cpsw_platform_data cpsw_data = {
-	.mdio_base		= CPSW_MDIO_BASE,
-	.cpsw_base		= CPSW_BASE,
-	.mdio_div		= 0xff,
-	.channels		= 8,
-	.cpdma_reg_ofs		= 0x800,
-	.slaves			= 1,
-	.slave_data		= cpsw_slaves,
-	.ale_reg_ofs		= 0xd00,
-	.ale_entries		= 1024,
-	.host_port_reg_ofs	= 0x108,
-	.hw_stats_reg_ofs	= 0x900,
-	.bd_ram_ofs		= 0x2000,
-	.mac_control		= (1 << 5),
-	.control		= cpsw_control,
-	.host_port_num		= 0,
-	.version		= CPSW_CTRL_VERSION_2,
-};
-
-int board_eth_init(bd_t *bis)
-{
-	int rv;
-	uint8_t mac_addr[6];
-	uint32_t mac_hi, mac_lo;
-
-	/* try reading mac address from efuse */
-	mac_lo = readl(&cdev->macid0l);
-	mac_hi = readl(&cdev->macid0h);
-	mac_addr[0] = mac_hi & 0xFF;
-	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
-	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
-	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
-	mac_addr[4] = mac_lo & 0xFF;
-	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
-
-	if (!env_get("ethaddr")) {
-		puts("<ethaddr> not set. Validating first E-fuse MAC\n");
-		if (is_valid_ethaddr(mac_addr))
-			eth_env_set_enetaddr("ethaddr", mac_addr);
-	}
-
-	mac_lo = readl(&cdev->macid1l);
-	mac_hi = readl(&cdev->macid1h);
-	mac_addr[0] = mac_hi & 0xFF;
-	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
-	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
-	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
-	mac_addr[4] = mac_lo & 0xFF;
-	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
-
-	if (!env_get("eth1addr")) {
-		if (is_valid_ethaddr(mac_addr))
-			eth_env_set_enetaddr("eth1addr", mac_addr);
-	}
-
-	if (board_is_eposevm()) {
-		writel(RMII_MODE_ENABLE | RMII_CHIPCKL_ENABLE, &cdev->miisel);
-		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RMII;
-		cpsw_slaves[0].phy_addr = 16;
-	} else if (board_is_sk()) {
-		writel(RGMII_MODE_ENABLE, &cdev->miisel);
-		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII;
-		cpsw_slaves[0].phy_addr = 4;
-		cpsw_slaves[1].phy_addr = 5;
-	} else if (board_is_idk()) {
-		writel(RGMII_MODE_ENABLE, &cdev->miisel);
-		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII;
-		cpsw_slaves[0].phy_addr = 0;
-	} else {
-		writel(RGMII_MODE_ENABLE, &cdev->miisel);
-		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII;
-		cpsw_slaves[0].phy_addr = 0;
-	}
-
-	rv = cpsw_register(&cpsw_data);
-	if (rv < 0)
-		printf("Error %d registering CPSW switch\n", rv);
-
-	return rv;
-}
-#endif
-
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 

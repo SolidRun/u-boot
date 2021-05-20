@@ -72,7 +72,10 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
+#include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <jffs2/load_kernel.h>
 #include <linux/list.h>
 #include <linux/ctype.h>
@@ -1232,11 +1235,11 @@ static uint64_t net_part_size(struct mtd_info *mtd, struct part_info *part)
 {
 	uint64_t i, net_size = 0;
 
-	if (!mtd->block_isbad)
+	if (!mtd->_block_isbad)
 		return part->size;
 
 	for (i = 0; i < part->size; i += mtd->erasesize) {
-		if (!mtd->block_isbad(mtd, part->offset + i))
+		if (!mtd->_block_isbad(mtd, part->offset + i))
 			net_size += mtd->erasesize;
 	}
 
@@ -1273,7 +1276,7 @@ static void print_partition_table(void)
 			part = list_entry(pentry, struct part_info, link);
 			net_size = net_part_size(mtd, part);
 			size_note = part->size == net_size ? " " : " (!)";
-			printf("%2d: %-20s0x%08x\t0x%08x%s\t0x%08x\t%d\n",
+			printf("%2d: %-20s0x%08llx\t0x%08x%s\t0x%08llx\t%d\n",
 					part_num, part->name, part->size,
 					net_size, size_note, part->offset,
 					part->mask_flags);
@@ -1914,7 +1917,8 @@ static struct part_info* mtd_part_info(struct mtd_device *dev, unsigned int part
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-static int do_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_chpart(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 /* command line only */
 	struct mtd_device *dev;
@@ -1952,8 +1956,8 @@ static int do_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_mtdparts(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	if (argc == 2) {
 		if (strcmp(argv[1], "default") == 0) {

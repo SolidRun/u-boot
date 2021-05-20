@@ -11,6 +11,7 @@
 #include <asm/arch/ccu.h>
 #include <dt-bindings/clock/sun8i-h3-ccu.h>
 #include <dt-bindings/reset/sun8i-h3-ccu.h>
+#include <linux/bitops.h>
 
 static struct ccu_clk_gate h3_gates[] = {
 	[CLK_BUS_MMC0]		= GATE(0x060, BIT(8)),
@@ -101,7 +102,7 @@ U_BOOT_DRIVER(clk_sun8i_h3) = {
 	.name		= "sun8i_h3_ccu",
 	.id		= UCLASS_CLK,
 	.of_match	= h3_ccu_ids,
-	.priv_auto_alloc_size	= sizeof(struct ccu_priv),
+	.priv_auto	= sizeof(struct ccu_priv),
 	.ops		= &sunxi_clk_ops,
 	.probe		= sunxi_clk_probe,
 	.bind		= h3_clk_bind,

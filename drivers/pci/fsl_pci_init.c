@@ -4,8 +4,13 @@
  */
 
 #include <common.h>
+#include <env.h>
+#include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/fsl_serdes.h>
+#include <asm/global_data.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -26,6 +31,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <pci.h>
 #include <asm/io.h>
 #include <asm/fsl_pci.h>
+
+#define MAX_PCI_REGIONS 7
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS 0
@@ -74,6 +81,9 @@ int fsl_setup_hose(struct pci_controller *hose, unsigned long addr)
 
 	/* Reset hose to make sure its in a clean state */
 	memset(hose, 0, sizeof(struct pci_controller));
+
+	hose->regions = (struct pci_region *)
+		calloc(1, MAX_PCI_REGIONS * sizeof(struct pci_region));
 
 	pci_setup_indirect(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 

@@ -6,6 +6,12 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
+#include <common.h>
+#include <dm.h>
+#include <asm/io.h>
+#include <linux/bitfield.h>
+#include <linux/bitops.h>
+
 #include "meson_vpu.h"
 
 /* OSDx_BLKx_CFG */
@@ -94,7 +100,7 @@ meson_vpp_disable_interlace_vscaler_osd1(struct meson_vpu_priv *priv)
 
 void meson_vpu_setup_plane(struct udevice *dev, bool is_interlaced)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct meson_vpu_priv *priv = dev_get_priv(dev);
 	u32 osd1_ctrl_stat;
@@ -108,12 +114,33 @@ void meson_vpu_setup_plane(struct udevice *dev, bool is_interlaced)
 	dest_y1 = src_y1 = 0;
 	dest_y2 = src_y2 = uc_priv->ysize;
 
-	/* Enable VPP Postblend */
-	writel(uc_priv->xsize,
-	       priv->io_base + _REG(VPP_POSTBLEND_H_SIZE));
+	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+		/* VD1 Preblend vertical start/end */
+		writel(FIELD_PREP(GENMASK(11, 0), 2303),
+		       priv->io_base + _REG(VPP_PREBLEND_VD1_V_START_END));
 
-	writel_bits(VPP_POSTBLEND_ENABLE, VPP_POSTBLEND_ENABLE,
-		    priv->io_base + _REG(VPP_MISC));
+		/* Setup Blender */
+		writel(uc_priv->xsize |
+		       uc_priv->ysize << 16,
+		       priv->io_base + _REG(VPP_POSTBLEND_H_SIZE));
+
+		writel(0 << 16 |
+		       (uc_priv->xsize - 1),
+		       priv->io_base + _REG(VPP_OSD1_BLD_H_SCOPE));
+		writel(0 << 16 |
+		       (uc_priv->ysize - 1),
+		       priv->io_base + _REG(VPP_OSD1_BLD_V_SCOPE));
+		writel(uc_priv->xsize << 16 |
+		       uc_priv->ysize,
+		       priv->io_base + _REG(VPP_OUT_H_V_SIZE));
+	} else {
+		/* Enable VPP Postblend */
+		writel(uc_priv->xsize,
+		       priv->io_base + _REG(VPP_POSTBLEND_H_SIZE));
+
+		writel_bits(VPP_POSTBLEND_ENABLE, VPP_POSTBLEND_ENABLE,
+			    priv->io_base + _REG(VPP_MISC));
+	}
 
 	/* uc_plat->base is the framebuffer */
 
@@ -172,6 +199,18 @@ void meson_vpu_setup_plane(struct udevice *dev, bool is_interlaced)
 			   MESON_CANVAS_BLKMODE_LINEAR);
 
 	/* Enable OSD1 */
-	writel_bits(VPP_OSD1_POSTBLEND, VPP_OSD1_POSTBLEND,
-		    priv->io_base + _REG(VPP_MISC));
+	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+		writel(((dest_x2 - 1) << 16) | dest_x1,
+		       priv->io_base + _REG(VIU_OSD_BLEND_DIN0_SCOPE_H));
+		writel(((dest_y2 - 1) << 16) | dest_y1,
+		       priv->io_base + _REG(VIU_OSD_BLEND_DIN0_SCOPE_V));
+		writel(uc_priv->xsize << 16 | uc_priv->ysize,
+		       priv->io_base + _REG(VIU_OSD_BLEND_BLEND0_SIZE));
+		writel(uc_priv->xsize << 16 | uc_priv->ysize,
+		       priv->io_base + _REG(VIU_OSD_BLEND_BLEND1_SIZE));
+		writel_bits(3 << 8, 3 << 8,
+			    priv->io_base + _REG(OSD1_BLEND_SRC_CTRL));
+	} else
+		writel_bits(VPP_OSD1_POSTBLEND, VPP_OSD1_POSTBLEND,
+			    priv->io_base + _REG(VPP_MISC));
 }

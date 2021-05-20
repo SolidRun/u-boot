@@ -6,6 +6,9 @@
 #ifndef __TEE_H
 #define __TEE_H
 
+#include <linux/bitops.h>
+#include <linux/list.h>
+
 #define TEE_UUID_LEN		16
 
 #define TEE_GEN_CAP_GP          BIT(0)	/* GlobalPlatform compliant TEE */

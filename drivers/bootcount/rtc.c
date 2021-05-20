@@ -6,6 +6,7 @@
 #include <common.h>
 #include <bootcount.h>
 #include <dm.h>
+#include <log.h>
 #include <rtc.h>
 
 static const u8 bootcount_magic = 0xbc;
@@ -82,7 +83,7 @@ static const struct udevice_id bootcount_rtc_ids[] = {
 U_BOOT_DRIVER(bootcount_rtc) = {
 	.name	= "bootcount-rtc",
 	.id	= UCLASS_BOOTCOUNT,
-	.priv_auto_alloc_size = sizeof(struct bootcount_rtc_priv),
+	.priv_auto	= sizeof(struct bootcount_rtc_priv),
 	.probe	= bootcount_rtc_probe,
 	.of_match = bootcount_rtc_ids,
 	.ops	= &bootcount_rtc_ops,

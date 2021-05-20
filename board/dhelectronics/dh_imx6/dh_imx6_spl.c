@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
@@ -20,10 +21,11 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <fuse.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <spl.h>
+#include <linux/delay.h>
 
 #define ENET_PAD_CTRL							\
 	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
@@ -440,8 +442,13 @@ static void setup_iomux_sd(void)
 
 /* SPI */
 static iomux_v3_cfg_t const ecspi1_pads[] = {
-	/* SS0 */
-	IOMUX_PADS(PAD_EIM_EB2__GPIO2_IO30	| MUX_PAD_CTRL(SPI_PAD_CTRL)),
+	/* SS0 - SS of boot flash */
+	IOMUX_PADS(PAD_EIM_EB2__GPIO2_IO30	|
+		MUX_PAD_CTRL(SPI_PAD_CTRL | PAD_CTL_PUS_100K_UP)),
+	/* SS2 - SS of DHCOM SPI1 */
+	IOMUX_PADS(PAD_KEY_ROW2__GPIO4_IO11	|
+		MUX_PAD_CTRL(SPI_PAD_CTRL | PAD_CTL_PUS_100K_UP)),
+
 	IOMUX_PADS(PAD_EIM_D17__ECSPI1_MISO	| MUX_PAD_CTRL(SPI_PAD_CTRL)),
 	IOMUX_PADS(PAD_EIM_D18__ECSPI1_MOSI	| MUX_PAD_CTRL(SPI_PAD_CTRL)),
 	IOMUX_PADS(PAD_EIM_D16__ECSPI1_SCLK	| MUX_PAD_CTRL(SPI_PAD_CTRL)),
@@ -470,6 +477,32 @@ static void setup_iomux_uart(void)
 {
 	SETUP_IOMUX_PADS(uart1_pads);
 }
+
+#ifdef CONFIG_FSL_USDHC
+struct fsl_esdhc_cfg usdhc_cfg[1] = {
+	{USDHC4_BASE_ADDR},
+};
+
+int board_mmc_get_env_dev(int devno)
+{
+	return devno - 1;
+}
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	return 1; /* eMMC/uSDHC4 is always present */
+}
+
+int board_mmc_init(struct bd_info *bis)
+{
+	SETUP_IOMUX_PADS(usdhc4_pads);
+	usdhc_cfg[0].esdhc_base = USDHC4_BASE_ADDR;
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
+	usdhc_cfg[0].max_bus_width = 8;
+
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+}
+#endif
 
 /* USB */
 static iomux_v3_cfg_t const usb_pads[] = {

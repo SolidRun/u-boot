@@ -10,7 +10,7 @@
 
 #include "pinctrl-imx.h"
 
-static struct imx_pinctrl_soc_info imx5_pinctrl_soc_info;
+static struct imx_pinctrl_soc_info imx5_pinctrl_soc_info __attribute__((section(".data")));
 
 static int imx5_pinctrl_probe(struct udevice *dev)
 {
@@ -38,9 +38,7 @@ U_BOOT_DRIVER(imx5_pinctrl) = {
 	.of_match = of_match_ptr(imx5_pinctrl_match),
 	.probe = imx5_pinctrl_probe,
 	.remove = imx_pinctrl_remove,
-	.priv_auto_alloc_size = sizeof(struct imx_pinctrl_priv),
+	.priv_auto	= sizeof(struct imx_pinctrl_priv),
 	.ops = &imx_pinctrl_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
-#endif
 };

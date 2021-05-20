@@ -7,8 +7,13 @@
 
 #include <common.h>
 #include <dm.h>
+#include <eeprom.h>
+#include <init.h>
+#include <log.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <ahci.h>
+#include <env.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -24,16 +29,13 @@
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
 #include <dwc_ahsata.h>
-#include <environment.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <input.h>
 #include <ipu_pixfmt.h>
 #include <linux/fb.h>
 #include <linux/input.h>
 #include <malloc.h>
-#include <micrel.h>
-#include <miiphy.h>
 #include <mmc.h>
 #include <netdev.h>
 #include <power/pmic.h>

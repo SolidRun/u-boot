@@ -8,7 +8,11 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <command.h>
+#include <hang.h>
+#include <log.h>
+#include <asm/global_data.h>
 #include <dm/device.h>
 #include <dm/root.h>
 #include <errno.h>
@@ -32,7 +36,7 @@ void bootm_announce_and_cleanup(void)
 	printf("\nStarting kernel ...\n\n");
 
 #ifdef CONFIG_SYS_COREBOOT
-	timestamp_add_now(TS_U_BOOT_START_KERNEL);
+	timestamp_add_now(TS_START_KERNEL);
 #endif
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
 #if CONFIG_IS_ENABLED(BOOTSTAGE_REPORT)
@@ -50,7 +54,7 @@ void bootm_announce_and_cleanup(void)
 #if defined(CONFIG_OF_LIBFDT) && !defined(CONFIG_OF_NO_KERNEL)
 int arch_fixup_memory_node(void *blob)
 {
-	bd_t	*bd = gd->bd;
+	struct bd_info	*bd = gd->bd;
 	int bank;
 	u64 start[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
@@ -133,7 +137,7 @@ static int boot_prep_linux(bootm_headers_t *images)
 	printf("Setup at %#08lx\n", images->ep);
 	ret = setup_zimage((void *)images->ep, cmd_line_dest,
 			0, images->rd_start,
-			images->rd_end - images->rd_start);
+			images->rd_end - images->rd_start, 0);
 
 	if (ret) {
 		printf("## Setting up boot parameters failed ...\n");
@@ -204,8 +208,8 @@ static int boot_jump_linux(bootm_headers_t *images)
 				 images->os.arch == IH_ARCH_X86_64);
 }
 
-int do_bootm_linux(int flag, int argc, char * const argv[],
-		bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *const argv[],
+		   bootm_headers_t *images)
 {
 	/* No need for those on x86 */
 	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)

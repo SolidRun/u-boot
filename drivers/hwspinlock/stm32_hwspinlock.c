@@ -3,11 +3,15 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_HWSPINLOCK
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <hwspinlock.h>
+#include <malloc.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define STM32_MUTEX_COREID	BIT(8)
 #define STM32_MUTEX_LOCK_BIT	BIT(31)
@@ -88,5 +92,5 @@ U_BOOT_DRIVER(hwspinlock_stm32mp1) = {
 	.of_match = stm32mp1_hwspinlock_ids,
 	.ops = &stm32mp1_hwspinlock_ops,
 	.probe = stm32mp1_hwspinlock_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32mp1_hws_priv),
+	.priv_auto	= sizeof(struct stm32mp1_hws_priv),
 };

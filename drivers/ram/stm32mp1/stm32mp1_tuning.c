@@ -2,12 +2,20 @@
 /*
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
+
+#define LOG_CATEGORY UCLASS_RAM
+
 #include <common.h>
 #include <console.h>
 #include <clk.h>
+#include <log.h>
 #include <ram.h>
+#include <rand.h>
 #include <reset.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/iopoll.h>
 
 #include "stm32mp1_ddr_regs.h"
 #include "stm32mp1_ddr.h"
@@ -75,6 +83,133 @@ static u8 get_nb_bytes(struct stm32mp1_ddrctl *ctl)
 	return nb_bytes;
 }
 
+static u8 get_nb_bank(struct stm32mp1_ddrctl *ctl)
+{
+	/* Count bank address bits */
+	u8 bits = 0;
+	u32 reg, val;
+
+	reg = readl(&ctl->addrmap1);
+	/* addrmap1.addrmap_bank_b1 */
+	val = (reg & GENMASK(5, 0)) >> 0;
+	if (val <= 31)
+		bits++;
+	/* addrmap1.addrmap_bank_b2 */
+	val = (reg & GENMASK(13, 8)) >> 8;
+	if (val <= 31)
+		bits++;
+	/* addrmap1.addrmap_bank_b3 */
+	val = (reg & GENMASK(21, 16)) >> 16;
+	if (val <= 31)
+		bits++;
+
+	return bits;
+}
+
+static u8 get_nb_col(struct stm32mp1_ddrctl *ctl)
+{
+	u8 bits;
+	u32 reg, val;
+
+	/* Count column address bits, start at 2 for b0 and b1 (fixed) */
+	bits = 2;
+
+	reg = readl(&ctl->addrmap2);
+	/* addrmap2.addrmap_col_b2 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap2.addrmap_col_b3 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+	/* addrmap2.addrmap_col_b4 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 7)
+		bits++;
+	/* addrmap2.addrmap_col_b5 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 7)
+		bits++;
+
+	reg = readl(&ctl->addrmap3);
+	/* addrmap3.addrmap_col_b6 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap3.addrmap_col_b7 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+	/* addrmap3.addrmap_col_b8 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 7)
+		bits++;
+	/* addrmap3.addrmap_col_b9 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 7)
+		bits++;
+
+	reg = readl(&ctl->addrmap4);
+	/* addrmap4.addrmap_col_b10 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap4.addrmap_col_b11 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+
+	return bits;
+}
+
+static u8 get_nb_row(struct stm32mp1_ddrctl *ctl)
+{
+	/* Count row address bits */
+	u8 bits = 0;
+	u32 reg, val;
+
+	reg = readl(&ctl->addrmap5);
+	/* addrmap5.addrmap_row_b0 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 11)
+		bits++;
+	/* addrmap5.addrmap_row_b1 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 11)
+		bits++;
+	/* addrmap5.addrmap_row_b2_10 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 11)
+		bits += 9;
+	else
+		printf("warning: addrmap5.addrmap_row_b2_10 not supported\n");
+	/* addrmap5.addrmap_row_b11 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 11)
+		bits++;
+
+	reg = readl(&ctl->addrmap6);
+	/* addrmap6.addrmap_row_b12 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap6.addrmap_row_b13 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+	/* addrmap6.addrmap_row_b14 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 7)
+		bits++;
+	/* addrmap6.addrmap_row_b15 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 7)
+		bits++;
+
+	return bits;
+}
+
 static void itm_soft_reset(struct stm32mp1_ddrphy *phy)
 {
 	stm32mp1_ddrphy_init(phy, DDRPHYC_PIR_ITMSRST);
@@ -95,8 +230,7 @@ static u8 DQ_unit_index(struct stm32mp1_ddrphy *phy, u8 byte, u8 bit)
 	index = (readl(addr) >> DDRPHYC_DXNDQTR_DQDLY_SHIFT(bit))
 		& DDRPHYC_DXNDQTR_DQDLY_LOW_MASK;
 
-	pr_debug("%s: [%x]: %x => DQ unit index = %x\n",
-		 __func__, addr, readl(addr), index);
+	log_debug("[%x]: %x => DQ unit index = %x\n", addr, readl(addr), index);
 
 	return index;
 }
@@ -169,8 +303,13 @@ static void set_r0dgps_delay(struct stm32mp1_ddrphy *phy,
 }
 
 /* Basic BIST configuration for data lane tests. */
-static void config_BIST(struct stm32mp1_ddrphy *phy)
+static void config_BIST(struct stm32mp1_ddrctl *ctl,
+			struct stm32mp1_ddrphy *phy)
 {
+	u8 nb_bank = get_nb_bank(ctl);
+	u8 nb_row = get_nb_row(ctl);
+	u8 nb_col = get_nb_col(ctl);
+
 	/* Selects the SDRAM bank address to be used during BIST. */
 	u32 bbank = 0;
 	/* Selects the SDRAM row address to be used during BIST. */
@@ -190,18 +329,20 @@ static void config_BIST(struct stm32mp1_ddrphy *phy)
 	 * must be 0 with single rank
 	 */
 	u32 brank = 0;
+
 	/* Specifies the maximum SDRAM bank address to be used during
 	 * BIST before the address & increments to the next rank.
 	 */
-	u32 bmbank = 1;
+	u32 bmbank = (1 << nb_bank) - 1;
 	/* Specifies the maximum SDRAM row address to be used during
 	 * BIST before the address & increments to the next bank.
 	 */
-	u32 bmrow = 0x7FFF; /* To check */
+	u32 bmrow = (1 << nb_row) - 1;
 	/* Specifies the maximum SDRAM column address to be used during
 	 * BIST before the address & increments to the next row.
 	 */
-	u32 bmcol = 0x3FF;  /* To check */
+	u32 bmcol = (1 << nb_col) - 1;
+
 	u32 bmode_conf = 0x00000001;  /* DRam mode */
 	u32 bdxen_conf = 0x00000001;  /* BIST on Data byte */
 	u32 bdpat_conf = 0x00000002;  /* Select LFSR pattern */
@@ -223,8 +364,6 @@ static void config_BIST(struct stm32mp1_ddrphy *phy)
 
 	writel(bcol | (brow << 12) | (bbank << 28), &phy->bistar0);
 	writel(brank | (bmrank << 2) | (bainc << 4), &phy->bistar1);
-
-	/* To check this line : */
 	writel(bmcol | (bmrow << 12) | (bmbank << 28), &phy->bistar2);
 }
 
@@ -246,6 +385,8 @@ static void BIST_test(struct stm32mp1_ddrphy *phy, u8 byte,
 	bool result = true; /* BIST_SUCCESS */
 	u32 cnt = 0;
 	u32 error = 0;
+	u32 val;
+	int ret;
 
 	bist->test_result = true;
 
@@ -266,7 +407,7 @@ run:
 		writel(rand(), &phy->bistlsr);
 
 	/* some delay to reset BIST */
-	mdelay(1);
+	udelay(10);
 
 	/*Perform BIST Run*/
 	clrsetbits_le32(&phy->bistrr,
@@ -274,27 +415,29 @@ run:
 			0x00000001);
 	/* Write BISTRR.BINST = 3?b001; */
 
-	/* Wait for a number of CTL clocks before reading BIST register*/
-	/* Wait 300 ctl_clk cycles;  ... IS it really needed?? */
-	/* Perform BIST Instruction Stop*/
-	/* Write BISTRR.BINST = 3?b010;*/
+	/* poll on BISTGSR.BDONE and wait max 1000 us */
+	ret = readl_poll_timeout(&phy->bistgsr, val,
+				 val & DDRPHYC_BISTGSR_BDDONE, 1000);
 
-	/* poll on BISTGSR.BDONE. If 0, wait.  ++TODO Add timeout */
-	while (!(readl(&phy->bistgsr) & DDRPHYC_BISTGSR_BDDONE))
-		;
-
-	/*Check if received correct number of words*/
-	/* if (Read BISTWCSR.DXWCNT = Read BISTWCR.BWCNT) */
-	if (((readl(&phy->bistwcsr)) >> DDRPHYC_BISTWCSR_DXWCNT_SHIFT) ==
-	    readl(&phy->bistwcr)) {
-		/*Determine if there is a data comparison error*/
-		/* if (Read BISTGSR.BDXERR = 1?b0) */
-		if (readl(&phy->bistgsr) & DDRPHYC_BISTGSR_BDXERR)
-			result = false; /* BIST_FAIL; */
-		else
-			result = true; /* BIST_SUCCESS; */
-	} else {
+	if (ret < 0) {
+		printf("warning: BIST timeout\n");
 		result = false; /* BIST_FAIL; */
+		/*Perform BIST Stop */
+		clrsetbits_le32(&phy->bistrr, 0x00000007, 0x00000002);
+	} else {
+		/*Check if received correct number of words*/
+		/* if (Read BISTWCSR.DXWCNT = Read BISTWCR.BWCNT) */
+		if (((readl(&phy->bistwcsr)) >> DDRPHYC_BISTWCSR_DXWCNT_SHIFT)
+		    == readl(&phy->bistwcr)) {
+			/*Determine if there is a data comparison error*/
+			/* if (Read BISTGSR.BDXERR = 1?b0) */
+			if (readl(&phy->bistgsr) & DDRPHYC_BISTGSR_BDXERR)
+				result = false; /* BIST_FAIL; */
+			else
+				result = true; /* BIST_SUCCESS; */
+		} else {
+			result = false; /* BIST_FAIL; */
+		}
 	}
 
 	/* loop while success */
@@ -329,13 +472,13 @@ static void apply_deskew_results(struct stm32mp1_ddrphy *phy, u8 byte,
 	for (bit_i = 0; bit_i < 8; bit_i++) {
 		set_DQ_unit_delay(phy, byte, bit_i, deskew_delay[byte][bit_i]);
 		index = DQ_unit_index(phy, byte, bit_i);
-		pr_debug("Byte %d ; bit %d : The new DQ delay (%d) index=%d [delta=%d, 3 is the default]",
-			 byte, bit_i, deskew_delay[byte][bit_i],
-			 index, index - 3);
+		log_debug("Byte %d ; bit %d : The new DQ delay (%d) index=%d [delta=%d, 3 is the default]",
+			  byte, bit_i, deskew_delay[byte][bit_i],
+			  index, index - 3);
 		printf("Byte %d, bit %d, DQ delay = %d",
 		       byte, bit_i, deskew_delay[byte][bit_i]);
 		if (deskew_non_converge[byte][bit_i] == 1)
-			pr_debug(" - not converged : still more skew");
+			log_debug(" - not converged : still more skew");
 		printf("\n");
 	}
 }
@@ -394,8 +537,8 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 	clrbits_le32(&phy->dx3gcr, DDRPHYC_DXNGCR_DXEN);
 
 	/* Config the BIST block */
-	config_BIST(phy);
-	pr_debug("BIST Config done.\n");
+	config_BIST(ctl, phy);
+	log_debug("BIST Config done.\n");
 
 	/* Train each byte */
 	for (datx8 = 0; datx8 < nb_bytes; datx8++) {
@@ -404,9 +547,9 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 				datx8 + 1, nb_bytes, error);
 			return TEST_FAILED;
 		}
-		pr_debug("\n======================\n");
-		pr_debug("Start deskew byte %d .\n", datx8);
-		pr_debug("======================\n");
+		log_debug("\n======================\n");
+		log_debug("Start deskew byte %d .\n", datx8);
+		log_debug("======================\n");
 		/* Enable Byte (DXNGCR, bit DXEN) */
 		setbits_le32(DXNGCR(phy, datx8), DDRPHYC_DXNGCR_DXEN);
 
@@ -443,7 +586,7 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 		 * Else, look for Pass init condition
 		 */
 		if (!success) {
-			pr_debug("Fail at init condtion. Let's look for a good init condition.\n");
+			log_debug("Fail at init condtion. Let's look for a good init condition.\n");
 			success = 0; /* init */
 			/* Make sure we start with a PASS condition before
 			 * looking for a fail condition.
@@ -451,7 +594,7 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 			 */
 
 			/* escape if we find a PASS */
-			pr_debug("increase Phase idx\n");
+			log_debug("increase Phase idx\n");
 			while (!success && (phase_idx <= MAX_DQS_PHASE_IDX)) {
 				DQS_phase_delay(phy, datx8, phase_idx);
 				BIST_test(phy, datx8, &result);
@@ -477,7 +620,7 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 			 * we have hold violation, lets try reduce DQS_unit
 			 * Delay
 			 */
-			pr_debug("Still fail. Try decrease DQS Unit delay\n");
+			log_debug("Still fail. Try decrease DQS Unit delay\n");
 
 			phase_idx = 0;
 			dqs_unit_delay_index = 0;
@@ -524,9 +667,9 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 			return TEST_FAILED;
 		}
 
-		pr_debug("there is a pass region for phase idx %d\n",
-			 phase_idx);
-		pr_debug("Step1: Find the first failing condition\n");
+		log_debug("there is a pass region for phase idx %d\n",
+			  phase_idx);
+		log_debug("Step1: Find the first failing condition\n");
 		/* Look for the first failing condition by PHASE stepping.
 		 * This part of the algo can finish without converging.
 		 */
@@ -551,9 +694,9 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 		 * stepping (minimal delay)
 		 */
 		if (!success) {
-			pr_debug("Fail region (PHASE) found phase idx %d\n",
-				 phase_idx);
-			pr_debug("Let's look for first success by DQS Unit steps\n");
+			log_debug("Fail region (PHASE) found phase idx %d\n",
+				  phase_idx);
+			log_debug("Let's look for first success by DQS Unit steps\n");
 			/* This part, the algo always converge */
 			phase_idx--;
 
@@ -580,7 +723,7 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 				/*+1 to get back to current condition */
 				last_right_ok.unit = dqs_unit_delay_index + 1;
 				last_right_ok.bits_delay = 0xFFFFFFFF;
-				pr_debug("Found %d\n", dqs_unit_delay_index);
+				log_debug("Found %d\n", dqs_unit_delay_index);
 			} else {
 				/* the last OK condition is then with the
 				 * previous phase_idx.
@@ -594,8 +737,8 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 				 */
 				last_right_ok.unit = 1;
 				last_right_ok.bits_delay = 0xFFFFFFFF;
-				pr_debug("Not Found : try previous phase %d\n",
-					 phase_idx - 1);
+				log_debug("Not Found : try previous phase %d\n",
+					  phase_idx - 1);
 
 				DQS_phase_delay(phy, datx8, phase_idx - 1);
 				dqs_unit_delay_index = 0;
@@ -608,8 +751,8 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 					BIST_test(phy, datx8, &result);
 					success = result.test_result;
 					dqs_unit_delay_index++;
-					pr_debug("dqs_unit_delay_index = %d, result = %d\n",
-						 dqs_unit_delay_index, success);
+					log_debug("dqs_unit_delay_index = %d, result = %d\n",
+						  dqs_unit_delay_index, success);
 				}
 
 				if (!success) {
@@ -617,7 +760,7 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 						 dqs_unit_delay_index - 1;
 				} else {
 					last_right_ok.unit = 0;
-					pr_debug("ERROR: failed region not FOUND");
+					log_debug("ERROR: failed region not FOUND");
 				}
 			}
 		} else {
@@ -634,7 +777,7 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 			last_right_ok.phase = MAX_DQS_PHASE_IDX;
 			last_right_ok.unit = MAX_DQS_UNIT_IDX;
 			last_right_ok.bits_delay = 0xFFFFFFFF;
-			pr_debug("Can't find the a fail condition\n");
+			log_debug("Can't find the a fail condition\n");
 		}
 
 		/* step 2:
@@ -646,9 +789,9 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 		 */
 		printf("Byte %d, DQS unit = %d, phase = %d\n",
 		       datx8, last_right_ok.unit, last_right_ok.phase);
-		pr_debug("Step2, unit = %d, phase = %d, bits delay=%x\n",
-			 last_right_ok.unit, last_right_ok.phase,
-			 last_right_ok.bits_delay);
+		log_debug("Step2, unit = %d, phase = %d, bits delay=%x\n",
+			  last_right_ok.unit, last_right_ok.phase,
+			  last_right_ok.bits_delay);
 
 		/* Restore the last_right_ok condtion. */
 		DQS_unit_delay(phy, datx8, last_right_ok.unit);
@@ -671,7 +814,7 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 					datx8 + 1, nb_bytes, error);
 				return error;
 			}
-			pr_debug("deskewing bit %d:\n", bit_i);
+			log_debug("deskewing bit %d:\n", bit_i);
 			success = 1; /* init */
 			/* Set all DQDLYn to maximum value.
 			 * Only bit_i will be down-delayed
@@ -714,10 +857,10 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 				 * at one bit.
 				 */
 				fail_found = 1;
-				pr_debug("Fail found on bit %d, for delay = %d => deskew[%d][%d] = %d\n",
-					 bit_i, bit_i_delay_index + 1,
-					 datx8, bit_i,
-					 deskew_delay[datx8][bit_i]);
+				log_debug("Fail found on bit %d, for delay = %d => deskew[%d][%d] = %d\n",
+					  bit_i, bit_i_delay_index + 1,
+					  datx8, bit_i,
+					  deskew_delay[datx8][bit_i]);
 			} else {
 				/* if we can find a success condition by
 				 * back-delaying this bit, just set the delay
@@ -729,20 +872,20 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 				 * in the report.
 				 */
 				deskew_non_converge[datx8][bit_i] = 1;
-				pr_debug("Fail not found on bit %d => deskew[%d][%d] = %d\n",
-					 bit_i, datx8, bit_i,
-					 deskew_delay[datx8][bit_i]);
+				log_debug("Fail not found on bit %d => deskew[%d][%d] = %d\n",
+					  bit_i, datx8, bit_i,
+					  deskew_delay[datx8][bit_i]);
 			}
 		}
-		pr_debug("**********byte %d tuning complete************\n",
-			 datx8);
+		log_debug("**********byte %d tuning complete************\n",
+			  datx8);
 		/* If we can't find any failure by back delaying DQ lines,
 		 * hold the default values
 		 */
 		if (!fail_found) {
 			for (bit_i = 0; bit_i < 8; bit_i++)
 				deskew_delay[datx8][bit_i] = 0;
-			pr_debug("The Deskew algorithm can't converge, there is too much margin in your design. Good job!\n");
+			log_debug("The Deskew algorithm can't converge, there is too much margin in your design. Good job!\n");
 		}
 
 		apply_deskew_results(phy, datx8, deskew_delay,
@@ -807,7 +950,7 @@ static enum test_result eye_training(struct stm32mp1_ddrctl *ctl,
 	clrbits_le32(&phy->dx3gcr, DDRPHYC_DXNGCR_DXEN);
 
 	/* Config the BIST block */
-	config_BIST(phy);
+	config_BIST(ctl, phy);
 
 	for (byte = 0; byte < nb_bytes; byte++) {
 		if (ctrlc()) {
@@ -845,7 +988,7 @@ static enum test_result eye_training(struct stm32mp1_ddrctl *ctl,
 		dqs_unit_delay_index_pass = dqs_unit_delay_index;
 		success = 0;
 
-		pr_debug("STEP0: Find Init delay\n");
+		log_debug("STEP0: Find Init delay\n");
 		/* STEP0: Find Init delay: a delay that put the system
 		 * in a "Pass" condition then (TODO) update
 		 * dqs_unit_delay_index_pass & phase_idx_pass
@@ -894,7 +1037,7 @@ static enum test_result eye_training(struct stm32mp1_ddrctl *ctl,
 				byte + 1, nb_bytes, error);
 			return TEST_FAILED;
 		}
-		pr_debug("STEP1: Find LEFT PHASE DQS Bound\n");
+		log_debug("STEP1: Find LEFT PHASE DQS Bound\n");
 		/* STEP1: Find LEFT PHASE DQS Bound */
 		while ((phase_idx >= 0) &&
 		       (phase_idx <= MAX_DQS_PHASE_IDX) &&
@@ -928,7 +1071,7 @@ static enum test_result eye_training(struct stm32mp1_ddrctl *ctl,
 				byte + 1, nb_bytes, error);
 			return TEST_FAILED;
 		}
-		pr_debug("STEP2: Find UNIT left bound\n");
+		log_debug("STEP2: Find UNIT left bound\n");
 		/* STEP2: Find UNIT left bound */
 		while ((dqs_unit_delay_index >= 0) &&
 		       !left_unit_bound_found) {
@@ -956,7 +1099,7 @@ static enum test_result eye_training(struct stm32mp1_ddrctl *ctl,
 				byte + 1, nb_bytes, error);
 			return TEST_FAILED;
 		}
-		pr_debug("STEP3: Find PHase right bound\n");
+		log_debug("STEP3: Find PHase right bound\n");
 		/* STEP3: Find PHase right bound, start with "pass"
 		 * condition
 		 */
@@ -994,7 +1137,7 @@ static enum test_result eye_training(struct stm32mp1_ddrctl *ctl,
 				byte + 1, nb_bytes, error);
 			return TEST_FAILED;
 		}
-		pr_debug("STEP4: Find UNIT right bound\n");
+		log_debug("STEP4: Find UNIT right bound\n");
 		/* STEP4: Find UNIT right bound */
 		while ((dqs_unit_delay_index <= MAX_DQS_UNIT_IDX) &&
 		       !right_unit_bound_found) {
@@ -1033,12 +1176,12 @@ static enum test_result eye_training(struct stm32mp1_ddrctl *ctl,
 			if (((right_bound.phase + left_bound.phase) % 2 == 1) &&
 			    eye_training_val[byte][1] != MAX_DQS_UNIT_IDX)
 				eye_training_val[byte][1]++;
-			pr_debug("** found phase : %d -  %d & unit %d - %d\n",
-				 right_bound.phase, left_bound.phase,
-				 right_bound.unit, left_bound.unit);
-			pr_debug("** calculating mid region: phase: %d  unit: %d (nominal is 3)\n",
-				 eye_training_val[byte][0],
-				 eye_training_val[byte][1]);
+			log_debug("** found phase : %d -  %d & unit %d - %d\n",
+				  right_bound.phase, left_bound.phase,
+				  right_bound.unit, left_bound.unit);
+			log_debug("** calculating mid region: phase: %d  unit: %d (nominal is 3)\n",
+				  eye_training_val[byte][0],
+				  eye_training_val[byte][1]);
 		} else {
 			/* PPPPPPPPPP, we're already good.
 			 * Set nominal values.
@@ -1139,11 +1282,11 @@ static u8 set_midpoint_read_dqs_gating(struct stm32mp1_ddrphy *phy, u8 byte,
 		 * or pppppff  or ffppppp
 		 */
 		if (left_bound_found || right_bound_found) {
-			pr_debug("idx0(%d): %d %d      idx1(%d) : %d %d\n",
-				 left_bound_found,
-				 right_bound_idx[0], left_bound_idx[0],
-				 right_bound_found,
-				 right_bound_idx[1], left_bound_idx[1]);
+			log_debug("idx0(%d): %d %d      idx1(%d) : %d %d\n",
+				  left_bound_found,
+				  right_bound_idx[0], left_bound_idx[0],
+				  right_bound_found,
+				  right_bound_idx[1], left_bound_idx[1]);
 			dqs_gate_values[byte][0] =
 				(right_bound_idx[0] + left_bound_idx[0]) / 2;
 			dqs_gate_values[byte][1] =
@@ -1178,19 +1321,21 @@ static u8 set_midpoint_read_dqs_gating(struct stm32mp1_ddrphy *phy, u8 byte,
 						left_bound_idx[0];
 				}
 			}
-			pr_debug("*******calculating mid region: system latency: %d  phase: %d********\n",
-				 dqs_gate_values[byte][0],
-				 dqs_gate_values[byte][1]);
-			pr_debug("*******the nominal values were system latency: 0  phase: 2*******\n");
-			set_r0dgsl_delay(phy, byte, dqs_gate_values[byte][0]);
-			set_r0dgps_delay(phy, byte, dqs_gate_values[byte][1]);
+			log_debug("*******calculating mid region: system latency: %d  phase: %d********\n",
+				  dqs_gate_values[byte][0],
+				  dqs_gate_values[byte][1]);
+			log_debug("*******the nominal values were system latency: 0  phase: 2*******\n");
 		}
 	} else {
 		/* if intermitant, restore defaut values */
-		pr_debug("dqs gating:no regular fail/pass/fail found. defaults values restored.\n");
-		set_r0dgsl_delay(phy, byte, 0);
-		set_r0dgps_delay(phy, byte, 2);
+		log_debug("dqs gating:no regular fail/pass/fail found. defaults values restored.\n");
+		dqs_gate_values[byte][0] = 0;
+		dqs_gate_values[byte][1] = 2;
 	}
+	set_r0dgsl_delay(phy, byte, dqs_gate_values[byte][0]);
+	set_r0dgps_delay(phy, byte, dqs_gate_values[byte][1]);
+	printf("Byte %d, R0DGSL = %d, R0DGPS = %d\n",
+	       byte, dqs_gate_values[byte][0], dqs_gate_values[byte][1]);
 
 	/* return 0 if intermittent or if both left_bound
 	 * and right_bound are not found
@@ -1227,7 +1372,7 @@ static enum test_result read_dqs_gating(struct stm32mp1_ddrctl *ctl,
 	clrbits_le32(&phy->dx3gcr, DDRPHYC_DXNGCR_DXEN);
 
 	/* config the bist block */
-	config_BIST(phy);
+	config_BIST(ctl, phy);
 
 	for (byte = 0; byte < nb_bytes; byte++) {
 		if (ctrlc()) {
@@ -1281,11 +1426,16 @@ static enum test_result do_read_dqs_gating(struct stm32mp1_ddrctl *ctl,
 {
 	u32 rfshctl3 = readl(&ctl->rfshctl3);
 	u32 pwrctl = readl(&ctl->pwrctl);
+	u32 derateen = readl(&ctl->derateen);
 	enum test_result res;
 
+	writel(0x0, &ctl->derateen);
 	stm32mp1_refresh_disable(ctl);
+
 	res = read_dqs_gating(ctl, phy, string);
+
 	stm32mp1_refresh_restore(ctl, rfshctl3, pwrctl);
+	writel(derateen, &ctl->derateen);
 
 	return res;
 }
@@ -1296,11 +1446,16 @@ static enum test_result do_bit_deskew(struct stm32mp1_ddrctl *ctl,
 {
 	u32 rfshctl3 = readl(&ctl->rfshctl3);
 	u32 pwrctl = readl(&ctl->pwrctl);
+	u32 derateen = readl(&ctl->derateen);
 	enum test_result res;
 
+	writel(0x0, &ctl->derateen);
 	stm32mp1_refresh_disable(ctl);
+
 	res = bit_deskew(ctl, phy, string);
+
 	stm32mp1_refresh_restore(ctl, rfshctl3, pwrctl);
+	writel(derateen, &ctl->derateen);
 
 	return res;
 }
@@ -1311,11 +1466,16 @@ static enum test_result do_eye_training(struct stm32mp1_ddrctl *ctl,
 {
 	u32 rfshctl3 = readl(&ctl->rfshctl3);
 	u32 pwrctl = readl(&ctl->pwrctl);
+	u32 derateen = readl(&ctl->derateen);
 	enum test_result res;
 
+	writel(0x0, &ctl->derateen);
 	stm32mp1_refresh_disable(ctl);
+
 	res = eye_training(ctl, phy, string);
+
 	stm32mp1_refresh_restore(ctl, rfshctl3, pwrctl);
+	writel(derateen, &ctl->derateen);
 
 	return res;
 }

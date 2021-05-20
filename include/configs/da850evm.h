@@ -13,19 +13,7 @@
 /*
  * Board
  */
-/* check if direct NOR boot config is used */
-#ifndef CONFIG_DIRECT_NOR_BOOT
-#define CONFIG_USE_SPIFLASH
-#endif
 
-/*
-* Disable DM_* for SPL build and can be re-enabled after adding
-* DM support in SPL
-*/
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_I2C
-#undef CONFIG_DM_I2C_COMPAT
-#endif
 /*
  * SoC Configuration
  */
@@ -34,10 +22,9 @@
 #define CONFIG_SYS_OSCIN_FREQ		24000000
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
-#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
-#ifdef CONFIG_DIRECT_NOR_BOOT
-#define CONFIG_ARCH_CPU_INIT
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_SYS_DV_NOR_BOOT_CFG	(0x11)
 #endif
 
@@ -51,10 +38,8 @@
 #define CONFIG_SPL_BSS_START_ADDR DAVINCI_DDR_EMIF_DATA_BASE
 #define CONFIG_SPL_BSS_MAX_SIZE 0x1080000
 /* memtest start addr */
-#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + 0x2000000)
 
 /* memtest will be run on 16MB */
-#define CONFIG_SYS_MEMTEST_END 	(PHYS_SDRAM_1 + 0x2000000 + 16*1024*1024)
 
 #define CONFIG_SYS_DA850_SYSCFG_SUSPSRC (	\
 	DAVINCI_SYSCFG_SUSPSRC_TIMER0 |		\
@@ -114,22 +99,9 @@
 /*
  * Serial Driver info
  */
-
-#if !CONFIG_IS_ENABLED(DM_SERIAL)
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_COM1	DAVINCI_UART2_BASE /* Base address of UART2 */
-#endif
 #define CONFIG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
 
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI1_CLKID)
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
-#endif
-
-#ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
-#endif
 
 /*
  * I2C Configuration
@@ -141,13 +113,7 @@
 /*
  * Flash & Environment
  */
-#ifdef CONFIG_NAND
-#ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET		0x0 /* Block 0--not used by bootcode */
-#define CONFIG_ENV_SIZE			(128 << 10)
-#define CONFIG_ENV_SECT_SIZE	(128 << 10)
-#endif
-#define	CONFIG_SYS_NAND_USE_FLASH_BBT
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define	CONFIG_SYS_NAND_PAGE_2K
 #define CONFIG_SYS_NAND_CS		3
@@ -178,42 +144,27 @@
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	10
 #define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_NAND_LOAD
+
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_SYS_NAND_SELF_INIT
+#endif
 #endif
 
 /*
  * Network & Ethernet Configuration
  */
 #ifdef CONFIG_DRIVER_TI_EMAC
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
 #endif
 
-#ifdef CONFIG_USE_NOR
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* max number of flash banks */
 #define CONFIG_SYS_FLASH_SECT_SZ	(128 << 10) /* 128KB */
-#define CONFIG_ENV_OFFSET		(CONFIG_SYS_FLASH_SECT_SZ * 3)
-#define CONFIG_ENV_SIZE			(10 << 10) /* 10KB */
 #define CONFIG_SYS_FLASH_BASE		DAVINCI_ASYNC_EMIF_DATA_CE2_BASE
 #define PHYS_FLASH_SIZE			(8 << 20) /* Flash size 8MB */
 #define CONFIG_SYS_MAX_FLASH_SECT ((PHYS_FLASH_SIZE/CONFIG_SYS_FLASH_SECT_SZ)\
 	       + 3)
-#define CONFIG_ENV_SECT_SIZE		CONFIG_SYS_FLASH_SECT_SZ
-#endif
-
-#ifdef CONFIG_USE_SPIFLASH
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE			(64 << 10)
-#define CONFIG_ENV_OFFSET		(512 << 10)
-#define CONFIG_ENV_SECT_SIZE	(64 << 10)
-#endif
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_SPI_FLASH_MTD
-#endif
 #endif
 
 /*
@@ -223,7 +174,6 @@
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 #define CONFIG_SYS_LOAD_ADDR	(PHYS_SDRAM_1 + 0x700000)
-#define CONFIG_MX_CYCLIC
 
 /*
  * Linux Information
@@ -261,28 +211,22 @@
 #define CONFIG_CLOCKS
 #endif
 
-#if !defined(CONFIG_NAND) && \
-	!defined(CONFIG_USE_NOR) && \
-	!defined(CONFIG_USE_SPIFLASH)
-#define CONFIG_ENV_SIZE		(16 << 10)
+/* USB Configs */
+#define CONFIG_USB_OHCI_NEW
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
+
+#ifndef CONFIG_MTD_NOR_FLASH
+#define CONFIG_SPL_PAD_TO	32768
 #endif
 
-/* USB Configs */
-#define CONFIG_SYS_USB_OHCI_CPU_INIT
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_USB_STORAGE
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x01E25000
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
-#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"da850evm"
-
-#ifndef CONFIG_DIRECT_NOR_BOOT
+#ifdef CONFIG_SPL_BUILD
 /* defines for SPL */
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE - \
 						CONFIG_SYS_MALLOC_LEN)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
 #define CONFIG_SPL_STACK	0x8001ff00
 #define CONFIG_SPL_MAX_FOOTPRINT	32768
-#define CONFIG_SPL_PAD_TO	32768
+
 #endif
 
 /* Load U-Boot Image From MMC */
@@ -290,12 +234,12 @@
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
 
-#ifdef CONFIG_DIRECT_NOR_BOOT
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_SYS_INIT_SP_ADDR		0x8001ff00
 #else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
 					GENERATED_GBL_DATA_SIZE)
-#endif /* CONFIG_DIRECT_NOR_BOOT */
+#endif /* CONFIG_MTD_NOR_FLASH */
 
 #include <asm/arch/hardware.h>
 

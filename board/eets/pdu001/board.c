@@ -10,12 +10,15 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <errno.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <i2c.h>
-#include <environment.h>
 #include <watchdog.h>
 #include <debug_uart.h>
+#include <asm/global_data.h>
 #include <dm/ofnode.h>
 #include <power/pmic.h>
 #include <power/regulator.h>

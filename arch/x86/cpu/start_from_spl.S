@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * 32-bit x86 Startup Code when running from SPL
- *
+ * 32-bit x86 Startup Code when running from SPL. This is the startup code in
+ * U-Boot proper, when SPL is used.
+
  * Copyright 2018 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  */
@@ -13,23 +14,40 @@
 .globl _start
 .type _start, @function
 _start:
-	/* Set up memory using the existing stack */
+	/*
+	 * If running from coreboot, CAR is no-longer available. Use the
+	 * existing stack, which is large enough.
+	 */
+	call	locate_coreboot_table
+	cmp	$0, %eax
+	jge	use_existing_stack
+
 	movl	$(CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE - 4), %eax
 #ifdef CONFIG_DCACHE_RAM_MRC_VAR_SIZE
 	subl	$CONFIG_DCACHE_RAM_MRC_VAR_SIZE, %eax
 #endif
+	jmp	2f
 	/*
-	 * We don't subject CONFIG_DCACHE_RAM_MRC_VAR_SIZE since memory is
+	 * We don't subtract CONFIG_DCACHE_RAM_MRC_VAR_SIZE since memory is
 	 * already set up. This has the happy side-effect of putting gd in a
 	 * new place separate from SPL, so the memset() in
 	 * board_init_f_init_reserve() does not cause any problems (otherwise
 	 * it would zero out the gd and crash)
 	 */
+	/* Set up memory using the existing stack */
+use_existing_stack:
+	mov	%esp, %eax
+2:
 	call	board_init_f_alloc_reserve
 	mov	%eax, %esp
 
 	call	board_init_f_init_reserve
 
+#ifdef CONFIG_DEBUG_UART
+	call	debug_uart_init
+#endif
+
+	call	x86_cpu_reinit_f
 	xorl	%eax, %eax
 	call	board_init_f
 	call	board_init_f_r

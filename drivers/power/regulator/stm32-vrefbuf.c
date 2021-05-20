@@ -6,10 +6,14 @@
  * Originally based on the Linux kernel v4.16 drivers/regulator/stm32-vrefbuf.c
  */
 
+#define LOG_CATEGORY UCLASS_REGULATOR
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <linux/kernel.h>
 #include <power/regulator.h>
@@ -30,7 +34,7 @@ struct stm32_vrefbuf {
 	struct udevice *vdda_supply;
 };
 
-static const unsigned int stm32_vrefbuf_voltages[] = {
+static const int stm32_vrefbuf_voltages[] = {
 	/* Matches resp. VRS = 000b, 001b, 010b, 011b */
 	2500000, 2048000, 1800000, 1500000,
 };
@@ -41,8 +45,20 @@ static int stm32_vrefbuf_set_enable(struct udevice *dev, bool enable)
 	u32 val;
 	int ret;
 
-	clrsetbits_le32(priv->base + STM32_VREFBUF_CSR, STM32_HIZ | STM32_ENVR,
-			enable ? STM32_ENVR : STM32_HIZ);
+	if (enable && !(readl(priv->base + STM32_VREFBUF_CSR) & STM32_ENVR)) {
+		/*
+		 * There maybe an overshoot:
+		 * - when disabling, then re-enabling vrefbuf too quickly
+		 * - or upon platform reset as external capacitor maybe slow
+		 *   discharging (VREFBUF is HiZ at reset by default).
+		 * So force active discharge (HiZ=0) for 1ms before enabling.
+		 */
+		clrbits_le32(priv->base + STM32_VREFBUF_CSR, STM32_HIZ);
+		udelay(1000);
+	}
+
+	clrsetbits_le32(priv->base + STM32_VREFBUF_CSR, STM32_ENVR,
+			enable ? STM32_ENVR : 0);
 	if (!enable)
 		return 0;
 
@@ -151,5 +167,5 @@ U_BOOT_DRIVER(stm32_vrefbuf) = {
 	.of_match = stm32_vrefbuf_ids,
 	.probe = stm32_vrefbuf_probe,
 	.ops = &stm32_vrefbuf_ops,
-	.priv_auto_alloc_size = sizeof(struct stm32_vrefbuf),
+	.priv_auto	= sizeof(struct stm32_vrefbuf),
 };

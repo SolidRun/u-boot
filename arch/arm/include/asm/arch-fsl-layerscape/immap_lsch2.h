@@ -7,6 +7,9 @@
 #define __ARCH_FSL_LSCH2_IMMAP_H__
 
 #include <fsl_immap.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 #define CONFIG_SYS_IMMR				0x01000000
 #define CONFIG_SYS_DCSRBAR			0x20000000
@@ -180,7 +183,7 @@ struct sys_info {
 	unsigned long freq_systembus;
 	unsigned long freq_ddrbus;
 	unsigned long freq_localbus;
-	unsigned long freq_sdhc;
+	unsigned long freq_cga_m2;
 #ifdef CONFIG_SYS_DPAA_FMAN
 	unsigned long freq_fman[CONFIG_SYS_NUM_FMAN];
 #endif
@@ -409,6 +412,12 @@ struct ccsr_gur {
 #define SCFG_SNPCNFGCR_SECWRSNP		0x40000000
 #define SCFG_SNPCNFGCR_SATARDSNP	0x00800000
 #define SCFG_SNPCNFGCR_SATAWRSNP	0x00400000
+#define SCFG_SNPCNFGCR_USB1RDSNP	0x00200000
+#define SCFG_SNPCNFGCR_USB1WRSNP	0x00100000
+#define SCFG_SNPCNFGCR_USB2RDSNP	0x00008000
+#define SCFG_SNPCNFGCR_USB2WRSNP	0x00010000
+#define SCFG_SNPCNFGCR_USB3RDSNP	0x00002000
+#define SCFG_SNPCNFGCR_USB3WRSNP	0x00004000
 
 /* RGMIIPCR bit definitions*/
 #define SCFG_RGMIIPCR_EN_AUTO		BIT(3)

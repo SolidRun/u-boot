@@ -28,11 +28,15 @@
 
 #include <common.h>
 #include <command.h>
+#include <flash.h>
+#include <image.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include "nfs.h"
 #include "bootp.h"
+#include <time.h>
 
 #define HASHES_PER_LINE 65	/* Number of "loading" hashes per line	*/
 #define NFS_RETRY_COUNT 30
@@ -86,14 +90,15 @@ static inline int store_block(uchar *src, unsigned offset, unsigned len)
 
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		/* start address in flash? */
-		if (load_addr + offset >= flash_info[i].start[0]) {
+		if (image_load_addr + offset >= flash_info[i].start[0]) {
 			rc = 1;
 			break;
 		}
 	}
 
 	if (rc) { /* Flash is destination for this packet */
-		rc = flash_write((uchar *)src, (ulong)(load_addr+offset), len);
+		rc = flash_write((uchar *)src, (ulong)image_load_addr + offset,
+				 len);
 		if (rc) {
 			flash_perror(rc);
 			return -1;
@@ -101,7 +106,7 @@ static inline int store_block(uchar *src, unsigned offset, unsigned len)
 	} else
 #endif /* CONFIG_SYS_DIRECT_FLASH_NFS */
 	{
-		void *ptr = map_sysmem(load_addr + offset, len);
+		void *ptr = map_sysmem(image_load_addr + offset, len);
 
 		memcpy(ptr, src, len);
 		unmap_sysmem(ptr);
@@ -196,10 +201,10 @@ static void rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 		rpc_pkt.u.call.vers = htonl(2);	/* portmapper is version 2 */
 	}
 	rpc_pkt.u.call.proc = htonl(rpc_proc);
-	p = (uint32_t *)&(rpc_pkt.u.call.data);
+	p = rpc_pkt.u.call.data;
 
 	if (datalen)
-		memcpy((char *)p, (char *)data, datalen*sizeof(uint32_t));
+		memcpy(p, data, datalen * sizeof(uint32_t));
 
 	pktlen = (char *)p + datalen * sizeof(uint32_t) - (char *)&rpc_pkt;
 
@@ -566,11 +571,15 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 	}
 
 	if (supported_nfs_versions & NFSV2_FLAG) {
+		if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + NFS_FHSIZE) > len)
+			return -NFS_RPC_DROP;
 		memcpy(filefh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
 	} else {  /* NFSV3_FLAG */
 		filefh3_length = ntohl(rpc_pkt.u.reply.data[1]);
 		if (filefh3_length > NFS3_FHSIZE)
 			filefh3_length  = NFS3_FHSIZE;
+		if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + filefh3_length) > len)
+			return -NFS_RPC_DROP;
 		memcpy(filefh, rpc_pkt.u.reply.data + 2, filefh3_length);
 	}
 
@@ -579,7 +588,7 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 
 static int nfs3_get_attributes_offset(uint32_t *data)
 {
-	if (ntohl(data[1]) != 0) {
+	if (data[1]) {
 		/* 'attributes_follow' flag is TRUE,
 		 * so we have attributes on 21 dwords */
 		/* Skip unused values :
@@ -633,6 +642,9 @@ static int nfs_readlink_reply(uchar *pkt, unsigned len)
 
 	/* new path length */
 	rlen = ntohl(rpc_pkt.u.reply.data[1 + nfsv3_data_offset]);
+
+	if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + rlen) > len)
+		return -NFS_RPC_DROP;
 
 	if (*((char *)&(rpc_pkt.u.reply.data[2 + nfsv3_data_offset])) != '/') {
 		int pathlen;
@@ -701,6 +713,9 @@ static int nfs_read_reply(uchar *pkt, unsigned len)
 			&(rpc_pkt.u.reply.data[4 + nfsv3_data_offset]);
 	}
 
+	if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + rlen) > len)
+			return -9999;
+
 	if (store_block(data_ptr, nfs_offset, rlen))
 			return -9999;
 
@@ -731,6 +746,9 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	int reply;
 
 	debug("%s\n", __func__);
+
+	if (len > sizeof(struct rpc_t))
+		return;
 
 	if (dest != nfs_our_port)
 		return;
@@ -897,7 +915,7 @@ void nfs_start(void)
 		       net_boot_file_expected_size_in_blocks << 9);
 		print_size(net_boot_file_expected_size_in_blocks << 9, "");
 	}
-	printf("\nLoad address: 0x%lx\nLoading: *\b", load_addr);
+	printf("\nLoad address: 0x%lx\nLoading: *\b", image_load_addr);
 
 	net_set_timeout_handler(nfs_timeout, nfs_timeout_handler);
 	net_set_udp_handler(nfs_handler);

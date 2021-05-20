@@ -11,6 +11,7 @@
 #include <asm/arch/ccu.h>
 #include <dt-bindings/clock/sun50i-a64-ccu.h>
 #include <dt-bindings/reset/sun50i-a64-ccu.h>
+#include <linux/bitops.h>
 
 static const struct ccu_clk_gate a64_gates[] = {
 	[CLK_BUS_MMC0]		= GATE(0x060, BIT(8)),
@@ -86,7 +87,7 @@ U_BOOT_DRIVER(clk_sun50i_a64) = {
 	.name		= "sun50i_a64_ccu",
 	.id		= UCLASS_CLK,
 	.of_match	= a64_ccu_ids,
-	.priv_auto_alloc_size	= sizeof(struct ccu_priv),
+	.priv_auto	= sizeof(struct ccu_priv),
 	.ops		= &sunxi_clk_ops,
 	.probe		= sunxi_clk_probe,
 	.bind		= a64_clk_bind,

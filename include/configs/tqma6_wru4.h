@@ -10,14 +10,12 @@
 #define CONFIG_FEC_XCV_TYPE		RMII
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		0x01
-#define CONFIG_PHY_SMSC
 
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART4_BASE
 #define CONSOLE_DEV		"ttymxc3"
 
 /* Watchdog */
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS	60000
 
 /* Config on-board RTC */
 #define CONFIG_RTC_DS1337
@@ -30,5 +28,8 @@
 
 /* Bootcounter */
 #define CONFIG_SYS_BOOTCOUNT_BE
+
+/* I2C */
+#define CONFIG_SYS_I2C
 
 #endif /* __CONFIG_TQMA6_WRU4_H */

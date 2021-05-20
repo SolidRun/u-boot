@@ -7,10 +7,11 @@
 
 #include <common.h>
 #include <dm.h>
-#include <environment.h>
 #include <fdt_support.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <cpsw.h>
+#include <dm/device_compat.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

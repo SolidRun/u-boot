@@ -34,6 +34,23 @@ int x86_cpu_init_f(void);
  */
 int x86_cpu_reinit_f(void);
 
+/**
+ * x86_cpu_init_tpl() - Do the minimum possible CPU init
+ *
+ * This just sets up the CPU features and figured out the identity
+ *
+ * @return 0 (indicating success, to mimic cpu_init_f())
+ */
+int x86_cpu_init_tpl(void);
+
+/**
+ * cpu_reinit_fpu() - Reinit the FPU if something is wrong with it
+ *
+ * The FSP-M code can leave registers in use in the FPU. This functions reinits
+ * it so that the FPU can be used safely
+ */
+void cpu_reinit_fpu(void);
+
 int cpu_init_f(void);
 void setup_gdt(struct global_data *id, u64 *gdt_addr);
 /*
@@ -66,15 +83,13 @@ int default_print_cpuinfo(void);
 /* Set up a UART which can be used with printch(), printhex8(), etc. */
 int setup_internal_uart(int enable);
 
-void setup_pcat_compatibility(void);
-
 void isa_unmap_rom(u32 addr);
 u32 isa_map_rom(u32 bus_addr, int size);
 
 /* arch/x86/lib/... */
 int video_bios_init(void);
 
-/* arch/x86/lib/fsp/... */
+/* arch/x86/lib/fsp1,2/... */
 
 /**
  * fsp_save_s3_stack() - save stack address to CMOS for next S3 boot

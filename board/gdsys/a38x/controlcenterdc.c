@@ -5,12 +5,17 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
+#include <init.h>
 #include <miiphy.h>
+#include <net.h>
 #include <tpm-v1.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm-generic/gpio.h>
+#include <linux/delay.h>
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"
 #include "../arch/arm/mach-mvebu/serdes/a38x/high_speed_env_spec.h"
@@ -66,6 +71,7 @@ static struct mv_ddr_topology_map ddr_topology_map = {
 	    MV_DDR_TIM_DEFAULT} },	/* timing */
 	BUS_MASK_32BIT,			/* Busses mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
+	NOT_COMBINED,			/* ddr twin-die combined */
 	{ {0} },			/* raw spd data */
 	{0}				/* timing parameters */
 
@@ -282,8 +288,8 @@ int last_stage_init(void)
 	ccdc_eth_init();
 #endif
 	ret = get_tpm(&tpm);
-	if (ret || tpm_init(tpm) || tpm_startup(tpm, TPM_ST_CLEAR) ||
-	    tpm_continue_self_test(tpm)) {
+	if (ret || tpm_init(tpm) || tpm1_startup(tpm, TPM_ST_CLEAR) ||
+	    tpm1_continue_self_test(tpm)) {
 		return 1;
 	}
 

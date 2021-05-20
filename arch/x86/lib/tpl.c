@@ -5,8 +5,14 @@
 
 #include <common.h>
 #include <debug_uart.h>
+#include <dm.h>
+#include <hang.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <asm/mtrr.h>
 #include <asm/processor.h>
 #include <asm-generic/sections.h>
@@ -23,6 +29,11 @@ static int x86_tpl_init(void)
 	int ret;
 
 	debug("%s starting\n", __func__);
+	ret = x86_cpu_init_tpl();
+	if (ret) {
+		debug("%s: x86_cpu_init_tpl() failed\n", __func__);
+		return ret;
+	}
 	ret = spl_init();
 	if (ret) {
 		debug("%s: spl_init() failed\n", __func__);
@@ -39,11 +50,6 @@ static int x86_tpl_init(void)
 		return ret;
 	}
 	preloader_console_init();
-	ret = print_cpuinfo();
-	if (ret) {
-		debug("%s: print_cpuinfo() failed\n", __func__);
-		return ret;
-	}
 
 	return 0;
 }
@@ -55,7 +61,7 @@ void board_init_f(ulong flags)
 	ret = x86_tpl_init();
 	if (ret) {
 		debug("Error %d\n", ret);
-		hang();
+		panic("x86_tpl_init fail");
 	}
 
 	/* Uninit CAR and jump to board_init_f_r() */
@@ -70,8 +76,8 @@ void board_init_f_r(void)
 
 u32 spl_boot_device(void)
 {
-	return IS_ENABLED(CONFIG_CHROMEOS) ? BOOT_DEVICE_CROS_VBOOT :
-		BOOT_DEVICE_BOARD;
+	return IS_ENABLED(CONFIG_CHROMEOS_VBOOT) ? BOOT_DEVICE_CROS_VBOOT :
+		BOOT_DEVICE_SPI_MMAP;
 }
 
 int spl_start_uboot(void)
@@ -97,7 +103,7 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 
 	return 0;
 }
-SPL_LOAD_IMAGE_METHOD("SPI", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
+SPL_LOAD_IMAGE_METHOD("SPI", 5, BOOT_DEVICE_SPI_MMAP, spl_board_load_image);
 
 int spl_spi_load_image(void)
 {
@@ -106,13 +112,44 @@ int spl_spi_load_image(void)
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
-	printf("Jumping to U-Boot SPL at %lx\n", (ulong)spl_image->entry_point);
+	debug("Jumping to %s at %lx\n", spl_phase_name(spl_next_phase()),
+	      (ulong)spl_image->entry_point);
+#ifdef DEBUG
+	print_buffer(spl_image->entry_point, (void *)spl_image->entry_point, 1,
+		     0x20, 0);
+#endif
 	jump_to_spl(spl_image->entry_point);
-	while (1)
-		;
+	hang();
 }
 
 void spl_board_init(void)
 {
 	preloader_console_init();
 }
+
+#if !CONFIG_IS_ENABLED(PCI)
+/*
+ * This is a fake PCI bus for TPL when it doesn't have proper PCI. It is enough
+ * to bind the devices on the PCI bus, some of which have early-regs properties
+ * providing fixed BARs. Individual drivers program these BARs themselves so
+ * that they can access the devices. The BARs are allocated statically in the
+ * device tree.
+ *
+ * Once SPL is running it enables PCI properly, but does not auto-assign BARs
+ * for devices, so the TPL BARs continue to be used. Once U-Boot starts it does
+ * the auto allocation (after relocation).
+ */
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+static const struct udevice_id tpl_fake_pci_ids[] = {
+	{ .compatible = "pci-x86" },
+	{ }
+};
+#endif
+
+U_BOOT_DRIVER(pci_x86) = {
+	.name	= "pci_x86",
+	.id	= UCLASS_SIMPLE_BUS,
+	.of_match = of_match_ptr(tpl_fake_pci_ids),
+	DM_PHASE(tpl)
+};
+#endif

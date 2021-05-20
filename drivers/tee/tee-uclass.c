@@ -5,9 +5,11 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
+#include <tee.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
-#include <tee.h>
 
 /**
  * struct tee_uclass_priv - information of a TEE, stored by the uclass
@@ -203,7 +205,7 @@ static int tee_pre_remove(struct udevice *dev)
 UCLASS_DRIVER(tee) = {
 	.id = UCLASS_TEE,
 	.name = "tee",
-	.per_device_auto_alloc_size = sizeof(struct tee_uclass_priv),
+	.per_device_auto	= sizeof(struct tee_uclass_priv),
 	.pre_probe = tee_pre_probe,
 	.pre_remove = tee_pre_remove,
 };

@@ -10,13 +10,10 @@
 #include <efi_loader.h>
 #include <pch.h>
 #include <sysreset.h>
-#include <asm/acpi_s3.h>
+#include <acpi/acpi_s3.h>
 #include <asm/io.h>
 #include <asm/processor.h>
-
-struct x86_sysreset_platdata {
-	struct udevice *pch;
-};
+#include <asm/sysreset.h>
 
 /*
  * Power down the machine by using the power management sleep control
@@ -30,7 +27,7 @@ struct x86_sysreset_platdata {
  */
 int pch_sysreset_power_off(struct udevice *dev)
 {
-	struct x86_sysreset_platdata *plat = dev_get_platdata(dev);
+	struct x86_sysreset_plat *plat = dev_get_plat(dev);
 	struct pch_pmbase_info pm;
 	u32 reg32;
 	int ret;
@@ -130,7 +127,7 @@ void __efi_runtime EFIAPI efi_reset_system(
 
 static int x86_sysreset_probe(struct udevice *dev)
 {
-	struct x86_sysreset_platdata *plat = dev_get_platdata(dev);
+	struct x86_sysreset_plat *plat = dev_get_plat(dev);
 
 	/* Locate the PCH if there is one. It isn't essential */
 	uclass_first_device(UCLASS_PCH, &plat->pch);
@@ -148,11 +145,11 @@ static struct sysreset_ops x86_sysreset_ops = {
 	.get_last = x86_sysreset_get_last,
 };
 
-U_BOOT_DRIVER(x86_sysreset) = {
-	.name = "x86-sysreset",
+U_BOOT_DRIVER(x86_reset) = {
+	.name = "x86_reset",
 	.id = UCLASS_SYSRESET,
 	.of_match = x86_sysreset_ids,
 	.ops = &x86_sysreset_ops,
 	.probe = x86_sysreset_probe,
-	.platdata_auto_alloc_size	= sizeof(struct x86_sysreset_platdata),
+	.plat_auto	= sizeof(struct x86_sysreset_plat),
 };

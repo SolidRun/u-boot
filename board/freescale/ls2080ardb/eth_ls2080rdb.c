@@ -6,12 +6,14 @@
 
 #include <common.h>
 #include <command.h>
+#include <net.h>
 #include <netdev.h>
 #include <malloc.h>
 #include <fsl_mdio.h>
 #include <miiphy.h>
 #include <phy.h>
 #include <fm_eth.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <exports.h>
 #include <asm/arch/fsl_serdes.h>
@@ -20,8 +22,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
+#ifndef CONFIG_DM_ETH
 #if defined(CONFIG_FSL_MC_ENET)
 	int i, interface;
 	struct memac_mdio_info mdio_info;
@@ -98,6 +101,7 @@ int board_eth_init(bd_t *bis)
 
 	cpu_eth_init(bis);
 #endif /* CONFIG_FSL_MC_ENET */
+#endif /* !CONFIG_DM_ETH */
 
 #ifdef CONFIG_PHY_AQUANTIA
 	/*
@@ -111,7 +115,12 @@ int board_eth_init(bd_t *bis)
 	gd->jt->mdio_phydev_for_ethname = mdio_phydev_for_ethname;
 	gd->jt->miiphy_set_current_dev = miiphy_set_current_dev;
 #endif
+
+#ifdef CONFIG_DM_ETH
+	return 0;
+#else
 	return pci_eth_init(bis);
+#endif
 }
 
 #if defined(CONFIG_RESET_PHY_R)

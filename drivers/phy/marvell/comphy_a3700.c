@@ -5,42 +5,45 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/delay.h>
 
 #include "comphy_a3700.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 struct comphy_mux_data a3700_comphy_mux_data[] = {
-/* Lane 0 */
+	/* Lane 0 */
 	{
 		4,
 		{
-			{ PHY_TYPE_UNCONNECTED,	0x0 },
-			{ PHY_TYPE_SGMII1,	0x0 },
-			{ PHY_TYPE_USB3_HOST0,	0x1 },
-			{ PHY_TYPE_USB3_DEVICE,	0x1 }
+			{ COMPHY_TYPE_UNCONNECTED,	0x0 },
+			{ COMPHY_TYPE_SGMII1,	0x0 },
+			{ COMPHY_TYPE_USB3_HOST0,	0x1 },
+			{ COMPHY_TYPE_USB3_DEVICE,	0x1 }
 		}
 	},
-/* Lane 1 */
+	/* Lane 1 */
 	{
 		3,
 		{
-			{ PHY_TYPE_UNCONNECTED,	0x0},
-			{ PHY_TYPE_SGMII0,	0x0},
-			{ PHY_TYPE_PEX0,	0x1}
+			{ COMPHY_TYPE_UNCONNECTED,	0x0},
+			{ COMPHY_TYPE_SGMII0,	0x0},
+			{ COMPHY_TYPE_PEX0,	0x1}
 		}
 	},
-/* Lane 2 */
+	/* Lane 2 */
 	{
 		4,
 		{
-			{ PHY_TYPE_UNCONNECTED,	0x0},
-			{ PHY_TYPE_SATA0,	0x0},
-			{ PHY_TYPE_USB3_HOST0,	0x1},
-			{ PHY_TYPE_USB3_DEVICE,	0x1}
+			{ COMPHY_TYPE_UNCONNECTED,	0x0},
+			{ COMPHY_TYPE_SATA0,	0x0},
+			{ COMPHY_TYPE_USB3_HOST0,	0x1},
+			{ COMPHY_TYPE_USB3_DEVICE,	0x1}
 		}
 	},
 };
@@ -225,10 +228,10 @@ static int comphy_pcie_power_up(u32 speed, u32 invert)
 	/*
 	 * 10. Check the Polarity invert bit
 	 */
-	if (invert & PHY_POLARITY_TXD_INVERT)
+	if (invert & COMPHY_POLARITY_TXD_INVERT)
 		reg_set16(phy_addr(PCIE, SYNC_PATTERN), phy_txd_inv, 0);
 
-	if (invert & PHY_POLARITY_RXD_INVERT)
+	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		reg_set16(phy_addr(PCIE, SYNC_PATTERN), phy_rxd_inv, 0);
 
 	/*
@@ -271,16 +274,23 @@ static void reg_set_indirect(u32 reg, u16 data, u16 mask)
  *
  * return: 1 if PLL locked (OK), 0 otherwise (FAIL)
  */
-static int comphy_sata_power_up(void)
+static int comphy_sata_power_up(u32 invert)
 {
 	int ret;
+	u32 data = 0;
 
 	debug_enter();
 
 	/*
-	 * 0. Swap SATA TX lines
+	 * 0. Check the Polarity invert bits
 	 */
-	reg_set_indirect(vphy_sync_pattern_reg, bs_txd_inv, bs_txd_inv);
+	if (invert & COMPHY_POLARITY_TXD_INVERT)
+		data |= bs_txd_inv;
+
+	if (invert & COMPHY_POLARITY_RXD_INVERT)
+		data |= bs_rxd_inv;
+
+	reg_set_indirect(vphy_sync_pattern_reg, data, bs_txd_inv | bs_rxd_inv);
 
 	/*
 	 * 1. Select 40-bit data width width
@@ -455,10 +465,10 @@ static int comphy_usb3_power_up(u32 lane, u32 type, u32 speed, u32 invert)
 	/*
 	 * 9. Check the Polarity invert bit
 	 */
-	if (invert & PHY_POLARITY_TXD_INVERT)
+	if (invert & COMPHY_POLARITY_TXD_INVERT)
 		usb3_reg_set16(SYNC_PATTERN, phy_txd_inv, 0, lane);
 
-	if (invert & PHY_POLARITY_RXD_INVERT)
+	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		usb3_reg_set16(SYNC_PATTERN, phy_rxd_inv, 0, lane);
 
 	/*
@@ -503,7 +513,7 @@ static int comphy_usb3_power_up(u32 lane, u32 type, u32 speed, u32 invert)
 	 * Set Soft ID for Host mode (Device mode works with Hard ID
 	 * detection)
 	 */
-	if (type == PHY_TYPE_USB3_HOST0) {
+	if (type == COMPHY_TYPE_USB3_HOST0) {
 		/*
 		 * set   BIT0: set ID_MODE of Host/Device = "Soft ID" (BIT1)
 		 * clear BIT1: set SOFT_ID = Host
@@ -675,8 +685,8 @@ static void comphy_sgmii_phy_init(u32 lane, u32 speed)
 		 * comparison to 3.125 Gbps values. These register values are
 		 * stored in "sgmii_phy_init_fix" array.
 		 */
-		if ((speed != PHY_SPEED_1_25G) &&
-		    (sgmii_phy_init_fix[fix_idx].addr == addr)) {
+		if (speed != COMPHY_SPEED_1_25G &&
+		    sgmii_phy_init_fix[fix_idx].addr == addr) {
 			/* Use new value */
 			val = sgmii_phy_init_fix[fix_idx].value;
 			if (fix_idx < fix_arr_sz)
@@ -727,13 +737,13 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	 * 7. Set PIN_PHY_GEN_TX[3:0] and PIN_PHY_GEN_RX[3:0] to decide
 	 *    COMPHY bit rate
 	 */
-	if (speed == PHY_SPEED_3_125G) { /* 3.125 GHz */
+	if (speed == COMPHY_SPEED_3_125G) { /* 3.125 GHz */
 		reg_set(COMPHY_PHY_CFG1_ADDR(lane),
 			(0x8 << rf_gen_rx_sel_shift) |
 			(0x8 << rf_gen_tx_sel_shift),
 			rf_gen_rx_select | rf_gen_tx_select);
 
-	} else if (speed == PHY_SPEED_1_25G) { /* 1.25 GHz */
+	} else if (speed == COMPHY_SPEED_1_25G) { /* 1.25 GHz */
 		reg_set(COMPHY_PHY_CFG1_ADDR(lane),
 			(0x6 << rf_gen_rx_sel_shift) |
 			(0x6 << rf_gen_tx_sel_shift),
@@ -809,7 +819,7 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	 *     registers are OK.
 	 */
 	debug("Running C-DPI phy init %s mode\n",
-	      speed == PHY_SPEED_3_125G ? "2G5" : "1G");
+	      speed == COMPHY_SPEED_3_125G ? "2G5" : "1G");
 	if (get_ref_clk() == 40)
 		comphy_sgmii_phy_init(lane, speed);
 
@@ -827,10 +837,10 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	/*
 	 * 18. Check the PHY Polarity invert bit
 	 */
-	if (invert & PHY_POLARITY_TXD_INVERT)
+	if (invert & COMPHY_POLARITY_TXD_INVERT)
 		reg_set16(sgmiiphy_addr(lane, SYNC_PATTERN), phy_txd_inv, 0);
 
-	if (invert & PHY_POLARITY_RXD_INVERT)
+	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		reg_set16(sgmiiphy_addr(lane, SYNC_PATTERN), phy_rxd_inv, 0);
 
 	/*
@@ -923,22 +933,6 @@ void comphy_dedicated_phys_init(void)
 	}
 
 	node = fdt_node_offset_by_compatible(blob, -1,
-					     "marvell,armada-3700-ahci");
-	if (node > 0) {
-		if (fdtdec_get_is_enabled(blob, node)) {
-			ret = comphy_sata_power_up();
-			if (!ret)
-				printf("Failed to initialize SATA PHY\n");
-			else
-				debug("SATA PHY init succeed\n");
-		} else {
-			debug("SATA node is disabled\n");
-		}
-	}  else {
-		debug("No SATA node in DT\n");
-	}
-
-	node = fdt_node_offset_by_compatible(blob, -1,
 					     "marvell,armada-8k-sdhci");
 	if (node <= 0) {
 		node = fdt_node_offset_by_compatible(
@@ -982,27 +976,31 @@ int comphy_a3700_init(struct chip_serdes_phy_config *chip_cfg,
 		      comphy_map->type, comphy_map->invert);
 
 		switch (comphy_map->type) {
-		case PHY_TYPE_UNCONNECTED:
+		case COMPHY_TYPE_UNCONNECTED:
 			continue;
 			break;
 
-		case PHY_TYPE_PEX0:
+		case COMPHY_TYPE_PEX0:
 			ret = comphy_pcie_power_up(comphy_map->speed,
 						   comphy_map->invert);
 			break;
 
-		case PHY_TYPE_USB3_HOST0:
-		case PHY_TYPE_USB3_DEVICE:
+		case COMPHY_TYPE_USB3_HOST0:
+		case COMPHY_TYPE_USB3_DEVICE:
 			ret = comphy_usb3_power_up(lane,
 						   comphy_map->type,
 						   comphy_map->speed,
 						   comphy_map->invert);
 			break;
 
-		case PHY_TYPE_SGMII0:
-		case PHY_TYPE_SGMII1:
+		case COMPHY_TYPE_SGMII0:
+		case COMPHY_TYPE_SGMII1:
 			ret = comphy_sgmii_power_up(lane, comphy_map->speed,
 						    comphy_map->invert);
+			break;
+
+		case COMPHY_TYPE_SATA0:
+			ret = comphy_sata_power_up(comphy_map->invert);
 			break;
 
 		default:

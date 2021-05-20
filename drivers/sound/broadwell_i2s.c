@@ -12,6 +12,8 @@
 #include <common.h>
 #include <dm.h>
 #include <i2s.h>
+#include <log.h>
+#include <time.h>
 #include <asm/io.h>
 #include "broadwell_i2s.h"
 
@@ -302,5 +304,5 @@ U_BOOT_DRIVER(broadwell_i2s) = {
 	.of_match	= broadwell_i2s_ids,
 	.probe		= broadwell_i2s_probe,
 	.ops		= &broadwell_i2s_ops,
-	.priv_auto_alloc_size	= sizeof(struct broadwell_i2s_priv),
+	.priv_auto	= sizeof(struct broadwell_i2s_priv),
 };

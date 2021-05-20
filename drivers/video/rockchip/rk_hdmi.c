@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <dw_hdmi.h>
 #include <edid.h>
+#include <log.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/gpio.h>
@@ -77,7 +78,7 @@ int rk_hdmi_read_edid(struct udevice *dev, u8 *buf, int buf_size)
 	return dw_hdmi_read_edid(&priv->hdmi, buf, buf_size);
 }
 
-int rk_hdmi_ofdata_to_platdata(struct udevice *dev)
+int rk_hdmi_of_to_plat(struct udevice *dev)
 {
 	struct rk_hdmi_priv *priv = dev_get_priv(dev);
 	struct dw_hdmi *hdmi = &priv->hdmi;
@@ -92,6 +93,9 @@ int rk_hdmi_ofdata_to_platdata(struct udevice *dev)
 	hdmi->phy_set = dw_hdmi_phy_cfg;
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+
+	uclass_get_device_by_phandle(UCLASS_I2C, dev, "ddc-i2c-bus",
+				     &hdmi->ddc_bus);
 
 	return 0;
 }

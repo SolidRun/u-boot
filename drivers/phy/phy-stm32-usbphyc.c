@@ -3,17 +3,22 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_PHY
+
 #include <common.h>
 #include <clk.h>
 #include <div64.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <reset.h>
 #include <syscon.h>
 #include <usb.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 
 /* USBPHYC registers */
@@ -56,6 +61,7 @@ struct stm32_usbphyc {
 	struct udevice *vdda1v8;
 	struct stm32_usbphyc_phy {
 		struct udevice *vdd;
+		struct udevice *vbus;
 		bool init;
 		bool powered;
 	} phys[MAX_PHYS];
@@ -94,8 +100,8 @@ static int stm32_usbphyc_pll_init(struct stm32_usbphyc *usbphyc)
 	u32 usbphyc_pll;
 
 	if ((clk_rate < PLL_INFF_MIN_RATE) || (clk_rate > PLL_INFF_MAX_RATE)) {
-		pr_debug("%s: input clk freq (%dHz) out of range\n",
-			 __func__, clk_rate);
+		log_debug("input clk freq (%dHz) out of range\n",
+			  clk_rate);
 		return -EINVAL;
 	}
 
@@ -112,8 +118,8 @@ static int stm32_usbphyc_pll_init(struct stm32_usbphyc *usbphyc)
 
 	writel(usbphyc_pll, usbphyc->base + STM32_USBPHYC_PLL);
 
-	pr_debug("%s: input clk freq=%dHz, ndiv=%d, frac=%d\n", __func__,
-		 clk_rate, pll_params.ndiv, pll_params.frac);
+	log_debug("input clk freq=%dHz, ndiv=%d, frac=%d\n",
+		  clk_rate, pll_params.ndiv, pll_params.frac);
 
 	return 0;
 }
@@ -150,7 +156,7 @@ static int stm32_usbphyc_phy_init(struct phy *phy)
 		     true : false;
 	int ret;
 
-	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
+	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
 	/* Check if one phy port has already configured the pll */
 	if (pllen && stm32_usbphyc_is_init(usbphyc))
 		goto initialized;
@@ -196,7 +202,7 @@ static int stm32_usbphyc_phy_exit(struct phy *phy)
 	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
 	int ret;
 
-	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
+	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
 	usbphyc_phy->init = false;
 
 	/* Check if other phy port requires pllen */
@@ -235,9 +241,14 @@ static int stm32_usbphyc_phy_power_on(struct phy *phy)
 	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
 	int ret;
 
-	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
+	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
 	if (usbphyc_phy->vdd) {
 		ret = regulator_set_enable(usbphyc_phy->vdd, true);
+		if (ret)
+			return ret;
+	}
+	if (usbphyc_phy->vbus) {
+		ret = regulator_set_enable(usbphyc_phy->vbus, true);
 		if (ret)
 			return ret;
 	}
@@ -253,14 +264,19 @@ static int stm32_usbphyc_phy_power_off(struct phy *phy)
 	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
 	int ret;
 
-	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
+	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
 	usbphyc_phy->powered = false;
 
 	if (stm32_usbphyc_is_powered(usbphyc))
 		return 0;
 
+	if (usbphyc_phy->vbus) {
+		ret = regulator_set_enable(usbphyc_phy->vbus, false);
+		if (ret)
+			return ret;
+	}
 	if (usbphyc_phy->vdd) {
-		ret = regulator_set_enable(usbphyc_phy->vdd, false);
+		ret = regulator_set_enable_if_allowed(usbphyc_phy->vdd, false);
 		if (ret)
 			return ret;
 	}
@@ -268,7 +284,7 @@ static int stm32_usbphyc_phy_power_off(struct phy *phy)
 	return 0;
 }
 
-static int stm32_usbphyc_get_regulator(struct udevice *dev, ofnode node,
+static int stm32_usbphyc_get_regulator(ofnode node,
 				       char *supply_name,
 				       struct udevice **regulator)
 {
@@ -278,19 +294,14 @@ static int stm32_usbphyc_get_regulator(struct udevice *dev, ofnode node,
 	ret = ofnode_parse_phandle_with_args(node, supply_name,
 					     NULL, 0, 0,
 					     &regulator_phandle);
-	if (ret) {
-		dev_err(dev, "Can't find %s property (%d)\n", supply_name, ret);
+	if (ret)
 		return ret;
-	}
 
 	ret = uclass_get_device_by_ofnode(UCLASS_REGULATOR,
 					  regulator_phandle.node,
 					  regulator);
-
-	if (ret) {
-		dev_err(dev, "Can't get %s regulator (%d)\n", supply_name, ret);
+	if (ret)
 		return ret;
-	}
 
 	return 0;
 }
@@ -308,7 +319,7 @@ static int stm32_usbphyc_of_xlate(struct phy *phy,
 
 	if ((phy->id == 0 && args->args_count != 1) ||
 	    (phy->id == 1 && args->args_count != 2)) {
-		dev_err(dev, "invalid number of cells for phy port%ld\n",
+		dev_err(phy->dev, "invalid number of cells for phy port%ld\n",
 			phy->id);
 		return -EINVAL;
 	}
@@ -377,10 +388,17 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 
 		usbphyc_phy->init = false;
 		usbphyc_phy->powered = false;
-		ret = stm32_usbphyc_get_regulator(dev, node, "phy-supply",
+		ret = stm32_usbphyc_get_regulator(node, "phy-supply",
 						  &usbphyc_phy->vdd);
-		if (ret)
+		if (ret) {
+			dev_err(dev, "Can't get phy-supply regulator\n");
 			return ret;
+		}
+
+		ret = stm32_usbphyc_get_regulator(node, "vbus-supply",
+						  &usbphyc_phy->vbus);
+		if (ret)
+			usbphyc_phy->vbus = NULL;
 
 		node = dev_read_next_subnode(node);
 	}
@@ -403,5 +421,5 @@ U_BOOT_DRIVER(stm32_usb_phyc) = {
 	.of_match = stm32_usbphyc_of_match,
 	.ops = &stm32_usbphyc_phy_ops,
 	.probe = stm32_usbphyc_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32_usbphyc),
+	.priv_auto	= sizeof(struct stm32_usbphyc),
 };

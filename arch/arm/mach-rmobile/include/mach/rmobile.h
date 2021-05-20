@@ -36,10 +36,12 @@
 #define RMOBILE_CPU_TYPE_R8A7796	0x52
 #define RMOBILE_CPU_TYPE_R8A77965	0x55
 #define RMOBILE_CPU_TYPE_R8A77970	0x54
+#define RMOBILE_CPU_TYPE_R8A77980	0x56
 #define RMOBILE_CPU_TYPE_R8A77990	0x57
 #define RMOBILE_CPU_TYPE_R8A77995	0x58
 
 #ifndef __ASSEMBLY__
+const u8 *rzg_get_cpu_name(void);
 u32 rmobile_get_cpu_type(void);
 u32 rmobile_get_cpu_rev_integer(void);
 u32 rmobile_get_cpu_rev_fraction(void);

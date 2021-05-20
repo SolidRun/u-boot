@@ -11,8 +11,10 @@
 #include <dm.h>
 #include <i2c.h>
 #include <i2s.h>
+#include <log.h>
 #include <sound.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 #include "maxim_codec.h"
 #include "max98090.h"
 
@@ -366,5 +368,5 @@ U_BOOT_DRIVER(max98090) = {
 	.of_match	= max98090_ids,
 	.probe		= max98090_probe,
 	.ops		= &max98090_ops,
-	.priv_auto_alloc_size	= sizeof(struct maxim_priv),
+	.priv_auto	= sizeof(struct maxim_priv),
 };

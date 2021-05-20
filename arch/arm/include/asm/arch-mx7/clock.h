@@ -9,7 +9,6 @@
 #ifndef _ASM_ARCH_CLOCK_H
 #define _ASM_ARCH_CLOCK_H
 
-#include <common.h>
 #include <asm/arch/crm_regs.h>
 
 #ifdef CONFIG_SYS_MX7_HCLK
@@ -357,7 +356,7 @@ int set_clk_nand(void);
 void enable_ocotp_clk(unsigned char enable);
 #endif
 void enable_usboh3_clk(unsigned char enable);
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_IMX_HAB
 void hab_caam_clock_enable(unsigned char enable);
 #endif
 void mxs_set_lcdclk(uint32_t base_addr, uint32_t freq);

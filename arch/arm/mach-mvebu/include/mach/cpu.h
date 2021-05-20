@@ -163,6 +163,26 @@ int serdes_phy_config(void);
  */
 int ddr3_init(void);
 
+/* Auto Voltage Scaling */
+#if defined(CONFIG_ARMADA_38X)
+void mv_avs_init(void);
+void mv_rtc_config(void);
+#else
+static inline void mv_avs_init(void) {}
+static inline void mv_rtc_config(void) {}
+#endif
+
+/* A8K dram functions */
+u64 a8k_dram_scan_ap_sz(void);
+int a8k_dram_init_banksize(void);
+
+/* A3700 dram functions */
+int a3700_dram_init(void);
+int a3700_dram_init_banksize(void);
+
+/* A3700 PCIe regions fixer for device tree */
+int a3700_fdt_fix_pcie_regions(void *blob);
+
 /*
  * get_ref_clk
  *

@@ -6,10 +6,14 @@
 #include <config.h>
 #include <common.h>
 #include <blk.h>
+#include <env.h>
 #include <fastboot.h>
 #include <fastboot-internal.h>
 #include <fb_mmc.h>
+#include <flash.h>
 #include <image-sparse.h>
+#include <image.h>
+#include <log.h>
 #include <part.h>
 #include <mmc.h>
 #include <div64.h>
@@ -24,12 +28,85 @@ struct fb_mmc_sparse {
 	struct blk_desc	*dev_desc;
 };
 
-static int part_get_info_by_name_or_alias(struct blk_desc *dev_desc,
-		const char *name, disk_partition_t *info)
+static int raw_part_get_info_by_name(struct blk_desc *dev_desc,
+				     const char *name,
+				     struct disk_partition *info)
+{
+	/* strlen("fastboot_raw_partition_") + PART_NAME_LEN + 1 */
+	char env_desc_name[23 + PART_NAME_LEN + 1];
+	char *raw_part_desc;
+	const char *argv[2];
+	const char **parg = argv;
+
+	/* check for raw partition descriptor */
+	strcpy(env_desc_name, "fastboot_raw_partition_");
+	strlcat(env_desc_name, name, PART_NAME_LEN);
+	raw_part_desc = strdup(env_get(env_desc_name));
+	if (raw_part_desc == NULL)
+		return -ENODEV;
+
+	/*
+	 * parse partition descriptor
+	 *
+	 * <lba_start> <lba_size> [mmcpart <num>]
+	 */
+	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
+		*parg = strsep(&raw_part_desc, " ");
+		if (*parg == NULL) {
+			pr_err("Invalid number of arguments.\n");
+			return -ENODEV;
+		}
+	}
+
+	info->start = simple_strtoul(argv[0], NULL, 0);
+	info->size = simple_strtoul(argv[1], NULL, 0);
+	info->blksz = dev_desc->blksz;
+	strlcpy((char *)info->name, name, PART_NAME_LEN);
+
+	if (raw_part_desc) {
+		if (strcmp(strsep(&raw_part_desc, " "), "mmcpart") == 0) {
+			ulong mmcpart = simple_strtoul(raw_part_desc, NULL, 0);
+			int ret = blk_dselect_hwpart(dev_desc, mmcpart);
+
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
+static int do_get_part_info(struct blk_desc **dev_desc, const char *name,
+			    struct disk_partition *info)
 {
 	int ret;
 
-	ret = part_get_info_by_name(dev_desc, name, info);
+	/* First try partition names on the default device */
+	*dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
+	if (*dev_desc) {
+		ret = part_get_info_by_name(*dev_desc, name, info);
+		if (ret >= 0)
+			return ret;
+
+		/* Then try raw partitions */
+		ret = raw_part_get_info_by_name(*dev_desc, name, info);
+		if (ret >= 0)
+			return ret;
+	}
+
+	/* Then try dev.hwpart:part */
+	ret = part_get_info_by_dev_and_name_or_num("mmc", name, dev_desc,
+						   info, true);
+	return ret;
+}
+
+static int part_get_info_by_name_or_alias(struct blk_desc **dev_desc,
+					  const char *name,
+					  struct disk_partition *info)
+{
+	int ret;
+
+	ret = do_get_part_info(dev_desc, name, info);
 	if (ret < 0) {
 		/* strlen("fastboot_partition_alias_") + PART_NAME_LEN + 1 */
 		char env_alias_name[25 + PART_NAME_LEN + 1];
@@ -37,11 +114,11 @@ static int part_get_info_by_name_or_alias(struct blk_desc *dev_desc,
 
 		/* check for alias */
 		strcpy(env_alias_name, "fastboot_partition_alias_");
-		strncat(env_alias_name, name, PART_NAME_LEN);
+		strlcat(env_alias_name, name, PART_NAME_LEN);
 		aliased_part_name = env_get(env_alias_name);
 		if (aliased_part_name != NULL)
-			ret = part_get_info_by_name(dev_desc,
-					aliased_part_name, info);
+			ret = do_get_part_info(dev_desc, aliased_part_name,
+					       info);
 	}
 	return ret;
 }
@@ -96,9 +173,9 @@ static lbaint_t fb_mmc_sparse_reserve(struct sparse_storage *info,
 	return blkcnt;
 }
 
-static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
-		const char *part_name, void *buffer,
-		u32 download_bytes, char *response)
+static void write_raw_image(struct blk_desc *dev_desc,
+			    struct disk_partition *info, const char *part_name,
+			    void *buffer, u32 download_bytes, char *response)
 {
 	lbaint_t blkcnt;
 	lbaint_t blks;
@@ -128,6 +205,82 @@ static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
 	fastboot_okay(NULL, response);
 }
 
+#if defined(CONFIG_FASTBOOT_MMC_BOOT_SUPPORT) || \
+	defined(CONFIG_FASTBOOT_MMC_USER_SUPPORT)
+static int fb_mmc_erase_mmc_hwpart(struct blk_desc *dev_desc)
+{
+	lbaint_t blks;
+
+	debug("Start Erasing mmc hwpart[%u]...\n", dev_desc->hwpart);
+
+	blks = fb_mmc_blk_write(dev_desc, 0, dev_desc->lba, NULL);
+
+	if (blks != dev_desc->lba) {
+		pr_err("Failed to erase mmc hwpart[%u]\n", dev_desc->hwpart);
+		return 1;
+	}
+
+	printf("........ erased %lu bytes from mmc hwpart[%u]\n",
+	       dev_desc->lba * dev_desc->blksz, dev_desc->hwpart);
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_FASTBOOT_MMC_BOOT_SUPPORT
+static void fb_mmc_boot_ops(struct blk_desc *dev_desc, void *buffer,
+			    int hwpart, u32 buff_sz, char *response)
+{
+	lbaint_t blkcnt;
+	lbaint_t blks;
+	unsigned long blksz;
+
+	// To operate on EMMC_BOOT1/2 (mmc0boot0/1) we first change the hwpart
+	if (blk_dselect_hwpart(dev_desc, hwpart)) {
+		pr_err("Failed to select hwpart\n");
+		fastboot_fail("Failed to select hwpart", response);
+		return;
+	}
+
+	if (buffer) { /* flash */
+
+		/* determine number of blocks to write */
+		blksz = dev_desc->blksz;
+		blkcnt = ((buff_sz + (blksz - 1)) & ~(blksz - 1));
+		blkcnt = lldiv(blkcnt, blksz);
+
+		if (blkcnt > dev_desc->lba) {
+			pr_err("Image size too large\n");
+			fastboot_fail("Image size too large", response);
+			return;
+		}
+
+		debug("Start Flashing Image to EMMC_BOOT%d...\n", hwpart);
+
+		blks = fb_mmc_blk_write(dev_desc, 0, blkcnt, buffer);
+
+		if (blks != blkcnt) {
+			pr_err("Failed to write EMMC_BOOT%d\n", hwpart);
+			fastboot_fail("Failed to write EMMC_BOOT part",
+				      response);
+			return;
+		}
+
+		printf("........ wrote %lu bytes to EMMC_BOOT%d\n",
+		       blkcnt * blksz, hwpart);
+	} else { /* erase */
+		if (fb_mmc_erase_mmc_hwpart(dev_desc)) {
+			pr_err("Failed to erase EMMC_BOOT%d\n", hwpart);
+			fastboot_fail("Failed to erase EMMC_BOOT part",
+				      response);
+			return;
+		}
+	}
+
+	fastboot_okay(NULL, response);
+}
+#endif
+
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 /**
  * Read Android boot image header from boot partition.
@@ -139,7 +292,7 @@ static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
  * @return Boot image header sectors count or 0 on error
  */
 static lbaint_t fb_mmc_get_boot_header(struct blk_desc *dev_desc,
-				       disk_partition_t *info,
+				       struct disk_partition *info,
 				       struct andr_img_hdr *hdr,
 				       char *response)
 {
@@ -199,7 +352,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	u32 kernel_sector_start;
 	u32 kernel_sectors;
 	u32 sectors_per_page;
-	disk_partition_t info;
+	struct disk_partition info;
 	int res;
 
 	puts("Flashing zImage\n");
@@ -295,31 +448,56 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
  *
  * @part_name: Named partition to lookup
  * @dev_desc: Pointer to returned blk_desc pointer
- * @part_info: Pointer to returned disk_partition_t
+ * @part_info: Pointer to returned struct disk_partition
  * @response: Pointer to fastboot response buffer
  */
-int fastboot_mmc_get_part_info(char *part_name, struct blk_desc **dev_desc,
-			       disk_partition_t *part_info, char *response)
+int fastboot_mmc_get_part_info(const char *part_name,
+			       struct blk_desc **dev_desc,
+			       struct disk_partition *part_info, char *response)
 {
-	int r;
+	int ret;
 
-	*dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
-	if (!*dev_desc) {
-		fastboot_fail("block device not found", response);
-		return -ENOENT;
-	}
 	if (!part_name || !strcmp(part_name, "")) {
 		fastboot_fail("partition not given", response);
 		return -ENOENT;
 	}
 
-	r = part_get_info_by_name_or_alias(*dev_desc, part_name, part_info);
-	if (r < 0) {
-		fastboot_fail("partition not found", response);
-		return r;
+	ret = part_get_info_by_name_or_alias(dev_desc, part_name, part_info);
+	if (ret < 0) {
+		switch (ret) {
+		case -ENOSYS:
+		case -EINVAL:
+			fastboot_fail("invalid partition or device", response);
+			break;
+		case -ENODEV:
+			fastboot_fail("no such device", response);
+			break;
+		case -ENOENT:
+			fastboot_fail("no such partition", response);
+			break;
+		case -EPROTONOSUPPORT:
+			fastboot_fail("unknown partition table type", response);
+			break;
+		default:
+			fastboot_fail("unanticipated error", response);
+			break;
+		}
 	}
 
-	return r;
+	return ret;
+}
+
+static struct blk_desc *fastboot_mmc_get_dev(char *response)
+{
+	struct blk_desc *ret = blk_get_dev("mmc",
+					   CONFIG_FASTBOOT_FLASH_MMC_DEV);
+
+	if (!ret || ret->type == DEV_TYPE_UNKNOWN) {
+		pr_err("invalid mmc device\n");
+		fastboot_fail("invalid mmc device", response);
+		return NULL;
+	}
+	return ret;
 }
 
 /**
@@ -334,17 +512,36 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 			      u32 download_bytes, char *response)
 {
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 
-	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
-	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
-		pr_err("invalid mmc device\n");
-		fastboot_fail("invalid mmc device", response);
+#ifdef CONFIG_FASTBOOT_MMC_BOOT_SUPPORT
+	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_BOOT1_NAME) == 0) {
+		dev_desc = fastboot_mmc_get_dev(response);
+		if (dev_desc)
+			fb_mmc_boot_ops(dev_desc, download_buffer, 1,
+					download_bytes, response);
 		return;
 	}
+	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_BOOT2_NAME) == 0) {
+		dev_desc = fastboot_mmc_get_dev(response);
+		if (dev_desc)
+			fb_mmc_boot_ops(dev_desc, download_buffer, 1,
+					download_bytes, response);
+		return;
+	}
+#endif
 
 #if CONFIG_IS_ENABLED(EFI_PARTITION)
+#ifndef CONFIG_FASTBOOT_MMC_USER_SUPPORT
 	if (strcmp(cmd, CONFIG_FASTBOOT_GPT_NAME) == 0) {
+#else
+	if (strcmp(cmd, CONFIG_FASTBOOT_GPT_NAME) == 0 ||
+	    strcmp(cmd, CONFIG_FASTBOOT_MMC_USER_NAME) == 0) {
+#endif
+		dev_desc = fastboot_mmc_get_dev(response);
+		if (!dev_desc)
+			return;
+
 		printf("%s: updating MBR, Primary and Backup GPT(s)\n",
 		       __func__);
 		if (is_valid_gpt_buf(dev_desc, download_buffer)) {
@@ -359,6 +556,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 				      response);
 			return;
 		}
+		part_init(dev_desc);
 		printf("........ success\n");
 		fastboot_okay(NULL, response);
 		return;
@@ -367,6 +565,10 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 
 #if CONFIG_IS_ENABLED(DOS_PARTITION)
 	if (strcmp(cmd, CONFIG_FASTBOOT_MBR_NAME) == 0) {
+		dev_desc = fastboot_mmc_get_dev(response);
+		if (!dev_desc)
+			return;
+
 		printf("%s: updating MBR\n", __func__);
 		if (is_valid_dos_buf(download_buffer)) {
 			printf("%s: invalid MBR - refusing to write to flash\n",
@@ -374,12 +576,13 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 			fastboot_fail("invalid MBR partition", response);
 			return;
 		}
-		if (write_mbr_partition(dev_desc, download_buffer)) {
+		if (write_mbr_sector(dev_desc, download_buffer)) {
 			printf("%s: writing MBR partition failed\n", __func__);
 			fastboot_fail("writing MBR partition failed",
 				      response);
 			return;
 		}
+		part_init(dev_desc);
 		printf("........ success\n");
 		fastboot_okay(NULL, response);
 		return;
@@ -388,17 +591,16 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	if (strncasecmp(cmd, "zimage", 6) == 0) {
-		fb_mmc_update_zimage(dev_desc, download_buffer,
-				     download_bytes, response);
+		dev_desc = fastboot_mmc_get_dev(response);
+		if (dev_desc)
+			fb_mmc_update_zimage(dev_desc, download_buffer,
+					     download_bytes, response);
 		return;
 	}
 #endif
 
-	if (part_get_info_by_name_or_alias(dev_desc, cmd, &info) < 0) {
-		pr_err("cannot find partition: '%s'\n", cmd);
-		fastboot_fail("cannot find partition", response);
+	if (fastboot_mmc_get_part_info(cmd, &dev_desc, &info, response) < 0)
 		return;
-	}
 
 	if (is_sparse_image(download_buffer)) {
 		struct fb_mmc_sparse sparse_priv;
@@ -436,31 +638,45 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
  */
 void fastboot_mmc_erase(const char *cmd, char *response)
 {
-	int ret;
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 	lbaint_t blks, blks_start, blks_size, grp_size;
 	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);
 
-	if (mmc == NULL) {
-		pr_err("invalid mmc device\n");
-		fastboot_fail("invalid mmc device", response);
+#ifdef CONFIG_FASTBOOT_MMC_BOOT_SUPPORT
+	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_BOOT1_NAME) == 0) {
+		/* erase EMMC boot1 */
+		dev_desc = fastboot_mmc_get_dev(response);
+		if (dev_desc)
+			fb_mmc_boot_ops(dev_desc, NULL, 1, 0, response);
 		return;
 	}
+	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_BOOT2_NAME) == 0) {
+		/* erase EMMC boot2 */
+		dev_desc = fastboot_mmc_get_dev(response);
+		if (dev_desc)
+			fb_mmc_boot_ops(dev_desc, NULL, 1, 0, response);
+		return;
+	}
+#endif
 
-	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
-	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
-		pr_err("invalid mmc device\n");
-		fastboot_fail("invalid mmc device", response);
-		return;
-	}
+#ifdef CONFIG_FASTBOOT_MMC_USER_SUPPORT
+	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_USER_NAME) == 0) {
+		/* erase EMMC userdata */
+		dev_desc = fastboot_mmc_get_dev(response);
+		if (!dev_desc)
+			return;
 
-	ret = part_get_info_by_name_or_alias(dev_desc, cmd, &info);
-	if (ret < 0) {
-		pr_err("cannot find partition: '%s'\n", cmd);
-		fastboot_fail("cannot find partition", response);
+		if (fb_mmc_erase_mmc_hwpart(dev_desc))
+			fastboot_fail("Failed to erase EMMC_USER", response);
+		else
+			fastboot_okay(NULL, response);
 		return;
 	}
+#endif
+
+	if (fastboot_mmc_get_part_info(cmd, &dev_desc, &info, response) < 0)
+		return;
 
 	/* Align blocks to erase group size to avoid erasing other partitions */
 	grp_size = mmc->erase_grp_size;

@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <pci.h>
 
 #define FDT_DEV_INFO_CELLS	4
@@ -39,7 +40,7 @@ static int sandbox_pci_write_config(struct udevice *bus, pci_dev_t devfn,
 	return ops->write_config(emul, offset, value, size);
 }
 
-static int sandbox_pci_read_config(struct udevice *bus, pci_dev_t devfn,
+static int sandbox_pci_read_config(const struct udevice *bus, pci_dev_t devfn,
 				   uint offset, ulong *valuep,
 				   enum pci_size_t size)
 {
@@ -127,10 +128,9 @@ U_BOOT_DRIVER(pci_sandbox) = {
 	.of_match = sandbox_pci_ids,
 	.ops	= &sandbox_pci_ops,
 	.probe	= sandbox_pci_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_pci_priv),
+	.priv_auto	= sizeof(struct sandbox_pci_priv),
 
 	/* Attach an emulator if we can */
 	.child_post_bind = dm_scan_fdt_dev,
-	.per_child_platdata_auto_alloc_size =
-			sizeof(struct pci_child_platdata),
+	.per_child_plat_auto	= sizeof(struct pci_child_plat),
 };

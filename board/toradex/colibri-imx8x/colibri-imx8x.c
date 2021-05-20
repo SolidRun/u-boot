@@ -4,6 +4,9 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
+#include <asm/global_data.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8-pins.h>
@@ -12,7 +15,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <environment.h>
+#include <env.h>
 #include <errno.h>
 #include <linux/libfdt.h>
 
@@ -37,6 +40,29 @@ static void setup_iomux_uart(void)
 	imx8_iomux_setup_multiple_pads(uart3_pads, ARRAY_SIZE(uart3_pads));
 }
 
+void board_mem_get_layout(u64 *phys_sdram_1_start,
+			  u64 *phys_sdram_1_size,
+			  u64 *phys_sdram_2_start,
+			  u64 *phys_sdram_2_size)
+{
+	u32 is_dualx = 0, val = 0;
+	sc_err_t scierr = sc_misc_otp_fuse_read(-1, 6, &val);
+
+	if (scierr == SC_ERR_NONE) {
+		/* DX has two A35 cores disabled */
+		is_dualx = (val & 0xf) != 0x0;
+	}
+
+	*phys_sdram_1_start = PHYS_SDRAM_1;
+	if (is_dualx)
+		/* Our DX based SKUs only have 1 GB RAM */
+		*phys_sdram_1_size = SZ_1G;
+	else
+		*phys_sdram_1_size = PHYS_SDRAM_1_SIZE;
+	*phys_sdram_2_start = PHYS_SDRAM_2;
+	*phys_sdram_2_size = PHYS_SDRAM_2_SIZE;
+}
+
 int board_early_init_f(void)
 {
 	sc_pm_clock_rate_t rate;
@@ -51,19 +77,9 @@ int board_early_init_f(void)
 	if (err != SC_ERR_NONE)
 		return 0;
 
-	/* Power up UART3 */
-	err = sc_pm_set_resource_power_mode(-1, SC_R_UART_3, SC_PM_PW_MODE_ON);
-	if (err != SC_ERR_NONE)
-		return 0;
-
-	/* Set UART3 clock root to 80 MHz */
-	rate = 80000000;
-	err = sc_pm_set_clock_rate(-1, SC_R_UART_3, SC_PM_CLK_PER, &rate);
-	if (err != SC_ERR_NONE)
-		return 0;
-
-	/* Enable UART3 clock root */
-	err = sc_pm_clock_enable(-1, SC_R_UART_3, SC_PM_CLK_PER, true, false);
+	/* Set UART3 clock root to 80 MHz and enable it */
+	rate = SC_80MHZ;
+	err = sc_pm_setup_uart(SC_R_UART_3, rate);
 	if (err != SC_ERR_NONE)
 		return 0;
 
@@ -93,19 +109,6 @@ int board_phy_config(struct phy_device *phydev)
 }
 #endif
 
-void build_info(void)
-{
-	u32 sc_build = 0, sc_commit = 0;
-
-	/* Get SCFW build and commit id */
-	sc_misc_build_info(-1, &sc_build, &sc_commit);
-	if (!sc_build) {
-		printf("SCFW does not support build info\n");
-		sc_commit = 0; /* Display 0 if build info not supported */
-	}
-	printf("Build: SCFW %x\n", sc_commit);
-}
-
 int checkboard(void)
 {
 	puts("Model: Toradex Colibri iMX8X\n");
@@ -123,21 +126,16 @@ int board_init(void)
 	return 0;
 }
 
-void detail_board_ddr_info(void)
-{
-	puts("\nDDR    ");
-}
-
 /*
  * Board specific reset that is system reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/* TODO */
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return ft_common_board_setup(blob, bd);
 }

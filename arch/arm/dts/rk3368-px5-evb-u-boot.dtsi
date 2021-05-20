@@ -2,10 +2,12 @@
 /*
  * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
  */
+
+#include "rk3368-u-boot.dtsi"
+
 / {
 	chosen {
 		u-boot,spl-boot-order = &emmc;
-		tick-timer = "/timer@ff810000";
 	};
 };
 
@@ -59,6 +61,8 @@
 };
 
 &emmc {
+	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
+	u-boot,spl-fifo-mode;
 	u-boot,dm-pre-reloc;
 };
 

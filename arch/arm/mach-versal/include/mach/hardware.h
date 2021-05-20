@@ -3,6 +3,10 @@
  * Copyright 2016 - 2018 Xilinx, Inc.
  */
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define VERSAL_CRL_APB_BASEADDR	0xFF5E0000
 
 #define CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT	BIT(25)
@@ -51,3 +55,26 @@ struct rpu_regs {
 };
 
 #define rpu_base ((struct rpu_regs *)VERSAL_RPU_BASEADDR)
+
+#define VERSAL_CRP_BASEADDR	0xF1260000
+
+struct crp_regs {
+	u32 reserved0[128];
+	u32 boot_mode_usr;
+};
+
+#define crp_base ((struct crp_regs *)VERSAL_CRP_BASEADDR)
+
+/* Bootmode setting values */
+#define BOOT_MODES_MASK	0x0000000F
+#define QSPI_MODE_24BIT	0x00000001
+#define QSPI_MODE_32BIT	0x00000002
+#define SD_MODE		0x00000003 /* sd 0 */
+#define SD_MODE1	0x00000005 /* sd 1 */
+#define EMMC_MODE	0x00000006
+#define USB_MODE	0x00000007
+#define OSPI_MODE	0x00000008
+#define SD1_LSHFT_MODE	0x0000000E /* SD1 Level shifter */
+#define JTAG_MODE	0x00000000
+#define BOOT_MODE_USE_ALT	0x100
+#define BOOT_MODE_ALT_SHIFT	12

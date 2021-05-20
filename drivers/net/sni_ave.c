@@ -5,15 +5,24 @@
  */
 
 #include <clk.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <fdt_support.h>
-#include <linux/io.h>
-#include <linux/iopoll.h>
+#include <log.h>
+#include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
 #include <regmap.h>
 #include <reset.h>
 #include <syscon.h>
+#include <asm/cache.h>
+#include <asm/global_data.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/err.h>
+#include <linux/io.h>
+#include <linux/iopoll.h>
 
 #define AVE_GRST_DELAY_MSEC	40
 #define AVE_MIN_XMITSIZE	60
@@ -291,7 +300,7 @@ static int ave_mdiobus_write(struct mii_dev *bus,
 static int ave_adjust_link(struct ave_private *priv)
 {
 	struct phy_device *phydev = priv->phydev;
-	struct eth_pdata *pdata = dev_get_platdata(phydev->dev);
+	struct eth_pdata *pdata = dev_get_plat(phydev->dev);
 	u32 val, txcr, rxcr, rxcr_org;
 	u16 rmt_adv = 0, lcl_adv = 0;
 	u8 cap;
@@ -508,7 +517,7 @@ static int ave_start(struct udevice *dev)
 static int ave_write_hwaddr(struct udevice *dev)
 {
 	struct ave_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	u8 *mac = pdata->enetaddr;
 
 	writel(mac[0] | mac[1] << 8 | mac[2] << 16 | mac[3] << 24,
@@ -724,9 +733,9 @@ static int ave_pxs3_get_pinmode(struct ave_private *priv)
 	return 0;
 }
 
-static int ave_ofdata_to_platdata(struct udevice *dev)
+static int ave_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ave_private *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args args;
 	const char *phy_mode;
@@ -738,7 +747,7 @@ static int ave_ofdata_to_platdata(struct udevice *dev)
 	if (!priv->data)
 		return -EINVAL;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
 	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
 			       NULL);
@@ -818,7 +827,7 @@ out_clk_free:
 
 static int ave_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ave_private *priv = dev_get_priv(dev);
 	int ret, nc, nr;
 
@@ -988,8 +997,8 @@ U_BOOT_DRIVER(ave) = {
 	.of_match = ave_ids,
 	.probe	  = ave_probe,
 	.remove	  = ave_remove,
-	.ofdata_to_platdata = ave_ofdata_to_platdata,
+	.of_to_plat = ave_of_to_plat,
 	.ops	  = &ave_ops,
-	.priv_auto_alloc_size = sizeof(struct ave_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ave_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

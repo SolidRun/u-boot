@@ -6,6 +6,11 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 #include <common.h>
+#include <eeprom.h>
+#include <env.h>
+#include <hang.h>
+#include <image.h>
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/ti-common/keystone_net.h>
 #include <asm/arch/psc_defs.h>
@@ -13,6 +18,8 @@
 #include <fdtdec.h>
 #include <i2c.h>
 #include <remoteproc.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include "mux-k2g.h"
 #include "../common/board_detect.h"
 
@@ -216,7 +223,7 @@ s16 divn_val[16] = {
 };
 
 #if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	if (psc_enable_module(KS2_LPSC_MMC)) {
 		printf("%s module enabled failed\n", __func__);
@@ -241,7 +248,8 @@ int board_fit_config_name_match(const char *name)
 	else if (!strcmp(name, "keystone-k2g-evm") &&
 		(board_ti_is("66AK2GGP") || board_ti_is("66AK2GG1")))
 		return 0;
-	else if (!strcmp(name, "keystone-k2g-ice") && board_ti_is("66AK2GIC"))
+	else if (!strcmp(name, "keystone-k2g-ice") &&
+		 (board_ti_is("66AK2GIC") || board_is_k2g_i1()))
 		return 0;
 	else
 		return -1;
@@ -251,7 +259,7 @@ int board_fit_config_name_match(const char *name)
 #if defined(CONFIG_DTB_RESELECT)
 static int k2g_alt_board_detect(void)
 {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	int rc;
 
 	rc = i2c_set_bus_num(1);
@@ -315,7 +323,7 @@ int embedded_dtb_select(void)
 			     BIT(9));
 		setbits_le32(K2G_GPIO1_BANK2_BASE + K2G_GPIO_SETDATA_OFFSET,
 			     BIT(9));
-	} else if (board_is_k2g_ice()) {
+	} else if (board_is_k2g_ice() || board_is_k2g_i1()) {
 		/* GBE Phy workaround. For Phy to latch the input
 		 * configuration, a GPIO reset is asserted at the
 		 * Phy reset pin to latch configuration correctly after SoC
@@ -357,6 +365,8 @@ int board_late_init(void)
 		env_set("board_name", "66AK2GG1\0");
 	else if (board_is_k2g_ice())
 		env_set("board_name", "66AK2GIC\0");
+	else if (board_is_k2g_i1())
+		env_set("board_name", "66AK2GI1\0");
 #endif
 	return 0;
 }

@@ -8,6 +8,8 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
+#include <asm/global_data.h>
+#include <linux/delay.h>
 
 #include <dm.h>
 #include <dm/lists.h>
@@ -21,6 +23,7 @@
 #include <asm/ti-common/keystone_net.h>
 #include <asm/ti-common/keystone_serdes.h>
 #include <asm/arch/psc_defs.h>
+#include <linux/libfdt.h>
 
 #include "cpsw_mdio.h"
 
@@ -494,7 +497,7 @@ static void ks2_eth_stop(struct udevice *dev)
 int ks2_eth_read_rom_hwaddr(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	u32 maca = 0;
 	u32 macb = 0;
 
@@ -517,7 +520,7 @@ int ks2_eth_read_rom_hwaddr(struct udevice *dev)
 int ks2_eth_write_hwaddr(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	writel(mac_hi(pdata->enetaddr),
 	       DEVICE_EMACSW_BASE(pdata->iobase, priv->slave_port - 1) +
@@ -745,10 +748,10 @@ static int ks2_eth_parse_slave_interface(int netcp, int slave,
 	return 0;
 }
 
-static int ks2_sl_eth_ofdata_to_platdata(struct udevice *dev)
+static int ks2_sl_eth_of_to_plat(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int slave = dev_of_offset(dev);
 	int interfaces;
@@ -768,10 +771,10 @@ static int ks2_sl_eth_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-static int ks2_eth_ofdata_to_platdata(struct udevice *dev)
+static int ks2_eth_of_to_plat(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int gbe_0 = -ENODEV;
 	int netcp_devices;
@@ -785,7 +788,7 @@ static int ks2_eth_ofdata_to_platdata(struct udevice *dev)
 
 	ks2_eth_parse_slave_interface(dev_of_offset(dev), gbe_0, priv, pdata);
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 
 	return 0;
 }
@@ -798,12 +801,12 @@ static const struct udevice_id ks2_eth_ids[] = {
 U_BOOT_DRIVER(eth_ks2_slave) = {
 	.name	= "eth_ks2_sl",
 	.id	= UCLASS_ETH,
-	.ofdata_to_platdata = ks2_sl_eth_ofdata_to_platdata,
+	.of_to_plat = ks2_sl_eth_of_to_plat,
 	.probe	= ks2_eth_probe,
 	.remove	= ks2_eth_remove,
 	.ops	= &ks2_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct ks2_eth_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ks2_eth_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 
@@ -811,11 +814,11 @@ U_BOOT_DRIVER(eth_ks2) = {
 	.name	= "eth_ks2",
 	.id	= UCLASS_ETH,
 	.of_match = ks2_eth_ids,
-	.ofdata_to_platdata = ks2_eth_ofdata_to_platdata,
+	.of_to_plat = ks2_eth_of_to_plat,
 	.probe	= ks2_eth_probe,
 	.remove	= ks2_eth_remove,
 	.ops	= &ks2_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct ks2_eth_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ks2_eth_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

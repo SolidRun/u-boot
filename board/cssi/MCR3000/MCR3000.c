@@ -8,12 +8,17 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <hwconfig.h>
+#include <init.h>
 #include <mpc8xx.h>
 #include <fdt_support.h>
+#include <serial.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/uclass.h>
 #include <wdt.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,7 +56,7 @@ static const uint cs1_dram_table_66[] = {
 	0xFFFFFC05, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
 };
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	const char *sync = "receive";
 

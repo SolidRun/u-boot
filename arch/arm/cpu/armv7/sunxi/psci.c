@@ -8,6 +8,7 @@
  */
 #include <config.h>
 #include <common.h>
+#include <asm/cache.h>
 
 #include <asm/arch/cpu.h>
 #include <asm/arch/cpucfg.h>
@@ -276,7 +277,7 @@ int __secure psci_cpu_on(u32 __always_unused unused, u32 mpidr, u32 pc,
 	return ARM_PSCI_RET_SUCCESS;
 }
 
-void __secure psci_cpu_off(void)
+s32 __secure psci_cpu_off(void)
 {
 	psci_cpu_off_common();
 

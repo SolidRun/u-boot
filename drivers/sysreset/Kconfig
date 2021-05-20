@@ -33,6 +33,29 @@ config TPL_SYSRESET
 
 if SYSRESET
 
+config SYSRESET_CMD_RESET
+	bool "sysreset implementation of the reset command"
+	default y
+	help
+	  Enable sysreset implementation of the reset command.
+
+if CMD_POWEROFF
+
+config SYSRESET_CMD_POWEROFF
+	bool "sysreset implementation of the poweroff command"
+	help
+	  This should be selected by the appropriate PMIC driver if
+	  the poweroff command is enabled.
+
+endif
+
+config POWEROFF_GPIO
+	bool "Enable support for GPIO poweroff driver"
+	select DM_GPIO
+	help
+	  Support for system poweroff using a GPIO pin. This can be used
+	  for systems having a single GPIO to trigger a system poweroff.
+
 config SYSRESET_GPIO
 	bool "Enable support for GPIO reset driver"
 	select DM_GPIO
@@ -47,12 +70,34 @@ config SYSRESET_MICROBLAZE
 	help
 	  This is soft reset on Microblaze which does jump to 0x0 address.
 
+config SYSRESET_OCTEON
+	bool "Enable support for Marvell Octeon SoC family"
+	depends on ARCH_OCTEON
+	help
+	  This enables the system reset driver support for Marvell Octeon
+	  SoCs.
+
 config SYSRESET_PSCI
 	bool "Enable support for PSCI System Reset"
 	depends on ARM_PSCI_FW
+	select SPL_ARM_PSCI_FW if SPL
 	help
 	  Enable PSCI SYSTEM_RESET function call.  To use this, PSCI firmware
 	  must be running on your system.
+
+config SYSRESET_SOCFPGA
+	bool "Enable support for Intel SOCFPGA family"
+	depends on ARCH_SOCFPGA && (TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10)
+	help
+	  This enables the system reset driver support for Intel SOCFPGA SoCs
+	  (Cyclone 5, Arria 5 and Arria 10).
+
+config SYSRESET_SOCFPGA_SOC64
+	bool "Enable support for Intel SOCFPGA SoC64 family (Stratix10/Agilex)"
+	depends on ARCH_SOCFPGA && TARGET_SOCFPGA_SOC64
+	help
+	  This enables the system reset driver support for Intel SOCFPGA
+	  SoC64 SoCs.
 
 config SYSRESET_TI_SCI
 	bool "TI System Control Interface (TI SCI) system reset driver"
@@ -76,13 +121,31 @@ config SYSRESET_WATCHDOG
 	help
 	  Reboot support for generic watchdog reset.
 
+config SYSRESET_RESETCTL
+	bool "Enable support for reset controller reboot driver"
+	select DM_RESET
+	help
+	  Reboot support using generic reset controller.
+
 config SYSRESET_X86
 	bool "Enable support for x86 processor reboot driver"
 	depends on X86
 	help
 	  Reboot support for generic x86 processor reset.
 
-config SYSRESET_MCP83XX
+config SYSRESET_SPL_X86
+	bool "Enable support for x86 processor reboot driver in SPL"
+	depends on X86
+	help
+	  Reboot support for generic x86 processor reset in SPL.
+
+config SYSRESET_TPL_X86
+	bool "Enable support for x86 processor reboot driver in TPL"
+	depends on X86
+	help
+	  Reboot support for generic x86 processor reset in TPL.
+
+config SYSRESET_MPC83XX
 	bool "Enable support MPC83xx SoC family reboot driver"
 	help
 	  Reboot support for NXP MPC83xx SoCs.

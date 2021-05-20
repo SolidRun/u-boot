@@ -11,7 +11,10 @@
 #include <dm.h>
 #include <debug_uart.h>
 #include <errno.h>
+#include <init.h>
+#include <net.h>
 #include <ns16550.h>
+#include <omap3_spi.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -23,6 +26,7 @@
 #include <asm/arch/mem.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
@@ -30,6 +34,7 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/compiler.h>
 #include <linux/usb/ch9.h>
@@ -45,6 +50,12 @@
 #define AM43XX_SDRAM_TYPE_DDR3				3
 #define AM43XX_READ_WRITE_LEVELING_CTRL_OFFSET		0xDC
 #define AM43XX_RDWRLVLFULL_START			0x80000000
+
+/* SPI flash. */
+#if CONFIG_IS_ENABLED(DM_SPI) && !CONFIG_IS_ENABLED(OF_CONTROL)
+#define AM33XX_SPI0_BASE	0x48030000
+#define AM33XX_SPI0_OFFSET	(AM33XX_SPI0_BASE + OMAP4_MCSPI_REG_OFFSET)
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -70,7 +81,7 @@ int dram_init_banksize(void)
 }
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
-static const struct ns16550_platdata am33xx_serial[] = {
+static const struct ns16550_plat am33xx_serial[] = {
 	{ .base = CONFIG_SYS_NS16550_COM1, .reg_shift = 2,
 	  .clock = CONFIG_SYS_NS16550_CLK, .fcr = UART_FCR_DEFVAL, },
 # ifdef CONFIG_SYS_NS16550_COM2
@@ -89,7 +100,7 @@ static const struct ns16550_platdata am33xx_serial[] = {
 # endif
 };
 
-U_BOOT_DEVICES(am33xx_uarts) = {
+U_BOOT_DRVINFOS(am33xx_uarts) = {
 	{ "ns16550_serial", &am33xx_serial[0] },
 #  ifdef CONFIG_SYS_NS16550_COM2
 	{ "ns16550_serial", &am33xx_serial[1] },
@@ -102,22 +113,22 @@ U_BOOT_DEVICES(am33xx_uarts) = {
 #  endif
 };
 
-#ifdef CONFIG_DM_I2C
-static const struct omap_i2c_platdata am33xx_i2c[] = {
+#if CONFIG_IS_ENABLED(DM_I2C)
+static const struct omap_i2c_plat am33xx_i2c[] = {
 	{ I2C_BASE1, 100000, OMAP_I2C_REV_V2},
 	{ I2C_BASE2, 100000, OMAP_I2C_REV_V2},
 	{ I2C_BASE3, 100000, OMAP_I2C_REV_V2},
 };
 
-U_BOOT_DEVICES(am33xx_i2c) = {
+U_BOOT_DRVINFOS(am33xx_i2c) = {
 	{ "i2c_omap", &am33xx_i2c[0] },
 	{ "i2c_omap", &am33xx_i2c[1] },
 	{ "i2c_omap", &am33xx_i2c[2] },
 };
 #endif
 
-#ifdef CONFIG_DM_GPIO
-static const struct omap_gpio_platdata am33xx_gpio[] = {
+#if CONFIG_IS_ENABLED(DM_GPIO)
+static const struct omap_gpio_plat am33xx_gpio[] = {
 	{ 0, AM33XX_GPIO0_BASE },
 	{ 1, AM33XX_GPIO1_BASE },
 	{ 2, AM33XX_GPIO2_BASE },
@@ -128,7 +139,7 @@ static const struct omap_gpio_platdata am33xx_gpio[] = {
 #endif
 };
 
-U_BOOT_DEVICES(am33xx_gpios) = {
+U_BOOT_DRVINFOS(am33xx_gpios) = {
 	{ "gpio_omap", &am33xx_gpio[0] },
 	{ "gpio_omap", &am33xx_gpio[1] },
 	{ "gpio_omap", &am33xx_gpio[2] },
@@ -139,9 +150,20 @@ U_BOOT_DEVICES(am33xx_gpios) = {
 #endif
 };
 #endif
+#if CONFIG_IS_ENABLED(DM_SPI) && !CONFIG_IS_ENABLED(OF_CONTROL)
+static const struct omap3_spi_plat omap3_spi_pdata = {
+	.regs = (struct mcspi *)AM33XX_SPI0_OFFSET,
+	.pin_dir = MCSPI_PINDIR_D0_IN_D1_OUT,
+};
+
+U_BOOT_DRVINFO(am33xx_spi) = {
+	.name = "omap3_spi",
+	.plat = &omap3_spi_pdata,
+};
+#endif
 #endif
 
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 static const struct gpio_bank gpio_bank_am33xx[] = {
 	{ (void *)AM33XX_GPIO0_BASE },
 	{ (void *)AM33XX_GPIO1_BASE },
@@ -157,7 +179,7 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_am33xx;
 #endif
 
 #if defined(CONFIG_MMC_OMAP_HS)
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 	int ret;
 
@@ -193,7 +215,7 @@ static struct musb_hdrc_config musb_config = {
 };
 
 #if CONFIG_IS_ENABLED(DM_USB) && !CONFIG_IS_ENABLED(OF_CONTROL)
-static struct ti_musb_platdata usb0 = {
+static struct ti_musb_plat usb0 = {
 	.base = (void *)USB0_OTG_BASE,
 	.ctrl_mod_base = &((struct ctrl_dev *)CTRL_DEVICE_BASE)->usb_ctrl0,
 	.plat = {
@@ -203,7 +225,7 @@ static struct ti_musb_platdata usb0 = {
 		},
 };
 
-static struct ti_musb_platdata usb1 = {
+static struct ti_musb_plat usb1 = {
 	.base = (void *)USB1_OTG_BASE,
 	.ctrl_mod_base = &((struct ctrl_dev *)CTRL_DEVICE_BASE)->usb_ctrl1,
 	.plat = {
@@ -213,7 +235,7 @@ static struct ti_musb_platdata usb1 = {
 		},
 };
 
-U_BOOT_DEVICES(am33xx_usbs) = {
+U_BOOT_DRVINFOS(am33xx_usbs) = {
 #if CONFIG_AM335X_USB0_MODE == MUSB_PERIPHERAL
 	{ "ti-musb-peripheral", &usb0 },
 #elif CONFIG_AM335X_USB0_MODE == MUSB_HOST
@@ -375,8 +397,8 @@ void update_rtc_magic(void)
  */
 int board_early_init_f(void)
 {
-	prcm_init();
 	set_mux_conf_regs();
+	prcm_init();
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
 	update_rtc_magic();
 #endif

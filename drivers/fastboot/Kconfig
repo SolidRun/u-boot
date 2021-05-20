@@ -64,13 +64,22 @@ config FASTBOOT_USB_DEV
 
 config FASTBOOT_FLASH
 	bool "Enable FASTBOOT FLASH command"
-	default y if ARCH_SUNXI
-	depends on MMC || (NAND && CMD_MTDPARTS)
+	default y if ARCH_SUNXI || ARCH_ROCKCHIP
+	depends on MMC || (MTD_RAW_NAND && CMD_MTDPARTS)
 	select IMAGE_SPARSE
 	help
 	  The fastboot protocol includes a "flash" command for writing
 	  the downloaded image to a non-volatile storage device. Define
 	  this to enable the "fastboot flash" command.
+
+config FASTBOOT_UUU_SUPPORT
+	bool "Enable FASTBOOT i.MX UUU special command"
+	default n
+	help
+	  The fastboot protocol includes "UCmd" and "ACmd" command.
+	  Be aware that you provide full access to any U-Boot command,
+	  including working with memory and may open a huge backdoor,
+	  when enabling this option.
 
 choice
 	prompt "Flash provider for FASTBOOT"
@@ -82,13 +91,14 @@ config FASTBOOT_FLASH_MMC
 
 config FASTBOOT_FLASH_NAND
 	bool "FASTBOOT on NAND"
-	depends on NAND && CMD_MTDPARTS
+	depends on MTD_RAW_NAND && CMD_MTDPARTS
 
 endchoice
 
 config FASTBOOT_FLASH_MMC_DEV
 	int "Define FASTBOOT MMC FLASH default device"
 	depends on FASTBOOT_FLASH_MMC
+	default 0 if ARCH_ROCKCHIP
 	default 0 if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA = -1
 	default 1 if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA != -1
 	help
@@ -102,6 +112,60 @@ config FASTBOOT_FLASH_NAND_TRIMFFS
 	help
 	  When flashing NAND enable the DROP_FFS flag to drop trailing all-0xff
 	  pages.
+
+config FASTBOOT_MMC_BOOT_SUPPORT
+	bool "Enable EMMC_BOOT flash/erase"
+	depends on FASTBOOT_FLASH_MMC
+	help
+	  The fastboot "flash" and "erase" commands normally does operations
+	  on eMMC userdata. Define this to enable the special commands to
+	  flash/erase eMMC boot partition.
+	  The default target name for updating eMMC boot partition 1/2 is
+	  CONFIG_FASTBOOT_MMC_BOOT1_NAME/CONFIG_FASTBOOT_MMC_BOOT2_NAME.
+
+config FASTBOOT_MMC_BOOT1_NAME
+	string "Target name for updating EMMC_BOOT1"
+	depends on FASTBOOT_MMC_BOOT_SUPPORT
+	default "mmc0boot0"
+	help
+	  The fastboot "flash" and "erase" commands support operations on
+	  EMMC_BOOT1. This occurs when the specified "EMMC_BOOT1 name" on
+	  the "fastboot flash" and "fastboot erase" commands match the value
+	  defined here.
+	  The default target name for updating EMMC_BOOT1 is "mmc0boot0".
+
+config FASTBOOT_MMC_BOOT2_NAME
+	string "Target name for updating EMMC_BOOT2"
+	depends on FASTBOOT_MMC_BOOT_SUPPORT
+	default "mmc0boot1"
+	help
+	  The fastboot "flash" and "erase" commands support operations on
+	  EMMC_BOOT2. This occurs when the specified "EMMC_BOOT2 name" on
+	  the "fastboot flash" and "fastboot erase" commands match the value
+	  defined here.
+	  The default target name for updating EMMC_BOOT2 is "mmc0boot1".
+
+config FASTBOOT_MMC_USER_SUPPORT
+	bool "Enable eMMC userdata partition flash/erase"
+	depends on FASTBOOT_FLASH_MMC
+	help
+	  Define this to enable the support "flash" and "erase" command on
+	  eMMC userdata. The "flash" command only update the MBR and GPT
+	  header when CONFIG_EFI_PARTITION is supported.
+	  The "erase" command erase all the userdata.
+	  This occurs when the specified "partition name" on the
+	  fastboot command line matches the value CONFIG_FASTBOOT_MMC_USER_NAME.
+
+config FASTBOOT_MMC_USER_NAME
+	string "Target name for updating EMMC_USER"
+	depends on FASTBOOT_MMC_USER_SUPPORT
+	default "mmc0"
+	help
+	  The fastboot "flash" and "erase" command supports EMMC_USER.
+	  This occurs when the specified "EMMC_USER name" on the
+	  "fastboot flash" and the "fastboot erase" commands match the value
+	  defined here.
+	  The default target name for erasing EMMC_USER is "mmc0".
 
 config FASTBOOT_GPT_NAME
 	string "Target name for updating GPT"
@@ -133,6 +197,20 @@ config FASTBOOT_CMD_OEM_FORMAT
 	  Add support for the "oem format" command from a client. This
 	  relies on the env variable partitions to contain the list of
 	  partitions as required by the gpt command.
+
+config FASTBOOT_CMD_OEM_PARTCONF
+	bool "Enable the 'oem partconf' command"
+	depends on FASTBOOT_FLASH_MMC && SUPPORT_EMMC_BOOT
+	help
+	  Add support for the "oem partconf" command from a client. This set
+	  the mmc boot-partition for the selecting eMMC device.
+
+config FASTBOOT_CMD_OEM_BOOTBUS
+	bool "Enable the 'oem bootbus' command"
+	depends on FASTBOOT_FLASH_MMC && SUPPORT_EMMC_BOOT
+	help
+	  Add support for the "oem bootbus" command from a client. This set
+	  the mmc boot configuration for the selecting eMMC device.
 
 endif # FASTBOOT
 

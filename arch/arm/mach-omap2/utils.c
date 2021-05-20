@@ -4,7 +4,8 @@
  * Aneesh V <aneesh@ti.com>
  */
 #include <common.h>
-#include <environment.h>
+#include <env.h>
+#include <part.h>
 #include <asm/setup.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>
@@ -90,7 +91,7 @@ static u32 omap_mmc_get_part_size(const char *part)
 {
 	int res;
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 	u64 sz = 0;
 
 	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
@@ -129,12 +130,25 @@ static inline void omap_set_fastboot_userdata_size(void)
 {
 }
 #endif /* CONFIG_FASTBOOT_FLASH_MMC */
+
+static void omap_set_fastboot_product(void)
+{
+	const char *board_name;
+
+	board_name = env_get("board_name");
+	if (board_name == NULL)
+		printf("Warning: fastboot.product: unknown board\n");
+
+	env_set("fastboot.product", board_name);
+}
+
 void omap_set_fastboot_vars(void)
 {
 	omap_set_fastboot_cpu();
 	omap_set_fastboot_secure();
 	omap_set_fastboot_board_rev();
 	omap_set_fastboot_userdata_size();
+	omap_set_fastboot_product();
 }
 #endif /* CONFIG_FASTBOOT_FLASH */
 

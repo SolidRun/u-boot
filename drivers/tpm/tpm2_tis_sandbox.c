@@ -9,7 +9,8 @@
 #include <tpm-v2.h>
 #include <asm/state.h>
 #include <asm/unaligned.h>
-#include <linux/crc8.h>
+#include <linux/bitops.h>
+#include <u-boot/crc.h>
 
 /* Hierarchies */
 enum tpm2_hierarchy {
@@ -284,7 +285,7 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 	length = get_unaligned_be32(sent);
 	sent += sizeof(length);
 	if (length != send_size) {
-		printf("TPM2: Unmatching length, received: %ld, expected: %d\n",
+		printf("TPM2: Unmatching length, received: %zd, expected: %d\n",
 		       send_size, length);
 		rc = TPM2_RC_SIZE;
 		sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);
@@ -624,5 +625,5 @@ U_BOOT_DRIVER(sandbox_tpm2) = {
 	.of_match = sandbox_tpm2_ids,
 	.ops    = &sandbox_tpm2_ops,
 	.probe	= sandbox_tpm2_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_tpm2),
+	.priv_auto	= sizeof(struct sandbox_tpm2),
 };

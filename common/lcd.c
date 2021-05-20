@@ -10,7 +10,12 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <env_callback.h>
+#include <log.h>
+#include <asm/cache.h>
+#include <init.h>
+#include <asm/global_data.h>
 #include <linux/types.h>
 #include <stdio_dev.h>
 #include <lcd.h>

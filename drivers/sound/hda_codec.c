@@ -10,10 +10,13 @@
 #include <common.h>
 #include <dm.h>
 #include <hda_codec.h>
+#include <log.h>
 #include <pci.h>
 #include <sound.h>
 #include <asm/io.h>
 #include <dt-bindings/sound/azalia.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 /**
  * struct hda_regs - HDA registers
@@ -536,7 +539,7 @@ U_BOOT_DRIVER(hda_codec) = {
 	.name		= "hda_codec",
 	.id		= UCLASS_SOUND,
 	.ops		= &hda_codec_ops,
-	.priv_auto_alloc_size	= sizeof(struct hda_codec_priv),
+	.priv_auto	= sizeof(struct hda_codec_priv),
 	.probe		= hda_codec_init,
 };
 

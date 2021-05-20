@@ -3,9 +3,12 @@
  * Copyright 2016 NXP Semiconductor, Inc.
  */
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <config.h>
 #include <errno.h>
+#include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm/types.h>
 #include <asm/arch/soc.h>
@@ -14,7 +17,7 @@
 #elif defined(CONFIG_FSL_LSCH2)
 #include <asm/arch/immap_lsch2.h>
 #endif
-#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+#if CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT)
 #include <asm/armv8/sec_firmware.h>
 #endif
 #ifdef CONFIG_CHAIN_OF_TRUST

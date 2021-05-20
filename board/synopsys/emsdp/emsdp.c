@@ -4,8 +4,13 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <cpu_func.h>
 #include <dwmmc.h>
+#include <init.h>
 #include <malloc.h>
+#include <asm/global_data.h>
+#include <linux/bitops.h>
 
 #include <asm/arcregs.h>
 
@@ -48,33 +53,41 @@ int mach_cpu_init(void)
 	return 0;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_early_init_r(void)
 {
-	struct dwmci_host *host = NULL;
+#define EMSDP_PSRAM_BASE		0xf2001000
+#define PSRAM_FLASH_CONFIG_REG_0	(void *)(EMSDP_PSRAM_BASE + 0x10)
+#define PSRAM_FLASH_CONFIG_REG_1	(void *)(EMSDP_PSRAM_BASE + 0x14)
+#define CRE_ENABLE			BIT(31)
+#define CRE_DRIVE_CMD			BIT(6)
 
-	host = malloc(sizeof(struct dwmci_host));
-	if (!host) {
-		printf("dwmci_host malloc fail!\n");
-		return 1;
-	}
+#define PSRAM_RCR_DPD			BIT(1)
+#define PSRAM_RCR_PAGE_MODE		BIT(7)
 
-	memset(host, 0, sizeof(struct dwmci_host));
-	host->name = "Synopsys Mobile storage";
-	host->ioaddr = SDIO_BASE;
-	host->buswidth = 4;
-	host->dev_index = 0;
-	host->bus_hz = 50000000;
+/*
+ * PSRAM_FLASH_CONFIG_REG_x[30:15] to the address lines[16:1] of flash,
+ * thus "<< 1".
+ */
+#define PSRAM_RCR_SETUP		((PSRAM_RCR_DPD | PSRAM_RCR_PAGE_MODE) << 1)
 
-	add_dwmci(host, host->bus_hz / 2, 400000);
+	// Switch PSRAM controller to command mode
+	writel(CRE_ENABLE | CRE_DRIVE_CMD, PSRAM_FLASH_CONFIG_REG_0);
+	// Program Refresh Configuration Register (RCR) for BANK0
+	writew(0, (void *)(0x10000000 + PSRAM_RCR_SETUP));
+	// Switch PSRAM controller back to memory mode
+	writel(0, PSRAM_FLASH_CONFIG_REG_0);
+
+
+	// Switch PSRAM controller to command mode
+	writel(CRE_ENABLE | CRE_DRIVE_CMD, PSRAM_FLASH_CONFIG_REG_1);
+	// Program Refresh Configuration Register (RCR) for BANK1
+	writew(0, (void *)(0x10800000 + PSRAM_RCR_SETUP));
+	// Switch PSRAM controller back to memory mode
+	writel(0, PSRAM_FLASH_CONFIG_REG_1);
+
+	printf("PSRAM initialized.\n");
 
 	return 0;
-}
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct dwmci_host *host = mmc->priv;
-
-	return !(dwmci_readl(host, DWMCI_CDETECT) & 1);
 }
 
 #define CREG_BASE		0xF0001000
@@ -85,14 +98,15 @@ int board_mmc_getcd(struct mmc *mmc)
 /* Bits in CREG_BOOT register */
 #define CREG_BOOT_WP_BIT	BIT(8)
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	writel(1, CREG_IP_SW_RESET);
 	while (1)
 		; /* loop forever till reset */
 }
 
-static int do_emsdp_rom(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_emsdp_rom(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	u32 creg_boot = readl(CREG_BOOT);
 
@@ -108,13 +122,14 @@ static int do_emsdp_rom(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]
 	return CMD_RET_SUCCESS;
 }
 
-cmd_tbl_t cmd_emsdp[] = {
+struct cmd_tbl cmd_emsdp[] = {
 	U_BOOT_CMD_MKENT(rom, 2, 0, do_emsdp_rom, "", ""),
 };
 
-static int do_emsdp(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_emsdp(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	c = find_cmd_tbl(argv[1], cmd_emsdp, ARRAY_SIZE(cmd_emsdp));
 

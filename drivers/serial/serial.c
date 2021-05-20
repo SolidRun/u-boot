@@ -5,12 +5,15 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env_internal.h>
+#include <hang.h>
 #include <serial.h>
 #include <stdio_dev.h>
 #include <post.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <errno.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -88,7 +91,7 @@ static int on_baudrate(const char *name, const char *value, enum env_op op,
 
 		if ((flags & H_INTERACTIVE) != 0)
 			while (1) {
-				if (getc() == '\r')
+				if (getchar() == '\r')
 					break;
 			}
 
@@ -124,6 +127,7 @@ serial_initfunc(ns16550_serial_initialize);
 serial_initfunc(pl01x_serial_initialize);
 serial_initfunc(pxa_serial_initialize);
 serial_initfunc(sh_serial_initialize);
+serial_initfunc(mtk_serial_initialize);
 
 /**
  * serial_register() - Register serial driver with serial driver core
@@ -167,7 +171,7 @@ void serial_register(struct serial_device *dev)
  * serial port to the serial core. That serial port is then used as a
  * default output.
  */
-void serial_initialize(void)
+int serial_initialize(void)
 {
 	atmel_serial_initialize();
 	mcf_serial_initialize();
@@ -177,8 +181,11 @@ void serial_initialize(void)
 	pl01x_serial_initialize();
 	pxa_serial_initialize();
 	sh_serial_initialize();
+	mtk_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
+
+	return 0;
 }
 
 static int serial_stub_start(struct stdio_dev *sdev)

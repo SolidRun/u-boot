@@ -5,10 +5,15 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
+#include <net.h>
 #include <asm/arch/boot.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/g12a.h>
 #include <asm/arch/mem.h>
+#include <asm/arch/meson-vpu.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/armv8/mmu.h>
 #include <linux/sizes.h>
@@ -57,26 +62,30 @@ void meson_init_reserved_memory(void *fdt)
 	/* Add BL32 reserved zone */
 	if (bl32_start && bl32_size)
 		meson_board_add_reserved_memory(fdt, bl32_start, bl32_size);
+
+#if defined(CONFIG_VIDEO_MESON)
+	meson_vpu_rsv_fb(fdt);
+#endif
 }
 
 phys_size_t get_effective_memsize(void)
 {
 	/* Size is reported in MiB, convert it in bytes */
-	return ((readl(G12A_AO_SEC_GP_CFG0) & G12A_AO_MEM_SIZE_MASK)
-			>> G12A_AO_MEM_SIZE_SHIFT) * SZ_1M;
+	return min(((readl(G12A_AO_SEC_GP_CFG0) & G12A_AO_MEM_SIZE_MASK)
+			>> G12A_AO_MEM_SIZE_SHIFT) * SZ_1M, 0xf5000000);
 }
 
 static struct mm_region g12a_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
-		.size = 0x80000000UL,
+		.size = 0xf5000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0xf0000000UL,
-		.phys = 0xf0000000UL,
-		.size = 0x10000000UL,
+		.virt = 0xf5000000UL,
+		.phys = 0xf5000000UL,
+		.size = 0x0b000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -87,72 +96,6 @@ static struct mm_region g12a_mem_map[] = {
 };
 
 struct mm_region *mem_map = g12a_mem_map;
-
-static void g12a_enable_external_mdio(void)
-{
-	writel(0x0, ETH_PHY_CNTL2);
-}
-
-static void g12a_enable_internal_mdio(void)
-{
-	/* Fire up the PHY PLL */
-	writel(0x29c0040a, ETH_PLL_CNTL0);
-	writel(0x927e0000, ETH_PLL_CNTL1);
-	writel(0xac5f49e5, ETH_PLL_CNTL2);
-	writel(0x00000000, ETH_PLL_CNTL3);
-	writel(0x00000000, ETH_PLL_CNTL4);
-	writel(0x20200000, ETH_PLL_CNTL5);
-	writel(0x0000c002, ETH_PLL_CNTL6);
-	writel(0x00000023, ETH_PLL_CNTL7);
-	writel(0x39c0040a, ETH_PLL_CNTL0);
-	writel(0x19c0040a, ETH_PLL_CNTL0);
-
-	/* Select the internal MDIO */
-	writel(0x33000180, ETH_PHY_CNTL0);
-	writel(0x00074043, ETH_PHY_CNTL1);
-	writel(0x00000260, ETH_PHY_CNTL2);
-}
-
-/* Configure the Ethernet MAC with the requested interface mode
- * with some optional flags.
- */
-void meson_eth_init(phy_interface_t mode, unsigned int flags)
-{
-	switch (mode) {
-	case PHY_INTERFACE_MODE_RGMII:
-	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-		/* Set RGMII mode */
-		setbits_le32(G12A_ETH_REG_0, G12A_ETH_REG_0_PHY_INTF_RGMII |
-			     G12A_ETH_REG_0_TX_PHASE(1) |
-			     G12A_ETH_REG_0_TX_RATIO(4) |
-			     G12A_ETH_REG_0_PHY_CLK_EN |
-			     G12A_ETH_REG_0_CLK_EN);
-		break;
-
-	case PHY_INTERFACE_MODE_RMII:
-		/* Set RMII mode */
-		out_le32(G12A_ETH_REG_0, G12A_ETH_REG_0_PHY_INTF_RMII |
-					G12A_ETH_REG_0_INVERT_RMII_CLK |
-					G12A_ETH_REG_0_CLK_EN);
-
-		/* Use G12A RMII Internal PHY */
-		if (flags & MESON_USE_INTERNAL_RMII_PHY)
-			g12a_enable_internal_mdio();
-		else
-			g12a_enable_external_mdio();
-
-		break;
-
-	default:
-		printf("Invalid Ethernet interface mode\n");
-		return;
-	}
-
-	/* Enable power gate */
-	clrbits_le32(G12A_MEM_PD_REG_0, G12A_MEM_PD_REG_0_ETH_MASK);
-}
 
 #if CONFIG_IS_ENABLED(USB_DWC3_MESON_G12A) && \
 	CONFIG_IS_ENABLED(USB_GADGET_DWC2_OTG)

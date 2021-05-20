@@ -17,14 +17,14 @@
 	 */
 	.globl	ImageBase
 ImageBase:
-	.ascii	"MZ"
-	.skip	58				/* 'MZ' + pad + offset == 64 */
+	.short	IMAGE_DOS_SIGNATURE		/* 'MZ' */
+	.skip	54				/* 'MZ' + pad + offset == 64 */
+	.long   LINUX_ARM64_MAGIC		/* For GRUB's linux command */
 	.long	pe_header - ImageBase		/* Offset to the PE header */
 pe_header:
-	.ascii	"PE"
-	.short	0
+	.long	IMAGE_NT_SIGNATURE		/* 'PE' */
 coff_header:
-	.short	0xaa64				/* AArch64 */
+	.short	IMAGE_FILE_MACHINE_ARM64	/* AArch64 */
 	.short	2				/* nr_sections */
 	.long	0				/* TimeDateStamp */
 	.long	0				/* PointerToSymbolTable */
@@ -36,7 +36,7 @@ coff_header:
 		 IMAGE_FILE_LOCAL_SYMS_STRIPPED | \
 		 IMAGE_FILE_DEBUG_STRIPPED)
 optional_header:
-	.short	0x20b				/* PE32+ format */
+	.short	IMAGE_NT_OPTIONAL_HDR64_MAGIC	/* PE32+ format */
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
 	.long	_edata - _start			/* SizeOfCode */

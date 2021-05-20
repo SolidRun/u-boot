@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <generic-phy.h>
+#include <malloc.h>
 #include <reset.h>
 #include <syscon.h>
 #include <usb.h>
@@ -157,5 +158,5 @@ U_BOOT_DRIVER(rcar_gen3_phy) = {
 	.ops		= &rcar_gen3_phy_phy_ops,
 	.probe		= rcar_gen3_phy_probe,
 	.remove		= rcar_gen3_phy_remove,
-	.priv_auto_alloc_size = sizeof(struct rcar_gen3_phy),
+	.priv_auto	= sizeof(struct rcar_gen3_phy),
 };

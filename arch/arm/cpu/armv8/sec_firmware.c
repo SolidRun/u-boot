@@ -4,7 +4,14 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <errno.h>
+#include <fdt_support.h>
+#include <image.h>
+#include <log.h>
+#include <asm/cache.h>
+#include <asm/global_data.h>
+#include <asm/ptrace.h>
 #include <linux/kernel.h>
 #include <asm/io.h>
 #include <asm/system.h>
@@ -28,8 +35,8 @@ phys_addr_t sec_firmware_addr;
 #ifndef SEC_FIRMWARE_FIT_IMAGE
 #define SEC_FIRMWARE_FIT_IMAGE		"firmware"
 #endif
-#ifndef SEC_FIRMEWARE_FIT_CNF_NAME
-#define SEC_FIRMEWARE_FIT_CNF_NAME	"config-1"
+#ifndef SEC_FIRMWARE_FIT_CNF_NAME
+#define SEC_FIRMWARE_FIT_CNF_NAME	"config-1"
 #endif
 #ifndef SEC_FIRMWARE_TARGET_EL
 #define SEC_FIRMWARE_TARGET_EL		2
@@ -43,7 +50,7 @@ static int sec_firmware_get_data(const void *sec_firmware_img,
 	char *desc;
 	int ret;
 
-	conf_node_name = SEC_FIRMEWARE_FIT_CNF_NAME;
+	conf_node_name = SEC_FIRMWARE_FIT_CNF_NAME;
 
 	conf_node_off = fit_conf_get_node(sec_firmware_img, conf_node_name);
 	if (conf_node_off < 0) {
@@ -123,7 +130,7 @@ static int sec_firmware_check_copy_loadable(const void *sec_firmware_img,
 	const char *name, *str, *type;
 	int len;
 
-	conf_node_name = SEC_FIRMEWARE_FIT_CNF_NAME;
+	conf_node_name = SEC_FIRMWARE_FIT_CNF_NAME;
 
 	conf_node_off = fit_conf_get_node(sec_firmware_img, conf_node_name);
 	if (conf_node_off < 0) {
@@ -310,7 +317,7 @@ __weak bool sec_firmware_is_valid(const void *sec_firmware_img)
 		return false;
 	}
 
-	if (!fit_check_format(sec_firmware_img)) {
+	if (fit_check_format(sec_firmware_img, IMAGE_SIZE_INVAL)) {
 		printf("SEC Firmware: Bad firmware image (bad FIT header)\n");
 		return false;
 	}
@@ -353,7 +360,7 @@ bool sec_firmware_support_hwrng(void)
 	return true;
 #endif
 	if (sec_firmware_addr & SEC_FIRMWARE_RUNNING) {
-			return true;
+		return true;
 	}
 
 	return false;

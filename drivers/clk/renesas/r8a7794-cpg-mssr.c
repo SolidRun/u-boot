@@ -12,6 +12,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <linux/bitops.h>
 
 #include <dt-bindings/clock/r8a7794-cpg-mssr.h>
 
@@ -217,12 +218,12 @@ static const struct mstp_stop_table r8a7794_mstp_table[] = {
 	{ 0x100D21FC, 0x2000, 0x100D21FC, 0x0 },
 	{ 0xE084D810, 0x0, 0xE084D810, 0x0 },
 	{ 0x800001C4, 0x180, 0x800001C4, 0x0 },
-	{ 0x40C00044, 0x0, 0x40C00044, 0x0 },
+	{ 0x40800044, 0x0, 0x40800044, 0x0 },
 	{ 0x0, 0x0, 0x0, 0x0 },	/* SMSTP6 is not present on Gen2 */
-	{ 0x013FE618, 0x80000, 0x013FE618, 0x0 },
+	{ 0x21BFE618, 0x80000, 0x21BFE618, 0x0 },
 	{ 0x40803C05, 0x0, 0x40803C05, 0x0 },
 	{ 0xFB879FEE, 0x0, 0xFB879FEE, 0x0 },
-	{ 0xFFFEFFE0, 0x0, 0xFFFEFFE0, 0x0 },
+	{ 0x7E3EFFE0, 0x0, 0x7E3EFFE0, 0x0 },
 	{ 0x000001C0, 0x0, 0x000001C0, 0x0 },
 };
 
@@ -263,7 +264,7 @@ U_BOOT_DRIVER(clk_r8a7794) = {
 	.name		= "clk_r8a7794",
 	.id		= UCLASS_CLK,
 	.of_match	= r8a7794_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct gen2_clk_priv),
+	.priv_auto	= sizeof(struct gen2_clk_priv),
 	.ops		= &gen2_clk_ops,
 	.probe		= gen2_clk_probe,
 	.remove		= gen2_clk_remove,

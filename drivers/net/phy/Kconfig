@@ -46,7 +46,7 @@ config B53_PHY_PORTS
 endif # B53_SWITCH
 
 config MV88E61XX_SWITCH
-	bool "Marvel MV88E61xx Ethernet switch PHY support."
+	bool "Marvell MV88E61xx Ethernet switch PHY support."
 
 if MV88E61XX_SWITCH
 
@@ -99,6 +99,44 @@ config PHY_BROADCOM
 
 config PHY_CORTINA
 	bool "Cortina Ethernet PHYs support"
+
+config SYS_CORTINA_NO_FW_UPLOAD
+	bool "Cortina firmware loading support"
+	default n
+	depends on PHY_CORTINA
+	help
+		Cortina phy has provision to store phy firmware in attached dedicated
+		EEPROM. And boards designed with such EEPROM does not require firmware
+		upload.
+
+choice
+	prompt "Location of the Cortina firmware"
+	default SYS_CORTINA_FW_IN_NOR
+	depends on PHY_CORTINA
+
+config SYS_CORTINA_FW_IN_MMC
+	bool "Cortina firmware in MMC"
+
+config SYS_CORTINA_FW_IN_NAND
+	bool "Cortina firmware in NAND flash"
+
+config SYS_CORTINA_FW_IN_NOR
+	bool "Cortina firmware in NOR flash"
+
+config SYS_CORTINA_FW_IN_REMOTE
+	bool "Cortina firmware in remote device"
+
+config SYS_CORTINA_FW_IN_SPIFLASH
+	bool "Cortina firmware in SPI flash"
+
+endchoice
+
+config PHY_CORTINA_ACCESS
+	bool "Cortina Access Ethernet PHYs support"
+	default y
+	depends on CORTINA_NI_ENET
+	help
+		Cortina Access Ethernet PHYs init process
 
 config PHY_DAVICOM
 	bool "Davicom Ethernet PHYs support"
@@ -213,6 +251,15 @@ config RTL8211F_PHY_FORCE_EEE_RXC_ON
 	  Default n, which means that the PHY state is not changed. To work
 	  around the issues, change this setting to y.
 
+config RTL8201F_PHY_S700_RMII_TIMINGS
+	bool "Ethernet PHY RTL8201F: adjust RMII Tx Interface timings"
+	depends on PHY_REALTEK
+	help
+	  This provides an option to configure specific timing requirements (needed
+	  for proper PHY operations) for the PHY module present on ACTION SEMI S700
+	  based cubieboard7. Exact timing requiremnets seems to be SoC specific
+	  (and it's undocumented) that comes from vendor code itself.
+
 config PHY_SMSC
 	bool  "Microchip(SMSC) Ethernet PHYs support"
 
@@ -221,12 +268,35 @@ config PHY_TERANETICS
 
 config PHY_TI
 	bool "Texas Instruments Ethernet PHYs support"
+	---help---
+	  Adds PHY registration support for TI PHYs.
+
+config PHY_TI_DP83867
+	select PHY_TI
+	bool "Texas Instruments Ethernet DP83867 PHY support"
+	---help---
+	  Adds support for the TI DP83867 1Gbit PHY.
+
+config PHY_TI_GENERIC
+	select PHY_TI
+	bool "Texas Instruments Generic Ethernet PHYs support"
+	---help---
+	  Adds support for Generic TI PHYs that don't need special handling but
+	  the PHY name is associated with a PHY ID.
 
 config PHY_VITESSE
 	bool "Vitesse Ethernet PHYs support"
 
 config PHY_XILINX
 	bool "Xilinx Ethernet PHYs support"
+
+config PHY_XILINX_GMII2RGMII
+	bool "Xilinx GMII to RGMII Ethernet PHYs support"
+	depends on DM_ETH
+	help
+	  This adds support for Xilinx GMII to RGMII IP core. This IP acts
+	  as bridge between MAC connected over GMII and external phy that
+	  is connected over RGMII interface.
 
 config PHY_FIXED
 	bool "Fixed-Link PHY"
@@ -237,5 +307,9 @@ config PHY_FIXED
 	  There is nothing like autoneogation and so
 	  on, the link is always up with fixed speed and fixed duplex-setting.
 	  More information: doc/device-tree-bindings/net/fixed-link.txt
+
+config PHY_NCSI
+	bool "NC-SI based PHY"
+	depends on DM_ETH
 
 endif #PHYLIB

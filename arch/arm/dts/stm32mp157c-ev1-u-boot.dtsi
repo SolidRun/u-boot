@@ -17,12 +17,7 @@
 };
 
 &flash0 {
-	compatible = "jedec,spi-nor";
 	u-boot,dm-spl;
-};
-
-&flash1 {
-	compatible = "jedec,spi-nor";
 };
 
 &qspi {
@@ -56,10 +51,3 @@
 	};
 };
 
-&usbotg_hs {
-	g-tx-fifo-size = <576>;
-};
-
-&v3v3 {
-	regulator-always-on;
-};

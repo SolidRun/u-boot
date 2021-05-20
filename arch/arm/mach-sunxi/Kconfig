@@ -48,6 +48,46 @@ config DRAM_SUN50I_H6
 	  Select this dram controller driver for some sun50i platforms,
 	  like H6.
 
+config DRAM_SUN50I_H616
+	bool
+	help
+	  Select this dram controller driver for some sun50i platforms,
+	  like H616.
+
+if DRAM_SUN50I_H616
+config DRAM_SUN50I_H616_WRITE_LEVELING
+	bool "H616 DRAM write leveling"
+	---help---
+	  Select this when DRAM on your H616 board needs write leveling.
+
+config DRAM_SUN50I_H616_READ_CALIBRATION
+	bool "H616 DRAM read calibration"
+	---help---
+	  Select this when DRAM on your H616 board needs read calibration.
+
+config DRAM_SUN50I_H616_READ_TRAINING
+	bool "H616 DRAM read training"
+	---help---
+	  Select this when DRAM on your H616 board needs read training.
+
+config DRAM_SUN50I_H616_WRITE_TRAINING
+	bool "H616 DRAM write training"
+	---help---
+	  Select this when DRAM on your H616 board needs write training.
+
+config DRAM_SUN50I_H616_BIT_DELAY_COMPENSATION
+	bool "H616 DRAM bit delay compensation"
+	---help---
+	  Select this when DRAM on your H616 board needs bit delay
+	  compensation.
+
+config DRAM_SUN50I_H616_UNKNOWN_FEATURE
+	bool "H616 DRAM unknown feature"
+	---help---
+	  Select this when DRAM on your H616 board needs this unknown
+	  feature.
+endif
+
 config SUN6I_P2WI
 	bool "Allwinner sun6i internal P2WI controller"
 	help
@@ -82,7 +122,7 @@ config SUN8I_RSB
 config SUNXI_SRAM_ADDRESS
 	hex
 	default 0x10000 if MACH_SUN9I || MACH_SUN50I || MACH_SUN50I_H5
-	default 0x20000 if MACH_SUN50I_H6
+	default 0x20000 if SUN50I_GEN_H6
 	default 0x0
 	---help---
 	Older Allwinner SoCs have their mask boot ROM mapped just below 4GB,
@@ -107,6 +147,15 @@ config SUNXI_GEN_SUN6I
 	Select this for sunxi SoCs which have sun6i like periphery, like
 	separate ahb reset control registers, custom pmic bus, new style
 	watchdog, etc.
+
+config SUN50I_GEN_H6
+	bool
+	select FIT
+	select SPL_LOAD_FIT
+	select SUPPORT_SPL
+	---help---
+	Select this for sunxi SoCs which have H6 like peripherals, clocks
+	and memory map.
 
 config SUNXI_DRAM_DW
 	bool
@@ -141,9 +190,10 @@ config MACH_SUNXI_H3_H5
 	select SUPPORT_SPL
 
 # TODO: try out A80's 8GiB DRAM space
+# TODO: H616 supports 4 GiB DRAM space
 config SUNXI_DRAM_MAX_SIZE
 	hex
-	default 0xC0000000 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN50I_H6
+	default 0xC0000000 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN50I_H6 || MACH_SUN50I_H616
 	default 0x80000000
 
 choice
@@ -250,9 +300,10 @@ config MACH_SUN8I_R40
 	select SUPPORT_SPL
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
+	select PHY_SUN4I_USB
 
 config MACH_SUN8I_V3S
-	bool "sun8i (Allwinner V3s)"
+	bool "sun8i (Allwinner V3/V3s/S3/S3L)"
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
@@ -275,7 +326,10 @@ config MACH_SUN9I
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
+	select SPI
 	select DM_I2C
+	select DM_SPI if SPI
+	select DM_SPI_FLASH
 	select PHY_SUN4I_USB
 	select SUN6I_PRCM
 	select SUNXI_DE2
@@ -298,10 +352,15 @@ config MACH_SUN50I_H5
 config MACH_SUN50I_H6
 	bool "sun50i (Allwinner H6)"
 	select ARM64
-	select SUPPORT_SPL
-	select FIT
-	select SPL_LOAD_FIT
+	select PHY_SUN4I_USB
 	select DRAM_SUN50I_H6
+	select SUN50I_GEN_H6
+
+config MACH_SUN50I_H616
+	bool "sun50i (Allwinner H616)"
+	select ARM64
+	select DRAM_SUN50I_H616
+	select SUN50I_GEN_H6
 
 endchoice
 
@@ -340,7 +399,7 @@ config ARM_BOOT_HOOK_RMR
 	This allows both the SPL and the U-Boot proper to be entered in
 	either mode and switch to AArch64 if needed.
 
-if SUNXI_DRAM_DW
+if SUNXI_DRAM_DW || DRAM_SUN50I_H6
 config SUNXI_DRAM_DDR3
 	bool
 
@@ -358,7 +417,6 @@ choice
 config SUNXI_DRAM_DDR3_1333
 	bool "DDR3 1333"
 	select SUNXI_DRAM_DDR3
-	depends on !MACH_SUN8I_V3S
 	---help---
 	This option is the original only supported memory type, which suits
 	many H3/H5/A64 boards available now.
@@ -369,6 +427,22 @@ config SUNXI_DRAM_LPDDR3_STOCK
 	---help---
 	This option is the LPDDR3 timing used by the stock boot0 by
 	Allwinner.
+
+config SUNXI_DRAM_H6_LPDDR3
+	bool "LPDDR3 DRAM chips on the H6 DRAM controller"
+	select SUNXI_DRAM_LPDDR3
+	depends on DRAM_SUN50I_H6
+	---help---
+	This option is the LPDDR3 timing used by the stock boot0 by
+	Allwinner.
+
+config SUNXI_DRAM_H6_DDR3_1333
+	bool "DDR3-1333 boot0 timings on the H6 DRAM controller"
+	select SUNXI_DRAM_DDR3
+	depends on DRAM_SUN50I_H6
+	---help---
+	This option is the DDR3 timing used by the boot0 on H6 TV boxes
+	which use a DDR3-1333 timing.
 
 config SUNXI_DRAM_DDR2_V3S
 	bool "DDR2 found in V3s chip"
@@ -397,6 +471,7 @@ config DRAM_CLK
 		       MACH_SUN8I_V3S
 	default 672 if MACH_SUN50I
 	default 744 if MACH_SUN50I_H6
+	default 720 if MACH_SUN50I_H616
 	---help---
 	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
 	must be a multiple of 24. For the sun9i (A80), the tested values
@@ -413,6 +488,7 @@ endif
 
 config DRAM_ZQ
 	int "sunxi dram zq value"
+	depends on !MACH_SUN50I_H616
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || \
 		       MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_A83T
 	default 127 if MACH_SUN7I
@@ -430,6 +506,7 @@ config DRAM_ODT_EN
 	default y if MACH_SUN8I_R40
 	default y if MACH_SUN50I
 	default y if MACH_SUN50I_H6
+	default y if MACH_SUN50I_H616
 	---help---
 	Select this to enable dram odt (on die termination).
 
@@ -521,6 +598,7 @@ config SYS_CLK_FREQ
 	default 1008000000 if MACH_SUN8I
 	default 1008000000 if MACH_SUN9I
 	default 888000000 if MACH_SUN50I_H6
+	default 1008000000 if MACH_SUN50I_H616
 
 config SYS_CONFIG_NAME
 	default "sun4i" if MACH_SUN4I
@@ -531,6 +609,7 @@ config SYS_CONFIG_NAME
 	default "sun9i" if MACH_SUN9I
 	default "sun50i" if MACH_SUN50I
 	default "sun50i" if MACH_SUN50I_H6
+	default "sun50i" if MACH_SUN50I_H616
 
 config SYS_BOARD
 	default "sunxi"
@@ -703,7 +782,7 @@ config I2C3_ENABLE
 	See I2C0_ENABLE help text.
 endif
 
-if SUNXI_GEN_SUN6I
+if SUNXI_GEN_SUN6I || SUN50I_GEN_H6
 config R_I2C_ENABLE
 	bool "Enable the PRCM I2C/TWI controller"
 	# This is used for the pmic on H3
@@ -736,14 +815,15 @@ config VIDEO_SUNXI
 	depends on !MACH_SUN8I_V3S
 	depends on !MACH_SUN9I
 	depends on !MACH_SUN50I
-	depends on !MACH_SUN50I_H6
-	select VIDEO
+	depends on !SUN50I_GEN_H6
+	select DM_VIDEO
+	select DISPLAY
 	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---
-	Say Y here to add support for using a cfb console on the HDMI, LCD
-	or VGA output found on most sunxi devices. See doc/README.video for
-	info on how to select the video output and mode.
+	Say Y here to add support for using a graphical console on the HDMI,
+	LCD or VGA output found on older sunxi devices. This will also provide
+	a simple_framebuffer device for Linux.
 
 config VIDEO_HDMI
 	bool "HDMI output support"
@@ -893,6 +973,7 @@ config VIDEO_DE2
 	depends on SUNXI_DE2
 	select DM_VIDEO
 	select DISPLAY
+	select VIDEO_DW_HDMI
 	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---
@@ -969,11 +1050,11 @@ config SPL_STACK_R_ADDR
 	default 0x4fe00000 if MACH_SUN8I
 	default 0x2fe00000 if MACH_SUN9I
 	default 0x4fe00000 if MACH_SUN50I
-	default 0x4fe00000 if MACH_SUN50I_H6
+	default 0x4fe00000 if SUN50I_GEN_H6
 
 config SPL_SPI_SUNXI
 	bool "Support for SPI Flash on Allwinner SoCs in SPL"
-	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUNXI_H3_H5 || MACH_SUN50I
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUNXI_H3_H5 || MACH_SUN50I || MACH_SUN8I_R40 || MACH_SUN50I_H6
 	help
 	  Enable support for SPI Flash. This option allows SPL to read from
 	  sunxi SPI Flash. It uses the same method as the boot ROM, so does
@@ -989,4 +1070,31 @@ config PINE64_DT_SELECTION
 	  option, the device tree selection code specific to Pine64 which
 	  utilizes the DRAM size will be enabled.
 
+config PINEPHONE_DT_SELECTION
+	bool "Enable PinePhone device tree selection code"
+	depends on MACH_SUN50I
+	help
+	  Enable this option to automatically select the device tree for the
+	  correct PinePhone hardware revision during boot.
+
+config BLUETOOTH_DT_DEVICE_FIXUP
+	string "Fixup the Bluetooth controller address"
+	default ""
+	help
+	  This option specifies the DT compatible name of the Bluetooth
+	  controller for which to set the "local-bd-address" property.
+	  Set this option if your device ships with the Bluetooth controller
+	  default address.
+	  The used address is "bdaddr" if set, and "ethaddr" with the LSB
+	  flipped elsewise.
+
 endif
+
+config CHIP_DIP_SCAN
+	bool "Enable DIPs detection for CHIP board"
+	select SUPPORT_EXTENSION_SCAN
+	select W1
+	select W1_GPIO
+	select W1_EEPROM
+	select W1_EEPROM_DS24XXX
+	select CMD_EXTENSION

@@ -14,13 +14,8 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_SHOW_BOOT_PROGRESS
 #define CONFIG_PHYSMEM
 
-#define CONFIG_LMB
-
-#undef CONFIG_ZLIB
-#undef CONFIG_GZIP
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
 /* SATA AHCI storage */
@@ -44,10 +39,6 @@
  */
 #define CONFIG_SYS_NS16550_PORT_MAPPED
 
-/*-----------------------------------------------------------------------
- * Command line configuration.
- */
-
 #ifndef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND	\
 	"ext2load scsi 0:3 01000000 /boot/vmlinuz; zboot 01000000"
@@ -62,8 +53,6 @@
  */
 #define CONFIG_SYS_CBSIZE			512
 
-#define CONFIG_SYS_MEMTEST_START		0x00100000
-#define CONFIG_SYS_MEMTEST_END			0x01000000
 #define CONFIG_SYS_LOAD_ADDR			0x20000000
 
 /*-----------------------------------------------------------------------
@@ -74,13 +63,9 @@
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MALLOC_LEN			0x200000
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /*-----------------------------------------------------------------------
  * Environment configuration
  */
-#define CONFIG_ENV_SIZE			0x01000
 
 /*-----------------------------------------------------------------------
  * PCI configuration
@@ -106,30 +91,40 @@
 #define CONFIG_OTHBOOTARGS	"othbootargs=acpi=off\0"
 #endif
 
+#if defined(CONFIG_DISTRO_DEFAULTS)
+#define DISTRO_BOOTENV		BOOTENV
+#else
+#define DISTRO_BOOTENV
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS			\
+	DISTRO_BOOTENV					\
 	CONFIG_STD_DEVICES_SETTINGS			\
 	"pciconfighost=1\0"				\
 	"netdev=eth0\0"					\
 	"consoledev=ttyS0\0"				\
 	CONFIG_OTHBOOTARGS				\
-	"ramdiskaddr=0x4000000\0"			\
+	"scriptaddr=0x7000000\0"			\
+	"kernel_addr_r=0x1000000\0"			\
+	"ramdisk_addr_r=0x4000000\0"			\
 	"ramdiskfile=initramfs.gz\0"
+
 
 #define CONFIG_RAMBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
 	"console=$consoledev,$baudrate $othbootargs;"	\
-	"tftpboot $loadaddr $bootfile;"			\
-	"tftpboot $ramdiskaddr $ramdiskfile;"		\
-	"zboot $loadaddr 0 $ramdiskaddr $filesize"
+	"tftpboot $kernel_addr_r $bootfile;"		\
+	"tftpboot $ramdisk_addr_r $ramdiskfile;"	\
+	"zboot $kernel_addr_r 0 $ramdisk_addr_r $filesize"
 
 #define CONFIG_NFSBOOTCOMMAND				\
 	"setenv bootargs root=/dev/nfs rw "		\
 	"nfsroot=$serverip:$rootpath "			\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
 	"console=$consoledev,$baudrate $othbootargs;"	\
-	"tftpboot $loadaddr $bootfile;"			\
-	"zboot $loadaddr"
+	"tftpboot $kernel_addr_r $bootfile;"		\
+	"zboot $kernel_addr_r"
 
 
 #endif	/* __CONFIG_H */

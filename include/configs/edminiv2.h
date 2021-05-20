@@ -104,9 +104,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1	/* enable memory tag */
 
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
-/*
- * Commands configuration
- */
 
 /*
  * Network
@@ -117,9 +114,7 @@
 #define CONFIG_SKIP_LOCAL_MAC_RANDOMIZATION	/* don't randomize MAC */
 #define CONFIG_PHY_BASE_ADR	0x8
 #define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
-#define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
-#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #endif
 
 /*
@@ -127,9 +122,6 @@
  */
 #ifdef CONFIG_IDE
 #define __io
-#define CONFIG_IDE_PREINIT
-/* ED Mini V has an IDE-compatible SATA connector for port 1 */
-#define CONFIG_MVSATA_IDE_USE_PORT1
 /* Needs byte-swapping for ATA data register */
 #define CONFIG_IDE_SWAP_IO
 /* Data, registers and alternate blocks are at the same offset */
@@ -171,9 +163,6 @@
 /*
  *  Environment variables configurations
  */
-#define CONFIG_ENV_SECT_SIZE		0x2000	/* 16K */
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		0x4000	/* env starts here */
 
 /*
  * Size of malloc() pool
@@ -183,11 +172,8 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_ARCH_CPU_INIT		/* call arch_cpu_init() */
 
 #define CONFIG_SYS_LOAD_ADDR		0x00800000
-#define CONFIG_SYS_MEMTEST_START	0x00400000
-#define CONFIG_SYS_MEMTEST_END		0x007fffff
 #define CONFIG_SYS_RESET_ADDRESS	0xffff0000
 
 /* Enable command line editing */

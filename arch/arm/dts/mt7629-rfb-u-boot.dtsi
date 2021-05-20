@@ -5,20 +5,38 @@
  * Author: Weijie Gao <weijie.gao@mediatek.com>
  */
 
-#include <config.h>
-/ {
-	binman {
-		filename = "u-boot-mtk.bin";
-		pad-byte = <0xff>;
+&infracfg {
+	u-boot,dm-pre-reloc;
+};
 
-#ifdef CONFIG_SPL
-		blob {
-			filename = "spl/u-boot-spl-mtk.bin";
-			size = <CONFIG_SPL_PAD_TO>;
-		};
+&pericfg {
+	u-boot,dm-pre-reloc;
+};
 
-		u-boot-img {
-		};
-#endif
-	};
+&timer0 {
+	u-boot,dm-pre-reloc;
+};
+
+&mcucfg {
+	u-boot,dm-pre-reloc;
+};
+
+&dramc {
+	u-boot,dm-pre-reloc;
+};
+
+&apmixedsys {
+	u-boot,dm-pre-reloc;
+};
+
+&topckgen {
+	u-boot,dm-pre-reloc;
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+};
+
+&snfi {
+	u-boot,dm-pre-reloc;
 };

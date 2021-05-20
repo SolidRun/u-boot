@@ -9,7 +9,10 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <i2c.h>
+#include <log.h>
 #include <asm/gpio.h>
+#include <linux/bitops.h>
+#include <power/fan53555.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 
@@ -27,21 +30,37 @@
  * See http://www.onsemi.com/pub/Collateral/FAN53555-D.pdf for details.
  */
 static const struct {
+	unsigned int vendor;
 	u8 die_id;
 	u8 die_rev;
+	bool check_rev;
 	u32 vsel_min;
 	u32 vsel_step;
 } ic_types[] = {
-	{ 0x0, 0x3, 600000, 10000 },  /* Option 00 */
-	{ 0x0, 0xf, 800000, 10000 },  /* Option 13 */
-	{ 0x0, 0xc, 600000, 12500 },  /* Option 23 */
-	{ 0x1, 0x3, 600000, 10000 },  /* Option 01 */
-	{ 0x3, 0x3, 600000, 10000 },  /* Option 03 */
-	{ 0x4, 0xf, 603000, 12826 },  /* Option 04 */
-	{ 0x5, 0x3, 600000, 10000 },  /* Option 05 */
-	{ 0x8, 0x1, 600000, 10000 },  /* Option 08 */
-	{ 0x8, 0xf, 600000, 10000 },  /* Option 08 */
-	{ 0xc, 0xf, 603000, 12826 },  /* Option 09 */
+	/* Option 00 */
+	{ FAN53555_VENDOR_FAIRCHILD, 0x0, 0x3, true,  600000, 10000 },
+	/* Option 13 */
+	{ FAN53555_VENDOR_FAIRCHILD, 0x0, 0xf, true,  800000, 10000 },
+	/* Option 23 */
+	{ FAN53555_VENDOR_FAIRCHILD, 0x0, 0xc, true,  600000, 12500 },
+	/* Option 01 */
+	{ FAN53555_VENDOR_FAIRCHILD, 0x1, 0x3, true,  600000, 10000 },
+	/* Option 03 */
+	{ FAN53555_VENDOR_FAIRCHILD, 0x3, 0x3, true,  600000, 10000 },
+	/* Option 04 */
+	{ FAN53555_VENDOR_FAIRCHILD, 0x4, 0xf, true,  603000, 12826 },
+	/* Option 05 */
+	{ FAN53555_VENDOR_FAIRCHILD, 0x5, 0x3, true,  600000, 10000 },
+	/* Option 08 */
+	{ FAN53555_VENDOR_FAIRCHILD, 0x8, 0x1, true,  600000, 10000 },
+	/* Option 08 */
+	{ FAN53555_VENDOR_FAIRCHILD, 0x8, 0xf, true,  600000, 10000 },
+	/* Option 09 */
+	{ FAN53555_VENDOR_FAIRCHILD, 0xc, 0xf, true,  603000, 12826 },
+	/* SYL82X */
+	{ FAN53555_VENDOR_SILERGY,   0x8, 0x0, false, 712500, 12500 },
+	/* SYL83X */
+	{ FAN53555_VENDOR_SILERGY,   0x9, 0x0, false, 712500, 12500 },
 };
 
 /* I2C-accessible byte-sized registers */
@@ -59,7 +78,7 @@ enum {
 	FAN53555_MONITOR,
 };
 
-struct fan53555_platdata {
+struct fan53555_plat {
 	/* Voltage setting register */
 	unsigned int vol_reg;
 	unsigned int sleep_reg;
@@ -81,11 +100,11 @@ struct fan53555_priv {
 	unsigned int sleep_vol_cache;
 };
 
-static int fan53555_regulator_ofdata_to_platdata(struct udevice *dev)
+static int fan53555_regulator_of_to_plat(struct udevice *dev)
 {
-	struct fan53555_platdata *dev_pdata = dev_get_platdata(dev);
-	struct dm_regulator_uclass_platdata *uc_pdata =
-		dev_get_uclass_platdata(dev);
+	struct fan53555_plat *dev_pdata = dev_get_plat(dev);
+	struct dm_regulator_uclass_plat *uc_pdata =
+		dev_get_uclass_plat(dev);
 	u32 sleep_vsel;
 
 	/* This is a buck regulator */
@@ -117,7 +136,7 @@ static int fan53555_regulator_ofdata_to_platdata(struct udevice *dev)
 
 static int fan53555_regulator_get_value(struct udevice *dev)
 {
-	struct fan53555_platdata *pdata = dev_get_platdata(dev);
+	struct fan53555_plat *pdata = dev_get_plat(dev);
 	struct fan53555_priv *priv = dev_get_priv(dev);
 	int reg;
 	int voltage;
@@ -134,7 +153,7 @@ static int fan53555_regulator_get_value(struct udevice *dev)
 
 static int fan53555_regulator_set_value(struct udevice *dev, int uV)
 {
-	struct fan53555_platdata *pdata = dev_get_platdata(dev);
+	struct fan53555_plat *pdata = dev_get_plat(dev);
 	struct fan53555_priv *priv = dev_get_priv(dev);
 	u8 vol;
 
@@ -142,7 +161,7 @@ static int fan53555_regulator_set_value(struct udevice *dev, int uV)
 	debug("%s: uV=%d; writing volume %d: %02x\n",
 	      __func__, uV, pdata->vol_reg, vol);
 
-	return pmic_clrsetbits(dev, pdata->vol_reg, GENMASK(6, 0), vol);
+	return pmic_clrsetbits(dev->parent, pdata->vol_reg, GENMASK(6, 0), vol);
 }
 
 static int fan53555_voltages_setup(struct udevice *dev)
@@ -152,10 +171,14 @@ static int fan53555_voltages_setup(struct udevice *dev)
 
 	/* Init voltage range and step */
 	for (i = 0; i < ARRAY_SIZE(ic_types); ++i) {
+		if (ic_types[i].vendor != priv->vendor)
+			continue;
+
 		if (ic_types[i].die_id != priv->die_id)
 			continue;
 
-		if (ic_types[i].die_rev != priv->die_rev)
+		if (ic_types[i].check_rev &&
+		    ic_types[i].die_rev != priv->die_rev)
 			continue;
 
 		priv->vsel_min = ic_types[i].vsel_min;
@@ -193,7 +216,7 @@ static int fan53555_probe(struct udevice *dev)
 		return ID2;
 
 	/* extract vendor, die_id and die_rev */
-	priv->vendor = bitfield_extract(ID1, 5, 3);
+	priv->vendor = dev->driver_data;
 	priv->die_id = ID1 & GENMASK(3, 0);
 	priv->die_rev = ID2 & GENMASK(3, 0);
 
@@ -215,8 +238,8 @@ U_BOOT_DRIVER(fan53555_regulator) = {
 	.name = "fan53555_regulator",
 	.id = UCLASS_REGULATOR,
 	.ops = &fan53555_regulator_ops,
-	.ofdata_to_platdata = fan53555_regulator_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct fan53555_platdata),
-	.priv_auto_alloc_size = sizeof(struct fan53555_priv),
+	.of_to_plat = fan53555_regulator_of_to_plat,
+	.plat_auto	= sizeof(struct fan53555_plat),
+	.priv_auto	= sizeof(struct fan53555_priv),
 	.probe = fan53555_probe,
 };

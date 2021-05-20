@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <fdtdec.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
@@ -138,6 +139,7 @@ static int run_test(const char *aliases, const char *nodes, const char *expect)
 	}
 
 	printf("pass\n");
+	free(blob);
 	return 0;
 }
 
@@ -292,11 +294,12 @@ static int check_carveout(void)
 	CHECKVAL(make_fdt_carveout(fdt, FDT_SIZE, 2, 2), 0);
 	CHECKOK(check_fdt_carveout(fdt, 2, 2));
 
+	free(fdt);
 	return 0;
 }
 
-static int do_test_fdtdec(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_test_fdtdec(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	/* basic tests */
 	CHECKOK(run_test("", "", ""));

@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <misc.h>
 #include <regmap.h>
 
@@ -205,5 +206,5 @@ U_BOOT_DRIVER(gdsys_ioep) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.of_match       = gdsys_ioep_ids,
 	.probe          = gdsys_ioep_probe,
-	.priv_auto_alloc_size = sizeof(struct gdsys_ioep_priv),
+	.priv_auto	= sizeof(struct gdsys_ioep_priv),
 };

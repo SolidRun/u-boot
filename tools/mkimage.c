@@ -7,6 +7,7 @@
  * Wolfgang Denk, wd@denx.de
  */
 
+#include "imagetool.h"
 #include "mkimage.h"
 #include "imximage.h"
 #include <image.h>
@@ -50,8 +51,13 @@ static int show_valid_options(enum ih_category category)
 		return -ENOMEM;
 
 	/* Sort the names in order of short name for easier reading */
-	for (item = 0; item < count; item++)
-		order[item] = item;
+	for (i = 0, item = 0; i < count; i++, item++) {
+		while (!genimg_cat_has_id(category, item) && i < count) {
+			item++;
+			count--;
+		}
+		order[i] = item;
+	}
 	cur_category = category;
 	qsort(order, count, sizeof(int), h_compare_category_name);
 
@@ -88,24 +94,26 @@ static void usage(const char *msg)
 		"          -x ==> set XIP (execute in place)\n",
 		params.cmdname);
 	fprintf(stderr,
-		"       %s [-D dtc_options] [-f fit-image.its|-f auto|-F] [-b <dtb> [-b <dtb>]] [-i <ramdisk.cpio.gz>] fit-image\n"
+		"       %s [-D dtc_options] [-f fit-image.its|-f auto|-F] [-b <dtb> [-b <dtb>]] [-E] [-B size] [-i <ramdisk.cpio.gz>] fit-image\n"
 		"           <dtb> file is used with -f auto, it may occur multiple times.\n",
 		params.cmdname);
 	fprintf(stderr,
 		"          -D => set all options for device tree compiler\n"
 		"          -f => input filename for FIT source\n"
-		"          -i => input filename for ramdisk file\n");
+		"          -i => input filename for ramdisk file\n"
+		"          -E => place data outside of the FIT structure\n"
+		"          -B => align size in hex for FIT structure and header\n");
 #ifdef CONFIG_FIT_SIGNATURE
 	fprintf(stderr,
-		"Signing / verified boot options: [-E] [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r] [-N engine]\n"
-		"          -E => place data outside of the FIT structure\n"
+		"Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r] [-N engine]\n"
 		"          -k => set directory containing private keys\n"
 		"          -K => write public keys to this .dtb file\n"
+		"          -G => use this signing key (in lieu of -k)\n"
 		"          -c => add comment in signature node\n"
 		"          -F => re-sign existing FIT image\n"
 		"          -p => place external data at a static position\n"
 		"          -r => mark keys used as 'required' in dtb\n"
-		"          -N => engine to use for signing (pkcs11)\n");
+		"          -N => openssl engine to use for signing\n");
 #else
 	fprintf(stderr,
 		"Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");
@@ -135,6 +143,7 @@ static int add_content(int type, const char *fname)
 	return 0;
 }
 
+#define OPT_STRING "a:A:b:B:c:C:d:D:e:Ef:Fk:i:K:ln:N:p:O:rR:qstT:vVx"
 static void process_args(int argc, char **argv)
 {
 	char *ptr;
@@ -143,7 +152,7 @@ static void process_args(int argc, char **argv)
 	int opt;
 
 	while ((opt = getopt(argc, argv,
-			     "a:A:b:c:C:d:D:e:Ef:Fk:i:K:ln:N:p:O:rR:qsT:vVx")) != -1) {
+		   "a:A:b:B:c:C:d:D:e:Ef:FG:k:i:K:ln:N:p:O:rR:qstT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -167,6 +176,15 @@ static void process_args(int argc, char **argv)
 					params.cmdname, optarg);
 				exit(EXIT_FAILURE);
 			}
+			break;
+		case 'B':
+			params.bl_len = strtoull(optarg, &ptr, 16);
+			if (*ptr) {
+				fprintf(stderr, "%s: invalid block length %s\n",
+					params.cmdname, optarg);
+				exit(EXIT_FAILURE);
+			}
+
 			break;
 		case 'c':
 			params.comment = optarg;
@@ -200,7 +218,7 @@ static void process_args(int argc, char **argv)
 		case 'f':
 			datafile = optarg;
 			params.auto_its = !strcmp(datafile, "auto");
-			/* no break */
+			/* fallthrough */
 		case 'F':
 			/*
 			 * The flattened image tree (FIT) format
@@ -208,6 +226,9 @@ static void process_args(int argc, char **argv)
 			 */
 			params.type = IH_TYPE_FLATDT;
 			params.fflag = 1;
+			break;
+		case 'G':
+			params.keyfile = optarg;
 			break;
 		case 'i':
 			params.fit_ramdisk = optarg;
@@ -257,6 +278,9 @@ static void process_args(int argc, char **argv)
 			break;
 		case 's':
 			params.skipcpy = 1;
+			break;
+		case 't':
+			params.reset_timestamp = 1;
 			break;
 		case 'T':
 			if (strcmp(optarg, "list") == 0) {
@@ -544,13 +568,21 @@ int main(int argc, char **argv)
 			ret = imx8mimage_copy_image(ifd, &params);
 			if (ret)
 				return ret;
+		} else if ((params.type == IH_TYPE_RKSD) ||
+				(params.type == IH_TYPE_RKSPI)) {
+			/* Rockchip has special Image format */
+			int ret;
+
+			ret = rockchip_copy_image(ifd, &params);
+			if (ret)
+				return ret;
 		} else {
 			copy_file(ifd, params.datafile, pad_len);
 		}
 		if (params.type == IH_TYPE_FIRMWARE_IVT) {
 			/* Add alignment and IVT */
-			uint32_t aligned_filesize = (params.file_size + 0x1000
-					- 1) & ~(0x1000 - 1);
+			uint32_t aligned_filesize = ALIGN(params.file_size,
+							  0x1000);
 			flash_header_v2_t ivt_header = { { 0xd1, 0x2000, 0x40 },
 					params.addr, 0, 0, 0, params.addr
 							+ aligned_filesize
@@ -655,7 +687,7 @@ copy_file (int ifd, const char *datafile, int pad)
 	int zero = 0;
 	uint8_t zeros[4096];
 	int offset = 0;
-	int size;
+	int size, ret;
 	struct image_type_params *tparams = imagetool_get_type(params.type);
 
 	memset(zeros, 0, sizeof(zeros));
@@ -711,9 +743,16 @@ copy_file (int ifd, const char *datafile, int pad)
 	}
 
 	size = sbuf.st_size - offset;
-	if (write(ifd, ptr + offset, size) != size) {
-		fprintf (stderr, "%s: Write error on %s: %s\n",
-			params.cmdname, params.imagefile, strerror(errno));
+
+	ret = write(ifd, ptr + offset, size);
+	if (ret != size) {
+		if (ret < 0)
+			fprintf (stderr, "%s: Write error on %s: %s\n",
+				 params.cmdname, params.imagefile, strerror(errno));
+		else if (ret < size)
+			fprintf (stderr, "%s: Write only %d/%d bytes, "\
+				 "probably no space left on the device\n",
+				 params.cmdname, ret, size);
 		exit (EXIT_FAILURE);
 	}
 

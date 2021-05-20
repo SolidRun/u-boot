@@ -9,6 +9,11 @@
  * This driver provides a SCSI interface to SATA.
  */
 #include <common.h>
+#include <blk.h>
+#include <cpu_func.h>
+#include <log.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #include <command.h>
 #include <dm.h>
@@ -49,6 +54,8 @@ struct ahci_uc_priv *probe_ent = NULL;
 #define WAIT_MS_DATAIO	10000
 #define WAIT_MS_FLUSH	5000
 #define WAIT_MS_LINKUP	200
+
+#define AHCI_CAP_S64A BIT(31)
 
 __weak void __iomem *ahci_port_base(void __iomem *base, u32 port)
 {
@@ -165,7 +172,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 #if !defined(CONFIG_SCSI_AHCI_PLAT) && !defined(CONFIG_DM_SCSI)
 # ifdef CONFIG_DM_PCI
 	struct udevice *dev = uc_priv->dev;
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct pci_child_plat *pplat = dev_get_parent_plat(dev);
 # else
 	pci_dev_t pdev = uc_priv->dev;
 	unsigned short vendor;
@@ -467,7 +474,7 @@ static int ahci_init_one(struct ahci_uc_priv *uc_priv, pci_dev_t dev)
 		pci_write_config_byte(dev, 0x41, 0xa1);
 #endif
 #else
-	struct scsi_platdata *plat = dev_get_uclass_platdata(dev);
+	struct scsi_plat *plat = dev_get_uclass_plat(dev);
 	uc_priv->mmio_base = (void *)plat->base;
 #endif
 
@@ -493,6 +500,7 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 {
 	struct ahci_ioports *pp = &(uc_priv->port[port]);
 	struct ahci_sg *ahci_sg = pp->cmd_tbl_sg;
+	phys_addr_t pa = virt_to_phys(buf);
 	u32 sg_count;
 	int i;
 
@@ -503,29 +511,33 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 	}
 
 	for (i = 0; i < sg_count; i++) {
-		ahci_sg->addr =
-		    cpu_to_le32((unsigned long) buf + i * MAX_DATA_BYTE_COUNT);
-		ahci_sg->addr_hi = 0;
+		ahci_sg->addr = cpu_to_le32(lower_32_bits(pa));
+		ahci_sg->addr_hi = cpu_to_le32(upper_32_bits(pa));
+		if (ahci_sg->addr_hi && !(uc_priv->cap & AHCI_CAP_S64A)) {
+			printf("Error: DMA address too high\n");
+			return -1;
+		}
 		ahci_sg->flags_size = cpu_to_le32(0x3fffff &
-					  (buf_len < MAX_DATA_BYTE_COUNT
-					   ? (buf_len - 1)
-					   : (MAX_DATA_BYTE_COUNT - 1)));
+					  (buf_len < MAX_DATA_BYTE_COUNT ?
+					   (buf_len - 1) :
+					   (MAX_DATA_BYTE_COUNT - 1)));
 		ahci_sg++;
 		buf_len -= MAX_DATA_BYTE_COUNT;
+		pa += MAX_DATA_BYTE_COUNT;
 	}
 
 	return sg_count;
 }
 
-
 static void ahci_fill_cmd_slot(struct ahci_ioports *pp, u32 opts)
 {
+	phys_addr_t pa = virt_to_phys((void *)pp->cmd_tbl);
+
 	pp->cmd_slot->opts = cpu_to_le32(opts);
 	pp->cmd_slot->status = 0;
-	pp->cmd_slot->tbl_addr = cpu_to_le32((u32)pp->cmd_tbl & 0xffffffff);
+	pp->cmd_slot->tbl_addr = cpu_to_le32(lower_32_bits(pa));
 #ifdef CONFIG_PHYS_64BIT
-	pp->cmd_slot->tbl_addr_hi =
-	    cpu_to_le32((u32)(((pp->cmd_tbl) >> 16) >> 16));
+	pp->cmd_slot->tbl_addr_hi = cpu_to_le32(upper_32_bits(pa));
 #endif
 }
 
@@ -548,6 +560,7 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 {
 	struct ahci_ioports *pp = &(uc_priv->port[port]);
 	void __iomem *port_mmio = pp->port_mmio;
+	u64 dma_addr;
 	u32 port_status;
 	void __iomem *mem;
 
@@ -593,10 +606,12 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	pp->cmd_tbl_sg =
 			(struct ahci_sg *)(uintptr_t)virt_to_phys((void *)mem);
 
-	writel_with_flush((unsigned long)pp->cmd_slot,
-			  port_mmio + PORT_LST_ADDR);
-
-	writel_with_flush(pp->rx_fis, port_mmio + PORT_FIS_ADDR);
+	dma_addr = (ulong)pp->cmd_slot;
+	writel_with_flush(dma_addr, port_mmio + PORT_LST_ADDR);
+	writel_with_flush(dma_addr >> 32, port_mmio + PORT_LST_ADDR_HI);
+	dma_addr = (ulong)pp->rx_fis;
+	writel_with_flush(dma_addr, port_mmio + PORT_FIS_ADDR);
+	writel_with_flush(dma_addr >> 32, port_mmio + PORT_FIS_ADDR_HI);
 
 #ifdef CONFIG_SUNXI_AHCI
 	sunxi_dma_init(port_mmio);
@@ -658,11 +673,11 @@ static int ahci_device_data_io(struct ahci_uc_priv *uc_priv, u8 port, u8 *fis,
 
 	ahci_dcache_invalidate_range((unsigned long)buf,
 				     (unsigned long)buf_len);
-	debug("%s: %d byte transferred.\n", __func__, pp->cmd_slot->status);
+	debug("%s: %d byte transferred.\n", __func__,
+	      le32_to_cpu(pp->cmd_slot->status));
 
 	return 0;
 }
-
 
 static char *ata_id_strcpy(u16 *target, u16 *src, int len)
 {
@@ -1147,14 +1162,14 @@ int ahci_bind_scsi(struct udevice *ahci_dev, struct udevice **devp)
 int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 {
 	struct ahci_uc_priv *uc_priv;
-	struct scsi_platdata *uc_plat;
+	struct scsi_plat *uc_plat;
 	struct udevice *dev;
 	int ret;
 
 	device_find_first_child(ahci_dev, &dev);
 	if (!dev)
 		return -ENODEV;
-	uc_plat = dev_get_uclass_platdata(dev);
+	uc_plat = dev_get_uclass_plat(dev);
 	uc_plat->base = base;
 	uc_plat->max_lun = 1;
 	uc_plat->max_id = 2;
@@ -1167,6 +1182,17 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 	if (ret)
 		return ret;
 
+	/*
+	 * scsi_scan_dev() scans devices up-to the number of max_id.
+	 * Update max_id if the number of detected ports exceeds max_id.
+	 * This allows SCSI to scan all detected ports.
+	 */
+	uc_plat->max_id = max_t(unsigned long, uc_priv->n_ports,
+				uc_plat->max_id);
+	/* If port count is less than max_id, update max_id */
+	if (uc_priv->n_ports < uc_plat->max_id)
+		uc_plat->max_id = uc_priv->n_ports;
+
 	return 0;
 }
 
@@ -1174,10 +1200,25 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 int ahci_probe_scsi_pci(struct udevice *ahci_dev)
 {
 	ulong base;
+	u16 vendor, device;
 
 	base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5,
 				     PCI_REGION_MEM);
 
+	/*
+	 * Note:
+	 * Right now, we have only one quirk here, which is not enough to
+	 * introduce a new Kconfig option to select this. Once we have more
+	 * quirks in this AHCI code, we should add a Kconfig option for
+	 * this though.
+	 */
+	dm_pci_read_config16(ahci_dev, PCI_VENDOR_ID, &vendor);
+	dm_pci_read_config16(ahci_dev, PCI_DEVICE_ID, &device);
+
+	if (vendor == PCI_VENDOR_ID_CAVIUM &&
+	    device == PCI_DEVICE_ID_CAVIUM_SATA)
+		base = (uintptr_t)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_0,
+						 PCI_REGION_MEM);
 	return ahci_probe_scsi(ahci_dev, base);
 }
 #endif

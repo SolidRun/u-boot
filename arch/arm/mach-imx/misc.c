@@ -4,7 +4,11 @@
  */
 
 #include <common.h>
+#include <lmb.h>
+#include <log.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/mach-imx/regs-common.h>

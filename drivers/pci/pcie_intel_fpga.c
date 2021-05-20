@@ -9,7 +9,11 @@
 #include <common.h>
 #include <dm.h>
 #include <pci.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #define RP_TX_REG0			0x2000
 #define RP_TX_CNTRL			0x2004
@@ -36,16 +40,18 @@
 
 #define RP_CFG_ADDR(pcie, reg)						\
 		((pcie->hip_base) + (reg) + (1 << 20))
+#define RP_SECONDARY(pcie)						\
+	readb(RP_CFG_ADDR(pcie, PCI_SECONDARY_BUS))
 #define TLP_REQ_ID(bus, devfn)		(((bus) << 8) | (devfn))
 
 #define TLP_CFGRD_DW0(pcie, bus)					\
-	((((bus != pcie->first_busno) ? TLP_FMTTYPE_CFGRD0		\
-				      : TLP_FMTTYPE_CFGRD1) << 24) |	\
+	((((bus > RP_SECONDARY(pcie)) ? TLP_FMTTYPE_CFGRD1		\
+				      : TLP_FMTTYPE_CFGRD0) << 24) |	\
 					TLP_PAYLOAD_SIZE)
 
 #define TLP_CFGWR_DW0(pcie, bus)					\
-	((((bus != pcie->first_busno) ? TLP_FMTTYPE_CFGWR0		\
-				      : TLP_FMTTYPE_CFGWR1) << 24) |	\
+	((((bus > RP_SECONDARY(pcie)) ? TLP_FMTTYPE_CFGWR1		\
+				      : TLP_FMTTYPE_CFGWR0) << 24) |	\
 					TLP_PAYLOAD_SIZE)
 
 #define TLP_CFG_DW1(pcie, tag, be)					\
@@ -56,14 +62,11 @@
 #define TLP_COMP_STATUS(s)		(((s) >> 13) & 7)
 #define TLP_BYTE_COUNT(s)		(((s) >> 0) & 0xfff)
 #define TLP_HDR_SIZE			3
-#define TLP_LOOP			500
+#define TLP_LOOP			20000
 #define DWORD_MASK			3
 
 #define IS_ROOT_PORT(pcie, bdf)				\
 		((PCI_BUS(bdf) == pcie->first_busno) ? true : false)
-
-#define PCI_EXP_LNKSTA		18	/* Link Status */
-#define PCI_EXP_LNKSTA_DLLLA	0x2000	/* Data Link Layer Link Active */
 
 /**
  * struct intel_fpga_pcie - Intel FPGA PCIe controller state
@@ -161,8 +164,10 @@ static int tlp_read_packet(struct intel_fpga_pcie *pcie, u32 *value)
 			dw[count++] = cra_readl(pcie, RP_RXCPL_REG);
 			if (ctrl & RP_RXCPL_EOP) {
 				comp_status = TLP_COMP_STATUS(dw[1]);
-				if (comp_status)
-					return -EFAULT;
+				if (comp_status) {
+					*value = pci_get_ff(PCI_SIZE_32);
+					return 0;
+				}
 
 				if (value &&
 				    TLP_BYTE_COUNT(dw[1]) == sizeof(u32) &&
@@ -222,7 +227,7 @@ static int tlp_cfg_dword_write(struct intel_fpga_pcie *pcie, pci_dev_t bdf,
 	return tlp_read_packet(pcie, NULL);
 }
 
-int intel_fpga_rp_conf_addr(struct udevice *bus, pci_dev_t bdf,
+int intel_fpga_rp_conf_addr(const struct udevice *bus, pci_dev_t bdf,
 			    uint offset, void **paddress)
 {
 	struct intel_fpga_pcie *pcie = dev_get_priv(bus);
@@ -322,7 +327,7 @@ static int _pcie_intel_fpga_write_config(struct intel_fpga_pcie *pcie,
 				   byte_en, data);
 }
 
-static int pcie_intel_fpga_read_config(struct udevice *bus, pci_dev_t bdf,
+static int pcie_intel_fpga_read_config(const struct udevice *bus, pci_dev_t bdf,
 				       uint offset, ulong *valuep,
 				       enum pci_size_t size)
 {
@@ -365,7 +370,7 @@ static int pcie_intel_fpga_probe(struct udevice *dev)
 	struct intel_fpga_pcie *pcie = dev_get_priv(dev);
 
 	pcie->bus = pci_get_controller(dev);
-	pcie->first_busno = dev->seq;
+	pcie->first_busno = dev_seq(dev);
 
 	/* clear all interrupts */
 	cra_writel(pcie, P2A_INT_STS_ALL, P2A_INT_STATUS);
@@ -375,7 +380,7 @@ static int pcie_intel_fpga_probe(struct udevice *dev)
 	return 0;
 }
 
-static int pcie_intel_fpga_ofdata_to_platdata(struct udevice *dev)
+static int pcie_intel_fpga_of_to_plat(struct udevice *dev)
 {
 	struct intel_fpga_pcie *pcie = dev_get_priv(dev);
 	struct fdt_resource reg_res;
@@ -424,7 +429,7 @@ U_BOOT_DRIVER(pcie_intel_fpga) = {
 	.id			= UCLASS_PCI,
 	.of_match		= pcie_intel_fpga_ids,
 	.ops			= &pcie_intel_fpga_ops,
-	.ofdata_to_platdata	= pcie_intel_fpga_ofdata_to_platdata,
+	.of_to_plat	= pcie_intel_fpga_of_to_plat,
 	.probe			= pcie_intel_fpga_probe,
-	.priv_auto_alloc_size	= sizeof(struct intel_fpga_pcie),
+	.priv_auto	= sizeof(struct intel_fpga_pcie),
 };

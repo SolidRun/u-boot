@@ -5,12 +5,19 @@
  */
 
 #include <common.h>
+#include <flash.h>
+#include <image.h>
+#include <init.h>
+#include <net.h>
 #if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)
 #include <netdev.h>
 #endif
+#include <asm/global_data.h>
 #include <linux/io.h>
 #include <faraday/ftsmc020.h>
 #include <fdtdec.h>
+#include <dm.h>
+#include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -28,33 +35,16 @@ int board_init(void)
 
 int dram_init(void)
 {
-	unsigned long sdram_base = PHYS_SDRAM_0;
-	unsigned long expected_size = PHYS_SDRAM_0_SIZE + PHYS_SDRAM_1_SIZE;
-	unsigned long actual_size;
-
-	actual_size = get_ram_size((void *)sdram_base, expected_size);
-	gd->ram_size = actual_size;
-
-	if (expected_size != actual_size) {
-		printf("Warning: Only %lu of %lu MiB SDRAM is working\n",
-			actual_size >> 20, expected_size >> 20);
-	}
-
-	return 0;
+	return fdtdec_setup_mem_size_base();
 }
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_0;
-	gd->bd->bi_dram[0].size =  PHYS_SDRAM_0_SIZE;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[1].size =  PHYS_SDRAM_1_SIZE;
-
-	return 0;
+	return fdtdec_setup_memory_banksize();
 }
 
 #if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)
-int board_eth_init(bd_t *bd)
+int board_eth_init(struct bd_info *bd)
 {
 	return ftmac100_initialize(bd);
 }
@@ -82,22 +72,57 @@ int smc_init(void)
 	if (node < 0)
 		return -FDT_ERR_NOTFOUND;
 
-	addr = fdtdec_get_addr(blob, node, "reg");
+	addr = fdtdec_get_addr_size_auto_noparent(blob, node,
+		"reg", 0, NULL, false);
 
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	regs = (struct ftsmc020_bank *)addr;
+	regs = (struct ftsmc020_bank *)(uintptr_t)addr;
 	regs->cr &= ~FTSMC020_BANK_WPROT;
 
 	return 0;
+}
+
+static void v5l2_init(void)
+{
+	struct udevice *dev;
+
+	uclass_get_device(UCLASS_CACHE, 0, &dev);
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
 	smc_init();
+	v5l2_init();
 
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SPL
+void board_boot_order(u32 *spl_boot_list)
+{
+	u8 i;
+	u32 boot_devices[] = {
+#ifdef CONFIG_SPL_RAM_SUPPORT
+		BOOT_DEVICE_RAM,
+#endif
+#ifdef CONFIG_SPL_MMC_SUPPORT
+		BOOT_DEVICE_MMC1,
+#endif
+	};
+
+	for (i = 0; i < ARRAY_SIZE(boot_devices); i++)
+		spl_boot_list[i] = boot_devices[i];
+}
+#endif
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	/* boot using first FIT config */
 	return 0;
 }
 #endif

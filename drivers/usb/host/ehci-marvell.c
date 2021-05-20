@@ -6,16 +6,19 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include "ehci.h"
 #include <linux/mbus.h>
 #include <asm/arch/cpu.h>
 #include <dm.h>
 
-#if defined(CONFIG_KIRKWOOD)
+#if defined(CONFIG_ARCH_KIRKWOOD)
 #include <asm/arch/soc.h>
-#elif defined(CONFIG_ORION5X)
+#elif defined(CONFIG_ARCH_ORION5X)
 #include <asm/arch/orion5x.h>
 #endif
 
@@ -107,7 +110,7 @@ static int ehci_mvebu_probe(struct udevice *dev)
 	/*
 	 * Get the base address for EHCI controller from the device node
 	 */
-	priv->hcd_base = devfdt_get_addr(dev);
+	priv->hcd_base = dev_read_addr(dev);
 	if (priv->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the EHCI register base address\n");
 		return -ENXIO;
@@ -150,8 +153,8 @@ U_BOOT_DRIVER(ehci_mvebu) = {
 	.probe = ehci_mvebu_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct ehci_mvebu_priv),
+	.plat_auto	= sizeof(struct usb_plat),
+	.priv_auto	= sizeof(struct ehci_mvebu_priv),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 

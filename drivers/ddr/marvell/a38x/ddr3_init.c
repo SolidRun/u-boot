@@ -77,9 +77,6 @@ int ddr3_init(void)
 		return status;
 	}
 
-#if defined(CONFIG_PHY_STATIC_PRINT)
-	mv_ddr_phy_static_print();
-#endif
 
 	/* Post MC/PHY initializations */
 	mv_ddr_post_training_soc_config(ddr_type);
@@ -104,10 +101,13 @@ int ddr3_init(void)
 static int mv_ddr_training_params_set(u8 dev_num)
 {
 	struct tune_train_params params;
+	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 	int status;
 	u32 cs_num;
+	int ck_delay;
 
 	cs_num = mv_ddr_cs_num_get();
+	ck_delay = mv_ddr_ck_delay_get();
 
 	/* NOTE: do not remove any field initilization */
 	params.ck_delay = TUNE_TRAINING_PARAMS_CK_DELAY;
@@ -130,6 +130,13 @@ static int mv_ddr_training_params_set(u8 dev_num)
 		params.g_rtt_wr = TUNE_TRAINING_PARAMS_RTT_WR_2CS;
 		params.g_odt_config = TUNE_TRAINING_PARAMS_ODT_CONFIG_2CS;
 	}
+
+	if (ck_delay > 0)
+		params.ck_delay = ck_delay;
+
+	/* Use platform specific override ODT value */
+	if (tm->odt_config)
+		params.g_odt_config = tm->odt_config;
 
 	status = ddr3_tip_tune_training_params(dev_num, &params);
 	if (MV_OK != status) {

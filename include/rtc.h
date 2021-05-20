@@ -18,6 +18,8 @@
 
 #ifdef CONFIG_DM_RTC
 
+struct udevice;
+
 struct rtc_ops {
 	/**
 	 * get() - get the current time
@@ -52,6 +54,30 @@ struct rtc_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*reset)(struct udevice *dev);
+
+	/**
+	 * read() - Read multiple 8-bit registers
+	 *
+	 * @dev:	Device to read from
+	 * @reg:	First register to read
+	 * @buf:	Output buffer
+	 * @len:	Number of registers to read
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*read)(struct udevice *dev, unsigned int reg,
+		    u8 *buf, unsigned int len);
+
+	/**
+	 * write() - Write multiple 8-bit registers
+	 *
+	 * @dev:	Device to write to
+	 * @reg:	First register to write
+	 * @buf:	Input buffer
+	 * @len:	Number of registers to write
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*write)(struct udevice *dev, unsigned int reg,
+		     const u8 *buf, unsigned int len);
 
 	/**
 	 * read8() - Read an 8-bit register
@@ -106,6 +132,29 @@ int dm_rtc_set(struct udevice *dev, struct rtc_time *time);
  * @return 0 if OK, -ve on error
  */
 int dm_rtc_reset(struct udevice *dev);
+
+/**
+ * dm_rtc_read() - Read multiple 8-bit registers
+ *
+ * @dev:	Device to read from
+ * @reg:	First register to read
+ * @buf:	Output buffer
+ * @len:	Number of registers to read
+ * @return 0 if OK, -ve on error
+ */
+int dm_rtc_read(struct udevice *dev, unsigned int reg, u8 *buf, unsigned int len);
+
+/**
+ * dm_rtc_write() - Write multiple 8-bit registers
+ *
+ * @dev:	Device to write to
+ * @reg:	First register to write
+ * @buf:	Input buffer
+ * @len:	Number of registers to write
+ * @return 0 if OK, -ve on error
+ */
+int dm_rtc_write(struct udevice *dev, unsigned int reg,
+		 const u8 *buf, unsigned int len);
 
 /**
  * rtc_read8() - Read an 8-bit register
@@ -166,11 +215,17 @@ int rtc_read32(struct udevice *dev, unsigned int reg, u32 *valuep);
  */
 int rtc_write32(struct udevice *dev, unsigned int reg, u32 value);
 
+#ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
+int rtc_enable_32khz_output(int busnum, int chip_addr);
+#endif
+
 #else
 int rtc_get (struct rtc_time *);
 int rtc_set (struct rtc_time *);
 void rtc_reset (void);
+#ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 void rtc_enable_32khz_output(void);
+#endif
 
 /**
  * rtc_read8() - Read an 8-bit register

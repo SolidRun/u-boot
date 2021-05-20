@@ -7,37 +7,40 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <lmb.h>
+#include <log.h>
+#include <malloc.h>
 
 #define LMB_ALLOC_ANYWHERE	0
+
+void lmb_dump_all_force(struct lmb *lmb)
+{
+	unsigned long i;
+
+	printf("lmb_dump_all:\n");
+	printf("    memory.cnt		   = 0x%lx\n", lmb->memory.cnt);
+	for (i = 0; i < lmb->memory.cnt; i++) {
+		printf("    memory.reg[0x%lx].base   = 0x%llx\n", i,
+		       (unsigned long long)lmb->memory.region[i].base);
+		printf("		   .size   = 0x%llx\n",
+		       (unsigned long long)lmb->memory.region[i].size);
+	}
+
+	printf("\n    reserved.cnt	   = 0x%lx\n", lmb->reserved.cnt);
+	for (i = 0; i < lmb->reserved.cnt; i++) {
+		printf("    reserved.reg[0x%lx].base = 0x%llx\n", i,
+		       (unsigned long long)lmb->reserved.region[i].base);
+		printf("		     .size = 0x%llx\n",
+		       (unsigned long long)lmb->reserved.region[i].size);
+	}
+}
 
 void lmb_dump_all(struct lmb *lmb)
 {
 #ifdef DEBUG
-	unsigned long i;
-
-	debug("lmb_dump_all:\n");
-	debug("    memory.cnt		   = 0x%lx\n", lmb->memory.cnt);
-	debug("    memory.size		   = 0x%llx\n",
-	      (unsigned long long)lmb->memory.size);
-	for (i = 0; i < lmb->memory.cnt; i++) {
-		debug("    memory.reg[0x%lx].base   = 0x%llx\n", i,
-		      (unsigned long long)lmb->memory.region[i].base);
-		debug("		   .size   = 0x%llx\n",
-		      (unsigned long long)lmb->memory.region[i].size);
-	}
-
-	debug("\n    reserved.cnt	   = 0x%lx\n",
-		lmb->reserved.cnt);
-	debug("    reserved.size	   = 0x%llx\n",
-		(unsigned long long)lmb->reserved.size);
-	for (i = 0; i < lmb->reserved.cnt; i++) {
-		debug("    reserved.reg[0x%lx].base = 0x%llx\n", i,
-		      (unsigned long long)lmb->reserved.region[i].base);
-		debug("		     .size = 0x%llx\n",
-		      (unsigned long long)lmb->reserved.region[i].size);
-	}
-#endif /* DEBUG */
+	lmb_dump_all_force(lmb);
+#endif
 }
 
 static long lmb_addrs_overlap(phys_addr_t base1, phys_size_t size1,
@@ -92,10 +95,17 @@ static void lmb_coalesce_regions(struct lmb_region *rgn, unsigned long r1,
 
 void lmb_init(struct lmb *lmb)
 {
+#if IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
+	lmb->memory.max = CONFIG_LMB_MAX_REGIONS;
+	lmb->reserved.max = CONFIG_LMB_MAX_REGIONS;
+#else
+	lmb->memory.max = CONFIG_LMB_MEMORY_REGIONS;
+	lmb->reserved.max = CONFIG_LMB_RESERVED_REGIONS;
+	lmb->memory.region = lmb->memory_regions;
+	lmb->reserved.region = lmb->reserved_regions;
+#endif
 	lmb->memory.cnt = 0;
-	lmb->memory.size = 0;
 	lmb->reserved.cnt = 0;
-	lmb->reserved.size = 0;
 }
 
 static void lmb_reserve_common(struct lmb *lmb, void *fdt_blob)
@@ -108,24 +118,19 @@ static void lmb_reserve_common(struct lmb *lmb, void *fdt_blob)
 }
 
 /* Initialize the struct, add memory and call arch/board reserve functions */
-void lmb_init_and_reserve(struct lmb *lmb, bd_t *bd, void *fdt_blob)
+void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd, void *fdt_blob)
 {
-#ifdef CONFIG_NR_DRAM_BANKS
 	int i;
-#endif
 
 	lmb_init(lmb);
-#ifdef CONFIG_NR_DRAM_BANKS
+
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		if (bd->bi_dram[i].size) {
 			lmb_add(lmb, bd->bi_dram[i].start,
 				bd->bi_dram[i].size);
 		}
 	}
-#else
-	if (bd->bi_memsize)
-		lmb_add(lmb, bd->bi_memstart, bd->bi_memsize);
-#endif
+
 	lmb_reserve_common(lmb, fdt_blob);
 }
 
@@ -183,7 +188,7 @@ static long lmb_add_region(struct lmb_region *rgn, phys_addr_t base, phys_size_t
 
 	if (coalesced)
 		return coalesced;
-	if (rgn->cnt >= MAX_LMB_REGIONS)
+	if (rgn->cnt >= rgn->max)
 		return -1;
 
 	/* Couldn't coalesce the LMB, so add it to the sorted table. */

@@ -16,6 +16,7 @@
 #include <dm.h>
 #include <command.h>
 #include <cros_ec.h>
+#include <log.h>
 #include <asm/io.h>
 
 #ifdef DEBUG_TRACE
@@ -24,13 +25,16 @@
 #define debug_trace(fmt, b...)
 #endif
 
+/* Timeout waiting for a flash erase command to complete */
+static const int CROS_EC_CMD_TIMEOUT_MS = 5000;
+
 static int wait_for_sync(struct cros_ec_dev *dev)
 {
 	unsigned long start;
 
 	start = get_timer(0);
 	while (inb(EC_LPC_ADDR_HOST_CMD) & EC_LPC_STATUS_BUSY_MASK) {
-		if (get_timer(start) > 1000) {
+		if (get_timer(start) > CROS_EC_CMD_TIMEOUT_MS) {
 			debug("%s: Timeout waiting for CROS_EC sync\n",
 			      __func__);
 			return -1;
@@ -203,6 +207,12 @@ int cros_ec_lpc_init(struct cros_ec_dev *dev, const void *blob)
 	return 0;
 }
 
+/* Return the byte of EC switch states */
+static int cros_ec_lpc_get_switches(struct udevice *dev)
+{
+	return inb(EC_LPC_ADDR_MEMMAP + EC_MEMMAP_SWITCHES);
+}
+
 /*
  * Test if LPC command args are supported.
  *
@@ -235,6 +245,7 @@ static struct dm_cros_ec_ops cros_ec_ops = {
 	.packet = cros_ec_lpc_packet,
 	.command = cros_ec_lpc_command,
 	.check_version = cros_ec_lpc_check_version,
+	.get_switches = cros_ec_lpc_get_switches,
 };
 
 static const struct udevice_id cros_ec_ids[] = {
@@ -242,8 +253,8 @@ static const struct udevice_id cros_ec_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(cros_ec_lpc) = {
-	.name		= "cros_ec_lpc",
+U_BOOT_DRIVER(google_cros_ec_lpc) = {
+	.name		= "google_cros_ec_lpc",
 	.id		= UCLASS_CROS_EC,
 	.of_match	= cros_ec_ids,
 	.probe		= cros_ec_probe,

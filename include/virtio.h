@@ -20,12 +20,16 @@
 #ifndef __VIRTIO_H__
 #define __VIRTIO_H__
 
+#include <linux/bitops.h>
+#include <linux/bug.h>
 #define VIRTIO_ID_NET		1 /* virtio net */
 #define VIRTIO_ID_BLOCK		2 /* virtio block */
-#define VIRTIO_ID_MAX_NUM	3
+#define VIRTIO_ID_RNG		4 /* virtio rng */
+#define VIRTIO_ID_MAX_NUM	5
 
 #define VIRTIO_NET_DRV_NAME	"virtio-net"
 #define VIRTIO_BLK_DRV_NAME	"virtio-blk"
+#define VIRTIO_RNG_DRV_NAME	"virtio-rng"
 
 /* Status byte for guest to report progress, and synchronize features */
 
@@ -488,7 +492,7 @@ static inline void __virtio_clear_bit(struct udevice *udev, unsigned int fbit)
  */
 static inline bool virtio_has_feature(struct udevice *vdev, unsigned int fbit)
 {
-	if (!(vdev->flags & DM_FLAG_BOUND))
+	if (!(dev_get_flags(vdev) & DM_FLAG_BOUND))
 		WARN_ON(true);
 
 	return __virtio_test_bit(vdev->parent, fbit);

@@ -6,10 +6,13 @@
  */
 
 #include <common.h>
+#include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <clk.h>
 #include <timer.h>
+#include <linux/bitops.h>
 
 #define OSTM_CMP	0x00
 #define OSTM_CNT	0x04
@@ -25,13 +28,11 @@ struct ostm_priv {
 	fdt_addr_t	regs;
 };
 
-static int ostm_get_count(struct udevice *dev, u64 *count)
+static u64 ostm_get_count(struct udevice *dev)
 {
 	struct ostm_priv *priv = dev_get_priv(dev);
 
-	*count = timer_conv_64(readl(priv->regs + OSTM_CNT));
-
-	return 0;
+	return timer_conv_64(readl(priv->regs + OSTM_CNT));
 }
 
 static int ostm_probe(struct udevice *dev)
@@ -63,7 +64,7 @@ static int ostm_probe(struct udevice *dev)
 	return 0;
 }
 
-static int ostm_ofdata_to_platdata(struct udevice *dev)
+static int ostm_of_to_plat(struct udevice *dev)
 {
 	struct ostm_priv *priv = dev_get_priv(dev);
 
@@ -87,6 +88,6 @@ U_BOOT_DRIVER(ostm_timer) = {
 	.ops		= &ostm_ops,
 	.probe		= ostm_probe,
 	.of_match	= ostm_ids,
-	.ofdata_to_platdata = ostm_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct ostm_priv),
+	.of_to_plat = ostm_of_to_plat,
+	.priv_auto	= sizeof(struct ostm_priv),
 };

@@ -114,7 +114,7 @@ static int msm_clk_probe(struct udevice *dev)
 {
 	struct msm_clk_priv *priv = dev_get_priv(dev);
 
-	priv->base = devfdt_get_addr(dev);
+	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -143,6 +143,6 @@ U_BOOT_DRIVER(clk_msm) = {
 	.id		= UCLASS_CLK,
 	.of_match	= msm_clk_ids,
 	.ops		= &msm_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct msm_clk_priv),
+	.priv_auto	= sizeof(struct msm_clk_priv),
 	.probe		= msm_clk_probe,
 };

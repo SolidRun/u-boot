@@ -5,6 +5,9 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 
@@ -37,7 +40,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/* Dummy read (must read WRCSR:WOVF at least once before clearing) */
 	readb(RZA1_WDT_BASE + WRCSR);

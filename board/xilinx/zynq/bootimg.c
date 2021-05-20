@@ -4,6 +4,9 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <part.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>

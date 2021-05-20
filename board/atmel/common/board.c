@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <env.h>
 #include <w1.h>
 #include <w1-eeprom.h>
 #include <dm/device-internal.h>
@@ -29,7 +31,7 @@ void at91_pda_detect(void)
 
 	ret = w1_get_bus(AT91_PDA_EEPROM_DEFAULT_BUS, &bus);
 	if (ret)
-		return;
+		goto pda_detect_err;
 
 	for (device_find_first_child(bus, &dev);
 	     dev;
@@ -41,7 +43,7 @@ void at91_pda_detect(void)
 			ret = w1_eeprom_read_buf(dev, AT91_PDA_EEPROM_ID_OFFSET,
 						 (u8 *)buf, AT91_PDA_EEPROM_ID_LENGTH);
 			if (ret)
-				return;
+				goto pda_detect_err;
 			break;
 		}
 	}
@@ -61,6 +63,8 @@ void at91_pda_detect(void)
 		printf("PDA TM5000 detected\n");
 		break;
 	}
+
+pda_detect_err:
 	env_set("pda", (const char *)buf);
 }
 #else

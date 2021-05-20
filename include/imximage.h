@@ -73,12 +73,13 @@ enum imximage_cmd {
 	CMD_CHECK_BITS_CLR,
 	CMD_CSF,
 	CMD_PLUGIN,
-	/* Follwoing on i.MX8MQ/MM */
+	/* Following on i.MX8MQ/MM */
 	CMD_FIT,
 	CMD_SIGNED_HDMI,
 	CMD_LOADER,
 	CMD_SECOND_LOADER,
 	CMD_DDR_FW,
+	CMD_ROM_VERSION,
 };
 
 enum imximage_fld_types {

@@ -8,9 +8,12 @@
 #include <common.h>
 #include <dm.h>
 #include <cpu.h>
+#include <init.h>
+#include <log.h>
 #include <asm/cpu.h>
 #include <asm/cpu_x86.h>
 #include <asm/cpu_common.h>
+#include <asm/global_data.h>
 #include <asm/intel_regs.h>
 #include <asm/msr.h>
 #include <asm/post.h>
@@ -18,6 +21,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/rcb.h>
+#include <linux/delay.h>
 
 struct cpu_broadwell_priv {
 	bool ht_disabled;
@@ -80,6 +84,13 @@ static const u8 power_limit_time_msr_to_sec[] = {
 	[0x70] = 112,
 	[0x11] = 128,
 };
+
+#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
+int arch_cpu_init(void)
+{
+	return 0;
+}
+#endif
 
 /*
  * The core 100MHz BLCK is disabled in deeper c-states. One needs to calibrate
@@ -322,15 +333,6 @@ static int bsp_init_before_ap_bringup(struct udevice *dev)
 	return 0;
 }
 
-static int cpu_config_tdp_levels(void)
-{
-	msr_t platform_info;
-
-	/* Bits 34:33 indicate how many levels supported */
-	platform_info = msr_read(MSR_PLATFORM_INFO);
-	return (platform_info.hi >> 1) & 3;
-}
-
 static void set_max_ratio(void)
 {
 	msr_t msr, perf_ctl;
@@ -339,7 +341,7 @@ static void set_max_ratio(void)
 
 	/* Check for configurable TDP option */
 	if (turbo_get_state() == TURBO_ENABLED) {
-		msr = msr_read(MSR_NHM_TURBO_RATIO_LIMIT);
+		msr = msr_read(MSR_TURBO_RATIO_LIMIT);
 		perf_ctl.lo = (msr.lo & 0xff) << 8;
 	} else if (cpu_config_tdp_levels()) {
 		/* Set to nominal TDP ratio */
@@ -350,10 +352,10 @@ static void set_max_ratio(void)
 		msr = msr_read(MSR_PLATFORM_INFO);
 		perf_ctl.lo = msr.lo & 0xff00;
 	}
-	msr_write(IA32_PERF_CTL, perf_ctl);
+	msr_write(MSR_IA32_PERF_CTL, perf_ctl);
 
 	debug("cpu: frequency set to %d\n",
-	      ((perf_ctl.lo >> 8) & 0xff) * CPU_BCLK);
+	      ((perf_ctl.lo >> 8) & 0xff) * INTEL_BCLK_MHZ);
 }
 
 int broadwell_init(struct udevice *dev)
@@ -472,9 +474,9 @@ static void configure_misc(void)
 	msr_t msr;
 
 	msr = msr_read(MSR_IA32_MISC_ENABLE);
-	msr.lo |= (1 << 0);	  /* Fast String enable */
-	msr.lo |= (1 << 3);	  /* TM1/TM2/EMTTM enable */
-	msr.lo |= (1 << 16);	  /* Enhanced SpeedStep Enable */
+	msr.lo |= MISC_ENABLE_FAST_STRING;
+	msr.lo |= MISC_ENABLE_TM1;
+	msr.lo |= MISC_ENABLE_ENHANCED_SPEEDSTEP;
 	msr_write(MSR_IA32_MISC_ENABLE, msr);
 
 	/* Disable thermal interrupts */
@@ -486,24 +488,6 @@ static void configure_misc(void)
 	msr.lo = 1 << 4;
 	msr.hi = 0;
 	msr_write(MSR_IA32_PACKAGE_THERM_INTERRUPT, msr);
-}
-
-static void configure_thermal_target(struct udevice *dev)
-{
-	int tcc_offset;
-	msr_t msr;
-
-	tcc_offset = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				    "intel,tcc-offset", 0);
-
-	/* Set TCC activaiton offset if supported */
-	msr = msr_read(MSR_PLATFORM_INFO);
-	if ((msr.lo & (1 << 30)) && tcc_offset) {
-		msr = msr_read(MSR_TEMPERATURE_TARGET);
-		msr.lo &= ~(0xf << 24); /* Bits 27:24 */
-		msr.lo |= (tcc_offset & 0xf) << 24;
-		msr_write(MSR_TEMPERATURE_TARGET, msr);
-	}
 }
 
 static void configure_dca_cap(void)
@@ -555,7 +539,7 @@ static void cpu_core_init(struct udevice *dev)
 	configure_misc();
 
 	/* Thermal throttle activation offset */
-	configure_thermal_target(dev);
+	cpu_configure_thermal_target(dev);
 
 	/* Enable Direct Cache Access */
 	configure_dca_cap();
@@ -643,26 +627,19 @@ void cpu_set_power_limits(int power_limit_1_time)
 	}
 }
 
-static int broadwell_get_info(struct udevice *dev, struct cpu_info *info)
+static int broadwell_get_info(const struct udevice *dev, struct cpu_info *info)
 {
-	msr_t msr;
-
-	msr = msr_read(IA32_PERF_CTL);
-	info->cpu_freq = ((msr.lo >> 8) & 0xff) * BROADWELL_BCLK * 1000000;
-	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU |
-		1 << CPU_FEAT_UCODE | 1 << CPU_FEAT_DEVICE_ID;
-
-	return 0;
+	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
 }
 
-static int broadwell_get_count(struct udevice *dev)
+static int broadwell_get_count(const struct udevice *dev)
 {
 	return 4;
 }
 
 static int cpu_x86_broadwell_probe(struct udevice *dev)
 {
-	if (dev->seq == 0) {
+	if (dev_seq(dev) == 0) {
 		cpu_core_init(dev);
 		return broadwell_init(dev);
 	}
@@ -689,6 +666,6 @@ U_BOOT_DRIVER(cpu_x86_broadwell_drv) = {
 	.bind		= cpu_x86_bind,
 	.probe		= cpu_x86_broadwell_probe,
 	.ops		= &cpu_x86_broadwell_ops,
-	.priv_auto_alloc_size	= sizeof(struct cpu_broadwell_priv),
+	.priv_auto	= sizeof(struct cpu_broadwell_priv),
 	.flags		= DM_FLAG_PRE_RELOC,
 };

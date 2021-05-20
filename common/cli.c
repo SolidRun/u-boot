@@ -9,11 +9,16 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <cli.h>
 #include <cli_hush.h>
+#include <command.h>
 #include <console.h>
+#include <env.h>
 #include <fdtdec.h>
+#include <hang.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -68,6 +73,13 @@ int run_command_repeatable(const char *cmd, int flag)
 	return 0;
 #endif
 }
+#else
+__weak int board_run_command(const char *cmdline)
+{
+	printf("## Commands are disabled. Please enable CONFIG_CMDLINE.\n");
+
+	return 1;
+}
 #endif /* CONFIG_CMDLINE */
 
 int run_command_list(const char *cmd, int len, int flag)
@@ -118,7 +130,7 @@ int run_command_list(const char *cmd, int len, int flag)
 /****************************************************************************/
 
 #if defined(CONFIG_CMD_RUN)
-int do_run(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_run(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int i;
 
@@ -172,7 +184,7 @@ bool cli_process_fdt(const char **cmdp)
 void cli_secure_boot_cmd(const char *cmd)
 {
 #ifdef CONFIG_CMDLINE
-	cmd_tbl_t *cmdtp;
+	struct cmd_tbl *cmdtp;
 #endif
 	int rc;
 

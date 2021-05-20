@@ -45,7 +45,12 @@ SECTIONS
 		*(.__efi_runtime_rel_stop)
 	}
 
-	__bss_start = .;
+	.dynsym :
+	{
+		__dyn_sym_start = .;
+		*(.dynsym)
+		__dyn_sym_end = .;
+	}
 }
 
 INSERT BEFORE .data;

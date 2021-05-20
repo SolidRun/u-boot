@@ -3,6 +3,11 @@
  * Copyright 2018 NXP
  */
 
+&{/imx8qm-pm} {
+
+	u-boot,dm-spl;
+};
+
 &mu {
 	u-boot,dm-spl;
 };
@@ -67,6 +72,14 @@
 	u-boot,dm-spl;
 };
 
+&pd_dma {
+	u-boot,dm-spl;
+};
+
+&pd_dma_lpuart0 {
+	u-boot,dm-spl;
+};
+
 &gpio0 {
 	u-boot,dm-spl;
 };
@@ -105,8 +118,11 @@
 
 &usdhc1 {
 	u-boot,dm-spl;
+	mmc-hs400-1_8v;
 };
 
 &usdhc2 {
 	u-boot,dm-spl;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
 };

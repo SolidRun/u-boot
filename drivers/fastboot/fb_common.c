@@ -10,7 +10,10 @@
  * Rob Herring <robh@kernel.org>
  */
 
+#include <bcb.h>
 #include <common.h>
+#include <command.h>
+#include <env.h>
 #include <fastboot.h>
 #include <net/fastboot.h>
 
@@ -86,9 +89,22 @@ void fastboot_okay(const char *reason, char *response)
  * which sets whatever flag your board specific Android bootloader flow
  * requires in order to re-enter the bootloader.
  */
-int __weak fastboot_set_reboot_flag(void)
+int __weak fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
-	return -ENOSYS;
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC_DEV)
+	static const char * const boot_cmds[] = {
+		[FASTBOOT_REBOOT_REASON_BOOTLOADER] = "bootonce-bootloader",
+		[FASTBOOT_REBOOT_REASON_FASTBOOTD] = "boot-fastboot",
+		[FASTBOOT_REBOOT_REASON_RECOVERY] = "boot-recovery"
+	};
+
+	if (reason >= FASTBOOT_REBOOT_REASONS_COUNT)
+		return -EINVAL;
+
+	return bcb_write_reboot_reason(CONFIG_FASTBOOT_FLASH_MMC_DEV, "misc", boot_cmds[reason]);
+#else
+    return -EINVAL;
+#endif
 }
 
 /**

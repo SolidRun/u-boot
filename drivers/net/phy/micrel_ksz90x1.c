@@ -10,6 +10,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <errno.h>
 #include <micrel.h>
 #include <phy.h>
@@ -119,8 +120,13 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 	if (!drv || !drv->writeext)
 		return -EOPNOTSUPP;
 
-	/* Look for a PHY node under the Ethernet node */
-	node = dev_read_subnode(dev, "ethernet-phy");
+	node = phydev->node;
+
+	if (!ofnode_valid(node)) {
+		/* Look for a PHY node under the Ethernet node */
+		node = dev_read_subnode(dev, "ethernet-phy");
+	}
+
 	if (!ofnode_valid(node)) {
 		/* No node found, look in the Ethernet node */
 		node = dev_ofnode(dev);
@@ -382,8 +388,8 @@ static int ksz9031_config(struct phy_device *phydev)
 
 static struct phy_driver ksz9031_driver = {
 	.name = "Micrel ksz9031",
-	.uid  = 0x221620,
-	.mask = 0xfffff0,
+	.uid  = PHY_ID_KSZ9031,
+	.mask = MII_KSZ9x31_SILICON_REV_MASK,
 	.features = PHY_GBIT_FEATURES,
 	.config   = &ksz9031_config,
 	.startup  = &ksz90xx_startup,
@@ -392,9 +398,128 @@ static struct phy_driver ksz9031_driver = {
 	.readext = &ksz9031_phy_extread,
 };
 
+/*
+ * KSZ9131
+ */
+
+#define KSZ9131RN_MMD_COMMON_CTRL_REG	2
+#define KSZ9131RN_RXC_DLL_CTRL		76
+#define KSZ9131RN_TXC_DLL_CTRL		77
+#define KSZ9131RN_DLL_CTRL_BYPASS	BIT_MASK(12)
+#define KSZ9131RN_DLL_ENABLE_DELAY	0
+#define KSZ9131RN_DLL_DISABLE_DELAY	BIT(12)
+
+static int ksz9131_config_rgmii_delay(struct phy_device *phydev)
+{
+	struct phy_driver *drv = phydev->drv;
+	u16 rxcdll_val, txcdll_val, val;
+	int ret;
+
+	switch (phydev->interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+		rxcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_ID:
+		rxcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+		rxcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		rxcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		break;
+	default:
+		return 0;
+	}
+
+	val = drv->readext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			   KSZ9131RN_RXC_DLL_CTRL);
+	val &= ~KSZ9131RN_DLL_CTRL_BYPASS;
+	val |= rxcdll_val;
+	ret = drv->writeext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			    KSZ9131RN_RXC_DLL_CTRL, val);
+	if (ret)
+		return ret;
+
+	val = drv->readext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			   KSZ9131RN_TXC_DLL_CTRL);
+
+	val &= ~KSZ9131RN_DLL_CTRL_BYPASS;
+	val |= txcdll_val;
+	ret = drv->writeext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			    KSZ9131RN_TXC_DLL_CTRL, val);
+
+	return ret;
+}
+
+static int ksz9131_config(struct phy_device *phydev)
+{
+	int ret;
+
+	if (phy_interface_is_rgmii(phydev)) {
+		ret = ksz9131_config_rgmii_delay(phydev);
+		if (ret)
+			return ret;
+	}
+
+	/* add an option to disable the gigabit feature of this PHY */
+	if (env_get("disable_giga")) {
+		unsigned features;
+		unsigned bmcr;
+
+		/* disable speed 1000 in features supported by the PHY */
+		features = phydev->drv->features;
+		features &= ~(SUPPORTED_1000baseT_Half |
+				SUPPORTED_1000baseT_Full);
+		phydev->advertising = phydev->supported = features;
+
+		/* disable speed 1000 in Basic Control Register */
+		bmcr = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
+		bmcr &= ~(1 << 6);
+		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, bmcr);
+
+		/* disable speed 1000 in 1000Base-T Control Register */
+		phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, 0);
+
+		/* start autoneg */
+		genphy_config_aneg(phydev);
+		genphy_restart_aneg(phydev);
+
+		return 0;
+	}
+
+	return genphy_config(phydev);
+}
+
+static struct phy_driver ksz9131_driver = {
+	.name = "Micrel ksz9131",
+	.uid  = PHY_ID_KSZ9131,
+	.mask = MII_KSZ9x31_SILICON_REV_MASK,
+	.features = PHY_GBIT_FEATURES,
+	.config   = &ksz9131_config,
+	.startup  = &ksz90xx_startup,
+	.shutdown = &genphy_shutdown,
+	.writeext = &ksz9031_phy_extwrite,
+	.readext = &ksz9031_phy_extread,
+};
+
+int ksz9xx1_phy_get_id(struct phy_device *phydev)
+{
+	unsigned int phyid;
+
+	get_phy_id(phydev->bus, phydev->addr, MDIO_DEVAD_NONE, &phyid);
+
+	return phyid;
+}
+
 int phy_micrel_ksz90x1_init(void)
 {
 	phy_register(&ksz9021_driver);
 	phy_register(&ksz9031_driver);
+	phy_register(&ksz9131_driver);
 	return 0;
 }

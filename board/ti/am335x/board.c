@@ -9,7 +9,12 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <errno.h>
+#include <image.h>
+#include <init.h>
+#include <malloc.h>
+#include <net.h>
 #include <spl.h>
 #include <serial.h>
 #include <asm/arch/cpu.h>
@@ -22,6 +27,7 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
@@ -31,12 +37,14 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/tps65217.h>
 #include <power/tps65910.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <watchdog.h>
-#include <environment.h>
 #include "../common/board_detect.h"
+#include "../common/cape_detect.h"
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -70,8 +78,10 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 void do_board_detect(void)
 {
 	enable_i2c0_pin_mux();
-#ifndef CONFIG_DM_I2C
+	enable_i2c2_pin_mux();
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED2, CONFIG_SYS_OMAP24_I2C_SLAVE2);
 #endif
 	if (ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
 				 CONFIG_EEPROM_CHIP_ADDRESS))
@@ -329,7 +339,7 @@ static void scale_vcores_bone(int freq)
 	if (board_is_bone() && !strncmp(board_ti_get_rev(), "00A1", 4))
 		return;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	if (i2c_probe(TPS65217_CHIP_PM))
 		return;
 #else
@@ -428,7 +438,7 @@ void scale_vcores_generic(int freq)
 	 * 1.10V.  For MPU voltage we need to switch based on
 	 * the frequency we are running at.
 	 */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	if (i2c_probe(TPS65910_CTRL_I2C_ADDR))
 		return;
 #else
@@ -462,7 +472,7 @@ void gpi2c_init(void)
 
 	if (first_time) {
 		enable_i2c0_pin_mux();
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED,
 			 CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
@@ -627,7 +637,7 @@ static struct clk_synth cdce913_data = {
 #define MAX_CPSW_SLAVES	2
 
 /* At the moment, we do not want to stop booting for any failures here */
-int ft_board_setup(void *fdt, bd_t *bd)
+int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	const char *slave_path, *enet_name;
 	int enetnode, slavenode, phynode;
@@ -709,7 +719,7 @@ int board_init(void)
 #endif
 
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-#if defined(CONFIG_NOR) || defined(CONFIG_NAND)
+#if defined(CONFIG_NOR) || defined(CONFIG_MTD_RAW_NAND)
 	gpmc_init();
 #endif
 
@@ -791,6 +801,7 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	struct udevice *dev;
 #if !defined(CONFIG_SPL_BUILD)
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
@@ -871,11 +882,14 @@ int board_late_init(void)
 			env_set("serial#", board_serial);
 	}
 
+	/* Just probe the potentially supported cdce913 device */
+	uclass_get_device_by_name(UCLASS_CLK, "cdce913@65", &dev);
+
 	return 0;
 }
 #endif
 
-/* CPSW platdata */
+/* CPSW plat */
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 struct cpsw_slave_data slave_data[] = {
 	{
@@ -902,7 +916,6 @@ struct cpsw_platform_data am335_eth_data = {
 	.slaves			= 2,
 	.slave_data		= slave_data,
 	.ale_entries		= 1024,
-	.bd_ram_ofs		= 0x2000,
 	.mac_control		= 0x20,
 	.active_slave		= 0,
 	.mdio_base		= 0x4a101000,
@@ -918,9 +931,9 @@ struct eth_pdata cpsw_pdata = {
 	.priv_pdata = &am335_eth_data,
 };
 
-U_BOOT_DEVICE(am335x_eth) = {
+U_BOOT_DRVINFO(am335x_eth) = {
 	.name = "eth_cpsw",
-	.platdata = &cpsw_pdata,
+	.plat = &cpsw_pdata,
 };
 #endif
 
@@ -954,7 +967,7 @@ void board_fit_image_post_process(void **p_image, size_t *p_size)
 #endif
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
-static const struct omap_hsmmc_plat am335x_mmc0_platdata = {
+static const struct omap_hsmmc_plat am335x_mmc0_plat = {
 	.base_addr = (struct hsmmc *)OMAP_HSMMC1_BASE,
 	.cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_4BIT,
 	.cfg.f_min = 400000,
@@ -963,12 +976,12 @@ static const struct omap_hsmmc_plat am335x_mmc0_platdata = {
 	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
 
-U_BOOT_DEVICE(am335x_mmc0) = {
+U_BOOT_DRVINFO(am335x_mmc0) = {
 	.name = "omap_hsmmc",
-	.platdata = &am335x_mmc0_platdata,
+	.plat = &am335x_mmc0_plat,
 };
 
-static const struct omap_hsmmc_plat am335x_mmc1_platdata = {
+static const struct omap_hsmmc_plat am335x_mmc1_plat = {
 	.base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE,
 	.cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_8BIT,
 	.cfg.f_min = 400000,
@@ -977,8 +990,8 @@ static const struct omap_hsmmc_plat am335x_mmc1_platdata = {
 	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
 
-U_BOOT_DEVICE(am335x_mmc1) = {
+U_BOOT_DRVINFO(am335x_mmc1) = {
 	.name = "omap_hsmmc",
-	.platdata = &am335x_mmc1_platdata,
+	.plat = &am335x_mmc1_plat,
 };
 #endif

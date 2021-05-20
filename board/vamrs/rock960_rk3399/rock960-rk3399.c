@@ -4,47 +4,25 @@
  */
 
 #include <common.h>
-#include <dm.h>
-#include <dm/pinctrl.h>
-#include <dm/uclass-internal.h>
-#include <asm/arch-rockchip/periph.h>
-#include <power/regulator.h>
-#include <spl.h>
+#include <syscon.h>
+#include <asm/io.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/grf_rk3399.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <linux/bitops.h>
 
-int board_init(void)
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
 {
-	int ret;
+	struct rk3399_grf_regs *grf =
+	    syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 
-	ret = regulators_enable_boot_on(false);
-	if (ret)
-		debug("%s: Cannot enable boot on regulator\n", __func__);
+	/**
+	 * Some SSD's to work on rock960 would require explicit
+	 * domain voltage change, so BT565 is in 1.8v domain
+	 */
+	rk_setreg(&grf->io_vsel, BIT(0));
 
 	return 0;
 }
-
-void spl_board_init(void)
-{
-	struct udevice *pinctrl;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		debug("%s: Cannot find pinctrl device\n", __func__);
-		goto err;
-	}
-
-	/* Enable debug UART */
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART_DBG);
-	if (ret) {
-		debug("%s: Failed to set up console UART\n", __func__);
-		goto err;
-	}
-
-	preloader_console_init();
-	return;
-err:
-	printf("%s: Error %d\n", __func__, ret);
-
-	/* No way to report error here */
-	hang();
-}
+#endif

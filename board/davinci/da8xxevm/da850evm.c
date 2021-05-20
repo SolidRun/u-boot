@@ -10,13 +10,14 @@
 
 #include <common.h>
 #include <dm.h>
-#include <environment.h>
+#include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <net.h>
-#include <netdev.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/arch/hardware.h>
+#include <asm/global_data.h>
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/arch/pinmux_defs.h>
@@ -205,7 +206,7 @@ int misc_init_r(void)
 }
 
 static const struct pinmux_config gpio_pins[] = {
-#ifdef CONFIG_USE_NOR
+#ifdef CONFIG_MTD_NOR_FLASH
 	/* GP0[11] is required for NOR to work on Rev 3 EVMs */
 	{ pinmux(0), 8, 4 },	/* GP0[11] */
 #endif
@@ -235,7 +236,7 @@ const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(emifa_pins_cs3),
 	PINMUX_ITEM(emifa_pins_cs4),
 	PINMUX_ITEM(emifa_pins_nand),
-#elif defined(CONFIG_USE_NOR)
+#elif defined(CONFIG_MTD_NOR_FLASH)
 	PINMUX_ITEM(emifa_pins_cs2),
 	PINMUX_ITEM(emifa_pins_nor),
 #endif
@@ -291,9 +292,6 @@ u32 get_board_rev(void)
 		rev = 2;
 	else if (maxcpuclk >= 372000000)
 		rev = 1;
-#ifdef CONFIG_DA850_AM18X_EVM
-	rev |= REV_AM18X_EVM;
-#endif
 	return rev;
 }
 
@@ -344,11 +342,7 @@ int board_init(void)
 		 DAVINCI_SYSCFG_SUSPSRC_UART2),
 	       &davinci_syscfg_regs->suspsrc);
 
-	/* configure pinmux settings */
-	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
-		return 1;
-
-#ifdef CONFIG_USE_NOR
+#ifdef CONFIG_MTD_NOR_FLASH
 	/* Set the GPIO direction as output */
 	clrbits_le32((u32 *)GPIO_BANK0_REG_DIR_ADDR, (0x01 << 11));
 
@@ -367,11 +361,6 @@ int board_init(void)
 #ifdef CONFIG_DRIVER_TI_EMAC
 	davinci_emac_mii_mode_sel(HAS_RMII);
 #endif /* CONFIG_DRIVER_TI_EMAC */
-
-	/* enable the console UART */
-	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
-		DAVINCI_UART_PWREMU_MGMT_UTRST),
-	       &davinci_uart2_ctrl_regs->pwremu_mgmt);
 
 	return 0;
 }
@@ -465,18 +454,13 @@ int rmii_hw_init(void)
 /*
  * Initializes on-board ethernet controllers.
  */
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
 	/* Select RMII fucntion through the expander */
 	if (rmii_hw_init())
 		printf("RMII hardware init failed!!!\n");
 #endif
-	if (!davinci_emac_initialize()) {
-		printf("Error: Ethernet init failed!\n");
-		return -1;
-	}
-
 	return 0;
 }
 #endif /* CONFIG_DRIVER_TI_EMAC */

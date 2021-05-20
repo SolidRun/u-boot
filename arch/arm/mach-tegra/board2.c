@@ -6,10 +6,13 @@
 
 #include <common.h>
 #include <dm.h>
-#include <efi_loader.h>
+#include <env.h>
 #include <errno.h>
+#include <init.h>
+#include <log.h>
 #include <ns16550.h>
 #include <usb.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
@@ -40,7 +43,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SPL_BUILD
 /* TODO(sjg@chromium.org): Remove once SPL supports device tree */
-U_BOOT_DEVICE(tegra_gpios) = {
+U_BOOT_DRVINFO(tegra_gpios) = {
 	"gpio_tegra"
 };
 #endif
@@ -180,6 +183,12 @@ int board_init(void)
 	return nvidia_board_init();
 }
 
+void board_cleanup_before_linux(void)
+{
+	/* power down UPHY PLL */
+	tegra_xusb_padctl_exit();
+}
+
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 static void __gpio_early_init(void)
 {
@@ -210,6 +219,31 @@ int board_early_init_f(void)
 		arch_timer_init();
 #endif
 
+#if defined(CONFIG_DISABLE_SDMMC1_EARLY)
+	/*
+	 * Turn off (reset/disable) SDMMC1 on Nano here, before GPIO INIT.
+	 * We do this because earlier bootloaders have enabled power to
+	 * SDMMC1 on Nano, and toggling power-gpio (PZ3) in pinmux_init()
+	 * results in power being back-driven into the SD-card and SDMMC1
+	 * HW, which is 'bad' as per the HW team.
+	 *
+	 * From the HW team: "LDO2 from the PMIC has already been set to 3.3v in
+	 * nvtboot/CBoot on Nano (for SD-card boot). So when U-Boot's GPIO_INIT
+	 * table sets PZ3 to OUT0 as per the pinmux spreadsheet, it turns off
+	 * the loadswitch. When PZ3 is 0 and not driving, essentially the SDCard
+	 * voltage turns off. Since the SDCard voltage is no longer there, the
+	 * SDMMC CLK/DAT lines are backdriving into what essentially is a
+	 * powered-off SDCard, that's why the voltage drops from 3.3V to ~1.6V"
+	 *
+	 * Note that this can probably be removed when we change over to storing
+	 * all BL components on QSPI on Nano, and U-Boot then becomes the first
+	 * one to turn on SDMMC1 power. Another fix would be to have CBoot
+	 * disable power/gate SDMMC1 off before handing off to U-Boot/kernel.
+	 */
+	reset_set_enable(PERIPH_ID_SDMMC1, 1);
+	clock_set_enable(PERIPH_ID_SDMMC1, 0);
+#endif	/* CONFIG_DISABLE_SDMMC1_EARLY */
+
 	pinmux_init();
 	board_init_uart_f();
 
@@ -223,19 +257,6 @@ int board_early_init_f(void)
 
 int board_late_init(void)
 {
-#if CONFIG_IS_ENABLED(EFI_LOADER)
-	if (gd->bd->bi_dram[1].start) {
-		/*
-		 * Only bank 0 is below board_get_usable_ram_top(), so all of
-		 * bank 1 is not mapped by the U-Boot MMU configuration, and so
-		 * we must prevent EFI from using it.
-		 */
-		efi_add_memory_map(gd->bd->bi_dram[1].start,
-				   gd->bd->bi_dram[1].size >> EFI_PAGE_SHIFT,
-				   EFI_BOOT_SERVICES_DATA, false);
-	}
-#endif
-
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 	if (tegra_cpu_is_non_secure()) {
 		printf("CPU is in NS mode\n");

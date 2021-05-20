@@ -7,8 +7,10 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define P(bank)			(0x0000 + (bank) * 4)
 #define PSR(bank)		(0x0100 + (bank) * 4)
@@ -111,7 +113,7 @@ static int r7s72100_gpio_probe(struct udevice *dev)
 
 	uc_priv->bank_name = dev->name;
 	dev = dev_get_parent(dev);
-	addr_base = devfdt_get_addr(dev);
+	addr_base = dev_read_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -129,6 +131,6 @@ U_BOOT_DRIVER(r7s72100_gpio) = {
 	.name	= "r7s72100-gpio",
 	.id	= UCLASS_GPIO,
 	.ops	= &r7s72100_gpio_ops,
-	.priv_auto_alloc_size = sizeof(struct r7s72100_gpio_priv),
+	.priv_auto	= sizeof(struct r7s72100_gpio_priv),
 	.probe	= r7s72100_gpio_probe,
 };

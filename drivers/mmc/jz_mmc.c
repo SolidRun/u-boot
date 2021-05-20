@@ -9,9 +9,13 @@
 #include <common.h>
 #include <malloc.h>
 #include <mmc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>
 #include <errno.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <mach/jz4780.h>
 #include <wait_bit.h>
 
@@ -440,14 +444,14 @@ static const struct dm_mmc_ops jz_msc_ops = {
 	.set_ios	= jz_mmc_dm_set_ios,
 };
 
-static int jz_mmc_ofdata_to_platdata(struct udevice *dev)
+static int jz_mmc_of_to_plat(struct udevice *dev)
 {
 	struct jz_mmc_priv *priv = dev_get_priv(dev);
-	struct jz_mmc_plat *plat = dev_get_platdata(dev);
+	struct jz_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_config *cfg;
 	int ret;
 
-	priv->regs = map_physmem(devfdt_get_addr(dev), 0x100, MAP_NOCACHE);
+	priv->regs = map_physmem(dev_read_addr(dev), 0x100, MAP_NOCACHE);
 	cfg = &plat->cfg;
 
 	cfg->name = "MSC";
@@ -470,7 +474,7 @@ static int jz_mmc_ofdata_to_platdata(struct udevice *dev)
 
 static int jz_mmc_bind(struct udevice *dev)
 {
-	struct jz_mmc_plat *plat = dev_get_platdata(dev);
+	struct jz_mmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -479,7 +483,7 @@ static int jz_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct jz_mmc_priv *priv = dev_get_priv(dev);
-	struct jz_mmc_plat *plat = dev_get_platdata(dev);
+	struct jz_mmc_plat *plat = dev_get_plat(dev);
 
 	plat->mmc.priv = priv;
 	upriv->mmc = &plat->mmc;
@@ -495,11 +499,11 @@ U_BOOT_DRIVER(jz_mmc_drv) = {
 	.name			= "jz_mmc",
 	.id			= UCLASS_MMC,
 	.of_match		= jz_mmc_ids,
-	.ofdata_to_platdata	= jz_mmc_ofdata_to_platdata,
+	.of_to_plat	= jz_mmc_of_to_plat,
 	.bind			= jz_mmc_bind,
 	.probe			= jz_mmc_probe,
-	.priv_auto_alloc_size	= sizeof(struct jz_mmc_priv),
-	.platdata_auto_alloc_size = sizeof(struct jz_mmc_plat),
+	.priv_auto	= sizeof(struct jz_mmc_priv),
+	.plat_auto	= sizeof(struct jz_mmc_plat),
 	.ops			= &jz_msc_ops,
 };
 #endif /* CONFIG_DM_MMC */

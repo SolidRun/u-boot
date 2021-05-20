@@ -7,7 +7,11 @@
 #include <dm.h>
 #include <debug_uart.h>
 #include <fdtdec.h>
+#include <hang.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
@@ -59,6 +63,11 @@ static u32 get_boot_device(void)
 	case BOOT_FROM_UART_ALT:
 #endif
 		return BOOT_DEVICE_UART;
+#ifdef BOOT_FROM_SATA
+	case BOOT_FROM_SATA:
+	case BOOT_FROM_SATA_ALT:
+		return BOOT_DEVICE_SATA;
+#endif
 	case BOOT_FROM_SPI:
 	default:
 		return BOOT_DEVICE_SPI;
@@ -120,6 +129,12 @@ void board_init_f(ulong dummy)
 	/* Setup DDR */
 	ddr3_init();
 #endif
+
+	/* Initialize Auto Voltage Scaling */
+	mv_avs_init();
+
+	/* Update read timing control for PCIe */
+	mv_rtc_config();
 
 	/*
 	 * Return to the BootROM to continue the Marvell xmodem

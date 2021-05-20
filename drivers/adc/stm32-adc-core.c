@@ -7,7 +7,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <power/regulator.h>
 #include "stm32-adc-core.h"
 
@@ -60,7 +63,8 @@ static int stm32h7_adc_clk_sel(struct udevice *dev,
 {
 	u32 ckmode, presc;
 	unsigned long rate;
-	int i, div;
+	unsigned int i;
+	int div;
 
 	/* stm32h7 bus clock is common for all ADC instances (mandatory) */
 	if (!clk_valid(&common->bclk)) {
@@ -205,5 +209,5 @@ U_BOOT_DRIVER(stm32_adc_core) = {
 	.id = UCLASS_SIMPLE_BUS,
 	.of_match = stm32_adc_core_ids,
 	.probe = stm32_adc_core_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32_adc_common),
+	.priv_auto	= sizeof(struct stm32_adc_common),
 };

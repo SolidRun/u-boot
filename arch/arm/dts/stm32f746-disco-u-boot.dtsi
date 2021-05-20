@@ -78,10 +78,6 @@
 	};
 };
 
-&clk_hse {
-	u-boot,dm-pre-reloc;
-};
-
 &fmc {
 	/* Memory configuration from sdram datasheet MT48LC_4M32_B2B5-6A */
 	bank1: bank@0 {
@@ -123,9 +119,7 @@
 	};
 
 	fmc_pins: fmc@0 {
-		u-boot,dm-pre-reloc;
 		pins {
-			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('D',10, AF12)>, /* D15 */
 				 <STM32_PINMUX('D', 9, AF12)>, /* D14 */
 				 <STM32_PINMUX('D', 8, AF12)>, /* D13 */
@@ -218,7 +212,7 @@
 		};
 	};
 
-	usart1_pins_b: usart1@1	{
+	usart1_pins_b: usart1-1	{
 		u-boot,dm-pre-reloc;
 		pins1 {
 			u-boot,dm-pre-reloc;
@@ -235,7 +229,7 @@
 
 &qspi {
 	reg = <0xA0001000 0x1000>, <0x90000000 0x1000000>;
-	qflash0: n25q128a {
+	qflash0: n25q128a@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
@@ -244,8 +238,4 @@
 		spi-rx-bus-width = <4>;
 		reg = <0>;
 	};
-};
-
-&timer5 {
-	u-boot,dm-pre-reloc;
 };

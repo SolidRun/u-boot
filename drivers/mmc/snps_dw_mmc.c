@@ -13,6 +13,7 @@
 #include <dwmmc.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <dm/device_compat.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
 #include <malloc.h>
@@ -75,14 +76,14 @@ clk_err:
 	return ret;
 }
 
-static int snps_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int snps_dwmmc_of_to_plat(struct udevice *dev)
 {
 	struct snps_dwmci_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
 	u32 fifo_depth;
 	int ret;
 
-	host->ioaddr = devfdt_get_addr_ptr(dev);
+	host->ioaddr = dev_read_addr_ptr(dev);
 
 	/*
 	 * If fifo-depth is unset don't set fifoth_val - we will try to
@@ -131,7 +132,7 @@ struct dm_mmc_ops snps_dwmci_dm_ops;
 static int snps_dwmmc_probe(struct udevice *dev)
 {
 #ifdef CONFIG_BLK
-	struct snps_dwmci_plat *plat = dev_get_platdata(dev);
+	struct snps_dwmci_plat *plat = dev_get_plat(dev);
 #endif
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct snps_dwmci_priv_data *priv = dev_get_priv(dev);
@@ -170,7 +171,7 @@ static int snps_dwmmc_probe(struct udevice *dev)
 static int snps_dwmmc_bind(struct udevice *dev)
 {
 #ifdef CONFIG_BLK
-	struct snps_dwmci_plat *plat = dev_get_platdata(dev);
+	struct snps_dwmci_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	ret = dwmci_bind(dev, &plat->mmc, &plat->cfg);
@@ -190,10 +191,10 @@ U_BOOT_DRIVER(snps_dwmmc_drv) = {
 	.name				= "snps_dw_mmc",
 	.id				= UCLASS_MMC,
 	.of_match			= snps_dwmmc_ids,
-	.ofdata_to_platdata		= snps_dwmmc_ofdata_to_platdata,
+	.of_to_plat		= snps_dwmmc_of_to_plat,
 	.ops				= &snps_dwmci_dm_ops,
 	.bind				= snps_dwmmc_bind,
 	.probe				= snps_dwmmc_probe,
-	.priv_auto_alloc_size		= sizeof(struct snps_dwmci_priv_data),
-	.platdata_auto_alloc_size	= sizeof(struct snps_dwmci_plat),
+	.priv_auto		= sizeof(struct snps_dwmci_priv_data),
+	.plat_auto	= sizeof(struct snps_dwmci_plat),
 };

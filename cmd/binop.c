@@ -2,6 +2,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <hexdump.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -63,7 +64,8 @@ void write_to_mem(char *varname, u8 *result, ulong len)
 	unmap_sysmem(buf);
 }
 
-static int do_binop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_binop(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	ulong len;
 	u8 *result, *src1, *src2;

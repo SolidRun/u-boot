@@ -8,9 +8,10 @@
  */
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <cbfs.h>
 
-static int do_cbfs_init(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_cbfs_init(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	uintptr_t end_of_rom = 0xffffffff;
@@ -27,8 +28,7 @@ static int do_cbfs_init(cmd_tbl_t *cmdtp, int flag, int argc,
 			return 1;
 		}
 	}
-	file_cbfs_init(end_of_rom);
-	if (file_cbfs_result != CBFS_SUCCESS) {
+	if (file_cbfs_init(end_of_rom)) {
 		printf("%s.\n", file_cbfs_error());
 		return 1;
 	}
@@ -44,7 +44,7 @@ U_BOOT_CMD(
 	"      CBFS is in. It defaults to 0xFFFFFFFF\n"
 );
 
-static int do_cbfs_fsload(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_cbfs_fsload(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
 	const struct cbfs_cachenode *file;
@@ -66,7 +66,7 @@ static int do_cbfs_fsload(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	file = file_cbfs_find(argv[2]);
 	if (!file) {
-		if (file_cbfs_result == CBFS_FILE_NOT_FOUND)
+		if (cbfs_get_result() == CBFS_FILE_NOT_FOUND)
 			printf("%s: %s\n", file_cbfs_error(), argv[2]);
 		else
 			printf("%s.\n", file_cbfs_error());
@@ -91,7 +91,7 @@ U_BOOT_CMD(
 	"    - load binary file 'filename' from the cbfs to address 'addr'\n"
 );
 
-static int do_cbfs_ls(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_cbfs_ls(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
 	const struct cbfs_cachenode *file = file_cbfs_get_first();
@@ -200,7 +200,7 @@ U_BOOT_CMD(
 	"    - list the files in the cbfs\n"
 );
 
-static int do_cbfs_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_cbfs_fsinfo(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
 	const struct cbfs_header *header = file_cbfs_get_header();

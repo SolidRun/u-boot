@@ -8,7 +8,15 @@
 #include <common.h>
 #include <charset.h>
 #include <capitalization.h>
+#include <cp437.h>
+#include <efi_loader.h>
+#include <errno.h>
 #include <malloc.h>
+
+/**
+ * codepage_437 - Unicode to codepage 437 translation table
+ */
+const u16 codepage_437[128] = CP437;
 
 static struct capitalization_table capitalization_table[] =
 #ifdef CONFIG_EFI_UNICODE_CAPITALIZATION
@@ -24,7 +32,7 @@ static struct capitalization_table capitalization_table[] =
  *
  * @read_u8:	- stream reader
  * @src:	- string buffer passed to stream reader, optional
- * Return:	- Unicode code point
+ * Return:	- Unicode code point, or -1
  */
 static int get_code(u8 (*read_u8)(void *data), void *data)
 {
@@ -70,7 +78,7 @@ static int get_code(u8 (*read_u8)(void *data), void *data)
 	}
 	return ch;
 error:
-	return '?';
+	return -1;
 }
 
 /**
@@ -104,7 +112,7 @@ static u8 read_console(void *data)
 {
 	int ch;
 
-	ch = getc();
+	ch = getchar();
 	if (ch < 0)
 		ch = 0;
 	return ch;
@@ -112,14 +120,21 @@ static u8 read_console(void *data)
 
 int console_read_unicode(s32 *code)
 {
-	if (!tstc()) {
-		/* No input available */
-		return 1;
-	}
+	for (;;) {
+		s32 c;
 
-	/* Read Unicode code */
-	*code = get_code(read_console, NULL);
-	return 0;
+		if (!tstc()) {
+			/* No input available */
+			return 1;
+		}
+
+		/* Read Unicode code */
+		c = get_code(read_console, NULL);
+		if (c > 0) {
+			*code = c;
+			return 0;
+		}
+	}
 }
 
 s32 utf8_get(const char **src)
@@ -335,18 +350,53 @@ s32 utf_to_upper(const s32 code)
 	return ret;
 }
 
-size_t u16_strlen(const u16 *in)
+/*
+ * u16_strncmp() - compare two u16 string
+ *
+ * @s1:		first string to compare
+ * @s2:		second string to compare
+ * @n:		maximum number of u16 to compare
+ * Return:	0  if the first n u16 are the same in s1 and s2
+ *		< 0 if the first different u16 in s1 is less than the
+ *		corresponding u16 in s2
+ *		> 0 if the first different u16 in s1 is greater than the
+ *		corresponding u16 in s2
+ */
+int u16_strncmp(const u16 *s1, const u16 *s2, size_t n)
 {
-	size_t i;
-	for (i = 0; in[i]; i++);
-	return i;
+	int ret = 0;
+
+	for (; n; --n, ++s1, ++s2) {
+		ret = *s1 - *s2;
+		if (ret || !*s1)
+			break;
+	}
+
+	return ret;
 }
 
-size_t u16_strnlen(const u16 *in, size_t count)
+size_t u16_strlen(const void *in)
+{
+	const char *pos = in;
+	size_t ret;
+
+	for (; pos[0] || pos[1]; pos += 2)
+		;
+	ret = pos - (char *)in;
+	ret >>= 1;
+	return ret;
+}
+
+size_t __efi_runtime u16_strnlen(const u16 *in, size_t count)
 {
 	size_t i;
 	for (i = 0; count-- && in[i]; i++);
 	return i;
+}
+
+size_t u16_strsize(const void *in)
+{
+	return (u16_strlen(in) + 1) * sizeof(u16);
 }
 
 u16 *u16_strcpy(u16 *dest, const u16 *src)
@@ -362,18 +412,18 @@ u16 *u16_strcpy(u16 *dest, const u16 *src)
 	return tmp;
 }
 
-u16 *u16_strdup(const u16 *src)
+u16 *u16_strdup(const void *src)
 {
 	u16 *new;
+	size_t len;
 
 	if (!src)
 		return NULL;
-
-	new = malloc((u16_strlen(src) + 1) * sizeof(u16));
+	len = (u16_strlen(src) + 1) * sizeof(u16);
+	new = malloc(len);
 	if (!new)
 		return NULL;
-
-	u16_strcpy(new, src);
+	memcpy(new, src, len);
 
 	return new;
 }
@@ -429,4 +479,68 @@ uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size)
 	}
 
 	return dest;
+}
+
+int utf_to_cp(s32 *c, const u16 *codepage)
+{
+	if (*c >= 0x80) {
+		int j;
+
+		/* Look up codepage translation */
+		for (j = 0; j < 0x80; ++j) {
+			if (*c == codepage[j]) {
+				*c = j + 0x80;
+				return 0;
+			}
+		}
+		*c = '?';
+		return -ENOENT;
+	}
+	return 0;
+}
+
+int utf8_to_cp437_stream(u8 c, char *buffer)
+{
+	char *end;
+	const char *pos;
+	s32 s;
+	int ret;
+
+	for (;;) {
+		pos = buffer;
+		end = buffer + strlen(buffer);
+		*end++ = c;
+		*end = 0;
+		s = utf8_get(&pos);
+		if (s > 0) {
+			*buffer = 0;
+			ret = utf_to_cp(&s, codepage_437);
+			return s;
+			}
+		if (pos == end)
+			return 0;
+		*buffer = 0;
+	}
+}
+
+int utf8_to_utf32_stream(u8 c, char *buffer)
+{
+	char *end;
+	const char *pos;
+	s32 s;
+
+	for (;;) {
+		pos = buffer;
+		end = buffer + strlen(buffer);
+		*end++ = c;
+		*end = 0;
+		s = utf8_get(&pos);
+		if (s > 0) {
+			*buffer = 0;
+			return s;
+		}
+		if (pos == end)
+			return 0;
+		*buffer = 0;
+	}
 }

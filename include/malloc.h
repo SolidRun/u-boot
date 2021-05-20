@@ -361,8 +361,11 @@ extern "C" {
 #if (__STD_C || defined(HAVE_MEMCPY))
 
 #if __STD_C
+/* U-Boot defines memset() and memcpy in /include/linux/string.h
 void* memset(void*, int, size_t);
 void* memcpy(void*, const void*, size_t);
+*/
+#include <linux/string.h>
 #else
 #ifdef WIN32
 /* On Win32 platforms, 'memset()' and 'memcpy()' are already declared in */
@@ -788,8 +791,13 @@ struct mallinfo {
 
 */
 
-/* #define USE_DL_PREFIX */
-
+/*
+ * Rename the U-Boot alloc functions so that sandbox can still use the system
+ * ones
+ */
+#ifdef CONFIG_SANDBOX
+#define USE_DL_PREFIX
+#endif
 
 /*
 
@@ -872,6 +880,8 @@ extern Void_t*     sbrk();
 
 #else
 
+void malloc_simple_info(void);
+
 #if CONFIG_IS_ENABLED(SYS_MALLOC_SIMPLE)
 #define malloc malloc_simple
 #define realloc realloc_simple
@@ -879,7 +889,6 @@ extern Void_t*     sbrk();
 static inline void free(void *ptr) {}
 void *calloc(size_t nmemb, size_t size);
 void *realloc_simple(void *ptr, size_t size);
-void malloc_simple_info(void);
 #else
 
 # ifdef USE_DL_PREFIX
@@ -892,6 +901,21 @@ void malloc_simple_info(void);
 # define pvALLOc		dlpvalloc
 # define mALLINFo	dlmallinfo
 # define mALLOPt		dlmallopt
+
+/* Ensure that U-Boot actually uses these too */
+#define calloc dlcalloc
+#define free(ptr) dlfree(ptr)
+#define malloc(x) dlmalloc(x)
+#define memalign dlmemalign
+#define realloc dlrealloc
+#define valloc dlvalloc
+#define pvalloc dlpvalloc
+#define mallinfo() dlmallinfo()
+#define mallopt dlmallopt
+#define malloc_trim dlmalloc_trim
+#define malloc_usable_size dlmalloc_usable_size
+#define malloc_stats dlmalloc_stats
+
 # else /* USE_DL_PREFIX */
 # define cALLOc		calloc
 # define fREe		free

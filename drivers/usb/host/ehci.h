@@ -44,6 +44,7 @@ struct ehci_hcor {
 #define STS_ASS		(1 << 15)
 #define	STS_PSS		(1 << 14)
 #define STS_HALT	(1 << 12)
+#define STS_IAA		(1 << 5)
 	uint32_t or_usbintr;
 #define INTR_UE         (1 << 0)                /* USB interrupt enable */
 #define INTR_UEE        (1 << 1)                /* USB error interrupt enable */
@@ -255,6 +256,7 @@ struct ehci_ctrl {
 	int periodic_schedules;
 	int ntds;
 	bool has_fsl_erratum_a005275;	/* Freescale HS silicon quirk */
+	bool async_locked;
 	struct ehci_ops ops;
 	void *priv;	/* client's private data */
 };
@@ -297,4 +299,5 @@ extern struct dm_usb_ops ehci_usb_ops;
 int ehci_setup_phy(struct udevice *dev, struct phy *phy, int index);
 int ehci_shutdown_phy(struct udevice *dev, struct phy *phy);
 
+#include <linux/bitops.h>
 #endif /* USB_EHCI_H */

@@ -9,19 +9,19 @@
 
 #include <common.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
+#include <linux/delay.h>
 
-#include "xhci.h"
+#include <usb/xhci.h>
 #include <asm/io.h>
 #include <linux/usb/dwc3.h>
 #include <linux/usb/otg.h>
 
-struct xhci_dwc3_platdata {
-	struct phy *usb_phys;
-	int num_phys;
+struct xhci_dwc3_plat {
+	struct phy_bulk phys;
 };
 
 void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
@@ -117,14 +117,16 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	struct xhci_hccr *hccr;
 	struct dwc3 *dwc3_reg;
 	enum usb_dr_mode dr_mode;
-	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
+	struct xhci_dwc3_plat *plat = dev_get_plat(dev);
+	const char *phy;
+	u32 reg;
 	int ret;
 
-	hccr = (struct xhci_hccr *)((uintptr_t)dev_read_addr(dev));
+	hccr = (struct xhci_hccr *)((uintptr_t)dev_remap_addr(dev));
 	hcor = (struct xhci_hcor *)((uintptr_t)hccr +
 			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
 
-	ret = dwc3_setup_phy(dev, &plat->usb_phys, &plat->num_phys);
+	ret = dwc3_setup_phy(dev, &plat->phys);
 	if (ret && (ret != -ENOTSUPP))
 		return ret;
 
@@ -132,7 +134,28 @@ static int xhci_dwc3_probe(struct udevice *dev)
 
 	dwc3_core_init(dwc3_reg);
 
-	dr_mode = usb_get_dr_mode(dev_of_offset(dev));
+	/* Set dwc3 usb2 phy config */
+	reg = readl(&dwc3_reg->g_usb2phycfg[0]);
+
+	phy = dev_read_string(dev, "phy_type");
+	if (phy && strcmp(phy, "utmi_wide") == 0) {
+		reg |= DWC3_GUSB2PHYCFG_PHYIF;
+		reg &= ~DWC3_GUSB2PHYCFG_USBTRDTIM_MASK;
+		reg |= DWC3_GUSB2PHYCFG_USBTRDTIM_16BIT;
+	}
+
+	if (dev_read_bool(dev, "snps,dis_enblslpm-quirk"))
+		reg &= ~DWC3_GUSB2PHYCFG_ENBLSLPM;
+
+	if (dev_read_bool(dev, "snps,dis-u2-freeclk-exists-quirk"))
+		reg &= ~DWC3_GUSB2PHYCFG_U2_FREECLK_EXISTS;
+
+	if (dev_read_bool(dev, "snps,dis_u2_susphy_quirk"))
+		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
+
+	writel(reg, &dwc3_reg->g_usb2phycfg[0]);
+
+	dr_mode = usb_get_dr_mode(dev_ofnode(dev));
 	if (dr_mode == USB_DR_MODE_UNKNOWN)
 		/* by default set dual role mode to HOST */
 		dr_mode = USB_DR_MODE_HOST;
@@ -144,9 +167,9 @@ static int xhci_dwc3_probe(struct udevice *dev)
 
 static int xhci_dwc3_remove(struct udevice *dev)
 {
-	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
+	struct xhci_dwc3_plat *plat = dev_get_plat(dev);
 
-	dwc3_shutdown_phy(dev, plat->usb_phys, plat->num_phys);
+	dwc3_shutdown_phy(dev, &plat->phys);
 
 	return xhci_deregister(dev);
 }
@@ -163,8 +186,8 @@ U_BOOT_DRIVER(xhci_dwc3) = {
 	.probe = xhci_dwc3_probe,
 	.remove = xhci_dwc3_remove,
 	.ops = &xhci_usb_ops,
-	.priv_auto_alloc_size = sizeof(struct xhci_ctrl),
-	.platdata_auto_alloc_size = sizeof(struct xhci_dwc3_platdata),
+	.priv_auto	= sizeof(struct xhci_ctrl),
+	.plat_auto	= sizeof(struct xhci_dwc3_plat),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

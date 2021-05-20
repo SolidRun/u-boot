@@ -9,6 +9,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <linux/bitops.h>
 struct atmel_pio4_port {
 	u32 mskr;		/* 0x00 PIO Mask Register */
 	u32 cfgr;		/* 0x04 PIO Configuration Register */
@@ -43,6 +44,7 @@ struct atmel_pio4_port {
 #define ATMEL_PIO_DIR_MASK		BIT(8)
 #define ATMEL_PIO_PUEN_MASK		BIT(9)
 #define ATMEL_PIO_PDEN_MASK		BIT(10)
+#define ATMEL_PIO_SR			BIT(11)
 #define ATMEL_PIO_IFEN_MASK		BIT(12)
 #define ATMEL_PIO_IFSCEN_MASK		BIT(13)
 #define ATMEL_PIO_OPD_MASK		BIT(14)
@@ -51,6 +53,7 @@ struct atmel_pio4_port {
 #define ATMEL_PIO_DRVSTR_LO		(1 << 16)
 #define ATMEL_PIO_DRVSTR_ME		(2 << 16)
 #define ATMEL_PIO_DRVSTR_HI		(3 << 16)
+#define ATMEL_PIO_DRVSTR_OFFSET		16
 #define ATMEL_PIO_CFGR_EVTSEL_MASK	GENMASK(26, 24)
 #define ATMEL_PIO_CFGR_EVTSEL_FALLING	(0 << 24)
 #define ATMEL_PIO_CFGR_EVTSEL_RISING	(1 << 24)

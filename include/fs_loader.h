@@ -6,7 +6,7 @@
 #ifndef _FS_LOADER_H_
 #define _FS_LOADER_H_
 
-#include <dm.h>
+struct udevice;
 
 /**
  * struct phandle_part - A place for storing phandle of node and its partition
@@ -31,7 +31,7 @@ struct phandle_part {
  * @mtdpart: MTD partition for ubi partition.
  * @ubivol: UBI volume-name for ubifsmount.
  */
-struct device_platdata {
+struct device_plat {
 	struct phandle_part phandlepart;
 	char *mtdpart;
 	char *ubivol;

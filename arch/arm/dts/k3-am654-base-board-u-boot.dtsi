@@ -4,7 +4,7 @@
  */
 
 #include <dt-bindings/pinctrl/k3.h>
-#include <dt-bindings/dma/k3-udma.h>
+#include <dt-bindings/net/ti-dp83867.h>
 
 / {
 	chosen {
@@ -13,107 +13,44 @@
 
 	aliases {
 		serial2 = &main_uart0;
+		ethernet0 = &cpsw_port1;
+		usb0 = &usb0;
+		usb1 = &usb1;
+		spi0 = &ospi0;
+		spi1 = &ospi1;
 	};
 };
 
 &cbass_main{
 	u-boot,dm-spl;
-
-	main_pmx0: pinmux@11c000 {
-		compatible = "pinctrl-single";
-		reg = <0x0 0x11c000 0x0 0x2e4>;
-		#pinctrl-cells = <1>;
-		pinctrl-single,register-width = <32>;
-		pinctrl-single,function-mask = <0xffffffff>;
+	main-navss {
+		u-boot,dm-spl;
 	};
-
-	main_pmx1: pinmux@11c2e8 {
-		compatible = "pinctrl-single";
-		reg = <0x0 0x11c2e8 0x0 0x24>;
-		#pinctrl-cells = <1>;
-		pinctrl-single,register-width = <32>;
-		pinctrl-single,function-mask = <0xffffffff>;
-	};
-
-	sdhci0: sdhci@04F80000 {
-		compatible = "arasan,sdhci-5.1";
-		reg = <0x0 0x4F80000 0x0 0x1000>,
-		      <0x0 0x4F90000 0x0 0x400>;
-		clocks = <&k3_clks 47 1>;
-		power-domains = <&k3_pds 47>;
-		max-frequency = <25000000>;
-	};
-
-	sdhci1: sdhci@04FA0000 {
-		compatible = "arasan,sdhci-5.1";
-		reg = <0x0 0x4FA0000 0x0 0x1000>,
-		      <0x0 0x4FB0000 0x0 0x400>;
-		clocks = <&k3_clks 48 1>;
-		power-domains = <&k3_pds 48>;
-		max-frequency = <25000000>;
-	};
-
 };
 
 &cbass_mcu {
 	u-boot,dm-spl;
-	wkup_pmx0: pinmux@4301c000 {
-		compatible = "pinctrl-single";
-		reg = <0x0 0x4301c000 0x0 0x118>;
-		#pinctrl-cells = <1>;
-		pinctrl-single,register-width = <32>;
-		pinctrl-single,function-mask = <0xffffffff>;
-	};
 
-	navss_mcu: navss-mcu {
-		compatible = "simple-bus";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
+	mcu-navss {
+		u-boot,dm-spl;
 
-		ti,sci-dev-id = <119>;
-
-		mcu_ringacc: ringacc@2b800000 {
-			compatible = "ti,am654-navss-ringacc";
-			reg =	<0x0 0x2b800000 0x0 0x400000>,
-				<0x0 0x2b000000 0x0 0x400000>,
-				<0x0 0x28590000 0x0 0x100>,
-				<0x0 0x2a500000 0x0 0x40000>;
-			reg-names = "rt", "fifos",
-				    "proxy_gcfg", "proxy_target";
-			ti,num-rings = <286>;
-			ti,sci-rm-range-gp-rings = <0x2>; /* GP ring range */
+		ringacc@2b800000 {
+			u-boot,dm-spl;
 			ti,dma-ring-reset-quirk;
-			ti,sci = <&dmsc>;
-			ti,sci-dev-id = <195>;
 		};
 
-		mcu_udmap: udmap@285c0000 {
-			compatible = "ti,k3-navss-udmap";
-			reg =	<0x0 0x285c0000 0x0 0x100>,
-				<0x0 0x2a800000 0x0 0x40000>,
-				<0x0 0x2aa00000 0x0 0x40000>;
-			reg-names = "gcfg", "rchanrt", "tchanrt";
-			#dma-cells = <3>;
-
-			ti,ringacc = <&mcu_ringacc>;
-			ti,psil-base = <0x6000>;
-
-			ti,sci = <&dmsc>;
-			ti,sci-dev-id = <194>;
-
-			ti,sci-rm-range-tchan = <0x1>, /* TX_HCHAN */
-						<0x2>; /* TX_CHAN */
-			ti,sci-rm-range-rchan = <0x3>, /* RX_HCHAN */
-						<0x4>; /* RX_CHAN */
-			ti,sci-rm-range-rflow = <0x5>; /* GP RFLOW */
-			dma-coherent;
+		dma-controller@285c0000 {
+			u-boot,dm-spl;
 		};
 	};
 };
 
 &cbass_wakeup {
 	u-boot,dm-spl;
+
+	chipid@43000014 {
+		u-boot,dm-spl;
+	};
 };
 
 &secure_proxy_main {
@@ -140,75 +77,117 @@
 	u-boot,dm-spl;
 };
 
+&wkup_pmx0 {
+	u-boot,dm-spl;
+
+	wkup_i2c0_pins_default {
+		u-boot,dm-spl;
+	};
+};
+
 &main_pmx0 {
 	u-boot,dm-spl;
-	main_uart0_pins_default: main_uart0_pins_default {
+	usb0_pins_default: usb0_pins_default {
 		pinctrl-single,pins = <
-			AM65X_IOPAD(0x01e4, PIN_INPUT, 0)	/* (AF11) UART0_RXD */
-			AM65X_IOPAD(0x01e8, PIN_OUTPUT, 0)	/* (AE11) UART0_TXD */
-			AM65X_IOPAD(0x01ec, PIN_INPUT, 0)	/* (AG11) UART0_CTSn */
-			AM65X_IOPAD(0x01f0, PIN_OUTPUT, 0)	/* (AD11) UART0_RTSn */
+			AM65X_IOPAD(0x02bc, PIN_OUTPUT, 0) /* (AD9) USB0_DRVVBUS */
 		>;
 		u-boot,dm-spl;
 	};
+};
 
-	main_mmc0_pins_default: main_mmc0_pins_default {
-		pinctrl-single,pins = <
-			AM65X_IOPAD(0x01a8, PIN_INPUT_PULLDOWN, 0)	/* (B25) MMC0_CLK */
-			AM65X_IOPAD(0x01aC, PIN_INPUT_PULLUP, 0)	/* (B27) MMC0_CMD */
-			AM65X_IOPAD(0x01a4, PIN_INPUT_PULLUP, 0)	/* (A26) MMC0_DAT0 */
-			AM65X_IOPAD(0x01a0, PIN_INPUT_PULLUP, 0)	/* (E25) MMC0_DAT1 */
-			AM65X_IOPAD(0x019c, PIN_INPUT_PULLUP, 0)	/* (C26) MMC0_DAT2 */
-			AM65X_IOPAD(0x0198, PIN_INPUT_PULLUP, 0)	/* (A25) MMC0_DAT3 */
-			AM65X_IOPAD(0x0194, PIN_INPUT_PULLUP, 0)	/* (E24) MMC0_DAT4 */
-			AM65X_IOPAD(0x0190, PIN_INPUT_PULLUP, 0)	/* (A24) MMC0_DAT5 */
-			AM65X_IOPAD(0x018c, PIN_INPUT_PULLUP, 0)	/* (B26) MMC0_DAT6 */
-			AM65X_IOPAD(0x0188, PIN_INPUT_PULLUP, 0)	/* (D25) MMC0_DAT7 */
-			AM65X_IOPAD(0x01b0, PIN_INPUT, 0)			/* (C25) MMC0_DS */
-		>;
-		u-boot,dm-spl;
-	};
-
-	main_mmc1_pins_default: main_mmc1_pins_default {
-		pinctrl-single,pins = <
-			AM65X_IOPAD(0x02d4, PIN_INPUT_PULLDOWN, 0)	/* (C27) MMC1_CLK */
-			AM65X_IOPAD(0x02d8, PIN_INPUT_PULLUP, 0)	/* (C28) MMC1_CMD */
-			AM65X_IOPAD(0x02d0, PIN_INPUT_PULLUP, 0)	/* (D28) MMC1_DAT0 */
-			AM65X_IOPAD(0x02cc, PIN_INPUT_PULLUP, 0)	/* (E27) MMC1_DAT1 */
-			AM65X_IOPAD(0x02c8, PIN_INPUT_PULLUP, 0)	/* (D26) MMC1_DAT2 */
-			AM65X_IOPAD(0x02c4, PIN_INPUT_PULLUP, 0)	/* (D27) MMC1_DAT3 */
-			AM65X_IOPAD(0x02dc, PIN_INPUT_PULLUP, 0)	/* (B24) MMC1_SDCD */
-			AM65X_IOPAD(0x02e0, PIN_INPUT, 0)			/* (C24) MMC1_SDWP */
-		>;
-		u-boot,dm-spl;
-	};
-
+&main_uart0_pins_default {
+	u-boot,dm-spl;
 };
 
 &main_pmx1 {
 	u-boot,dm-spl;
 };
 
+&wkup_pmx0 {
+	mcu-fss0-ospi0-pins-default {
+		u-boot,dm-spl;
+	};
+};
+
 &main_uart0 {
 	u-boot,dm-spl;
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_uart0_pins_default>;
-	status = "okay";
+};
+
+&main_mmc0_pins_default {
+	u-boot,dm-spl;
+};
+
+&main_mmc1_pins_default {
+	u-boot,dm-spl;
 };
 
 &sdhci0 {
 	u-boot,dm-spl;
-	status = "okay";
-	non-removable;
-	bus-width = <8>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_mmc0_pins_default>;
 };
 
 &sdhci1 {
 	u-boot,dm-spl;
+};
+
+&davinci_mdio {
+	phy0: ethernet-phy@0 {
+		reg = <0>;
+		/* TODO: phy reset: TCA9555RTWR(i2c:0x21)[p04].GPIO_MCU_RGMII_RSTN */
+		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+	};
+};
+
+&mcu_cpsw {
+	reg = <0x0 0x46000000 0x0 0x200000>,
+	      <0x0 0x40f00200 0x0 0x2>;
+	reg-names = "cpsw_nuss", "mac_efuse";
+	/delete-property/ ranges;
+
+	cpsw-phy-sel@40f04040 {
+		compatible = "ti,am654-cpsw-phy-sel";
+		reg= <0x0 0x40f04040 0x0 0x4>;
+		reg-names = "gmii-sel";
+	};
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
+};
+
+&usb1 {
+	dr_mode = "peripheral";
+};
+
+&fss {
+	u-boot,dm-spl;
+};
+
+&ospi0 {
+	u-boot,dm-spl;
+
+	 flash@0{
+		u-boot,dm-spl;
+	};
+};
+
+&dwc3_0 {
 	status = "okay";
+	u-boot,dm-spl;
+};
+
+&usb0_phy {
+	status = "okay";
+	u-boot,dm-spl;
+};
+
+&usb0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_mmc1_pins_default>;
-	sdhci-caps-mask = <0x7 0x0>;
+	pinctrl-0 = <&usb0_pins_default>;
+	dr_mode = "host";
+	u-boot,dm-spl;
+};
+
+&scm_conf {
+	u-boot,dm-spl;
 };

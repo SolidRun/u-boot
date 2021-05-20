@@ -8,6 +8,10 @@ U-Boot on Rockchip
 
 A wide range of Rockchip SoCs are supported in mainline U-Boot
 
+Warning
+=======
+This document is being moved to doc/board/rockchip, so information on it
+might be incomplete or outdated.
 
 Prerequisites
 =============
@@ -24,69 +28,8 @@ You will need:
    - Suitable ARM cross compiler, e.g.:
         sudo apt-get install gcc-4.7-arm-linux-gnueabi
 
-
 Building
 ========
-
-At present 12 RK3288 boards are supported:
-
-   - EVB RK3288 - use evb-rk3288 configuration
-   - Fennec RK3288 - use fennec-rk3288 configuration
-   - Firefly RK3288 - use firefly-rk3288 configuration
-   - Hisense Chromebook - use chromebook_jerry configuration
-   - Asus C100P Chromebook - use chromebook_minnie configuration
-   - Asus Chromebit - use chromebook_mickey configuration
-   - MiQi RK3288 - use miqi-rk3288 configuration
-   - phyCORE-RK3288 RDK - use phycore-rk3288 configuration
-   - PopMetal RK3288 - use popmetal-rk3288 configuration
-   - Radxa Rock 2 - use rock2 configuration
-   - Tinker RK3288 - use tinker-rk3288 configuration
-   - Vyasa RK3288 - use vyasa-rk3288 configuration
-
-Two RK3036 boards are supported:
-
-   - EVB RK3036 - use evb-rk3036 configuration
-   - Kylin - use kylin_rk3036 configuration
-
-One RK3328 board is supported:
-
-   - EVB RK3328
-
-Size RK3399 boards are supported (aarch64):
-
-   - EBV RK3399 - use evb_rk3399 configuration
-   - Firefly RK3399 - use the firefly_rk3399 configuration
-   - Puma - use puma_rk3399 configuration
-   - Ficus - use ficus-rk3399 configuration
-   - Rock960 (Vamrs) - use rock960-rk3399 configuration
-   - Bob - use chromebook_bob configuration
-
-Four RK3368 boards are supported:
-
-   - Sheep - use sheep-rk3368 configuration
-   - Lion - use lion-rk3368 configuration
-   - Geekbox - use geekbox configuration
-   - EVB PX5 - use evb-px5  configuration
-
-One RK3128 board is supported:
-
-   - EVB RK3128 - use evb-rk3128 configuration
-
-One RK3229 board is supported:
-
-   - EVB RK3229 - use evb-rk3229 configuration
-
-Two RV1108 boards are supported:
-
-   - EVB RV1108 - use evb-rv1108 configuration
-   - Elgin R1 - use elgin-rv1108 configuration
-
-One RV3188 baord is supported:
-
-   - Raxda Rock - use rock configuration
-
-
-For example:
 
 1. To build RK3288 board:
 
@@ -94,7 +37,19 @@ For example:
 
     (or you can use another cross compiler if you prefer)
 
-2. To build RK3399 board:
+2. To build RK3308 board:
+   - Get the rkbin
+     => git clone https://github.com/rockchip-linux/rkbin.git
+
+   - Compile U-Boot
+     => cd /path/to/u-boot
+     => export BL31=/path/to/rkbin/bin/rk33/rk3308_bl31_v2.22.elf
+     => make roc-cc-rk3308_defconfig
+     => make CROSS_COMPILE=aarch64-linux-gnu- all
+     => ./tools/mkimage -n rk3308 -T rksd -d /path/to/rkbin/bin/rk33/rk3308_ddr_589MHz_uart2_m0_v1.26.bin idbloader.img
+     => cat spl/u-boot-spl.bin  >> idbloader.img
+
+3. To build RK3399 board:
 
    Option 1: Package the image with Rockchip miniloader:
 
@@ -103,7 +58,6 @@ For example:
      => cd /path/to/u-boot
      => make nanopi-neo4-rk3399_defconfig
      => make
-     => make u-boot.itb
 
    - Get the rkbin
 
@@ -123,10 +77,6 @@ For example:
 
    Option 2: Package the image with SPL:
 
-   - We need the Python elftools.elf.elffile library for make_fit_atf.py to work
-
-     => sudo apt-get install python-pyelftools
-
    - Export cross compiler path for aarch64
 
    - Compile ATF
@@ -137,8 +87,8 @@ For example:
 	=> cd arm-trusted-firmware
 	=> make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl31
 
-	(copy bl31.bin into U-Boot root dir)
-	=> cp build/rk3399/release/bl31/bl31.bin /path/to/u-boot/bl31-rk3399.bin
+	(export bl31.bin)
+	=> export BL31=/path/to/arm-trusted-firmware/build/rk3399/release/bl31/bl31.bin
 
      For rest of rk3399 boards.
 
@@ -149,8 +99,8 @@ For example:
 	=> make realclean
 	=> make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399
 
-	(copy bl31.elf into U-Boot root dir)
-	=> cp build/rk3399/release/bl31/bl31.elf /path/to/u-boot
+	(export bl31.elf)
+	=> export BL31=/path/to/arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf
 
    - Compile PMU M0 firmware
 
@@ -162,15 +112,14 @@ For example:
      (export cross compiler path for Cortex-M0 PMU)
      => make CROSS_COMPILE=arm-cortex_m0-eabi-
 
-     (copy rk3399m0.bin into U-Boot root dir)
-     => cp rk3399m0.bin /path/to/u-boot
+     (export rk3399m0.bin)
+     => export PMUM0=/path/to/rk3399-cortex-m0/rk3399m0.bin
 
    - Compile U-Boot
 
      => cd /path/to/u-boot
      => make orangepi-rk3399_defconfig
      => make
-     => make u-boot.itb
 
      (Get spl/u-boot-spl-dtb.bin, u-boot.itb images and some boards would get
       spl/u-boot-spl.bin since it doesn't enable CONFIG_SPL_OF_CONTROL
@@ -208,6 +157,78 @@ in SPL then we could in principle load U-Boot and boot to a prompt from USB
 as several other platforms do. However it does not seem to be possible to
 use the existing boot ROM code from SPL.
 
+
+Writing to the eMMC with USB on ROC-RK3308-CC
+=============================================
+For USB to work you must get your board into Bootrom mode,
+either by erasing the eMMC or short circuit the GND and D0
+on core board.
+
+Connect the board to your computer via tyepc.
+=> rkdeveloptool db rk3308_loader_v1.26.117.bin
+=> rkdeveloptool wl 0x40 idbloader.img
+=> rkdeveloptool wl 0x4000 u-boot.itb
+=> rkdeveloptool rd
+
+Then you will see the boot log from Debug UART at baud rate 1500000:
+DDR Version V1.26
+REGFB: 0x00000032, 0x00000032
+In
+589MHz
+DDR3
+ Col=10 Bank=8 Row=14 Size=256MB
+msch:1
+Returning to boot ROM...
+
+U-Boot SPL 2020.01-rc1-00225-g34b681327f (Nov 14 2019 - 10:58:04 +0800)
+Trying to boot from MMC1
+INFO:    Preloader serial: 2
+NOTICE:  BL31: v1.3(release):30f1405
+NOTICE:  BL31: Built : 17:08:28, Sep 23 2019
+INFO:    Lastlog: last=0x100000, realtime=0x102000, size=0x2000
+INFO:    ARM GICv2 driver initialized
+INFO:    Using opteed sec cpu_context!
+INFO:    boot cpu mask: 1
+INFO:    plat_rockchip_pmu_init: pd status 0xe b
+INFO:    BL31: Initializing runtime services
+WARNING: No OPTEE provided by BL2 boot loader, Booting device without OPTEE initialization. SMC`s destined for OPTEE will rK
+ERROR:   Error initializing runtime service opteed_fast
+INFO:    BL31: Preparing for EL3 exit to normal world
+INFO:    Entry point address = 0x600000
+INFO:    SPSR = 0x3c9
+
+
+U-Boot 2020.01-rc1-00225-g34b681327f (Nov 14 2019 - 10:58:47 +0800)
+
+Model: Firefly ROC-RK3308-CC board
+DRAM:  254 MiB
+MMC:   dwmmc@ff480000: 0, dwmmc@ff490000: 1
+rockchip_dnl_key_pressed read adc key val failed
+Net:   No ethernet found.
+Hit any key to stop autoboot:  0
+Card did not respond to voltage select!
+switch to partitions #0, OK
+mmc1(part 0) is current device
+Scanning mmc 1:4...
+Found /extlinux/extlinux.conf
+Retrieving file: /extlinux/extlinux.conf
+151 bytes read in 3 ms (48.8 KiB/s)
+1:      kernel-mainline
+Retrieving file: /Image
+14737920 bytes read in 377 ms (37.3 MiB/s)
+append: earlycon=uart8250,mmio32,0xff0c0000 console=ttyS2,1500000n8
+Retrieving file: /rk3308-roc-cc.dtb
+28954 bytes read in 4 ms (6.9 MiB/s)
+Flattened Device Tree blob at 01f00000
+Booting using the fdt blob at 0x1f00000
+## Loading Device Tree to 000000000df3a000, end 000000000df44119 ... OK
+
+Starting kernel ...
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd042]
+[    0.000000] Linux version 5.4.0-rc1-00040-g4dc2d508fa47-dirty (andy@B150) (gcc version 6.3.1 20170404 (Linaro GCC 6.3-209
+[    0.000000] Machine model: Firefly ROC-RK3308-CC board
+[    0.000000] earlycon: uart8250 at MMIO32 0x00000000ff0c0000 (options '')
+[    0.000000] printk: bootconsole [uart8250] enabled
 
 Booting from an SD card
 =======================
@@ -257,11 +278,22 @@ You can create the image via the following operations:
    cat firefly-rk3288/u-boot-dtb.bin >> out && \
    sudo dd if=out of=/dev/sdc seek=64
 
+Or:
+   ./firefly-rk3288/tools/mkimage -n rk3288 -T rksd -d \
+	firefly-rk3288/spl/u-boot-spl-dtb.bin:firefly-rk3288/u-boot-dtb.bin \
+	out && \
+   sudo dd if=out of=/dev/sdc seek=64
+
 If you have an HDMI cable attached you should see a video console.
 
 For evb_rk3036 board:
 	./evb-rk3036/tools/mkimage -n rk3036 -T rksd  -d evb-rk3036/spl/u-boot-spl.bin out && \
 	cat evb-rk3036/u-boot-dtb.bin >> out && \
+	sudo dd if=out of=/dev/sdc seek=64
+
+Or:
+	./evb-rk3036/tools/mkimage -n rk3036 -T rksd -d \
+		evb-rk3036/spl/u-boot-spl.bin:evb-rk3036/u-boot-dtb.bin out && \
 	sudo dd if=out of=/dev/sdc seek=64
 
 Note: rk3036 SDMMC and debug uart use the same iomux, so if you boot from SD, the
@@ -281,9 +313,7 @@ As of now TPL is added on Vyasa-RK3288 board.
 
 To write an image that boots from an SD card (assumed to be /dev/mmcblk0):
 
-   ./tools/mkimage -n rk3288 -T rksd -d ./tpl/u-boot-tpl.bin out &&
-    cat ./spl/u-boot-spl-dtb.bin >> out &&
-    sudo dd if=out of=/dev/mmcblk0 seek=64 &&
+    sudo dd if=idbloader.img of=/dev/mmcblk0 seek=64 &&
     sudo dd if=u-boot-dtb.img of=/dev/mmcblk0 seek=16384
 
 Booting from an SD card on RK3188
@@ -309,6 +339,20 @@ tools/mkimage -n rk3188 -T rksd -d spl/u-boot-spl.bin out
 # truncate, encode and append u-boot.bin
 truncate -s %2048 u-boot.bin
 cat u-boot.bin | split -b 512 --filter='openssl rc4 -K 7C4E0304550509072D2C7B38170D1711' >> out
+
+Booting from an SD card on Pine64 Rock64 (RK3328)
+=================================================
+
+For Rock64 rk3328 board the following three parts are required:
+TPL, SPL, and the u-boot image tree blob.
+
+  - Write TPL/SPL image at 64 sector
+
+    => sudo dd if=idbloader.img of=/dev/mmcblk0 seek=64
+
+  - Write u-boot image tree blob at 16384 sector
+
+    => sudo dd if=u-boot.itb of=/dev/mmcblk0 seek=16384
 
 Booting from an SD card on RK3399
 =================================
@@ -460,19 +504,9 @@ Hit any key to stop autoboot:  0
 
 Option 3: Package the image with TPL:
 
-  - Prefix rk3399 header to TPL image
-
-    => cd /path/to/u-boot
-    => ./tools/mkimage -n rk3399 -T rksd -d tpl/u-boot-tpl-dtb.bin out
-
-  - Concatinate tpl with spl
-
-    => cd /path/to/u-boot
-    => cat ./spl/u-boot-spl-dtb.bin >> out
-
   - Write tpl+spl at 64th sector
 
-    => sudo dd if=out of=/dev/sdc seek=64
+    => sudo dd if=idbloader.img of=/dev/sdc seek=64
 
   - Write U-Boot proper at 16384 sector
 
@@ -546,7 +580,7 @@ header and skipping every second 2KB block. Then the U-Boot image is written at
 offset 128KB and the whole image is padded to 4MB which is the SPI flash size.
 The position of U-Boot is controlled with this setting in U-Boot:
 
-   #define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)
+   #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
 If you have a Dediprog em100pro connected then you can write the image with:
 

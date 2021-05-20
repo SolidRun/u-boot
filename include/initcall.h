@@ -8,6 +8,12 @@
 
 typedef int (*init_fnc_t)(void);
 
+#include <log.h>
+#ifdef CONFIG_EFI_APP
+#include <efi.h>
+#endif
+#include <asm/global_data.h>
+
 /*
  * To enable debugging. add #define DEBUG at the top of the including file.
  *
@@ -30,11 +36,13 @@ static inline int initcall_run_list(const init_fnc_t init_sequence[])
 #ifdef CONFIG_EFI_APP
 		reloc_ofs = (unsigned long)image_base;
 #endif
-		debug("initcall: %p", (char *)*init_fnc_ptr - reloc_ofs);
 		if (reloc_ofs)
-			debug(" (relocated to %p)\n", (char *)*init_fnc_ptr);
+			debug("initcall: %p (relocated to %p)\n",
+					(char *)*init_fnc_ptr - reloc_ofs,
+					(char *)*init_fnc_ptr);
 		else
-			debug("\n");
+			debug("initcall: %p\n", (char *)*init_fnc_ptr - reloc_ofs);
+
 		ret = (*init_fnc_ptr)();
 		if (ret) {
 			printf("initcall sequence %p failed at call %p (err=%d)\n",

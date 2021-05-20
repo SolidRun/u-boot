@@ -8,6 +8,8 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
+#include <init.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/cpu.h>
 #include <asm/cpu_x86.h>
@@ -68,9 +70,9 @@ static void set_max_freq(void)
 	msr_t msr;
 
 	/* Enable speed step */
-	msr = msr_read(MSR_IA32_MISC_ENABLES);
-	msr.lo |= (1 << 16);
-	msr_write(MSR_IA32_MISC_ENABLES, msr);
+	msr = msr_read(MSR_IA32_MISC_ENABLE);
+	msr.lo |= MISC_ENABLE_ENHANCED_SPEEDSTEP;
+	msr_write(MSR_IA32_MISC_ENABLE, msr);
 
 	/*
 	 * Set guaranteed ratio [21:16] from IACORE_RATIOS to bits [15:8] of
@@ -148,7 +150,7 @@ static unsigned long tsc_freq(void)
 	return bclk * ((platform_info.lo >> 8) & 0xff);
 }
 
-static int baytrail_get_info(struct udevice *dev, struct cpu_info *info)
+static int baytrail_get_info(const struct udevice *dev, struct cpu_info *info)
 {
 	info->cpu_freq = tsc_freq();
 	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU;
@@ -156,7 +158,7 @@ static int baytrail_get_info(struct udevice *dev, struct cpu_info *info)
 	return 0;
 }
 
-static int baytrail_get_count(struct udevice *dev)
+static int baytrail_get_count(const struct udevice *dev)
 {
 	int ecx = 0;
 

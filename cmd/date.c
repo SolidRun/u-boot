@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <rtc.h>
 #include <i2c.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,7 +30,8 @@ int mk_date (const char *, struct rtc_time *);
 
 static struct rtc_time default_tm = { 0, 0, 0, 1, 1, 2000, 6, 0, 0 };
 
-static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct rtc_time tm;
 	int rcode = 0;

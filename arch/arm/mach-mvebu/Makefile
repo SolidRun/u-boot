@@ -10,14 +10,14 @@ obj-y += arm64-common.o
 
 else # CONFIG_ARM64
 
-ifdef CONFIG_KIRKWOOD
+ifdef CONFIG_ARCH_KIRKWOOD
 
 obj-y	= dram.o
 obj-y	+= gpio.o
 obj-y	+= mbus.o
 obj-y	+= timer.o
 
-else # CONFIG_KIRKWOOD
+else # CONFIG_ARCH_KIRKWOOD
 
 obj-y	= cpu.o
 obj-y	+= dram.o
@@ -37,6 +37,9 @@ endif
 ifneq ($(CONFIG_MVEBU_SPL_BOOT_DEVICE_MMC),)
 	KWB_CFG_BOOT_FROM=sdio
 endif
+ifneq ($(CONFIG_MVEBU_SPL_BOOT_DEVICE_SATA),)
+	KWB_CFG_BOOT_FROM=sata
+endif
 ifneq ($(CONFIG_MVEBU_SPL_BOOT_DEVICE_UART),)
 	KWB_CFG_BOOT_FROM=uart
 endif
@@ -55,10 +58,10 @@ KWB_REPLACE += SEC_FUSE_DUMP
 KWB_CFG_SEC_FUSE_DUMP = a38x
 endif
 
-$(src)/kwbimage.cfg: $(src)/kwbimage.cfg.in include/autoconf.mk \
+$(obj)/kwbimage.cfg: $(src)/kwbimage.cfg.in include/autoconf.mk \
 		include/config/auto.conf
 	$(Q)sed -ne '$(foreach V,$(KWB_REPLACE),s/^#@$(V)/$(V) $(KWB_CFG_$(V))/;)p' \
-	<$< >$(dir $<)$(@F)
+	<$< >$(dir $@)$(@F)
 
 endif # CONFIG_SPL_BUILD
 obj-y	+= gpio.o
@@ -70,5 +73,5 @@ obj-$(CONFIG_SPL_BUILD) += lowlevel_spl.o
 obj-$(CONFIG_ARMADA_38X) += serdes/a38x/
 obj-$(CONFIG_ARMADA_XP) += serdes/axp/
 
-endif # CONFIG_KIRKWOOD
+endif # CONFIG_ARCH_KIRKWOOD
 endif # CONFIG_ARM64

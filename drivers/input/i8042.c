@@ -8,11 +8,15 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <errno.h>
 #include <i8042.h>
 #include <input.h>
 #include <keyboard.h>
+#include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -354,5 +358,5 @@ U_BOOT_DRIVER(i8042_kbd) = {
 	.probe = i8042_kbd_probe,
 	.remove = i8042_kbd_remove,
 	.ops	= &i8042_kbd_ops,
-	.priv_auto_alloc_size = sizeof(struct i8042_kbd_priv),
+	.priv_auto	= sizeof(struct i8042_kbd_priv),
 };

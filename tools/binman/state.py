@@ -7,14 +7,30 @@
 
 import hashlib
 import re
-from sets import Set
 
+from dtoc import fdt
 import os
-import tools
+from patman import tools
+from patman import tout
 
-# Records the device-tree files known to binman, keyed by filename (e.g.
-# 'u-boot-spl.dtb')
-fdt_files = {}
+# Map an dtb etype to its expected filename
+DTB_TYPE_FNAME = {
+    'u-boot-spl-dtb': 'spl/u-boot-spl.dtb',
+    'u-boot-tpl-dtb': 'tpl/u-boot-tpl.dtb',
+    }
+
+# Records the device-tree files known to binman, keyed by entry type (e.g.
+# 'u-boot-spl-dtb'). These are the output FDT files, which can be updated by
+# binman. They have been copied to <xxx>.out files.
+#
+#   key: entry type (e.g. 'u-boot-dtb)
+#   value: tuple:
+#       Fdt object
+#       Filename
+output_fdt_info = {}
+
+# Prefix to add to an fdtmap path to turn it into a path to the /binman node
+fdt_path_prefix = ''
 
 # Arguments passed to binman to provide arguments to entries
 entry_args = {}
@@ -23,44 +39,55 @@ entry_args = {}
 # ftest.py)
 use_fake_dtb = False
 
-# Set of all device tree files references by images
-fdt_set = Set()
-
-# Same as above, but excluding the main one
-fdt_subset = Set()
-
 # The DTB which contains the full image information
 main_dtb = None
 
-def GetFdt(fname):
-    """Get the Fdt object for a particular device-tree filename
+# Allow entries to expand after they have been packed. This is detected and
+# forces a re-pack. If not allowed, any attempted expansion causes an error in
+# Entry.ProcessContentsUpdate()
+allow_entry_expansion = True
+
+# Don't allow entries to contract after they have been packed. Instead just
+# leave some wasted space. If allowed, this is detected and forces a re-pack,
+# but may result in entries that oscillate in size, thus causing a pack error.
+# An example is a compressed device tree where the original offset values
+# result in a larger compressed size than the new ones, but then after updating
+# to the new ones, the compressed size increases, etc.
+allow_entry_contraction = False
+
+def GetFdtForEtype(etype):
+    """Get the Fdt object for a particular device-tree entry
 
     Binman keeps track of at least one device-tree file called u-boot.dtb but
     can also have others (e.g. for SPL). This function looks up the given
-    filename and returns the associated Fdt object.
+    entry and returns the associated Fdt object.
 
     Args:
-        fname: Filename to look up (e.g. 'u-boot.dtb').
+        etype: Entry type of device tree (e.g. 'u-boot-dtb')
 
     Returns:
-        Fdt object associated with the filename
+        Fdt object associated with the entry type
     """
-    return fdt_files[fname]
+    value = output_fdt_info.get(etype);
+    if not value:
+        return None
+    return value[0]
 
-def GetFdtPath(fname):
+def GetFdtPath(etype):
     """Get the full pathname of a particular Fdt object
 
-    Similar to GetFdt() but returns the pathname associated with the Fdt.
+    Similar to GetFdtForEtype() but returns the pathname associated with the
+    Fdt.
 
     Args:
-        fname: Filename to look up (e.g. 'u-boot.dtb').
+        etype: Entry type of device tree (e.g. 'u-boot-dtb')
 
     Returns:
         Full path name to the associated Fdt
     """
-    return fdt_files[fname]._fname
+    return output_fdt_info[etype][0]._fname
 
-def GetFdtContents(fname):
+def GetFdtContents(etype='u-boot-dtb'):
     """Looks up the FDT pathname and contents
 
     This is used to obtain the Fdt pathname and contents when needed by an
@@ -68,20 +95,39 @@ def GetFdtContents(fname):
     the real dtb.
 
     Args:
-        fname: Filename to look up (e.g. 'u-boot.dtb').
+        etype: Entry type to look up (e.g. 'u-boot.dtb').
 
     Returns:
         tuple:
             pathname to Fdt
             Fdt data (as bytes)
     """
-    if fname in fdt_files and not use_fake_dtb:
-        pathname = GetFdtPath(fname)
-        data = GetFdt(fname).GetContents()
+    if etype not in output_fdt_info:
+        return None, None
+    if not use_fake_dtb:
+        pathname = GetFdtPath(etype)
+        data = GetFdtForEtype(etype).GetContents()
     else:
+        fname = output_fdt_info[etype][1]
         pathname = tools.GetInputFilename(fname)
         data = tools.ReadFile(pathname)
     return pathname, data
+
+def UpdateFdtContents(etype, data):
+    """Update the contents of a particular device tree
+
+    The device tree is updated and written back to its file. This affects what
+    is returned from future called to GetFdtContents(), etc.
+
+    Args:
+        etype: Entry type (e.g. 'u-boot-dtb')
+        data: Data to replace the DTB with
+    """
+    dtb, fname = output_fdt_info[etype]
+    dtb_fname = dtb.GetFilename()
+    tools.WriteFile(dtb_fname, data)
+    dtb = fdt.FdtScan(dtb_fname)
+    output_fdt_info[etype] = [dtb, fname]
 
 def SetEntryArgs(args):
     """Set the value of the entry args
@@ -95,12 +141,16 @@ def SetEntryArgs(args):
     global entry_args
 
     entry_args = {}
+    tout.Debug('Processing entry args:')
     if args:
         for arg in args:
             m = re.match('([^=]*)=(.*)', arg)
             if not m:
                 raise ValueError("Invalid entry arguemnt '%s'" % arg)
-            entry_args[m.group(1)] = m.group(2)
+            name, value = m.groups()
+            tout.Debug('   %20s = %s' % (name, value))
+            entry_args[name] = value
+    tout.Debug('Processing entry args done')
 
 def GetEntryArg(name):
     """Get the value of an entry argument
@@ -113,54 +163,116 @@ def GetEntryArg(name):
     """
     return entry_args.get(name)
 
+def GetEntryArgBool(name):
+    """Get the value of an entry argument as a boolean
+
+    Args:
+        name: Name of argument to retrieve
+
+    Returns:
+        False if the entry argument is consider False (empty, '0' or 'n'), else
+            True
+    """
+    val = GetEntryArg(name)
+    return val and val not in ['n', '0']
+
 def Prepare(images, dtb):
     """Get device tree files ready for use
 
-    This sets up a set of device tree files that can be retrieved by GetFdts().
-    At present there is only one, that for U-Boot proper.
+    This sets up a set of device tree files that can be retrieved by
+    GetAllFdts(). This includes U-Boot proper and any SPL device trees.
 
     Args:
         images: List of images being used
         dtb: Main dtb
     """
-    global fdt_set, fdt_subset, fdt_files, main_dtb
+    global output_fdt_info, main_dtb, fdt_path_prefix
     # Import these here in case libfdt.py is not available, in which case
     # the above help option still works.
-    import fdt
-    import fdt_util
+    from dtoc import fdt
+    from dtoc import fdt_util
 
     # If we are updating the DTBs we need to put these updated versions
     # where Entry_blob_dtb can find them. We can ignore 'u-boot.dtb'
     # since it is assumed to be the one passed in with options.dt, and
     # was handled just above.
     main_dtb = dtb
-    fdt_files.clear()
-    fdt_files['u-boot.dtb'] = dtb
-    fdt_subset = Set()
-    if not use_fake_dtb:
-        for image in images.values():
-            fdt_subset.update(image.GetFdtSet())
-        fdt_subset.discard('u-boot.dtb')
-        for other_fname in fdt_subset:
-            infile = tools.GetInputFilename(other_fname)
-            other_fname_dtb = fdt_util.EnsureCompiled(infile)
-            out_fname = tools.GetOutputFilename('%s.out' %
-                    os.path.split(other_fname)[1])
-            tools.WriteFile(out_fname, tools.ReadFile(other_fname_dtb))
-            other_dtb = fdt.FdtScan(out_fname)
-            fdt_files[other_fname] = other_dtb
+    output_fdt_info.clear()
+    fdt_path_prefix = ''
+    output_fdt_info['u-boot-dtb'] = [dtb, 'u-boot.dtb']
+    if use_fake_dtb:
+        for etype, fname in DTB_TYPE_FNAME.items():
+            output_fdt_info[etype] = [dtb, fname]
+    else:
+        fdt_set = {}
+        for etype, fname in DTB_TYPE_FNAME.items():
+            infile = tools.GetInputFilename(fname, allow_missing=True)
+            if infile and os.path.exists(infile):
+                fname_dtb = fdt_util.EnsureCompiled(infile)
+                out_fname = tools.GetOutputFilename('%s.out' %
+                        os.path.split(fname)[1])
+                tools.WriteFile(out_fname, tools.ReadFile(fname_dtb))
+                other_dtb = fdt.FdtScan(out_fname)
+                output_fdt_info[etype] = [other_dtb, out_fname]
 
-def GetFdts():
+
+def PrepareFromLoadedData(image):
+    """Get device tree files ready for use with a loaded image
+
+    Loaded images are different from images that are being created by binman,
+    since there is generally already an fdtmap and we read the description from
+    that. This provides the position and size of every entry in the image with
+    no calculation required.
+
+    This function uses the same output_fdt_info[] as Prepare(). It finds the
+    device tree files, adds a reference to the fdtmap and sets the FDT path
+    prefix to translate from the fdtmap (where the root node is the image node)
+    to the normal device tree (where the image node is under a /binman node).
+
+    Args:
+        images: List of images being used
+    """
+    global output_fdt_info, main_dtb, fdt_path_prefix
+
+    tout.Info('Preparing device trees')
+    output_fdt_info.clear()
+    fdt_path_prefix = ''
+    output_fdt_info['fdtmap'] = [image.fdtmap_dtb, 'u-boot.dtb']
+    main_dtb = None
+    tout.Info("   Found device tree type 'fdtmap' '%s'" % image.fdtmap_dtb.name)
+    for etype, value in image.GetFdts().items():
+        entry, fname = value
+        out_fname = tools.GetOutputFilename('%s.dtb' % entry.etype)
+        tout.Info("   Found device tree type '%s' at '%s' path '%s'" %
+                  (etype, out_fname, entry.GetPath()))
+        entry._filename = entry.GetDefaultFilename()
+        data = entry.ReadData()
+
+        tools.WriteFile(out_fname, data)
+        dtb = fdt.Fdt(out_fname)
+        dtb.Scan()
+        image_node = dtb.GetNode('/binman')
+        if 'multiple-images' in image_node.props:
+            image_node = dtb.GetNode('/binman/%s' % image.image_node)
+        fdt_path_prefix = image_node.path
+        output_fdt_info[etype] = [dtb, None]
+    tout.Info("   FDT path prefix '%s'" % fdt_path_prefix)
+
+
+def GetAllFdts():
     """Yield all device tree files being used by binman
 
     Yields:
         Device trees being used (U-Boot proper, SPL, TPL)
     """
-    yield main_dtb
-    for other_fname in fdt_subset:
-        yield fdt_files[other_fname]
+    if main_dtb:
+        yield main_dtb
+    for etype in output_fdt_info:
+        dtb = output_fdt_info[etype][0]
+        if dtb != main_dtb:
+            yield dtb
 
-def GetUpdateNodes(node):
+def GetUpdateNodes(node, for_repack=False):
     """Yield all the nodes that need to be updated in all device trees
 
     The property referenced by this node is added to any device trees which
@@ -169,25 +281,31 @@ def GetUpdateNodes(node):
 
     Args:
         node: Node object in the main device tree to look up
+        for_repack: True if we want only nodes which need 'repack' properties
+            added to them (e.g. 'orig-offset'), False to return all nodes. We
+            don't add repack properties to SPL/TPL device trees.
 
     Yields:
         Node objects in each device tree that is in use (U-Boot proper, which
             is node, SPL and TPL)
     """
     yield node
-    for dtb in fdt_files.values():
+    for entry_type, (dtb, fname) in output_fdt_info.items():
         if dtb != node.GetFdt():
-            other_node = dtb.GetNode(node.path)
+            if for_repack and entry_type != 'u-boot-dtb':
+                continue
+            other_node = dtb.GetNode(fdt_path_prefix + node.path)
             if other_node:
                 yield other_node
 
-def AddZeroProp(node, prop):
+def AddZeroProp(node, prop, for_repack=False):
     """Add a new property to affected device trees with an integer value of 0.
 
     Args:
         prop_name: Name of property
+        for_repack: True is this property is only needed for repacking
     """
-    for n in GetUpdateNodes(node):
+    for n in GetUpdateNodes(node, for_repack):
         n.AddZeroProp(prop)
 
 def AddSubnode(node, name):
@@ -217,15 +335,28 @@ def AddString(node, prop, value):
     for n in GetUpdateNodes(node):
         n.AddString(prop, value)
 
-def SetInt(node, prop, value):
+def AddInt(node, prop, value):
+    """Add a new string property to affected device trees
+
+    Args:
+        prop_name: Name of property
+        val: Integer value of property
+    """
+    for n in GetUpdateNodes(node):
+        n.AddInt(prop, value)
+
+def SetInt(node, prop, value, for_repack=False):
     """Update an integer property in affected device trees with an integer value
 
     This is not allowed to change the size of the FDT.
 
     Args:
         prop_name: Name of property
+        for_repack: True is this property is only needed for repacking
     """
-    for n in GetUpdateNodes(node):
+    for n in GetUpdateNodes(node, for_repack):
+        tout.Detail("File %s: Update node '%s' prop '%s' to %#x" %
+                    (n.GetFdt().name, n.path, prop, value))
         n.SetInt(prop, value)
 
 def CheckAddHashProp(node):
@@ -251,3 +382,41 @@ def CheckSetHashValue(node, get_data_func):
             data = m.digest()
         for n in GetUpdateNodes(hash_node):
             n.SetData('value', data)
+
+def SetAllowEntryExpansion(allow):
+    """Set whether post-pack expansion of entries is allowed
+
+    Args:
+       allow: True to allow expansion, False to raise an exception
+    """
+    global allow_entry_expansion
+
+    allow_entry_expansion = allow
+
+def AllowEntryExpansion():
+    """Check whether post-pack expansion of entries is allowed
+
+    Returns:
+        True if expansion should be allowed, False if an exception should be
+            raised
+    """
+    return allow_entry_expansion
+
+def SetAllowEntryContraction(allow):
+    """Set whether post-pack contraction of entries is allowed
+
+    Args:
+       allow: True to allow contraction, False to raise an exception
+    """
+    global allow_entry_contraction
+
+    allow_entry_contraction = allow
+
+def AllowEntryContraction():
+    """Check whether post-pack contraction of entries is allowed
+
+    Returns:
+        True if contraction should be allowed, False if an exception should be
+            raised
+    """
+    return allow_entry_contraction

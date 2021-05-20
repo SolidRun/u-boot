@@ -58,6 +58,33 @@
  */
 
 /*
+ * Macro for clearing BSS during SPL execution. Usually called during the
+ * relocation process for most boards before entering board_init_r(), but
+ * can also be done early before entering board_init_f() on plaforms that
+ * can afford it due to sufficient memory being available early.
+ */
+
+.macro CLEAR_BSS
+	ldr	r0, =__bss_start	/* this is auto-relocated! */
+
+#ifdef CONFIG_USE_ARCH_MEMSET
+	ldr	r3, =__bss_end		/* this is auto-relocated! */
+	mov	r1, #0x00000000		/* prepare zero to clear BSS */
+
+	subs	r2, r3, r0		/* r2 = memset len */
+	bl	memset
+#else
+	ldr	r1, =__bss_end		/* this is auto-relocated! */
+	mov	r2, #0x00000000		/* prepare zero to clear BSS */
+
+clbss_l:cmp	r0, r1			/* while not at end of BSS */
+	strlo	r2, [r0]		/* clear 32-bit BSS word */
+	addlo	r0, r0, #4		/* move to next */
+	blo	clbss_l
+#endif
+.endm
+
+/*
  * entry point of crt0 sequence
  */
 
@@ -82,6 +109,10 @@ ENTRY(_main)
 	mov	r9, r0
 	bl	board_init_f_init_reserve
 
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_EARLY_BSS)
+	CLEAR_BSS
+#endif
+
 	mov	r0, #0
 	bl	board_init_f
 
@@ -96,8 +127,7 @@ ENTRY(_main)
 	ldr	r0, [r9, #GD_START_ADDR_SP]	/* sp = gd->start_addr_sp */
 	bic	r0, r0, #7	/* 8-byte alignment for ABI compliance */
 	mov	sp, r0
-	ldr	r9, [r9, #GD_BD]		/* r9 = gd->bd */
-	sub	r9, r9, #GD_SIZE		/* new GD is below bd */
+	ldr	r9, [r9, #GD_NEW_GD]		/* r9 <- gd->new_gd */
 
 	adr	lr, here
 	ldr	r0, [r9, #GD_RELOC_OFF]		/* r0 = gd->reloc_off */
@@ -118,7 +148,12 @@ here:
 
 	bl	c_runtime_cpu_setup	/* we still call old routine here */
 #endif
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_FRAMEWORK)
+#if !defined(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(FRAMEWORK)
+
+#if !defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL_EARLY_BSS)
+	CLEAR_BSS
+#endif
+
 # ifdef CONFIG_SPL_BUILD
 	/* Use a DRAM stack for the rest of SPL, if requested */
 	bl	spl_relocate_stack_gd
@@ -126,23 +161,6 @@ here:
 	movne	sp, r0
 	movne	r9, r0
 # endif
-	ldr	r0, =__bss_start	/* this is auto-relocated! */
-
-#ifdef CONFIG_USE_ARCH_MEMSET
-	ldr	r3, =__bss_end		/* this is auto-relocated! */
-	mov	r1, #0x00000000		/* prepare zero to clear BSS */
-
-	subs	r2, r3, r0		/* r2 = memset len */
-	bl	memset
-#else
-	ldr	r1, =__bss_end		/* this is auto-relocated! */
-	mov	r2, #0x00000000		/* prepare zero to clear BSS */
-
-clbss_l:cmp	r0, r1			/* while not at end of BSS */
-	strlo	r2, [r0]		/* clear 32-bit BSS word */
-	addlo	r0, r0, #4		/* move to next */
-	blo	clbss_l
-#endif
 
 #if ! defined(CONFIG_SPL_BUILD)
 	bl coloured_LED_init

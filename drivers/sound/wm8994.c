@@ -10,6 +10,7 @@
 #include <fdtdec.h>
 #include <i2c.h>
 #include <i2s.h>
+#include <log.h>
 #include <sound.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -872,5 +873,5 @@ U_BOOT_DRIVER(wm8994) = {
 	.of_match	= wm8994_ids,
 	.probe		= wm8994_probe,
 	.ops		= &wm8994_ops,
-	.priv_auto_alloc_size	= sizeof(struct wm8994_priv),
+	.priv_auto	= sizeof(struct wm8994_priv),
 };

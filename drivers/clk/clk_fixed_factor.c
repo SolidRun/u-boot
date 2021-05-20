@@ -9,6 +9,7 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
+#include <linux/err.h>
 
 struct clk_fixed_factor {
 	struct clk parent;
@@ -17,15 +18,12 @@ struct clk_fixed_factor {
 };
 
 #define to_clk_fixed_factor(dev)	\
-	((struct clk_fixed_factor *)dev_get_platdata(dev))
+	((struct clk_fixed_factor *)dev_get_plat(dev))
 
 static ulong clk_fixed_factor_get_rate(struct clk *clk)
 {
 	uint64_t rate;
 	struct clk_fixed_factor *ff = to_clk_fixed_factor(clk->dev);
-
-	if (clk->id != 0)
-		return -EINVAL;
 
 	rate = clk_get_rate(&ff->parent);
 	if (IS_ERR_VALUE(rate))
@@ -40,7 +38,7 @@ const struct clk_ops clk_fixed_factor_ops = {
 	.get_rate = clk_fixed_factor_get_rate,
 };
 
-static int clk_fixed_factor_ofdata_to_platdata(struct udevice *dev)
+static int clk_fixed_factor_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	int err;
@@ -68,7 +66,7 @@ U_BOOT_DRIVER(clk_fixed_factor) = {
 	.name = "fixed_factor_clock",
 	.id = UCLASS_CLK,
 	.of_match = clk_fixed_factor_match,
-	.ofdata_to_platdata = clk_fixed_factor_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct clk_fixed_factor),
+	.of_to_plat = clk_fixed_factor_of_to_plat,
+	.plat_auto	= sizeof(struct clk_fixed_factor),
 	.ops = &clk_fixed_factor_ops,
 };

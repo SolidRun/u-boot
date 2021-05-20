@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/stpmic1.h>
@@ -183,7 +184,7 @@ static int stpmic1_buck_get_enable(struct udevice *dev)
 
 static int stpmic1_buck_set_enable(struct udevice *dev, bool enable)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int delay = enable ? STPMIC1_DEFAULT_START_UP_DELAY_MS :
 			     STPMIC1_DEFAULT_STOP_DELAY_MS;
 	int ret, uv;
@@ -193,7 +194,7 @@ static int stpmic1_buck_set_enable(struct udevice *dev, bool enable)
 		return 0;
 
 	if (enable) {
-		uc_pdata = dev_get_uclass_platdata(dev);
+		uc_pdata = dev_get_uclass_plat(dev);
 		uv = stpmic1_buck_get_value(dev);
 		if (uv < uc_pdata->min_uV || uv > uc_pdata->max_uV)
 			stpmic1_buck_set_value(dev, uc_pdata->min_uV);
@@ -230,12 +231,12 @@ static int stpmic1_buck_set_mode(struct udevice *dev, int mode)
 
 static int stpmic1_buck_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
 	if (!dev->driver_data || dev->driver_data > STPMIC1_MAX_BUCK)
 		return -EINVAL;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	uc_pdata->type = REGULATOR_TYPE_BUCK;
 	uc_pdata->mode = (struct dm_regulator_mode *)buck_modes;
@@ -362,7 +363,7 @@ static int stpmic1_ldo_get_enable(struct udevice *dev)
 
 static int stpmic1_ldo_set_enable(struct udevice *dev, bool enable)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int delay = enable ? STPMIC1_DEFAULT_START_UP_DELAY_MS :
 			     STPMIC1_DEFAULT_STOP_DELAY_MS;
 	int ret, uv;
@@ -372,7 +373,7 @@ static int stpmic1_ldo_set_enable(struct udevice *dev, bool enable)
 		return 0;
 
 	if (enable) {
-		uc_pdata = dev_get_uclass_platdata(dev);
+		uc_pdata = dev_get_uclass_plat(dev);
 		uv = stpmic1_ldo_get_value(dev);
 		if (uv < uc_pdata->min_uV || uv > uc_pdata->max_uV)
 			stpmic1_ldo_set_value(dev, uc_pdata->min_uV);
@@ -422,6 +423,7 @@ static int stpmic1_ldo_set_mode(struct udevice *dev, int mode)
 	case STPMIC1_LDO_MODE_SINK_SOURCE:
 		ret &= ~STPMIC1_LDO12356_VOUT_MASK;
 		ret |= STPMIC1_LDO3_DDR_SEL << STPMIC1_LDO12356_VOUT_SHIFT;
+		/* fallthrough */
 	case STPMIC1_LDO_MODE_NORMAL:
 		ret &= ~STPMIC1_LDO3_MODE;
 		break;
@@ -435,12 +437,12 @@ static int stpmic1_ldo_set_mode(struct udevice *dev, int mode)
 
 static int stpmic1_ldo_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
 	if (!dev->driver_data || dev->driver_data > STPMIC1_MAX_LDO)
 		return -EINVAL;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	uc_pdata->type = REGULATOR_TYPE_LDO;
 	if (dev->driver_data - 1 == STPMIC1_LDO3) {
@@ -509,9 +511,9 @@ static int stpmic1_vref_ddr_set_enable(struct udevice *dev, bool enable)
 
 static int stpmic1_vref_ddr_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
 	uc_pdata->mode_count = 0;
@@ -573,9 +575,9 @@ static int stpmic1_boost_set_enable(struct udevice *dev, bool enable)
 
 static int stpmic1_boost_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
 	uc_pdata->mode_count = 0;
@@ -646,12 +648,12 @@ static int stpmic1_pwr_sw_set_enable(struct udevice *dev, bool enable)
 
 static int stpmic1_pwr_sw_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
 	if (!dev->driver_data || dev->driver_data > STPMIC1_MAX_PWR_SW)
 		return -EINVAL;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
 	uc_pdata->mode_count = 0;

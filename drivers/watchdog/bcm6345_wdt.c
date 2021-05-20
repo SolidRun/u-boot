@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <wdt.h>
 #include <clk.h>
 #include <asm/io.h>
@@ -111,6 +112,6 @@ U_BOOT_DRIVER(wdt_bcm6345) = {
 	.id = UCLASS_WDT,
 	.of_match = bcm6345_wdt_ids,
 	.ops = &bcm6345_wdt_ops,
-	.priv_auto_alloc_size = sizeof(struct bcm6345_wdt_priv),
+	.priv_auto	= sizeof(struct bcm6345_wdt_priv),
 	.probe = bcm6345_wdt_probe,
 };

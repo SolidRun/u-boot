@@ -8,7 +8,7 @@
 
 #include "pinctrl-imx.h"
 
-static struct imx_pinctrl_soc_info imx8mq_pinctrl_soc_info;
+static struct imx_pinctrl_soc_info imx8mq_pinctrl_soc_info __attribute__((section(".data")));
 
 static int imx8mq_pinctrl_probe(struct udevice *dev)
 {
@@ -21,6 +21,8 @@ static int imx8mq_pinctrl_probe(struct udevice *dev)
 static const struct udevice_id imx8m_pinctrl_match[] = {
 	{ .compatible = "fsl,imx8mq-iomuxc", .data = (ulong)&imx8mq_pinctrl_soc_info },
 	{ .compatible = "fsl,imx8mm-iomuxc", .data = (ulong)&imx8mq_pinctrl_soc_info },
+	{ .compatible = "fsl,imx8mn-iomuxc", .data = (ulong)&imx8mq_pinctrl_soc_info },
+	{ .compatible = "fsl,imx8mp-iomuxc", .data = (ulong)&imx8mq_pinctrl_soc_info },
 	{ /* sentinel */ }
 };
 
@@ -30,7 +32,7 @@ U_BOOT_DRIVER(imx8mq_pinctrl) = {
 	.of_match = of_match_ptr(imx8m_pinctrl_match),
 	.probe = imx8mq_pinctrl_probe,
 	.remove = imx_pinctrl_remove,
-	.priv_auto_alloc_size = sizeof(struct imx_pinctrl_priv),
+	.priv_auto	= sizeof(struct imx_pinctrl_priv),
 	.ops = &imx_pinctrl_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

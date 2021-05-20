@@ -7,9 +7,10 @@
 #
 
 ifdef CONFIG_SPL_BUILD
-obj-$(CONFIG_SPL_FRAMEWORK) += spl.o
+obj-$(CONFIG_$(SPL_TPL_)FRAMEWORK) += spl.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTROM_SUPPORT) += spl_bootrom.o
 obj-$(CONFIG_$(SPL_TPL_)LOAD_FIT) += spl_fit.o
+obj-$(CONFIG_$(SPL_TPL_)LEGACY_IMAGE_SUPPORT) += spl_legacy.o
 obj-$(CONFIG_$(SPL_TPL_)NOR_SUPPORT) += spl_nor.o
 obj-$(CONFIG_$(SPL_TPL_)XIP_SUPPORT) += spl_xip.o
 obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += spl_ymodem.o
@@ -22,6 +23,7 @@ obj-$(CONFIG_$(SPL_TPL_)NET_SUPPORT) += spl_net.o
 obj-$(CONFIG_$(SPL_TPL_)MMC_SUPPORT) += spl_mmc.o
 obj-$(CONFIG_$(SPL_TPL_)ATF) += spl_atf.o
 obj-$(CONFIG_$(SPL_TPL_)OPTEE) += spl_optee.o
+obj-$(CONFIG_$(SPL_TPL_)OPENSBI) += spl_opensbi.o
 obj-$(CONFIG_$(SPL_TPL_)USB_STORAGE) += spl_usb.o
 obj-$(CONFIG_$(SPL_TPL_)FS_FAT) += spl_fat.o
 obj-$(CONFIG_$(SPL_TPL_)FS_EXT4) += spl_ext.o

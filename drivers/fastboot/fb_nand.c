@@ -6,6 +6,8 @@
 
 #include <config.h>
 #include <common.h>
+#include <blk.h>
+#include <flash.h>
 
 #include <fastboot.h>
 #include <image-sparse.h>
@@ -152,8 +154,8 @@ static lbaint_t fb_nand_sparse_reserve(struct sparse_storage *info,
  * @part_info: Pointer to returned part_info pointer
  * @response: Pointer to fastboot response buffer
  */
-int fastboot_nand_get_part_info(char *part_name, struct part_info **part_info,
-				char *response)
+int fastboot_nand_get_part_info(const char *part_name,
+				struct part_info **part_info, char *response)
 {
 	struct mtd_info *mtd = NULL;
 

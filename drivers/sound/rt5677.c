@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <i2c.h>
 #include "rt5677.h"
+#include <log.h>
 
 struct rt5677_priv {
 	struct udevice *dev;
@@ -330,5 +331,5 @@ U_BOOT_DRIVER(rt5677_drv) = {
 	.of_match	= rt5677_ids,
 	.ops		= &rt5677_ops,
 	.probe		= rt5677_probe,
-	.priv_auto_alloc_size	= sizeof(struct rt5677_priv),
+	.priv_auto	= sizeof(struct rt5677_priv),
 };

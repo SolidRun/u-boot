@@ -24,6 +24,8 @@
 
 #include <config.h>
 #include <common.h>
+#include <cpu_func.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <mmc.h>
@@ -32,6 +34,8 @@
 #if defined(CONFIG_OMAP54XX) || defined(CONFIG_OMAP44XX)
 #include <palmas.h>
 #endif
+#include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #ifdef CONFIG_OMAP54XX
@@ -46,6 +50,10 @@
 #include <asm/arch/mux.h>
 #endif
 #include <dm.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 #include <power/regulator.h>
 #include <thermal.h>
 
@@ -168,22 +176,25 @@ static inline struct omap_hsmmc_data *omap_hsmmc_get_data(struct mmc *mmc)
 	return (struct omap_hsmmc_data *)mmc->priv;
 #endif
 }
+
+#if defined(CONFIG_OMAP34XX) || defined(CONFIG_IODELAY_RECALIBRATION)
 static inline struct mmc_config *omap_hsmmc_get_cfg(struct mmc *mmc)
 {
 #if CONFIG_IS_ENABLED(DM_MMC)
-	struct omap_hsmmc_plat *plat = dev_get_platdata(mmc->dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(mmc->dev);
 	return &plat->cfg;
 #else
 	return &((struct omap_hsmmc_data *)mmc->priv)->cfg;
 #endif
 }
+#endif
 
 #if defined(OMAP_HSMMC_USE_GPIO) && !CONFIG_IS_ENABLED(DM_MMC)
 static int omap_mmc_setup_gpio_in(int gpio, const char *label)
 {
 	int ret;
 
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 	if (!gpio_is_valid(gpio))
 		return -1;
 #endif
@@ -389,7 +400,6 @@ static void omap_hsmmc_set_timing(struct mmc *mmc)
 		break;
 	case MMC_LEGACY:
 	case MMC_HS:
-	case SD_LEGACY:
 	case UHS_SDR12:
 		val |= AC12_UHSMC_SDR12;
 		break;
@@ -430,8 +440,7 @@ static void omap_hsmmc_conf_bus_power(struct mmc *mmc, uint signal_voltage)
 	writel(ac12, &mmc_base->ac12);
 }
 
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
-static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout)
+static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout_us)
 {
 	int ret = -ETIMEDOUT;
 	u32 con;
@@ -443,8 +452,8 @@ static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout)
 	con = readl(&mmc_base->con);
 	writel(con | CON_CLKEXTFREE | CON_PADEN, &mmc_base->con);
 
-	timeout = DIV_ROUND_UP(timeout, 10); /* check every 10 us. */
-	while (timeout--)	{
+	timeout_us = DIV_ROUND_UP(timeout_us, 10); /* check every 10 us. */
+	while (timeout_us--) {
 		dat0_high = !!(readl(&mmc_base->pstate) & PSTATE_DLEV_DAT0);
 		if (dat0_high == target_dat0_high) {
 			ret = 0;
@@ -456,7 +465,6 @@ static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout)
 
 	return ret;
 }
-#endif
 
 #if CONFIG_IS_ENABLED(MMC_IO_VOLTAGE)
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
@@ -775,14 +783,6 @@ tuning_error:
 	return ret;
 }
 #endif
-
-static void omap_hsmmc_send_init_stream(struct udevice *dev)
-{
-	struct omap_hsmmc_data *priv = dev_get_priv(dev);
-	struct hsmmc *mmc_base = priv->base_addr;
-
-	mmc_init_stream(mmc_base);
-}
 #endif
 
 static void mmc_enable_irq(struct mmc *mmc, struct mmc_cmd *cmd)
@@ -844,7 +844,7 @@ static int omap_hsmmc_init_setup(struct mmc *mmc)
 	omap_hsmmc_conf_bus_power(mmc, (reg_val & VS33_3V3SUP) ?
 			  MMC_SIGNAL_VOLTAGE_330 : MMC_SIGNAL_VOLTAGE_180);
 #else
-	writel(DTW_1_BITMODE | SDBP_PWROFF | SDVS_3V0, &mmc_base->hctl);
+	writel(DTW_1_BITMODE | SDBP_PWROFF | SDVS_3V3, &mmc_base->hctl);
 	writel(readl(&mmc_base->capa) | VS33_3V3SUP | VS18_1V8SUP,
 		&mmc_base->capa);
 #endif
@@ -1065,18 +1065,17 @@ static int omap_hsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		if (get_timer(0) - start > MAX_RETRY_MS) {
 			printf("%s: timedout waiting on cmd inhibit to clear\n",
 					__func__);
+			mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
+			mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
 			return -ETIMEDOUT;
 		}
 	}
 	writel(0xFFFFFFFF, &mmc_base->stat);
-	start = get_timer(0);
-	while (readl(&mmc_base->stat)) {
-		if (get_timer(0) - start > MAX_RETRY_MS) {
-			printf("%s: timedout waiting for STAT (%x) to clear\n",
-				__func__, readl(&mmc_base->stat));
-			return -ETIMEDOUT;
-		}
+	if (readl(&mmc_base->stat)) {
+		mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
+		mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
 	}
+
 	/*
 	 * CMDREG
 	 * CMDIDX[13:8]	: Command index
@@ -1522,10 +1521,7 @@ static const struct dm_mmc_ops omap_hsmmc_ops = {
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning = omap_hsmmc_execute_tuning,
 #endif
-	.send_init_stream	= omap_hsmmc_send_init_stream,
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 	.wait_dat0	= omap_hsmmc_wait_dat0,
-#endif
 };
 #else
 static const struct mmc_ops omap_hsmmc_ops = {
@@ -1903,9 +1899,9 @@ __weak const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
 }
 #endif
 
-static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
+static int omap_hsmmc_of_to_plat(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	struct omap_mmc_of_data *of_data = (void *)dev_get_driver_data(dev);
 
 	struct mmc_config *cfg = &plat->cfg;
@@ -1916,7 +1912,7 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	int ret;
 
-	plat->base_addr = map_physmem(devfdt_get_addr(dev),
+	plat->base_addr = map_physmem(dev_read_addr(dev),
 				      sizeof(struct hsmmc *),
 				      MAP_NOCACHE);
 
@@ -1938,7 +1934,7 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 		plat->controller_flags |= of_data->controller_flags;
 
 #ifdef CONFIG_OMAP54XX
-	fixups = platform_fixups_mmc(devfdt_get_addr(dev));
+	fixups = platform_fixups_mmc(dev_read_addr(dev));
 	if (fixups) {
 		plat->hw_rev = fixups->hw_rev;
 		cfg->host_caps &= ~fixups->unsupported_caps;
@@ -1954,14 +1950,14 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 
 static int omap_hsmmc_bind(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	plat->mmc = calloc(1, sizeof(struct mmc));
 	return mmc_bind(dev, plat->mmc, &plat->cfg);
 }
 #endif
 static int omap_hsmmc_probe(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
@@ -2033,15 +2029,15 @@ U_BOOT_DRIVER(omap_hsmmc) = {
 	.id	= UCLASS_MMC,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_hsmmc_ids,
-	.ofdata_to_platdata = omap_hsmmc_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct omap_hsmmc_plat),
+	.of_to_plat = omap_hsmmc_of_to_plat,
+	.plat_auto	= sizeof(struct omap_hsmmc_plat),
 #endif
 #ifdef CONFIG_BLK
 	.bind = omap_hsmmc_bind,
 #endif
 	.ops = &omap_hsmmc_ops,
 	.probe	= omap_hsmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct omap_hsmmc_data),
+	.priv_auto	= sizeof(struct omap_hsmmc_data),
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif

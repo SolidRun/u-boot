@@ -15,12 +15,8 @@
 
 /* Undef unneeded configs */
 #undef CONFIG_EXTRA_ENV_SETTINGS
-#undef CONFIG_ZLIB
-#undef CONFIG_GZIP
 
 #undef CONFIG_SYS_CBSIZE
-#undef CONFIG_BOOTM_VXWORKS
-#undef CONFIG_BOOTM_LINUX
 
 #define CONFIG_SYS_CBSIZE	1024
 

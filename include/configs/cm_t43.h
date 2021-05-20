@@ -9,7 +9,6 @@
 #define __CONFIG_CM_T43_H
 
 #define CONFIG_CM_T43
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_MAX_RAM_BANK_SIZE	(2048 << 20)	/* 2GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
@@ -44,9 +43,6 @@
 					 50, 51, 52, 53, 54, 55, 56, 57, }
 
 /* CPSW Ethernet support */
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_SEND_HOSTNAME
-#define CONFIG_PHY_ATHEROS
 #define CONFIG_SYS_RX_ETH_BUFFER	64
 
 /* USB support */
@@ -75,13 +71,8 @@
 #include <configs/ti_armv7_omap.h>
 #undef CONFIG_SYS_MONITOR_LEN
 
-#define CONFIG_ENV_SIZE			(16 * 1024)
-
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
-
-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
-#define CONFIG_ENV_OFFSET		(768 * 1024)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
@@ -120,7 +111,6 @@
 
 /* SPL defines. */
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + (128 << 20))
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	(256 * 1024)
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
 /* EEPROM */

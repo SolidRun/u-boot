@@ -6,6 +6,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <w1.h>
 #include <w1-eeprom.h>
 #include <dm/device-internal.h>
@@ -20,7 +21,7 @@ static int w1_bus(void)
 		printf("one wire interface not found\n");
 		return CMD_RET_FAILURE;
 	}
-	printf("Bus %d:\t%s", bus->seq, bus->name);
+	printf("Bus %d:\t%s", dev_seq(bus), bus->name);
 	if (device_active(bus))
 		printf("  (active)");
 	printf("\n");
@@ -30,7 +31,7 @@ static int w1_bus(void)
 	     device_find_next_child(&dev)) {
 		ret = device_probe(dev);
 
-		printf("\t%s (%d) uclass %s : ", dev->name, dev->seq,
+		printf("\t%s (%d) uclass %s : ", dev->name, dev_seq(dev),
 		       dev->uclass->uc_drv->name);
 
 		if (ret)
@@ -103,7 +104,7 @@ static int w1_read(int argc, char *const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-int do_w1(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_w1(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;

@@ -6,6 +6,7 @@
 #ifndef __PMIC_STPMIC1_H_
 #define __PMIC_STPMIC1_H_
 
+#include <linux/bitops.h>
 #define STPMIC1_MAIN_CR			0x10
 #define STPMIC1_BUCKS_MRST_CR		0x18
 #define STPMIC1_LDOS_MRST_CR		0x1a
@@ -22,11 +23,12 @@
 
 /* BUCKS_MRST_CR */
 #define STPMIC1_MRST_BUCK(buck)		BIT(buck)
-#define STPMIC1_MRST_BUCK_ALL		GENMASK(3, 0)
+#define STPMIC1_MRST_BUCK_DEBUG		(STPMIC1_MRST_BUCK(STPMIC1_BUCK1) | \
+					 STPMIC1_MRST_BUCK(STPMIC1_BUCK3))
 
 /* LDOS_MRST_CR */
 #define STPMIC1_MRST_LDO(ldo)		BIT(ldo)
-#define STPMIC1_MRST_LDO_ALL		GENMASK(6, 0)
+#define STPMIC1_MRST_LDO_DEBUG		0
 
 /* BUCKx_MAIN_CR (x=1...4) */
 #define STPMIC1_BUCK_ENA		BIT(0)
@@ -36,6 +38,7 @@
 #define STPMIC1_BUCK_VOUT(sel)		(sel << STPMIC1_BUCK_VOUT_SHIFT)
 
 #define STPMIC1_BUCK2_1200000V		STPMIC1_BUCK_VOUT(24)
+#define STPMIC1_BUCK2_1250000V		STPMIC1_BUCK_VOUT(26)
 #define STPMIC1_BUCK2_1350000V		STPMIC1_BUCK_VOUT(30)
 
 #define STPMIC1_BUCK3_1800000V		STPMIC1_BUCK_VOUT(39)
@@ -107,11 +110,4 @@ enum {
 	STPMIC1_PWR_SW2,
 	STPMIC1_MAX_PWR_SW,
 };
-
-int stpmic1_shadow_read_byte(u8 addr, u8 *buf);
-int stpmic1_shadow_write_byte(u8 addr, u8 *buf);
-int stpmic1_nvm_read_byte(u8 addr, u8 *buf);
-int stpmic1_nvm_write_byte(u8 addr, u8 *buf);
-int stpmic1_nvm_read_all(u8 *buf, int buf_len);
-int stpmic1_nvm_write_all(u8 *buf, int buf_len);
 #endif

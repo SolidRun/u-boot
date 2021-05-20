@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
@@ -196,7 +198,7 @@ int board_init(void)
 	init_final_memctl_regs();
 #endif
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 	/* In case of Secure Boot, the IBR configures the SMMU
 	 * to allow only Secure transactions.
 	 * SMMU must be reset in bypass mode.
@@ -270,7 +272,7 @@ void fdt_del_qe(void *blob)
 	}
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
@@ -285,7 +287,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 	ft_cpu_setup(blob, bd);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
+#ifndef CONFIG_DM_ETH
 	fdt_fixup_fman_ethernet(blob);
+#endif
 #endif
 
 	fdt_fixup_icid(blob);

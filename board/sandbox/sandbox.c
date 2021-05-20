@@ -4,12 +4,19 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <cros_ec.h>
 #include <dm.h>
+#include <env_internal.h>
+#include <init.h>
 #include <led.h>
 #include <os.h>
+#include <asm/global_data.h>
 #include <asm/test.h>
 #include <asm/u-boot-sandbox.h>
+#include <malloc.h>
+
+#include <extension_board.h>
 
 /*
  * Pointer to initial global data area
@@ -18,14 +25,12 @@
  */
 gd_t *gd;
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 /* Add a simple GPIO device */
-U_BOOT_DEVICE(gpio_sandbox) = {
-	.name = "gpio_sandbox",
+U_BOOT_DRVINFO(gpio_sandbox) = {
+	.name = "sandbox_gpio",
 };
-
-void flush_cache(unsigned long start, unsigned long size)
-{
-}
+#endif
 
 #ifndef CONFIG_TIMER
 /* system timer offset in ms */
@@ -42,6 +47,21 @@ unsigned long timer_read_counter(void)
 }
 #endif
 
+/* specific order for sandbox: nowhere is the first value, used by default */
+static enum env_location env_locations[] = {
+	ENVL_NOWHERE,
+	ENVL_EXT4,
+	ENVL_FAT,
+};
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	if (prio >= ARRAY_SIZE(env_locations))
+		return ENVL_UNKNOWN;
+
+	return env_locations[prio];
+}
+
 int dram_init(void)
 {
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
@@ -55,6 +75,32 @@ int board_init(void)
 
 	return 0;
 }
+
+int ft_board_setup(void *fdt, struct bd_info *bd)
+{
+	/* Create an arbitrary reservation to allow testing OF_BOARD_SETUP.*/
+	return fdt_add_mem_rsv(fdt, 0x00d02000, 0x4000);
+}
+
+#ifdef CONFIG_CMD_EXTENSION
+int extension_board_scan(struct list_head *extension_list)
+{
+	struct extension *extension;
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		extension = calloc(1, sizeof(struct extension));
+		snprintf(extension->overlay, sizeof(extension->overlay), "overlay%d.dtbo", i);
+		snprintf(extension->name, sizeof(extension->name), "extension board %d", i);
+		snprintf(extension->owner, sizeof(extension->owner), "sandbox");
+		snprintf(extension->version, sizeof(extension->version), "1.1");
+		snprintf(extension->other, sizeof(extension->other), "Fictionnal extension board");
+		list_add_tail(&extension->list, extension_list);
+	}
+
+	return i;
+}
+#endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)

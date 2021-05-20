@@ -8,11 +8,15 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <virtio_types.h>
 #include <virtio.h>
 #include <virtio_ring.h>
 #include <dm/device.h>
+#include <linux/bug.h>
 #include <linux/compat.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 #include <linux/io.h>
 #include "virtio_pci.h"
 
@@ -452,7 +456,7 @@ static int virtio_pci_bind(struct udevice *udev)
 
 static int virtio_pci_probe(struct udevice *udev)
 {
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(udev);
+	struct pci_child_plat *pplat = dev_get_parent_plat(udev);
 	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(udev);
 	struct virtio_pci_priv *priv = dev_get_priv(udev);
 	u16 subvendor;
@@ -535,7 +539,7 @@ U_BOOT_DRIVER(virtio_pci_modern) = {
 	.ops	= &virtio_pci_ops,
 	.bind	= virtio_pci_bind,
 	.probe	= virtio_pci_probe,
-	.priv_auto_alloc_size = sizeof(struct virtio_pci_priv),
+	.priv_auto	= sizeof(struct virtio_pci_priv),
 };
 
 static struct pci_device_id virtio_pci_supported[] = {

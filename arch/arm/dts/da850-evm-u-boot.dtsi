@@ -10,6 +10,18 @@
 	soc@1c00000 {
 		u-boot,dm-spl;
 	};
+
+	nand {
+		compatible = "ti,davinci-nand";
+	};
+
+	panel {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&eth0 {
+	pinctrl-0 = <&mii_pins>, <&mdio_pins>;
 };
 
 &flash {
@@ -25,5 +37,9 @@
 };
 
 &spi1 {
+	u-boot,dm-spl;
+};
+
+&gpio {
 	u-boot,dm-spl;
 };

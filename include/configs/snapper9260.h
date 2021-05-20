@@ -19,7 +19,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 
 /* CPU */
-#define CONFIG_ARCH_CPU_INIT
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -33,8 +32,6 @@
 					 GENERATED_GBL_DATA_SIZE)
 
 /* Mem test settings */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + (1024 * 1024))
 
 /* NAND Flash */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -65,14 +62,12 @@
 
 /* GPIOs and IO expander */
 #define CONFIG_ATMEL_LEGACY
-#define CONFIG_AT91_GPIO
 #define CONFIG_AT91_GPIO_PULLUP		1
 #define CONFIG_PCA953X
 #define CONFIG_SYS_I2C_PCA953X_ADDR	0x28
 #define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x28, 16} }
 
 /* UARTs/Serial console */
-#define CONFIG_ATMEL_USART
 #ifndef CONFIG_DM_SERIAL
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
@@ -111,9 +106,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Environment settings */
-#define CONFIG_ENV_OFFSET		(512 << 10)
-#define CONFIG_ENV_SIZE			(256 << 10)
-#define CONFIG_ENV_OVERWRITE
 
 /* Console settings */
 

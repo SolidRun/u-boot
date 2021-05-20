@@ -22,7 +22,6 @@
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 
 /*
  * Multicore config
@@ -48,6 +47,7 @@
 #define CONFIG_VERY_BIG_RAM
 
 #ifndef __ASSEMBLY__
+#include <linux/stringify.h>
 extern unsigned long get_board_sys_clk(unsigned long dummy);
 extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #endif
@@ -68,8 +68,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Diagnostics
  */
-#define CONFIG_SYS_MEMTEST_START	0x10000000
-#define CONFIG_SYS_MEMTEST_END		0x20000000
 #define CONFIG_POST			(CONFIG_SYS_POST_MEMORY | \
 					 CONFIG_SYS_POST_I2C)
 /* The XPedite5370 can host an XMC which has an EEPROM at address 0x50 */
@@ -323,7 +321,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_LOADADDR		0x1000000	/* default location for tftp and bootm */
-#define CONFIG_PREBOOT				/* enable preboot variable */
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
 
 /*
@@ -337,9 +334,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_SECT_SIZE	0x20000		/* 128k (one sector) for env */
-#define CONFIG_ENV_SIZE		0x8000
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - (256 * 1024))
 
 /*
  * Flash memory map:

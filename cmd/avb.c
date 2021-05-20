@@ -7,6 +7,7 @@
 
 #include <avb_verify.h>
 #include <command.h>
+#include <env.h>
 #include <image.h>
 #include <malloc.h>
 #include <mmc.h>
@@ -14,12 +15,7 @@
 #define AVB_BOOTARGS	"avb_bootargs"
 static struct AvbOps *avb_ops;
 
-static const char * const requested_partitions[] = {"boot",
-					     "system",
-					     "vendor",
-					     NULL};
-
-int do_avb_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_avb_init(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned long mmc_dev;
 
@@ -40,7 +36,8 @@ int do_avb_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_read_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_avb_read_part(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	const char *part;
 	s64 offset;
@@ -72,7 +69,7 @@ int do_avb_read_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_read_part_hex(cmd_tbl_t *cmdtp, int flag, int argc,
+int do_avb_read_part_hex(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 	const char *part;
@@ -118,7 +115,8 @@ int do_avb_read_part_hex(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_write_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_avb_write_part(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	const char *part;
 	s64 offset;
@@ -149,7 +147,8 @@ int do_avb_write_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_read_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_avb_read_rb(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	size_t index;
 	u64 rb_idx;
@@ -175,7 +174,8 @@ int do_avb_read_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_write_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_avb_write_rb(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	size_t index;
 	u64 rb_idx;
@@ -200,8 +200,8 @@ int do_avb_write_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_get_uuid(cmd_tbl_t *cmdtp, int flag,
-		    int argc, char * const argv[])
+int do_avb_get_uuid(struct cmd_tbl *cmdtp, int flag,
+		    int argc, char *const argv[])
 {
 	const char *part;
 	char buffer[UUID_STR_LEN + 1];
@@ -228,13 +228,15 @@ int do_avb_get_uuid(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
+int do_avb_verify_part(struct cmd_tbl *cmdtp, int flag,
 		       int argc, char *const argv[])
 {
+	const char * const requested_partitions[] = {"boot", NULL};
 	AvbSlotVerifyResult slot_result;
 	AvbSlotVerifyData *out_data;
 	char *cmdline;
 	char *extra_args;
+	char *slot_suffix = "";
 
 	bool unlocked = false;
 	int res = CMD_RET_FAILURE;
@@ -244,8 +246,11 @@ int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	if (argc != 1)
+	if (argc < 1 || argc > 2)
 		return CMD_RET_USAGE;
+
+	if (argc == 2)
+		slot_suffix = argv[1];
 
 	printf("## Android Verified Boot 2.0 version %s\n",
 	       avb_version_string());
@@ -259,7 +264,7 @@ int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 	slot_result =
 		avb_slot_verify(avb_ops,
 				requested_partitions,
-				"",
+				slot_suffix,
 				unlocked,
 				AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE,
 				&out_data);
@@ -311,11 +316,14 @@ int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 		printf("Unknown error occurred\n");
 	}
 
+	if (out_data)
+		avb_slot_verify_data_free(out_data);
+
 	return res;
 }
 
-int do_avb_is_unlocked(cmd_tbl_t *cmdtp, int flag,
-		       int argc, char * const argv[])
+int do_avb_is_unlocked(struct cmd_tbl *cmdtp, int flag,
+		       int argc, char *const argv[])
 {
 	bool unlock;
 
@@ -340,8 +348,8 @@ int do_avb_is_unlocked(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_read_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+int do_avb_read_pvalue(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	const char *name;
 	size_t bytes;
@@ -368,7 +376,7 @@ int do_avb_read_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	if (avb_ops->read_persistent_value(avb_ops, name, bytes, buffer,
 					   &bytes_read) == AVB_IO_RESULT_OK) {
-		printf("Read %ld bytes, value = %s\n", bytes_read,
+		printf("Read %zu bytes, value = %s\n", bytes_read,
 		       (char *)buffer);
 		free(buffer);
 		return CMD_RET_SUCCESS;
@@ -381,8 +389,8 @@ int do_avb_read_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_write_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+int do_avb_write_pvalue(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	const char *name;
 	const char *value;
@@ -401,7 +409,7 @@ int do_avb_write_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (avb_ops->write_persistent_value(avb_ops, name, strlen(value) + 1,
 					    (const uint8_t *)value) ==
 	    AVB_IO_RESULT_OK) {
-		printf("Wrote %ld bytes\n", strlen(value) + 1);
+		printf("Wrote %zu bytes\n", strlen(value) + 1);
 		return CMD_RET_SUCCESS;
 	}
 
@@ -410,7 +418,7 @@ int do_avb_write_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
-static cmd_tbl_t cmd_avb[] = {
+static struct cmd_tbl cmd_avb[] = {
 	U_BOOT_CMD_MKENT(init, 2, 0, do_avb_init, "", ""),
 	U_BOOT_CMD_MKENT(read_rb, 2, 0, do_avb_read_rb, "", ""),
 	U_BOOT_CMD_MKENT(write_rb, 3, 0, do_avb_write_rb, "", ""),
@@ -419,16 +427,16 @@ static cmd_tbl_t cmd_avb[] = {
 	U_BOOT_CMD_MKENT(read_part, 5, 0, do_avb_read_part, "", ""),
 	U_BOOT_CMD_MKENT(read_part_hex, 4, 0, do_avb_read_part_hex, "", ""),
 	U_BOOT_CMD_MKENT(write_part, 5, 0, do_avb_write_part, "", ""),
-	U_BOOT_CMD_MKENT(verify, 1, 0, do_avb_verify_part, "", ""),
+	U_BOOT_CMD_MKENT(verify, 2, 0, do_avb_verify_part, "", ""),
 #ifdef CONFIG_OPTEE_TA_AVB
 	U_BOOT_CMD_MKENT(read_pvalue, 3, 0, do_avb_read_pvalue, "", ""),
 	U_BOOT_CMD_MKENT(write_pvalue, 3, 0, do_avb_write_pvalue, "", ""),
 #endif
 };
 
-static int do_avb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_avb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	cp = find_cmd_tbl(argv[1], cmd_avb, ARRAY_SIZE(cmd_avb));
 
@@ -462,6 +470,7 @@ U_BOOT_CMD(
 	"avb read_pvalue <name> <bytes> - read a persistent value <name>\n"
 	"avb write_pvalue <name> <value> - write a persistent value <name>\n"
 #endif
-	"avb verify - run verification process using hash data\n"
+	"avb verify [slot_suffix] - run verification process using hash data\n"
 	"    from vbmeta structure\n"
+	"    [slot_suffix] - _a, _b, etc (if vbmeta partition is slotted)\n"
 	);

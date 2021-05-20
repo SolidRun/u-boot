@@ -6,30 +6,96 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <hang.h>
+#include <log.h>
+#include <time.h>
 #include <wdt.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define WATCHDOG_TIMEOUT_SECS	(CONFIG_WATCHDOG_TIMEOUT_MSECS / 1000)
+
+/*
+ * Reset every 1000ms, or however often is required as indicated by a
+ * hw_margin_ms property.
+ */
+static ulong reset_period = 1000;
+
+int initr_watchdog(void)
+{
+	u32 timeout = WATCHDOG_TIMEOUT_SECS;
+	int ret;
+
+	/*
+	 * Init watchdog: This will call the probe function of the
+	 * watchdog driver, enabling the use of the device
+	 */
+	if (uclass_get_device_by_seq(UCLASS_WDT, 0,
+				     (struct udevice **)&gd->watchdog_dev)) {
+		debug("WDT:   Not found by seq!\n");
+		if (uclass_get_device(UCLASS_WDT, 0,
+				      (struct udevice **)&gd->watchdog_dev)) {
+			printf("WDT:   Not found!\n");
+			return 0;
+		}
+	}
+
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
+		timeout = dev_read_u32_default(gd->watchdog_dev, "timeout-sec",
+					       WATCHDOG_TIMEOUT_SECS);
+		reset_period = dev_read_u32_default(gd->watchdog_dev,
+						    "hw_margin_ms",
+						    4 * reset_period) / 4;
+	}
+
+	if (!CONFIG_IS_ENABLED(WATCHDOG_AUTOSTART)) {
+		printf("WDT:   Not starting\n");
+		return 0;
+	}
+
+	ret = wdt_start(gd->watchdog_dev, timeout * 1000, 0);
+	if (ret != 0) {
+		printf("WDT:   Failed to start\n");
+		return 0;
+	}
+
+	printf("WDT:   Started with%s servicing (%ds timeout)\n",
+	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out", timeout);
+
+	return 0;
+}
+
 int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	const struct wdt_ops *ops = device_get_ops(dev);
+	int ret;
 
 	if (!ops->start)
 		return -ENOSYS;
 
-	return ops->start(dev, timeout_ms, flags);
+	ret = ops->start(dev, timeout_ms, flags);
+	if (ret == 0)
+		gd->flags |= GD_FLG_WDT_READY;
+
+	return ret;
 }
 
 int wdt_stop(struct udevice *dev)
 {
 	const struct wdt_ops *ops = device_get_ops(dev);
+	int ret;
 
 	if (!ops->stop)
 		return -ENOSYS;
 
-	return ops->stop(dev);
+	ret = ops->stop(dev);
+	if (ret == 0)
+		gd->flags &= ~GD_FLG_WDT_READY;
+
+	return ret;
 }
 
 int wdt_reset(struct udevice *dev)
@@ -82,8 +148,8 @@ void watchdog_reset(void)
 
 	/* Do not reset the watchdog too often */
 	now = get_timer(0);
-	if (now > next_reset) {
-		next_reset = now + 1000;	/* reset every 1000ms */
+	if (time_after_eq(now, next_reset)) {
+		next_reset = now + reset_period;
 		wdt_reset(gd->watchdog_dev);
 	}
 }

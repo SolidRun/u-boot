@@ -9,10 +9,13 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <watchdog.h>
 #include <serial.h>
 #include <debug_uart.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #ifdef CONFIG_DM_SERIAL
@@ -260,13 +263,13 @@ static int atmel_serial_enable_clk(struct udevice *dev)
 
 static int atmel_serial_probe(struct udevice *dev)
 {
-	struct atmel_serial_platdata *plat = dev->platdata;
+	struct atmel_serial_plat *plat = dev_get_plat(dev);
 	struct atmel_serial_priv *priv = dev_get_priv(dev);
 	int ret;
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	fdt_addr_t addr_base;
 
-	addr_base = devfdt_get_addr(dev);
+	addr_base = dev_read_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -ENODEV;
 
@@ -302,14 +305,14 @@ U_BOOT_DRIVER(serial_atmel) = {
 	.id	= UCLASS_SERIAL,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = atmel_serial_ids,
-	.platdata_auto_alloc_size = sizeof(struct atmel_serial_platdata),
+	.plat_auto	= sizeof(struct atmel_serial_plat),
 #endif
 	.probe = atmel_serial_probe,
 	.ops	= &atmel_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
 #endif
-	.priv_auto_alloc_size	= sizeof(struct atmel_serial_priv),
+	.priv_auto	= sizeof(struct atmel_serial_priv),
 };
 #endif
 

@@ -124,6 +124,14 @@ static struct module_pin_mux i2c1_pin_mux[] = {
 	{-1},
 };
 
+static struct module_pin_mux i2c2_pin_mux[] = {
+	{OFFSET(uart1_ctsn), (MODE(3) | RXACTIVE |
+			PULLUDEN | PULLUP_EN | SLEWCTRL)},	/* I2C_DATA */
+	{OFFSET(uart1_rtsn), (MODE(3) | RXACTIVE |
+			PULLUDEN | PULLUP_EN | SLEWCTRL)},	/* I2C_SCLK */
+	{-1},
+};
+
 static struct module_pin_mux spi0_pin_mux[] = {
 	{OFFSET(spi0_sclk), (MODE(0) | RXACTIVE | PULLUDEN)},	/* SPI0_SCLK */
 	{OFFSET(spi0_d0), (MODE(0) | RXACTIVE |
@@ -195,7 +203,7 @@ static struct module_pin_mux rmii1_pin_mux[] = {
 	{-1},
 };
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 static struct module_pin_mux nand_pin_mux[] = {
 	{OFFSET(gpmc_ad0),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD0  */
 	{OFFSET(gpmc_ad1),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD1  */
@@ -308,6 +316,11 @@ void enable_i2c0_pin_mux(void)
 	configure_module_pin_mux(i2c0_pin_mux);
 }
 
+void enable_i2c2_pin_mux(void)
+{
+	configure_module_pin_mux(i2c2_pin_mux);
+}
+
 /*
  * The AM335x GP EVM, if daughter card(s) are connected, can have 8
  * different profiles.  These profiles determine what peripherals are
@@ -333,7 +346,7 @@ static unsigned short detect_daughter_board_profile(void)
 {
 	unsigned short val;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	if (i2c_probe(I2C_CPLD_ADDR))
 		return PROFILE_NONE;
 
@@ -360,13 +373,14 @@ void enable_board_pin_mux(void)
 		/* Beaglebone pinmux */
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 		configure_module_pin_mux(nand_pin_mux);
 #elif defined(CONFIG_NOR)
 		configure_module_pin_mux(bone_norcape_pin_mux);
 #else
 		configure_module_pin_mux(mmc1_pin_mux);
 #endif
+		configure_module_pin_mux(i2c2_pin_mux);
 	} else if (board_is_gp_evm()) {
 		/* General Purpose EVM */
 		unsigned short profile = detect_daughter_board_profile();
@@ -376,7 +390,7 @@ void enable_board_pin_mux(void)
 		if (profile & ~PROFILE_2)
 			configure_module_pin_mux(i2c1_pin_mux);
 		/* Profiles 2 & 3 don't have NAND */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 		if (profile & ~(PROFILE_2 | PROFILE_3))
 			configure_module_pin_mux(nand_pin_mux);
 #endif
@@ -404,13 +418,14 @@ void enable_board_pin_mux(void)
 		}
 		/* Beaglebone LT pinmux */
 		configure_module_pin_mux(mmc0_pin_mux);
-#if defined(CONFIG_NAND) && defined(CONFIG_EMMC_BOOT)
+#if defined(CONFIG_MTD_RAW_NAND) && defined(CONFIG_EMMC_BOOT)
 		configure_module_pin_mux(nand_pin_mux);
 #elif defined(CONFIG_NOR) && defined(CONFIG_EMMC_BOOT)
 		configure_module_pin_mux(bone_norcape_pin_mux);
 #else
 		configure_module_pin_mux(mmc1_pin_mux);
 #endif
+		configure_module_pin_mux(i2c2_pin_mux);
 	} else if (board_is_pb()) {
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);

@@ -9,10 +9,14 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <clk.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/err.h>
 
 #define MSCC_SGPIOS_PER_BANK	32
 #define MSCC_SGPIO_BANK_DEPTH	4
@@ -271,5 +275,5 @@ U_BOOT_DRIVER(gpio_mscc_sgpio) = {
 	.of_match		= mscc_sgpio_ids,
 	.ops			= &mscc_sgpio_ops,
 	.probe			= mscc_sgpio_probe,
-	.priv_auto_alloc_size	= sizeof(struct mscc_sgpio_priv),
+	.priv_auto	= sizeof(struct mscc_sgpio_priv),
 };

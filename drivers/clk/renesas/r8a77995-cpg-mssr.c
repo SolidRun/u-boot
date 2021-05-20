@@ -13,6 +13,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <linux/bitops.h>
 
 #include <dt-bindings/clock/r8a77995-cpg-mssr.h>
 
@@ -201,18 +202,18 @@ static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[2] = {
 };
 
 static const struct mstp_stop_table r8a77995_mstp_table[] = {
-	{ 0x00200000, 0x0, 0x00200000, 0 },
-	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
-	{ 0x340E2FDC, 0x2040, 0x340E2FDC, 0 },
-	{ 0xFFFFFFDF, 0x400, 0xFFFFFFDF, 0 },
-	{ 0x80000184, 0x180, 0x80000184, 0 },
-	{ 0xC3FFFFFF, 0x0, 0xC3FFFFFF, 0 },
-	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
-	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
-	{ 0x01F1FFF7, 0x0, 0x01F1FFF7, 0 },
-	{ 0xFFFFFFFE, 0x0, 0xFFFFFFFE, 0 },
-	{ 0xFFFEFFE0, 0x0, 0xFFFEFFE0, 0 },
-	{ 0x000000B7, 0x0, 0x000000B7, 0 },
+	{ 0x00210000, 0x0, 0x00210000, 0 },
+	{ 0x03e01000, 0x0, 0x03e01000, 0 },
+	{ 0x000e2fdc, 0x2000, 0x000e2fd8, 0 },
+	{ 0xc00014df, 0x400, 0xc00014df, 0 },
+	{ 0x80000004, 0x180, 0x80000004, 0 },
+	{ 0x40d20004, 0x0, 0x40d20004, 0 },
+	{ 0x08c0008c, 0x0, 0x08c0008c, 0 },
+	{ 0x09941c18, 0x0, 0x09941c18, 0 },
+	{ 0x00801087, 0x0, 0x00801087, 0 },
+	{ 0xf143dfc0, 0x0, 0xf143dfc0, 0 },
+	{ 0x063e1820, 0x0, 0x063e1820, 0 },
+	{ 0x00000000, 0x0, 0x00000000, 0 },
 };
 
 static const void *r8a77995_get_pll_config(const u32 cpg_mode)
@@ -246,7 +247,7 @@ U_BOOT_DRIVER(clk_r8a77995) = {
 	.name		= "clk_r8a77995",
 	.id		= UCLASS_CLK,
 	.of_match	= r8a77995_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct gen3_clk_priv),
+	.priv_auto	= sizeof(struct gen3_clk_priv),
 	.ops		= &gen3_clk_ops,
 	.probe		= gen3_clk_probe,
 	.remove		= gen3_clk_remove,

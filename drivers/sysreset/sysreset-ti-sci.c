@@ -9,7 +9,10 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <sysreset.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 
 /**
@@ -48,8 +51,7 @@ static int ti_sci_sysreset_request(struct udevice *dev, enum sysreset_t type)
 
 	ret = cops->reboot_device(sci);
 	if (ret)
-		dev_err(rst->dev, "%s: reboot_device failed (%d)\n",
-			__func__, ret);
+		dev_err(dev, "%s: reboot_device failed (%d)\n", __func__, ret);
 
 	return ret;
 }
@@ -68,6 +70,6 @@ U_BOOT_DRIVER(ti_sci_sysreset) = {
 	.id = UCLASS_SYSRESET,
 	.of_match = ti_sci_sysreset_of_match,
 	.probe = ti_sci_sysreset_probe,
-	.priv_auto_alloc_size = sizeof(struct ti_sci_sysreset_data),
+	.priv_auto	= sizeof(struct ti_sci_sysreset_data),
 	.ops = &ti_sci_sysreset_ops,
 };

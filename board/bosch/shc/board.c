@@ -12,7 +12,13 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
+#include <cpu_func.h>
+#include <env.h>
 #include <errno.h>
+#include <init.h>
+#include <irq_func.h>
+#include <net.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -23,16 +29,17 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <linux/delay.h>
 #include <power/tps65217.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <watchdog.h>
-#include <environment.h>
 #include "mmc.h"
 #include "board.h"
 
@@ -442,7 +449,7 @@ int board_init(void)
 		puts("EEPROM Content Invalid.\n");
 
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-#if defined(CONFIG_NOR) || defined(CONFIG_NAND)
+#if defined(CONFIG_NOR) || defined(CONFIG_MTD_RAW_NAND)
 	gpmc_init();
 #endif
 	shc_request_gpio();
@@ -466,7 +473,7 @@ int board_late_init(void)
 
 #if defined(CONFIG_USB_ETHER) && \
 	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return usb_eth_initialize(bis);
 }
@@ -479,7 +486,7 @@ static void bosch_check_reset_pin(void)
 		printf("Resetting ...\n");
 		writel(RESET_MASK, GPIO1_BASE + OMAP_GPIO_IRQSTATUS_SET_0);
 		disable_interrupts();
-		reset_cpu(0);
+		reset_cpu();
 		/*NOTREACHED*/
 	}
 }

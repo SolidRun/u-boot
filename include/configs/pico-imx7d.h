@@ -29,17 +29,6 @@
 
 #define CONFIG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
 
-/* Network */
-#define CONFIG_FEC_MXC
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		1
-
-#define CONFIG_PHY_ATHEROS
-
-/* ENET1 */
-#define IMX_FEC_BASE			ENET_IPS_BASE_ADDR
-
 /* MMC Config */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
@@ -55,22 +44,26 @@
 /* When booting with FIT specify the node entry containing boot.scr */
 #if defined(CONFIG_FIT)
 #define PICO_BOOT_ENV \
-	"bootscr_fitimage_name=bootscr\0" \
-	"bootscriptaddr=0x83200000\0" \
-	"fdtovaddr=0x83100000\0" \
-	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"rootwait rw;\0" \
-	"loadbootscript=" \
-		"load mmc ${mmcdev}:${mmcpart} ${bootscriptaddr} ${script};\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-	"source ${bootscriptaddr}:${bootscr_fitimage_name}\0"
+	BOOTENV								\
+	"fdtovaddr=0x83100000\0"					\
+	"scriptaddr=0x83200000\0"					\
+	"mmcargs=setenv bootargs console=${console},${baudrate} "	\
+		"rootwait rw\0"						\
+	"boot_a_script="						\
+		"load ${devtype} ${devnum}:${distro_bootpart} "		\
+			"${scriptaddr} ${prefix}${script}; "		\
+		"iminfo ${scriptaddr};"					\
+		"if test $? -eq 1; then hab_failsafe; fi;"		\
+		"source ${scriptaddr}:bootscr\0"
 #else
 #define PICO_BOOT_ENV \
 	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
 		"setenv fdtfile imx7d-pico-hobbit.dtb\0" \
-	"bootmenu_1=Boot using PICO-Pi baseboard=" \
+	"bootmenu_1=Boot using PICO-Dwarf baseboard=" \
+		"setenv fdtfile imx7d-pico-dwarf.dtb\0" \
+	"bootmenu_2=Boot using PICO-Nymph baseboard=" \
+		"setenv fdtfile imx7d-pico-nymph.dtb\0" \
+	"bootmenu_3=Boot using PICO-Pi baseboard=" \
 		"setenv fdtfile imx7d-pico-pi.dtb\0" \
 	BOOTENV
 #endif
@@ -79,9 +72,9 @@
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"splashpos=m,m\0" \
+	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
 	"console=ttymxc4\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -108,21 +101,6 @@
 	"setup_emmc=mmc dev 0; gpt write mmc 0 $partitions; reset;\0" \
 	PICO_BOOT_ENV
 
-#if defined(CONFIG_FIT)
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev};" \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"iminfo ${bootscriptaddr};" \
-			"if test $? -eq 1; then hab_failsafe; fi;" \
-			"run bootscript; " \
-		"else " \
-			"echo Fail to load fitImage with boot script;" \
-			"hab_failsafe;" \
-		"fi; " \
-	"fi"
-#endif
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
@@ -130,9 +108,7 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
+#include <linux/stringify.h>
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
@@ -164,21 +140,15 @@
 #define CONFIG_POWER_PFUZE3000
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
 
-#ifdef CONFIG_VIDEO
+#ifdef CONFIG_DM_VIDEO
 #define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_BMP_16BPP
-#define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
 
 /* FLASH and environment organization */
-#define CONFIG_ENV_SIZE			SZ_8K
 
 /* Environment starts at 768k = 768 * 1024 = 786432 */
-#define CONFIG_ENV_OFFSET		786432
 /*
  * Detect overlap between U-Boot image and environment area in build-time
  *
@@ -192,15 +162,10 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM		2
 
-#define CONFIG_SYS_MMC_ENV_DEV			0
-#define CONFIG_SYS_MMC_ENV_PART		0
-
 /* USB Configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC			(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS			0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
-
-#define CONFIG_IMX_THERMAL
 
 #endif

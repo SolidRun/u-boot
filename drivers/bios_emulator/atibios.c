@@ -46,10 +46,13 @@
 *		BIOS in u-boot.
 ****************************************************************************/
 #include <common.h>
+#include <compiler.h>
 #include <bios_emul.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <vbe.h>
+#include <linux/delay.h>
 #include "biosemui.h"
 
 /* Length of the BIOS image */
@@ -136,7 +139,6 @@ static int atibios_debug_mode(BE_VGAInfo *vga_info, RMREGS *regs,
 		bool linear_ok;
 		int attr;
 
-		break;
 		debug("Mode %x: ", mode);
 		memset(buffer, '\0', sizeof(struct vbe_mode_info));
 		regs->e.eax = VESA_GET_MODE_INFO;

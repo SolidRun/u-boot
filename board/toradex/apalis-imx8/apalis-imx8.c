@@ -4,6 +4,9 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
+#include <asm/global_data.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8-pins.h>
@@ -12,7 +15,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <environment.h>
+#include <env.h>
 #include <errno.h>
 #include <linux/libfdt.h>
 
@@ -35,24 +38,36 @@ static void setup_iomux_uart(void)
 	imx8_iomux_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
 }
 
+void board_mem_get_layout(u64 *phys_sdram_1_start,
+			  u64 *phys_sdram_1_size,
+			  u64 *phys_sdram_2_start,
+			  u64 *phys_sdram_2_size)
+{
+	u32 is_quadplus = 0, val = 0;
+	sc_err_t scierr = sc_misc_otp_fuse_read(-1, 6, &val);
+
+	if (scierr == SC_ERR_NONE) {
+		/* QP has one A72 core disabled */
+		is_quadplus = ((val >> 4) & 0x3) != 0x0;
+	}
+
+	*phys_sdram_1_start = PHYS_SDRAM_1;
+	*phys_sdram_1_size = PHYS_SDRAM_1_SIZE;
+	*phys_sdram_2_start = PHYS_SDRAM_2;
+	if (is_quadplus)
+		/* Our QP based SKUs only have 2 GB RAM (PHYS_SDRAM_1_SIZE) */
+		*phys_sdram_2_size = 0x0UL;
+	else
+		*phys_sdram_2_size = PHYS_SDRAM_2_SIZE;
+}
+
 int board_early_init_f(void)
 {
-	sc_pm_clock_rate_t rate;
+	sc_pm_clock_rate_t rate = SC_80MHZ;
 	sc_err_t err = 0;
 
-	/* Power up UART1 */
-	err = sc_pm_set_resource_power_mode(-1, SC_R_UART_1, SC_PM_PW_MODE_ON);
-	if (err != SC_ERR_NONE)
-		return 0;
-
-	/* Set UART3 clock root to 80 MHz */
-	rate = 80000000;
-	err = sc_pm_set_clock_rate(-1, SC_R_UART_1, SC_PM_CLK_PER, &rate);
-	if (err != SC_ERR_NONE)
-		return 0;
-
-	/* Enable UART1 clock root */
-	err = sc_pm_clock_enable(-1, SC_R_UART_1, SC_PM_CLK_PER, true, false);
+	/* Set UART1 clock root to 80 MHz and enable it */
+	err = sc_pm_setup_uart(SC_R_UART_1, rate);
 	if (err != SC_ERR_NONE)
 		return 0;
 
@@ -61,7 +76,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if IS_ENABLED(CONFIG_DM_GPIO)
+#if CONFIG_IS_ENABLED(DM_GPIO)
 static void board_gpio_init(void)
 {
 	/* TODO */
@@ -82,19 +97,6 @@ int board_phy_config(struct phy_device *phydev)
 }
 #endif
 
-void build_info(void)
-{
-	u32 sc_build = 0, sc_commit = 0;
-
-	/* Get SCFW build and commit id */
-	sc_misc_build_info(-1, &sc_build, &sc_commit);
-	if (!sc_build) {
-		printf("SCFW does not support build info\n");
-		sc_commit = 0; /* Display 0 if build info not supported */
-	}
-	printf("Build: SCFW %x\n", sc_commit);
-}
-
 int checkboard(void)
 {
 	puts("Model: Toradex Apalis iMX8\n");
@@ -112,21 +114,16 @@ int board_init(void)
 	return 0;
 }
 
-void detail_board_ddr_info(void)
-{
-	puts("\nDDR    ");
-}
-
 /*
  * Board specific reset that is system reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/* TODO */
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return ft_common_board_setup(blob, bd);
 }

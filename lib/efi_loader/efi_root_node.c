@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <efi_dt_fixup.h>
 #include <efi_loader.h>
 
 const efi_guid_t efi_u_boot_guid = U_BOOT_GUID;
@@ -57,16 +58,17 @@ efi_status_t efi_root_node_register(void)
 			 &efi_guid_device_path_to_text_protocol,
 			 (void *)&efi_device_path_to_text,
 #endif
+#ifdef CONFIG_EFI_DEVICE_PATH_UTIL
 			 /* Device path utilities protocol */
 			 &efi_guid_device_path_utilities_protocol,
 			 (void *)&efi_device_path_utilities,
-#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL2)
-#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
-			 /* Deprecated Unicode collation protocol */
-			 &efi_guid_unicode_collation_protocol,
-			 (void *)&efi_unicode_collation_protocol,
 #endif
-			 /* Current Unicode collation protocol */
+#ifdef CONFIG_EFI_DT_FIXUP
+			 /* Device-tree fix-up protocol */
+			 &efi_guid_dt_fixup_protocol,
+			 (void *)&efi_dt_fixup_prot,
+#endif
+#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL2)
 			 &efi_guid_unicode_collation_protocol2,
 			 (void *)&efi_unicode_collation_protocol2,
 #endif
@@ -77,9 +79,6 @@ efi_status_t efi_root_node_register(void)
 			 /* HII database protocol */
 			 &efi_guid_hii_database_protocol,
 			 (void *)&efi_hii_database,
-			 /* HII configuration routing protocol */
-			 &efi_guid_hii_config_routing_protocol,
-			 (void *)&efi_hii_config_routing,
 #endif
 			 NULL));
 	efi_root->type = EFI_OBJECT_TYPE_U_BOOT_FIRMWARE;

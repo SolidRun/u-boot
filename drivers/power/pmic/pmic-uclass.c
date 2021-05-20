@@ -8,6 +8,7 @@
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>
+#include <log.h>
 #include <vsprintf.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
@@ -195,5 +196,5 @@ UCLASS_DRIVER(pmic) = {
 	.id		= UCLASS_PMIC,
 	.name		= "pmic",
 	.pre_probe	= pmic_pre_probe,
-	.per_device_auto_alloc_size = sizeof(struct uc_pmic_priv),
+	.per_device_auto	= sizeof(struct uc_pmic_priv),
 };

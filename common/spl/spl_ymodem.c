@@ -9,6 +9,9 @@
  * Matt Porter <mporter@ti.com>
  */
 #include <common.h>
+#include <gzip.h>
+#include <image.h>
+#include <log.h>
 #include <spl.h>
 #include <xyzModem.h>
 #include <asm/u-boot.h>
@@ -29,34 +32,39 @@ struct ymodem_fit_info {
 
 static int getcymodem(void) {
 	if (tstc())
-		return (getc());
+		return (getchar());
 	return -1;
 }
 
 static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 			     ulong size, void *addr)
 {
-	int res, err;
+	int res, err, buf_offset;
 	struct ymodem_fit_info *info = load->priv;
 	char *buf = info->buf;
 
 	while (info->image_read < offset) {
 		res = xyzModem_stream_read(buf, BUF_SIZE, &err);
 		if (res <= 0)
-			return res;
+			break;
+
 		info->image_read += res;
 	}
 
 	if (info->image_read > offset) {
 		res = info->image_read - offset;
-		memcpy(addr, &buf[BUF_SIZE - res], res);
+		if (info->image_read % BUF_SIZE)
+			buf_offset = (info->image_read % BUF_SIZE);
+		else
+			buf_offset = BUF_SIZE;
+		memcpy(addr, &buf[buf_offset - res], res);
 		addr = addr + res;
 	}
 
 	while (info->image_read < offset + size) {
 		res = xyzModem_stream_read(buf, BUF_SIZE, &err);
 		if (res <= 0)
-			return res;
+			break;
 
 		memcpy(addr, buf, res);
 		info->image_read += res;
@@ -66,8 +74,8 @@ static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 	return size;
 }
 
-static int spl_ymodem_load_image(struct spl_image_info *spl_image,
-				 struct spl_boot_device *bootdev)
+int spl_ymodem_load_image(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev)
 {
 	ulong size = 0;
 	int err;

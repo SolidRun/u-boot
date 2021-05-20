@@ -4,6 +4,9 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
+#include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/addrspace.h>
 #include <asm/types.h>

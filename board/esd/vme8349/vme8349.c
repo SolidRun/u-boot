@@ -12,8 +12,12 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
+#include <init.h>
 #include <ioports.h>
 #include <mpc83xx.h>
+#include <net.h>
+#include <asm/global_data.h>
 #include <asm/mpc8349_pci.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <linux/libfdt.h>
@@ -70,14 +74,14 @@ int checkboard(void)
 }
 
 #ifdef CONFIG_TARGET_CADDY2
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return pci_eth_init(bis);
 }
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 

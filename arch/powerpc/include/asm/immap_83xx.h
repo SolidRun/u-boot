@@ -941,8 +941,7 @@ typedef struct immap {
 	u8			res4[0x500];
 	fsl_lbc_t		im_lbc;		/* Local Bus Controller Regs */
 	u8			res5[0x1000];
-	u8			spi[0x100];
-	u8			res6[0xf00];
+	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
 	pciconf83xx_t		pci_conf[1];	/* PCI Configuration Registers */
 	u8			res7[0x80];
@@ -966,6 +965,19 @@ typedef struct immap {
 	u8			res14[0xE00000];/* Added for 8309 */
 } immap_t;
 #endif
+
+struct ccsr_gpio {
+	u32	gpdir;
+	u32	gpodr;
+	u32	gpdat;
+	u32	gpier;
+	u32	gpimr;
+	u32	gpicr;
+	union	{
+			u32	gpibe;
+			u8	res0[0xE8];
+	};
+};
 
 #define CONFIG_SYS_MPC8xxx_DDR_OFFSET	(0x2000)
 #define CONFIG_SYS_FSL_DDR_ADDR \

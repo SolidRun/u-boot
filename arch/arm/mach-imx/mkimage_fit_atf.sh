@@ -16,7 +16,7 @@ if [ ! -f $BL31 ]; then
 	exit 0
 else
 	echo "$BL31 size: " >&2
-	ls -lct $BL31 | awk '{print $5}' >&2
+	stat -c %s $BL31 >&2
 fi
 
 BL32="tee.bin"
@@ -26,7 +26,7 @@ if [ ! -f $BL32 ]; then
 else
 	echo "Building with TEE support, make sure your $BL31 is compiled with spd. If you do not want tee, please delete $BL31" >&2
 	echo "$BL32 size: " >&2
-	ls -lct $BL32 | awk '{print $5}' >&2
+	stat -c %s $BL32 >&2
 fi
 
 BL33="u-boot-nodtb.bin"
@@ -36,13 +36,13 @@ if [ ! -f $BL33 ]; then
 	exit 0
 else
 	echo "u-boot-nodtb.bin size: " >&2
-	ls -lct u-boot-nodtb.bin | awk '{print $5}' >&2
+	stat -c %s u-boot-nodtb.bin >&2
 fi
 
 for dtname in $*
 do
 	echo "$dtname size: " >&2
-	ls -lct $dtname | awk '{print $5}' >&2
+	stat -c %s $dtname >&2
 done
 
 
@@ -55,14 +55,33 @@ cat << __HEADER_EOF
 	images {
 		uboot@1 {
 			description = "U-Boot (64-bit)";
+			os = "u-boot";
 			data = /incbin/("$BL33");
 			type = "standalone";
 			arch = "arm64";
 			compression = "none";
 			load = <$BL33_LOAD_ADDR>;
 		};
+__HEADER_EOF
+
+cnt=1
+for dtname in $*
+do
+	cat << __FDT_IMAGE_EOF
+		fdt@$cnt {
+			description = "$(basename $dtname .dtb)";
+			data = /incbin/("$dtname");
+			type = "flat_dt";
+			compression = "none";
+		};
+__FDT_IMAGE_EOF
+cnt=$((cnt+1))
+done
+
+cat << __HEADER_EOF
 		atf@1 {
 			description = "ARM Trusted Firmware";
+			os = "arm-trusted-firmware";
 			data = /incbin/("$BL31");
 			type = "firmware";
 			arch = "arm64";
@@ -85,20 +104,6 @@ cat << __HEADER_EOF
 		};
 __HEADER_EOF
 fi
-
-cnt=1
-for dtname in $*
-do
-	cat << __FDT_IMAGE_EOF
-		fdt@$cnt {
-			description = "$(basename $dtname .dtb)";
-			data = /incbin/("$dtname");
-			type = "flat_dt";
-			compression = "none";
-		};
-__FDT_IMAGE_EOF
-cnt=$((cnt+1))
-done
 
 cat << __CONF_HEADER_EOF
 	};

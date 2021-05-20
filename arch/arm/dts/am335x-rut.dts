@@ -149,13 +149,8 @@
 };
 
 &cpsw_emac0 {
-	phy_id = <&davinci_mdio>, <1>;
 	phy-mode = "rmii";
-};
-
-&cpsw_emac1 {
-	phy_id = <&davinci_mdio>, <0>;
-	phy-mode = "rmii";
+	phy-handle = <&ethernet_phy>;
 };
 
 &davinci_mdio {
@@ -179,7 +174,7 @@
 &epwmss0 {
 	status = "okay";
 
-	ecap0: ecap@48300100 {
+	ecap0: ecap@100 {
 		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&ecap0_pins>;

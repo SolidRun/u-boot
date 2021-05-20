@@ -12,6 +12,8 @@
 #include <dm.h>
 #include <ram.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 /* EMI */
 #define EMI_CONA			0x000
@@ -762,5 +764,5 @@ U_BOOT_DRIVER(mediatek_ddr3) = {
 	.of_match = mtk_ddr3_ids,
 	.ops      = &mtk_ddr3_ops,
 	.probe    = mtk_ddr3_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_ddr3_priv),
+	.priv_auto	= sizeof(struct mtk_ddr3_priv),
 };

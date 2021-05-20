@@ -11,11 +11,14 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <generic-phy.h>
+#include <malloc.h>
 #include <reset.h>
 #include <syscon.h>
 #include <usb.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 
 #define USBHS_LPSTS			0x02
@@ -186,5 +189,5 @@ U_BOOT_DRIVER(rcar_gen2_phy) = {
 	.ops		= &rcar_gen2_phy_phy_ops,
 	.probe		= rcar_gen2_phy_probe,
 	.remove		= rcar_gen2_phy_remove,
-	.priv_auto_alloc_size = sizeof(struct rcar_gen2_phy),
+	.priv_auto	= sizeof(struct rcar_gen2_phy),
 };

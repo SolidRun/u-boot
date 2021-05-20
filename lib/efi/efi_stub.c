@@ -14,6 +14,7 @@
 #include <efi.h>
 #include <efi_api.h>
 #include <errno.h>
+#include <malloc.h>
 #include <ns16550.h>
 #include <asm/cpu.h>
 #include <asm/io.h>
@@ -66,7 +67,7 @@ void putc(const char ch)
 		putc('\r');
 
 	if (use_uart) {
-		NS16550_t com_port = (NS16550_t)0x3f8;
+		struct ns16550 *com_port = (struct ns16550 *)0x3f8;
 
 		while ((inb((ulong)&com_port->lsr) & UART_LSR_THRE) == 0)
 			;

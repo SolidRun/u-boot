@@ -10,6 +10,10 @@
 #ifndef _MVEBU_SOC_H
 #define _MVEBU_SOC_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define SOC_MV78230_ID		0x7823
 #define SOC_MV78260_ID		0x7826
 #define SOC_MV78460_ID		0x7846
@@ -159,7 +163,9 @@
 #define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
 
 #define BOOT_FROM_NAND		0x0A
+#define BOOT_FROM_SATA		0x22
 #define BOOT_FROM_UART		0x28
+#define BOOT_FROM_SATA_ALT	0x2A
 #define BOOT_FROM_UART_ALT	0x3f
 #define BOOT_FROM_SPI		0x32
 #define BOOT_FROM_MMC		0x30

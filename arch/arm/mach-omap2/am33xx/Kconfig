@@ -34,6 +34,7 @@ config TARGET_AM335X_EVM
 	select DM_GPIO
 	select DM_SERIAL
 	select TI_I2C_BOARD_DETECT
+	select SUPPORT_EXTENSION_SCAN
 	imply CMD_DM
 	imply SPL_DM
 	imply SPL_DM_SEQ_ALIAS
@@ -89,6 +90,7 @@ config TARGET_AM335X_SHC
 
 config TARGET_AM335X_GUARDIAN
 	bool "Support am335x based guardian board from bosch"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
@@ -102,23 +104,12 @@ config TARGET_AM335X_SL50
 	select DM_SERIAL
 	imply CMD_DM
 
-config TARGET_BAV335X
-	bool "Support bav335x"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	imply CMD_DM
-	help
-	  The BAV335x OEM Network Processor integrates all the functions of an
-	  embedded network computer in a small, easy to use SODIMM module which
-	  incorporates the popular Texas Instruments Sitara 32bit ARM Coretex-A8
-	  processor, with fast DDR3 512MB SDRAM, 4GB of embedded MMC and a Gigabit
-	  ethernet with simple connection to external connectors.
-
-	  For more information, visit: http://birdland.com/oem
-
 config TARGET_BRXRE1
 	bool "Support BRXRE1"
+	select BOARD_LATE_INIT
+
+config TARGET_BRSMARC1
+	bool "Support BRSMARC1"
 	select BOARD_LATE_INIT
 
 config TARGET_BRPPT1
@@ -163,15 +154,8 @@ config TARGET_PCM051
 	select DM_SERIAL
 	imply CMD_DM
 
-config TARGET_PENGWYN
-	bool "Support pengwyn"
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
-	imply CMD_DM
-
-config TARGET_PEPPER
-	bool "Support pepper"
+config TARGET_PHYCORE_AM335X_R2
+	bool "Support phyCORE AM335X R2"
 	select DM
 	select DM_GPIO
 	select DM_SERIAL

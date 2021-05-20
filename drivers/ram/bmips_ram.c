@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
 #include <ram.h>
 #include <asm/io.h>
 
@@ -171,6 +172,6 @@ U_BOOT_DRIVER(bmips_ram) = {
 	.id = UCLASS_RAM,
 	.of_match = bmips_ram_ids,
 	.probe = bmips_ram_probe,
-	.priv_auto_alloc_size = sizeof(struct bmips_ram_priv),
+	.priv_auto	= sizeof(struct bmips_ram_priv),
 	.ops = &bmips_ram_ops,
 };

@@ -59,19 +59,10 @@ config DWC_AHCI
 	  Enable this driver to support Sata devices through
 	  Synopsys DWC AHCI module.
 
-config FSL_AHCI
-	bool "Enable Freescale AHCI driver support"
-	select SCSI_AHCI
-	depends on AHCI
-	depends on DM_SCSI
-	help
-	  Enable this driver to support Sata devices found in
-	  some Freescale PowerPC SoCs.
-
-
 config DWC_AHSATA
 	bool "Enable DWC AHSATA driver support"
 	select LIBATA
+	depends on BLK
 	help
 	  Enable this driver to support the DWC AHSATA SATA controller found
 	  in i.MX5 and i.MX6 SoCs.
@@ -86,16 +77,12 @@ config DWC_AHSATA_AHCI
 
 config FSL_SATA
 	bool "Enable Freescale SATA controller driver support"
+	select AHCI
 	select LIBATA
+	depends on BLK
 	help
 	  Enable this driver to support the SATA controller found in
 	  some Freescale PowerPC SoCs.
-
-config MVSATA_IDE
-	bool "Enable Marvell SATA controller driver support via IDE interface"
-	help
-	  Enable this driver to support the SATA controller found in
-	  some Marvell SoCs, running in IDE compatibility mode using PIO.
 
 config SATA_MV
 	bool "Enable Marvell SATA controller driver support"
@@ -108,7 +95,9 @@ config SATA_MV
 
 config SATA_SIL
 	bool "Enable Silicon Image SIL3131 / SIL3132 / SIL3124 SATA driver support"
+	select AHCI
 	select LIBATA
+	depends on BLK
 	help
 	  Enable this driver to support the SIL3131, SIL3132 and SIL3124
 	  SATA controllers.
@@ -129,7 +118,7 @@ config SUNXI_AHCI
 
 config AHCI_MVEBU
 	bool "Marvell EBU AHCI SATA support"
-	depends on ARCH_MVEBU
+	depends on ARCH_MVEBU || ARCH_OCTEON
 	depends on AHCI
 	select SCSI_AHCI
 	select DM_SCSI
@@ -138,4 +127,12 @@ config AHCI_MVEBU
 	  onboard AHCI SATA.
 
 	  If unsure, say N.
+
+config MTK_AHCI
+	bool "Enable Mediatek AHCI driver support"
+	depends on AHCI
+	help
+	  Enable this driver to support Sata devices through
+	  Mediatek AHCI controller (e.g. MT7622).
+
 endmenu

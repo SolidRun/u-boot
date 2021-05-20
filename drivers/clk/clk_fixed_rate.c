@@ -6,31 +6,43 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
-
-struct clk_fixed_rate {
-	unsigned long fixed_rate;
-};
-
-#define to_clk_fixed_rate(dev)	((struct clk_fixed_rate *)dev_get_platdata(dev))
+#include <dm/device-internal.h>
+#include <linux/clk-provider.h>
 
 static ulong clk_fixed_rate_get_rate(struct clk *clk)
 {
-	if (clk->id != 0)
-		return -EINVAL;
-
 	return to_clk_fixed_rate(clk->dev)->fixed_rate;
+}
+
+/* avoid clk_enable() return -ENOSYS */
+static int dummy_enable(struct clk *clk)
+{
+	return 0;
 }
 
 const struct clk_ops clk_fixed_rate_ops = {
 	.get_rate = clk_fixed_rate_get_rate,
+	.enable = dummy_enable,
 };
 
-static int clk_fixed_rate_ofdata_to_platdata(struct udevice *dev)
+void clk_fixed_rate_ofdata_to_plat_(struct udevice *dev,
+				    struct clk_fixed_rate *plat)
 {
+	struct clk *clk = &plat->clk;
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	to_clk_fixed_rate(dev)->fixed_rate =
-		dev_read_u32_default(dev, "clock-frequency", 0);
+	plat->fixed_rate = dev_read_u32_default(dev, "clock-frequency", 0);
 #endif
+	/* Make fixed rate clock accessible from higher level struct clk */
+	/* FIXME: This is not allowed */
+	dev_set_uclass_priv(dev, clk);
+
+	clk->dev = dev;
+	clk->enable_count = 0;
+}
+
+static int clk_fixed_rate_of_to_plat(struct udevice *dev)
+{
+	clk_fixed_rate_ofdata_to_plat_(dev, to_clk_fixed_rate(dev));
 
 	return 0;
 }
@@ -42,11 +54,12 @@ static const struct udevice_id clk_fixed_rate_match[] = {
 	{ /* sentinel */ }
 };
 
-U_BOOT_DRIVER(clk_fixed_rate) = {
-	.name = "fixed_rate_clock",
+U_BOOT_DRIVER(fixed_clock) = {
+	.name = "fixed_clock",
 	.id = UCLASS_CLK,
 	.of_match = clk_fixed_rate_match,
-	.ofdata_to_platdata = clk_fixed_rate_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct clk_fixed_rate),
+	.of_to_plat = clk_fixed_rate_of_to_plat,
+	.plat_auto	= sizeof(struct clk_fixed_rate),
 	.ops = &clk_fixed_rate_ops,
+	.flags = DM_FLAG_PRE_RELOC,
 };

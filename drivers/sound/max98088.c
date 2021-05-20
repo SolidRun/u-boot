@@ -14,6 +14,7 @@
 #include <dm.h>
 #include <i2c.h>
 #include <i2s.h>
+#include <log.h>
 #include <sound.h>
 #include <asm/gpio.h>
 #include "maxim_codec.h"
@@ -420,5 +421,5 @@ U_BOOT_DRIVER(max98088) = {
 	.of_match	= max98088_ids,
 	.probe		= max98088_probe,
 	.ops		= &max98088_ops,
-	.priv_auto_alloc_size	= sizeof(struct maxim_priv),
+	.priv_auto	= sizeof(struct maxim_priv),
 };

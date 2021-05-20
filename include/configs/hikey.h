@@ -47,15 +47,11 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_8M)
 
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_DWC2_REG_ADDR 0xF72C0000
-/*#define CONFIG_DWC2_DFLT_SPEED_FULL*/
+#ifdef CONFIG_USB_DWC2
 #define CONFIG_DWC2_ENABLE_DYNAMIC_FIFO
 #endif
 
 #define CONFIG_HIKEY_GPIO
-
-/* Command line configuration */
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
@@ -82,9 +78,6 @@
 				BOOTENV
 
 /* Preserve environment on eMMC */
-#define CONFIG_ENV_SIZE			0x1000
-#define CONFIG_SYS_MMC_ENV_DEV		0	/* Use eMMC */
-#define CONFIG_SYS_MMC_ENV_PART		2	/* Use Boot1 partition */
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */

@@ -32,41 +32,11 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
-/* Init Functions */
-
-/* Driver Model */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_DM_GPIO
-#define CONFIG_DM_THERMAL
-#endif
-
-/* Thermal */
-#define CONFIG_IMX_THERMAL
-
 /* Serial */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
-#ifdef CONFIG_SPI_FLASH
-
-/* SPI */
-#ifdef CONFIG_CMD_SF
-  #define CONFIG_SPI_FLASH_MTD
-					     /* GPIO 3-19 (21248) */
-#endif
-
-#elif defined(CONFIG_SPL_NAND_SUPPORT)
-/* Enable NAND support */
-#ifdef CONFIG_CMD_NAND
-  #define CONFIG_SYS_MAX_NAND_DEVICE	1
-  #define CONFIG_SYS_NAND_BASE		0x40000000
-  #define CONFIG_SYS_NAND_5_ADDR_CYCLE
-  #define CONFIG_SYS_NAND_ONFI_DETECTION
-
-  /* DMA stuff, needed for GPMI/MXS NAND support */
-#endif
-
-#endif /* CONFIG_SPI_FLASH */
+/* NAND */
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* I2C Configs */
 #define CONFIG_SYS_I2C
@@ -111,7 +81,6 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-#define CONFIG_CMD_UNZIP         /* gzwrite */
 
 /* Ethernet support */
 #define CONFIG_FEC_MXC
@@ -121,29 +90,22 @@
 #define CONFIG_ARP_TIMEOUT       200UL
 
 /* USB Configs */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET  /* For OTG port */
 #define CONFIG_MXC_USB_PORTSC     (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS      0
 #define CONFIG_USBD_HS
-#define CONFIG_NETCONSOLE
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_SPLASH_SCREEN_ALIGN
 #define CONFIG_HIDE_LOGO_VERSION  /* Custom config to hide U-boot version */
 
 /* Miscellaneous configurable options */
 #define CONFIG_HWCONFIG
-#define CONFIG_PREBOOT
 
 /* Memory configuration */
-#define CONFIG_SYS_MEMTEST_START       0x10000000
-#define CONFIG_SYS_MEMTEST_END	       0x10010000
-#define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
@@ -161,23 +123,6 @@
  */
 
 /* Persistent Environment Config */
-#if defined(CONFIG_ENV_IS_IN_MMC)
-  #define CONFIG_SYS_MMC_ENV_DEV         0
-  #define CONFIG_SYS_MMC_ENV_PART        1
-  #define CONFIG_ENV_OFFSET              (709 * SZ_1K)
-  #define CONFIG_ENV_SIZE                (128 * SZ_1K)
-  #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (128 * SZ_1K))
-#elif defined(CONFIG_ENV_IS_IN_NAND)
-  #define CONFIG_ENV_OFFSET              (16 * SZ_1M)
-  #define CONFIG_ENV_SECT_SIZE           (128 * SZ_1K)
-  #define CONFIG_ENV_SIZE                CONFIG_ENV_SECT_SIZE
-  #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (512 * SZ_1K))
-  #define CONFIG_ENV_SIZE_REDUND         CONFIG_ENV_SIZE
-#elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-  #define CONFIG_ENV_OFFSET		(512 * SZ_1K)
-  #define CONFIG_ENV_SECT_SIZE		(64 * SZ_1K)
-  #define CONFIG_ENV_SIZE		(8 * SZ_1K)
-#endif
 
 /* Environment */
 #define CONFIG_IPADDR             192.168.1.1

@@ -9,8 +9,9 @@
 
 #include <common.h>
 #include <ahci.h>
-#include <environment.h>
+#include <log.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <asm/omap_common.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/mmc_host_def.h>
@@ -188,27 +189,26 @@ u32 spl_boot_device(void)
 	return gd->arch.omap_boot_device;
 }
 
-u32 spl_boot_mode(const u32 boot_device)
+u32 spl_mmc_boot_mode(const u32 boot_device)
 {
 	return gd->arch.omap_boot_mode;
 }
 
 void spl_board_init(void)
 {
-#ifdef CONFIG_SPL_SERIAL_SUPPORT
 	/* Prepare console output */
 	preloader_console_init();
-#endif
+
 #if defined(CONFIG_SPL_NAND_SUPPORT) || defined(CONFIG_SPL_ONENAND_SUPPORT)
 	gpmc_init();
 #endif
-#if defined(CONFIG_SPL_I2C_SUPPORT) && !defined(CONFIG_DM_I2C)
+#if defined(CONFIG_SPL_I2C_SUPPORT) && !CONFIG_IS_ENABLED(DM_I2C)
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
 #if defined(CONFIG_AM33XX) && defined(CONFIG_SPL_MUSB_NEW_SUPPORT)
 	arch_misc_init();
 #endif
-#if defined(CONFIG_HW_WATCHDOG)
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 	hw_watchdog_init();
 #endif
 #ifdef CONFIG_AM33XX

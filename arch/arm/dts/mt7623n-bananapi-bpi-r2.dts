@@ -7,6 +7,7 @@
 
 /dts-v1/;
 #include "mt7623.dtsi"
+#include "mt7623-u-boot.dtsi"
 
 / {
 	model = "Bananapi BPI-R2";
@@ -172,6 +173,13 @@
 		};
 	};
 
+	pcie_default: pcie-default {
+		mux {
+			function = "pcie";
+			groups =  "pcie0_0_perst", "pcie1_0_perst";
+		};
+	};
+
 	uart0_pins_a: uart0-default {
 		mux {
 			function = "uart";
@@ -201,6 +209,28 @@
 	};
 };
 
+&pcie {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie_default>;
+	status = "okay";
+
+	pcie@0,0 {
+		status = "okay";
+	};
+
+	pcie@1,0 {
+		status = "okay";
+	};
+};
+
+&pcie0_phy {
+	status = "okay";
+};
+
+&pcie1_phy {
+	status = "okay";
+};
+
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pins_a>;
@@ -216,5 +246,21 @@
 &uart2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart2_pins_a>;
+	status = "okay";
+};
+
+&usb1 {
+	status = "okay";
+};
+
+&u3phy1 {
+	status = "okay";
+};
+
+&usb2 {
+	status = "okay";
+};
+
+&u3phy2 {
 	status = "okay";
 };

@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <i2s.h>
+#include <log.h>
 #include <misc.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/tegra_ahub.h>
@@ -252,5 +253,5 @@ U_BOOT_DRIVER(tegra_ahub) = {
 	.of_match	= tegra_ahub_ids,
 	.ops		= &tegra_ahub_ops,
 	.probe		= tegra_ahub_probe,
-	.priv_auto_alloc_size	= sizeof(struct tegra_ahub_priv),
+	.priv_auto	= sizeof(struct tegra_ahub_priv),
 };

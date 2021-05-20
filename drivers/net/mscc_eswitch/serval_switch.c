@@ -6,9 +6,12 @@
 #include <common.h>
 #include <config.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
 #include <dm/of_access.h>
 #include <dm/of_addr.h>
 #include <fdt_support.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/ioport.h>
 #include <miiphy.h>
@@ -17,18 +20,7 @@
 
 #include "mscc_xfer.h"
 #include "mscc_mac_table.h"
-
-#define GCB_MIIM_MII_STATUS			0x0
-#define		GCB_MIIM_STAT_BUSY			BIT(3)
-#define GCB_MIIM_MII_CMD			0x8
-#define		GCB_MIIM_MII_CMD_OPR_WRITE		BIT(1)
-#define		GCB_MIIM_MII_CMD_OPR_READ		BIT(2)
-#define		GCB_MIIM_MII_CMD_WRDATA(x)		((x) << 4)
-#define		GCB_MIIM_MII_CMD_REGAD(x)		((x) << 20)
-#define		GCB_MIIM_MII_CMD_PHYAD(x)		((x) << 25)
-#define		GCB_MIIM_MII_CMD_VLD			BIT(31)
-#define GCB_MIIM_DATA				0xC
-#define		GCB_MIIM_DATA_ERROR			(0x2 << 16)
+#include "mscc_miim.h"
 
 #define ANA_PORT_VLAN_CFG(x)			(0xc000 + 0x100 * (x))
 #define		ANA_PORT_VLAN_CFG_AWARE_ENA		BIT(20)
@@ -156,13 +148,6 @@ struct serval_private {
 	struct serval_phy_port_t ports[MAX_PORT];
 };
 
-struct mscc_miim_dev {
-	void __iomem *regs;
-	phys_addr_t miim_base;
-	unsigned long miim_size;
-	struct mii_dev *bus;
-};
-
 static const unsigned long serval_regs_qs[] = {
 	[MSCC_QS_XTR_RD] = 0x8,
 	[MSCC_QS_XTR_FLUSH] = 0x18,
@@ -179,84 +164,6 @@ static const unsigned long serval_regs_ana_table[] = {
 
 static struct mscc_miim_dev miim[SERVAL_MIIM_BUS_COUNT];
 static int miim_count = -1;
-
-static int mscc_miim_wait_ready(struct mscc_miim_dev *miim)
-{
-	return wait_for_bit_le32(miim->regs + GCB_MIIM_MII_STATUS,
-				 GCB_MIIM_STAT_BUSY, false, 250, false);
-}
-
-static int mscc_miim_read(struct mii_dev *bus, int addr, int devad, int reg)
-{
-	struct mscc_miim_dev *miim = (struct mscc_miim_dev *)bus->priv;
-	u32 val;
-	int ret;
-
-	ret = mscc_miim_wait_ready(miim);
-	if (ret)
-		goto out;
-
-	writel(GCB_MIIM_MII_CMD_VLD | GCB_MIIM_MII_CMD_PHYAD(addr) |
-	       GCB_MIIM_MII_CMD_REGAD(reg) | GCB_MIIM_MII_CMD_OPR_READ,
-	       miim->regs + GCB_MIIM_MII_CMD);
-
-	ret = mscc_miim_wait_ready(miim);
-	if (ret)
-		goto out;
-
-	val = readl(miim->regs + GCB_MIIM_DATA);
-	if (val & GCB_MIIM_DATA_ERROR) {
-		ret = -EIO;
-		goto out;
-	}
-
-	ret = val & 0xFFFF;
- out:
-	return ret;
-}
-
-static int mscc_miim_write(struct mii_dev *bus, int addr, int devad, int reg,
-			   u16 val)
-{
-	struct mscc_miim_dev *miim = (struct mscc_miim_dev *)bus->priv;
-	int ret;
-
-	ret = mscc_miim_wait_ready(miim);
-	if (ret < 0)
-		goto out;
-
-	writel(GCB_MIIM_MII_CMD_VLD | GCB_MIIM_MII_CMD_PHYAD(addr) |
-	       GCB_MIIM_MII_CMD_REGAD(reg) | GCB_MIIM_MII_CMD_WRDATA(val) |
-	       GCB_MIIM_MII_CMD_OPR_WRITE, miim->regs + GCB_MIIM_MII_CMD);
- out:
-	return ret;
-}
-
-static struct mii_dev *serval_mdiobus_init(phys_addr_t miim_base,
-					   unsigned long miim_size)
-{
-	struct mii_dev *bus;
-
-	bus = mdio_alloc();
-	if (!bus)
-		return NULL;
-
-	++miim_count;
-	sprintf(bus->name, "miim-bus%d", miim_count);
-
-	miim[miim_count].regs = ioremap(miim_base, miim_size);
-	miim[miim_count].miim_base = miim_base;
-	miim[miim_count].miim_size = miim_size;
-	bus->priv = &miim[miim_count];
-	bus->read = mscc_miim_read;
-	bus->write = mscc_miim_write;
-
-	if (mdio_register(bus))
-		return NULL;
-
-	miim[miim_count].bus = bus;
-	return bus;
-}
 
 static void serval_cpu_capture_setup(struct serval_private *priv)
 {
@@ -356,8 +263,6 @@ static void serdes_write(void __iomem *base, u32 addr)
 	do {
 		data = readl(base + HSIO_MCB_SERDES1G_CFG);
 	} while (data & HSIO_MCB_SERDES1G_CFG_WR_ONE_SHOT);
-
-	mdelay(100);
 }
 
 static void serdes1g_setup(void __iomem *base, uint32_t addr,
@@ -468,7 +373,7 @@ static int serval_initialize(struct serval_private *priv)
 static int serval_write_hwaddr(struct udevice *dev)
 {
 	struct serval_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	mscc_mac_table_add(priv->regs[ANA], serval_regs_ana_table,
 			   pdata->enetaddr, PGID_UNICAST);
@@ -481,7 +386,7 @@ static int serval_write_hwaddr(struct udevice *dev)
 static int serval_start(struct udevice *dev)
 {
 	struct serval_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const unsigned char mac[ETH_ALEN] = { 0xff, 0xff, 0xff, 0xff, 0xff,
 					      0xff };
 	int ret;
@@ -577,7 +482,6 @@ static int serval_probe(struct udevice *dev)
 	struct serval_private *priv = dev_get_priv(dev);
 	int i, ret;
 	struct resource res;
-	fdt32_t faddr;
 	phys_addr_t addr_base;
 	unsigned long addr_size;
 	ofnode eth_node, node, mdio_node;
@@ -628,15 +532,15 @@ static int serval_probe(struct udevice *dev)
 
 		if (ofnode_read_resource(mdio_node, 0, &res))
 			return -ENOMEM;
-		faddr = cpu_to_fdt32(res.start);
 
-		addr_base = ofnode_translate_address(mdio_node, &faddr);
+		addr_base = res.start;
 		addr_size = res.end - res.start;
 
 		/* If the bus is new then create a new bus */
 		if (!get_mdiobus(addr_base, addr_size))
 			priv->bus[miim_count] =
-				serval_mdiobus_init(addr_base, addr_size);
+				mscc_mdiobus_init(miim, &miim_count, addr_base,
+						  addr_size);
 
 		/* Connect mdio bus with the port */
 		bus = get_mdiobus(addr_base, addr_size);
@@ -698,6 +602,6 @@ U_BOOT_DRIVER(serval) = {
 	.probe				= serval_probe,
 	.remove				= serval_remove,
 	.ops				= &serval_ops,
-	.priv_auto_alloc_size		= sizeof(struct serval_private),
-	.platdata_auto_alloc_size	= sizeof(struct eth_pdata),
+	.priv_auto		= sizeof(struct serval_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

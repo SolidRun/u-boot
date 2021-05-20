@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <debug_uart.h>
 #include <errno.h>
+#include <malloc.h>
 #include <serial.h>
 #include <asm/io.h>
 #include <asm/types.h>
@@ -261,7 +262,7 @@ U_BOOT_DRIVER(bcm6345_serial) = {
 	.id = UCLASS_SERIAL,
 	.of_match = bcm6345_serial_ids,
 	.probe = bcm6345_serial_probe,
-	.priv_auto_alloc_size = sizeof(struct bcm6345_serial_priv),
+	.priv_auto	= sizeof(struct bcm6345_serial_priv),
 	.ops = &bcm6345_serial_ops,
 };
 

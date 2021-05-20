@@ -13,8 +13,8 @@
 
 #include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
+#include <linux/stringify.h>
 /* ------------------------------------------------------------------------- */
-#define CONFIG_AM335X_LCD
 #define LCD_BPP				LCD_COLOR32
 
 /* memory */
@@ -58,22 +58,11 @@ BUR_COMMON_ENV \
 
 #define CONFIG_BOOTCOMMAND		"mmc dev 1; run b_default"
 
-/* undefine command which we not need here */
-#undef CONFIG_BOOTM_NETBSD
-#undef CONFIG_BOOTM_PLAN9
-#undef CONFIG_BOOTM_RTEMS
-
 /* Support both device trees and ATAGs. */
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
 /* Environment */
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#define CONFIG_SYS_MMC_ENV_PART		2
-#define CONFIG_ENV_SIZE			0x10000
-#define CONFIG_ENV_OFFSET		0x40000	/* TODO: Adresse definieren */
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #endif	/* __CONFIG_BRXRE1_H__ */

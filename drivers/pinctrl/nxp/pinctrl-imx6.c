@@ -41,15 +41,15 @@ static const struct udevice_id imx6_pinctrl_match[] = {
 	{ /* sentinel */ }
 };
 
-U_BOOT_DRIVER(imx6_pinctrl) = {
-	.name = "imx6-pinctrl",
+U_BOOT_DRIVER(fsl_imx6q_iomuxc) = {
+	.name = "fsl_imx6q_iomuxc",
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(imx6_pinctrl_match),
 	.probe = imx6_pinctrl_probe,
 	.remove = imx_pinctrl_remove,
-	.priv_auto_alloc_size = sizeof(struct imx_pinctrl_priv),
+	.priv_auto	= sizeof(struct imx_pinctrl_priv),
 	.ops = &imx_pinctrl_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
-#endif
 };
+
+DM_DRIVER_ALIAS(fsl_imx6q_iomuxc, fsl_imx6dl_iomuxc)

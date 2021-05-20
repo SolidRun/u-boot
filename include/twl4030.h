@@ -648,20 +648,26 @@
  *   examples are TWL4030_PM_RECEIVER_VMMC1_DEV_GRP and
  *   TWL4030_LED_LEDEN.
  */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 static inline int twl4030_i2c_write_u8(u8 chip_no, u8 reg, u8 val)
 {
 	return i2c_write(chip_no, reg, 1, &val, 1);
 }
 
-static inline int twl4030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
+static inline int twl4030_i2c_read(u8 chip_no, u8 reg, u8 *val, int len)
 {
-	return i2c_read(chip_no, reg, 1, val, 1);
+	return i2c_read(chip_no, reg, 1, val, len);
 }
 #else
 int twl4030_i2c_write_u8(u8 chip_no, u8 reg, u8 val);
-int twl4030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val);
+int twl4030_i2c_read(u8 chip_no, u8 reg, u8 *val, int len);
 #endif
+
+static inline int twl4030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
+{
+	return twl4030_i2c_read(chip_no, reg, val, 1);
+}
+
 /*
  * Power
  */

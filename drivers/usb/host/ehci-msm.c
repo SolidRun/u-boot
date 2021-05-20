@@ -10,8 +10,6 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
-#include <linux/libfdt.h>
 #include <usb.h>
 #include <usb/ehci-ci.h>
 #include <usb/ulpi.h>
@@ -49,7 +47,7 @@ static int ehci_usb_probe(struct udevice *dev)
 {
 	struct msm_ehci_priv *p = dev_get_priv(dev);
 	struct usb_ehci *ehci = p->ehci;
-	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
 	int ret;
@@ -103,12 +101,12 @@ static int ehci_usb_remove(struct udevice *dev)
 	return 0;
 }
 
-static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
+static int ehci_usb_of_to_plat(struct udevice *dev)
 {
 	struct msm_ehci_priv *priv = dev_get_priv(dev);
 
 	priv->ulpi_vp.port_num = 0;
-	priv->ehci = (void *)devfdt_get_addr(dev);
+	priv->ehci = dev_read_addr_ptr(dev);
 
 	if (priv->ehci == (void *)FDT_ADDR_T_NONE)
 		return -EINVAL;
@@ -142,11 +140,11 @@ U_BOOT_DRIVER(usb_ehci) = {
 	.name	= "ehci_msm",
 	.id	= UCLASS_USB,
 	.of_match = ehci_usb_ids,
-	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+	.of_to_plat = ehci_usb_of_to_plat,
 	.probe = ehci_usb_probe,
 	.remove = ehci_usb_remove,
 	.ops	= &ehci_usb_ops,
-	.priv_auto_alloc_size = sizeof(struct msm_ehci_priv),
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto	= sizeof(struct msm_ehci_priv),
+	.plat_auto	= sizeof(struct usb_plat),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

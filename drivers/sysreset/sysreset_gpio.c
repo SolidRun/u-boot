@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <sysreset.h>
 #include <asm/gpio.h>
 
@@ -54,6 +55,6 @@ U_BOOT_DRIVER(gpio_reboot) = {
 	.name = "gpio_restart",
 	.of_match = led_gpio_ids,
 	.ops = &gpio_reboot_ops,
-	.priv_auto_alloc_size = sizeof(struct gpio_reboot_priv),
+	.priv_auto	= sizeof(struct gpio_reboot_priv),
 	.probe = gpio_reboot_probe,
 };

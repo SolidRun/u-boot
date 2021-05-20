@@ -6,6 +6,8 @@
 #ifndef __MX6_COMMON_H
 #define __MX6_COMMON_H
 
+#include <linux/stringify.h>
+
 #if (defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL))
 #define CONFIG_SC_TIMER_CLK 8000000 /* 8Mhz */
 #define COUNTER_FREQUENCY CONFIG_SC_TIMER_CLK
@@ -47,22 +49,14 @@
 #endif
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE	512
 #define CONFIG_SYS_MAXARGS	32
 
 /* MMC */
-#define CONFIG_FSL_USDHC
 
-/* Secure boot (HAB) support */
-#ifdef CONFIG_SECURE_BOOT
-#define CONFIG_CSF_SIZE			0x4000
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
-#endif
 #endif
 
 #endif

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <efi_loader.h>
 
 #define MAC_OUTPUT_LEN 22
@@ -29,15 +30,15 @@ const efi_guid_t efi_guid_device_path_to_text_protocol =
 static u16 *efi_str_to_u16(char *str)
 {
 	efi_uintn_t len;
-	u16 *out;
+	u16 *out, *dst;
 	efi_status_t ret;
 
-	len = strlen(str) + 1;
-	ret = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, len * sizeof(u16),
-				(void **)&out);
+	len = sizeof(u16) * (utf8_utf16_strlen(str) + 1);
+	ret = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, len, (void **)&out);
 	if (ret != EFI_SUCCESS)
 		return NULL;
-	ascii2unicode(out, str);
+	dst = out;
+	utf8_utf16_strcpy(&dst, str);
 	return out;
 }
 
@@ -60,9 +61,19 @@ static char *dp_hardware(char *s, struct efi_device_path *dp)
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_VENDOR: {
+		int i, n;
 		struct efi_device_path_vendor *vdp =
 			(struct efi_device_path_vendor *)dp;
-		s += sprintf(s, "VenHw(%pUl)", &vdp->guid);
+
+		s += sprintf(s, "VenHw(%pUl", &vdp->guid);
+		n = (int)vdp->dp.length - sizeof(struct efi_device_path_vendor);
+		/* Node must fit into MAX_NODE_LEN) */
+		if (n > 0 && n < MAX_NODE_LEN / 2 - 22) {
+			s += sprintf(s, ",");
+			for (i = 0; i < n; ++i)
+				s += sprintf(s, "%02x", vdp->vendor_data[i]);
+		}
+		s += sprintf(s, ")");
 		break;
 	}
 	default:
@@ -107,6 +118,21 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 			     ide->logical_unit_number);
 		break;
 	}
+	case DEVICE_PATH_SUB_TYPE_MSG_UART: {
+		struct efi_device_path_uart *uart =
+			(struct efi_device_path_uart *)dp;
+		s += sprintf(s, "Uart(%lld,%d,%d,", uart->baud_rate,
+			     uart->data_bits, uart->parity);
+		switch (uart->stop_bits) {
+		case 2:
+			s += sprintf(s, "1.5)");
+			break;
+		default:
+			s += sprintf(s, "%d)", uart->stop_bits);
+			break;
+		}
+		break;
+	}
 	case DEVICE_PATH_SUB_TYPE_MSG_USB: {
 		struct efi_device_path_usb *udp =
 			(struct efi_device_path_usb *)dp;
@@ -115,17 +141,16 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR: {
+		int i, n = sizeof(struct efi_mac_addr);
 		struct efi_device_path_mac_addr *mdp =
 			(struct efi_device_path_mac_addr *)dp;
 
-		if (mdp->if_type != 0 && mdp->if_type != 1)
-			break;
-
-		s += sprintf(s, "MAC(%02x%02x%02x%02x%02x%02x,0x%1x)",
-			mdp->mac.addr[0], mdp->mac.addr[1],
-			mdp->mac.addr[2], mdp->mac.addr[3],
-			mdp->mac.addr[4], mdp->mac.addr[5],
-			mdp->if_type);
+		if (mdp->if_type <= 1)
+			n = 6;
+		s += sprintf(s, "MAC(");
+		for (i = 0; i < n; ++i)
+			s += sprintf(s, "%02x", mdp->mac.addr[i]);
+		s += sprintf(s, ",%u)", mdp->if_type);
 
 		break;
 	}
@@ -133,10 +158,35 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		struct efi_device_path_usb_class *ucdp =
 			(struct efi_device_path_usb_class *)dp;
 
-		s += sprintf(s, "USBClass(%x,%x,%x,%x,%x)",
+		s += sprintf(s, "UsbClass(0x%x,0x%x,0x%x,0x%x,0x%x)",
 			ucdp->vendor_id, ucdp->product_id,
 			ucdp->device_class, ucdp->device_subclass,
 			ucdp->device_protocol);
+
+		break;
+	}
+	case DEVICE_PATH_SUB_TYPE_MSG_SATA: {
+		struct efi_device_path_sata *sdp =
+			(struct efi_device_path_sata *) dp;
+
+		s += sprintf(s, "Sata(0x%x,0x%x,0x%x)",
+			     sdp->hba_port,
+			     sdp->port_multiplier_port,
+			     sdp->logical_unit_number);
+		break;
+	}
+	case DEVICE_PATH_SUB_TYPE_MSG_NVME: {
+		struct efi_device_path_nvme *ndp =
+			(struct efi_device_path_nvme *)dp;
+		u32 ns_id;
+		int i;
+
+		memcpy(&ns_id, &ndp->ns_id, sizeof(ns_id));
+		s += sprintf(s, "NVMe(0x%x,", ns_id);
+		for (i = 0; i < sizeof(ndp->eui64); ++i)
+			s += sprintf(s, "%s%02x", i ? "-" : "",
+				     ndp->eui64[i]);
+		s += sprintf(s, ")");
 
 		break;
 	}
@@ -206,7 +256,24 @@ static char *dp_media(char *s, struct efi_device_path *dp)
 	case DEVICE_PATH_SUB_TYPE_CDROM_PATH: {
 		struct efi_device_path_cdrom_path *cddp =
 			(struct efi_device_path_cdrom_path *)dp;
-		s += sprintf(s, "CDROM(0x%x)", cddp->boot_entry);
+		s += sprintf(s, "CDROM(%u,0x%llx,0x%llx)", cddp->boot_entry,
+			     cddp->partition_start, cddp->partition_size);
+		break;
+	}
+	case DEVICE_PATH_SUB_TYPE_VENDOR_PATH: {
+		int i, n;
+		struct efi_device_path_vendor *vdp =
+			(struct efi_device_path_vendor *)dp;
+
+		s += sprintf(s, "VenMedia(%pUl", &vdp->guid);
+		n = (int)vdp->dp.length - sizeof(struct efi_device_path_vendor);
+		/* Node must fit into MAX_NODE_LEN) */
+		if (n > 0 && n < MAX_NODE_LEN / 2 - 24) {
+			s += sprintf(s, ",");
+			for (i = 0; i < n; ++i)
+				s += sprintf(s, "%02x", vdp->vendor_data[i]);
+		}
+		s += sprintf(s, ")");
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_FILE_PATH: {
@@ -319,11 +386,18 @@ static uint16_t EFIAPI *efi_convert_device_path_to_text(
 
 	if (!device_path)
 		goto out;
-	while (device_path &&
-	       str + MAX_NODE_LEN < buffer + MAX_PATH_LEN) {
-		*str++ = '/';
-		str = efi_convert_single_device_node_to_text(str, device_path);
-		device_path = efi_dp_next(device_path);
+	while (device_path && str + MAX_NODE_LEN < buffer + MAX_PATH_LEN) {
+		if (device_path->type == DEVICE_PATH_TYPE_END) {
+			if (device_path->sub_type !=
+			    DEVICE_PATH_SUB_TYPE_INSTANCE_END)
+				break;
+			*str++ = ',';
+		} else {
+			*str++ = '/';
+			str = efi_convert_single_device_node_to_text(
+							str, device_path);
+		}
+		*(u8 **)&device_path += device_path->length;
 	}
 
 	text = efi_str_to_u16(buffer);

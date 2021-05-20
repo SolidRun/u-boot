@@ -3,10 +3,14 @@
  * (C) Copyright 2017 - Beniamino Galvani <b.galvani@gmail.com>
  */
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 
 #define I2C_TIMEOUT_MS		100
 
@@ -304,6 +308,6 @@ U_BOOT_DRIVER(i2c_meson) = {
 	.id   = UCLASS_I2C,
 	.of_match = meson_i2c_ids,
 	.probe = meson_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct meson_i2c),
+	.priv_auto	= sizeof(struct meson_i2c),
 	.ops = &meson_i2c_ops,
 };

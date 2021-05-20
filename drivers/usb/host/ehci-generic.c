@@ -5,6 +5,9 @@
 
 #include <common.h>
 #include <clk.h>
+#include <log.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <dm/ofnode.h>
 #include <generic-phy.h>
 #include <reset.h>
@@ -83,7 +86,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	err = 0;
 	priv->clock_count = 0;
 	clock_nb = ofnode_count_phandle_with_args(dev_ofnode(dev), "clocks",
-						  "#clock-cells");
+						  "#clock-cells", 0);
 	if (clock_nb > 0) {
 		priv->clocks = devm_kcalloc(dev, clock_nb, sizeof(struct clk),
 					    GFP_KERNEL);
@@ -96,7 +99,7 @@ static int ehci_usb_probe(struct udevice *dev)
 			if (err < 0)
 				break;
 			err = clk_enable(&priv->clocks[i]);
-			if (err) {
+			if (err && err != -ENOSYS) {
 				dev_err(dev, "failed to enable clock %d\n", i);
 				clk_free(&priv->clocks[i]);
 				goto clk_err;
@@ -113,7 +116,7 @@ static int ehci_usb_probe(struct udevice *dev)
 
 	priv->reset_count = 0;
 	reset_nb = ofnode_count_phandle_with_args(dev_ofnode(dev), "resets",
-						  "#reset-cells");
+						  "#reset-cells", 0);
 	if (reset_nb > 0) {
 		priv->resets = devm_kcalloc(dev, reset_nb,
 					    sizeof(struct reset_ctl),
@@ -218,6 +221,6 @@ U_BOOT_DRIVER(ehci_generic) = {
 	.probe = ehci_usb_probe,
 	.remove = ehci_usb_remove,
 	.ops	= &ehci_usb_ops,
-	.priv_auto_alloc_size = sizeof(struct generic_ehci),
+	.priv_auto	= sizeof(struct generic_ehci),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

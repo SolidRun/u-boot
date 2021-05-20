@@ -5,8 +5,9 @@
 
 from collections import OrderedDict
 
-from entry import Entry, EntryArg
-import fdt_util
+from binman.entry import Entry, EntryArg
+from dtoc import fdt_util
+from patman import tools
 
 
 class Entry_text(Entry):
@@ -21,8 +22,10 @@ class Entry_text(Entry):
             that contains the string to place in the entry
         <xxx> (actual name is the value of text-label): contains the string to
             place in the entry.
+        <text>: The text to place in the entry (overrides the above mechanism).
+            This is useful when the text is constant.
 
-    Example node:
+    Example node::
 
         text {
             size = <50>;
@@ -35,7 +38,7 @@ class Entry_text(Entry):
 
     and binman will insert that string into the entry.
 
-    It is also possible to put the string directly in the node:
+    It is also possible to put the string directly in the node::
 
         text {
             size = <8>;
@@ -43,14 +46,29 @@ class Entry_text(Entry):
             message = "a message directly in the node"
         };
 
+    or just::
+
+        text {
+            size = <8>;
+            text = "some text directly in the node"
+        };
+
     The text is not itself nul-terminated. This can be achieved, if required,
     by setting the size of the entry to something larger than the text.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
-        self.text_label, = self.GetEntryArgsOrProps(
-            [EntryArg('text-label', str)])
-        self.value, = self.GetEntryArgsOrProps([EntryArg(self.text_label, str)])
+        super().__init__(section, etype, node)
+        value = fdt_util.GetString(self._node, 'text')
+        if value:
+            value = tools.ToBytes(value)
+        else:
+            label, = self.GetEntryArgsOrProps([EntryArg('text-label', str)])
+            self.text_label = label
+            if self.text_label:
+                value, = self.GetEntryArgsOrProps([EntryArg(self.text_label,
+                                                            str)])
+                value = tools.ToBytes(value) if value is not None else value
+        self.value = value
 
     def ObtainContents(self):
         if not self.value:

@@ -11,6 +11,7 @@
 #include <asm/arch/ccu.h>
 #include <dt-bindings/clock/sun4i-a10-ccu.h>
 #include <dt-bindings/reset/sun4i-a10-ccu.h>
+#include <linux/bitops.h>
 
 static struct ccu_clk_gate a10_gates[] = {
 	[CLK_AHB_OTG]		= GATE(0x060, BIT(0)),
@@ -78,7 +79,7 @@ U_BOOT_DRIVER(clk_sun4i_a10) = {
 	.name		= "sun4i_a10_ccu",
 	.id		= UCLASS_CLK,
 	.of_match	= a10_ccu_ids,
-	.priv_auto_alloc_size	= sizeof(struct ccu_priv),
+	.priv_auto	= sizeof(struct ccu_priv),
 	.ops		= &sunxi_clk_ops,
 	.probe		= sunxi_clk_probe,
 	.bind		= a10_clk_bind,

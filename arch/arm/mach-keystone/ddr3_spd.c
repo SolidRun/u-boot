@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 
 #include <i2c.h>
 #include <ddr_spd.h>
@@ -403,7 +404,7 @@ static void init_ddr3param(struct ddr3_spd_cb *spd_cb,
 static int ddr3_read_spd(ddr3_spd_eeprom_t *spd_params)
 {
 	int ret;
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	int old_bus;
 
 	i2c_init(CONFIG_SYS_DAVINCI_I2C_SPEED, CONFIG_SYS_DAVINCI_I2C_SLAVE);

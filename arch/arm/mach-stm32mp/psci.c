@@ -6,10 +6,12 @@
 #include <config.h>
 #include <common.h>
 #include <asm/armv7.h>
+#include <asm/cache.h>
 #include <asm/gic.h>
 #include <asm/io.h>
 #include <asm/psci.h>
 #include <asm/secure.h>
+#include <linux/bitops.h>
 
 #define BOOT_API_A7_CORE0_MAGIC_NUMBER	0xCA7FACE0
 #define BOOT_API_A7_CORE1_MAGIC_NUMBER	0xCA7FACE1
@@ -30,7 +32,23 @@ u8 psci_state[STM32MP1_PSCI_NR_CPUS] __secure_data = {
 	 PSCI_AFFINITY_LEVEL_ON,
 	 PSCI_AFFINITY_LEVEL_OFF};
 
-void __secure psci_set_state(int cpu, u8 state)
+static u32 __secure_data cntfrq;
+
+static u32 __secure cp15_read_cntfrq(void)
+{
+	u32 frq;
+
+	asm volatile("mrc p15, 0, %0, c14, c0, 0" : "=r" (frq));
+
+	return frq;
+}
+
+static void __secure cp15_write_cntfrq(u32 frq)
+{
+	asm volatile ("mcr p15, 0, %0, c14, c0, 0" : : "r" (frq));
+}
+
+static inline void psci_set_state(int cpu, u8 state)
 {
 	psci_state[cpu] = state;
 	dsb();
@@ -63,11 +81,14 @@ void __secure psci_arch_cpu_entry(void)
 
 	psci_set_state(cpu, PSCI_AFFINITY_LEVEL_ON);
 
+	/* write the saved cntfrq */
+	cp15_write_cntfrq(cntfrq);
+
 	/* reset magic in TAMP register */
 	writel(0xFFFFFFFF, TAMP_BACKUP_MAGIC_NUMBER);
 }
 
-int __secure psci_features(u32 function_id, u32 psci_fid)
+s32 __secure psci_features(u32 function_id, u32 psci_fid)
 {
 	switch (psci_fid) {
 	case ARM_PSCI_0_2_FN_PSCI_VERSION:
@@ -82,12 +103,12 @@ int __secure psci_features(u32 function_id, u32 psci_fid)
 	return ARM_PSCI_RET_NI;
 }
 
-unsigned int __secure psci_version(u32 function_id)
+u32 __secure psci_version(void)
 {
 	return ARM_PSCI_VER_1_0;
 }
 
-int __secure psci_affinity_info(u32 function_id, u32 target_affinity,
+s32 __secure psci_affinity_info(u32 function_id, u32 target_affinity,
 				u32  lowest_affinity_level)
 {
 	u32 cpu = target_affinity & MPIDR_AFF0;
@@ -104,7 +125,7 @@ int __secure psci_affinity_info(u32 function_id, u32 target_affinity,
 	return psci_state[cpu];
 }
 
-int __secure psci_migrate_info_type(u32 function_id)
+u32 __secure psci_migrate_info_type(void)
 {
 	/*
 	 * in Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
@@ -116,7 +137,7 @@ int __secure psci_migrate_info_type(u32 function_id)
 	return 2;
 }
 
-int __secure psci_cpu_on(u32 function_id, u32 target_cpu, u32 pc,
+s32 __secure psci_cpu_on(u32 function_id, u32 target_cpu, u32 pc,
 			 u32 context_id)
 {
 	u32 cpu = target_cpu & MPIDR_AFF0;
@@ -129,6 +150,9 @@ int __secure psci_cpu_on(u32 function_id, u32 target_cpu, u32 pc,
 
 	if (psci_state[cpu] == PSCI_AFFINITY_LEVEL_ON)
 		return ARM_PSCI_RET_ALREADY_ON;
+
+	/* read and save cntfrq of current cpu to write on target cpu  */
+	cntfrq = cp15_read_cntfrq();
 
 	/* reset magic in TAMP register */
 	if (readl(TAMP_BACKUP_MAGIC_NUMBER))
@@ -161,7 +185,7 @@ int __secure psci_cpu_on(u32 function_id, u32 target_cpu, u32 pc,
 	return ARM_PSCI_RET_SUCCESS;
 }
 
-int __secure psci_cpu_off(u32 function_id)
+s32 __secure psci_cpu_off(void)
 {
 	u32 cpu;
 
@@ -181,7 +205,7 @@ int __secure psci_cpu_off(u32 function_id)
 		wfi();
 }
 
-void __secure psci_system_reset(u32 function_id)
+void __secure psci_system_reset(void)
 {
 	/* System reset */
 	writel(RCC_MP_GRSTCSETR_MPSYSRST, RCC_MP_GRSTCSETR);
@@ -190,7 +214,7 @@ void __secure psci_system_reset(u32 function_id)
 		wfi();
 }
 
-void __secure psci_system_off(u32 function_id)
+void __secure psci_system_off(void)
 {
 	/* System Off is not managed, waiting user power off
 	 * TODO: handle I2C write in PMIC Main Control register bit 0 = SWOFF

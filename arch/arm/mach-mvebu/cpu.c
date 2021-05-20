@@ -5,6 +5,10 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <cpu_func.h>
+#include <init.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/mbus.h>
 #include <asm/io.h>
 #include <asm/pl310.h>
@@ -38,7 +42,7 @@ void lowlevel_init(void)
 	 */
 }
 
-void reset_cpu(unsigned long ignored)
+void reset_cpu(void)
 {
 	struct mvebu_system_registers *reg =
 		(struct mvebu_system_registers *)MVEBU_SYSTEM_REG_BASE;
@@ -521,7 +525,7 @@ int arch_misc_init(void)
 #endif /* CONFIG_ARCH_MISC_INIT */
 
 #if defined(CONFIG_MMC_SDHCI_MV) && !defined(CONFIG_DM_MMC)
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	mv_sdh_init(MVEBU_SDIO_BASE, 0, 0,
 		    SDHCI_QUIRK_32BIT_DMA_ADDR | SDHCI_QUIRK_WAIT_SEND_CMD);
@@ -541,6 +545,10 @@ static void ahci_mvebu_mbus_config(void __iomem *base)
 {
 	const struct mbus_dram_target_info *dram;
 	int i;
+
+	/* mbus is not initialized in SPL; keep the ROM settings */
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		return;
 
 	dram = mvebu_mbus_dram_info();
 

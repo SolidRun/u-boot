@@ -5,9 +5,11 @@
 
 #include <common.h>
 #include <command.h>
-#include <environment.h>
+#include <cpu_func.h>
+#include <log.h>
 #include <tpm-v1.h>
 #include "tpm-user-utils.h"
+#include <tpm_api.h>
 
 /* Prints error and returns on failure */
 #define TPM_CHECK(tpm_command) do { \
@@ -48,7 +50,7 @@ static uint32_t tpm_get_flags(struct udevice *dev, uint8_t *disable,
 	struct tpm_permanent_flags pflags;
 	uint32_t result;
 
-	result = tpm_get_permanent_flags(dev, &pflags);
+	result = tpm1_get_permanent_flags(dev, &pflags);
 	if (result)
 		return result;
 	if (disable)
@@ -89,7 +91,7 @@ static int test_early_extend(struct udevice *dev)
 	tpm_init(dev);
 	TPM_CHECK(tpm_startup(dev, TPM_ST_CLEAR));
 	TPM_CHECK(tpm_continue_self_test(dev));
-	TPM_CHECK(tpm_extend(dev, 1, value_in, value_out));
+	TPM_CHECK(tpm_pcr_extend(dev, 1, value_in, value_out));
 	printf("done\n");
 	return 0;
 }
@@ -145,7 +147,7 @@ static int test_enable(struct udevice *dev)
 
 #define reboot() do { \
 	printf("\trebooting...\n"); \
-	reset_cpu(0); \
+	reset_cpu(); \
 } while (0)
 
 static int test_fast_enable(struct udevice *dev)
@@ -237,18 +239,18 @@ static void initialise_spaces(struct udevice *dev)
 	uint32_t perm = TPM_NV_PER_WRITE_STCLEAR | TPM_NV_PER_PPWRITE;
 
 	printf("\tInitialising spaces\n");
-	tpm_nv_set_locked(dev);  /* useful only the first time */
-	tpm_nv_define_space(dev, INDEX0, perm, 4);
+	tpm1_nv_set_locked(dev);  /* useful only the first time */
+	tpm1_nv_define_space(dev, INDEX0, perm, 4);
 	tpm_nv_write_value(dev, INDEX0, (uint8_t *)&zero, 4);
-	tpm_nv_define_space(dev, INDEX1, perm, 4);
+	tpm1_nv_define_space(dev, INDEX1, perm, 4);
 	tpm_nv_write_value(dev, INDEX1, (uint8_t *)&zero, 4);
-	tpm_nv_define_space(dev, INDEX2, perm, 4);
+	tpm1_nv_define_space(dev, INDEX2, perm, 4);
 	tpm_nv_write_value(dev, INDEX2, (uint8_t *)&zero, 4);
-	tpm_nv_define_space(dev, INDEX3, perm, 4);
+	tpm1_nv_define_space(dev, INDEX3, perm, 4);
 	tpm_nv_write_value(dev, INDEX3, (uint8_t *)&zero, 4);
 	perm = TPM_NV_PER_READ_STCLEAR | TPM_NV_PER_WRITE_STCLEAR |
 		TPM_NV_PER_PPWRITE;
-	tpm_nv_define_space(dev, INDEX_INITIALISED, perm, 1);
+	tpm1_nv_define_space(dev, INDEX_INITIALISED, perm, 1);
 }
 
 static int test_readonly(struct udevice *dev)
@@ -324,30 +326,33 @@ static int test_redefine_unowned(struct udevice *dev)
 
 	/* Redefines spaces a couple of times. */
 	perm = TPM_NV_PER_PPWRITE | TPM_NV_PER_GLOBALLOCK;
-	TPM_CHECK(tpm_nv_define_space(dev, INDEX0, perm, 2 * sizeof(uint32_t)));
-	TPM_CHECK(tpm_nv_define_space(dev, INDEX0, perm, sizeof(uint32_t)));
+	TPM_CHECK(tpm1_nv_define_space(dev, INDEX0, perm,
+				       2 * sizeof(uint32_t)));
+	TPM_CHECK(tpm1_nv_define_space(dev, INDEX0, perm, sizeof(uint32_t)));
 	perm = TPM_NV_PER_PPWRITE;
-	TPM_CHECK(tpm_nv_define_space(dev, INDEX1, perm, 2 * sizeof(uint32_t)));
-	TPM_CHECK(tpm_nv_define_space(dev, INDEX1, perm, sizeof(uint32_t)));
+	TPM_CHECK(tpm1_nv_define_space(dev, INDEX1, perm,
+				       2 * sizeof(uint32_t)));
+	TPM_CHECK(tpm1_nv_define_space(dev, INDEX1, perm, sizeof(uint32_t)));
 
 	/* Sets the global lock */
 	tpm_set_global_lock(dev);
 
 	/* Verifies that index0 cannot be redefined */
-	result = tpm_nv_define_space(dev, INDEX0, perm, sizeof(uint32_t));
+	result = tpm1_nv_define_space(dev, INDEX0, perm, sizeof(uint32_t));
 	assert(result == TPM_AREA_LOCKED);
 
 	/* Checks that index1 can */
-	TPM_CHECK(tpm_nv_define_space(dev, INDEX1, perm, 2 * sizeof(uint32_t)));
-	TPM_CHECK(tpm_nv_define_space(dev, INDEX1, perm, sizeof(uint32_t)));
+	TPM_CHECK(tpm1_nv_define_space(dev, INDEX1, perm,
+				       2 * sizeof(uint32_t)));
+	TPM_CHECK(tpm1_nv_define_space(dev, INDEX1, perm, sizeof(uint32_t)));
 
 	/* Turns off PP */
 	tpm_tsc_physical_presence(dev, PHYS_PRESENCE);
 
 	/* Verifies that neither index0 nor index1 can be redefined */
-	result = tpm_nv_define_space(dev, INDEX0, perm, sizeof(uint32_t));
+	result = tpm1_nv_define_space(dev, INDEX0, perm, sizeof(uint32_t));
 	assert(result == TPM_BAD_PRESENCE);
-	result = tpm_nv_define_space(dev, INDEX1, perm, sizeof(uint32_t));
+	result = tpm1_nv_define_space(dev, INDEX1, perm, sizeof(uint32_t));
 	assert(result == TPM_BAD_PRESENCE);
 
 	printf("done\n");
@@ -433,7 +438,7 @@ static int test_timing(struct udevice *dev)
 		   100);
 	TTPM_CHECK(tpm_nv_read_value(dev, INDEX0, (uint8_t *)&x, sizeof(x)),
 		   100);
-	TTPM_CHECK(tpm_extend(dev, 0, in, out), 200);
+	TTPM_CHECK(tpm_pcr_extend(dev, 0, in, out), 200);
 	TTPM_CHECK(tpm_set_global_lock(dev), 50);
 	TTPM_CHECK(tpm_tsc_physical_presence(dev, PHYS_PRESENCE), 100);
 	printf("done\n");
@@ -483,8 +488,8 @@ static int test_write_limit(struct udevice *dev)
 }
 
 #define VOIDTEST(XFUNC) \
-	int do_test_##XFUNC(cmd_tbl_t *cmd_tbl, int flag, int argc, \
-	char * const argv[]) \
+	int do_test_##XFUNC(struct cmd_tbl *cmd_tbl, int flag, int argc, \
+	char *const argv[]) \
 	{ \
 		struct udevice *dev; \
 		int ret; \
@@ -513,7 +518,7 @@ VOIDTEST(timing)
 VOIDTEST(write_limit)
 VOIDTEST(timer)
 
-static cmd_tbl_t cmd_cros_tpm_sub[] = {
+static struct cmd_tbl cmd_cros_tpm_sub[] = {
 	VOIDENT(early_extend)
 	VOIDENT(early_nvram)
 	VOIDENT(early_nvram2)
@@ -530,9 +535,10 @@ static cmd_tbl_t cmd_cros_tpm_sub[] = {
 	VOIDENT(timer)
 };
 
-static int do_tpmtest(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_tpmtest(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 	int i;
 
 	printf("argc = %d, argv = ", argc);

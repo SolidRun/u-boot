@@ -8,7 +8,6 @@
 #ifndef __CONFIG_AM43XX_EVM_H
 #define __CONFIG_AM43XX_EVM_H
 
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 21)	/* 2GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
@@ -27,7 +26,7 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 
 /* Power */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C
 #endif
@@ -58,9 +57,6 @@
 
 /* Now bring in the rest of the common code. */
 #include <configs/ti_armv7_omap.h>
-
-/* Always 64 KiB env size */
-#define CONFIG_ENV_SIZE			(64 << 10)
 
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
@@ -110,13 +106,6 @@
 	DFU_ALT_INFO_QSPI_XIP
 #else
 #define DFUARGS
-#endif
-
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_SECT_SIZE           (64 << 10) /* 64 KB sectors */
-#define CONFIG_ENV_OFFSET              0x110000
-#define CONFIG_ENV_OFFSET_REDUND       0x120000
 #endif
 
 #ifndef CONFIG_SPL_BUILD
@@ -203,9 +192,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* CPSW Ethernet */
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
 #endif
 
@@ -214,7 +200,7 @@
 #define CONFIG_SYS_RX_ETH_BUFFER	64
 
 /* NAND support */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
 #define CONFIG_SYS_NAND_PAGE_SIZE	4096
 #define CONFIG_SYS_NAND_OOBSIZE		224
@@ -271,10 +257,10 @@
 		"nand read ${loadaddr} NAND.kernel; " \
 		"bootz ${loadaddr} - ${fdtaddr}\0"
 #define NANDBOOT			"run nandboot; "
-#else /* !CONFIG_NAND */
+#else /* !CONFIG_MTD_RAW_NAND */
 #define NANDARGS
 #define NANDBOOT
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
 #if defined(CONFIG_TI_SECURE_DEVICE)
 /* Avoid relocating onto firewalled area at end of DRAM */

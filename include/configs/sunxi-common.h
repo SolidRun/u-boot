@@ -62,7 +62,7 @@
 #define SDRAM_OFFSET(x) 0x2##x
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* default load address */
-/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
+/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
 #define CONFIG_SPL_STACK_R_ADDR		0x2fe00000
@@ -72,7 +72,7 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 /* V3s do not have enough memory to place code at 0x4a000000 */
-/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
+/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
 #define CONFIG_SPL_STACK_R_ADDR		0x4fe00000
@@ -118,10 +118,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE 8
 #endif
 
-#ifdef CONFIG_SPL_SPI_SUNXI
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
-#endif
-
 /* mmc config */
 #ifdef CONFIG_MMC
 #define CONFIG_MMC_SUNXI_SLOT		0
@@ -138,13 +134,6 @@
 #define CONFIG_BOARD_SIZE_LIMIT		0x7e000
 #endif
 
-#if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
-/* If we have two devices (most likely eMMC + MMC), favour the eMMC */
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#else
-/* Otherwise, use the only device we have */
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
 #endif
 
@@ -169,9 +158,7 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
 
-#ifndef CONFIG_ARM64		/* AArch64 FEL support is not ready yet */
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
-#endif
 
 /*
  * We cannot use expressions here, because expressions won't be evaluated in
@@ -186,9 +173,14 @@
 #define LOW_LEVEL_SRAM_STACK		0x00018000
 #endif /* !CONFIG_ARM64 */
 #elif CONFIG_SUNXI_SRAM_ADDRESS == 0x20000
+#ifdef CONFIG_MACH_SUN50I_H616
+#define CONFIG_SPL_MAX_SIZE		0xbfa0		/* 48 KiB */
+#define LOW_LEVEL_SRAM_STACK		0x58000
+#else
 #define CONFIG_SPL_MAX_SIZE		0x7fa0		/* 32 KiB */
 /* end of SRAM A2 on H6 for now */
 #define LOW_LEVEL_SRAM_STACK		0x00118000
+#endif
 #else
 #define CONFIG_SPL_MAX_SIZE		0x5fa0		/* 24KB on sun4i/sun7i */
 #define LOW_LEVEL_SRAM_STACK		0x00008000	/* End of sram */
@@ -196,19 +188,17 @@
 
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
+#ifndef CONFIG_MACH_SUN50I_H616
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
+#endif
 
 
 /* I2C */
-#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-    defined CONFIG_SY8106A_POWER
-#endif
-
 #if defined CONFIG_I2C0_ENABLE || defined CONFIG_I2C1_ENABLE || \
     defined CONFIG_I2C2_ENABLE || defined CONFIG_I2C3_ENABLE || \
     defined CONFIG_I2C4_ENABLE || defined CONFIG_R_I2C_ENABLE
 #define CONFIG_SYS_I2C_MVTWSI
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SPEED		400000
 #define CONFIG_SYS_I2C_SLAVE		0x7f
@@ -233,63 +223,11 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_VIDEO_LCD_I2C_BUS	-1 /* NA, but necessary to compile */
 #endif
 
-/* PMU */
-#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-    defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER || \
-    defined CONFIG_SY8106A_POWER
-#endif
-
-#ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
-#if CONFIG_CONS_INDEX == 1
-#ifdef CONFIG_MACH_SUN9I
-#define OF_STDOUT_PATH		"/soc/serial@07000000:115200"
-#else
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28000:115200"
-#endif
-#elif CONFIG_CONS_INDEX == 2 && defined(CONFIG_MACH_SUN5I)
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28400:115200"
-#elif CONFIG_CONS_INDEX == 3 && defined(CONFIG_MACH_SUN8I)
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28800:115200"
-#elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_MACH_SUN8I)
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01f02800:115200"
-#else
-#error Unsupported console port nr. Please fix stdout-path in sunxi-common.h.
-#endif
-#endif /* ifdef CONFIG_REQUIRE_SERIAL_CONSOLE */
-
-/* GPIO */
-#define CONFIG_SUNXI_GPIO
-
-#ifdef CONFIG_VIDEO_SUNXI
-/*
- * The amount of RAM to keep free at the top of RAM when relocating u-boot,
- * to use as framebuffer. This must be a multiple of 4096.
- */
-#define CONFIG_SUNXI_MAX_FB_SIZE (16 << 20)
-
-#define CONFIG_VIDEO_LOGO
-#define CONFIG_VIDEO_STD_TIMINGS
-#define CONFIG_I2C_EDID
-#define VIDEO_LINE_LEN (pGD->plnSizeX)
-
-/* allow both serial and cfb console. */
-/* stop x86 thinking in cfbconsole from trying to init a pc keyboard */
-
-#endif /* CONFIG_VIDEO_SUNXI */
-
 /* Ethernet support */
-
-#ifdef CONFIG_SUN7I_GMAC
-#define CONFIG_PHY_REALTEK
-#endif
 
 #ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
-#endif
-
-#ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_PREBOOT
 #endif
 
 #ifndef CONFIG_SPL_BUILD
@@ -302,40 +240,44 @@ extern int soft_i2c_gpio_scl;
  * There is no compression for arm64 kernels (yet), so leave some space
  * for really big kernels, say 256MB for now.
  * Scripts, PXE and DTBs should go afterwards, leaving the rest for the initrd.
- * Align the initrd to a 2MB page.
  */
-#define BOOTM_SIZE	__stringify(0xa000000)
-#define KERNEL_ADDR_R	__stringify(SDRAM_OFFSET(0080000))
-#define FDT_ADDR_R	__stringify(SDRAM_OFFSET(FA00000))
-#define SCRIPT_ADDR_R	__stringify(SDRAM_OFFSET(FC00000))
-#define PXEFILE_ADDR_R	__stringify(SDRAM_OFFSET(FD00000))
-#define RAMDISK_ADDR_R	__stringify(SDRAM_OFFSET(FE00000))
+#define BOOTM_SIZE        __stringify(0xa000000)
+#define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(0080000))
+#define KERNEL_COMP_ADDR_R __stringify(SDRAM_OFFSET(4000000))
+#define KERNEL_COMP_SIZE  __stringify(0xb000000)
+#define FDT_ADDR_R        __stringify(SDRAM_OFFSET(FA00000))
+#define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(FC00000))
+#define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(FD00000))
+#define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(FE00000))
+#define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(FF00000))
 
 #else
 /*
  * 160M RAM (256M minimum minus 64MB heap + 32MB for u-boot, stack, fb, etc.
  * 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
- * 1M script, 1M pxe and the ramdisk at the end.
+ * 1M script, 1M pxe, 1M dt overlay and the ramdisk at the end.
  */
 #ifndef CONFIG_MACH_SUN8I_V3S
-#define BOOTM_SIZE     __stringify(0xa000000)
-#define KERNEL_ADDR_R  __stringify(SDRAM_OFFSET(2000000))
-#define FDT_ADDR_R     __stringify(SDRAM_OFFSET(3000000))
-#define SCRIPT_ADDR_R  __stringify(SDRAM_OFFSET(3100000))
-#define PXEFILE_ADDR_R __stringify(SDRAM_OFFSET(3200000))
-#define RAMDISK_ADDR_R __stringify(SDRAM_OFFSET(3300000))
+#define BOOTM_SIZE        __stringify(0xa000000)
+#define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(2000000))
+#define FDT_ADDR_R        __stringify(SDRAM_OFFSET(3000000))
+#define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(3100000))
+#define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(3200000))
+#define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(3300000))
+#define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(3400000))
 #else
 /*
  * 64M RAM minus 2MB heap + 16MB for u-boot, stack, fb, etc.
  * 16M uncompressed kernel, 8M compressed kernel, 1M fdt,
- * 1M script, 1M pxe and the ramdisk at the end.
+ * 1M script, 1M pxe, 1M dt overlay and the ramdisk at the end.
  */
-#define BOOTM_SIZE     __stringify(0x2e00000)
-#define KERNEL_ADDR_R  __stringify(SDRAM_OFFSET(1000000))
-#define FDT_ADDR_R     __stringify(SDRAM_OFFSET(1800000))
-#define SCRIPT_ADDR_R  __stringify(SDRAM_OFFSET(1900000))
-#define PXEFILE_ADDR_R __stringify(SDRAM_OFFSET(1A00000))
-#define RAMDISK_ADDR_R __stringify(SDRAM_OFFSET(1B00000))
+#define BOOTM_SIZE        __stringify(0x2e00000)
+#define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(1000000))
+#define FDT_ADDR_R        __stringify(SDRAM_OFFSET(1800000))
+#define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(1900000))
+#define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(1A00000))
+#define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(1B00000))
+#define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(1C00000))
 #endif
 #endif
 
@@ -345,7 +287,20 @@ extern int soft_i2c_gpio_scl;
 	"fdt_addr_r=" FDT_ADDR_R "\0" \
 	"scriptaddr=" SCRIPT_ADDR_R "\0" \
 	"pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
+	"fdtoverlay_addr_r=" FDTOVERLAY_ADDR_R "\0" \
 	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0"
+
+#ifdef CONFIG_ARM64
+
+#define MEM_LAYOUT_ENV_EXTRA_SETTINGS \
+	"kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0" \
+	"kernel_comp_size=" KERNEL_COMP_SIZE "\0"
+
+#else
+
+#define MEM_LAYOUT_ENV_EXTRA_SETTINGS ""
+
+#endif
 
 #define DFU_ALT_INFO_RAM \
 	"dfu_alt_info_ram=" \
@@ -440,18 +395,13 @@ extern int soft_i2c_gpio_scl;
 
 #ifdef CONFIG_USB_KEYBOARD
 #define CONSOLE_STDIN_SETTINGS \
-	"preboot=usb start\0" \
 	"stdin=serial,usbkbd\0"
 #else
 #define CONSOLE_STDIN_SETTINGS \
 	"stdin=serial\0"
 #endif
 
-#ifdef CONFIG_VIDEO
-#define CONSOLE_STDOUT_SETTINGS \
-	"stdout=serial,vga\0" \
-	"stderr=serial,vga\0"
-#elif CONFIG_DM_VIDEO
+#ifdef CONFIG_DM_VIDEO
 #define CONSOLE_STDOUT_SETTINGS \
 	"stdout=serial,vidconsole\0" \
 	"stderr=serial,vidconsole\0"
@@ -502,6 +452,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONSOLE_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
+	MEM_LAYOUT_ENV_EXTRA_SETTINGS \
 	DFU_ALT_INFO_RAM \
 	"fdtfile=" FDTFILE "\0" \
 	"console=ttyS0,115200\0" \

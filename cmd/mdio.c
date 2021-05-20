@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <miiphy.h>
 #include <phy.h>
 
@@ -190,7 +191,8 @@ static int extract_phy_range(char *const argv[], int argc, struct mii_dev **bus,
 }
 
 /* ---------------------------------------------------------------- */
-static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mdio(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	char op[2];
 	int addrlo, addrhi, reglo, reghi, devadlo, devadhi;
@@ -202,6 +204,11 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
+
+#ifdef CONFIG_DM_MDIO
+	/* probe DM MII device before any operation so they are all accesible */
+	dm_mdio_probe_devices();
+#endif
 
 	/*
 	 * We use the last specified parameters, unless new ones are
@@ -248,12 +255,13 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 'w':
 		if (pos > 1)
 			data = simple_strtoul(argv[pos--], NULL, 16);
+		/* Intentional fall-through - Get reg for read and write */
 	case 'r':
 		if (pos > 1)
 			if (extract_reg_range(argv[pos--], &devadlo, &devadhi,
 					      &reglo, &reghi))
 				return CMD_RET_FAILURE;
-
+		/* Intentional fall-through - Get phy for all commands */
 	default:
 		if (pos > 1)
 			if (extract_phy_range(&argv[2], pos - 1, &bus,
@@ -261,6 +269,11 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return CMD_RET_FAILURE;
 
 		break;
+	}
+
+	if (!bus) {
+		puts("No MDIO bus found\n");
+		return CMD_RET_FAILURE;
 	}
 
 	if (op[0] == 'l') {

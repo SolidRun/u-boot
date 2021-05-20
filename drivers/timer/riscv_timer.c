@@ -1,37 +1,54 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2020, Sean Anderson <seanga2@gmail.com>
  * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
+ * Copyright (C) 2018, Anup Patel <anup@brainfault.org>
+ * Copyright (C) 2012 Regents of the University of California
  *
- * RISC-V privileged architecture defined generic timer driver
+ * RISC-V architecturally-defined generic timer driver
  *
- * This driver relies on RISC-V platform codes to provide the essential API
- * riscv_get_time() which is supposed to return the timer counter as defined
- * by the RISC-V privileged architecture spec.
- *
- * This driver can be used in both M-mode and S-mode U-Boot.
+ * This driver provides generic timer support for S-mode U-Boot.
  */
 
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <timer.h>
-#include <asm/io.h>
+#include <asm/csr.h>
+
+static u64 notrace riscv_timer_get_count(struct udevice *dev)
+{
+	__maybe_unused u32 hi, lo;
+
+	if (IS_ENABLED(CONFIG_64BIT))
+		return csr_read(CSR_TIME);
+
+	do {
+		hi = csr_read(CSR_TIMEH);
+		lo = csr_read(CSR_TIME);
+	} while (hi != csr_read(CSR_TIMEH));
+
+	return ((u64)hi << 32) | lo;
+}
+
+#if CONFIG_IS_ENABLED(RISCV_SMODE) && IS_ENABLED(CONFIG_TIMER_EARLY)
+/**
+ * timer_early_get_rate() - Get the timer rate before driver model
+ */
+unsigned long notrace timer_early_get_rate(void)
+{
+	return RISCV_SMODE_TIMER_FREQ;
+}
 
 /**
- * riscv_get_time() - get the timer counter
+ * timer_early_get_count() - Get the timer count before driver model
  *
- * Platform codes should provide this API in order to make this driver function.
- *
- * @time:	the 64-bit timer count  as defined by the RISC-V privileged
- *		architecture spec.
- * @return:	0 on success, -ve on error.
  */
-extern int riscv_get_time(u64 *time);
-
-static int riscv_timer_get_count(struct udevice *dev, u64 *count)
+u64 notrace timer_early_get_count(void)
 {
-	return riscv_get_time(count);
+	return riscv_timer_get_count(NULL);
 }
+#endif
 
 static int riscv_timer_probe(struct udevice *dev)
 {
