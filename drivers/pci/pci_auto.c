@@ -365,11 +365,21 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 	dm_pci_read_config8(dev, PCI_IO_BASE, &io_32);
 	io_32 &= PCI_IO_RANGE_TYPE_MASK;
 
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_OCTEONTX2)
+	/* Configure bus number registers */
+	u32 buses;
+	dm_pci_read_config32(dev, PCI_PRIMARY_BUS, &buses);
+	buses = PCI_BUS(dm_pci_get_bdf(dev)) - ctlr->seq;
+	buses |= (((sub_bus - ctlr->seq) & 0xff) << 8);
+	buses |= (0xff << 16);
+	dm_pci_write_config32(dev, PCI_PRIMARY_BUS, buses);
+#else
 	/* Configure bus number registers */
 	dm_pci_write_config8(dev, PCI_PRIMARY_BUS,
 			     PCI_BUS(dm_pci_get_bdf(dev)) - dev_seq(ctlr));
 	dm_pci_write_config8(dev, PCI_SECONDARY_BUS, sub_bus - dev_seq(ctlr));
 	dm_pci_write_config8(dev, PCI_SUBORDINATE_BUS, 0xff);
+#endif
 
 	if (pci_mem) {
 		/* Round memory allocator to 1MB boundary */
@@ -461,8 +471,17 @@ void dm_pciauto_postscan_setup_bridge(struct udevice *dev, int sub_bus)
 	pci_prefetch = ctlr_hose->pci_prefetch;
 	pci_io = ctlr_hose->pci_io;
 
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_OCTEONTX2)
+	/* Configure bus number registers */
+	u32 buses;
+	dm_pci_read_config32(dev, PCI_PRIMARY_BUS, &buses);
+	buses &= 0xff00ffff;
+	buses |= (((sub_bus - ctlr->seq) & 0xff) << 16);
+	dm_pci_write_config32(dev, PCI_PRIMARY_BUS, buses);
+#else
 	/* Configure bus number registers */
 	dm_pci_write_config8(dev, PCI_SUBORDINATE_BUS, sub_bus - dev_seq(ctlr));
+#endif
 
 	if (pci_mem) {
 		/* Round memory allocator to 1MB boundary */
