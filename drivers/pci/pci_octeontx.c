@@ -104,11 +104,15 @@ static void writel_size(uintptr_t addr, enum pci_size_t size, ulong valuep)
 	};
 }
 
-static bool octeontx_bdf_invalid(pci_dev_t bdf, struct pci_controller *ctlr)
+static bool octeontx_bdf_invalid(struct octeontx_pci *pcie, pci_dev_t bdf,
+				 struct pci_controller *ctlr)
 {
-	if (((PCI_BUS(bdf) + 1 - ctlr->first_busno) == 1) && PCI_DEV(bdf) > 0)
-		return true;
-
+	if (pcie->type == OTX_PEM)
+		if (((PCI_BUS(bdf) + 1 - ctlr->first_busno) == 1) && PCI_DEV(bdf) > 0)
+			return true;
+	if (pcie->type == OTX2_PEM)
+		if (((PCI_BUS(bdf) - ctlr->first_busno) == 1) && PCI_DEV(bdf) > 0)
+			return true;
 	return false;
 }
 
@@ -161,7 +165,7 @@ static int octeontx_pem_read_config(const struct udevice *bus, pci_dev_t bdf,
 
 	*valuep = pci_conv_32_to_size(~0UL, offset, size);
 
-	if (octeontx_bdf_invalid(bdf, hose))
+	if (octeontx_bdf_invalid(pcie, bdf, hose))
 		return 0;
 
 	address = PCIE_ECAM_OFFSET(PCI_BUS(bdf) + 1 - hose->first_busno,
@@ -199,7 +203,7 @@ static int octeontx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 	    value != pci_conv_32_to_size(~0UL, offset, size))
 		value +=  pci_conv_32_to_size(bus_offs, offset, size);
 
-	if (octeontx_bdf_invalid(bdf, hose))
+	if (octeontx_bdf_invalid(pcie, bdf, hose))
 		return -EPERM;
 
 	writel_size(pcie->cfg.start + address + offset, size, value);
@@ -208,6 +212,82 @@ static int octeontx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), size, offset,
 	      address, value);
 
+	return 0;
+}
+
+#define PEM_CFG_WR 0x18
+#define PEM_CFG_RD 0x20
+static int pci_octeontx2_pem_bridge_read(const struct udevice *bus,
+					 pci_dev_t bdf,
+					 uint offset, ulong *valuep,
+					 enum pci_size_t size)
+{
+	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
+	struct pci_controller *hose = dev_get_uclass_priv(bus);
+	uintptr_t address;
+	u32 b, d, f;
+	u64 raddr, rval;
+	uint where;
+
+	b = PCI_BUS(bdf) - hose->first_busno;
+	d = PCI_DEV(bdf);
+	f = PCI_FUNC(bdf);
+	address = (b << 20) | (d << 15) | (f << 12);
+	address += pcie->cfg.start;
+
+	debug("%s %02x.%02x.%02x: u%d %x (%lx) %lx\n",
+	      __func__, b, d, f, size, offset, address, *valuep);
+	raddr = pcie->pem.start + PEM_CFG_RD;
+
+	if (PCI_DEVFN(d, f) != 0ul) {
+		*valuep = pci_conv_32_to_size(~0UL, offset, size);
+		return 0;
+	}
+	where = offset & ~3ull;
+	writeq(where, raddr);
+	rval = readq(raddr);
+	rval >>= 32;
+	where = offset;
+
+	/* HW reset value at few config space locations are
+	 * garbage, fix them.
+	 */
+	switch (where & ~3) {
+	case 0x00: /* DevID & VenID */
+		rval = 0xA02D177D;
+		break;
+	case 0x04:
+		rval = 0x00100006;
+		break;
+	case 0x08:
+		rval = 0x06040100;
+		break;
+	case 0x0c:
+		rval = 0x00010000;
+		break;
+	case 0x18:
+		rval = 0x00010100;
+		break;
+	default:
+		break;
+	}
+
+	rval >>= (8 * (where & 3));
+	switch (size) {
+	case PCI_SIZE_8:
+		rval &= 0xff;
+		break;
+	case PCI_SIZE_16:
+		rval &= 0xffff;
+		break;
+	default:
+		break;
+	}
+	debug("%s u%d %x %llx\n", __func__, size, offset, rval);
+	*valuep = rval;
+
+	debug("%s %02x.%02x.%02x: u%d %x (%lx) -> %lx\n",
+	      __func__, b, d, f, size, offset, address + offset, *valuep);
 	return 0;
 }
 
@@ -221,24 +301,43 @@ static int octeontx2_pem_read_config(const struct udevice *bus, pci_dev_t bdf,
 
 	*valuep = pci_conv_32_to_size(~0UL, offset, size);
 
-	if (octeontx_bdf_invalid(bdf, hose))
+	if (octeontx_bdf_invalid(pcie, bdf, hose))
 		return 0;
 
 	address = PCIE_ECAM_OFFSET(PCI_BUS(bdf) + 1 - hose->first_busno,
 				   PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 	*valuep = readl_size(pcie->cfg.start + address, size);
 
+	if (!(PCI_BUS(bdf) - hose->first_busno))
+		return pci_octeontx2_pem_bridge_read(bus, bdf, offset, valuep,
+						     size);
+
+	switch (size) {
+	case PCI_SIZE_8:
+		debug("byte %lx\n", address + offset);
+		*valuep = readb(address + offset);
+		break;
+	case PCI_SIZE_16:
+		debug("word %lx\n", address + offset);
+		*valuep = readw(address + offset);
+		break;
+	case PCI_SIZE_32:
+		debug("long %lx\n", address + offset);
+		*valuep = readl(address + offset);
+		break;
+	default:
+		printf("Invalid size\n");
+	}
+
 	debug("%02x.%02x.%02x: u%d %x (%lx) -> %lx\n",
 	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), size, offset,
-	      address, *valuep);
+	      address + offset, *valuep);
 
 	return 0;
 }
 
 void pem_write_fixup(struct udevice *bus, uint offset, enum pci_size_t size)
 {
-#define PEM_CFG_WR 0x18
-#define PEM_CFG_RD 0x20
 
 #define PCIERC_RASDP_DE_ME		0x440
 #define PCIERC_RASDP_EP_CTL		0x420
@@ -348,12 +447,13 @@ static int octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 	struct pci_controller *hose = dev_get_uclass_priv(bus);
 	uintptr_t address;
 
-	if (octeontx_bdf_invalid(bdf, hose))
-		return -EPERM;
-
 	address = PCIE_ECAM_OFFSET(PCI_BUS(bdf) + 1 - hose->first_busno,
 				   PCI_DEV(bdf), PCI_FUNC(bdf), offset);
-	if (is_otx2_B0()) {
+	if (octeontx_bdf_invalid(pcie, bdf, hose))
+		return -EPERM;
+
+	if (is_otx2_B0() ||
+	    (!(PCI_BUS(bdf) - hose->first_busno))) {
 		/* HW issue workaround only to older silicon */
 		uintptr_t addr = (pcie->cfg.start + address + offset) & ~0x3UL;
 		u32 data;
@@ -381,7 +481,8 @@ static int octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 		}
 		debug("tmp long %lx %lx\n", addr, value);
 
-		pem_write_fixup(bus, offset, size);
+		if (is_otx2_B0())
+			pem_write_fixup(bus, offset, size);
 		writel_size(addr, size, value);
 	} else {
 		writel_size(pcie->cfg.start + address, size, value);
@@ -389,7 +490,7 @@ static int octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
 
 	debug("%02x.%02x.%02x: u%d %x (%lx) <- %lx\n",
 	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), size, offset,
-	      address, value);
+	      address + offset, value);
 
 	return 0;
 }
