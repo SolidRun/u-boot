@@ -81,6 +81,18 @@
 	status = "okay";
 };
 
+&ap_hd_efuse0 {
+	status = "okay";
+};
+
+&ap_ld_efuse0 {
+	status = "okay";
+};
+
+&ap_ld_efuse1 {
+	status = "okay";
+};
+
 /*
  * CP related configuration
  */
@@ -226,4 +238,12 @@
 	status = "okay";
 	phy = <&nbaset_phy0>;
 	phy-mode = "sgmii-2500";
+};
+
+&cp0_ld_efuse0 {
+	status = "okay";
+};
+
+&cp0_ld_efuse1 {
+	status = "okay";
 };
