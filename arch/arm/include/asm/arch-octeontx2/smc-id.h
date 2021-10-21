@@ -46,5 +46,6 @@
 #define OCTEONTX_SERDES_DBG_SET_CONF    0xc2000d08
 #define OCTEONTX_SERDES_DBG_SET_LOOP    0xc2000d09
 
+#define OCTEONTX_SET_AVS_STATUS         0xc2000b08
 
 #endif /* __SMC_ID_H__ */
