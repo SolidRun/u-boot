@@ -48,6 +48,7 @@
 #define SDHCI_CDNS_HRS06_MODE_MMC_HS200		0x4
 #define SDHCI_CDNS_HRS06_MODE_MMC_HS400		0x5
 #define SDHCI_CDNS_HRS06_MODE_MMC_HS400ES	0x6
+#define SDHCI_CDNS_HRS06_MODE_LEGACY		0x7
 
 /* SD 6.0 Controller HRS - Host Register Set (Specific to Cadence) */
 #define SDHCI_CDNS_SD6_HRS04_ADDR		GENMASK(15, 0)
@@ -409,10 +410,10 @@ static void init_emmc_hs400(struct sdhci_cdns_sd6_phy_timings *t, int t_sdclk)
 }
 
 static void (*(init_timings[]))(struct sdhci_cdns_sd6_phy_timings*, int) = {
-	&init_hs, &init_emmc_legacy, &init_emmc_sdr,
-	&init_emmc_ddr, &init_emmc_hs200, &init_emmc_hs400,
-	&init_uhs_sdr12, &init_uhs_sdr25, &init_uhs_sdr50,
-	&init_uhs_sdr104, &init_uhs_ddr50
+	&init_emmc_legacy, &init_emmc_legacy, &init_hs, &init_emmc_sdr,
+	&init_emmc_ddr, &init_uhs_sdr12, &init_uhs_sdr25, &init_uhs_sdr50,
+	&init_uhs_ddr50, &init_uhs_sdr104, &init_emmc_hs200, &init_emmc_hs400,
+	&init_emmc_hs400,
 };
 
 #ifdef SD4_ENABLE
@@ -634,19 +635,19 @@ static int sdhci_cdns_sd6_get_fdt_params(struct udevice *dev, struct sdhci_cdns_
 
 	dev_read_u32(dev, "cdns,delay_element", &phy->d.delay_element);
 
-	mode_name = dev_read_string(dev, "cdns, mode");
+	mode_name = dev_read_string(dev, "cdns,mode");
 
 	if (mode_name != NULL) {
 		if (!strcmp("emmc_sdr", mode_name))
-			phy->mode = SDHCI_CDNS_HRS06_MODE_MMC_SDR;
+			phy->mode = MMC_HS_52;
 		else if (!strcmp("emmc_ddr", mode_name))
-			phy->mode = SDHCI_CDNS_HRS06_MODE_MMC_DDR;
+			phy->mode = MMC_DDR_52;
 		else if (!strcmp("emmc_hs200", mode_name))
-			phy->mode = SDHCI_CDNS_HRS06_MODE_MMC_HS200;
+			phy->mode = MMC_HS_200;
 		else if (!strcmp("emmc_hs400", mode_name))
-			phy->mode = SDHCI_CDNS_HRS06_MODE_MMC_HS400;
+			phy->mode = MMC_HS_400;
 		else if (!strcmp("sd_hs", mode_name))
-			phy->mode = SDHCI_CDNS_HRS06_MODE_SD;
+			phy->mode = SD_HS;
 		else
 			phy->mode = MMC_HS;
 	} else
@@ -884,6 +885,8 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
 	struct sdhci_cdns_plat *plat = dev_get_plat(mmc->dev);
+	struct sdhci_cdns_sd6_phy *phy = plat->priv;
+
 	unsigned int clock = mmc->clock;
 	u32 mode, tmp;
 
@@ -893,17 +896,41 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 	 * U-Boot does not support timing.  Use the clock frequency instead.
 	 */
 	if (clock <= 26000000) {
-		mode = SDHCI_CDNS_HRS06_MODE_SD; /* use this for Legacy */
+		phy->mode = MMC_LEGACY; /* use this for Legacy */
 	} else if (clock <= 52000000) {
 		if (mmc->ddr_mode)
-			mode = SDHCI_CDNS_HRS06_MODE_MMC_DDR;
+			phy->mode = MMC_DDR_52;
 		else
-			mode = SDHCI_CDNS_HRS06_MODE_MMC_SDR;
+			phy->mode = MMC_HS_52;
 	} else {
 		if (mmc->ddr_mode)
-			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS400;
+			phy->mode = MMC_HS_400;
 		else
-			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS200;
+			phy->mode = MMC_HS_200;
+	}
+
+	switch (phy->mode) {
+	case MMC_LEGACY:
+	case MMC_HS:
+		mode = SDHCI_CDNS_HRS06_MODE_LEGACY; //TODO check with 1
+		break;
+	case MMC_HS_52:
+		mode = SDHCI_CDNS_HRS06_MODE_MMC_SDR;
+		break;
+	case MMC_DDR_52:
+		mode = SDHCI_CDNS_HRS06_MODE_MMC_DDR;
+		break;
+	case MMC_HS_200:
+		mode = SDHCI_CDNS_HRS06_MODE_MMC_HS200;
+		break;
+	case MMC_HS_400:
+	case MMC_HS_400_ES:
+		mode = SDHCI_CDNS_HRS06_MODE_MMC_HS400;
+		break;
+	default:
+		/* All other modes treated as SD */
+		mode = SDHCI_CDNS_HRS06_MODE_SD;
+		break;
 	}
 
 	tmp = readl(plat->hrs_addr + SDHCI_CDNS_HRS06);
@@ -970,7 +997,7 @@ static int sdhci_cdns_sd6_phy_lock_dll(struct sdhci_cdns_sd6_phy *phy)
 	phy->vars.t_sdmclk_calc = delay_element * delay_elements_in_sdmclk;
 	phy->d.delay_element = delay_element;
 	phy->settings.cp_dll_locked_mode = SDHCI_CDNS_SD6_PHY_LOCK_MODE_SATURATION;
-	phy->settings.cp_dll_bypass_mode = 1;
+	phy->settings.cp_dll_bypass_mode = 0;
 
 	return 0;
 }
@@ -1096,8 +1123,8 @@ static void sdhci_cdns_sd6_phy_calc_cmd_in(struct sdhci_cdns_sd6_phy *phy)
 	//XXX
 	phy->settings.cp_sync_method = 1;
 	phy->settings.cp_rd_del_sel = 52;
-	//phy->settings.cp_use_ext_lpbk_dqs = 1;
-	//phy->settings.cp_use_lpbk_dqs = 1;
+	phy->settings.cp_use_ext_lpbk_dqs = 1;
+	phy->settings.cp_use_lpbk_dqs = 1;
 
 	if (phy->strobe_cmd) {
 		phy->settings.cp_use_phony_dqs_cmd = 0;
@@ -1238,7 +1265,7 @@ static void sdhci_cdns_sd6_phy_calc_io(struct sdhci_cdns_sd6_phy *phy)
 	u32 rw_compensate;
 
 	rw_compensate = (phy->d.iocell_input_delay + phy->d.iocell_output_delay)
-		/ phy->t_sdmclk + phy->settings.sdhc_wrdata0_dly; // + 5 + 3;
+		/ phy->t_sdmclk + phy->settings.sdhc_wrdata0_dly + 5 + 3;
 
 	phy->settings.sdhc_idelay_val = (2 * phy->d.iocell_input_delay)
 		/ phy->t_sdmclk;
@@ -1274,7 +1301,9 @@ static int sdhci_cdns_sd6_phy_update_timings(struct sdhci_cdns_plat *plat)
 	struct sdhci_cdns_sd6_phy *phy = plat->priv;
 	int t_sdmclk = phy->t_sdmclk;
 
-	DEBUG_DRV("%s\n", __func__);
+	DEBUG_DRV("%s sdclk %d sdmclk %d mode %d idelay %d odelay %d \n",
+		__func__, phy->t_sdclk, phy->t_sdmclk, phy->mode,
+		phy->d.iocell_input_delay, phy->d.iocell_output_delay);
 	/* initialize input */
 	init_timings[phy->mode](&phy->t, phy->t_sdclk);
 
@@ -1294,6 +1323,7 @@ static int sdhci_cdns_sd6_phy_update_timings(struct sdhci_cdns_plat *plat)
 		phy->tune_cmd = true;
 		break;
 	case MMC_HS_400:
+	case MMC_HS_400_ES:
 		phy->tune_cmd = true;
 		phy->ddr = true;
 		phy->strobe_dat = true;
@@ -1307,7 +1337,7 @@ static int sdhci_cdns_sd6_phy_update_timings(struct sdhci_cdns_plat *plat)
 	phy->d.phy_cmd_o_delay = 2 * t_sdmclk + t_sdmclk / 2;
 	phy->d.phy_dat_o_delay = 2 * t_sdmclk + t_sdmclk / 2;
 
-	if (phy->t_sdclk != phy->t_sdmclk) {
+	if (phy->t_sdclk == phy->t_sdmclk) {
 		phy->settings.sdhc_extended_wr_mode = 0;
 		phy->settings.sdhc_extended_rd_mode = 0;
 	} else {
@@ -1326,14 +1356,25 @@ static int sdhci_cdns_sd6_phy_update_timings(struct sdhci_cdns_plat *plat)
 }
 
 static void sdhci_cdns_sd6_set_clock(struct sdhci_host *host,
-				unsigned int clock)
+				unsigned int div)
 {
 	struct udevice *dev = host->mmc->dev;
 	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
 	struct sdhci_cdns_sd6_phy *phy = plat->priv;
+	unsigned int clock;
 
-	DEBUG_DRV("sdhci_cdns_sd6_set_clock %d\n", clock);
-	phy->t_sdclk = 5000; //DIV_ROUND_DOWN_ULL(1e12, clock);
+	if (!div)
+		div = 1;
+	else
+		div <<= 1;
+
+	clock = DIV_ROUND_DOWN_ULL(SDHCI_CDNS_SD6_MAXCLK, div);
+
+	DEBUG_DRV("sdhci_cdns_sd6_set_clock %d div %d\n", clock, div);
+
+	sdhci_cdns_set_control_reg(host);
+
+	phy->t_sdclk = DIV_ROUND_DOWN_ULL(1e12, clock);
 
 	if (sdhci_cdns_sd6_phy_update_timings(plat))
 		debug("%s: update timings failed\n", __func__);
@@ -1353,7 +1394,6 @@ static int sdhci_cdns_sd6_plat_init(struct udevice *dev, struct sdhci_cdns_plat 
 
 	sdhci_cdns_sd6_get_fdt_params(dev, plat);
 
-	phy->t_sdclk = 5000;
 	phy->t_sdmclk = 5000;
 
 	phy->settings.cp_use_phony_dqs = 1;
@@ -1489,10 +1529,9 @@ static int sdhci_cdns_probe(struct udevice *dev)
 	host->max_clk = SDHCI_CDNS_SD6_MAXCLK;
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;
-	host->clock = 52000000;
 
 	DEBUG_DRV("sdmclk %d sdclk %d\n", phy->t_sdmclk, phy->t_sdclk);
-	ret = sdhci_setup_cfg(&plat->cfg, host, host->max_clk, 25000000);
+	ret = sdhci_setup_cfg(&plat->cfg, host, host->max_clk, 400000);
 	if (ret)
 		return ret;
 
