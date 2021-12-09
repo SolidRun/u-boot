@@ -134,6 +134,9 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 	int i = 1;
 	char *p = ctx->eos;
 
+	if (str == NULL)
+		return 0;
+
 	if (!*str)
 		str = "Unknown";
 
