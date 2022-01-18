@@ -593,7 +593,7 @@ static int smbios_write_type4(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type4 *t;
-	char node_path[30];
+	char node_path[32];
 	u32 i;
 	ofnode node_type4;
 	int len;
@@ -681,7 +681,7 @@ static void smbios_write_type7_dm(struct smbios_type7 *t, ofnode node_type7)
 static int smbios_write_type7(ulong *current, int handle)
 {
 	struct smbios_type7 *t;
-	char node_path[30];
+	char node_path[32];
 	ofnode node_type7;
 	u32 i = 0, len = 0, total_len = 0;
 
@@ -736,7 +736,7 @@ static void smbios_write_type8_dm(struct smbios_type8 *t, ofnode node_type8)
 static int smbios_write_type8(ulong *current, int handle)
 {
 	struct smbios_type8 *t;
-	char node_path[30];
+	char node_path[32];
 	ofnode node_type8;
 	u32 i = 0, len = 0, total_len = 0;
 
@@ -797,7 +797,7 @@ static void smbios_write_type9_dm(struct smbios_type9 *t, ofnode node_type9)
 static int smbios_write_type9(ulong *current, int handle)
 {
 	struct smbios_type9 *t;
-	char node_path[30];
+	char node_path[32];
 	ofnode node_type9;
 	u32 i = 0, len = 0, total_len = 0;
 
@@ -1007,7 +1007,7 @@ static void smbios_write_type17_dm(struct smbios_type17 *t, ofnode node_type17,
 static int smbios_write_type17(ulong *current, int handle)
 {
 	struct smbios_type17 *t;
-	char node_path[30];
+	char node_path[32];
 	ofnode node_type17;
 	u32 i = 0, len = 0, total_len = 0;
 
@@ -1067,7 +1067,7 @@ static void smbios_write_type19_dm(struct smbios_type19 *t, ofnode node_type19,
 static int smbios_write_type19(ulong *current, int handle)
 {
 	struct smbios_type19 *t;
-	char node_path[30];
+	char node_path[32];
 	ofnode node_type19;
 	u32 i = 0, len = 0, total_len = 0;
 
