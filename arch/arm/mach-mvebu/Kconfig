@@ -49,6 +49,7 @@ config ARMADA_3700
 config ARMADA_8K
 	bool
 	select ARM64
+	select HAVE_MVEBU_EFUSE
 
 config ALLEYCAT_5
 	bool
