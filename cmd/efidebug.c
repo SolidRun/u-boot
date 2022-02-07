@@ -518,6 +518,10 @@ static const struct {
 		"PXE Base Code",
 		EFI_PXE_BASE_CODE_PROTOCOL_GUID,
 	},
+	{
+		"PCI IO",
+		EFI_PCI_IO_PROTOCOL_GUID,
+	},
 	/* Configuration table GUIDs */
 	{
 		"ACPI table",
