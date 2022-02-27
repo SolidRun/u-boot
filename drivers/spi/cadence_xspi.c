@@ -220,6 +220,20 @@
 #define CDNS_XSPI_DLL_RST_N BIT(24)
 #define CDNS_XSPI_DLL_LOCK  BIT(0)
 
+#if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO)
+	#define SPI1_CLK 38
+	#define SPI1_CS0 40
+	#define SPI1_CS1 41
+	#define SPI1_IO0 30
+	#define SPI1_IO1 31
+
+	#define SPI0_CLK 24
+	#define SPI0_CS0 26
+	#define SPI0_CS1 27
+	#define SPI0_IO0 16
+	#define SPI0_IO1 17
+#endif
+
 enum cdns_xspi_stig_instr_type {
 	CDNS_XSPI_STIG_INSTR_TYPE_0,
 	CDNS_XSPI_STIG_INSTR_TYPE_1,
@@ -257,6 +271,9 @@ struct cdns_xspi_dev {
 
 	u8 hw_num_banks;
 	enum cdns_xspi_sdma_size read_size;
+	int xspi_bus;
+	int spi_mem_avalible;
+	int mode;
 };
 
 const int cdns_xspi_clk_div_list[] = {
@@ -339,7 +356,7 @@ static bool cdns_xspi_setup_clock(struct cdns_xspi_dev *cdns_xspi, int requested
 	}
 
 	if (cdns_xspi_clk_div_list[i] == -1) {
-		printf("Unable to find clock divider for CLK: %d - setting 6.25MHz\n",
+		log_debug("Unable to find clock divider for CLK: %d - setting 6.25MHz\n",
 		       requested_clk);
 		i = 0x0D;
 	} else {
@@ -416,6 +433,32 @@ static int cdns_xspi_probe(struct udevice *bus)
 	return 0;
 }
 
+#if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO)
+static void prepare_gpio(int bus, int mem_present)
+{
+	if (mem_present)
+		smc_gpio_as_sw(bus);
+
+	if (bus == 1) {
+		gpio_request(SPI1_CLK, "spi1_clk");
+		gpio_request(SPI1_CS0, "spi1_cs0");
+		gpio_request(SPI1_CS1, "spi1_cs1");
+		gpio_request(SPI1_IO0, "spi1_io0");
+		gpio_request(SPI1_IO1, "spi1_io1");
+	} else {
+		gpio_request(SPI0_CLK, "spi0_clk");
+		gpio_request(SPI0_CS0, "spi0_cs0");
+		gpio_request(SPI0_CS1, "spi0_cs1");
+		gpio_request(SPI0_IO0, "spi0_io0");
+		gpio_request(SPI0_IO1, "spi0_io1");
+	}
+	if (mem_present)
+		smc_gpio_as_spi(bus);
+	else
+		cdns_xspi_fix_gpio_config(bus);
+}
+#endif
+
 static int cdns_xspi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct cdns_xspi_dev *plat = dev_get_priv(bus);
@@ -426,11 +469,17 @@ static int cdns_xspi_ofdata_to_platdata(struct udevice *bus)
 	plat->sdmabase = ofnode_get_addr_index(bus->node, 1);
 	plat->auxbase = ofnode_get_addr_index(bus->node, 2);
 	plat->irq = 0;
+	plat->spi_mem_avalible = 0;
 
 	if (ofnode_read_u32(bus->node, "cdns,read-size", &plat->read_size)) {
 		dev_info(pdev, "Failed to get read_size. Using 8 bit.\n");
 		plat->read_size = 0;
 	}
+
+	if (plat->iobase == 0x805000000000)
+		plat->xspi_bus = 1;
+	else
+		plat->xspi_bus = 0;
 
 	ofnode_for_each_subnode(node, bus->node) {
 		if (ofnode_read_u32(node, "reg", &property)) {
@@ -439,8 +488,16 @@ static int cdns_xspi_ofdata_to_platdata(struct udevice *bus)
 		}
 	}
 
-	debug(bus, "%s: regbase=%llx ahbbase=%llx sdma-base=%llx read_size=%d\n",
-	      __func__, plat->iobase, plat->auxbase, plat->sdmabase, plat->read_size);
+	ofnode_for_each_subnode(node, bus->node) {
+		if (ofnode_device_is_compatible(node, "spi-flash"))
+			plat->spi_mem_avalible = 1;
+	}
+	if (IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO))
+		prepare_gpio(plat->xspi_bus, plat->spi_mem_avalible);
+
+	debug(bus, "%s: regbase=%llx ahbbase=%llx sdma-base=%llx xspi=%d read_size=%d mem=%d\n",
+	      __func__, plat->iobase, plat->auxbase, plat->sdmabase,
+	      plat->xspi_bus, plat->read_size, plat->spi_mem_avalible);
 
 	return 0;
 }
@@ -644,6 +701,9 @@ static int cdns_xspi_send_stig_command(struct cdns_xspi_dev *cdns_xspi,
 	u32 cmd_status;
 	int ret;
 
+	if (cdns_xspi->spi_mem_avalible)
+		smc_gpio_as_spi(cdns_xspi->xspi_bus);
+
 	ret = cdns_xspi_wait_for_controller_idle(cdns_xspi);
 	if (ret < 0)
 		return -EIO;
@@ -775,6 +835,10 @@ static int cdns_xspi_set_speed(struct udevice *bus, uint max_hz)
 
 static int cdns_xspi_set_mode(struct udevice *bus, uint mode)
 {
+	struct cdns_xspi_dev *cdns_xspi = dev_get_priv(bus);
+
+	cdns_xspi->mode = mode;
+
 	return 0;
 }
 
@@ -783,6 +847,148 @@ static bool cdns_xspi_supports_op(struct spi_slave *slave,
 {
 	return true;
 }
+
+#if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO) && ( \
+    IS_ENABLED(CONFIG_TARGET_CN10K_A) || \
+    IS_ENABLED(CONFIG_TARGET_CNF10K_A) || \
+    IS_ENABLED(CONFIG_TARGET_CNF10K_B))
+void cdns_cs_change(int bus, int cs, int active)
+{
+	int cs0 = bus == 0 ? SPI0_CS0 : SPI1_CS0;
+	int cs1 = bus == 0 ? SPI0_CS1 : SPI1_CS1;
+
+	if (cs == 0)
+		gpio_set_value(cs0, active);
+	else
+		gpio_set_value(cs1, active);
+}
+
+void cdns_soft_spi_scl(int bus, int val)
+{
+	int scl = bus == 0 ? SPI0_CLK : SPI1_CLK;
+
+	gpio_set_value(scl, val);
+}
+
+void cdns_soft_spi_sdo(int bus, int val)
+{
+	int sdo = bus == 0 ? SPI0_IO0 : SPI1_IO0;
+
+	gpio_set_value(sdo, val);
+}
+
+int cdns_soft_spi_getval_sdi(int bus)
+{
+	int sdi = bus == 0 ? SPI0_IO1 : SPI1_IO1;
+
+	return gpio_get_value(sdi);
+}
+
+int cdns_xspi_fix_gpio_config(int bus) {
+	if (bus == 1) {
+		gpio_direction_output(SPI1_CLK, 1);
+		gpio_direction_output(SPI1_CS0, 1);
+		gpio_direction_output(SPI1_CS1, 1);
+		gpio_direction_output(SPI1_IO0, 1);
+		gpio_direction_input(SPI1_IO1);
+	} else {
+		gpio_direction_output(SPI0_CLK, 1);
+		gpio_direction_output(SPI0_CS0, 1);
+		gpio_direction_output(SPI0_CS1, 1);
+		gpio_direction_output(SPI0_IO0, 1);
+		gpio_direction_input(SPI0_IO1);
+	}
+}
+
+static int cdns_xspi_xfer(struct udevice *dev, unsigned int bitlen,
+			   const void *dout, void *din, unsigned long flags)
+{
+	struct dm_spi_slave_platdata *slave_dev = dev_get_parent_platdata(dev);
+	struct cdns_xspi_dev *cdns_xspi = dev_get_priv(dev->parent);
+	int bus = cdns_xspi->xspi_bus;
+	int cs  = slave_dev->cs;
+
+	uchar		tmpdin  = 0;
+	uchar		tmpdout = 0;
+	const u8	*txd = dout;
+	u8		*rxd = din;
+	int		cpha = !!(cdns_xspi->mode & SPI_CPHA);
+	int		cidle = !!(cdns_xspi->mode & SPI_CPOL);
+	unsigned int	j;
+
+	if (cdns_xspi->spi_mem_avalible && smc_gpio_as_sw(bus))
+		cdns_xspi_fix_gpio_config(bus);
+
+	if (flags & SPI_XFER_BEGIN)
+		cdns_cs_change(bus, cs, 0);
+
+	for (j = 0; j < bitlen; j++) {
+		/*
+		 * Check if it is time to work on a new byte.
+		 */
+		if ((j % 8) == 0) {
+			if (txd)
+				tmpdout = *txd++;
+			else
+				tmpdout = 0;
+			if (j != 0) {
+				if (rxd)
+					*rxd++ = tmpdin;
+			}
+			tmpdin  = 0;
+		}
+
+		/*
+		 * CPOL 0: idle is low (0), active is high (1)
+		 * CPOL 1: idle is high (1), active is low (0)
+		 */
+
+		/*
+		 * drive bit
+		 *  CPHA 1: CLK from idle to active
+		 */
+		if (cpha)
+			cdns_soft_spi_scl(bus, !cidle);
+		cdns_soft_spi_sdo(bus, !!(tmpdout & 0x80));
+
+		/*
+		 * sample bit
+		 *  CPHA 0: CLK from idle to active
+		 *  CPHA 1: CLK from active to idle
+		 */
+		if (!cpha)
+			cdns_soft_spi_scl(bus, !cidle);
+		else
+			cdns_soft_spi_scl(bus, cidle);
+		tmpdin	<<= 1;
+		tmpdin	|= cdns_soft_spi_getval_sdi(bus);
+		tmpdout	<<= 1;
+
+		/*
+		 * drive bit
+		 *  CPHA 0: CLK from active to idle
+		 */
+		if (!cpha)
+			cdns_soft_spi_scl(bus, cidle);
+	}
+	/*
+	 * If the number of bits isn't a multiple of 8, shift the last
+	 * bits over to left-justify them.  Then store the last byte
+	 * read in.
+	 */
+	if (rxd) {
+		if ((bitlen % 8) != 0)
+			tmpdin <<= 8 - (bitlen % 8);
+		*rxd++ = tmpdin;
+	}
+
+	if (flags & SPI_XFER_END)
+		cdns_cs_change(bus, cs, 1);
+
+
+	return 0;
+}
+#endif
 
 static const struct spi_controller_mem_ops cdns_mem_ops = {
 	.supports_op = cdns_xspi_supports_op,
@@ -794,6 +1000,12 @@ static struct dm_spi_ops cdns_spi_ops = {
 	.release_bus	= cdns_xspi_release_bus,
 	.set_speed	= cdns_xspi_set_speed,
 	.set_mode	= cdns_xspi_set_mode,
+	#if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO) && ( \
+    	    IS_ENABLED(CONFIG_TARGET_CN10K_A) || \
+            IS_ENABLED(CONFIG_TARGET_CNF10K_A) || \
+            IS_ENABLED(CONFIG_TARGET_CNF10K_B))
+	.xfer		= cdns_xspi_xfer,
+	#endif
 	.mem_ops	= &cdns_mem_ops,
 };
 
