@@ -668,3 +668,27 @@ ssize_t smc_serdes_set_tx_tuning(int port, int lane,
 	return regs.regs[0];
 }
 
+ssize_t smc_gpio_as_sw(int spi_bus)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = PLAT_OCTEONTX_SPI_CHANGE;
+	regs.regs[1] = spi_bus;
+	regs.regs[2] = 0;
+
+	smc_call(&regs);
+
+	return regs.regs[0];
+}
+
+ssize_t smc_gpio_as_spi(int spi_bus)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = PLAT_OCTEONTX_SPI_CHANGE;
+	regs.regs[1] = spi_bus;
+	regs.regs[2] = 1;
+	smc_call(&regs);
+
+	return 0;
+}

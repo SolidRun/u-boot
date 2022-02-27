@@ -255,6 +255,12 @@ config CADENCE_XSPI
 	  Enable the Cadence xSPI driver. This driver can be used to
 	  access the SPI NOR flash on CN10X SoC platform.
 
+config CADENCE_XSPI_WORKAROUND_GPIO
+	bool "GPIO bitbanging workaround for u-boot"
+	depends on DM_PCI && ARCH_CN10K && CADENCE_XSPI
+	help
+	  Enable GPIO bitbang workaround for CN10K xSPI
+
 config OMAP3_SPI
 	bool "McSPI driver for OMAP"
 	help
