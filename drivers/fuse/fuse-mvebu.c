@@ -158,8 +158,6 @@ int fuse_override(u32 bank, u32 word, u32 val)
 
 static int fuse_probe(struct udevice *dev)
 {
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	struct mvebu_fuse_block_data *priv = dev_get_priv(dev);
 	const struct fuse_ops *ops;
 	int res = 0;
@@ -172,19 +170,17 @@ static int fuse_probe(struct udevice *dev)
 		(struct mvebu_fuse_platform_data *)dev_get_driver_data(dev);
 	priv->target_otp_mem =
 		(void *)(((phys_addr_t)dev_read_addr(dev) & ~0x00ffffff) +
-		(((phys_addr_t)dev_read_int(blob, node,
-			"otp-mem", 0)) & 0x00ffffff));
+		(((phys_addr_t)dev_read_u32_default(dev, "otp-mem", 0)) & 0x00ffffff));
 
 	priv->extra_bit_flag =
-		dev_read_int(blob, node, "extra-bit-per-63", 0) ?
-				true : false;
+		dev_read_u32_default(dev, "extra-bit-per-63", 0) ? true : false;
 
 	if (device_is_compatible(dev, "marvell,mvebu-fuse-hd"))
 		priv->hd_ld_flag = true;
 	else
 		priv->hd_ld_flag = false;
 
-	priv->row_num = dev_read_int(blob, node, "rows-count", 1);
+	priv->row_num = dev_read_u32_default(dev, "rows-count", 1);
 	priv->row_base = row_index;
 	row_index = priv->row_num + row_index;
 
@@ -225,11 +221,9 @@ int fuse_bind(struct udevice *dev)
 {
 	struct udevice *bank;
 	struct uclass *uc;
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	int ret = 0;
 
-	dev_read_alias_seq(blob, "fuse", node, &dev->req_seq);
+	dev_read_alias_seq(dev, &dev->req_seq);
 
 	/* Get MISC uclass */
 	ret = uclass_get(UCLASS_MISC, &uc);
@@ -241,8 +235,7 @@ int fuse_bind(struct udevice *dev)
 	 * list by its request sequence number.
 	 */
 	uclass_foreach_dev(bank, uc) {
-		node = dev_of_offset(bank);
-		dev_read_alias_seq(blob, "fuse", node, &bank->req_seq);
+		dev_read_alias_seq(dev, &bank->req_seq);
 
 		if ((device_is_compatible(bank, "marvell,mvebu-fuse-hd")) ||
 		    (device_is_compatible(bank,
