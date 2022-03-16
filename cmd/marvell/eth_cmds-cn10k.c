@@ -120,10 +120,11 @@ U_BOOT_CMD(get_mode, 2, 1, do_ethparam_common,
  */
 U_BOOT_CMD(set_mode, 4, 1, do_ethparam_common,
 	"Modify Interface mode for selected ethernet interface",
-	"Example - set_mode <ethX> [mode] [portm_idx]\n"
+	"Example - set_mode <ethX> mode [portm_idx]\n"
 	"Change mode of selected network interface\n"
 	"\n"
-	"mode encoding -\n"
+	"mode encoding -\n\n"
+	"Ethernet modes:\n"
 	"    0 - SGMII\n"
 	"    1 - 1G-X\n"
 	"    3 - 10G_C2C\n"
@@ -141,7 +142,13 @@ U_BOOT_CMD(set_mode, 4, 1, do_ethparam_common,
 	"   28 - 50G_2_C2M\n"
 	"   31 - 100G_2_C2C\n"
 	"   32 - 100G_2_C2M\n"
-	"   35 - SFI_1G\n"
+	"   35 - SFI_1G\n\n"
+	"CPRI modes:\n"
+	"   84 - CPRI_2_4G\n"
+	"   85 - CPRI_3_1G\n"
+	"   86 - CPRI_4_9G\n"
+	"   87 - CPRI_6_1G\n"
+	"   88 - CPRI_9_8G\n"
 	"Use 'ethlist' command to display network interface names\n"
 );
 

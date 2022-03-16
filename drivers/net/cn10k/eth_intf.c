@@ -282,56 +282,42 @@ static char intf_speed_to_str[][8] = {
 	"100G",
 };
 
-static inline u64 cpri_mode_to_mode_bitmask(int mode)
+static inline int cpri_mode_to_args(int mode, int flag, struct eth_mode_change_args *args)
 {
+	if (!flag)
+		return 0;
+
+	args->speed = 0;
+
 	switch (mode) {
 	case MODE_CPRI_2_4G_BIT:
-		return BIT_ULL(0);
-	case MODE_CPRI_3_1G_BIT:
-		return BIT_ULL(1);
-	case MODE_CPRI_4_9G_BIT:
-		return BIT_ULL(2);
-	case MODE_CPRI_6_1G_BIT:
-		return BIT_ULL(3);
-	case MODE_CPRI_9_8G_BIT:
-		return BIT_ULL(4);
-	default:
+		args->mode = BIT_ULL(MODE_CPRI_2_4G_BIT);
 		break;
+	case MODE_CPRI_3_1G_BIT:
+		args->mode = BIT_ULL(MODE_CPRI_3_1G_BIT);
+		break;
+	case MODE_CPRI_4_9G_BIT:
+		args->mode = BIT_ULL(MODE_CPRI_4_9G_BIT);
+		break;
+	case MODE_CPRI_6_1G_BIT:
+		args->mode = BIT_ULL(MODE_CPRI_6_1G_BIT);
+		break;
+	case MODE_CPRI_9_8G_BIT:
+		args->mode = BIT_ULL(MODE_CPRI_9_8G_BIT);
+		break;
+	default:
+		printf("%d is not a valid CPRI mode\n", mode);
+		return -1;
 	}
 
-	return (u64)(-1);
+	debug("CPRI Mode: %d (mode mask %llx, mode_group_idx %d)\n",
+	      mode, (u64)args->mode, args->mode_group_idx);
+
+	return 0;
 }
 
-static void mode_to_args(int mode, struct eth_mode_change_args *args, int flag, int port)
+static inline int eth_mode_to_args(int mode, int flag, struct eth_mode_change_args *args)
 {
-	int mode_group = 0;
-
-	if (port != -1) {
-		args->portm_idx = port;
-		args->use_portm_idx = 1;
-	} else {
-		args->use_portm_idx = 0;
-	}
-
-	args->an = 0;
-	args->duplex = 0;
-	/* If mode ID exceeding eth_mode_t enum value of 41, mode_group_idx
-	 * should be assigned accordingly
-	 */
-	if (mode >= 40 && mode <= 44)
-		mode_group = 2;
-
-	args->mode_group_idx = mode_group;
-
-	debug("mode %d, mode_group_idx %d, flag %d\n", mode, mode_group, flag);
-
-	if (mode_group == 2) {
-		args->speed = 0;
-		if (flag)
-			args->mode = cpri_mode_to_mode_bitmask(mode - 40);
-		return;
-	}
-
 	switch (mode) {
 	case ETH_MODE_SGMII_BIT:
 		if (flag) {
@@ -486,9 +472,48 @@ static void mode_to_args(int mode, struct eth_mode_change_args *args, int flag, 
 			debug("SFI 1G\n");
 		break;
 	default:
-		debug("Unknown Mode\n");
-		break;
+		printf("%d is not a valid ethernet mode\n", mode);
+		return -1;
 	}
+
+	if (flag) {
+		debug("Ethernet mode: %d (mode mask %llx, mode_group_idx %d)\n",
+		      mode, (u64)args->mode, args->mode_group_idx);
+	}
+
+	return 0;
+}
+
+#define MODE_GR1_OFFSET 42
+#define MODE_GR2_OFFSET 84
+static int mode_to_args(int mode, struct eth_mode_change_args *args, int flag, int port)
+{
+	int ret = 0;
+
+	if (port != -1) {
+		args->portm_idx = port;
+		args->use_portm_idx = 1;
+	} else {
+		args->use_portm_idx = 0;
+	}
+
+	args->an = 0;
+	args->duplex = 0;
+	/* If mode ID exceeding eth_mode_t enum value of 41, mode_group_idx
+	 * should be assigned accordingly
+	 */
+	if (mode < MODE_GR1_OFFSET) {
+		args->mode_group_idx = 0;
+		ret = eth_mode_to_args(mode, flag, args);
+	} else if (mode >= MODE_GR1_OFFSET && mode < MODE_GR2_OFFSET) {
+		printf("Group 1 modes are not supported\n");
+		ret = -1;
+	} else {
+		args->mode_group_idx = 2;
+		ret = cpri_mode_to_args(mode - MODE_GR2_OFFSET, flag, args);
+	}
+
+	return ret;
 }
 
 int eth_intf_set_mode(struct udevice *ethdev, int mode, int port)
@@ -502,7 +527,8 @@ int eth_intf_set_mode(struct udevice *ethdev, int mode, int port)
 	cmd.cmd.id = ETH_CMD_MODE_CHANGE;
 	debug("%s: mode %d\n", __func__, mode);
 
-	mode_to_args(mode, &cmd.mode_change_args, 1, port);
+	if (mode_to_args(mode, &cmd.mode_change_args, 1, port))
+		return -1;
 
 	ret = eth_intf_req(nix->lmac->rpm->rpm_id, nix->lmac->lmac_id,
 			   cmd, &scr0.u, 0);
@@ -510,6 +536,9 @@ int eth_intf_set_mode(struct udevice *ethdev, int mode, int port)
 		printf("Mode change command failed for %s\n", ethdev->name);
 		return -1;
 	}
+
+	if (cmd.mode_change_args.mode_group_idx != 0)
+		return 0;
 
 	cmd.cmd.id = ETH_CMD_GET_LINK_STS;
 	ret = eth_intf_req(nix->lmac->rpm->rpm_id, nix->lmac->lmac_id,
