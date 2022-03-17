@@ -140,5 +140,4 @@ U_BOOT_DRIVER(wdt_octeontx) = {
 	.priv_auto_alloc_size = sizeof(struct octeontx_wdt),
 	.probe = octeontx_wdt_probe,
 	.remove = octeontx_wdt_remove,
-	.flags = DM_FLAG_OS_PREPARE,
 };
