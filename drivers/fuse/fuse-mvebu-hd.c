@@ -82,7 +82,7 @@ static int do_mvebu_efuse_hd_prog(struct udevice *dev, int row_id, u32 *new_val)
 		/* Disable efuse write */
 		clrbits_le32(ctrl_reg, MVEBU_EFUSE_CTRL_PROGRAM_ENABLE);
 
-		/* ERRATA: 5073
+		/*
 		 * When burning a row in the HD eFuse, the SM first read the
 		 * row to be burned to check it wasnt already burned, to prevent
 		 * re-buring. However, this errata causes the first HD burn
@@ -114,10 +114,10 @@ static int do_mvebu_efuse_hd_prog(struct udevice *dev, int row_id, u32 *new_val)
 			if (fuse_read_value[i] != *(new_val + i)) {
 				dev_dbg(&dev->dev, "Fuse prog failed\n");
 				err_flag = 1;
-				retry_cnt++;
 				dev_dbg(&dev->dev, "Retrying fuse prog..\n");
 			}
 		}
+		retry_cnt++;
 	} while ((err_flag != 0) && (retry_cnt < EFUSE_MAX_RETRIES));
 
 	/* If we exceed retries limit, report error */
