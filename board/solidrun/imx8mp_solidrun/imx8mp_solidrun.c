@@ -32,6 +32,10 @@
 #include <fsl_esdhc.h>
 #include <power/bd71837.h>
 #include <asm/mach-imx/video.h>
+#include <linux/delay.h>
+#include <env.h>
+#include <tlv_eeprom.h>
+
 #define ONE_GB 0x40000000ULL
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -343,14 +347,203 @@ int board_init(void)
 	return 0;
 }
 
+static bool find_i2c_dev(u8 i2c_bus, u8 address) {
+	struct udevice *bus;
+	struct udevice *i2c_dev = NULL;
+	int ret;
+
+	ret = uclass_get_device_by_seq(UCLASS_I2C, i2c_bus, &bus);
+	if (ret) {
+		pr_err("%s: failed to get i2c bus %u: %i\n", __func__, i2c_bus, ret);
+		return false;
+	}
+
+	ret = dm_i2c_probe(bus, address, 0, &i2c_dev);
+	if (ret) {
+		return false;
+	}
+
+	return true;
+}
+
+/*
+ * Read TLV formatted data from eeprom.
+ * Only read as much data as indicated by the TLV header.
+ */
+// TODO: this should be a library function?!
+static bool get_tlvinfo_from_eeprom(int index, u8 *buffer, size_t length) {
+	struct tlvinfo_header *eeprom_hdr = (struct tlvinfo_header *) buffer;
+	struct tlvinfo_tlv *eeprom_tlv = (struct tlvinfo_tlv *) &buffer[sizeof(struct tlvinfo_header)];
+
+	if(length < TLV_INFO_HEADER_SIZE) {
+		pr_err("%s: buffer too small for tlv header!\n", __func__);
+		return false;
+	}
+	if(read_tlv_eeprom((void *)eeprom_hdr, 0, TLV_INFO_HEADER_SIZE, index) != 0) {
+		pr_err("%s: failed to read from eeprom!\n", __func__);
+		return false;
+	}
+	if(!is_valid_tlvinfo_header(eeprom_hdr)) {
+		pr_warn("%s: invalid tlv header!\n", __func__);
+		return false;
+	}
+	if(length - TLV_INFO_HEADER_SIZE < be16_to_cpu(eeprom_hdr->totallen)) {
+		pr_err("%s: buffer too small for tlv data!\n", __func__);
+		return false;
+	}
+	if(read_tlv_eeprom((void *)eeprom_tlv, sizeof(struct tlvinfo_header), be16_to_cpu(eeprom_hdr->totallen), index) != 0) {
+		pr_err("%s: failed to read from eeprom!\n", __func__);
+		return false;
+	}
+
+	return true;
+}
+
+static struct board_id {
+	char carrier_name[32];
+	char carrier_rev[3];
+	char som_name[8];
+	char som_rev[3];
+} board_id = {0};
+
+/*
+ * Identify board from TLV EEPROM - store result in board_id:
+ * - carrier_name: name of carrier
+ * - carrier_rev: revision of carrier
+ * - som_name: name of SoC
+ * - som_rev: revision of SoM
+ */
+static void board_id_from_tlv_eeprom(void) {
+	static u8 eeprom[TLV_INFO_MAX_LEN];
+	char sku[257];
+	char *tmp;
+
+	for(int i = 0; i < 2;i++) {
+		// read eeprom
+		if(!get_tlvinfo_from_eeprom(i, eeprom, sizeof(eeprom))) {
+			pr_info("%s: failed to read eeprom %d\n", __func__, i);
+			continue;
+		}
+
+		// read sku
+		if(!tlvinfo_read_tlv(eeprom, TLV_CODE_PART_NUMBER, (u8 *)sku, sizeof(sku))) {
+			pr_warn("%s: could not find sku in eeprom\n", __func__);
+			continue;
+		}
+		pr_debug("%s: read sku %s\n", __func__, sku);
+
+		// parse sku - processor or carrier indicated at index 2-6
+		if(memcmp(&sku[2], "HBC", 3) == 0) {
+			// HummingBoard
+			switch(sku[5]) {
+			    case 'M': // Mate
+				tmp = "mate";
+				break;
+			    case 'R': // Ripple
+				tmp = "ripple";
+				break;
+			    case 'U': // Pulse
+				tmp = "pulse";
+				break;
+			    default:
+				pr_err("%s: did not recognise board variant '%c' in sku \"%s\"!\n", __func__, sku[5], sku);
+				tmp = 0;
+			}
+
+			if(tmp) {
+				if(snprintf(board_id.carrier_name, sizeof(board_id.carrier_name), "hummingboard-%s", tmp) >= sizeof(board_id.carrier_name)) {
+					pr_err("%s: buffer too small, carrier_name skipped!\n", __func__);
+					board_id.carrier_name[0] = 0;
+				}
+			}
+
+			// board revision at index 12-13
+			if(sku[12] && sku[13]) {
+				board_id.carrier_rev[0] = sku[12];
+				board_id.carrier_rev[1] = sku[13];
+				board_id.carrier_rev[2] = 0;
+			} else {
+			    pr_err("%s: did not find board revision in sku \"%s\"!\n", __func__, sku);
+			}
+		} else if(memcmp(&sku[2], "MP8", 3) == 0) {
+			// i.MX8MP SoM
+			strcpy(board_id.som_name, "imx8mp");
+
+			// variant
+			switch(sku[5]) {
+			    case 'D':
+				break;
+			    case 'Q':
+				break;
+			    default:
+				pr_err("%s: did not recognise cpu variant '%c' in sku \"%s\"!\n", __func__, sku[5], sku);
+			}
+
+			// SoM revision at index 19-20
+			if(sku[19] && sku[20]) {
+				board_id.som_rev[0] = sku[19];
+				board_id.som_rev[1] = sku[20];
+				board_id.som_rev[2] = 0;
+			} else {
+			    pr_err("%s: did not find som revision in sku \"%s\"!\n", __func__, sku);
+			}
+		} else {
+			pr_err("%s: did not recognise SKU %s!\n", __func__, sku);
+		}
+	}
+}
+
 int board_late_init(void)
 {
+	char fdtfile[48] = {0};
 #ifdef CONFIG_ENV_IS_IN_MMC
 	board_late_mmc_env_init();
 #endif
+
+	// identify device
+	board_id_from_tlv_eeprom();
+
+	// fall-back when identification fails
+	if(!board_id.carrier_name[0]) {
+		// could be HummingBoard or CuBox ...
+		if(find_i2c_dev(2, 0x57)) {
+			// if EEPROM exists, it must be HummingBoard
+			printf("%s: could not identify board, defaulting to HummingBoard Pulse Revision 2.5!\n", __func__);
+			strcpy(board_id.carrier_name, "hummingboard-pulse");
+			strcpy(board_id.carrier_rev, "25");
+		} else {
+			// likely a CuBox
+			printf("%s: could not identify board, defaulting to CuBox-M!\n", __func__);
+			strcpy(board_id.carrier_name, "cubox-m");
+		}
+	}
+	if(!board_id.som_name[0]) {
+		// could be anything ...
+		printf("%s: could not identify som, defaulting to i.MX8M Plus Revision 1.1!\n", __func__);
+		strcpy(board_id.som_name, "imx8mp");
+		strcpy(board_id.som_rev, "11");
+	}
+
+	// auto-select device-tree
+	if (!env_get("fdtfile")) {
+		if(snprintf(fdtfile, sizeof(fdtfile), "freescale/%s-%s.dtb", board_id.som_name, board_id.carrier_name) >= sizeof(fdtfile)) {
+			pr_err("%s: buffer too small, fdtfile truncated!\n", __func__);
+		}
+		env_set("fdtfile", fdtfile);
+	} else {
+		printf("%s: fdtfile set in environment, keeping as is.\n", __func__);
+	}
+
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	env_set("board_name", "SOLIDRUN");
-	env_set("board_rev", "iMX8MP");
+	// expose identity to environment
+	if(board_id.carrier_name[0])
+		env_set("carrier_name", board_id.carrier_name);
+	if(board_id.carrier_rev[0])
+		env_set("carrier_rev", board_id.carrier_rev);
+	if(board_id.som_name[0])
+		env_set("som_name", board_id.som_name);
+	if(board_id.som_rev[0])
+		env_set("som_rev", board_id.som_rev);
 #endif
 
 	return 0;

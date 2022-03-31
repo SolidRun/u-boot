@@ -260,6 +260,7 @@ config TARGET_IMX8MP_SOLIDRUN
 	select FSL_CAAM
 	select FSL_BLOB
 	select ARCH_MISC_INIT
+	select EEPROM_TLV_LIB
 	select SPL_CRYPTO if SPL
 
 config TARGET_PICO_IMX8MQ
