@@ -611,17 +611,35 @@ int eth_intf_get_mode(struct udevice *ethdev)
 	case ETH_MODE_25G_C2M_BIT:
 		printf("25GAUI_C2M\n");
 		break;
+	case ETH_MODE_25G_KR_BIT:
+		printf("25G_KR\n");
+		break;
+	case ETH_MODE_25G_CR_BIT:
+		printf("25G_CR\n");
+		break;
 	case ETH_MODE_40G_C2C_BIT:
 		printf("40GAUI_4_C2C\n");
 		break;
 	case ETH_MODE_40G_C2M_BIT:
 		printf("40GAUI_4_C2M\n");
 		break;
+	case ETH_MODE_40G_KR4_BIT:
+		printf("40G_KR4\n");
+		break;
+	case ETH_MODE_40G_CR4_BIT:
+		printf("40G_CR4\n");
+		break;
 	case ETH_MODE_100G_C2C_BIT:
 		printf("100GAUI_4_C2C\n");
 		break;
 	case ETH_MODE_100G_C2M_BIT:
 		printf("100GAUI_4_C2M\n");
+		break;
+	case ETH_MODE_100G_KR4_BIT:
+		printf("100G_KR4");
+		break;
+	case ETH_MODE_100G_CR4_BIT:
+		printf("100G_CR4");
 		break;
 	case ETH_MODE_50G_C2C_BIT:
 		printf("50GAUI_1_C2C\n");
@@ -640,6 +658,12 @@ int eth_intf_get_mode(struct udevice *ethdev)
 		break;
 	case ETH_MODE_LAUI_2_C2M_BIT:
 		printf("50GAUI_2_C2M\n");
+		break;
+	case ETH_MODE_50GBASE_KR2_C_BIT:
+		printf("50G_KR2_C");
+		break;
+	case ETH_MODE_50GBASE_CR2_C_BIT:
+		printf("50G_CR2_C");
 		break;
 	case ETH_MODE_SFI_1G_BIT:
 		printf("SFI_1G\n");
