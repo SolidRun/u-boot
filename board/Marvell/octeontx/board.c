@@ -314,3 +314,12 @@ int checkboard(void)
 
 	return 0;
 }
+
+void board_quiesce_devices(void)
+{
+#if CONFIG_IS_ENABLED(WDT)
+	/* Stop watchdog */
+	if (gd && (gd->flags & GD_FLG_WDT_READY))
+		wdt_stop(gd->watchdog_dev);
+#endif
+}
