@@ -549,12 +549,79 @@ int board_late_init(void)
 	return 0;
 }
 
+
+static struct board_mac {
+	unsigned char base[2][6];
+	u16 count[2];
+} board_mac = {0};
+/*
+ *
+ */
+void board_mac_from_tlv_eeprom(void) {
+	static u8 eeprom[TLV_INFO_MAX_LEN] = {0};
+	int eeprom_index = 0;
+	struct tlvinfo_tlv *tlv = 0;
+
+	for(int i = 0; i < 2; i++) {
+		// read eeprom
+		if(!get_tlvinfo_from_eeprom(i, eeprom, sizeof(eeprom))) {
+			pr_info("%s: failed to read eeprom %d\n", __func__, i);
+			continue;
+		}
+
+		// read mac count
+		if(tlvinfo_find_tlv(eeprom, TLV_CODE_MAC_SIZE, &eeprom_index)) {
+			tlv = (void *)&eeprom[eeprom_index];
+			board_mac.count[i] = (tlv->value[0] << 8) | tlv->value[1];
+			pr_debug("%s: read mac count = %u\n", __func__, board_mac.count[i]);
+		}
+		if(!board_mac.count[i])
+			continue;
+
+		// read mac base
+		if(tlvinfo_find_tlv(eeprom, TLV_CODE_MAC_BASE, &eeprom_index)) {
+			tlv = (void *)&eeprom[eeprom_index];
+			memcpy(board_mac.base[i], tlv->value, 6);
+			pr_debug("%s: read mac base = %02X:%02X:%02X:%02X:%02X:%02X\n", __func__, board_mac.base[i][0], board_mac.base[i][1], board_mac.base[i][2], board_mac.base[i][3], board_mac.base[i][4], board_mac.base[i][5]);
+		}
+		if(!is_valid_ethaddr(board_mac.base[i])) {
+			pr_debug("%s: mac base is invalid\n", __func__);
+			continue;
+		}
+	}
+}
+
+// calculate n-th mac from base
+static void mac_add_n(unsigned char *base, u16 n) {
+	union {
+		unsigned char byte[8];
+		u64 number;
+	} temp;
+
+	memcpy(temp.byte, base, 6);
+	temp.number += n;
+	memcpy(base, temp.byte, 6);
+}
+
 /*
  * select board mac address for given interface
  */
 int board_get_mac(int dev_id, unsigned char *mac) {
-	char macenv[16] = {0};
-	mac[0] = 0;
+	static bool read_mac = false;
+	int i;
+
+	// HACK: id 1 is the first
+	if(dev_id == 0) {
+		pr_err("%s: requested mac address for unknown interface 0!\n", __func__);
+		return -ENOENT;
+	}
+	dev_id -= 1;
+
+	// read macs from eeprom
+	if(!read_mac) {
+		board_mac_from_tlv_eeprom();
+		read_mac = true;
+	}
 
 	/*
 	 * Note: Environment ethaddr (eth1addr, eth2addr, ...) has first priority,
@@ -562,6 +629,32 @@ int board_get_mac(int dev_id, unsigned char *mac) {
 	 * However the fec driver will write the result from this function to the environment,
 	 * causing a feedback loop.
 	 */
+
+	// tlv eeproms
+	i = dev_id;
+	for(int j = 0; j < 2; j++) {
+		if(!is_valid_ethaddr(board_mac.base[j]))
+			continue;
+
+		// count if enough macs are provided
+		if(i >= board_mac.count[j]) {
+			// maybe in next eeprom?
+			i -= board_mac.count[j];
+			continue;
+		}
+
+		// compute i-th mac
+		memcpy(mac, board_mac.base[j], 6);
+		mac_add_n(mac, i);
+
+		if(is_valid_ethaddr(mac)) {
+			printf("%s: interface %i: using mac from tlv eeprom: %02X:%02X:%02X:%02X:%02X:%02X\n", __func__, dev_id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+			return 0;
+		} else {
+			pr_debug("%s: computed mac %02X:%02X:%02X:%02X:%02X:%02X is invalid\n", __func__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+			break;
+		}
+	}
 
 	// fuses
 	imx_get_mac_from_fuse(dev_id, mac);
