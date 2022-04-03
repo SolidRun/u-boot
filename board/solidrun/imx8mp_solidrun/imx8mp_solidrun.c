@@ -549,6 +549,30 @@ int board_late_init(void)
 	return 0;
 }
 
+/*
+ * select board mac address for given interface
+ */
+int board_get_mac(int dev_id, unsigned char *mac) {
+	char macenv[16] = {0};
+	mac[0] = 0;
+
+	/*
+	 * Note: Environment ethaddr (eth1addr, eth2addr, ...) has first priority,
+	 * therefore it should be read and returned here.
+	 * However the fec driver will write the result from this function to the environment,
+	 * causing a feedback loop.
+	 */
+
+	// fuses
+	imx_get_mac_from_fuse(dev_id, mac);
+	if(is_valid_ethaddr(mac)) {
+		printf("%s: interface %i: using mac from fuses: %02X:%02X:%02X:%02X:%02X:%02X\n", __func__, dev_id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		return 0;
+	}
+
+	return -ENOENT;
+}
+
 #ifdef CONFIG_ANDROID_SUPPORT
 bool is_power_key_pressed(void) {
 	return (bool)(!!(readl(SNVS_HPSR) & (0x1 << 6)));
