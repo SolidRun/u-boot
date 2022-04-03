@@ -209,10 +209,14 @@ static int eqos_set_tx_clk_speed_imx(struct udevice *dev)
 static int eqos_get_enetaddr_imx(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
+	int ret;
+
+	ret = board_get_mac(dev_seq(dev), pdata->enetaddr);
+	if (!ret)
+		return ret;
 
 	imx_get_mac_from_fuse(dev_seq(dev), pdata->enetaddr);
-
-	return 0;
+	return !is_valid_ethaddr(pdata->enetaddr);
 }
 
 static struct eqos_ops eqos_imx_ops = {

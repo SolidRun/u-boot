@@ -396,6 +396,12 @@ static void fec_rbd_clean(int last, struct fec_bd *prbd)
 
 static int fec_get_hwaddr(int dev_id, unsigned char *mac)
 {
+	int ret;
+
+	ret = board_get_mac(dev_id, mac);
+	if (!ret)
+		return ret;
+
 	imx_get_mac_from_fuse(dev_id, mac);
 	return !is_valid_ethaddr(mac);
 }
