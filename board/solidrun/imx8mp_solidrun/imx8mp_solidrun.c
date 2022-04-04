@@ -399,11 +399,78 @@ static bool get_tlvinfo_from_eeprom(int index, u8 *buffer, size_t length) {
 	return true;
 }
 
+/*
+ * SolidRun TLV vendor extension data format
+ * (compatible with format used on Armada 388 Clearfog by Baruch Siach)
+ */
+struct __attribute__((__packed__)) sr_tlv_ext {
+	u32 pen; // IANA Private Enterprise Number
+	u8 code; // identification code for data
+	u8 data[];
+};
+
+// SolidRun TLV vendor extension data codes
+enum sr_tlv_code {
+	SR_TLV_CODE_KIT_NUMBER	= 0x10,
+	SR_TLV_CODE_RAM_SIZE	= 0x81,
+};
+
+/**
+ * Read TLV SolidRun Vendor Extension entry
+ * @eeprom: tlv eeprom data to parse
+ * @code: solidrun code to read
+ * @buffer: buffer for result data (C string)
+ * @size: size of buffer
+ */
+int tlvinfo_read_tlv_ext_sr(u8 *eeprom, u8 code, char *buffer, size_t size) {
+	int eeprom_index = 0;
+	struct tlvinfo_tlv *tlv = 0;
+	const struct sr_tlv_ext *vext = 0;
+	size_t vext_data_len = 0;
+
+	// read vendor extension
+	if(!tlvinfo_find_tlv(eeprom, TLV_CODE_VENDOR_EXT, &eeprom_index)) {
+		pr_warn("%s: could not find vendor extension in eeprom\n", __func__);
+		return -ENOENT;
+	} else {
+		tlv = (void *)&eeprom[eeprom_index];
+		vext = (void *)tlv->value;
+		vext_data_len = tlv->length - sizeof(struct sr_tlv_ext);
+		pr_info("%s: read vendor extension with length %#02X\n", __func__, tlv->length);
+	}
+
+	// only match own extension (sadly, we don't have IANA number ...
+	const u32 pen = 0xFFFFFFFF;
+	if(vext->pen != htonl(pen)) {
+		pr_warn("%s: found extension enterprise number %#02X but requested %#02X!\n", __func__, vext->pen, pen);
+		return -ENOENT;
+	}
+
+	// match expected code
+	if(vext->code != code) {
+		pr_warn("%s: found vendor extension code %#02X but requested %#02X!\n", __func__, vext->code, code);
+		return -ENOENT;
+	}
+
+	// validate destination buffer space
+	if(size <= vext_data_len) {
+		pr_err("%s: buffer too small for data: have %0zX, want %0zX!\n", __func__, size, vext_data_len + 1);
+		return -ENOENT;
+	}
+
+	// return data as 0-terminated C string
+	memcpy(buffer, vext->data, vext_data_len);
+	buffer[vext_data_len] = 0;
+	return 0;
+}
+
 static struct board_id {
 	char carrier_name[32];
 	char carrier_rev[3];
 	char som_name[8];
 	char som_rev[3];
+	char product_name[32];
+	char product_rev[3];
 } board_id = {0};
 
 /*
@@ -416,6 +483,7 @@ static struct board_id {
 static void board_id_from_tlv_eeprom(void) {
 	static u8 eeprom[TLV_INFO_MAX_LEN];
 	char sku[257];
+	char kku[257];
 	char *tmp;
 
 	for(int i = 0; i < 2;i++) {
@@ -490,6 +558,49 @@ static void board_id_from_tlv_eeprom(void) {
 		} else {
 			pr_err("%s: did not recognise SKU %s!\n", __func__, sku);
 		}
+
+		// read vendor extension kit number
+		if(!tlvinfo_read_tlv_ext_sr(eeprom, SR_TLV_CODE_KIT_NUMBER, kku, sizeof(kku))) {
+			pr_warn("%s: could not find kit sku in eeprom\n", __func__);
+			continue;
+		}
+		pr_info("%s: read kit sku %s\n", __func__, kku);
+
+		// SRMP8QDW00D01GE008X01CE
+		if(strlen(kku) != 23) {
+			pr_err("%s: kit sku \"%s\" has wrong length (expecting %0X)\n", __func__, kku, 23);
+			continue;
+		}
+
+		// kit type
+		switch(kku[18]) {
+		    case 'M': // Mate
+			tmp = "hummingboard-mate";
+			break;
+		    case 'U': // Pulse
+			tmp = "hummingboard-pulse";
+			break;
+		    case 'R': // Ripple
+			tmp = "hummingboard-ripple";
+			break;
+		    case 'X': // CuBox
+			tmp = "cubox-m";
+			break;
+		    default:
+			tmp = 0;
+			pr_err("%s: did not recognise kit variant '%c' in sku \"%s\"!\n", __func__, kku[18], kku);
+		}
+		if(tmp) {
+			if(board_id.product_name[0] && strcmp(board_id.product_name, tmp) != 0) {
+				pr_err("%s: components mixed between kits, found %s and %s!\n", __func__, board_id.product_name, tmp);
+			}
+			strcpy(board_id.product_name, tmp);
+		}
+
+		// kit revision
+		board_id.product_rev[0] = kku[19];
+		board_id.product_rev[1] = kku[20];
+		board_id.product_rev[2] = 0;
 	}
 }
 
@@ -506,7 +617,12 @@ int board_late_init(void)
 	// fall-back when identification fails
 	if(!board_id.carrier_name[0]) {
 		// could be HummingBoard or CuBox ...
-		if(find_i2c_dev(2, 0x57)) {
+		if(board_id.product_name[0] && strcmp(board_id.product_name, "cubox-m") == 0) {
+			// we have a kit and it's a CuBox
+			printf("%s: SoM is part of a CuBox-M Kit, infering that carrier is CuBox-M!\n", __func__);
+			strcpy(board_id.carrier_name, board_id.product_name);
+		}
+		else if(find_i2c_dev(2, 0x57)) {
 			// if EEPROM exists, it must be HummingBoard
 			printf("%s: could not identify board, defaulting to HummingBoard Pulse Revision 2.5!\n", __func__);
 			strcpy(board_id.carrier_name, "hummingboard-pulse");
@@ -544,6 +660,10 @@ int board_late_init(void)
 		env_set("som_name", board_id.som_name);
 	if(board_id.som_rev[0])
 		env_set("som_rev", board_id.som_rev);
+	if(board_id.product_name[0])
+		env_set("product_name", board_id.product_name);
+	if(board_id.product_rev[0])
+		env_set("product_rev", board_id.product_rev);
 #endif
 
 	return 0;
