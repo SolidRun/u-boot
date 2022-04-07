@@ -4212,6 +4212,186 @@ static int spi_nor_octal_dtr_enable(struct spi_nor *nor)
 	return 0;
 }
 
+/*
+ * Post device scan hook to set Cypress sf128s in uniform sector mode
+ */
+
+#ifdef CONFIG_SPI_FLASH_SPANSION
+#define SPINOR_REG_ADDR_CR2V	0x00800003
+#define SPINOR_REG_ADDR_CR3V	0x00800004
+#define CR3V_4KBDIS		BIT(3)	/* Uniform sectors (4kB sectors disabled) or not */
+#define CR3V_PBW                BIT(4)  /* Page buffer wrap to 521 or 256 bytes? */
+#define SPINOR_OP_RDAR		0x65	/* Read any register */
+int spansion_sf_read_any_reg(struct spi_nor *nor, u32 addr, u8 *val)
+{
+	u8 buf;
+	u8 addr_width = 3, dummy_bytes = 1; /* Pre-SDFP defaults */
+	int ret;
+	struct spi_mem_op op;
+
+	/* Device name check for sf-cmd/uboot shell use-case */
+	if (!nor->info->name || (strcmp(nor->info->name, "s25fs128s"))) {
+		printf("\n%s() unsupported for %s!\n", __func__,
+		       nor->info->name);
+		return -ENOTSUPP;
+	}
+
+	if (nor->addr_width != 0) /* SFDP done? */
+		addr_width = nor->addr_width;
+	if (nor->read_dummy != 0)
+		dummy_bytes = nor->read_dummy / 8;
+
+	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_RDAR, 1),
+					   SPI_MEM_OP_ADDR(addr_width, addr, 1),
+					   SPI_MEM_OP_DUMMY(dummy_bytes, 1),
+					   SPI_MEM_OP_DATA_IN(1, &buf, 1));
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret)
+		return ret;
+
+	pr_debug("\n%s(0x%08x) -> 0x%02x (dummy: %d/%d ; width: %d)\n",
+		 __func__, addr, buf, nor->read_dummy, op.dummy.nbytes,
+		 addr_width);
+	*val = buf;
+
+	return 0;
+}
+
+#define SPINOR_OP_WRAR		0x71	/* Write any register */
+int spansion_sf_write_any_reg(struct spi_nor *nor, u32 addr, u8 val)
+{
+	u8 addr_width = 3; /* Pre-SDFP defaults */
+	u8 w_val = val;
+	int ret;
+	struct spi_mem_op op;
+
+	/* Device name check for sf-cmd/uboot shell use-case */
+	if (!nor->info->name || (strcmp(nor->info->name, "s25fs128s"))) {
+		printf("\n%s() unsupported for %s!\n",
+		       __func__, nor->info->name);
+
+		return -ENOTSUPP;
+	}
+
+	ret = write_enable(nor);
+	if (ret < 0) {
+		printf("\n%s(reg=0x%08x): WE failed!", __func__, addr);
+		return ret;
+	}
+
+	if (nor->addr_width != 0) /* SFDP done? */
+		addr_width = nor->addr_width;
+
+	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WRAR, 1),
+					   SPI_MEM_OP_ADDR(addr_width, addr, 1),
+					   SPI_MEM_OP_NO_DUMMY,
+					   SPI_MEM_OP_DATA_OUT(1, (const void *)&w_val, 1));
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+
+	if (ret) {
+		printf("\n%s(reg=0x%08x): Write failed!", __func__, addr);
+		return ret;
+	}
+
+	pr_debug("\n%s(0x%08x) <- 0x%02x\n", __func__, addr, val);
+	return 0;
+}
+
+static int s25fs128s_post_scan_fixups(struct spi_nor *nor)
+{
+	int ret = 0;
+	u8  val;
+	u32 dev_page_size;
+
+	/*
+	 * Read CFR3V to check if uniform sector is selected.
+	 * If so, change erase opcode+size ; Otherwise, returns
+	 * (non uniform sectors) unsupported...
+	 */
+	ret = spansion_sf_read_any_reg(nor, SPINOR_REG_ADDR_CR3V, &val);
+	if (ret)
+		return ret;
+
+	if (val & CR3V_4KBDIS) {
+		pr_debug("%s : Change default erase cmd/size!\n",
+			 nor->info->name);
+		nor->erase_opcode  = SPINOR_OP_SE;
+		nor->mtd.erasesize = SZ_64K;
+		nor->erase_size    = SZ_64K;
+		nor->sector_size   = SZ_64K;
+	} else {
+		printf("\n%s : Non uniform sectors UNSUPPORTED!!!\n",
+		       nor->info->name);
+
+		/*
+		 * To minimize risks of corruption, change defaults anyway,
+		 * this'll work for most device address range (64kB uniform sectors)
+		 * but fail for non uniform sectored area (bottom or top 64kB).
+		 *
+		 * Cannot return -ENOTSUPP here as this'll screw probe (thus read...).
+		 */
+		printf("%s : Change default erase cmd/size\n",
+		       nor->info->name);
+		printf("\n!!! ERASE/WRITE  NON UNIFORM SECTORED AREAS !!!\n");
+		printf("!!! WILL CORRUPT FLASH : YOU'VE BEEN WARNED !!!\n");
+		printf("!!! You may modify device (OTP) CR3NV[BIT3] !!!\n");
+		printf("!!! see datasheet + uboot command 'sf war'. !!!\n\n");
+		nor->erase_opcode  = SPINOR_OP_SE;
+		nor->mtd.erasesize = SZ_64K;
+		nor->erase_size    = SZ_64K;
+		nor->sector_size   = SZ_64K;
+	}
+
+	dev_page_size = (val & CR3V_PBW) ? 512 : 256;
+	if (dev_page_size != nor->page_size) {
+		pr_debug("%s : Bad page size %d ; Fix to %d!\n",
+			 nor->info->name, nor->page_size, dev_page_size);
+		nor->page_size = dev_page_size;
+	}
+
+	return ret;
+}
+#endif /* CONFIG_SPI_FLASH_SPANSION */
+
+static int spi_nor_post_scan_fixups(struct spi_nor *nor)
+{
+	int ret = 0;
+
+	pr_debug("\nBEGIN %s() for %s :\n", __func__, nor->info->name);
+	pr_debug("Dev   flags = 0x%04x\n", nor->info->flags);
+	pr_debug("Erase   cmd = 0x%02x\n", nor->erase_opcode);
+	pr_debug("Program cmd = 0x%02x\n", nor->program_opcode);
+	pr_debug("RD/WR/RG Proto : 0x%04x/0x%04x/0x%04x\n",
+		 nor->read_proto, nor->write_proto, nor->reg_proto);
+	pr_debug("Erase sizes (mtd/nor) : 0x%08x/0x%08x ; Sector : 0x%08x\n",
+		 nor->mtd.erasesize, nor->erase_size, nor->sector_size);
+	pr_debug("Page size = %d\n", nor->page_size);
+
+#ifdef CONFIG_SPI_FLASH_SPANSION
+	/* For Spansion/Cypress s25fs128s, setup post scan fixups function */
+	if (nor->info->name && (!strcmp(nor->info->name, "s25fs128s")))
+		ret = s25fs128s_post_scan_fixups(nor);
+#endif /* CONFIG_SPI_FLASH_SPANSION */
+
+	pr_debug("\nEND %s() for %s :\n", __func__, nor->info->name);
+	pr_debug("Dev   flags = 0x%04x\n", nor->info->flags);
+	pr_debug("Erase   cmd = 0x%02x\n", nor->erase_opcode);
+	pr_debug("Program cmd = 0x%02x\n", nor->program_opcode);
+	pr_debug("RD/WR/RG Proto : 0x%04x/0x%04x/0x%04x\n",
+		 nor->read_proto, nor->write_proto, nor->reg_proto);
+	pr_debug("Erase sizes (mtd/nor) : 0x%08x/0x%08x ; Sector : 0x%08x\n",
+		 nor->mtd.erasesize, nor->erase_size, nor->sector_size);
+	pr_debug("Page size = %d\n", nor->page_size);
+
+	return ret;
+}
+
+/*
+ * /sf128s post-scan hook.
+ */
+
 static int spi_nor_init(struct spi_nor *nor)
 {
 	int err;
@@ -4559,6 +4739,8 @@ int spi_nor_scan(struct spi_nor *nor)
 	nor->erase_size = mtd->erasesize;
 	nor->sector_size = mtd->erasesize;
 
+	ret = spi_nor_post_scan_fixups(nor);
+
 #ifndef CONFIG_SPL_BUILD
 	printf("SF: Detected %s with page size ", nor->name);
 	print_size(nor->page_size, ", erase size ");
@@ -4567,7 +4749,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	puts("\n");
 #endif
 
-	return 0;
+	return ret;
 }
 
 /* U-Boot specific functions, need to extend MTD to support these */
