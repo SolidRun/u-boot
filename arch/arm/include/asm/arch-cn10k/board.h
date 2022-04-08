@@ -39,6 +39,7 @@ union cpc_boot_ownerx {
 
 /** Function definitions */
 void mem_map_fill(u64 rvu_addr, u64 rvu_size);
+void board_fdt_get_rsvd_size(u64 *size);
 int fdt_get_board_mac_cnt(bool *use_id);
 u64 fdt_get_board_mac_addr(bool use_id, u8 id);
 const char *fdt_get_run_platform(void);

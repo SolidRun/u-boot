@@ -12,3 +12,14 @@ config SYS_CONFIG_NAME
 	default "cn10k_common"
 
 endif
+
+if TARGET_CN10K_A
+
+config CN10K_MAP_RESERVE
+	bool "Enable reserved region mapping"
+	default n
+	help
+	  Enable mapping of reserved regions to MMU for access
+	  from U-Boot.
+
+endif

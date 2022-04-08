@@ -711,6 +711,37 @@ int fdt_get_switch_reset(void)
 	return config_switch;
 }
 
+#if CONFIG_IS_ENABLED(CN10K_MAP_RESERVE)
+void board_fdt_get_rsvd_size(u64 *size)
+{
+	int node, child;
+	const void *fdt = gd->fdt_blob;
+	fdt_addr_t addr;
+	fdt_size_t len;
+
+	*size = 0;
+	node = fdt_path_offset(fdt, "/reserved-memory");
+	if (node) {
+		fdt_for_each_subnode(child, fdt, node) {
+			addr = 0;
+			len = 0;
+			if (!fdt_node_check_compatible(fdt, child, "marvell"))
+				continue;
+			addr = fdtdec_get_addr_size_auto_parent(fdt, node,
+								child,
+								"reg", 0,
+								&len,
+								false);
+			if (addr && len) {
+				debug("%s Rsvd address 0x%llx size 0x%llx\n",
+				      __func__, addr, len);
+				*size += len;
+			}
+		}
+	}
+}
+#endif
+
 int arch_fixup_memory_node(void *blob)
 {
 	return 0;
