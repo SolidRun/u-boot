@@ -186,6 +186,7 @@ int eth_intf_get_mac_addr(u8 rpm, u8 lmac, u8 *mac)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_GET_MAC_ADDR;
 
 	ret = eth_intf_req(rpm, lmac, cmd, &scr0.u, 1);
@@ -204,6 +205,7 @@ int eth_intf_get_ver(u8 rpm, u8 lmac, u8 *ver)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_GET_FW_VER;
 
 	ret = eth_intf_req(rpm, lmac, cmd, &scr0.u, 1);
@@ -222,6 +224,7 @@ int eth_intf_get_link_sts(u8 rpm, u8 lmac, u64 *lnk_sts)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_GET_LINK_STS;
 
 	ret = eth_intf_req(rpm, lmac, cmd, &scr0.u, 1);
@@ -242,7 +245,9 @@ int eth_intf_link_up_dwn(u8 rpm, u8 lmac, u8 up_dwn, u64 *lnk_sts)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = up_dwn ? ETH_CMD_LINK_BRING_UP : ETH_CMD_LINK_BRING_DOWN;
+	cmd.lnk_bringup.timeout = 0;
 
 	ret = eth_intf_req(rpm, lmac, cmd, &scr0.u, 1);
 	if (ret)
@@ -261,6 +266,7 @@ void eth_intf_shutdown(void)
 	union eth_scratchx0 scr0;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_INTF_SHUTDOWN;
 
 	eth_intf_req(0, 0, cmd, &scr0.u, 1);
@@ -290,20 +296,20 @@ static inline int cpri_mode_to_args(int mode, int flag, struct eth_mode_change_a
 	args->speed = 0;
 
 	switch (mode) {
-	case MODE_CPRI_2_4G_BIT:
-		args->mode = BIT_ULL(MODE_CPRI_2_4G_BIT);
+	case ETH_MODE_CPRI_2_4G_BIT:
+		args->mode = BIT_ULL(ETH_MODE_CPRI_2_4G_BIT);
 		break;
-	case MODE_CPRI_3_1G_BIT:
-		args->mode = BIT_ULL(MODE_CPRI_3_1G_BIT);
+	case ETH_MODE_CPRI_3_1G_BIT:
+		args->mode = BIT_ULL(ETH_MODE_CPRI_3_1G_BIT);
 		break;
-	case MODE_CPRI_4_9G_BIT:
-		args->mode = BIT_ULL(MODE_CPRI_4_9G_BIT);
+	case ETH_MODE_CPRI_4_9G_BIT:
+		args->mode = BIT_ULL(ETH_MODE_CPRI_4_9G_BIT);
 		break;
-	case MODE_CPRI_6_1G_BIT:
-		args->mode = BIT_ULL(MODE_CPRI_6_1G_BIT);
+	case ETH_MODE_CPRI_6_1G_BIT:
+		args->mode = BIT_ULL(ETH_MODE_CPRI_6_1G_BIT);
 		break;
-	case MODE_CPRI_9_8G_BIT:
-		args->mode = BIT_ULL(MODE_CPRI_9_8G_BIT);
+	case ETH_MODE_CPRI_9_8G_BIT:
+		args->mode = BIT_ULL(ETH_MODE_CPRI_9_8G_BIT);
 		break;
 	default:
 		printf("%d is not a valid CPRI mode\n", mode);
@@ -389,10 +395,10 @@ static inline int eth_mode_to_args(int mode, int flag, struct eth_mode_change_ar
 		} else
 			debug("50GAUI_1_C2C\n");
 		break;
-	case ETH_MODE_LAUI_2_C2C_BIT:
+	case ETH_MODE_50GAUI_2_C2C_BIT:
 		if (flag) {
 			args->speed = ETH_LINK_50G;
-			args->mode = BIT_ULL(ETH_MODE_LAUI_2_C2C_BIT);
+			args->mode = BIT_ULL(ETH_MODE_50GAUI_2_C2C_BIT);
 		} else
 			debug("50GAUI_2_C2C\n");
 		break;
@@ -403,10 +409,10 @@ static inline int eth_mode_to_args(int mode, int flag, struct eth_mode_change_ar
 		} else
 			debug("50G_C2M\n");
 		break;
-	case ETH_MODE_LAUI_2_C2M_BIT:
+	case ETH_MODE_50GAUI_2_C2M_BIT:
 		if (flag) {
 			args->speed = ETH_LINK_50G;
-			args->mode = BIT_ULL(ETH_MODE_LAUI_2_C2M_BIT);
+			args->mode = BIT_ULL(ETH_MODE_50GAUI_2_C2M_BIT);
 		} else
 			debug("50GAUI_2_C2M\n");
 		break;
@@ -524,6 +530,7 @@ int eth_intf_set_mode(struct udevice *ethdev, int mode, int port)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_MODE_CHANGE;
 	debug("%s: mode %d\n", __func__, mode);
 
@@ -540,6 +547,7 @@ int eth_intf_set_mode(struct udevice *ethdev, int mode, int port)
 	if (cmd.mode_change_args.mode_group_idx != 0)
 		return 0;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_GET_LINK_STS;
 	ret = eth_intf_req(nix->lmac->rpm->rpm_id, nix->lmac->lmac_id,
 			   cmd, &scr0.u, 1);
@@ -581,6 +589,7 @@ int eth_intf_get_mode(struct udevice *ethdev)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_GET_LINK_STS;
 	ret = eth_intf_req(nix->lmac->rpm->rpm_id, nix->lmac->lmac_id,
 			   cmd, &scr0.u, 1);
@@ -653,10 +662,10 @@ int eth_intf_get_mode(struct udevice *ethdev)
 	case ETH_MODE_100GAUI_2_C2M_BIT:
 		printf("100GAUI_2_C2M\n");
 		break;
-	case ETH_MODE_LAUI_2_C2C_BIT:
+	case ETH_MODE_50GAUI_2_C2C_BIT:
 		printf("50GAUI_2_C2C\n");
 		break;
-	case ETH_MODE_LAUI_2_C2M_BIT:
+	case ETH_MODE_50GAUI_2_C2M_BIT:
 		printf("50GAUI_2_C2M\n");
 		break;
 	case ETH_MODE_50GBASE_KR2_C_BIT:
@@ -684,6 +693,7 @@ int eth_intf_get_fec(struct udevice *ethdev)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_GET_SUPPORTED_FEC;
 
 	ret = eth_intf_req(nix->lmac->rpm->rpm_id, nix->lmac->lmac_id,
@@ -709,6 +719,7 @@ int eth_intf_get_fec(struct udevice *ethdev)
 		break;
 	}
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_GET_LINK_STS;
 	ret = eth_intf_req(nix->lmac->rpm->rpm_id, nix->lmac->lmac_id,
 			   cmd, &scr0.u, 1);
@@ -739,6 +750,7 @@ int eth_intf_set_fec(struct udevice *ethdev, int type)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_SET_FEC;
 	cmd.fec_args.fec = type;
 
@@ -759,6 +771,7 @@ int eth_intf_get_phy_mod_type(struct udevice *ethdev)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_GET_PHY_MOD_TYPE;
 
 	ret = eth_intf_req(nix->lmac->rpm->rpm_id, nix->lmac->lmac_id,
@@ -780,6 +793,7 @@ int eth_intf_set_phy_mod_type(struct udevice *ethdev, int type)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_SET_PHY_MOD_TYPE;
 	cmd.phy_mod_args.mod = type;
 
@@ -802,6 +816,7 @@ int eth_intf_set_an_lbk(struct udevice *ethdev, int enable)
 	int ret;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_AN_LOOPBACK;
 	cmd.cmd_args.enable = enable;
 
@@ -825,6 +840,7 @@ int eth_intf_get_ignore(struct udevice *ethdev, int rpm, int lmac)
 	int ret, rpm_id = rpm, lmac_id = lmac;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	if (ethdev) {
 		rvu = dev_get_priv(ethdev);
 		nix = rvu->nix;
@@ -861,6 +877,7 @@ int eth_intf_set_ignore(struct udevice *ethdev, int rpm, int lmac, int ignore)
 	int ret, rpm_id = rpm, lmac_id = lmac;
 	union eth_cmd_s cmd;
 
+	memset(&cmd, 0, sizeof(u64));
 	if (ethdev) {
 		rvu = dev_get_priv(ethdev);
 		nix = rvu->nix;
@@ -893,6 +910,7 @@ int eth_intf_set_macaddr(struct udevice *ethdev)
 	union eth_cmd_s cmd;
 	u64 mac, tmp;
 
+	memset(&cmd, 0, sizeof(u64));
 	memcpy((void *)&tmp, nix->lmac->mac_addr, 6);
 	mac = swab64(tmp) >> 16;
 	cmd.cmd.id = ETH_CMD_SET_MAC_ADDR;
@@ -915,6 +933,7 @@ int eth_intf_get_fwdata_base(u64 *base)
 	union eth_cmd_s cmd;
 	int ret;
 
+	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_GET_FWD_BASE;
 	ret = eth_intf_req(0, 0, cmd, &scr0.u, 1);
 	if (ret) {

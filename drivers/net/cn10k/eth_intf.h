@@ -43,7 +43,9 @@ enum eth_error_type {
 	ETH_ERR_MODULE_NOT_PRESENT,
 	ETH_ERR_SPEED_CHANGE_INVALID,
 	ETH_ERR_SERDES_RX_NO_SIGNAL,
-	ETH_ERR_SERDES_CPRI_PARAM_INVALID	/* = 30 */
+	ETH_ERR_SERDES_CPRI_PARAM_INVALID,	/* = 30 */
+	ETH_ERR_ECP_LINK_REQ_FAIL,
+	ETH_ERR_LPCS_INTERNAL_LBK_INVALID,
 	/* FIXME : add more error types when adding support for new modes */
 };
 
@@ -87,8 +89,8 @@ enum eth_cmd_id {
 	ETH_CMD_SET_LINK_MODE,
 	ETH_CMD_GET_SUPPORTED_FEC,
 	ETH_CMD_SET_FEC,
-	ETH_CMD_GET_AN,			/* = 20 */
-	ETH_CMD_SET_AN,
+	ETH_CMD_GET_AN,			/* = 20 */  /* Not Implemented */
+	ETH_CMD_SET_AN,				    /* Not Implemented */
 	ETH_CMD_GET_ADV_LINK_MODES,
 	ETH_CMD_GET_ADV_FEC,
 	ETH_CMD_GET_PHY_MOD_TYPE, /* line-side modulation type: NRZ or PAM4 */
@@ -108,6 +110,9 @@ enum eth_cmd_id {
 	ETH_CMD_TUNE_SERDES,
 	ETH_CMD_LEQ_ADAPT_SERDES,
 	ETH_CMD_DFE_ADAPT_SERDES,		/* = 40 */
+	ETH_CMD_DO_CMU_RESET,
+	ETH_CMD_CPRI_MISC,
+	ETH_CMD_LINK_TIMEOUT,
 };
 
 /* async event ids */
@@ -156,38 +161,46 @@ typedef enum {
 	ETH_MODE_40G_CR4_BIT,
 	ETH_MODE_40G_KR4_BIT,		/* = 15 */
 	ETH_MODE_40GAUI_C2C_BIT,
-	ETH_MODE_50G_C2C_BIT,
+	ETH_MODE_50G_C2C_BIT,		/* single lane 50G */
 	ETH_MODE_50G_C2M_BIT,
 	ETH_MODE_50G_4_C2C_BIT,
 	ETH_MODE_50G_CR_BIT,		/* = 20 */
 	ETH_MODE_50G_KR_BIT,
 	ETH_MODE_80GAUI_C2C_BIT,
-	ETH_MODE_100G_C2C_BIT,
+	ETH_MODE_100G_C2C_BIT,		/* four lanes 100G */
 	ETH_MODE_100G_C2M_BIT,
 	ETH_MODE_100G_CR4_BIT,		/* = 25 */
 	ETH_MODE_100G_KR4_BIT,
-	ETH_MODE_LAUI_2_C2C_BIT,
-	ETH_MODE_LAUI_2_C2M_BIT,
+	ETH_MODE_50GAUI_2_C2C_BIT,	/* two lanes 50G */
+	ETH_MODE_50GAUI_2_C2M_BIT,
 	ETH_MODE_50GBASE_CR2_C_BIT,
 	ETH_MODE_50GBASE_KR2_C_BIT,	/* = 30 */
-	ETH_MODE_100GAUI_2_C2C_BIT,
+	ETH_MODE_100GAUI_2_C2C_BIT,	/* two lanes 100G */
 	ETH_MODE_100GAUI_2_C2M_BIT,
 	ETH_MODE_100GBASE_CR2_BIT,
 	ETH_MODE_100GBASE_KR2_BIT,
 	ETH_MODE_SFI_1G_BIT,		/* = 35 */
 	ETH_MODE_25GBASE_CR_C_BIT,
 	ETH_MODE_25GBASE_KR_C_BIT,	/* = 37 */
-	/* Add new RPM modes here */
-	ETH_MODE_RPM_MAX_BIT,
+	/* Add new ethernet modes here */
+	ETH_MODE_MAX_BIT,
 } eth_mode_t;
 
+/* Supported CPRI modes */
 typedef enum {
-	MODE_CPRI_2_4G_BIT,
-	MODE_CPRI_3_1G_BIT,
-	MODE_CPRI_4_9G_BIT,
-	MODE_CPRI_6_1G_BIT,
-	MODE_CPRI_9_8G_BIT,
-} cpri_mode_t;
+	ETH_MODE_CPRI_2_4G_BIT,
+	ETH_MODE_CPRI_3_1G_BIT,
+	ETH_MODE_CPRI_4_9G_BIT,
+	ETH_MODE_CPRI_6_1G_BIT,
+	ETH_MODE_CPRI_9_8G_BIT,
+	ETH_MODE_CPRI_10_1_BIT,
+	ETH_MODE_CPRI_24_3G_BIT,
+} eth_cpri_mode_t;
+
+typedef enum {
+	MODE_GROUP_ETH,		/* Groups 0 and 1 are reserved for ethernet */
+	MODE_GROUP_CPRI = 2,
+} mode_group_t;
 
 #define ETH_ALL_SUPPORTED_MODES 0xFFFFFFFFFFFFFFFF
 
@@ -392,6 +405,13 @@ struct eth_mtu_args {
 	u64 reserved2:40;
 };
 
+/* command argument to be passed for cmd ID - CGX_CMD_LINK_BRINGUP */
+struct cgx_link_bringup_args {         /* start from bit 8 */
+	uint64_t reserved1:8;
+	uint64_t timeout:14;            /* in ms */
+	uint64_t reserved2:42;
+};
+
 /* command argument to be passed for cmd ID - ETH_CMD_MODE_CHANGE */
 struct eth_mode_change_args {
 	u64 reserved1:8;
@@ -406,8 +426,8 @@ struct eth_mode_change_args {
 	* mode ID will be still mentioned as 1 << (0 - 41). But the mode_group_idx
 	* decides the actual mode range
 	*/
-	uint64_t mode_group_idx:2;
-	uint64_t mode:42;
+	u64 mode_group_idx:2;
+	u64 mode:42;	/* (1 << eth_mode_t) enum */
 };
 
 /* command argument to be passed for cmd ID - ETH_CMD_LINK_CHANGE */
@@ -425,7 +445,9 @@ struct cpri_mode_change_args {
 	u64 gserc_idx:4; /* GSERC index 0 - 4 */
 	u64 lane_idx:4;  /* lane index 0 - 1 */
 	u64 rate:16; /* 9830/4915/2458/6144/3072 */
-	u64 reserved2:32;
+	u64 disable_leq:1;
+	u64 disable_dfe:1;
+	u64 reserved2:30;
 };
 
 /* command argument to be passed for cmd ID - ETH_CMD_CPRI_TX_CONTROL */
@@ -437,6 +459,16 @@ struct cpri_mode_tx_ctrl_args {
 	u64 reserved2:47;
 };
 
+/* command argument to be passed for cmd ID - CGX_CMD_CPRI_MISC */
+struct cpri_mode_misc_args {
+	u64 reserved1:8;
+	u64 gserc_idx:4;	/* GSERC index 0 - 4 */
+	u64 lane_idx:4;	/* lane index 0 - 1 */
+	u64 flags:2;	/* 0 - RX Eq
+				   1 - RX State machine reset */
+	u64 reserved2:46;
+};
+
 /* command argument to be passed for cmd ID - ETH_CMD_LEQ_ADAPT_SERDES */
 struct gser_leq_adapt {
 	u64 reserved1:8;
@@ -445,7 +477,8 @@ struct gser_leq_adapt {
 	u64 mbf_start:4;
 	u64 mbg_start:4;
 	u64 apg_start:3;
-	u64 reserved2:35;
+	u64 enable:1;	/* 0 - disable, 1 - enable */
+	u64 reserved2:34;
 };
 
 /* command argument to be passed for cmd ID - ETH_CMD_SET_LINK_MODE */
@@ -459,6 +492,13 @@ struct eth_set_fec_args {
 	u64 reserved1:8;
 	u64 fec:2;
 	u64 reserved2:54;
+};
+
+/* command argument to be passed for cmd ID - CGX_CMD_SET_FEC */
+struct eth_do_cmu_reset {
+	u64 reserved1:8;
+	u64 cgx:3;
+	u64 reserved2:53;
 };
 
 /* command argument to be passed for cmd ID - ETH_CMD_SET_PHY_MOD_TYPE */
@@ -502,14 +542,16 @@ struct eth_display_args {
 };
 
 /* Resp to cmd ID - ETH_CMD_SERDES_LOOP
- * flags : 2 bits
- *    if 0 : disable FEA and NED serdes loopback
+ * flags : 3 bits
+ *    if 0 : disable serdes loopback
  *    if 1 : FEA serdes loopback
  *    if 2 : NED serdes loopback
+ *    if 3 : NEA serdes loopback
+ *    if 4 : FED serdes loopback
  */
 struct eth_gser_loop {
 	u64 reserved1:8;
-	u64 flags:2;
+	u64 flags:3;
 	u64 reserved2:53;
 };
 
@@ -529,14 +571,17 @@ union eth_cmd_s {
 	struct eth_ctl_args cmd_args;
 	struct eth_mtu_args mtu_size;
 	struct eth_link_change_args lnk_args;	/* Input to ETH_CMD_LINK_CHANGE */
+	struct cgx_link_bringup_args lnk_bringup;
 	struct eth_set_mode_args mode_args;
 	struct eth_mode_change_args mode_change_args;
 	struct eth_set_fec_args fec_args;
+	struct eth_do_cmu_reset cmu_args;
 	struct eth_set_phy_mod_args phy_mod_args;
 	struct eth_set_flash_ignore_args persist_args;
 	struct eth_mac_addr_args mac_args;
 	struct cpri_mode_change_args cpri_change_args;
 	struct cpri_mode_tx_ctrl_args cpri_tx_ctrl_args;
+	struct cpri_mode_misc_args cpri_misc_args;
 	struct gser_leq_adapt leq_adt;
 	/* any other arg for command id * like : mtu, dmac filtering control */
 	struct eth_prbs_args prbs_args;
