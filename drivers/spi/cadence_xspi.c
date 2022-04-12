@@ -701,8 +701,10 @@ static int cdns_xspi_send_stig_command(struct cdns_xspi_dev *cdns_xspi,
 	u32 cmd_status;
 	int ret;
 
+#if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO)
 	if (cdns_xspi->spi_mem_avalible)
 		smc_gpio_as_spi(cdns_xspi->xspi_bus);
+#endif
 
 	ret = cdns_xspi_wait_for_controller_idle(cdns_xspi);
 	if (ret < 0)
