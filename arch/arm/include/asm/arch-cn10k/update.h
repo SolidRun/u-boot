@@ -133,8 +133,10 @@ struct tim_opaque_data_version_info {
  * whenever this is changed.
  */
 #define UPDATE_MAGIC			0x55504454	/* UPDT */
+/** Minimum allowed update version */
+#define UPDATE_MIN_VERSION		0x0001
 /** Current smc_update_descriptor version */
-#define UPDATE_VERSION			0x0001
+#define UPDATE_VERSION			0x0100
 /** Set to update secondary location */
 #define UPDATE_FLAG_BACKUP		BIT(0)
 /** Set to update eMMC instead of SPI */
@@ -147,11 +149,16 @@ struct tim_opaque_data_version_info {
 #define UPDATE_FLAG_FORCE_WRITE		BIT(4)
 /** Erase configuration data after update */
 #define UPDATE_FLAG_ERASE_CONFIG	BIT(5)
+/** Log update progress */
+#define UPDATE_FLAG_LOG_PROGRESS	BIT(6)
 /** Set when user parameters are passed */
 #define UPDATE_FLAG_USER_PARMS		BIT(15)
 
 /** Offset from the beginning of the flash where the backup image is located */
 #define BACKUP_IMAGE_OFFSET		0x2000000
+
+/** Size for update log in bytes */
+#define UPDATE_LOG_SIZE		0x40000
 
 /**
  * This descriptor is passed by U-Boot or other software performing an update
@@ -170,6 +177,10 @@ struct smc_update_descriptor {
 	uint64_t	user_flags;	/** Passed to customer function */
 	uintptr_t	work_buffer;	/** Used for compressed objects */
 	uint64_t	work_buffer_size;/** Size of work buffer */
+	uintptr_t	output_console;	/** Text output console for update info */
+	uint32_t	output_console_size;/** Console buffer size in bytes */
+	uint32_t	output_console_end;/** Not used yet */
+	uint64_t	reserved2[8];
 	struct smc_update_obj_info object_retinfo[SMC_MAX_OBJECTS];
 };
 

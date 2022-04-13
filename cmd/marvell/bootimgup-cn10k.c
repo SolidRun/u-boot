@@ -12,6 +12,7 @@
 #include <asm/arch/update.h>
 #include <asm/arch/smc.h>
 #include <stdio.h>
+#include <malloc.h>
 
 /** Simple macro to set or clear flags */
 #define PARSE_FLAG(parm, flag, set)				\
@@ -40,6 +41,7 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct smc_update_descriptor desc;
 	const char *env_addr, *env_size;
 	bool spi = false, mmc = false;
+	char *update_log_ptr = NULL;
 
 	memset(&desc, 0, sizeof(desc));
 	desc.magic = UPDATE_MAGIC;
@@ -107,6 +109,7 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (CONFIG_IS_ENABLED(CMD_BOOTIMGUP_BACKUP))
 			PARSE_FLAG("-b", UPDATE_FLAG_BACKUP, true);
 		PARSE_FLAG("-p", UPDATE_FLAG_ERASE_PART, true);
+		PARSE_FLAG("-l", UPDATE_FLAG_LOG_PROGRESS, true);
 
 		/* Parse customer signature */
 		if (CONFIG_IS_ENABLED(CMD_BOOTIMGUP_CUST_SIG) &&
@@ -250,7 +253,22 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("Error: Image address and/or size cannot be zero\n");
 		return CMD_RET_USAGE;
 	}
+
+	if (desc.update_flags & UPDATE_FLAG_LOG_PROGRESS) {
+		update_log_ptr = memalign(0x10000, UPDATE_LOG_SIZE);
+		if (update_log_ptr) {
+			desc.output_console = (uintptr_t)update_log_ptr;
+			desc.output_console_size = UPDATE_LOG_SIZE;
+		}
+	}
 	ret = smc_spi_update(&desc);
+
+	if (update_log_ptr) {
+		printf("Update log:\n");
+		puts(update_log_ptr);
+		printf("\n\n");
+		free(update_log_ptr);
+	}
 
 	if (ret) {
 		printf("ERROR %d\n", ret);
@@ -264,16 +282,16 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 U_BOOT_CMD(
 #if defined(CONFIG_CMD_BOOTIMGUP_CUST_SIG) && defined(CONFIG_CMD_BOOTIMGUP_BACKUP)
 	bootimgup, 12, 1, do_bootimgup, "Updates Boot Image",
-	" <[-v]> <[-b]> <[-e]> <[-p]> <mmc [devid] | spi [bus:cs]> [image_address] [image_size] -sig [signature address] [signature size]\n"
+	" <[-v]> <[-b]> <[-e]> <[-p]> <[-l]> <mmc [devid] | spi [bus:cs]> [image_address] [image_size] -sig [signature address] [signature size]\n"
 #elif defined(CONFIG_CMD_BOOTIMGUP_CUST_SIG) && !defined(CONFIG_CMD_BOOTIMGUP_BACKUP)
 	bootimgup, 11, 1, do_bootimgup, "Updates Boot Image",
-	" <[-v]> <[-e]> <[-p]> <mmc [devid] | spi [bus:cs]> [image_address] [image_size] -sig [signature address] [signature size]\n"
+	" <[-v]> <[-e]> <[-p]> <[-l]> <mmc [devid] | spi [bus:cs]> [image_address] [image_size] -sig [signature address] [signature size]\n"
 #elif !defined(CONFIG_CMD_BOOTIMGUP_CUST_SIG) && defined(CONFIG_CMD_BOOTIMGUP_BACKUP)
 	bootimgup, 9, 1, do_bootimgup, "Updates Boot Image",
-	" <[-v]> <[-b]> <[-e]> <[-p]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
+	" <[-v]> <[-b]> <[-e]> <[-p]> <[-l]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
 #else
 	bootimgup, 8, 1, do_bootimgup, "Updates Boot Image",
-	" <[-v]> <[-e]> <[-p]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
+	" <[-v]> <[-e]> <[-p]> <[-l]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
 #endif
 #ifdef CONFIG_CMD_BOOTIMGUP_BACKUP
 	" -b - updates the backup image location\n"
@@ -282,6 +300,7 @@ U_BOOT_CMD(
 	" -v - skip version check\n"
 	" -f - force writes over matching data\n"
 	" -p - (MMC only) overwrite the partition table\n"
+	" -l - Enable logging to buffer\n"
 	" spi - updates boot image on spi flash\n"
 	" bus and cs should be passed together, if missing, 0 is assumed.\n"
 	" image_address - address at which image is located in RAM\n"
