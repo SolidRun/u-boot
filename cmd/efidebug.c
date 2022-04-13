@@ -110,11 +110,17 @@ static int efi_get_driver_handle_info(efi_handle_t handle, u16 **driver_name,
 	struct efi_loaded_image *image;
 	efi_status_t ret;
 
-	/*
-	 * driver name
-	 * TODO: support EFI_COMPONENT_NAME2_PROTOCOL
-	 */
-	*driver_name = NULL;
+	/* Find FI_COMPONENT_NAME2_PROTOCOL to get driver name*/
+	const efi_guid_t efi_guid_component_name2_protocol = EFI_COMPONENT_NAME2_PROTOCOL_GUID;
+
+	ret = efi_search_protocol(handle, &efi_guid_component_name2_protocol, &handler);
+	if (ret != EFI_SUCCESS) {
+		*driver_name = NULL;
+	} else {
+		struct efi_component_name2 *component_name2 = handler->protocol_interface;
+
+		ret = component_name2->get_driver_name(component_name2, "en", driver_name);
+	}
 
 	/* image name */
 	ret = efi_search_protocol(handle, &efi_guid_loaded_image, &handler);
@@ -171,7 +177,6 @@ static int do_efi_show_drivers(struct cmd_tbl *cmdtp, int flag,
 			else
 				printf("%p %-20ls <built-in>\n",
 				       handles[i], driver_name);
-			efi_free_pool(driver_name);
 			efi_free_pool(image_path_text);
 		}
 	}

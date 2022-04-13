@@ -1991,4 +1991,32 @@ struct efi_switch_config_protocol {
 						  u32 *error);
 };
 
+/* EFI_COMPONENT_NAME2_PROTOCOL */
+#define EFI_COMPONENT_NAME2_PROTOCOL_GUID \
+	EFI_GUID(0x6a7a5cff, 0xe8d9, 0x4f70, \
+			0xba, 0xda, 0x75, 0xab, 0x30, 0x25, 0xce, 0x14)
+
+struct efi_component_name2 {
+	// Retrieves a string that is the user readable name of the EFI Driver.
+	efi_status_t (EFIAPI * get_driver_name)(const struct efi_component_name2 *this,
+						char *language,
+				  efi_string_t **driver_name);
+
+	// Retrieves a string that is the user readable name of the controller
+	// that is being managed by an EFI Driver.
+	efi_status_t (EFIAPI * get_ctrl_name)(const struct efi_component_name2 *this,
+					      efi_handle_t ctrl_handle,
+				  efi_handle_t child_handle,
+				  char *language,
+				  efi_string_t **ctrl_name);
+	///
+	/// A Null-terminated ASCII string array that contains one or more
+	/// supported language codes. This is the list of language codes that
+	/// this protocol supports. The number of languages supported by a
+	/// driver is up to the driver writer. SupportedLanguages is
+	/// specified in RFC 4646 format.
+	///
+	char *supported_languages;
+};
+
 #endif
