@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier:    GPL-2.0
  *
- * Copyright (C) 2020 Marvell International Ltd.
+ * Copyright (C) 2022 Marvell International Ltd.
  *
  * https://spdx.org/licenses
  */
@@ -33,44 +33,23 @@
  *
  * RPM MSI-X Vector Enumeration Enumeration the MSI-X interrupt vectors.
  */
-#define RPM_INT_VEC_E_ANX_INT(a) (0xe + (a))
+#define RPM_INT_VEC_E_ANX_INT_CN10KA(a) (0xe + (a))
+#define RPM_INT_VEC_E_ANX_INT_CN10KB(a) (0x1a + (a))
+#define RPM_INT_VEC_E_ANX_INT_CNF10KA(a) (0xe + (a))
+#define RPM_INT_VEC_E_ANX_INT_CNF10KB(a) (0xe + (a))
 #define RPM_INT_VEC_E_CMRX_INT(a) (0 + 2 * (a))
-#define RPM_INT_VEC_E_CMRX_SW(a) (0xa + (a))
+#define RPM_INT_VEC_E_CMRX_SW_CN10KA(a) (0xa + (a))
+#define RPM_INT_VEC_E_CMRX_SW_CN10KB(a) (0x12 + (a))
+#define RPM_INT_VEC_E_CMRX_SW_CNF10KA(a) (0xa + (a))
+#define RPM_INT_VEC_E_CMRX_SW_CNF10KB(a) (0xa + (a))
+#define RPM_INT_VEC_E_CMR_GLOBAL_INT_CN10KB (0x10)
+#define RPM_INT_VEC_E_CMR_GLOBAL_INT_CNF10KB (8)
 #define RPM_INT_VEC_E_CMR_MEM_INT (8)
 #define RPM_INT_VEC_E_EXT_MTI_PORTX_INT(a) (1 + 2 * (a))
-#define RPM_INT_VEC_E_SW (9)
-
-/**
- * Enumeration rpm_lmac_types_e
- *
- * RPM LMAC Type Enumeration Enumerates the LMAC Types that RPM supports.
- */
-#define RPM_LMAC_TYPES_E_FIFTYG_R (8)
-#define RPM_LMAC_TYPES_E_FORTYG_R (4)
-#define RPM_LMAC_TYPES_E_HUNDREDG_R (9)
-#define RPM_LMAC_TYPES_E_QSGMII (6)
-#define RPM_LMAC_TYPES_E_RGMII (5)
-#define RPM_LMAC_TYPES_E_RXAUI (2)
-#define RPM_LMAC_TYPES_E_SGMII (0)
-#define RPM_LMAC_TYPES_E_TENG_R (3)
-#define RPM_LMAC_TYPES_E_TWENTYFIVEG_R (7)
-#define RPM_LMAC_TYPES_E_USXGMII (0xa)
-#define RPM_LMAC_TYPES_E_XAUI (1)
-
-/**
- * Enumeration rpm_opcode_e
- *
- * INTERNAL: RPM Error Opcode Enumeration  Enumerates the error opcodes
- * created by RPM and presented to NIX.
- */
-#define RPM_OPCODE_E_RE_FCS (7)
-#define RPM_OPCODE_E_RE_FCS_RCV (8)
-#define RPM_OPCODE_E_RE_JABBER (2)
-#define RPM_OPCODE_E_RE_NONE (0)
-#define RPM_OPCODE_E_RE_PARTIAL (1)
-#define RPM_OPCODE_E_RE_RX_CTL (0xb)
-#define RPM_OPCODE_E_RE_SKIP (0xc)
-#define RPM_OPCODE_E_RE_TERMINATE (9)
+#define RPM_INT_VEC_E_SW_CN10KA (9)
+#define RPM_INT_VEC_E_SW_CN10KB (0x11)
+#define RPM_INT_VEC_E_SW_CNF10KA (9)
+#define RPM_INT_VEC_E_SW_CNF10KB (9)
 
 /**
  * Register (RSL) rpm#_active_pc
@@ -1919,9 +1898,28 @@ union rpmx_anp_global_control {
 		u64 reg_dsp_sigdet_loss_latch_en     : 1;
 		u64 reg_dsp_lock_loss_latch_en       : 1;
 		u64 divide_sd_clocks                 : 1;
-		u64 reserved_32_63                   : 32;
+		u64 reserved_32_62                   : 31;
+		u64 coarse_clk_force                 : 1;
 	} s;
-	/* struct rpmx_anp_global_control_s cn; */
+	struct rpmx_anp_global_control_cn10ka {
+		u64 an_ap_train_type                 : 2;
+		u64 reg_txclk_sync_en_width_s        : 8;
+		u64 reg_train_type_samp              : 2;
+		u64 reg_train_type_mx_samp           : 2;
+		u64 reg_reset_pulse_conf_delay       : 10;
+		u64 reg_ch_sm_cnt_saturate           : 1;
+		u64 reg_txstr_rxsd_clear_cnt         : 1;
+		u64 reg_tx_sm_cnt_saturate           : 1;
+		u64 reg_rx_sm_cnt_saturate           : 1;
+		u64 reg_tx_ready_loss_latch_en       : 1;
+		u64 reg_dsp_sigdet_loss_latch_en     : 1;
+		u64 reg_dsp_lock_loss_latch_en       : 1;
+		u64 divide_sd_clocks                 : 1;
+		u64 reserved_32_63                   : 32;
+	} cn10ka;
+	/* struct rpmx_anp_global_control_s cn10kb; */
+	/* struct rpmx_anp_global_control_cn10ka cnf10ka; */
+	/* struct rpmx_anp_global_control_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_ANP_GLOBAL_CONTROL(void)
@@ -4841,115 +4839,117 @@ static inline u64 RPMX_CMRX_ACTIVITY(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_ACTIVITY(u64 a)
 {
-	return 0x5d80 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5d80 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6a00 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5d80 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5d80 + 0x100000 * a;
+	return -1;
 }
 
 /**
- * Register (RSL) rpm#_cmr#_bp_test
+ * Register (RSL) rpm#_cmr#_bad
  *
- * INTERNAL: |   RPM Backpressure Test Register
+ * RPM CMR Bad Registers
  */
-union rpmx_cmrx_bp_test {
+union rpmx_cmrx_bad {
 	u64 u;
-	struct rpmx_cmrx_bp_test_s {
-		u64 lfsr_freq                        : 12;
-		u64 reserved_12_15                   : 4;
-		u64 bp_cfg                           : 32;
-		u64 enable                           : 16;
+	struct rpmx_cmrx_bad_s {
+		u64 rxb_nxl                          : 1;
+		u64 reserved_1_63                    : 63;
 	} s;
-	/* struct rpmx_cmrx_bp_test_s cn; */
+	/* struct rpmx_cmrx_bad_s cn; */
 };
 
-static inline u64 RPMX_CMRX_BP_TEST(u64 a)
+static inline u64 RPMX_CMRX_BAD(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_CMRX_BP_TEST(u64 a)
+static inline u64 RPMX_CMRX_BAD(u64 a)
 {
-	return 0x1100 + 0x100000 * a;
+	return 0x6a10 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_chan_msk_and
+ *
+ * RPM CMR Backpressure Channel Mask AND Registers
+ */
+union rpmx_cmrx_chan_msk_and {
+	u64 u;
+	struct rpmx_cmrx_chan_msk_and_s {
+		u64 msk_and                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_cmrx_chan_msk_and_s cn; */
+};
+
+static inline u64 RPMX_CMRX_CHAN_MSK_AND(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_CHAN_MSK_AND(u64 a)
+{
+	return 0x3110 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_chan_msk_or
+ *
+ * RPM Backpressure Channel Mask OR Registers
+ */
+union rpmx_cmrx_chan_msk_or {
+	u64 u;
+	struct rpmx_cmrx_chan_msk_or_s {
+		u64 msk_or                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_cmrx_chan_msk_or_s cn; */
+};
+
+static inline u64 RPMX_CMRX_CHAN_MSK_OR(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_CHAN_MSK_OR(u64 a)
+{
+	return 0x3120 + 0x100000 * a;
 }
 
 /**
  * Register (RSL) rpm#_cmr#_config
  *
  * RPM CMR Configuration Registers Logical MAC/PCS configuration
- * registers; one per LMAC. The maximum number of LMACs (and maximum LMAC
+ * registers, one per LMAC. The maximum number of LMACs (and maximum LMAC
  * ID) that can be enabled by these registers is limited by combining
- * RPM()_CMR_RX_LMACS[LMAC_EXIST] and RPM()_CMR_TX_LMACS[LMAC_EXIST].
- * Internal: \<pre\> Example configurations:   --------------------------
- * -------------------------------------------------   Configuration
- * LMACS  Register             [ENABLE]    [LMAC_TYPE]   ----------------
- * -----------------------------------------------------------
- * 1x50G+1x25G+1xSGMII     4      RPMn_CMR0_CONFIG     1           8
- * RPMn_CMR1_CONFIG     0           --
- * RPMn_CMR2_CONFIG     1           7
- * RPMn_CMR3_CONFIG     1           0   ---------------------------------
- * ------------------------------------------   USXGMII
- * 1-4    RPMn_CMR0_CONFIG     1           a
- * RPMn_CMR1_CONFIG     1           a
- * RPMn_CMR2_CONFIG     1           a
- * RPMn_CMR3_CONFIG     1           a   ---------------------------------
- * ------------------------------------------   1x100GBASE-R4           1
- * RPMn_CMR0_CONFIG     1           9
- * RPMn_CMR1_CONFIG     0           --
- * RPMn_CMR2_CONFIG     0           --
- * RPMn_CMR3_CONFIG     0           --   --------------------------------
- * -------------------------------------------   2x50GBASE-R2
- * 2      RPMn_CMR0_CONFIG     1           8
- * RPMn_CMR1_CONFIG     1           8
- * RPMn_CMR2_CONFIG     0           --
- * RPMn_CMR3_CONFIG     0           --   --------------------------------
- * -------------------------------------------   4x25GBASE-R
- * 4      RPMn_CMR0_CONFIG     1           7
- * RPMn_CMR1_CONFIG     1           7
- * RPMn_CMR2_CONFIG     1           7
- * RPMn_CMR3_CONFIG     1           7   ---------------------------------
- * ------------------------------------------   QSGMII                  4
- * RPMn_CMR0_CONFIG     1           6
- * RPMn_CMR1_CONFIG     1           6
- * RPMn_CMR2_CONFIG     1           6
- * RPMn_CMR3_CONFIG     1           6   ---------------------------------
- * ------------------------------------------   1x40GBASE-R4            1
- * RPMn_CMR0_CONFIG     1           4
- * RPMn_CMR1_CONFIG     0           --
- * RPMn_CMR2_CONFIG     0           --
- * RPMn_CMR3_CONFIG     0           --   --------------------------------
- * -------------------------------------------   4x10GBASE-R
- * 4      RPMn_CMR0_CONFIG     1           3
- * RPMn_CMR1_CONFIG     1           3
- * RPMn_CMR2_CONFIG     1           3
- * RPMn_CMR3_CONFIG     1           3   ---------------------------------
- * ------------------------------------------   2xRXAUI                 2
- * RPMn_CMR0_CONFIG     1           2
- * RPMn_CMR1_CONFIG     1           2
- * RPMn_CMR2_CONFIG     0           --
- * RPMn_CMR3_CONFIG     0           --   --------------------------------
- * -------------------------------------------   1x10GBASE-X/XAUI/DXAUI
- * 1      RPMn_CMR0_CONFIG     1           1
- * RPMn_CMR1_CONFIG     0           --
- * RPMn_CMR2_CONFIG     0           --
- * RPMn_CMR3_CONFIG     0           --   --------------------------------
- * -------------------------------------------   4xSGMII/1000BASE-X
- * 4      RPMn_CMR0_CONFIG     1           0
- * RPMn_CMR1_CONFIG     1           0
- * RPMn_CMR2_CONFIG     1           0
- * RPMn_CMR3_CONFIG     1           0   ---------------------------------
- * ------------------------------------------ \</pre\>
+ * RPM()_CMR_RX_LMACS[LMAC_EXIST] and RPM()_CMR_TX_LMACS[LMAC_EXIST]
+ * (i.e. each enabled LMAC must have its LMAC_EXIST set, either for Tx or
+ * for Rx).
  */
 union rpmx_cmrx_config {
 	u64 u;
 	struct rpmx_cmrx_config_s {
 		u64 reserved_0_15                    : 16;
-		u64 rx_byte_flip                     : 1;
 		u64 tx_byte_flip                     : 1;
-		u64 user_pream_byte_flip             : 1;
-		u64 rx_ts_byte_flip                  : 1;
-		u64 tx_pream_strip                   : 1;
+		u64 tx_ptp_1s_support                : 1;
+		u64 tx_ptp_1s_ts_byte_flip           : 1;
+		u64 reserved_19                      : 1;
 		u64 tx_user_pream_ovrd               : 1;
-		u64 rx_user_pream_prepend            : 1;
+		u64 rx_byte_flip                     : 1;
 		u64 rx_ts_prepend                    : 1;
-		u64 reserved_24_39                   : 16;
-		u64 lmac_type                        : 4;
-		u64 unused                           : 8;
-		u64 int_beat_gen                     : 1;
+		u64 rx_ts_byte_flip                  : 1;
+		u64 rx_user_pream_prepend            : 1;
+		u64 user_pream_byte_flip             : 1;
+		u64 crc_inv_en                       : 1;
+		u64 pch_support_en                   : 1;
+		u64 tx_user_pream_strip_ptp_only     : 1;
+		u64 pch_packet_type                  : 2;
+		u64 pch_ext_field_type_check         : 1;
+		u64 pch_ext_field_type               : 2;
+		u64 pch_tx_crc_hw_calc               : 1;
+		u64 pch_tx_crc_err_gen               : 1;
+		u64 pch_rx_crc_hw_check              : 1;
+		u64 pch_crc_calc_byte_flip           : 1;
+		u64 pch_crc_calc_bu_en               : 1;
+		u64 pch_crc_calc_bu_reverse          : 1;
+		u64 reserved_40_52                   : 13;
 		u64 data_pkt_tx_en                   : 1;
 		u64 data_pkt_rx_en                   : 1;
 		u64 enable                           : 1;
@@ -4957,7 +4957,75 @@ union rpmx_cmrx_config {
 		u64 p2x_select                       : 3;
 		u64 reserved_62_63                   : 2;
 	} s;
-	/* struct rpmx_cmrx_config_s cn; */
+	struct rpmx_cmrx_config_cn10ka {
+		u64 reserved_0_15                    : 16;
+		u64 tx_byte_flip                     : 1;
+		u64 tx_ptp_1s_support                : 1;
+		u64 tx_ptp_1s_ts_byte_flip           : 1;
+		u64 tx_pream_strip                   : 1;
+		u64 tx_user_pream_ovrd               : 1;
+		u64 rx_byte_flip                     : 1;
+		u64 rx_ts_prepend                    : 1;
+		u64 rx_ts_byte_flip                  : 1;
+		u64 rx_user_pream_prepend            : 1;
+		u64 user_pream_byte_flip             : 1;
+		u64 reserved_26_52                   : 27;
+		u64 data_pkt_tx_en                   : 1;
+		u64 data_pkt_rx_en                   : 1;
+		u64 enable                           : 1;
+		u64 x2p_select                       : 3;
+		u64 p2x_select                       : 3;
+		u64 reserved_62_63                   : 2;
+	} cn10ka;
+	struct rpmx_cmrx_config_cn10kb {
+		u64 reserved_0_15                    : 16;
+		u64 tx_byte_flip                     : 1;
+		u64 tx_ptp_1s_support                : 1;
+		u64 tx_ptp_1s_ts_byte_flip           : 1;
+		u64 tx_user_pream_strip              : 1;
+		u64 tx_user_pream_ovrd               : 1;
+		u64 rx_byte_flip                     : 1;
+		u64 rx_ts_prepend                    : 1;
+		u64 rx_ts_byte_flip                  : 1;
+		u64 rx_user_pream_prepend            : 1;
+		u64 user_pream_byte_flip             : 1;
+		u64 crc_inv_en                       : 1;
+		u64 pch_support_en                   : 1;
+		u64 tx_user_pream_strip_ptp_only     : 1;
+		u64 pch_packet_type                  : 2;
+		u64 pch_ext_field_type_check         : 1;
+		u64 pch_ext_field_type               : 2;
+		u64 pch_tx_crc_hw_calc               : 1;
+		u64 pch_tx_crc_err_gen               : 1;
+		u64 pch_rx_crc_hw_check              : 1;
+		u64 pch_crc_calc_byte_flip           : 1;
+		u64 pch_crc_calc_bu_en               : 1;
+		u64 pch_crc_calc_bu_reverse          : 1;
+		u64 reserved_40_54                   : 15;
+		u64 enable                           : 1;
+		u64 x2p_select                       : 3;
+		u64 p2x_select                       : 3;
+		u64 reserved_62_63                   : 2;
+	} cn10kb;
+	/* struct rpmx_cmrx_config_cn10ka cnf10ka; */
+	struct rpmx_cmrx_config_cnf10kb {
+		u64 reserved_0_15                    : 16;
+		u64 tx_byte_flip                     : 1;
+		u64 tx_ptp_1s_support                : 1;
+		u64 tx_ptp_1s_ts_byte_flip           : 1;
+		u64 tx_pream_strip                   : 1;
+		u64 tx_user_pream_ovrd               : 1;
+		u64 rx_byte_flip                     : 1;
+		u64 rx_ts_prepend                    : 1;
+		u64 rx_ts_byte_flip                  : 1;
+		u64 rx_user_pream_prepend            : 1;
+		u64 user_pream_byte_flip             : 1;
+		u64 reserved_26_54                   : 29;
+		u64 enable                           : 1;
+		u64 x2p_select                       : 3;
+		u64 p2x_select                       : 3;
+		u64 reserved_62_63                   : 2;
+	} cnf10kb;
 };
 
 static inline u64 RPMX_CMRX_CONFIG(u64 a)
@@ -4987,7 +5055,15 @@ static inline u64 RPMX_CMRX_FC_STATUS(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_FC_STATUS(u64 a)
 {
-	return 0x5d88 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5d88 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6a08 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5d88 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5d88 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5097,7 +5173,8 @@ static inline u64 RPMX_CMRX_INT_W1S(u64 a)
  *
  * Programmable Link Channel Register Each register specifies the base
  * channel (start channel) number and the range of channels associated
- * with the link. Must configure this CSR for enabled channels.
+ * with the link. Must configure this CSR before enabling the channel,
+ * i.e. before setting RPM_CMR()_CONFIG.ENABLE to 1.
  */
 union rpmx_cmrx_link_cfg {
 	u64 u;
@@ -5121,7 +5198,7 @@ static inline u64 RPMX_CMRX_LINK_CFG(u64 a)
  * Register (RSL) rpm#_cmr#_prt_cbfc_ctl
  *
  * RPM CMR LMAC PFC Control Registers Controls for masking the effect of
- * specific classes and channels on FC logic
+ * specific classes and channels on FC logic.
  */
 union rpmx_cmrx_prt_cbfc_ctl {
 	u64 u;
@@ -5139,7 +5216,15 @@ static inline u64 RPMX_CMRX_PRT_CBFC_CTL(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_PRT_CBFC_CTL(u64 a)
 {
-	return 0x5b08 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5b08 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6510 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b08 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b08 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5150,17 +5235,31 @@ static inline u64 RPMX_CMRX_PRT_CBFC_CTL(u64 a)
 union rpmx_cmrx_rx_bp_drop {
 	u64 u;
 	struct rpmx_cmrx_rx_bp_drop_s {
+		u64 mark                             : 14;
+		u64 reserved_14_63                   : 50;
+	} s;
+	struct rpmx_cmrx_rx_bp_drop_cn10ka {
 		u64 mark                             : 7;
 		u64 reserved_7_63                    : 57;
-	} s;
-	/* struct rpmx_cmrx_rx_bp_drop_s cn; */
+	} cn10ka;
+	/* struct rpmx_cmrx_rx_bp_drop_s cn10kb; */
+	/* struct rpmx_cmrx_rx_bp_drop_cn10ka cnf10ka; */
+	/* struct rpmx_cmrx_rx_bp_drop_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_CMRX_RX_BP_DROP(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_BP_DROP(u64 a)
 {
-	return 0x40e0 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x40e0 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x30e0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x40e0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x40e0 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5171,17 +5270,31 @@ static inline u64 RPMX_CMRX_RX_BP_DROP(u64 a)
 union rpmx_cmrx_rx_bp_off {
 	u64 u;
 	struct rpmx_cmrx_rx_bp_off_s {
+		u64 mark                             : 14;
+		u64 reserved_14_63                   : 50;
+	} s;
+	struct rpmx_cmrx_rx_bp_off_cn10ka {
 		u64 mark                             : 7;
 		u64 reserved_7_63                    : 57;
-	} s;
-	/* struct rpmx_cmrx_rx_bp_off_s cn; */
+	} cn10ka;
+	/* struct rpmx_cmrx_rx_bp_off_s cn10kb; */
+	/* struct rpmx_cmrx_rx_bp_off_cn10ka cnf10ka; */
+	/* struct rpmx_cmrx_rx_bp_off_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_CMRX_RX_BP_OFF(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_BP_OFF(u64 a)
 {
-	return 0x40f0 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x40f0 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x30f0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x40f0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x40f0 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5202,7 +5315,15 @@ static inline u64 RPMX_CMRX_RX_BP_ON(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_BP_ON(u64 a)
 {
-	return 0x40e8 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x40e8 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x30e8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x40e8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x40e8 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5212,22 +5333,7 @@ static inline u64 RPMX_CMRX_RX_BP_ON(u64 a)
  * register for use by X2P/NIX bound traffic. Received packets are only
  * passed to X2P/NIX when the DMAC0 filter result is ACCEPT and STEERING0
  * filter result is PASS. See also RPM()_CMR_RX_DMAC()_CAM0 and
- * RPM()_CMR_RX_STEERING0().  Internal: "* ALGORITHM Here is some pseudo
- * code that represents the address filter behavior. \<pre\>
- * dmac_addr_filter(uint8 prt, uint48 dmac) { for (lmac=0, lmac\<4,
- * lmac++) {   if (is_bcst(dmac))                               //
- * broadcast accept     return (RPM()_CMR(lmac)_RX_DMAC_CTL0[BCST_ACCEPT]
- * ? ACCEPT : REJECT);   if (is_mcst(dmac) &&
- * RPM()_CMR(lmac)_RX_DMAC_CTL0[MCST_MODE] == 0)   // multicast reject
- * return REJECT;   if (is_mcst(dmac) &&
- * RPM()_CMR(lmac)_RX_DMAC_CTL0[MCST_MODE] == 1)   // multicast accept
- * return ACCEPT;   else        // DMAC CAM filter     cam_hit = 0;   for
- * (i=0; i\<32; i++) {     cam = RPM()_CMR_RX_DMAC(i)_CAM0;     if
- * (cam[EN] && cam[ID] == lmac && cam[ADR] == dmac) {       cam_hit = 1;
- * break;     }   }   if (cam_hit) {     return
- * (RPM()_CMR(lmac)_RX_DMAC_CTL0[CAM_ACCEPT] ? ACCEPT : REJECT);   else
- * return (RPM()_CMR(lmac)_RX_DMAC_CTL0[CAM_ACCEPT] ? REJECT : ACCEPT);
- * } } \</pre\>"
+ * RPM()_CMR_RX_STEERING0().
  */
 union rpmx_cmrx_rx_dmac_ctl0 {
 	u64 u;
@@ -5244,7 +5350,15 @@ static inline u64 RPMX_CMRX_RX_DMAC_CTL0(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_DMAC_CTL0(u64 a)
 {
-	return 0x4ff8 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4ff8 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3ff8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4ff8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4ff8 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5266,7 +5380,15 @@ static inline u64 RPMX_CMRX_RX_FIFO_LEN(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_FIFO_LEN(u64 a)
 {
-	return 0x4108 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4108 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3108 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4108 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4108 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5279,7 +5401,7 @@ union rpmx_cmrx_rx_id_map {
 	u64 u;
 	struct rpmx_cmrx_rx_id_map_s {
 		u64 pknd                             : 6;
-		u64 unused                           : 2;
+		u64 reserved_6_7                     : 2;
 		u64 rid                              : 7;
 		u64 reserved_15_63                   : 49;
 	} s;
@@ -5290,7 +5412,15 @@ static inline u64 RPMX_CMRX_RX_ID_MAP(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_ID_MAP(u64 a)
 {
-	return 0x60 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x60 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x80 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x60 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x80 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5311,7 +5441,15 @@ static inline u64 RPMX_CMRX_RX_LOGL_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_LOGL_XOFF(u64 a)
 {
-	return 0x40f8 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x40f8 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x30f8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x40f8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x40f8 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5332,22 +5470,49 @@ static inline u64 RPMX_CMRX_RX_LOGL_XON(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_LOGL_XON(u64 a)
 {
-	return 0x4100 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4100 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3100 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4100 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4100 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_ovr_bp
+ *
+ * RPM CMR Receive-Ports Backpressure Override Registers Per-LMAC
+ * backpressure override register.
+ */
+union rpmx_cmrx_rx_ovr_bp {
+	u64 u;
+	struct rpmx_cmrx_rx_ovr_bp_s {
+		u64 ign_fifo_bp                      : 1;
+		u64 bp                               : 1;
+		u64 en                               : 1;
+		u64 reserved_3_63                    : 61;
+	} s;
+	/* struct rpmx_cmrx_rx_ovr_bp_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_OVR_BP(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_OVR_BP(u64 a)
+{
+	return 0x3130 + 0x100000 * a;
 }
 
 /**
  * Register (RSL) rpm#_cmr#_rx_stat0
  *
- * RPM Receive Status Register 0 These registers provide a count of
- * received packets that meet the following conditions: * are not
- * recognized as ERROR packets(any OPCODE). * are not recognized as PAUSE
- * packets. * are not dropped due FIFO full status. * are not dropped due
- * DMAC0 or STEERING0 filtering.  Internal: "This pseudo code represents
- * the RX STAT0 through STAT8 accounting: \<pre\> If (errored)   incr
- * RX_STAT8 else if (ctrl packet, i.e. Pause/PFC)   incr RX_STAT2,3 else
- * if (fifo full drop)   incr RX_STAT6,7 else if (DMAC0/VLAN0 filter
- * drop)   incr RX_STAT4,5 if not a filter+decision else   incr
- * RX_STAT0,1 end \</pre\>"
+ * RPM Receive Statistics Register 0 Good packet counter. These registers
+ * provide a count of received packets that meet the following
+ * conditions: * are not recognized as ERROR packets (any OPCODE). * are
+ * not dropped due to FIFO full or undersize * are not dropped due to
+ * DMAC0 or STEERING0 filtering.
  */
 union rpmx_cmrx_rx_stat0 {
 	u64 u;
@@ -5362,14 +5527,21 @@ static inline u64 RPMX_CMRX_RX_STAT0(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT0(u64 a)
 {
-	return 0x4000 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4000 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3000 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4000 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4000 + 0x100000 * a;
+	return -1;
 }
 
 /**
  * Register (RSL) rpm#_cmr#_rx_stat1
  *
- * RPM Receive Status Register 1 These registers provide a count of
- * octets of received packets.
+ * RPM Receive Statistics Register 1 Good packet Octet counter.
  */
 union rpmx_cmrx_rx_stat1 {
 	u64 u;
@@ -5384,22 +5556,73 @@ static inline u64 RPMX_CMRX_RX_STAT1(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT1(u64 a)
 {
-	return 0x4008 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4008 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3008 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4008 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4008 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat10
+ *
+ * RPM Receive Statistics Register 10 These registers provide a count of
+ * received packets that meet the following conditions:  * are recognized
+ * as Good packet that contain PCH with no CRC-8 error. Note that
+ * RX_STAT0 also counts these packets, since it counts all Good packets.
+ */
+union rpmx_cmrx_rx_stat10 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat10_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat10_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT10(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT10(u64 a)
+{
+	return 0x3050 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat11
+ *
+ * RPM Receive Statistics Register 11 These registers provide a count of
+ * received packets that meet the following conditions:  * are recognized
+ * as Error packet containing PCH with CRC-8 error. Note that RX_STAT6
+ * also counts these packets, since it counts all Error codes.
+ */
+union rpmx_cmrx_rx_stat11 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat11_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat11_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT11(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT11(u64 a)
+{
+	return 0x3058 + 0x100000 * a;
 }
 
 /**
  * Register (RSL) rpm#_cmr#_rx_stat2
  *
- * RPM Receive Status Register 2 These registers provide a count of
- * received packets that meet the following conditions: * are not
- * recognized as ERROR packets(any OPCODE). * are not recognized as PAUSE
- * packets. * are not dropped due FIFO full status. * are dropped due
- * DMAC0 or STEERING0 filtering.  16B packets or smaller (20B in case of
- * FCS strip) as the result of truncation or other means are not dropped
- * by RPM (unless filter and decision is also asserted) and will never
- * appear in this count. Should the MAC signal to the CMR that the packet
- * be filtered upon decision before the end of packet, then STAT4 and
- * STAT5 will not be updated.
+ * RPM Receive Statistics Register 2 Filtered packet counter. These
+ * registers provide a count of received packets that meet the following
+ * conditions: * are not recognized as ERROR packets (any OPCODE). * are
+ * not dropped due to FIFO full or undersize * are dropped due to DMAC0
+ * or STEERING0 filtering.
  */
 union rpmx_cmrx_rx_stat2 {
 	u64 u;
@@ -5414,14 +5637,23 @@ static inline u64 RPMX_CMRX_RX_STAT2(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT2(u64 a)
 {
-	return 0x4010 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4010 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3010 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4010 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4010 + 0x100000 * a;
+	return -1;
 }
 
 /**
  * Register (RSL) rpm#_cmr#_rx_stat3
  *
- * RPM Receive Status Register 3 These registers provide a count of
- * octets of filtered DMAC0 or VLAN STEERING0 packets.
+ * RPM Receive Statistics Register 3 Filtered packet Octet counter. These
+ * registers provide a count of octets of filtered DMAC0 or VLAN
+ * STEERING0 packets.
  */
 union rpmx_cmrx_rx_stat3 {
 	u64 u;
@@ -5436,20 +5668,28 @@ static inline u64 RPMX_CMRX_RX_STAT3(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT3(u64 a)
 {
-	return 0x4018 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4018 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3018 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4018 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4018 + 0x100000 * a;
+	return -1;
 }
 
 /**
  * Register (RSL) rpm#_cmr#_rx_stat4
  *
- * RPM Receive Status Register 4 These registers provide a count of
- * received packets that meet the following conditions: * are not
- * recognized as ERROR packets(any OPCODE). * are not recognized as PAUSE
- * packets. * are dropped due FIFO full status.  They do not count any
- * packet that is truncated at the point of overflow and sent on to the
- * NIX. The truncated packet will be marked with error and increment
- * STAT8. These registers count all entire packets dropped by the FIFO
- * for a given LMAC.
+ * RPM Receive Statistics Register 4 FIFO Full dropped packets counter.
+ * These registers provide a count of received packets that meet the
+ * following conditions: * are not recognized as ERROR packets (any
+ * OPCODE). * are dropped due to FIFO full status (except truncated
+ * packets)  They do not count any packet that is truncated at the point
+ * of overflow and sent on to the NIX. The truncated packet will be
+ * marked with error and increment STAT6. These registers count only non-
+ * truncated packets dropped by the FIFO for a given LMAC.
  */
 union rpmx_cmrx_rx_stat4 {
 	u64 u;
@@ -5464,15 +5704,22 @@ static inline u64 RPMX_CMRX_RX_STAT4(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT4(u64 a)
 {
-	return 0x4020 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4020 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3020 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4020 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4020 + 0x100000 * a;
+	return -1;
 }
 
 /**
  * Register (RSL) rpm#_cmr#_rx_stat5
  *
- * RPM Receive Status Register 5 These registers provide a count of
- * octets of received packets that were dropped due to a full receive
- * FIFO.
+ * RPM Receive Statistics Register 5 FIFO Full dropped packet Octet
+ * counter.
  */
 union rpmx_cmrx_rx_stat5 {
 	u64 u;
@@ -5487,15 +5734,24 @@ static inline u64 RPMX_CMRX_RX_STAT5(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT5(u64 a)
 {
-	return 0x4028 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4028 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3028 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4028 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4028 + 0x100000 * a;
+	return -1;
 }
 
 /**
  * Register (RSL) rpm#_cmr#_rx_stat6
  *
- * RPM Receive Status Register 6 These registers provide a count of
- * received packets that meet the following conditions:  * are recognized
- * as ERROR packets(any OPCODE).
+ * RPM Receive Statistics Register 6 Error packet counter. These
+ * registers provide a count of received packets that meet the following
+ * conditions:  * are recognized as ERROR packets (any OPCODE), including
+ * truncated packets.
  */
 union rpmx_cmrx_rx_stat6 {
 	u64 u;
@@ -5510,14 +5766,22 @@ static inline u64 RPMX_CMRX_RX_STAT6(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT6(u64 a)
 {
-	return 0x4030 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4030 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3030 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4030 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4030 + 0x100000 * a;
+	return -1;
 }
 
 /**
  * Register (RSL) rpm#_cmr#_rx_stat7
  *
- * RPM Receive Status Register 7 Count dropped undersized packets by CMR.
- * See RPM_CMR(0..3)_RX_UNDERSIZE.
+ * RPM Receive Statistics Register 7 Count dropped undersized packets by
+ * CMR. See RPM_CMR(0..3)_RX_UNDERSIZE.
  */
 union rpmx_cmrx_rx_stat7 {
 	u64 u;
@@ -5532,13 +5796,21 @@ static inline u64 RPMX_CMRX_RX_STAT7(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT7(u64 a)
 {
-	return 0x4038 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4038 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3038 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4038 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4038 + 0x100000 * a;
+	return -1;
 }
 
 /**
  * Register (RSL) rpm#_cmr#_rx_stat8
  *
- * RPM Receive Status Register 8 Count octets of dropped undersized
+ * RPM Receive Statistics Register 8 Count octets of dropped undersized
  * packets by CMR. See RPM_CMR(0..3)_RX_UNDERSIZE.
  */
 union rpmx_cmrx_rx_stat8 {
@@ -5554,7 +5826,39 @@ static inline u64 RPMX_CMRX_RX_STAT8(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT8(u64 a)
 {
-	return 0x4040 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x4040 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x3040 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4040 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4040 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat9
+ *
+ * RPM Receive Statistics Register 9 These registers provide a count of
+ * received packets that meet the following conditions:  * are recognized
+ * as Inverted-CRC ERROR packets. Note that RX_STAT6 (Error counter) also
+ * counts these packets, since it counts all opcodes.
+ */
+union rpmx_cmrx_rx_stat9 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat9_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat9_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT9(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT9(u64 a)
+{
+	return 0x3048 + 0x100000 * a;
 }
 
 /**
@@ -5575,7 +5879,15 @@ static inline u64 RPMX_CMRX_RX_STAT_DEFER_XOFF(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT_DEFER_XOFF(u64 a)
 {
-	return 0x5c80 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5c80 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6900 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5c80 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5c80 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5596,7 +5908,15 @@ static inline u64 RPMX_CMRX_RX_STAT_PRIX_XOFF(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_STAT_PRIX_XOFF(u64 a, u64 b)
 {
-	return 0x5c00 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CN10KA))
+		return 0x5c00 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CN10KB))
+		return 0x6880 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CNF10KA))
+		return 0x5c00 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CNF10KB))
+		return 0x5c00 + 0x100000 * a + 8 * b;
+	return -1;
 }
 
 /**
@@ -5619,7 +5939,15 @@ static inline u64 RPMX_CMRX_RX_UNDERSIZE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_RX_UNDERSIZE(u64 a)
 {
-	return 0x5910 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5910 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6500 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5910 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5910 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5660,7 +5988,15 @@ static inline u64 RPMX_CMRX_SW_INT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_SW_INT(u64 a)
 {
-	return 0x180 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x180 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x1b0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x180 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x180 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5682,7 +6018,15 @@ static inline u64 RPMX_CMRX_SW_INT_ENA_W1C(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_SW_INT_ENA_W1C(u64 a)
 {
-	return 0x190 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x190 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x1c0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x190 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x190 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5704,7 +6048,15 @@ static inline u64 RPMX_CMRX_SW_INT_ENA_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_SW_INT_ENA_W1S(u64 a)
 {
-	return 0x198 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x198 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x1c8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x198 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x198 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5725,7 +6077,15 @@ static inline u64 RPMX_CMRX_SW_INT_W1S(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_SW_INT_W1S(u64 a)
 {
-	return 0x188 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x188 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x1b8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x188 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x188 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5737,16 +6097,31 @@ union rpmx_cmrx_tx_channel {
 	u64 u;
 	struct rpmx_cmrx_tx_channel_s {
 		u64 msk                              : 16;
-		u64 reserved_16_63                   : 48;
+		u64 ebp_coupling_en                  : 1;
+		u64 reserved_17_63                   : 47;
 	} s;
-	/* struct rpmx_cmrx_tx_channel_s cn; */
+	struct rpmx_cmrx_tx_channel_cn10ka {
+		u64 msk                              : 16;
+		u64 reserved_16_63                   : 48;
+	} cn10ka;
+	/* struct rpmx_cmrx_tx_channel_s cn10kb; */
+	/* struct rpmx_cmrx_tx_channel_cn10ka cnf10ka; */
+	/* struct rpmx_cmrx_tx_channel_s cnf10kb; */
 };
 
 static inline u64 RPMX_CMRX_TX_CHANNEL(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_TX_CHANNEL(u64 a)
 {
-	return 0x5b00 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5b00 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6508 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b00 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b00 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5768,7 +6143,15 @@ static inline u64 RPMX_CMRX_TX_FIFO_LEN(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_TX_FIFO_LEN(u64 a)
 {
-	return 0x5b18 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5b18 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6800 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b18 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b18 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5789,7 +6172,61 @@ static inline u64 RPMX_CMRX_TX_OVR_BP(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_TX_OVR_BP(u64 a)
 {
-	return 0x5b10 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5b10 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6518 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b10 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b10 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_tx_stat0
+ *
+ * RPM Transmit Statistics Register 0 These registers provide a count of
+ * transmit packets that meet the following conditions:  * are recognized
+ * as inverted-CRC packets.
+ */
+union rpmx_cmrx_tx_stat0 {
+	u64 u;
+	struct rpmx_cmrx_tx_stat0_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_tx_stat0_s cn; */
+};
+
+static inline u64 RPMX_CMRX_TX_STAT0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_TX_STAT0(u64 a)
+{
+	return 0x6600 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_tx_stat1
+ *
+ * RPM Transmit Statistics Register 1 These registers provide a count of
+ * transmit packets that meet the following conditions:  * are recognized
+ * as a packet that contain PCH
+ */
+union rpmx_cmrx_tx_stat1 {
+	u64 u;
+	struct rpmx_cmrx_tx_stat1_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_tx_stat1_s cn; */
+};
+
+static inline u64 RPMX_CMRX_TX_STAT1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_TX_STAT1(u64 a)
+{
+	return 0x6608 + 0x100000 * a;
 }
 
 /**
@@ -5810,7 +6247,15 @@ static inline u64 RPMX_CMRX_TX_STAT_PRIX_XOFF(u64 a, u64 b)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_TX_STAT_PRIX_XOFF(u64 a, u64 b)
 {
-	return 0x5d00 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CN10KA))
+		return 0x5d00 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CN10KB))
+		return 0x6980 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CNF10KA))
+		return 0x5d00 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CNF10KB))
+		return 0x5d00 + 0x100000 * a + 8 * b;
+	return -1;
 }
 
 /**
@@ -5833,7 +6278,15 @@ static inline u64 RPMX_CMRX_TX_THRESH(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_TX_THRESH(u64 a)
 {
-	return 0x5b20 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5b20 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6808 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b20 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b20 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5858,7 +6311,15 @@ static inline u64 RPMX_CMRX_TX_USER_PREAM_VALUE(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMRX_TX_USER_PREAM_VALUE(u64 a)
 {
-	return 0x5b28 + 0x100000 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5b28 + 0x100000 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6810 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b28 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b28 + 0x100000 * a;
+	return -1;
 }
 
 /**
@@ -5926,48 +6387,6 @@ static inline u64 RPMX_CMR_CHAN_MSK_OR(void)
 }
 
 /**
- * Register (RSL) rpm#_cmr_eco_nck
- *
- * INTERNAL: RPM ECO netclk Registers
- */
-union rpmx_cmr_eco_nck {
-	u64 u;
-	struct rpmx_cmr_eco_nck_s {
-		u64 eco_rw                           : 32;
-		u64 eco_ro                           : 32;
-	} s;
-	/* struct rpmx_cmr_eco_nck_s cn; */
-};
-
-static inline u64 RPMX_CMR_ECO_NCK(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_CMR_ECO_NCK(void)
-{
-	return 0x6000;
-}
-
-/**
- * Register (RSL) rpm#_cmr_eco_sck
- *
- * INTERNAL: RPM ECO sclk Registers
- */
-union rpmx_cmr_eco_sck {
-	u64 u;
-	struct rpmx_cmr_eco_sck_s {
-		u64 eco_rw                           : 32;
-		u64 eco_ro                           : 32;
-	} s;
-	/* struct rpmx_cmr_eco_sck_s cn; */
-};
-
-static inline u64 RPMX_CMR_ECO_SCK(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_CMR_ECO_SCK(void)
-{
-	return 0x1080;
-}
-
-/**
  * Register (RSL) rpm#_cmr_global_config
  *
  * RPM CMR Global Configuration Register These registers configure the
@@ -5981,11 +6400,47 @@ union rpmx_cmr_global_config {
 		u64 cmr_x2p_reset                    : 3;
 		u64 interleave_mode                  : 1;
 		u64 fcs_strip                        : 1;
+		u64 reserved_7_9                     : 3;
+		u64 ts_val_bu_sync_en                : 1;
+		u64 ts_prescale_factor               : 4;
+		u64 ts_rls_filter_en                 : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	struct rpmx_cmr_global_config_cn10ka {
+		u64 pmux_sds_sel                     : 1;
+		u64 rpm_clk_enable                   : 1;
+		u64 cmr_x2p_reset                    : 3;
+		u64 interleave_mode                  : 1;
+		u64 fcs_strip                        : 1;
 		u64 cmr_clken_ovrd                   : 1;
 		u64 ts_val_fb_sync_en                : 1;
 		u64 reserved_9_63                    : 55;
-	} s;
-	/* struct rpmx_cmr_global_config_s cn; */
+	} cn10ka;
+	struct rpmx_cmr_global_config_cn10kb {
+		u64 reserved_0                       : 1;
+		u64 rpm_clk_enable                   : 1;
+		u64 cmr_x2p_reset                    : 3;
+		u64 reserved_5                       : 1;
+		u64 fcs_strip                        : 1;
+		u64 cmr_clken_ovrd                   : 3;
+		u64 ts_val_bu_sync_en                : 1;
+		u64 ts_prescale_factor               : 4;
+		u64 ts_rls_filter_en                 : 1;
+		u64 reserved_16_63                   : 48;
+	} cn10kb;
+	/* struct rpmx_cmr_global_config_cn10ka cnf10ka; */
+	struct rpmx_cmr_global_config_cnf10kb {
+		u64 reserved_0                       : 1;
+		u64 rpm_clk_enable                   : 1;
+		u64 cmr_x2p_reset                    : 3;
+		u64 reserved_5                       : 1;
+		u64 fcs_strip                        : 1;
+		u64 cmr_clken_ovrd                   : 1;
+		u64 reserved_8_9                     : 2;
+		u64 ts_val_bu_sync_en                : 1;
+		u64 ts_prescale_factor               : 4;
+		u64 reserved_15_63                   : 49;
+	} cnf10kb;
 };
 
 static inline u64 RPMX_CMR_GLOBAL_CONFIG(void)
@@ -5993,6 +6448,165 @@ static inline u64 RPMX_CMR_GLOBAL_CONFIG(void)
 static inline u64 RPMX_CMR_GLOBAL_CONFIG(void)
 {
 	return 8;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_global_int
+ *
+ * RPM CMR Global Interrupt Register
+ */
+union rpmx_cmr_global_int {
+	u64 u;
+	struct rpmx_cmr_global_int_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 infifo_4_overfl                  : 1;
+		u64 infifo_5_overfl                  : 1;
+		u64 infifo_6_overfl                  : 1;
+		u64 infifo_7_overfl                  : 1;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 rsl_nxc_lmac_err                 : 1;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_cmr_global_int_s cn10kb; */
+	struct rpmx_cmr_global_int_cnf10kb {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_7                     : 4;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 reserved_9_63                    : 55;
+	} cnf10kb;
+};
+
+static inline u64 RPMX_CMR_GLOBAL_INT(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_GLOBAL_INT(void)
+{
+	return 0x10;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_global_int_ena_w1c
+ *
+ * RPM CMR Global Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
+ */
+union rpmx_cmr_global_int_ena_w1c {
+	u64 u;
+	struct rpmx_cmr_global_int_ena_w1c_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 infifo_4_overfl                  : 1;
+		u64 infifo_5_overfl                  : 1;
+		u64 infifo_6_overfl                  : 1;
+		u64 infifo_7_overfl                  : 1;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 rsl_nxc_lmac_err                 : 1;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_cmr_global_int_ena_w1c_s cn10kb; */
+	struct rpmx_cmr_global_int_ena_w1c_cnf10kb {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_7                     : 4;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 reserved_9_63                    : 55;
+	} cnf10kb;
+};
+
+static inline u64 RPMX_CMR_GLOBAL_INT_ENA_W1C(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_GLOBAL_INT_ENA_W1C(void)
+{
+	return 0x20;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_global_int_ena_w1s
+ *
+ * RPM CMR Global Interrupt Enable Set Register This register sets
+ * interrupt enable bits.
+ */
+union rpmx_cmr_global_int_ena_w1s {
+	u64 u;
+	struct rpmx_cmr_global_int_ena_w1s_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 infifo_4_overfl                  : 1;
+		u64 infifo_5_overfl                  : 1;
+		u64 infifo_6_overfl                  : 1;
+		u64 infifo_7_overfl                  : 1;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 rsl_nxc_lmac_err                 : 1;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_cmr_global_int_ena_w1s_s cn10kb; */
+	struct rpmx_cmr_global_int_ena_w1s_cnf10kb {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_7                     : 4;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 reserved_9_63                    : 55;
+	} cnf10kb;
+};
+
+static inline u64 RPMX_CMR_GLOBAL_INT_ENA_W1S(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_GLOBAL_INT_ENA_W1S(void)
+{
+	return 0x28;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_global_int_w1s
+ *
+ * RPM CMR Global Interrupt Set Register This register sets interrupt
+ * bits.
+ */
+union rpmx_cmr_global_int_w1s {
+	u64 u;
+	struct rpmx_cmr_global_int_w1s_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 infifo_4_overfl                  : 1;
+		u64 infifo_5_overfl                  : 1;
+		u64 infifo_6_overfl                  : 1;
+		u64 infifo_7_overfl                  : 1;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 rsl_nxc_lmac_err                 : 1;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_cmr_global_int_w1s_s cn10kb; */
+	struct rpmx_cmr_global_int_w1s_cnf10kb {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_7                     : 4;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 reserved_9_63                    : 55;
+	} cnf10kb;
+};
+
+static inline u64 RPMX_CMR_GLOBAL_INT_W1S(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_GLOBAL_INT_W1S(void)
+{
+	return 0x18;
 }
 
 /**
@@ -6111,29 +6725,15 @@ static inline u64 RPMX_CMR_P2XX_COUNT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMR_P2XX_COUNT(u64 a)
 {
-	return 0x140 + 8 * a;
-}
-
-/**
- * Register (RSL) rpm#_cmr_p2x_nic_nxc_adr
- *
- * INTERNAL: RPM CMR NIC NXC Exception Registers
- */
-union rpmx_cmr_p2x_nic_nxc_adr {
-	u64 u;
-	struct rpmx_cmr_p2x_nic_nxc_adr_s {
-		u64 channel                          : 12;
-		u64 lmac_id                          : 4;
-		u64 reserved_16_63                   : 48;
-	} s;
-	/* struct rpmx_cmr_p2x_nic_nxc_adr_s cn; */
-};
-
-static inline u64 RPMX_CMR_P2X_NIC_NXC_ADR(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_CMR_P2X_NIC_NXC_ADR(void)
-{
-	return 0x1030;
+	if (otx_is_soc(CN10KA))
+		return 0x140 + 8 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x140 + 0x10 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x140 + 8 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x140 + 8 * a;
+	return -1;
 }
 
 /**
@@ -6148,27 +6748,42 @@ union rpmx_cmr_p2x_nix0_nxc_adr {
 		u64 lmac_id                          : 4;
 		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct rpmx_cmr_p2x_nix0_nxc_adr_s cn; */
+	/* struct rpmx_cmr_p2x_nix0_nxc_adr_s cn10ka; */
+	struct rpmx_cmr_p2x_nix0_nxc_adr_cn10kb {
+		u64 channel                          : 12;
+		u64 lmac_id                          : 3;
+		u64 reserved_15_63                   : 49;
+	} cn10kb;
+	/* struct rpmx_cmr_p2x_nix0_nxc_adr_s cnf10ka; */
+	/* struct rpmx_cmr_p2x_nix0_nxc_adr_s cnf10kb; */
 };
 
 static inline u64 RPMX_CMR_P2X_NIX0_NXC_ADR(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMR_P2X_NIX0_NXC_ADR(void)
 {
-	return 0x1038;
+	if (otx_is_soc(CN10KA))
+		return 0x1038;
+	if (otx_is_soc(CN10KB))
+		return 0x1020;
+	if (otx_is_soc(CNF10KA))
+		return 0x1038;
+	if (otx_is_soc(CNF10KB))
+		return 0x1038;
+	return -1;
 }
 
 /**
  * Register (RSL) rpm#_cmr_p2x_nix1_nxc_adr
  *
- * INTERNAL: RPM CMR NIX1 NXC Exception Registers
+ * RPM CMR NIX1 NXC Exception Registers
  */
 union rpmx_cmr_p2x_nix1_nxc_adr {
 	u64 u;
 	struct rpmx_cmr_p2x_nix1_nxc_adr_s {
 		u64 channel                          : 12;
-		u64 lmac_id                          : 4;
-		u64 reserved_16_63                   : 48;
+		u64 lmac_id                          : 3;
+		u64 reserved_15_63                   : 49;
 	} s;
 	/* struct rpmx_cmr_p2x_nix1_nxc_adr_s cn; */
 };
@@ -6177,7 +6792,28 @@ static inline u64 RPMX_CMR_P2X_NIX1_NXC_ADR(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMR_P2X_NIX1_NXC_ADR(void)
 {
-	return 0x1040;
+	return 0x1030;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_rsl_nxc_lmac_synd
+ *
+ * RPM CMR Bad RSL Address Interrupt Syndrome Register
+ */
+union rpmx_cmr_rsl_nxc_lmac_synd {
+	u64 u;
+	struct rpmx_cmr_rsl_nxc_lmac_synd_s {
+		u64 bad_addr                         : 24;
+		u64 reserved_24_63                   : 40;
+	} s;
+	/* struct rpmx_cmr_rsl_nxc_lmac_synd_s cn; */
+};
+
+static inline u64 RPMX_CMR_RSL_NXC_LMAC_SYND(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_RSL_NXC_LMAC_SYND(void)
+{
+	return 0x70;
 }
 
 /**
@@ -6191,39 +6827,80 @@ union rpmx_cmr_rx_dmacx_cam0 {
 	struct rpmx_cmr_rx_dmacx_cam0_s {
 		u64 adr                              : 48;
 		u64 en                               : 1;
+		u64 id                               : 3;
+		u64 reserved_52_63                   : 12;
+	} s;
+	struct rpmx_cmr_rx_dmacx_cam0_cn10ka {
+		u64 adr                              : 48;
+		u64 en                               : 1;
 		u64 id                               : 2;
 		u64 reserved_51_63                   : 13;
-	} s;
-	/* struct rpmx_cmr_rx_dmacx_cam0_s cn; */
+	} cn10ka;
+	/* struct rpmx_cmr_rx_dmacx_cam0_s cn10kb; */
+	/* struct rpmx_cmr_rx_dmacx_cam0_cn10ka cnf10ka; */
+	/* struct rpmx_cmr_rx_dmacx_cam0_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_CMR_RX_DMACX_CAM0(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMR_RX_DMACX_CAM0(u64 a)
 {
-	return 0x5000 + 8 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5000 + 8 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x4000 + 8 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5000 + 8 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5000 + 8 * a;
+	return -1;
 }
 
 /**
  * Register (RSL) rpm#_cmr_rx_lmacs
  *
- * RPM CMR Receive Logical MACs Registers
+ * RPM CMR Receive Logical MACs Registers Configure LMAC existence for Rx
+ * Bulk memory allocation. Rx Bulk FIFO memory is statically allocated
+ * among existing LMACs, as indicated by this CSR. This configuration may
+ * be written only once, before setting the RPM_CMR()_CONFIG[ENABLE]
+ * bits.
  */
 union rpmx_cmr_rx_lmacs {
 	u64 u;
 	struct rpmx_cmr_rx_lmacs_s {
+		u64 reserved_0_7                     : 8;
+		u64 hi_perf_lmac_0_3                 : 2;
+		u64 hi_perf_lmac_4_7                 : 2;
+		u64 reserved_12_63                   : 52;
+	} s;
+	struct rpmx_cmr_rx_lmacs_cn10ka {
 		u64 lmac_exist                       : 4;
 		u64 hi_perf_lmac                     : 2;
 		u64 reserved_6_63                    : 58;
-	} s;
-	/* struct rpmx_cmr_rx_lmacs_s cn; */
+	} cn10ka;
+	struct rpmx_cmr_rx_lmacs_cn10kb {
+		u64 lmac_exist                       : 8;
+		u64 hi_perf_lmac_0_3                 : 2;
+		u64 hi_perf_lmac_4_7                 : 2;
+		u64 reserved_12_63                   : 52;
+	} cn10kb;
+	/* struct rpmx_cmr_rx_lmacs_cn10ka cnf10ka; */
+	/* struct rpmx_cmr_rx_lmacs_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_CMR_RX_LMACS(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMR_RX_LMACS(void)
 {
-	return 0x128;
+	if (otx_is_soc(CN10KA))
+		return 0x128;
+	if (otx_is_soc(CN10KB))
+		return 0x100;
+	if (otx_is_soc(CNF10KA))
+		return 0x128;
+	if (otx_is_soc(CNF10KB))
+		return 0x128;
+	return -1;
 }
 
 /**
@@ -6257,20 +6934,7 @@ static inline u64 RPMX_CMR_RX_OVR_BP(void)
  * RPM()_CMR_RX_STEERING_VETYPE0(), provide eight filters for identifying
  * and steering receive traffic to X2P/NIX. Received packets are only
  * passed to X2P/NIX when the DMAC0 filter result is ACCEPT and STEERING0
- * filter result is PASS. See also RPM()_CMR()_RX_DMAC_CTL0.  Internal:
- * "* ALGORITHM \<pre\> rx_steering(uint48 pkt_dmac, uint16 pkt_etype,
- * uint16 pkt_vlan_id) {    for (int i = 0; i \< 8; i++) {       steer =
- * RPM()_CMR_RX_STEERING0(i);       vetype =
- * RPM()_CMR_RX_STEERING_VETYPE0(i);       if (steer[MCST_EN] ||
- * steer[DMAC_EN] || vetype[VLAN_EN] || vetype[VLAN_TAG_EN]) {
- * // Filter is enabled.          if (   (!steer[MCST_EN] ||
- * is_mcst(pkt_dmac))              && (!steer[DMAC_EN] || pkt_dmac ==
- * steer[DMAC])              && (!vetype[VLAN_EN] || pkt_vlan_id ==
- * vetype[VLAN_ID])              && (!vetype[VLAN_TAG_EN] || pkt_etype ==
- * vetype[VLAN_ETYPE]) )          {             // Filter match (all
- * enabled matching criteria are met).             return steer[PASS];
- * }       }    }    return RPM()_CMR_RX_STEERING_DEFAULT0[PASS]; // No
- * match } \</pre\>"
+ * filter result is PASS. See also RPM()_CMR()_RX_DMAC_CTL0.
  */
 union rpmx_cmr_rx_steering0x {
 	u64 u;
@@ -6288,7 +6952,15 @@ static inline u64 RPMX_CMR_RX_STEERING0X(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMR_RX_STEERING0X(u64 a)
 {
-	return 0x5800 + 8 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5800 + 8 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6000 + 8 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5800 + 8 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5800 + 8 * a;
+	return -1;
 }
 
 /**
@@ -6299,7 +6971,7 @@ static inline u64 RPMX_CMR_RX_STEERING0X(u64 a)
  * in registers RPM()_CMR_RX_STEERING0() and
  * RPM()_CMR_RX_STEERING_VETYPE0(). All 16B packets or smaller (20B in
  * case of FCS strip) as the result of truncation will steer to default
- * destination
+ * destination.
  */
 union rpmx_cmr_rx_steering_default0 {
 	u64 u;
@@ -6314,7 +6986,15 @@ static inline u64 RPMX_CMR_RX_STEERING_DEFAULT0(void)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMR_RX_STEERING_DEFAULT0(void)
 {
-	return 0x5900;
+	if (otx_is_soc(CN10KA))
+		return 0x5900;
+	if (otx_is_soc(CN10KB))
+		return 0x6400;
+	if (otx_is_soc(CNF10KA))
+		return 0x5900;
+	if (otx_is_soc(CNF10KB))
+		return 0x5900;
+	return -1;
 }
 
 /**
@@ -6340,24 +7020,47 @@ static inline u64 RPMX_CMR_RX_STEERING_VETYPE0X(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMR_RX_STEERING_VETYPE0X(u64 a)
 {
-	return 0x5880 + 8 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x5880 + 8 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x6200 + 8 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5880 + 8 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5880 + 8 * a;
+	return -1;
 }
 
 /**
  * Register (RSL) rpm#_cmr_tx_lmacs
  *
- * RPM CMR Transmit Logical MACs Registers This register sets the number
- * of LMACs allowed on the TX interface. The value is important for
- * defining the partitioning of the transmit FIFO.
+ * RPM CMR Transmit Logical MACs Registers Configure LMAC existence for
+ * Tx Bulk memory allocation. Tx Bulk FIFO memory is statically allocated
+ * among existing LMACs, as indicated by this CSR. This configuration may
+ * be written only once, before setting the RPM_CMR()_CONFIG[ENABLE]
+ * bits.
  */
 union rpmx_cmr_tx_lmacs {
 	u64 u;
 	struct rpmx_cmr_tx_lmacs_s {
+		u64 reserved_0_7                     : 8;
+		u64 hi_perf_lmac_0_3                 : 2;
+		u64 hi_perf_lmac_4_7                 : 2;
+		u64 reserved_12_63                   : 52;
+	} s;
+	struct rpmx_cmr_tx_lmacs_cn10ka {
 		u64 lmac_exist                       : 4;
 		u64 hi_perf_lmac                     : 2;
 		u64 reserved_6_63                    : 58;
-	} s;
-	/* struct rpmx_cmr_tx_lmacs_s cn; */
+	} cn10ka;
+	struct rpmx_cmr_tx_lmacs_cn10kb {
+		u64 lmac_exist                       : 8;
+		u64 hi_perf_lmac_0_3                 : 2;
+		u64 hi_perf_lmac_4_7                 : 2;
+		u64 reserved_12_63                   : 52;
+	} cn10kb;
+	/* struct rpmx_cmr_tx_lmacs_cn10ka cnf10ka; */
+	/* struct rpmx_cmr_tx_lmacs_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_CMR_TX_LMACS(void)
@@ -6384,7 +7087,15 @@ static inline u64 RPMX_CMR_X2PX_COUNT(u64 a)
 	__attribute__ ((pure, always_inline));
 static inline u64 RPMX_CMR_X2PX_COUNT(u64 a)
 {
-	return 0x160 + 8 * a;
+	if (otx_is_soc(CN10KA))
+		return 0x160 + 8 * a;
+	if (otx_is_soc(CN10KB))
+		return 0x180 + 0x10 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x160 + 8 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x160 + 8 * a;
+	return -1;
 }
 
 /**
@@ -6420,9 +7131,8 @@ static inline u64 RPMX_CONST(void)
 union rpmx_const1 {
 	u64 u;
 	struct rpmx_const1_s {
-		u64 types                            : 11;
-		u64 res_types                        : 21;
-		u64 reserved_32_63                   : 32;
+		u64 rpm_sub_version                  : 11;
+		u64 reserved_11_63                   : 53;
 	} s;
 	/* struct rpmx_const1_s cn; */
 };
@@ -6547,17 +7257,17 @@ static inline u64 RPMX_EXT_MTI_GLOBAL_CLOCK_CONTROL(void)
 union rpmx_ext_mti_global_clock_enable {
 	u64 u;
 	struct rpmx_ext_mti_global_clock_enable_s {
-		u64 mac_clken_ovrd                   : 4;
-		u64 reserved_4_7                     : 4;
+		u64 mac_clken_ovrd                   : 8;
 		u64 mac_pcs_cmn_clken_ovrd           : 1;
 		u64 fec91_clken_ovrd                 : 1;
 		u64 pcs_clken_ovrd                   : 1;
 		u64 reserved_11_12                   : 2;
 		u64 lpcs_clken_ovrd                  : 1;
 		u64 reg_clken_ovrd                   : 1;
-		u64 reserved_15_63                   : 49;
+		u64 reserved_15_62                   : 48;
+		u64 coarse_clk_force                 : 1;
 	} s;
-	struct rpmx_ext_mti_global_clock_enable_cn {
+	struct rpmx_ext_mti_global_clock_enable_cn10ka {
 		u64 mac_clken_ovrd                   : 4;
 		u64 reserved_4_7                     : 4;
 		u64 mac_pcs_cmn_clken_ovrd           : 1;
@@ -6568,7 +7278,21 @@ union rpmx_ext_mti_global_clock_enable {
 		u64 lpcs_clken_ovrd                  : 1;
 		u64 reg_clken_ovrd                   : 1;
 		u64 reserved_15_63                   : 49;
-	} cn;
+	} cn10ka;
+	struct rpmx_ext_mti_global_clock_enable_cn10kb {
+		u64 mac_clken_ovrd                   : 8;
+		u64 mac_pcs_cmn_clken_ovrd           : 1;
+		u64 fec91_clken_ovrd                 : 1;
+		u64 pcs_clken_ovrd                   : 1;
+		u64 reserved_11                      : 1;
+		u64 reserved_12                      : 1;
+		u64 lpcs_clken_ovrd                  : 1;
+		u64 reg_clken_ovrd                   : 1;
+		u64 reserved_15_62                   : 48;
+		u64 coarse_clk_force                 : 1;
+	} cn10kb;
+	/* struct rpmx_ext_mti_global_clock_enable_cn10ka cnf10ka; */
+	/* struct rpmx_ext_mti_global_clock_enable_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_EXT_MTI_GLOBAL_CLOCK_ENABLE(void)
@@ -6608,30 +7332,6 @@ static inline u64 RPMX_EXT_MTI_GLOBAL_FEC_CONTROL(void)
 }
 
 /**
- * Register (RSL) rpm#_ext_mti_global_fec_error_status
- *
- * RPM Ext MTI Global FEC Error Status Register Firecode FEC errors
- * status.
- */
-union rpmx_ext_mti_global_fec_error_status {
-	u64 u;
-	struct rpmx_ext_mti_global_fec_error_status_s {
-		u64 fec_cerr                         : 8;
-		u64 reserved_8_15                    : 8;
-		u64 fec_ncerr                        : 8;
-		u64 reserved_24_63                   : 40;
-	} s;
-	/* struct rpmx_ext_mti_global_fec_error_status_s cn; */
-};
-
-static inline u64 RPMX_EXT_MTI_GLOBAL_FEC_ERROR_STATUS(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_EXT_MTI_GLOBAL_FEC_ERROR_STATUS(void)
-{
-	return 0x50048;
-}
-
-/**
  * Register (RSL) rpm#_ext_mti_global_fec_status
  *
  * RPM Ext MTI Global FEC Status Register Firecode FEC lock status.
@@ -6661,12 +7361,19 @@ static inline u64 RPMX_EXT_MTI_GLOBAL_FEC_STATUS(void)
 union rpmx_ext_mti_global_pma_control {
 	u64 u;
 	struct rpmx_ext_mti_global_pma_control_s {
+		u64 gc_sd_n2                         : 8;
+		u64 gc_sd_8x                         : 8;
+		u64 reserved_16_63                   : 48;
+	} s;
+	struct rpmx_ext_mti_global_pma_control_cn10ka {
 		u64 gc_sd_n2                         : 4;
 		u64 reserved_4_7                     : 4;
 		u64 gc_sd_8x                         : 4;
 		u64 reserved_12_63                   : 52;
-	} s;
-	/* struct rpmx_ext_mti_global_pma_control_s cn; */
+	} cn10ka;
+	/* struct rpmx_ext_mti_global_pma_control_s cn10kb; */
+	/* struct rpmx_ext_mti_global_pma_control_cn10ka cnf10ka; */
+	/* struct rpmx_ext_mti_global_pma_control_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_EXT_MTI_GLOBAL_PMA_CONTROL(void)
@@ -6689,8 +7396,8 @@ union rpmx_ext_mti_global_reset_control {
 		u64 reserved_4_7                     : 4;
 		u64 serdes_tx_reset                  : 4;
 		u64 reserved_12_15                   : 4;
-		u64 mac_reset                        : 4;
-		u64 reserved_20_26                   : 7;
+		u64 mac_reset                        : 8;
+		u64 reserved_24_26                   : 3;
 		u64 pcs_reset                        : 1;
 		u64 reserved_28                      : 1;
 		u64 fec91_reset                      : 1;
@@ -6699,7 +7406,7 @@ union rpmx_ext_mti_global_reset_control {
 		u64 reg_reset                        : 1;
 		u64 reserved_33_63                   : 31;
 	} s;
-	struct rpmx_ext_mti_global_reset_control_cn {
+	struct rpmx_ext_mti_global_reset_control_cn10ka {
 		u64 serdes_rx_reset                  : 4;
 		u64 reserved_4_7                     : 4;
 		u64 serdes_tx_reset                  : 4;
@@ -6715,7 +7422,25 @@ union rpmx_ext_mti_global_reset_control {
 		u64 cmn_mac_pcs_reset                : 1;
 		u64 reg_reset                        : 1;
 		u64 reserved_33_63                   : 31;
-	} cn;
+	} cn10ka;
+	struct rpmx_ext_mti_global_reset_control_cn10kb {
+		u64 serdes_rx_reset                  : 4;
+		u64 reserved_4_7                     : 4;
+		u64 serdes_tx_reset                  : 4;
+		u64 reserved_12_15                   : 4;
+		u64 mac_reset                        : 8;
+		u64 reserved_24_25                   : 2;
+		u64 reserved_26                      : 1;
+		u64 pcs_reset                        : 1;
+		u64 reserved_28                      : 1;
+		u64 fec91_reset                      : 1;
+		u64 lpcs_reset                       : 1;
+		u64 cmn_mac_pcs_reset                : 1;
+		u64 reg_reset                        : 1;
+		u64 reserved_33_63                   : 31;
+	} cn10kb;
+	/* struct rpmx_ext_mti_global_reset_control_cn10ka cnf10ka; */
+	/* struct rpmx_ext_mti_global_reset_control_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_EXT_MTI_GLOBAL_RESET_CONTROL(void)
@@ -6751,9 +7476,34 @@ union rpmx_ext_mti_portx_control {
 		u64 port_res_speed_from_hw           : 1;
 		u64 loop_rx_block_out                : 1;
 		u64 loop_tx_rdy_out                  : 1;
-		u64 reserved_26_63                   : 38;
+		u64 ff_tx_crc_ovr_mode               : 1;
+		u64 ff_tx_crc_ovr                    : 1;
+		u64 reserved_28_63                   : 36;
 	} s;
-	/* struct rpmx_ext_mti_portx_control_s cn; */
+	struct rpmx_ext_mti_portx_control_cn10ka {
+		u64 tx_loc_fault                     : 1;
+		u64 tx_rem_fault                     : 1;
+		u64 tx_li_fault                      : 1;
+		u64 tod_select                       : 1;
+		u64 rx_pause_control                 : 1;
+		u64 rx_pause_ow_val                  : 1;
+		u64 pause_802_3_reflect              : 1;
+		u64 loop_ena                         : 1;
+		u64 mask_sw_reset                    : 1;
+		u64 led_port_num                     : 6;
+		u64 led_port_en                      : 1;
+		u64 ff_tx_crc                        : 1;
+		u64 force_link_ok_en                 : 1;
+		u64 force_link_ok_dis                : 1;
+		u64 port_res_speed                   : 4;
+		u64 port_res_speed_from_hw           : 1;
+		u64 loop_rx_block_out                : 1;
+		u64 loop_tx_rdy_out                  : 1;
+		u64 reserved_26_63                   : 38;
+	} cn10ka;
+	/* struct rpmx_ext_mti_portx_control_s cn10kb; */
+	/* struct rpmx_ext_mti_portx_control_cn10ka cnf10ka; */
+	/* struct rpmx_ext_mti_portx_control_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_EXT_MTI_PORTX_CONTROL(u64 a)
@@ -6766,8 +7516,7 @@ static inline u64 RPMX_EXT_MTI_PORTX_CONTROL(u64 a)
 /**
  * Register (RSL) rpm#_ext_mti_port#_frc_delta
  *
- * INTERNAL: RPM Ext MTI Port FRC Delta Register  FRC Delta Internal:
- * Used for 1-step PTP only, which RPM does not support.
+ * RPM Ext MTI Port FRC Delta Register FRC Delta.
  */
 union rpmx_ext_mti_portx_frc_delta {
 	u64 u;
@@ -6956,16 +7705,23 @@ static inline u64 RPMX_EXT_MTI_PORTX_MARKER_STATUS(u64 a)
  *
  * RPM Ext Port 0 Pause And Err Stat Register Port Status of RX flow
  * control per priority (in case of 802.3x, only bit[0] is meaningful);
- * Port status of the last received packet
+ * Port status of the last received packet.
  */
 union rpmx_ext_mti_portx_pause_and_err_stat {
 	u64 u;
 	struct rpmx_ext_mti_portx_pause_and_err_stat_s {
 		u64 pause_on                         : 16;
+		u64 ff_rx_err_stat                   : 25;
+		u64 reserved_41_63                   : 23;
+	} s;
+	struct rpmx_ext_mti_portx_pause_and_err_stat_cn10ka {
+		u64 pause_on                         : 16;
 		u64 ff_rx_err_stat                   : 8;
 		u64 reserved_24_63                   : 40;
-	} s;
-	/* struct rpmx_ext_mti_portx_pause_and_err_stat_s cn; */
+	} cn10ka;
+	/* struct rpmx_ext_mti_portx_pause_and_err_stat_s cn10kb; */
+	/* struct rpmx_ext_mti_portx_pause_and_err_stat_cn10ka cnf10ka; */
+	/* struct rpmx_ext_mti_portx_pause_and_err_stat_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_EXT_MTI_PORTX_PAUSE_AND_ERR_STAT(u64 a)
@@ -7002,7 +7758,7 @@ static inline u64 RPMX_EXT_MTI_PORTX_PAUSE_OVERRIDE(u64 a)
  * Register (RSL) rpm#_ext_mti_port#_peer_delay
  *
  * RPM Ext MTI Port Peer Delay Register Set peer delay value for Time
- * Stamping purposes. Internal: Register relevant for 1-step PTP only.
+ * Stamping purposes.
  */
 union rpmx_ext_mti_portx_peer_delay {
 	u64 u;
@@ -7085,82 +7841,6 @@ static inline u64 RPMX_EXT_MTI_PORTX_STATUS_2(u64 a)
 }
 
 /**
- * Register (RSL) rpm#_ext_mti_port#_time_stamp_dispatcher_control_0
- *
- * INTERNAL: RPM Ext MTI Port Time Stamp Dispatcher Control 0 Register
- * Time Stamp Dispatcher Control 0 Internal: Not used. Switches team use
- * this register for HW sending of PTP.
- */
-union rpmx_ext_mti_portx_time_stamp_dispatcher_control_0 {
-	u64 u;
-	struct rpmx_ext_mti_portx_time_stamp_dispatcher_control_0_s {
-		u64 fsu_enable                       : 1;
-		u64 amd_enable                       : 1;
-		u64 fsu_offset                       : 10;
-		u64 fsu_rnd_delta                    : 8;
-		u64 reserved_20_23                   : 4;
-		u64 amd_cnt_type_sel                 : 1;
-		u64 minimal_tx_stop_toggle           : 5;
-		u64 reserved_30_63                   : 34;
-	} s;
-	/* struct rpmx_ext_mti_portx_time_stamp_dispatcher_control_0_s cn; */
-};
-
-static inline u64 RPMX_EXT_MTI_PORTX_TIME_STAMP_DISPATCHER_CONTROL_0(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_EXT_MTI_PORTX_TIME_STAMP_DISPATCHER_CONTROL_0(u64 a)
-{
-	return 0x51058 + 0x100 * a;
-}
-
-/**
- * Register (RSL) rpm#_ext_mti_port#_time_stamp_dispatcher_control_1
- *
- * INTERNAL: RPM Ext MTI Port Time Stamp Dispatcher Control 1 Register
- * Time Stamp Dispatcher Control 1 Internal: Not used. Switches team use
- * this register for HW sending of PTP.
- */
-union rpmx_ext_mti_portx_time_stamp_dispatcher_control_1 {
-	u64 u;
-	struct rpmx_ext_mti_portx_time_stamp_dispatcher_control_1_s {
-		u64 amd_cnt_low                      : 16;
-		u64 amd_cnt_high                     : 16;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_ext_mti_portx_time_stamp_dispatcher_control_1_s cn; */
-};
-
-static inline u64 RPMX_EXT_MTI_PORTX_TIME_STAMP_DISPATCHER_CONTROL_1(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_EXT_MTI_PORTX_TIME_STAMP_DISPATCHER_CONTROL_1(u64 a)
-{
-	return 0x51060 + 0x100 * a;
-}
-
-/**
- * Register (RSL) rpm#_ext_mti_port#_time_stamp_dispatcher_control_2
- *
- * INTERNAL: RPM Ext MTI Port 0 Time Stamp Dispatcher Control 2 Register
- * Internal: Not used. Switches team use this register for HW sending of
- * PTP.
- */
-union rpmx_ext_mti_portx_time_stamp_dispatcher_control_2 {
-	u64 u;
-	struct rpmx_ext_mti_portx_time_stamp_dispatcher_control_2_s {
-		u64 minimal_empty_for_stop_tx        : 6;
-		u64 reserved_6_63                    : 58;
-	} s;
-	/* struct rpmx_ext_mti_portx_time_stamp_dispatcher_control_2_s cn; */
-};
-
-static inline u64 RPMX_EXT_MTI_PORTX_TIME_STAMP_DISPATCHER_CONTROL_2(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_EXT_MTI_PORTX_TIME_STAMP_DISPATCHER_CONTROL_2(u64 a)
-{
-	return 0x51068 + 0x100 * a;
-}
-
-/**
  * Register (RSL) rpm#_ext_mti_port#_tsu_control_0
  *
  * RPM Ext MTI Port Tsu Control 0 Register TSU Control 0
@@ -7212,43 +7892,6 @@ static inline u64 RPMX_EXT_MTI_PORTX_TSU_CONTROL_1(u64 a)
 static inline u64 RPMX_EXT_MTI_PORTX_TSU_CONTROL_1(u64 a)
 {
 	return 0x51088 + 0x100 * a;
-}
-
-/**
- * Register (RSL) rpm#_ext_mti_port#_tsu_control_2
- *
- * INTERNAL: RPM Ext MTI Port Tsu Control 2 Register  TSU Control 2
- * Internal: Not used. Switches team use this register for SW override of
- * HW-controlled TSU settings.
- */
-union rpmx_ext_mti_portx_tsu_control_2 {
-	u64 u;
-	struct rpmx_ext_mti_portx_tsu_control_2_s {
-		u64 c_rx_mode_ow                     : 1;
-		u64 c_tx_mode_ow                     : 1;
-		u64 c_blks_per_clk_ow                : 1;
-		u64 c_mii_cw_dly_ow                  : 1;
-		u64 c_mii_mk_dly_ow                  : 1;
-		u64 c_deskew_ow                      : 1;
-		u64 c_modulo_rx_ow                   : 1;
-		u64 c_modulo_tx_ow                   : 1;
-		u64 c_blocktime_int_ow               : 1;
-		u64 c_blocktime_dec_ow               : 1;
-		u64 c_markertime_int_ow              : 1;
-		u64 c_markertime_dec_ow              : 1;
-		u64 c_mii_tx_mk_cyc_dly_ow           : 1;
-		u64 c_mii_tx_cw_cyc_dly_ow           : 1;
-		u64 c_tsu_tx_sd_period_ow            : 1;
-		u64 reserved_15_63                   : 49;
-	} s;
-	/* struct rpmx_ext_mti_portx_tsu_control_2_s cn; */
-};
-
-static inline u64 RPMX_EXT_MTI_PORTX_TSU_CONTROL_2(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_EXT_MTI_PORTX_TSU_CONTROL_2(u64 a)
-{
-	return 0x51090 + 0x100 * a;
 }
 
 /**
@@ -7317,7 +7960,7 @@ static inline u64 RPMX_EXT_MTI_PORTX_TSU_MODULO_TX(u64 a)
 /**
  * Register (RSL) rpm#_ext_mti_port#_tsu_status
  *
- * RPM Ext MTI Port Tsu Status Register TSU Status
+ * RPM Ext MTI Port Tsu Status Register TSU Status.
  */
 union rpmx_ext_mti_portx_tsu_status {
 	u64 u;
@@ -7627,7 +8270,7 @@ static inline u64 RPMX_MTI_FCFECX_VL1_NCCW_LO(u64 a)
  * Register (RSL) rpm#_mti_lpcs#_an_expansion
  *
  * RPM MTI LPCS Autonegotiation Expansion Register Autonegotiation
- * Expansion Register
+ * Expansion Register.
  */
 union rpmx_mti_lpcsx_an_expansion {
 	u64 u;
@@ -7650,7 +8293,7 @@ static inline u64 RPMX_MTI_LPCSX_AN_EXPANSION(u64 a)
 /**
  * Register (RSL) rpm#_mti_lpcs#_control
  *
- * RPM MTI LPCS Control Register Control register
+ * RPM MTI LPCS Control Register Control register.
  */
 union rpmx_mti_lpcsx_control {
 	u64 u;
@@ -7734,7 +8377,7 @@ static inline u64 RPMX_MTI_LPCSX_DEV_ABILITY(u64 a)
 /**
  * Register (RSL) rpm#_mti_lpcs#_if_mode
  *
- * RPM MTI LPCS Interface Mode Register SGMII Mode Control
+ * RPM MTI LPCS Interface Mode Register SGMII Mode Control.
  */
 union rpmx_mti_lpcsx_if_mode {
 	u64 u;
@@ -7748,7 +8391,8 @@ union rpmx_mti_lpcsx_if_mode {
 		u64 rx_preamble_sync                 : 1;
 		u64 mode_xgmii_basex                 : 1;
 		u64 seq_ena                          : 1;
-		u64 reserved_10_63                   : 54;
+		u64 rx_br_dis                        : 1;
+		u64 reserved_11_63                   : 53;
 	} s;
 	/* struct rpmx_mti_lpcsx_if_mode_s cn; */
 };
@@ -7764,7 +8408,7 @@ static inline u64 RPMX_MTI_LPCSX_IF_MODE(u64 a)
  * Register (RSL) rpm#_mti_lpcs#_link_timer_hi
  *
  * RPM MTI LPCS Link Timer High Register Autonegotiation link timer upper
- * 5 bits
+ * 5 bits.
  */
 union rpmx_mti_lpcsx_link_timer_hi {
 	u64 u;
@@ -7786,7 +8430,7 @@ static inline u64 RPMX_MTI_LPCSX_LINK_TIMER_HI(u64 a)
  * Register (RSL) rpm#_mti_lpcs#_link_timer_lo
  *
  * RPM MTI LPCS Link Timer Low Register Autonegotiation link timer lower
- * 16 bits
+ * 16 bits.
  */
 union rpmx_mti_lpcsx_link_timer_lo {
 	u64 u;
@@ -7809,7 +8453,7 @@ static inline u64 RPMX_MTI_LPCSX_LINK_TIMER_LO(u64 a)
  * Register (RSL) rpm#_mti_lpcs#_lp_np_rx
  *
  * RPM MTI LPCS Link Partner Next Page RX Register Received Next Page
- * data from link partner
+ * data from link partner.
  */
 union rpmx_mti_lpcsx_lp_np_rx {
 	u64 u;
@@ -7835,7 +8479,7 @@ static inline u64 RPMX_MTI_LPCSX_LP_NP_RX(u64 a)
 /**
  * Register (RSL) rpm#_mti_lpcs#_np_tx
  *
- * RPM MTI LPCS Next Page TX Register Next Page data to transmit
+ * RPM MTI LPCS Next Page TX Register Next Page data to transmit.
  */
 union rpmx_mti_lpcsx_np_tx {
 	u64 u;
@@ -7894,7 +8538,8 @@ static inline u64 RPMX_MTI_LPCSX_PARTNER_ABILITY(u64 a)
 /**
  * Register (RSL) rpm#_mti_lpcs#_phy_id_hi
  *
- * RPM MTI LPCS PHY Identifier High Register PHY Identifier upper 16 bits
+ * RPM MTI LPCS PHY Identifier High Register PHY Identifier upper 16
+ * bits.
  */
 union rpmx_mti_lpcsx_phy_id_hi {
 	u64 u;
@@ -7915,7 +8560,7 @@ static inline u64 RPMX_MTI_LPCSX_PHY_ID_HI(u64 a)
 /**
  * Register (RSL) rpm#_mti_lpcs#_phy_id_lo
  *
- * RPM MTI LPCS PHY Identifier Low Register PHY Identifier lower 16 bits
+ * RPM MTI LPCS PHY Identifier Low Register PHY Identifier lower 16 bits.
  */
 union rpmx_mti_lpcsx_phy_id_lo {
 	u64 u;
@@ -7936,7 +8581,7 @@ static inline u64 RPMX_MTI_LPCSX_PHY_ID_LO(u64 a)
 /**
  * Register (RSL) rpm#_mti_lpcs#_rev
  *
- * RPM MTI LPCS Rev Register Core Revision
+ * RPM MTI LPCS Rev Register Core Revision.
  */
 union rpmx_mti_lpcsx_rev {
 	u64 u;
@@ -7957,7 +8602,7 @@ static inline u64 RPMX_MTI_LPCSX_REV(u64 a)
 /**
  * Register (RSL) rpm#_mti_lpcs#_scratch
  *
- * RPM MTI LPCS Scratch Register General Purpose Test register
+ * RPM MTI LPCS Scratch Register General Purpose Test register.
  */
 union rpmx_mti_lpcsx_scratch {
 	u64 u;
@@ -7978,7 +8623,7 @@ static inline u64 RPMX_MTI_LPCSX_SCRATCH(u64 a)
 /**
  * Register (RSL) rpm#_mti_lpcs#_status
  *
- * RPM MTI LPCS Status Register Status indications
+ * RPM MTI LPCS Status Register Status indications.
  */
 union rpmx_mti_lpcsx_status {
 	u64 u;
@@ -8005,7 +8650,7 @@ static inline u64 RPMX_MTI_LPCSX_STATUS(u64 a)
  * Register (RSL) rpm#_mti_lpcs#_usxgmii_rep
  *
  * RPM MTI LPCS USXGMII Replication Register 10G USXGMII replicator
- * setting
+ * setting.
  */
 union rpmx_mti_lpcsx_usxgmii_rep {
 	u64 u;
@@ -8460,7 +9105,7 @@ static inline u64 RPMX_MTI_MAC100X_CL67_QUANTA_THRESH(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_cl89_pause_quanta
  *
- * RPM Mti Mac100  Cl89 Pause Quanta Register Class 8 and 9 pause quanta
+ * RPM Mti Mac100  Cl89 Pause Quanta Register Class 8 and 9 pause quanta.
  */
 union rpmx_mti_mac100x_cl89_pause_quanta {
 	u64 u;
@@ -8483,7 +9128,7 @@ static inline u64 RPMX_MTI_MAC100X_CL89_PAUSE_QUANTA(u64 a)
  * Register (RSL) rpm#_mti_mac100#_cl89_quanta_thresh
  *
  * RPM Mti Mac100  Cl89 Quanta Thresh Register Class 8 and 9 refresh
- * threshold
+ * threshold.
  */
 union rpmx_mti_mac100x_cl89_quanta_thresh {
 	u64 u;
@@ -8505,7 +9150,7 @@ static inline u64 RPMX_MTI_MAC100X_CL89_QUANTA_THRESH(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_command_config
  *
- * RPM Mti Mac100  Command Config Register Control and Configuration
+ * RPM Mti Mac100  Command Config Register Control and Configuration.
  */
 union rpmx_mti_mac100x_command_config {
 	u64 u;
@@ -8586,6 +9231,27 @@ static inline u64 RPMX_MTI_MAC100X_COMMAND_CONFIG(u64 a)
 }
 
 /**
+ * Register (RSL) rpm#_mti_mac100#_crc_inv_mask
+ *
+ * RPM Mti Mac100  Crc Mode Register Reserved.
+ */
+union rpmx_mti_mac100x_crc_inv_mask {
+	u64 u;
+	struct rpmx_mti_mac100x_crc_inv_mask_s {
+		u64 crc_inv_mask                     : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_crc_inv_mask_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CRC_INV_MASK(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CRC_INV_MASK(u64 a)
+{
+	return 0x8098 + 0x100000 * a;
+}
+
+/**
  * Register (RSL) rpm#_mti_mac100#_crc_mode
  *
  * RPM Mti Mac100  Crc Mode Register Reserved.
@@ -8614,7 +9280,7 @@ static inline u64 RPMX_MTI_MAC100X_CRC_MODE(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_frm_length
  *
- * RPM Mti Mac100  Frm Length Register Maximum Frame Size
+ * RPM Mti Mac100  Frm Length Register Maximum Frame Size.
  */
 union rpmx_mti_mac100x_frm_length {
 	u64 u;
@@ -8636,7 +9302,7 @@ static inline u64 RPMX_MTI_MAC100X_FRM_LENGTH(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_mac_addr_0
  *
- * RPM Mti Mac100  Mac Addr 0 Register First 4 bytes of MAC address
+ * RPM Mti Mac100  Mac Addr 0 Register First 4 bytes of MAC address.
  */
 union rpmx_mti_mac100x_mac_addr_0 {
 	u64 u;
@@ -8657,7 +9323,7 @@ static inline u64 RPMX_MTI_MAC100X_MAC_ADDR_0(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_mac_addr_1
  *
- * RPM Mti Mac100  Mac Addr 1 Register Last 2 bytes of MAC address
+ * RPM Mti Mac100  Mac Addr 1 Register Last 2 bytes of MAC address.
  */
 union rpmx_mti_mac100x_mac_addr_1 {
 	u64 u;
@@ -8676,109 +9342,9 @@ static inline u64 RPMX_MTI_MAC100X_MAC_ADDR_1(u64 a)
 }
 
 /**
- * Register (RSL) rpm#_mti_mac100#_mdio_cfg_status
- *
- * INTERNAL: RPM Mti Mac100  Mdio Cfg Status Register  MDIO Configuration
- * and Status
- */
-union rpmx_mti_mac100x_mdio_cfg_status {
-	u64 u;
-	struct rpmx_mti_mac100x_mdio_cfg_status_s {
-		u64 mdio_busy                        : 1;
-		u64 mdio_read_error                  : 1;
-		u64 mdio_hold_time_setting           : 3;
-		u64 mdio_disable_preamble            : 1;
-		u64 mdio_clause45                    : 1;
-		u64 mdio_clock_divisor               : 9;
-		u64 reserved_16_63                   : 48;
-	} s;
-	/* struct rpmx_mti_mac100x_mdio_cfg_status_s cn; */
-};
-
-static inline u64 RPMX_MTI_MAC100X_MDIO_CFG_STATUS(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_MAC100X_MDIO_CFG_STATUS(u64 a)
-{
-	return 0x8060 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_mac100#_mdio_command
- *
- * INTERNAL: RPM Mti Mac100  Mdio Command Register  MDIO Command (PHY and
- * Port Address)
- */
-union rpmx_mti_mac100x_mdio_command {
-	u64 u;
-	struct rpmx_mti_mac100x_mdio_command_s {
-		u64 device_address                   : 5;
-		u64 port_address                     : 5;
-		u64 reserved_10_13                   : 4;
-		u64 read_address_post_increment      : 1;
-		u64 normal_read_transaction          : 1;
-		u64 reserved_16_63                   : 48;
-	} s;
-	/* struct rpmx_mti_mac100x_mdio_command_s cn; */
-};
-
-static inline u64 RPMX_MTI_MAC100X_MDIO_COMMAND(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_MAC100X_MDIO_COMMAND(u64 a)
-{
-	return 0x8068 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_mac100#_mdio_data
- *
- * INTERNAL: RPM Mti Mac100  Mdio Data Register  MDIO Data to write and
- * last Data read
- */
-union rpmx_mti_mac100x_mdio_data {
-	u64 u;
-	struct rpmx_mti_mac100x_mdio_data_s {
-		u64 mdio_data                        : 16;
-		u64 reserved_16_63                   : 48;
-	} s;
-	/* struct rpmx_mti_mac100x_mdio_data_s cn; */
-};
-
-static inline u64 RPMX_MTI_MAC100X_MDIO_DATA(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_MAC100X_MDIO_DATA(u64 a)
-{
-	return 0x8070 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_mac100#_mdio_regaddr
- *
- * INTERNAL: RPM Mti Mac100  Mdio Regaddr Register  MDIO Register
- * Address. Address of register within the PHY device to read from or
- * write to. After writing this register, an address-write transaction
- * will be initiated to set the PHY internal address register to the
- * value given.
- */
-union rpmx_mti_mac100x_mdio_regaddr {
-	u64 u;
-	struct rpmx_mti_mac100x_mdio_regaddr_s {
-		u64 mdio_regaddr                     : 16;
-		u64 reserved_16_63                   : 48;
-	} s;
-	/* struct rpmx_mti_mac100x_mdio_regaddr_s cn; */
-};
-
-static inline u64 RPMX_MTI_MAC100X_MDIO_REGADDR(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_MAC100X_MDIO_REGADDR(u64 a)
-{
-	return 0x8078 + 0x100000 * a;
-}
-
-/**
  * Register (RSL) rpm#_mti_mac100#_revision
  *
- * RPM Mti Mac100  Revision Register Package defined constants
+ * RPM Mti Mac100  Revision Register Package defined constants.
  */
 union rpmx_mti_mac100x_revision {
 	u64 u;
@@ -8801,7 +9367,7 @@ static inline u64 RPMX_MTI_MAC100X_REVISION(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_rx_fifo_sections
  *
- * RPM Mti Mac100  Rx Fifo Sections Register RX FIFO thresholds
+ * RPM Mti Mac100  Rx Fifo Sections Register RX FIFO thresholds.
  */
 union rpmx_mti_mac100x_rx_fifo_sections {
 	u64 u;
@@ -8845,7 +9411,8 @@ static inline u64 RPMX_MTI_MAC100X_RX_PAUSE_STATUS(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_scf_config0
  *
- * RPM MTI MAC100 Specific Control Frame Configuration 0 Register TBD
+ * RPM MTI MAC100 Specific Control Frame Configuration 0 Register
+ * Configures Specific Control Frame MAC DA.
  */
 union rpmx_mti_mac100x_scf_config0 {
 	u64 u;
@@ -8866,7 +9433,8 @@ static inline u64 RPMX_MTI_MAC100X_SCF_CONFIG0(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_scf_config1
  *
- * RPM MTI MAC100 Specific Control Frame Configuration 1 Register TBD
+ * RPM MTI MAC100 Specific Control Frame Configuration 1 Register
+ * Configures Specific Control Frame EtherType and Opcode.
  */
 union rpmx_mti_mac100x_scf_config1 {
 	u64 u;
@@ -8888,7 +9456,8 @@ static inline u64 RPMX_MTI_MAC100X_SCF_CONFIG1(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_scf_config2
  *
- * RPM MTI MAC100 Specific Control Frame Configuration 2 Register TBD
+ * RPM MTI MAC100 Specific Control Frame Configuration 2 Register
+ * Configures Specific Control Frame payload.
  */
 union rpmx_mti_mac100x_scf_config2 {
 	u64 u;
@@ -8908,7 +9477,8 @@ static inline u64 RPMX_MTI_MAC100X_SCF_CONFIG2(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_scf_control
  *
- * RPM MTI MAC100 Specific Control Frame Control Register TBD
+ * RPM MTI MAC100 Specific Control Frame Control Register Trigger to send
+ * pre-configured Specific Control Frame.
  */
 union rpmx_mti_mac100x_scf_control {
 	u64 u;
@@ -8929,7 +9499,7 @@ static inline u64 RPMX_MTI_MAC100X_SCF_CONTROL(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_scratch
  *
- * RPM Mti Mac100  Scratch Register General Purpose
+ * RPM Mti Mac100  Scratch Register General Purpose.
  */
 union rpmx_mti_mac100x_scratch {
 	u64 u;
@@ -8979,7 +9549,7 @@ static inline u64 RPMX_MTI_MAC100X_STATUS(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_ts_timestamp
  *
- * RPM Mti Mac100  Ts Timestamp Register Transmit Timestamp
+ * RPM Mti Mac100  Ts Timestamp Register Transmit Timestamp.
  */
 union rpmx_mti_mac100x_ts_timestamp {
 	u64 u;
@@ -9000,7 +9570,7 @@ static inline u64 RPMX_MTI_MAC100X_TS_TIMESTAMP(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_tx_fifo_sections
  *
- * RPM Mti Mac100  Tx Fifo Sections Register TX FIFO thresholds
+ * RPM Mti Mac100  Tx Fifo Sections Register TX FIFO thresholds.
  */
 union rpmx_mti_mac100x_tx_fifo_sections {
 	u64 u;
@@ -9046,7 +9616,7 @@ static inline u64 RPMX_MTI_MAC100X_TX_IPG_LENGTH(u64 a)
 /**
  * Register (RSL) rpm#_mti_mac100#_xif_mode
  *
- * RPM Mti Mac100  Xif Mode Register Interface Mode Configuration
+ * RPM Mti Mac100  Xif Mode Register Interface Mode Configuration.
  */
 union rpmx_mti_mac100x_xif_mode {
 	u64 u;
@@ -9067,9 +9637,31 @@ union rpmx_mti_mac100x_xif_mode {
 		u64 pfc_pulse_mode                   : 1;
 		u64 pfc_lp_mode                      : 1;
 		u64 pfc_lp_16pri                     : 1;
-		u64 reserved_20_63                   : 44;
+		u64 ts_sfd_ena                       : 1;
+		u64 reserved_21_63                   : 43;
 	} s;
-	/* struct rpmx_mti_mac100x_xif_mode_s cn; */
+	struct rpmx_mti_mac100x_xif_mode_cn10ka {
+		u64 xgmii                            : 1;
+		u64 reserved_1_3                     : 3;
+		u64 pausetimerx8                     : 1;
+		u64 onestepena                       : 1;
+		u64 rx_pause_bypass                  : 1;
+		u64 reserved_7                       : 1;
+		u64 tx_mac_rs_err                    : 1;
+		u64 ts_delta_mode                    : 1;
+		u64 ts_delay_mode                    : 1;
+		u64 ts_binary_mode                   : 1;
+		u64 ts_64upd_mode                    : 1;
+		u64 reserved_13_15                   : 3;
+		u64 rx_cnt_mode                      : 1;
+		u64 pfc_pulse_mode                   : 1;
+		u64 pfc_lp_mode                      : 1;
+		u64 pfc_lp_16pri                     : 1;
+		u64 reserved_20_63                   : 44;
+	} cn10ka;
+	/* struct rpmx_mti_mac100x_xif_mode_s cn10kb; */
+	/* struct rpmx_mti_mac100x_xif_mode_cn10ka cnf10ka; */
+	/* struct rpmx_mti_mac100x_xif_mode_cn10ka cnf10kb; */
 };
 
 static inline u64 RPMX_MTI_MAC100X_XIF_MODE(u64 a)
@@ -9203,10 +9795,7 @@ static inline u64 RPMX_MTI_PCS100X_BER_HIGH_ORDER_CNT(u64 a)
  * Register (RSL) rpm#_mti_pcs100#_bip_err_cnt_lane#
  *
  * RPM MTI PCS Bip Err Cnt Lane Register BIP Error Counter Lane \<b\>;
- * Clears on read; None roll-over. Internal: This group of registers
- * should be duplicated 0..19, but CSR3 does not support extern regs to
- * be non-aligned. Instead of duplicating 20 times, I prefer to create
- * several (aligned) groups.
+ * Clears on read; None roll-over.
  */
 union rpmx_mti_pcs100x_bip_err_cnt_lanex {
 	u64 u;
@@ -9228,10 +9817,7 @@ static inline u64 RPMX_MTI_PCS100X_BIP_ERR_CNT_LANEX(u64 a, u64 b)
  * Register (RSL) rpm#_mti_pcs100#_bip_err_cnt_lane2#
  *
  * RPM MTI PCS Bip Err Cnt Lane Register BIP Error Counter Lane \<b+8\>;
- * Clears on read; None roll-over. Internal: This group of registers
- * should be duplicated 0..19, but CSR3 does not support extern regs to
- * be non-aligned. Instead of duplicating 20 times, I prefer to create
- * several (aligned) groups.
+ * Clears on read; None roll-over.
  */
 union rpmx_mti_pcs100x_bip_err_cnt_lane2x {
 	u64 u;
@@ -9253,10 +9839,7 @@ static inline u64 RPMX_MTI_PCS100X_BIP_ERR_CNT_LANE2X(u64 a, u64 b)
  * Register (RSL) rpm#_mti_pcs100#_bip_err_cnt_lane3#
  *
  * RPM MTI PCS Bip Err Cnt Lane Register BIP Error Counter Lane \<b+16\>;
- * Clears on read; None roll-over. Internal: This group of registers
- * should be duplicated 0..19, but CSR3 does not support extern regs to
- * be non-aligned. Instead of duplicating 20 times, I prefer to create
- * several (aligned) groups.
+ * Clears on read; None roll-over.
  */
 union rpmx_mti_pcs100x_bip_err_cnt_lane3x {
 	u64 u;
@@ -9446,10 +10029,7 @@ static inline u64 RPMX_MTI_PCS100X_ERR_BLK_HIGH_ORDER_CNT(u64 a)
 /**
  * Register (RSL) rpm#_mti_pcs100#_lane_mapping#
  *
- * RPM MTI PCS Lane Mapping Register Lane \<b\> mapping. Internal: This
- * group of registers should be duplicated 0..19, but CSR3 does not
- * support extern regs to be non-aligned. Instead of duplicating 20
- * times, I prefer to create several (aligned) groups.
+ * RPM MTI PCS Lane Mapping Register Lane \<b\> mapping.
  */
 union rpmx_mti_pcs100x_lane_mappingx {
 	u64 u;
@@ -9470,10 +10050,7 @@ static inline u64 RPMX_MTI_PCS100X_LANE_MAPPINGX(u64 a, u64 b)
 /**
  * Register (RSL) rpm#_mti_pcs100#_lane_mapping2#
  *
- * RPM MTI PCS Lane Mapping Register Lane \<b+16\> mapping. Internal:
- * This group of registers should be duplicated 0..19, but CSR3 does not
- * support extern regs to be non-aligned. Instead of duplicating 20
- * times, I prefer to create several (aligned) groups.
+ * RPM MTI PCS Lane Mapping Register Lane \<b+16\> mapping.
  */
 union rpmx_mti_pcs100x_lane_mapping2x {
 	u64 u;
@@ -9858,7 +10435,7 @@ static inline u64 RPMX_MTI_PCS100X_STATUS1(u64 a)
 /**
  * Register (RSL) rpm#_mti_pcs100#_status2
  *
- * RPM MTI PCS Status2 Register Fault status; Device capabilities
+ * RPM MTI PCS Status2 Register Fault status; Device capabilities.
  */
 union rpmx_mti_pcs100x_status2 {
 	u64 u;
@@ -9909,218 +10486,6 @@ static inline u64 RPMX_MTI_PCS100X_VENDOR_CORE_REV(u64 a)
 static inline u64 RPMX_MTI_PCS100X_VENDOR_CORE_REV(u64 a)
 {
 	return 0x21008 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_pcs100#_vendor_mirror_vl0_0
- *
- * INTERNAL: RPM Mti Pcs100  Vendor Mirror Vl0 0 Register  Vendor
- * Specific Reg; Marker pattern for PCS Virtual Lane 0.  This register
- * exists due to standard backward compatibility of original 40G PCS
- * definition This register and VLx_y register access a same shared
- * register. Thus, writing this register will affect VLx_y register as
- * well. It is highly recommended NOT TO WRITE to this register.
- */
-union rpmx_mti_pcs100x_vendor_mirror_vl0_0 {
-	u64 u;
-	struct rpmx_mti_pcs100x_vendor_mirror_vl0_0_s {
-		u64 mirror_m0                        : 8;
-		u64 mirror_m1                        : 8;
-		u64 reserved_16_63                   : 48;
-	} s;
-	/* struct rpmx_mti_pcs100x_vendor_mirror_vl0_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL0_0(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL0_0(u64 a)
-{
-	return 0x21040 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_pcs100#_vendor_mirror_vl0_1
- *
- * INTERNAL: RPM Mti Pcs100  Vendor Mirror Vl0 1 Register  Vendor
- * Specific Reg; Last byte of PCS Virtual Lane 0 marker pattern.  This
- * register exists due to standard backward compatibility of original 40G
- * PCS definition This register and VLx_y register access a same shared
- * register. Thus, writing this register will affect VLx_y register as
- * well. It is highly recommended NOT TO WRITE to this register.
- */
-union rpmx_mti_pcs100x_vendor_mirror_vl0_1 {
-	u64 u;
-	struct rpmx_mti_pcs100x_vendor_mirror_vl0_1_s {
-		u64 mirror_m2                        : 8;
-		u64 reserved_8_63                    : 56;
-	} s;
-	/* struct rpmx_mti_pcs100x_vendor_mirror_vl0_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL0_1(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL0_1(u64 a)
-{
-	return 0x21048 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_pcs100#_vendor_mirror_vl1_0
- *
- * INTERNAL: RPM Mti Pcs100  Vendor Mirror Vl1 0 Register  Vendor
- * Specific Reg; Marker pattern for PCS Virtual Lane 1.  This register
- * exists due to standard backward compatibility of original 40G PCS
- * definition This register and VLx_y register access a same shared
- * register. Thus, writing this register will affect VLx_y register as
- * well. It is highly recommended NOT TO WRITE to this register.
- */
-union rpmx_mti_pcs100x_vendor_mirror_vl1_0 {
-	u64 u;
-	struct rpmx_mti_pcs100x_vendor_mirror_vl1_0_s {
-		u64 mirror_m0                        : 8;
-		u64 mirror_m1                        : 8;
-		u64 reserved_16_63                   : 48;
-	} s;
-	/* struct rpmx_mti_pcs100x_vendor_mirror_vl1_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL1_0(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL1_0(u64 a)
-{
-	return 0x21050 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_pcs100#_vendor_mirror_vl1_1
- *
- * INTERNAL: RPM Mti Pcs100  Vendor Mirror Vl1 1 Register  Vendor
- * Specific Reg; Last byte of PCS Virtual Lane 1 marker pattern.  This
- * register exists due to standard backward compatibility of original 40G
- * PCS definition This register and VLx_y register access a same shared
- * register. Thus, writing this register will affect VLx_y register as
- * well. It is highly recommended NOT TO WRITE to this register.
- */
-union rpmx_mti_pcs100x_vendor_mirror_vl1_1 {
-	u64 u;
-	struct rpmx_mti_pcs100x_vendor_mirror_vl1_1_s {
-		u64 mirror_m2                        : 8;
-		u64 reserved_8_63                    : 56;
-	} s;
-	/* struct rpmx_mti_pcs100x_vendor_mirror_vl1_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL1_1(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL1_1(u64 a)
-{
-	return 0x21058 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_pcs100#_vendor_mirror_vl2_0
- *
- * INTERNAL: RPM Mti Pcs100  Vendor Mirror Vl2 0 Register  Vendor
- * Specific Reg; Marker pattern for PCS Virtual Lane 2.  This register
- * exists due to standard backward compatibility of original 40G PCS
- * definition This register and VLx_y register access a same shared
- * register. Thus, writing this register will affect VLx_y register as
- * well. It is highly recommended NOT TO WRITE to this register.
- */
-union rpmx_mti_pcs100x_vendor_mirror_vl2_0 {
-	u64 u;
-	struct rpmx_mti_pcs100x_vendor_mirror_vl2_0_s {
-		u64 mirror_m0                        : 8;
-		u64 mirror_m1                        : 8;
-		u64 reserved_16_63                   : 48;
-	} s;
-	/* struct rpmx_mti_pcs100x_vendor_mirror_vl2_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL2_0(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL2_0(u64 a)
-{
-	return 0x21060 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_pcs100#_vendor_mirror_vl2_1
- *
- * INTERNAL: RPM Mti Pcs100  Vendor Mirror Vl2 1 Register  Vendor
- * Specific Reg; Last byte of PCS Virtual Lane 2 marker pattern.  This
- * register exists due to standard backward compatibility of original 40G
- * PCS definition This register and VLx_y register access a same shared
- * register. Thus, writing this register will affect VLx_y register as
- * well. It is highly recommended NOT TO WRITE to this register.
- */
-union rpmx_mti_pcs100x_vendor_mirror_vl2_1 {
-	u64 u;
-	struct rpmx_mti_pcs100x_vendor_mirror_vl2_1_s {
-		u64 mirror_m2                        : 8;
-		u64 reserved_8_63                    : 56;
-	} s;
-	/* struct rpmx_mti_pcs100x_vendor_mirror_vl2_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL2_1(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL2_1(u64 a)
-{
-	return 0x21068 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_pcs100#_vendor_mirror_vl3_0
- *
- * INTERNAL: RPM Mti Pcs100  Vendor Mirror Vl3 0 Register  Vendor
- * Specific Reg; Marker pattern for PCS Virtual Lane 3.  This register
- * exists due to standard backward compatibility of original 40G PCS
- * definition This register and VLx_y register access a same shared
- * register. Thus, writing this register will affect VLx_y register as
- * well. It is highly recommended NOT TO WRITE to this register.
- */
-union rpmx_mti_pcs100x_vendor_mirror_vl3_0 {
-	u64 u;
-	struct rpmx_mti_pcs100x_vendor_mirror_vl3_0_s {
-		u64 mirror_m0                        : 8;
-		u64 mirror_m1                        : 8;
-		u64 reserved_16_63                   : 48;
-	} s;
-	/* struct rpmx_mti_pcs100x_vendor_mirror_vl3_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL3_0(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL3_0(u64 a)
-{
-	return 0x21070 + 0x100000 * a;
-}
-
-/**
- * Register (RSL) rpm#_mti_pcs100#_vendor_mirror_vl3_1
- *
- * INTERNAL: RPM Mti Pcs100  Vendor Mirror Vl3 1 Register  Vendor
- * Specific Reg; Last byte of PCS Virtual Lane 3 marker pattern.  This
- * register exists due to standard backward compatibility of original 40G
- * PCS definition This register and VLx_y register access a same shared
- * register. Thus, writing this register will affect VLx_y register as
- * well. It is highly recommended NOT TO WRITE to this register.
- */
-union rpmx_mti_pcs100x_vendor_mirror_vl3_1 {
-	u64 u;
-	struct rpmx_mti_pcs100x_vendor_mirror_vl3_1_s {
-		u64 mirror_m2                        : 8;
-		u64 reserved_8_63                    : 56;
-	} s;
-	/* struct rpmx_mti_pcs100x_vendor_mirror_vl3_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL3_1(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_PCS100X_VENDOR_MIRROR_VL3_1(u64 a)
-{
-	return 0x21078 + 0x100000 * a;
 }
 
 /**
@@ -10179,7 +10544,15 @@ static inline u64 RPMX_MTI_PCS100X_VENDOR_SCRATCH(u64 a)
  * Register (RSL) rpm#_mti_pcs100#_vendor_txlane_thresh
  *
  * RPM MTI PCS Vendor Txlane Thresh Register Vendor Specific Reg; Defines
- * the transmit line decoupling FIFOs almost full threshold.
+ * the transmit line decoupling FIFOs almost full threshold. Relevant on
+ * PCS0 only. PCS0 configures serdes lanes 0..3. Writing to this register
+ * in other PCSs does not have any effect. Per serdes lane a 4-bit value
+ * to define the transmit line decoupling FIFOs almost full threshold.
+ * Valid values are 5 to 10. Lower values result in lower latency but
+ * require a higher system clock (netclk) to avoid the risk of buffer
+ * underflows that would lead to transmit data corruption. If a too low
+ * value is set and a FIFO underflow occurs the PCS Status 2 register bit
+ * 11 (tx error) is set.
  */
 union rpmx_mti_pcs100x_vendor_txlane_thresh {
 	u64 u;
@@ -11267,1263 +11640,26 @@ static inline u64 RPMX_MTI_RSFEC_NCCW_LOX(u64 a)
 }
 
 /**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_10se_0
+ * Register (RSL) rpm#_mti_rsfec_rsfec_txfifo_control
  *
- * RPM Mti Rsfec Stat Codewords Corrected 10se 0 Register
+ * RPM MTI RSFEC TX FIFO Control Register RPM MTI RSFEC TX FIFO Control
+ * Register
  */
-union rpmx_mti_rsfec_stat_codewords_corrected_10se_0 {
+union rpmx_mti_rsfec_rsfec_txfifo_control {
 	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_10se_0_s {
-		u64 cw_corrected_10se                : 32;
-		u64 reserved_32_63                   : 32;
+	struct rpmx_mti_rsfec_rsfec_txfifo_control_s {
+		u64 txfifo_lane_threshold            : 4;
+		u64 toggle_en                        : 1;
+		u64 reserved_5_63                    : 59;
 	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_10se_0_s cn; */
+	/* struct rpmx_mti_rsfec_rsfec_txfifo_control_s cn; */
 };
 
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_10SE_0(void)
+static inline u64 RPMX_MTI_RSFEC_RSFEC_TXFIFO_CONTROL(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_10SE_0(void)
+static inline u64 RPMX_MTI_RSFEC_RSFEC_TXFIFO_CONTROL(void)
 {
-	return 0x401a8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_10se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 10se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_10se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_10se_1_s {
-		u64 cw_corrected_10se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_10se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_10SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_10SE_1(void)
-{
-	return 0x40268;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_10se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 10se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_10se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_10se_2_s {
-		u64 cw_corrected_10se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_10se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_10SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_10SE_2(void)
-{
-	return 0x40328;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_10se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 10se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_10se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_10se_3_s {
-		u64 cw_corrected_10se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_10se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_10SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_10SE_3(void)
-{
-	return 0x403e8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_11se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 11se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_11se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_11se_0_s {
-		u64 cw_corrected_11se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_11se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_11SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_11SE_0(void)
-{
-	return 0x401b0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_11se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 11se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_11se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_11se_1_s {
-		u64 cw_corrected_11se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_11se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_11SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_11SE_1(void)
-{
-	return 0x40270;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_11se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 11se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_11se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_11se_2_s {
-		u64 cw_corrected_11se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_11se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_11SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_11SE_2(void)
-{
-	return 0x40330;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_11se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 11se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_11se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_11se_3_s {
-		u64 cw_corrected_11se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_11se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_11SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_11SE_3(void)
-{
-	return 0x403f0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_12se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 12se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_12se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_12se_0_s {
-		u64 cw_corrected_12se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_12se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_12SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_12SE_0(void)
-{
-	return 0x401b8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_12se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 12se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_12se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_12se_1_s {
-		u64 cw_corrected_12se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_12se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_12SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_12SE_1(void)
-{
-	return 0x40278;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_12se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 12se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_12se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_12se_2_s {
-		u64 cw_corrected_12se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_12se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_12SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_12SE_2(void)
-{
-	return 0x40338;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_12se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 12se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_12se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_12se_3_s {
-		u64 cw_corrected_12se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_12se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_12SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_12SE_3(void)
-{
-	return 0x403f8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_13se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 13se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_13se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_13se_0_s {
-		u64 cw_corrected_13se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_13se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_13SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_13SE_0(void)
-{
-	return 0x401c0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_13se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 13se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_13se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_13se_1_s {
-		u64 cw_corrected_13se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_13se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_13SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_13SE_1(void)
-{
-	return 0x40280;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_13se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 13se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_13se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_13se_2_s {
-		u64 cw_corrected_13se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_13se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_13SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_13SE_2(void)
-{
-	return 0x40340;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_13se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 13se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_13se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_13se_3_s {
-		u64 cw_corrected_13se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_13se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_13SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_13SE_3(void)
-{
-	return 0x40400;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_14se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 14se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_14se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_14se_0_s {
-		u64 cw_corrected_14se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_14se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_14SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_14SE_0(void)
-{
-	return 0x401c8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_14se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 14se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_14se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_14se_1_s {
-		u64 cw_corrected_14se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_14se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_14SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_14SE_1(void)
-{
-	return 0x40288;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_14se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 14se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_14se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_14se_2_s {
-		u64 cw_corrected_14se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_14se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_14SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_14SE_2(void)
-{
-	return 0x40348;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_14se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 14se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_14se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_14se_3_s {
-		u64 cw_corrected_14se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_14se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_14SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_14SE_3(void)
-{
-	return 0x40408;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_15se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 15se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_15se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_15se_0_s {
-		u64 cw_corrected_15se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_15se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_15SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_15SE_0(void)
-{
-	return 0x401d0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_15se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 15se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_15se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_15se_1_s {
-		u64 cw_corrected_15se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_15se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_15SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_15SE_1(void)
-{
-	return 0x40290;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_15se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 15se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_15se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_15se_2_s {
-		u64 cw_corrected_15se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_15se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_15SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_15SE_2(void)
-{
-	return 0x40350;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_15se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 15se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_15se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_15se_3_s {
-		u64 cw_corrected_15se                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_15se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_15SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_15SE_3(void)
-{
-	return 0x40410;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_1se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 1se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_1se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_1se_0_s {
-		u64 cw_corrected_1se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_1se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_1SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_1SE_0(void)
-{
-	return 0x40160;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_1se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 1se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_1se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_1se_1_s {
-		u64 cw_corrected_1se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_1se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_1SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_1SE_1(void)
-{
-	return 0x40220;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_1se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 1se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_1se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_1se_2_s {
-		u64 cw_corrected_1se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_1se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_1SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_1SE_2(void)
-{
-	return 0x402e0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_1se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 1se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_1se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_1se_3_s {
-		u64 cw_corrected_1se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_1se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_1SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_1SE_3(void)
-{
-	return 0x403a0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_2se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 2se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_2se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_2se_0_s {
-		u64 cw_corrected_2se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_2se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_2SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_2SE_0(void)
-{
-	return 0x40168;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_2se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 2se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_2se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_2se_1_s {
-		u64 cw_corrected_2se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_2se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_2SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_2SE_1(void)
-{
-	return 0x40228;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_2se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 2se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_2se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_2se_2_s {
-		u64 cw_corrected_2se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_2se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_2SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_2SE_2(void)
-{
-	return 0x402e8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_2se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 2se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_2se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_2se_3_s {
-		u64 cw_corrected_2se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_2se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_2SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_2SE_3(void)
-{
-	return 0x403a8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_3se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 3se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_3se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_3se_0_s {
-		u64 cw_corrected_3se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_3se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_3SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_3SE_0(void)
-{
-	return 0x40170;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_3se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 3se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_3se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_3se_1_s {
-		u64 cw_corrected_3se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_3se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_3SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_3SE_1(void)
-{
-	return 0x40230;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_3se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 3se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_3se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_3se_2_s {
-		u64 cw_corrected_3se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_3se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_3SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_3SE_2(void)
-{
-	return 0x402f0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_3se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 3se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_3se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_3se_3_s {
-		u64 cw_corrected_3se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_3se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_3SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_3SE_3(void)
-{
-	return 0x403b0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_4se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 4se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_4se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_4se_0_s {
-		u64 cw_corrected_4se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_4se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_4SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_4SE_0(void)
-{
-	return 0x40178;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_4se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 4se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_4se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_4se_1_s {
-		u64 cw_corrected_4se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_4se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_4SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_4SE_1(void)
-{
-	return 0x40238;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_4se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 4se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_4se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_4se_2_s {
-		u64 cw_corrected_4se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_4se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_4SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_4SE_2(void)
-{
-	return 0x402f8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_4se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 4se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_4se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_4se_3_s {
-		u64 cw_corrected_4se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_4se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_4SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_4SE_3(void)
-{
-	return 0x403b8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_5se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 5se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_5se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_5se_0_s {
-		u64 cw_corrected_5se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_5se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_5SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_5SE_0(void)
-{
-	return 0x40180;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_5se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 5se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_5se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_5se_1_s {
-		u64 cw_corrected_5se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_5se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_5SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_5SE_1(void)
-{
-	return 0x40240;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_5se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 5se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_5se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_5se_2_s {
-		u64 cw_corrected_5se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_5se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_5SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_5SE_2(void)
-{
-	return 0x40300;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_5se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 5se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_5se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_5se_3_s {
-		u64 cw_corrected_5se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_5se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_5SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_5SE_3(void)
-{
-	return 0x403c0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_6se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 6se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_6se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_6se_0_s {
-		u64 cw_corrected_6se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_6se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_6SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_6SE_0(void)
-{
-	return 0x40188;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_6se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 6se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_6se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_6se_1_s {
-		u64 cw_corrected_6se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_6se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_6SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_6SE_1(void)
-{
-	return 0x40248;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_6se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 6se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_6se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_6se_2_s {
-		u64 cw_corrected_6se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_6se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_6SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_6SE_2(void)
-{
-	return 0x40308;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_6se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 6se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_6se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_6se_3_s {
-		u64 cw_corrected_6se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_6se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_6SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_6SE_3(void)
-{
-	return 0x403c8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_7se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 7se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_7se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_7se_0_s {
-		u64 cw_corrected_7se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_7se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_7SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_7SE_0(void)
-{
-	return 0x40190;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_7se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 7se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_7se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_7se_1_s {
-		u64 cw_corrected_7se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_7se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_7SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_7SE_1(void)
-{
-	return 0x40250;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_7se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 7se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_7se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_7se_2_s {
-		u64 cw_corrected_7se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_7se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_7SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_7SE_2(void)
-{
-	return 0x40310;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_7se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 7se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_7se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_7se_3_s {
-		u64 cw_corrected_7se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_7se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_7SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_7SE_3(void)
-{
-	return 0x403d0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_8se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 8se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_8se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_8se_0_s {
-		u64 cw_corrected_8se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_8se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_8SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_8SE_0(void)
-{
-	return 0x40198;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_8se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 8se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_8se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_8se_1_s {
-		u64 cw_corrected_8se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_8se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_8SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_8SE_1(void)
-{
-	return 0x40258;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_8se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 8se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_8se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_8se_2_s {
-		u64 cw_corrected_8se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_8se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_8SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_8SE_2(void)
-{
-	return 0x40318;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_8se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 8se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_8se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_8se_3_s {
-		u64 cw_corrected_8se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_8se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_8SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_8SE_3(void)
-{
-	return 0x403d8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_9se_0
- *
- * RPM Mti Rsfec Stat Codewords Corrected 9se 0 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_9se_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_9se_0_s {
-		u64 cw_corrected_9se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_9se_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_9SE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_9SE_0(void)
-{
-	return 0x401a0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_9se_1
- *
- * RPM Mti Rsfec Stat Codewords Corrected 9se 1 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_9se_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_9se_1_s {
-		u64 cw_corrected_9se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_9se_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_9SE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_9SE_1(void)
-{
-	return 0x40260;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_9se_2
- *
- * RPM Mti Rsfec Stat Codewords Corrected 9se 2 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_9se_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_9se_2_s {
-		u64 cw_corrected_9se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_9se_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_9SE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_9SE_2(void)
-{
-	return 0x40320;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_codewords_corrected_9se_3
- *
- * RPM Mti Rsfec Stat Codewords Corrected 9se 3 Register
- */
-union rpmx_mti_rsfec_stat_codewords_corrected_9se_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_codewords_corrected_9se_3_s {
-		u64 cw_corrected_9se                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_codewords_corrected_9se_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_9SE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_CODEWORDS_CORRECTED_9SE_3(void)
-{
-	return 0x403e0;
+	return 0x38558;
 }
 
 /**
@@ -12968,6 +12104,28 @@ static inline u64 RPMX_MTI_RSFEC_STAT_FAST_DATA_HI(void)
 }
 
 /**
+ * Register (RSL) rpm#_mti_rsfec_stat_page#_counter#
+ *
+ * RPM Mti Rsfec Stat Page Counter Register Per-LMAC RSFEC Statistics
+ * Page.
+ */
+union rpmx_mti_rsfec_stat_pagex_counterx {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_pagex_counterx_s {
+		u64 counter_low                      : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_pagex_counterx_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_PAGEX_COUNTERX(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_PAGEX_COUNTERX(u64 a, u64 b)
+{
+	return 0x41000 + 0x100 * a + 8 * b;
+}
+
+/**
  * Register (RSL) rpm#_mti_rsfec_stat_slow_data_hi
  *
  * RPM Mti Rsfec Stat Slow Data Hi Register
@@ -13102,678 +12260,6 @@ static inline u64 RPMX_MTI_RSFEC_STAT_STATN_STATUS(void)
 }
 
 /**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane0_0
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane0 0 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_0_s {
-		u64 se_corrected_lane0               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE0_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE0_0(void)
-{
-	return 0x401d8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane0_1
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane0 1 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_1_s {
-		u64 se_corrected_lane0               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE0_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE0_1(void)
-{
-	return 0x40298;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane0_2
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane0 2 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_2_s {
-		u64 se_corrected_lane0               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE0_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE0_2(void)
-{
-	return 0x40358;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane0_3
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane0 3 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_3_s {
-		u64 se_corrected_lane0               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane0_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE0_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE0_3(void)
-{
-	return 0x40418;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane1_0
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane1 0 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_0_s {
-		u64 se_corrected_lane1               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE1_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE1_0(void)
-{
-	return 0x401e0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane1_1
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane1 1 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_1_s {
-		u64 se_corrected_lane1               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE1_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE1_1(void)
-{
-	return 0x402a0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane1_2
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane1 2 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_2_s {
-		u64 se_corrected_lane1               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE1_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE1_2(void)
-{
-	return 0x40360;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane1_3
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane1 3 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_3_s {
-		u64 se_corrected_lane1               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane1_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE1_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE1_3(void)
-{
-	return 0x40420;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane2_0
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane2 0 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_0_s {
-		u64 se_corrected_lane2               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE2_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE2_0(void)
-{
-	return 0x401e8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane2_1
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane2 1 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_1_s {
-		u64 se_corrected_lane2               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE2_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE2_1(void)
-{
-	return 0x402a8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane2_2
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane2 2 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_2_s {
-		u64 se_corrected_lane2               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE2_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE2_2(void)
-{
-	return 0x40368;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane2_3
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane2 3 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_3_s {
-		u64 se_corrected_lane2               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane2_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE2_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE2_3(void)
-{
-	return 0x40428;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane3_0
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane3 0 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_0_s {
-		u64 se_corrected_lane3               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE3_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE3_0(void)
-{
-	return 0x401f0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane3_1
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane3 1 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_1_s {
-		u64 se_corrected_lane3               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE3_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE3_1(void)
-{
-	return 0x402b0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane3_2
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane3 2 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_2_s {
-		u64 se_corrected_lane3               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE3_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE3_2(void)
-{
-	return 0x40370;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_symbol_error_corrected_lane3_3
- *
- * RPM Mti Rsfec Stat Symbol Error Corrected Lane3 3 Register
- */
-union rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_3_s {
-		u64 se_corrected_lane3               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_symbol_error_corrected_lane3_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE3_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_SYMBOL_ERROR_CORRECTED_LANE3_3(void)
-{
-	return 0x40430;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_correct_0
- *
- * RPM Mti Rsfec Stat Total Codewords Correct 0 Register .
- */
-union rpmx_mti_rsfec_stat_total_codewords_correct_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_correct_0_s {
-		u64 total_cw_correct                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_correct_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECT_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECT_0(void)
-{
-	return 0x40148;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_correct_1
- *
- * RPM Mti Rsfec Stat Total Codewords Correct 1 Register .
- */
-union rpmx_mti_rsfec_stat_total_codewords_correct_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_correct_1_s {
-		u64 total_cw_correct                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_correct_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECT_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECT_1(void)
-{
-	return 0x40208;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_correct_2
- *
- * RPM Mti Rsfec Stat Total Codewords Correct 2 Register .
- */
-union rpmx_mti_rsfec_stat_total_codewords_correct_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_correct_2_s {
-		u64 total_cw_correct                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_correct_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECT_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECT_2(void)
-{
-	return 0x402c8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_correct_3
- *
- * RPM Mti Rsfec Stat Total Codewords Correct 3 Register .
- */
-union rpmx_mti_rsfec_stat_total_codewords_correct_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_correct_3_s {
-		u64 total_cw_correct                 : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_correct_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECT_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECT_3(void)
-{
-	return 0x40388;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_corrected_0
- *
- * RPM Mti Rsfec Stat Total Codewords Corrected 0 Register
- */
-union rpmx_mti_rsfec_stat_total_codewords_corrected_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_corrected_0_s {
-		u64 total_cw_corrected               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_corrected_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECTED_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECTED_0(void)
-{
-	return 0x40150;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_corrected_1
- *
- * RPM Mti Rsfec Stat Total Codewords Corrected 1 Register
- */
-union rpmx_mti_rsfec_stat_total_codewords_corrected_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_corrected_1_s {
-		u64 total_cw_corrected               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_corrected_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECTED_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECTED_1(void)
-{
-	return 0x40210;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_corrected_2
- *
- * RPM Mti Rsfec Stat Total Codewords Corrected 2 Register
- */
-union rpmx_mti_rsfec_stat_total_codewords_corrected_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_corrected_2_s {
-		u64 total_cw_corrected               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_corrected_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECTED_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECTED_2(void)
-{
-	return 0x402d0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_corrected_3
- *
- * RPM Mti Rsfec Stat Total Codewords Corrected 3 Register
- */
-union rpmx_mti_rsfec_stat_total_codewords_corrected_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_corrected_3_s {
-		u64 total_cw_corrected               : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_corrected_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECTED_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_CORRECTED_3(void)
-{
-	return 0x40390;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_received_0
- *
- * RPM Mti Rsfec Stat Total Codewords Received 0 Register .
- */
-union rpmx_mti_rsfec_stat_total_codewords_received_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_received_0_s {
-		u64 total_cw_received                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_received_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_RECEIVED_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_RECEIVED_0(void)
-{
-	return 0x40140;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_received_1
- *
- * RPM Mti Rsfec Stat Total Codewords Received 1 Register .
- */
-union rpmx_mti_rsfec_stat_total_codewords_received_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_received_1_s {
-		u64 total_cw_received                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_received_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_RECEIVED_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_RECEIVED_1(void)
-{
-	return 0x40200;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_received_2
- *
- * RPM Mti Rsfec Stat Total Codewords Received 2 Register .
- */
-union rpmx_mti_rsfec_stat_total_codewords_received_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_received_2_s {
-		u64 total_cw_received                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_received_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_RECEIVED_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_RECEIVED_2(void)
-{
-	return 0x402c0;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_received_3
- *
- * RPM Mti Rsfec Stat Total Codewords Received 3 Register .
- */
-union rpmx_mti_rsfec_stat_total_codewords_received_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_received_3_s {
-		u64 total_cw_received                : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_received_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_RECEIVED_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_RECEIVED_3(void)
-{
-	return 0x40380;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_uncorrectable_0
- *
- * RPM Mti Rsfec Stat Total Codewords Uncorrectable 0 Register
- */
-union rpmx_mti_rsfec_stat_total_codewords_uncorrectable_0 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_uncorrectable_0_s {
-		u64 total_cw_uncorrectable           : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_uncorrectable_0_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_UNCORRECTABLE_0(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_UNCORRECTABLE_0(void)
-{
-	return 0x40158;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_uncorrectable_1
- *
- * RPM Mti Rsfec Stat Total Codewords Uncorrectable 1 Register
- */
-union rpmx_mti_rsfec_stat_total_codewords_uncorrectable_1 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_uncorrectable_1_s {
-		u64 total_cw_uncorrectable           : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_uncorrectable_1_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_UNCORRECTABLE_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_UNCORRECTABLE_1(void)
-{
-	return 0x40218;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_uncorrectable_2
- *
- * RPM Mti Rsfec Stat Total Codewords Uncorrectable 2 Register
- */
-union rpmx_mti_rsfec_stat_total_codewords_uncorrectable_2 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_uncorrectable_2_s {
-		u64 total_cw_uncorrectable           : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_uncorrectable_2_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_UNCORRECTABLE_2(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_UNCORRECTABLE_2(void)
-{
-	return 0x402d8;
-}
-
-/**
- * Register (RSL) rpm#_mti_rsfec_stat_total_codewords_uncorrectable_3
- *
- * RPM Mti Rsfec Stat Total Codewords Uncorrectable 3 Register
- */
-union rpmx_mti_rsfec_stat_total_codewords_uncorrectable_3 {
-	u64 u;
-	struct rpmx_mti_rsfec_stat_total_codewords_uncorrectable_3_s {
-		u64 total_cw_uncorrectable           : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_rsfec_stat_total_codewords_uncorrectable_3_s cn; */
-};
-
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_UNCORRECTABLE_3(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_STAT_TOTAL_CODEWORDS_UNCORRECTABLE_3(void)
-{
-	return 0x40398;
-}
-
-/**
  * Register (RSL) rpm#_mti_rsfec_status#
  *
  * RPM MTI RSFEC Status Register RS-FEC Status register.
@@ -13873,52 +12359,48 @@ static inline u64 RPMX_MTI_RSFEC_VENDOR_ALIGN_STATUS(void)
 }
 
 /**
- * Register (RSL) rpm#_mti_rsfec_vendor_control
+ * Register (RSL) rpm#_mti_rsfec_vendor_decoder_thresh
  *
- * INTERNAL: Not Implemented. RPM MTI RSFEC Vendor Control Register
- * Implementation specific core configuration.
+ * RPM MTI RSFEC Vendor Decoder Threshold Register RPM MTI RSFEC Vendor
+ * Decoder Threshold
  */
-union rpmx_mti_rsfec_vendor_control {
+union rpmx_mti_rsfec_vendor_decoder_thresh {
 	u64 u;
-	struct rpmx_mti_rsfec_vendor_control_s {
-		u64 reserved_0_63                    : 64;
+	struct rpmx_mti_rsfec_vendor_decoder_thresh_s {
+		u64 rsfec_vendor_decoder_thresh      : 6;
+		u64 reserved_6_63                    : 58;
 	} s;
-	/* struct rpmx_mti_rsfec_vendor_control_s cn; */
+	/* struct rpmx_mti_rsfec_vendor_decoder_thresh_s cn; */
 };
 
-static inline u64 RPMX_MTI_RSFEC_VENDOR_CONTROL(void)
+static inline u64 RPMX_MTI_RSFEC_VENDOR_DECODER_THRESH(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_VENDOR_CONTROL(void)
+static inline u64 RPMX_MTI_RSFEC_VENDOR_DECODER_THRESH(void)
 {
-	return 0x38500;
+	return 0x38550;
 }
 
 /**
- * Register (RSL) rpm#_mti_rsfec_vendor_info1
+ * Register (RSL) rpm#_mti_rsfec_vendor_hi_ser_thresh#
  *
- * INTERNAL: Relevant for 200/400G only. RPM MTI RSFEC Vendor Info 1
- * Register  Implementation specific information that may be useful for
- * debugging link problems; Clears on read.
+ * RPM MTI RSFEC VENDOR HISER THRESH Register Achieving this threshold
+ * the PCS will enter to Hi-Ber state indicating local fault to the
+ * CGMII.
  */
-union rpmx_mti_rsfec_vendor_info1 {
+union rpmx_mti_rsfec_vendor_hi_ser_threshx {
 	u64 u;
-	struct rpmx_mti_rsfec_vendor_info1_s {
-		u64 vendor_amps_lock                 : 1;
-		u64 reserved_1_3                     : 3;
-		u64 vendor_align_status_lh           : 1;
-		u64 vendor_marker_check_restart      : 1;
-		u64 reserved_6_9                     : 4;
-		u64 vendor_align_status_ll           : 1;
-		u64 reserved_11_63                   : 53;
+	struct rpmx_mti_rsfec_vendor_hi_ser_threshx_s {
+		u64 fec_hi_ser_thr                   : 16;
+		u64 reserved_16_63                   : 48;
 	} s;
-	/* struct rpmx_mti_rsfec_vendor_info1_s cn; */
+	/* struct rpmx_mti_rsfec_vendor_hi_ser_threshx_s cn; */
 };
 
-static inline u64 RPMX_MTI_RSFEC_VENDOR_INFO1(void)
+static inline u64 RPMX_MTI_RSFEC_VENDOR_HI_SER_THRESHX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_RSFEC_VENDOR_INFO1(void)
+static inline u64 RPMX_MTI_RSFEC_VENDOR_HI_SER_THRESHX(u64 a)
 {
-	return 0x38508;
+	return 0x38580 + 0x10 * a;
 }
 
 /**
@@ -13993,27 +12475,6 @@ static inline u64 RPMX_MTI_STAT_CAPTURED_PAGE_COUNTERX(u64 a)
 }
 
 /**
- * Register (RSL) rpm#_mti_stat_data_hi
- *
- * INTERNAL: RPM MTI Statistics Data HI Register  Not functional.
- */
-union rpmx_mti_stat_data_hi {
-	u64 u;
-	struct rpmx_mti_stat_data_hi_s {
-		u64 data_hi                          : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rpmx_mti_stat_data_hi_s cn; */
-};
-
-static inline u64 RPMX_MTI_STAT_DATA_HI(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RPMX_MTI_STAT_DATA_HI(void)
-{
-	return 0x10000;
-}
-
-/**
  * Register (RSL) rpm#_mti_stat_data_hi_cdc
  *
  * RPM MTI Statistics Data HI Register The upper 32-bit of the 64-Bit
@@ -14039,7 +12500,8 @@ static inline u64 RPMX_MTI_STAT_DATA_HI_CDC(void)
  * Register (RSL) rpm#_mti_stat_rx_stat_pages_counter#
  *
  * RPM MTI Statistics RX Statistics Pages Register Per-port RX statistics
- * pages. 43 counters per page.
+ * pages. 43 counters per page/port. Only 4 ports are implemented.
+ * Indices 343:172 are reserved.
  */
 union rpmx_mti_stat_rx_stat_pages_counterx {
 	u64 u;
@@ -14132,7 +12594,7 @@ static inline u64 RPMX_MTI_STAT_STATN_CONFIG(void)
  * Register (RSL) rpm#_mti_stat_statn_control
  *
  * RPM MTI Statistics Control Register Control commands to the module for
- * clearing, latching statistics
+ * clearing, latching statistics.
  */
 union rpmx_mti_stat_statn_control {
 	u64 u;
@@ -14185,7 +12647,8 @@ static inline u64 RPMX_MTI_STAT_STATN_STATUS(void)
  * Register (RSL) rpm#_mti_stat_tx_stat_pages_counter#
  *
  * RPM MTI Statistics TX Statistics Pages Register Per-port TX statistics
- * pages. 34 counters per page.
+ * pages. 34 counters per page/port. Only 4 ports are implemented.
+ * Indices 271:136 are reserved.
  */
 union rpmx_mti_stat_tx_stat_pages_counterx {
 	u64 u;
@@ -14201,6 +12664,1042 @@ static inline u64 RPMX_MTI_STAT_TX_STAT_PAGES_COUNTERX(u64 a)
 static inline u64 RPMX_MTI_STAT_TX_STAT_PAGES_COUNTERX(u64 a)
 {
 	return 0x13000 + 8 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_baser_status1
+ *
+ * RPM USX PCS Baser Status1 Register Link Status Information.
+ */
+union rpmx_usx_pcsx_baser_status1 {
+	u64 u;
+	struct rpmx_usx_pcsx_baser_status1_s {
+		u64 block_lock                       : 1;
+		u64 high_ber                         : 1;
+		u64 reserved_2_11                    : 10;
+		u64 receive_link                     : 1;
+		u64 reserved_13_63                   : 51;
+	} s;
+	/* struct rpmx_usx_pcsx_baser_status1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_BASER_STATUS1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_BASER_STATUS1(u64 a)
+{
+	return 0x80100 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_baser_status2
+ *
+ * RPM USX PCS Baser Status2 Register Link Status latches and error
+ * counters.
+ */
+union rpmx_usx_pcsx_baser_status2 {
+	u64 u;
+	struct rpmx_usx_pcsx_baser_status2_s {
+		u64 errored_cnt                      : 8;
+		u64 ber_counter                      : 6;
+		u64 high_ber                         : 1;
+		u64 block_lock                       : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_baser_status2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_BASER_STATUS2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_BASER_STATUS2(u64 a)
+{
+	return 0x80108 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_baser_test_control
+ *
+ * RPM USX PCS Baser Test Control Register Test Pattern Generator and
+ * Checker controls.
+ */
+union rpmx_usx_pcsx_baser_test_control {
+	u64 u;
+	struct rpmx_usx_pcsx_baser_test_control_s {
+		u64 data_pattern_sel                 : 1;
+		u64 select_square                    : 1;
+		u64 rx_testpattern                   : 1;
+		u64 tx_testpattern                   : 1;
+		u64 reserved_4_6                     : 3;
+		u64 select_random                    : 1;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_usx_pcsx_baser_test_control_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_BASER_TEST_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_BASER_TEST_CONTROL(u64 a)
+{
+	return 0x80150 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_baser_test_err_cnt
+ *
+ * RPM USX PCS Baser Test Err Cnt Register Test Pattern Error Counter;
+ * Clears on read; None roll-over.
+ */
+union rpmx_usx_pcsx_baser_test_err_cnt {
+	u64 u;
+	struct rpmx_usx_pcsx_baser_test_err_cnt_s {
+		u64 counter                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_baser_test_err_cnt_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_BASER_TEST_ERR_CNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_BASER_TEST_ERR_CNT(u64 a)
+{
+	return 0x80158 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_ber_high_order_cnt
+ *
+ * RPM USX PCS Ber High Order Cnt Register BER High Order Counter of BER
+ * bits 21:6; None roll-over.
+ */
+union rpmx_usx_pcsx_ber_high_order_cnt {
+	u64 u;
+	struct rpmx_usx_pcsx_ber_high_order_cnt_s {
+		u64 ber_counter                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_ber_high_order_cnt_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_BER_HIGH_ORDER_CNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_BER_HIGH_ORDER_CNT(u64 a)
+{
+	return 0x80160 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_control1
+ *
+ * RPM MTI PCS Control1 Register PCS Control.
+ */
+union rpmx_usx_pcsx_control1 {
+	u64 u;
+	struct rpmx_usx_pcsx_control1_s {
+		u64 reserved_0_1                     : 2;
+		u64 speed_selection                  : 4;
+		u64 speed_always1                    : 1;
+		u64 reserved_7_10                    : 4;
+		u64 low_power                        : 1;
+		u64 reserved_12                      : 1;
+		u64 speed_select_always1             : 1;
+		u64 loopback                         : 1;
+		u64 reset                            : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_control1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_CONTROL1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_CONTROL1(u64 a)
+{
+	return 0x80000 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_control2
+ *
+ * RPM USX PCS Control2 Register Operating speed indication.
+ */
+union rpmx_usx_pcsx_control2 {
+	u64 u;
+	struct rpmx_usx_pcsx_control2_s {
+		u64 pcs_type                         : 4;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_usx_pcsx_control2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_CONTROL2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_CONTROL2(u64 a)
+{
+	return 0x80038 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_device_id0
+ *
+ * RPM USX PCS Device Id0 Register PHY Identifier constant from package
+ * parameter PHY_IDENTIFIER bits 15:4. Bits 3:0 always 0.
+ */
+union rpmx_usx_pcsx_device_id0 {
+	u64 u;
+	struct rpmx_usx_pcsx_device_id0_s {
+		u64 identifier0                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_device_id0_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_DEVICE_ID0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_DEVICE_ID0(u64 a)
+{
+	return 0x80010 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_device_id1
+ *
+ * RPM USX PCS Device Id1 Register PHY Identifier constant from package
+ * parameter PHY_IDENTIFIER bits 31:16.
+ */
+union rpmx_usx_pcsx_device_id1 {
+	u64 u;
+	struct rpmx_usx_pcsx_device_id1_s {
+		u64 identifier1                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_device_id1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_DEVICE_ID1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_DEVICE_ID1(u64 a)
+{
+	return 0x80018 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_devices_in_pkg1
+ *
+ * RPM USX PCS Devices In Pkg1 Register Constant indicating PCS presence.
+ */
+union rpmx_usx_pcsx_devices_in_pkg1 {
+	u64 u;
+	struct rpmx_usx_pcsx_devices_in_pkg1_s {
+		u64 clause22                         : 1;
+		u64 pmd_pma                          : 1;
+		u64 wis_pres                         : 1;
+		u64 pcs_pres                         : 1;
+		u64 phy_xs                           : 1;
+		u64 dte_xs                           : 1;
+		u64 tc_pres                          : 1;
+		u64 reserved_7_63                    : 57;
+	} s;
+	/* struct rpmx_usx_pcsx_devices_in_pkg1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_DEVICES_IN_PKG1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_DEVICES_IN_PKG1(u64 a)
+{
+	return 0x80028 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_devices_in_pkg2
+ *
+ * RPM USX PCS Devices In Pkg2 Register Vendor specific presence.
+ */
+union rpmx_usx_pcsx_devices_in_pkg2 {
+	u64 u;
+	struct rpmx_usx_pcsx_devices_in_pkg2_s {
+		u64 reserved_0_12                    : 13;
+		u64 clause22                         : 1;
+		u64 device1                          : 1;
+		u64 device2                          : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_devices_in_pkg2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_DEVICES_IN_PKG2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_DEVICES_IN_PKG2(u64 a)
+{
+	return 0x80030 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_err_blk_high_order_cnt
+ *
+ * RPM USX PCS Err Blk High Order Cnt Register Error Blocks High Order
+ * Counter bits 21:8; None roll-over.
+ */
+union rpmx_usx_pcsx_err_blk_high_order_cnt {
+	u64 u;
+	struct rpmx_usx_pcsx_err_blk_high_order_cnt_s {
+		u64 errored_blocks_counter           : 14;
+		u64 reserved_14                      : 1;
+		u64 high_order_present               : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_err_blk_high_order_cnt_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_ERR_BLK_HIGH_ORDER_CNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_ERR_BLK_HIGH_ORDER_CNT(u64 a)
+{
+	return 0x80168 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_multilane_align_stat1
+ *
+ * RPM USX PCS Multilane Align Stat1 Register Lane Alignment Status Bits
+ * and Block Lock.
+ */
+union rpmx_usx_pcsx_multilane_align_stat1 {
+	u64 u;
+	struct rpmx_usx_pcsx_multilane_align_stat1_s {
+		u64 lane_block_lock                  : 8;
+		u64 reserved_8_11                    : 4;
+		u64 lane_align_status                : 1;
+		u64 reserved_13_63                   : 51;
+	} s;
+	/* struct rpmx_usx_pcsx_multilane_align_stat1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_MULTILANE_ALIGN_STAT1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_MULTILANE_ALIGN_STAT1(u64 a)
+{
+	return 0x80190 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_pkg_id0
+ *
+ * RPM USX PCS Pkg Id0 Register Constant from package parameter
+ * PACK_IDENTIFIER bits 15:0.
+ */
+union rpmx_usx_pcsx_pkg_id0 {
+	u64 u;
+	struct rpmx_usx_pcsx_pkg_id0_s {
+		u64 identifier                       : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_pkg_id0_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_PKG_ID0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_PKG_ID0(u64 a)
+{
+	return 0x80070 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_pkg_id1
+ *
+ * RPM USX PCS Pkg Id1 Register Constant from package parameter
+ * PACK_IDENTIFIER bits 31:16.
+ */
+union rpmx_usx_pcsx_pkg_id1 {
+	u64 u;
+	struct rpmx_usx_pcsx_pkg_id1_s {
+		u64 identifier                       : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_pkg_id1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_PKG_ID1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_PKG_ID1(u64 a)
+{
+	return 0x80078 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_a0
+ *
+ * RPM USX PCS Seed A0 Register 10G Base-R Test Pattern Seed A bits 15:0.
+ */
+union rpmx_usx_pcsx_seed_a0 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_a0_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_a0_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_A0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_A0(u64 a)
+{
+	return 0x80110 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_a1
+ *
+ * RPM USX PCS Seed A1 Register 10G Base-R Test Pattern Seed A bits
+ * 31:16.
+ */
+union rpmx_usx_pcsx_seed_a1 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_a1_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_a1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_A1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_A1(u64 a)
+{
+	return 0x80118 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_a2
+ *
+ * RPM USX PCS Seed A2 Register 10G Base-R Test Pattern Seed A bits
+ * 47:32.
+ */
+union rpmx_usx_pcsx_seed_a2 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_a2_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_a2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_A2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_A2(u64 a)
+{
+	return 0x80120 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_a3
+ *
+ * RPM USX PCS Seed A3 Register 10G Base-R Test Pattern Seed A bits
+ * 57:48.
+ */
+union rpmx_usx_pcsx_seed_a3 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_a3_s {
+		u64 seed                             : 10;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_a3_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_A3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_A3(u64 a)
+{
+	return 0x80128 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_b0
+ *
+ * RPM USX PCS Seed B0 Register 10G Base-R Test Pattern Seed B bits 15:0.
+ */
+union rpmx_usx_pcsx_seed_b0 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_b0_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_b0_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_B0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_B0(u64 a)
+{
+	return 0x80130 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_b1
+ *
+ * RPM USX PCS Seed B1 Register 10G Base-R Test Pattern Seed B bits
+ * 31:16.
+ */
+union rpmx_usx_pcsx_seed_b1 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_b1_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_b1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_B1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_B1(u64 a)
+{
+	return 0x80138 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_b2
+ *
+ * RPM USX PCS Seed B2 Register 10G Base-R Test Pattern Seed B bits
+ * 47:32.
+ */
+union rpmx_usx_pcsx_seed_b2 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_b2_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_b2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_B2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_B2(u64 a)
+{
+	return 0x80140 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_b3
+ *
+ * RPM USX PCS Seed B3 Register 10G Base-R Test Pattern Seed B bits
+ * 57:48.
+ */
+union rpmx_usx_pcsx_seed_b3 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_b3_s {
+		u64 seed                             : 10;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_b3_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_B3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_B3(u64 a)
+{
+	return 0x80148 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_speed_ability
+ *
+ * RPM USX PCS Speed Ability Register PCS supported speeds (values as
+ * defined by standard only, no proprietary speeds).
+ */
+union rpmx_usx_pcsx_speed_ability {
+	u64 u;
+	struct rpmx_usx_pcsx_speed_ability_s {
+		u64 c10geth                          : 1;
+		u64 c10pass_ts                       : 1;
+		u64 c40g                             : 1;
+		u64 c100g                            : 1;
+		u64 c25g                             : 1;
+		u64 c50g                             : 1;
+		u64 reserved_6_63                    : 58;
+	} s;
+	/* struct rpmx_usx_pcsx_speed_ability_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SPEED_ABILITY(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SPEED_ABILITY(u64 a)
+{
+	return 0x80020 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_status1
+ *
+ * RPM USX PCS Status1 Register PCS Status.
+ */
+union rpmx_usx_pcsx_status1 {
+	u64 u;
+	struct rpmx_usx_pcsx_status1_s {
+		u64 reserved_0                       : 1;
+		u64 low_power_ability                : 1;
+		u64 pcs_receive_link                 : 1;
+		u64 reserved_3_6                     : 4;
+		u64 fault                            : 1;
+		u64 rx_lpi_active                    : 1;
+		u64 tx_lpi_active                    : 1;
+		u64 rx_lpi                           : 1;
+		u64 tx_lpi                           : 1;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_usx_pcsx_status1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_STATUS1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_STATUS1(u64 a)
+{
+	return 0x80008 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_status2
+ *
+ * RPM USX PCS Status2 Register Fault status; Device capabilities
+ */
+union rpmx_usx_pcsx_status2 {
+	u64 u;
+	struct rpmx_usx_pcsx_status2_s {
+		u64 c10gbase_r                       : 1;
+		u64 c10gbase_x                       : 1;
+		u64 c10gbase_w                       : 1;
+		u64 c10gbase_t                       : 1;
+		u64 c40gbase_r                       : 1;
+		u64 c100gbase_r                      : 1;
+		u64 reserved_6                       : 1;
+		u64 c25gbase_r                       : 1;
+		u64 c50gbase_r                       : 1;
+		u64 reserved_9                       : 1;
+		u64 receive_fault                    : 1;
+		u64 transmit_fault                   : 1;
+		u64 reserved_12_13                   : 2;
+		u64 device_present                   : 2;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_status2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_STATUS2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_STATUS2(u64 a)
+{
+	return 0x80040 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_vendor_core_rev
+ *
+ * RPM USX PCS Vendor Core Rev Register Vendor Specific Reg; Core
+ * Revision as defined by CORE_REVISION package parameter.
+ */
+union rpmx_usx_pcsx_vendor_core_rev {
+	u64 u;
+	struct rpmx_usx_pcsx_vendor_core_rev_s {
+		u64 revision                         : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_vendor_core_rev_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_VENDOR_CORE_REV(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_VENDOR_CORE_REV(u64 a)
+{
+	return 0x801e8 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_vendor_pcs_mode
+ *
+ * RPM USX PCS Vendor Pcs Mode Register Vendor Specific Reg; Configure
+ * PCS supporting Clause 49 or 82 Encoder/Decoder, MLD.
+ */
+union rpmx_usx_pcsx_vendor_pcs_mode {
+	u64 u;
+	struct rpmx_usx_pcsx_vendor_pcs_mode_s {
+		u64 ena_clause49                     : 1;
+		u64 disable_mld                      : 1;
+		u64 hi_ber25                         : 1;
+		u64 hi_ber5                          : 1;
+		u64 reserved_4_7                     : 4;
+		u64 st_ena_clause49                  : 1;
+		u64 st_disable_mld                   : 1;
+		u64 st_hi_ber25                      : 1;
+		u64 st_hi_ber5                       : 1;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_usx_pcsx_vendor_pcs_mode_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_VENDOR_PCS_MODE(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_VENDOR_PCS_MODE(u64 a)
+{
+	return 0x801f0 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_vendor_scratch
+ *
+ * RPM USX PCS Vendor Scratch Register Vendor Specific Reg; Scratch
+ * Register.
+ */
+union rpmx_usx_pcsx_vendor_scratch {
+	u64 u;
+	struct rpmx_usx_pcsx_vendor_scratch_s {
+		u64 scratch                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_vendor_scratch_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_VENDOR_SCRATCH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_VENDOR_SCRATCH(u64 a)
+{
+	return 0x801e0 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_vendor_txlane_thresh
+ *
+ * RPM USX PCS Vendor Txlane Thresh Register A 4-bit value to define the
+ * transmit line decoupling FIFOs almost full threshold for lane0/4;
+ * Valid values are 5-10.
+ */
+union rpmx_usx_pcsx_vendor_txlane_thresh {
+	u64 u;
+	struct rpmx_usx_pcsx_vendor_txlane_thresh_s {
+		u64 threshold0                       : 4;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_usx_pcsx_vendor_txlane_thresh_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_VENDOR_TXLANE_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_VENDOR_TXLANE_THRESH(u64 a)
+{
+	return 0x801f8 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_align_match_err
+ *
+ * RPM USX Align Match Error Register
+ */
+union rpmx_usx_usxm_align_match_err {
+	u64 u;
+	struct rpmx_usx_usxm_align_match_err_s {
+		u64 mismatch_errcnt                  : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_usx_usxm_align_match_err_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_ALIGN_MATCH_ERR(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_ALIGN_MATCH_ERR(void)
+{
+	return 0x88020;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_control
+ *
+ * RPM USX MUX Control Register
+ */
+union rpmx_usx_usxm_control {
+	u64 u;
+	struct rpmx_usx_usxm_control_s {
+		u64 reserved_0_14                    : 15;
+		u64 reset                            : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_control_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_CONTROL(void)
+{
+	return 0x88000;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_ports_ena
+ *
+ * RPM USX Mux Ports Enable Register
+ */
+union rpmx_usx_usxm_ports_ena {
+	u64 u;
+	struct rpmx_usx_usxm_ports_ena_s {
+		u64 active_ports_used                : 5;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_usx_usxm_ports_ena_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_PORTS_ENA(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_PORTS_ENA(void)
+{
+	return 0x88010;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_status
+ *
+ * RPM USX Mux Status Register
+ */
+union rpmx_usx_usxm_status {
+	u64 u;
+	struct rpmx_usx_usxm_status_s {
+		u64 receive_link_status              : 1;
+		u64 reserved_1                       : 1;
+		u64 receive_link_status_ll           : 1;
+		u64 reserved_3_63                    : 61;
+	} s;
+	/* struct rpmx_usx_usxm_status_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_STATUS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_STATUS(void)
+{
+	return 0x88008;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl0_0
+ *
+ * RPM USX VL0_0 Register
+ */
+union rpmx_usx_usxm_vl0_0 {
+	u64 u;
+	struct rpmx_usx_usxm_vl0_0_s {
+		u64 vl0_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl0_0_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL0_0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL0_0(void)
+{
+	return 0x88080;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl0_1
+ *
+ * RPM USX VL0_1 Register
+ */
+union rpmx_usx_usxm_vl0_1 {
+	u64 u;
+	struct rpmx_usx_usxm_vl0_1_s {
+		u64 vl0_1                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl0_1_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL0_1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL0_1(void)
+{
+	return 0x88088;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl0_byte3
+ *
+ * RPM USX VL0 BYTE3 Register
+ */
+union rpmx_usx_usxm_vl0_byte3 {
+	u64 u;
+	struct rpmx_usx_usxm_vl0_byte3_s {
+		u64 vl0_byte3                        : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_usx_usxm_vl0_byte3_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL0_BYTE3(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL0_BYTE3(void)
+{
+	return 0x88028;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl1_0
+ *
+ * RPM USX VL1_0 Register
+ */
+union rpmx_usx_usxm_vl1_0 {
+	u64 u;
+	struct rpmx_usx_usxm_vl1_0_s {
+		u64 vl1_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl1_0_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL1_0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL1_0(void)
+{
+	return 0x88090;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl1_1
+ *
+ * RPM USX VL1_1 Register
+ */
+union rpmx_usx_usxm_vl1_1 {
+	u64 u;
+	struct rpmx_usx_usxm_vl1_1_s {
+		u64 vl1_1                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl1_1_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL1_1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL1_1(void)
+{
+	return 0x88098;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl2_0
+ *
+ * RPM USX VL2_0 Register
+ */
+union rpmx_usx_usxm_vl2_0 {
+	u64 u;
+	struct rpmx_usx_usxm_vl2_0_s {
+		u64 vl2_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl2_0_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL2_0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL2_0(void)
+{
+	return 0x880a0;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl2_1
+ *
+ * RPM USX VL2_1 Register
+ */
+union rpmx_usx_usxm_vl2_1 {
+	u64 u;
+	struct rpmx_usx_usxm_vl2_1_s {
+		u64 vl2_1                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl2_1_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL2_1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL2_1(void)
+{
+	return 0x880a8;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl3_0
+ *
+ * RPM USX VL3_0 Register
+ */
+union rpmx_usx_usxm_vl3_0 {
+	u64 u;
+	struct rpmx_usx_usxm_vl3_0_s {
+		u64 vl3_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl3_0_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL3_0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL3_0(void)
+{
+	return 0x880b0;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl3_1
+ *
+ * RPM USX VL3_1 Register
+ */
+union rpmx_usx_usxm_vl3_1 {
+	u64 u;
+	struct rpmx_usx_usxm_vl3_1_s {
+		u64 vl3_1                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl3_1_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL3_1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL3_1(void)
+{
+	return 0x880b8;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl_intvl
+ *
+ * RPM USX VL INTVL Register
+ */
+union rpmx_usx_usxm_vl_intvl {
+	u64 u;
+	struct rpmx_usx_usxm_vl_intvl_s {
+		u64 port_cycle_interval              : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl_intvl_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL_INTVL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL_INTVL(void)
+{
+	return 0x88018;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl_intvl_hi
+ *
+ * RPM USX VL INTVL HIGH Register
+ */
+union rpmx_usx_usxm_vl_intvl_hi {
+	u64 u;
+	struct rpmx_usx_usxm_vl_intvl_hi_s {
+		u64 vl_intvl_hi                      : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_usx_usxm_vl_intvl_hi_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL_INTVL_HI(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL_INTVL_HI(void)
+{
+	return 0x88030;
 }
 
 #endif /* __CSRS_RPM_H__ */
