@@ -213,16 +213,21 @@ static int rpm_lmac_init(struct rpm *rpm)
 	struct lmac *lmac;
 	static int instance = 1;
 	union rpmx_cmr_rx_lmacs rx_lmacs;
-	int i;
+	int i, lmac_exist;
 
 	rx_lmacs.u = rpm_read(rpm, 0, RPMX_CMR_RX_LMACS());
+	if (otx_is_soc(CN10KB))
+		lmac_exist = rx_lmacs.cn10kb.lmac_exist;
+	else
+		lmac_exist = rx_lmacs.cn10ka.lmac_exist;
+
 	for (i = 0; i < MAX_LMAC_PER_RPM; i++)
-		if (rx_lmacs.s.lmac_exist & BIT(i))
+		if (lmac_exist & BIT(i))
 			rpm->lmac_count++;
 	debug("%s: Found %d lmacs for rpm %d@%p\n", __func__, rpm->lmac_count,
 	      rpm->rpm_id, rpm->reg_base);
 
-	for (i = 0; i < fls(rx_lmacs.s.lmac_exist); i++) {
+	for (i = 0; i < fls(lmac_exist); i++) {
 		if (!(rx_lmacs.u & BIT(i)))
 			continue;
 		lmac = calloc(1, sizeof(*lmac));
