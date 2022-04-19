@@ -181,7 +181,7 @@ config MMC_VERBOSE
 
 config MMC_TRACE
 	bool "MMC debugging"
-	default n
+	default y
 	help
 	  This is an option for use by developer. Enable MMC core debugging.
 
@@ -516,6 +516,14 @@ config MMC_SDHCI_CADENCE
 	  If you have a controller with this interface, say Y here.
 
 	  If unsure, say N.
+
+config MMC_SDHCI_CADENCE_DEBUG
+	bool "Debug support for the Cadence SD/SDIO/eMMC controller"
+	depends on MMC_SDHCI_CADENCE
+	default n
+	help
+	  This enables additional debug messages from cadence SDHCI
+	  driver.
 
 config MMC_SDHCI_AM654
 	bool "SDHCI Controller on TI's Am654 devices"

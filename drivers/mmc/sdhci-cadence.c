@@ -18,9 +18,13 @@
 #include <sdhci.h>
 #include <div64.h>
 
+#ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
 #define DEBUG_DRV(fmt, ...)	\
-	if (0) \
+	if (1) \
 		printf(fmt, ##__VA_ARGS__)
+#else
+#define DEBUG_DRV(fmt, ...)
+#endif
 
 #define SDHCI_CDNS_SD6_MAXCLK		200000000
 
@@ -42,12 +46,12 @@
 #define SDHCI_CDNS_HRS06_TUNE			GENMASK(13, 8)
 #define SDHCI_CDNS_HRS06_MODE			GENMASK(2, 0)
 #define SDHCI_CDNS_HRS06_MODE_SD		0x0
+#define SDHCI_CDNS_HRS06_MODE_LEGACY		0x1
 #define SDHCI_CDNS_HRS06_MODE_MMC_SDR		0x2
 #define SDHCI_CDNS_HRS06_MODE_MMC_DDR		0x3
 #define SDHCI_CDNS_HRS06_MODE_MMC_HS200		0x4
 #define SDHCI_CDNS_HRS06_MODE_MMC_HS400		0x5
 #define SDHCI_CDNS_HRS06_MODE_MMC_HS400ES	0x6
-#define SDHCI_CDNS_HRS06_MODE_LEGACY		0x7
 
 /* SD 6.0 Controller HRS - Host Register Set (Specific to Cadence) */
 #define SDHCI_CDNS_SD6_HRS04_ADDR		GENMASK(15, 0)
@@ -124,6 +128,11 @@
 
 #define SDHCI_CDNS_SD6_PHY_GPIO_CTRL0				0x2088
 #define SDHCI_CDNS_SD6_PHY_GPIO_CTRL0_CLK_OVR_EN		BIT(7)
+#define SDHCI_CDNS_SD6_PHY_GPIO_CTRL0_DRV			GENMASK(6, 5)
+#define SDHCI_CDNS_SD6_PHY_GPIO_CTRL0_DRV_OVR_EN		BIT(4)
+#define SDHCI_CDNS_SD6_PHY_GPIO_CTRL0_SLEW			GENMASK(2, 1)
+#define SDHCI_CDNS_SD6_PHY_GPIO_CTRL0_SLEW_OVR_EN		BIT(0)
+
 /* SRS - Slot Register Set (SDHCI-compatible) */
 #define SDHCI_CDNS_SRS_BASE		0x200
 
@@ -478,7 +487,18 @@ static int sdhci_cdns_sd4_phy_init(struct sdhci_cdns_plat *plat,
 }
 #endif
 
-#ifdef PHY_DEBUG
+static u32 sdhci_cdns_sd6_readl(struct sdhci_host *host, int reg)
+{
+        return readl(host->ioaddr + reg);
+}
+static u32 sdhci_cdns_sd6_read_phy_reg(struct sdhci_cdns_plat *plat,
+                                        u32 addr)
+{
+        writel(addr, plat->hrs_addr + SDHCI_CDNS_HRS04);
+        return readl(plat->hrs_addr + SDHCI_CDNS_HRS05);
+}
+
+#ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
 void sdhci_cdns_sd6_dump(struct sdhci_cdns_plat *plat)
 {
 	int i;
@@ -488,6 +508,17 @@ void sdhci_cdns_sd6_dump(struct sdhci_cdns_plat *plat)
 
 	for (i = 0; i < 27; i++)
 		DEBUG_DRV("SRS%d 0x%x\n", i, readl(plat->hrs_addr + 0x200 + (i * 4)));
+
+	printf("SDHCI_CDNS_SD6_PHY_DLL_SLAVE 0x%x\n",
+			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_SLAVE));
+	printf("SDHCI_CDNS_SD6_PHY_CTRL 0x%x\n",
+			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_CTRL));
+	printf("SDHCI_CDNS_SD6_PHY_DLL_MASTER 0x%x\n",
+			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_MASTER));
+	printf("SDHCI_CDNS_SD6_PHY_GATE_LPBK 0x%x\n",
+			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_GATE_LPBK));
+	printf("SDHCI_CDNS_SD6_PHY_DQS_TIMING 0x%x\n",
+			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DQS_TIMING));
 }
 
 static void sdhci_cdns_sd6_phy_dump(struct sdhci_cdns_sd6_phy *phy)
@@ -530,11 +561,6 @@ static void sdhci_cdns_sd6_phy_dump(struct sdhci_cdns_sd6_phy *phy)
 	DEBUG_DRV("hs200_tune_val %d\n", phy->settings.hs200_tune_val);
 }
 #endif
-
-static u32 sdhci_cdns_sd6_readl(struct sdhci_host *host, int reg)
-{
-	return readl(host->ioaddr + reg);
-}
 
 static void sdhci_cdns_sd6_writel(struct sdhci_host *host, u32 val, int reg)
 {
@@ -658,13 +684,6 @@ static int sdhci_cdns_sd6_get_fdt_params(struct udevice *dev, struct sdhci_cdns_
 	return 0;
 }
 
-static u32 sdhci_cdns_sd6_read_phy_reg(struct sdhci_cdns_plat *plat,
-					u32 addr)
-{
-	writel(addr, plat->hrs_addr + SDHCI_CDNS_HRS04);
-	return readl(plat->hrs_addr + SDHCI_CDNS_HRS05);
-}
-
 static void sdhci_cdns_sd6_write_phy_reg(struct sdhci_cdns_plat *plat,
 					 u32 addr, u32 data)
 {
@@ -677,7 +696,7 @@ static void sdhci_cdns_sd6_write_phy_reg(struct sdhci_cdns_plat *plat,
 	writel(addr, plat->hrs_addr + SDHCI_CDNS_HRS04);
 	data_read = readl(plat->hrs_addr + SDHCI_CDNS_HRS05);
 
-#ifdef PHY_DEBUG
+#ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
 	if (data != data_read)
 		DEBUG_DRV("Error written and read PHY data are different\n");
 #endif
@@ -710,7 +729,7 @@ static int sdhci_cdns_sd6_phy_init(struct udevice *dev, struct sdhci_cdns_plat *
 	u32 reg;
 	struct sdhci_cdns_sd6_phy *phy = plat->priv;
 
-#ifdef PHY_DEBUG
+#ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
 	if ((phy->mode == -1) || (phy->t_sdclk == -1))
 		return 0;
 #endif
@@ -779,7 +798,7 @@ static int sdhci_cdns_sd6_phy_init(struct udevice *dev, struct sdhci_cdns_plat *
 	reg |= FIELD_PREP(SDHCI_CDNS_SD6_PHY_DLL_SLAVE_READ_DQS_DELAY,
 			phy->settings.cp_read_dqs_delay);
 
-	DEBUG_DRV("SDHCI_CDNS_SD6_PHY_DLL_SLAVE 0x%x\n", reg);
+	printf("SDHCI_CDNS_SD6_PHY_DLL_SLAVE 0x%x\n", reg);
 	sdhci_cdns_sd6_write_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_SLAVE, reg);
 
 	/* SDHCI_CDNS_SD6_PHY_CTRL */
@@ -1352,6 +1371,17 @@ static int sdhci_cdns_sd6_phy_update_timings(struct sdhci_cdns_plat *plat)
 
 	return 0;
 }
+#ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
+void dump_sdhci_regs(struct sdhci_host *host)
+{
+	struct udevice *dev = host->mmc->dev;
+	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+	struct sdhci_cdns_sd6_phy *phy = plat->priv;
+
+	sdhci_cdns_sd6_phy_dump(phy);
+	sdhci_cdns_sd6_dump(plat);
+}
+#endif
 
 static void sdhci_cdns_sd6_set_clock(struct sdhci_host *host,
 				unsigned int div)
@@ -1381,6 +1411,9 @@ static void sdhci_cdns_sd6_set_clock(struct sdhci_host *host,
 
         if (sdhci_cdns_sd6_phy_init(dev, plat))
                debug("%s: phy init failed\n", __func__);
+#ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
+	dump_sdhci_regs(host);
+#endif
 }
 
 static int sdhci_cdns_sd6_plat_init(struct udevice *dev, struct sdhci_cdns_plat *plat)
