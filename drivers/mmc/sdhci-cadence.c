@@ -612,6 +612,25 @@ static void sdhci_cdns_sd6_writeb(struct sdhci_host *host, u8 val, int reg)
 	writeb(val, host->ioaddr + reg);
 }
 
+static void sdhci_cdns_set_emmc_mode(struct sdhci_cdns_plat *priv, u32 mode)
+{
+	u32 tmp;
+
+	/* The speed mode for eMMC is selected by HRS06 register */
+	tmp = readl(priv->hrs_addr + SDHCI_CDNS_HRS06);
+	tmp &= ~SDHCI_CDNS_HRS06_MODE;
+	tmp |= FIELD_PREP(SDHCI_CDNS_HRS06_MODE, mode);
+	writel(tmp, priv->hrs_addr + SDHCI_CDNS_HRS06);
+}
+
+static u32 sdhci_cdns_get_emmc_mode(struct sdhci_cdns_plat *priv)
+{
+	u32 tmp;
+
+	tmp = readl(priv->hrs_addr + SDHCI_CDNS_HRS06);
+	return FIELD_GET(SDHCI_CDNS_HRS06_MODE, tmp);
+}
+
 void sdhci_cdns_sd6_fullsw_reset(struct sdhci_cdns_plat *plat)
 {
 	u32 regval;
@@ -809,7 +828,7 @@ static int sdhci_cdns_sd6_phy_init(struct udevice *dev, struct sdhci_cdns_plat *
 	reg |= FIELD_PREP(SDHCI_CDNS_SD6_PHY_DLL_SLAVE_READ_DQS_DELAY,
 			phy->settings.cp_read_dqs_delay);
 
-	printf("SDHCI_CDNS_SD6_PHY_DLL_SLAVE 0x%x\n", reg);
+	DEBUG_DRV("SDHCI_CDNS_SD6_PHY_DLL_SLAVE 0x%x\n", reg);
 	sdhci_cdns_sd6_write_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_SLAVE, reg);
 
 	/* SDHCI_CDNS_SD6_PHY_CTRL */
@@ -1523,6 +1542,17 @@ static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 	return sdhci_cdns_set_tune_val(plat, end_of_streak - max_streak / 2);
 }
 
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+static void sdhci_cdns_hs400_enhanced_strobe(struct udevice *dev)
+{
+	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+
+	plat->enhanced_strobe = 1;
+	sdhci_cdns_set_emmc_mode(plat, SDHCI_CDNS_HRS06_MODE_MMC_HS400ES);
+
+}
+#endif
+
 static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigned int opcode)
 {
 	struct udevice *dev = mmc->dev;
@@ -1606,6 +1636,10 @@ static int sdhci_cdns_probe(struct udevice *dev)
 	ret = mmc_of_parse(dev, &plat->cfg);
 	if (ret)
 		return ret;
+
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+	sdhci_cdns_mmc_ops.set_enhanced_strobe = sdhci_cdns_hs400_enhanced_strobe;
+#endif
 
 	phy = plat->priv;
 #ifdef SD4_ENABLE
