@@ -261,7 +261,7 @@ int rpm_probe(struct udevice *dev)
 	rpm->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
 				       PCI_REGION_MEM);
 	rpm->dev = dev;
-	rpm->rpm_id = ((u64)(rpm->reg_base) >> 24) & 0x7;
+	rpm->rpm_id = ((u64)(rpm->reg_base) >> 24) & 0xf;
 
 	err = rpm_lmac_init(rpm);
 
