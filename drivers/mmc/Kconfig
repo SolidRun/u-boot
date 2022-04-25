@@ -196,14 +196,14 @@ config SPL_MMC_HS200_SUPPORT
 
 config MMC_VERBOSE
 	bool "Output more information about the MMC"
-	default y
+	default n
 	help
 	  Enable the output of more information about the card such as the
 	  operating mode.
 
 config MMC_TRACE
 	bool "MMC debugging"
-	default y
+	default n
 	help
 	  This is an option for use by developer. Enable MMC core debugging.
 
