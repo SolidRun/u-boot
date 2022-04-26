@@ -56,7 +56,9 @@ void print_fwdata_lmac_type(int rpm_id, int lmac_id)
 
 	if (data) {
 		lmac_type = data->eth_fw_data[rpm_id][lmac_id].lmac_type;
-		printf("RPM%d LMAC%d [%s]\n", rpm_id, lmac_id,
+		printf("PORTM%d: RPM%d LMAC%d [%s]\n",
+		       data->eth_fw_data[rpm_id][lmac_id].portm_idx,
+		       rpm_id, lmac_id,
 		       lmac_type_to_str[lmac_type]);
 	}
 }
