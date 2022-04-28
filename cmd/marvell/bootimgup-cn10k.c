@@ -281,16 +281,16 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 
 U_BOOT_CMD(
 #if defined(CONFIG_CMD_BOOTIMGUP_CUST_SIG) && defined(CONFIG_CMD_BOOTIMGUP_BACKUP)
-	bootimgup, 12, 1, do_bootimgup, "Updates Boot Image",
+	bootimgup, 12, 0, do_bootimgup, "Updates Boot Image",
 	" <[-v]> <[-b]> <[-e]> <[-p]> <[-l]> <mmc [devid] | spi [bus:cs]> [image_address] [image_size] -sig [signature address] [signature size]\n"
 #elif defined(CONFIG_CMD_BOOTIMGUP_CUST_SIG) && !defined(CONFIG_CMD_BOOTIMGUP_BACKUP)
-	bootimgup, 11, 1, do_bootimgup, "Updates Boot Image",
+	bootimgup, 11, 0, do_bootimgup, "Updates Boot Image",
 	" <[-v]> <[-e]> <[-p]> <[-l]> <mmc [devid] | spi [bus:cs]> [image_address] [image_size] -sig [signature address] [signature size]\n"
 #elif !defined(CONFIG_CMD_BOOTIMGUP_CUST_SIG) && defined(CONFIG_CMD_BOOTIMGUP_BACKUP)
-	bootimgup, 9, 1, do_bootimgup, "Updates Boot Image",
+	bootimgup, 9, 0, do_bootimgup, "Updates Boot Image",
 	" <[-v]> <[-b]> <[-e]> <[-p]> <[-l]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
 #else
-	bootimgup, 8, 1, do_bootimgup, "Updates Boot Image",
+	bootimgup, 8, 0, do_bootimgup, "Updates Boot Image",
 	" <[-v]> <[-e]> <[-p]> <[-l]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
 #endif
 #ifdef CONFIG_CMD_BOOTIMGUP_BACKUP
@@ -366,7 +366,8 @@ const struct {
 	{ RET_HASH_ENGINE_ERROR, "Hash engine failure" },
 	{ RET_HASH_NO_MATCH, "Object has invalid hash" },
 	{ RET_IMAGE_TOO_BIG, "Object is too big" },
-	{ RET_DEVICE_TREE_ENTRY_ERROR, "Error in device tree regarding object" }
+	{ RET_DEVICE_TREE_ENTRY_ERROR, "Error in device tree regarding object" },
+	{ RET_BACKUP_IO_ERROR, "Error copying flash" },
 };
 
 const char *ventry_ret_to_str(enum smc_version_entry_retcode retcode)
@@ -550,6 +551,143 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 
 U_BOOT_CMD(bootimgversion, 5, 1, do_get_version_info,
 	   "Display version information of all modules",
-	   " <[-v]> <[-b]> <mmc [devid] | spi [bus[:cs]]\n"
+	   " <[-v]> <[-b]> <mmc [devid] | spi [bus[:cs]]>\n"
 	   " -v - verify hashes contained in the image\n"
 	   " -b - verify backup area of flash\n")
+
+static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char * const argv[])
+{
+	struct smc_version_info vinfo;
+	unsigned long value;
+	int ret;
+	bool src_backup_offset = false;
+	bool dst_backup_offset = false;
+	bool src_mmc = false;
+	bool dst_mmc = false;
+	bool src_spi = false;
+	bool dst_spi = false;
+	bool src_media = true;
+
+	memset(&vinfo, 0, sizeof(vinfo));
+
+	vinfo.magic_number = VERSION_MAGIC;
+	vinfo.version = VERSION_INFO_VERSION;
+	vinfo.num_objects = SMC_MAX_VERSION_ENTRIES;
+
+	argv++;
+	argc--;
+
+	while (argc > 0) {
+		pr_debug("Parsing argument \"%s\"\n", argv[0]);
+		if (!strcmp(argv[0], "-b")) {
+			src_backup_offset = true;
+			argv++;
+			argc--;
+			continue;
+		}
+		if (!strcmp(argv[0], "-B")) {
+			dst_backup_offset = true;
+			argv++;
+			argc--;
+			continue;
+		}
+		if (!strcmp(argv[0], "mmc")) {
+			argv++;
+			argc--;
+			if (argc < 1) {
+				printf("mmc missing device ID\n");
+				return CMD_RET_USAGE;
+			}
+			ret = strict_strtoul(argv[0], 0, &value);
+			if (ret) {
+				printf("Error parsing mmc device/bus number\n");
+				return CMD_RET_USAGE;
+			}
+			if (src_media) {
+				pr_debug("Setting source MMC to bus %d\n", value);
+				src_mmc = true;
+				vinfo.bus = value;
+				pr_debug("Source MMC device: %lu\n", value);
+				src_media = false;
+			} else {
+				pr_debug("Setting destination MMC to bus %d\n", value);
+				dst_mmc = true;
+				vinfo.target_bus = value;
+				pr_debug("Destination MMC device: %lu\n", value);
+			}
+			argv++;
+			argc--;
+			continue;
+		}
+		if (!strcmp(argv[0], "spi")) {
+			char *end;
+
+			argv++;
+			argc--;
+
+			if (src_media) {
+				src_spi = true;
+				vinfo.bus = 0;
+				if (argc > 0 && argv[0][0] != '-') {
+					vinfo.bus = simple_strtoul(argv[0],
+								   &end, 0);
+					if (end && *end == ':')
+						vinfo.cs = simple_strtoul(end + 1, NULL, 0);
+				}
+				pr_debug("Setting source SPI to bus:cs %d:%d\n",
+					 vinfo.bus, vinfo.cs);
+				src_media = false;
+			} else {
+				dst_spi = true;
+				vinfo.target_bus = 0;
+				if (argc > 0 && argv[0][0] != '-') {
+					vinfo.target_bus =
+						simple_strtoul(argv[0], &end, 0);
+					if (end && *end == ':')
+						vinfo.target_cs =
+							simple_strtoul(end + 1,
+								       NULL, 0);
+				}
+				pr_debug("Setting destination SPI to bus:cs %d:%d\n",
+					 vinfo.target_bus, vinfo.target_cs);
+			}
+			argv++;
+			argc--;
+			continue;
+		}
+	}
+	if ((!src_mmc && !src_spi) || (!dst_mmc && !dst_spi)) {
+		printf("Error: SPI or MMC must be specified for source and destination\n");
+		pr_debug("src:dst mmc: %d:%d, spi: %d:%d\n", src_mmc, dst_mmc,
+			 src_spi, dst_spi);
+		return CMD_RET_USAGE;
+	}
+
+	vinfo.version_flags = SMC_VERSION_CHECK_VALIDATE_HASH |
+			      SMC_VERSION_COPY_TO_BACKUP_FLASH;
+	if (src_backup_offset)
+		vinfo.version_flags |= VERSION_FLAG_BACKUP;
+	if (dst_backup_offset)
+		vinfo.version_flags |= SMC_VERSION_COPY_TO_BACKUP_OFFSET;
+	if (src_mmc)
+		vinfo.version_flags |= VERSION_FLAG_EMMC;
+	if (dst_mmc)
+		vinfo.version_flags |= SMC_VERSION_COPY_TO_BACKUP_EMMC;
+
+	pr_debug("%s: Calling smc_spi_verify(%p, flags: 0x%x)...\n",
+		 __func__, &vinfo, vinfo.version_flags);
+	ret = smc_spi_verify(&vinfo);
+	if (ret) {
+		printf("Error copying flash: %s\n",
+		       vret_to_str((enum smc_version_ret)vinfo.retcode));
+		return CMD_RET_FAILURE;
+	}
+	return CMD_RET_SUCCESS;
+}
+
+U_BOOT_CMD(bootimgcopy, 7, 0, do_copy_image,
+	   "Copy firmware image between flash devices",
+	   " [<-b>] <mmc [devid] | spi [bus[:cs]]> [<-B>] <mmc [devid] | spi [bus[:cs]]>\n"
+	   " -b - specify backup location in source storage\n"
+	   " -B - specify backup location in target storage\n");
