@@ -28,13 +28,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MAX_TLV_DEVICES	2
 
 /* File scope function prototypes */
-static bool is_checksum_valid(u8 *eeprom);
 static int read_eeprom(int devnum, u8 *eeprom);
 static void show_eeprom(int devnum, u8 *eeprom);
 static void decode_tlv(struct tlvinfo_tlv *tlv);
-static void update_crc(u8 *eeprom);
-static int prog_eeprom(int devnum, u8 *eeprom);
-static bool tlvinfo_find_tlv(u8 *eeprom, u8 tcode, int *eeprom_index);
 static bool tlvinfo_delete_tlv(u8 *eeprom, u8 code);
 static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval);
 static int set_mac(char *buf, const char *string);
@@ -59,18 +55,6 @@ static inline bool is_digit(char c)
 }
 
 /**
- *  is_valid_tlv
- *
- *  Perform basic sanity checks on a TLV field. The TLV is pointed to
- *  by the parameter provided.
- *      1. The type code is not reserved (0x00 or 0xFF)
- */
-static inline bool is_valid_tlv(struct tlvinfo_tlv *tlv)
-{
-	return((tlv->type != 0x00) && (tlv->type != 0xFF));
-}
-
-/**
  *  is_hex
  *
  *  Tests if character is an ASCII hex digit
@@ -83,14 +67,12 @@ static inline u8 is_hex(char p)
 }
 
 /**
- *  is_checksum_valid
- *
  *  Validate the checksum in the provided TlvInfo EEPROM data. First,
  *  verify that the TlvInfo header is valid, then make sure the last
  *  TLV is a CRC-32 TLV. Then calculate the CRC over the EEPROM data
  *  and compare it to the value stored in the EEPROM CRC-32 TLV.
  */
-static bool is_checksum_valid(u8 *eeprom)
+bool tlvinfo_check_crc(u8 *eeprom)
 {
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
 	struct tlvinfo_tlv    *eeprom_crc;
@@ -137,11 +119,11 @@ static int read_eeprom(int devnum, u8 *eeprom)
 
 	// If the contents are invalid, start over with default contents
 	if (!is_valid_tlvinfo_header(eeprom_hdr) ||
-	    !is_checksum_valid(eeprom)) {
+	    !tlvinfo_check_crc(eeprom)) {
 		strcpy(eeprom_hdr->signature, TLV_INFO_ID_STRING);
 		eeprom_hdr->version = TLV_INFO_VERSION;
 		eeprom_hdr->totallen = cpu_to_be16(0);
-		update_crc(eeprom);
+		tlvinfo_update_crc(eeprom);
 	}
 
 #ifdef DEBUG
@@ -183,7 +165,7 @@ static void show_eeprom(int devnum, u8 *eeprom)
 	tlv_end  = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
 	while (curr_tlv < tlv_end) {
 		eeprom_tlv = to_entry(&eeprom[curr_tlv]);
-		if (!is_valid_tlv(eeprom_tlv)) {
+		if (!is_valid_tlvinfo_entry(eeprom_tlv)) {
 			printf("Invalid TLV field starting at EEPROM offset %d\n",
 			       curr_tlv);
 			return;
@@ -193,7 +175,7 @@ static void show_eeprom(int devnum, u8 *eeprom)
 	}
 
 	printf("Checksum is %s.\n",
-	       is_checksum_valid(eeprom) ? "valid" : "invalid");
+	       tlvinfo_check_crc(eeprom) ? "valid" : "invalid");
 
 #ifdef DEBUG
 	printf("EEPROM dump: (0x%x bytes)", TLV_INFO_MAX_LEN);
@@ -340,13 +322,13 @@ static void decode_tlv(struct tlvinfo_tlv *tlv)
 }
 
 /**
- *  update_crc
+ *  tlvinfo_update_crc
  *
  *  This function updates the CRC-32 TLV. If there is no CRC-32 TLV, then
  *  one is added. This function should be called after each update to the
  *  EEPROM structure, to make sure the CRC is always correct.
  */
-static void update_crc(u8 *eeprom)
+void tlvinfo_update_crc(u8 *eeprom)
 {
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
 	struct tlvinfo_tlv    *eeprom_crc;
@@ -376,20 +358,20 @@ static void update_crc(u8 *eeprom)
 }
 
 /**
- *  prog_eeprom
+ *  write_tlvinfo_tlv_eeprom
  *
- *  Write the EEPROM data from CPU memory to the hardware.
+ *  Write the TLV data from CPU memory to the hardware.
  */
-static int prog_eeprom(int devnum, u8 *eeprom)
+int write_tlvinfo_tlv_eeprom(void *eeprom, int dev)
 {
 	int ret = 0;
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
 	int eeprom_len;
 
-	update_crc(eeprom);
+	tlvinfo_update_crc(eeprom);
 
 	eeprom_len = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
-	ret = write_tlv_eeprom(eeprom, eeprom_len, devnum);
+	ret = write_tlv_eeprom(eeprom, eeprom_len, dev);
 	if (ret) {
 		printf("Programming failed.\n");
 		return -1;
@@ -462,13 +444,13 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc == 2) {
 		switch (cmd) {
 		case 'w':   /* write */
-			prog_eeprom(current_dev, eeprom);
+			write_tlvinfo_tlv_eeprom(eeprom, current_dev);
 			break;
 		case 'e':   /* erase */
 			strcpy(eeprom_hdr->signature, TLV_INFO_ID_STRING);
 			eeprom_hdr->version = TLV_INFO_VERSION;
 			eeprom_hdr->totallen = cpu_to_be16(0);
-			update_crc(eeprom);
+			tlvinfo_update_crc(eeprom);
 			printf("EEPROM data in memory reset.\n");
 			break;
 		case 'l':   /* list */
@@ -549,7 +531,7 @@ U_BOOT_CMD(tlv_eeprom, 4, 1,  do_tlv_eeprom,
  *  An offset from the beginning of the EEPROM is returned in the
  *  eeprom_index parameter if the TLV is found.
  */
-static bool tlvinfo_find_tlv(u8 *eeprom, u8 tcode, int *eeprom_index)
+bool tlvinfo_find_tlv(u8 *eeprom, u8 tcode, int *eeprom_index)
 {
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
 	struct tlvinfo_tlv    *eeprom_tlv;
@@ -561,7 +543,7 @@ static bool tlvinfo_find_tlv(u8 *eeprom, u8 tcode, int *eeprom_index)
 	eeprom_end = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
 	while (*eeprom_index < eeprom_end) {
 		eeprom_tlv = to_entry(&eeprom[*eeprom_index]);
-		if (!is_valid_tlv(eeprom_tlv))
+		if (!is_valid_tlvinfo_entry(eeprom_tlv))
 			return false;
 		if (eeprom_tlv->type == tcode)
 			return true;
@@ -594,7 +576,7 @@ static bool tlvinfo_delete_tlv(u8 *eeprom, u8 code)
 		eeprom_hdr->totallen =
 			cpu_to_be16(be16_to_cpu(eeprom_hdr->totallen) -
 				    tlength);
-		update_crc(eeprom);
+		tlvinfo_update_crc(eeprom);
 		return true;
 	}
 	return false;
@@ -695,7 +677,7 @@ static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
 	// Update the total length and calculate (add) a new CRC-32 TLV
 	eeprom_hdr->totallen = cpu_to_be16(be16_to_cpu(eeprom_hdr->totallen) +
 			ENT_SIZE + new_tlv_len);
-	update_crc(eeprom);
+	tlvinfo_update_crc(eeprom);
 
 	return true;
 }
@@ -986,7 +968,7 @@ int read_tlvinfo_tlv_eeprom(void *eeprom, struct tlvinfo_header **hdr,
 			      be16_to_cpu(tlv_hdr->totallen), dev_num);
 	if (ret < 0)
 		return ret;
-	if (!is_checksum_valid(eeprom))
+	if (!tlvinfo_check_crc(eeprom))
 		return -EINVAL;
 
 	*hdr = tlv_hdr;
