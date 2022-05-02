@@ -31,8 +31,6 @@ DECLARE_GLOBAL_DATA_PTR;
 static int read_eeprom(int devnum, u8 *eeprom);
 static void show_eeprom(int devnum, u8 *eeprom);
 static void decode_tlv(struct tlvinfo_tlv *tlv);
-static bool tlvinfo_delete_tlv(u8 *eeprom, u8 code);
-static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval);
 static int set_mac(char *buf, const char *string);
 static int set_date(char *buf, const char *string);
 static int set_bytes(char *buf, const char *string, int *converted_accum);
@@ -45,9 +43,6 @@ static struct udevice *tlv_devices[MAX_TLV_DEVICES];
 
 #define to_header(p) ((struct tlvinfo_header *)p)
 #define to_entry(p) ((struct tlvinfo_tlv *)p)
-
-#define HDR_SIZE sizeof(struct tlvinfo_header)
-#define ENT_SIZE sizeof(struct tlvinfo_tlv)
 
 static inline bool is_digit(char c)
 {
@@ -84,14 +79,14 @@ bool tlvinfo_check_crc(u8 *eeprom)
 		return false;
 
 	// Is the last TLV a CRC?
-	eeprom_crc = to_entry(&eeprom[HDR_SIZE +
-		be16_to_cpu(eeprom_hdr->totallen) - (ENT_SIZE + 4)]);
+	eeprom_crc = to_entry(&eeprom[TLV_INFO_HEADER_SIZE +
+		be16_to_cpu(eeprom_hdr->totallen) - (TLV_INFO_ENTRY_SIZE + 4)]);
 	if (eeprom_crc->type != TLV_CODE_CRC_32 || eeprom_crc->length != 4)
 		return false;
 
 	// Calculate the checksum
 	calc_crc = crc32(0, (void *)eeprom,
-			 HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen) - 4);
+			 TLV_INFO_HEADER_SIZE + be16_to_cpu(eeprom_hdr->totallen) - 4);
 	stored_crc = (eeprom_crc->value[0] << 24) |
 		(eeprom_crc->value[1] << 16) |
 		(eeprom_crc->value[2] <<  8) |
@@ -108,13 +103,13 @@ static int read_eeprom(int devnum, u8 *eeprom)
 {
 	int ret;
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
-	struct tlvinfo_tlv *eeprom_tlv = to_entry(&eeprom[HDR_SIZE]);
+	struct tlvinfo_tlv *eeprom_tlv = to_entry(&eeprom[TLV_INFO_HEADER_SIZE]);
 
 	/* Read the header */
-	ret = read_tlv_eeprom((void *)eeprom_hdr, 0, HDR_SIZE, devnum);
+	ret = read_tlv_eeprom((void *)eeprom_hdr, 0, TLV_INFO_HEADER_SIZE, devnum);
 	/* If the header was successfully read, read the TLVs */
 	if (ret == 0 && is_valid_tlvinfo_header(eeprom_hdr))
-		ret = read_tlv_eeprom((void *)eeprom_tlv, HDR_SIZE,
+		ret = read_tlv_eeprom((void *)eeprom_tlv, TLV_INFO_HEADER_SIZE,
 				      be16_to_cpu(eeprom_hdr->totallen), devnum);
 
 	// If the contents are invalid, start over with default contents
@@ -161,8 +156,8 @@ static void show_eeprom(int devnum, u8 *eeprom)
 
 	printf("TLV Name             Code Len Value\n");
 	printf("-------------------- ---- --- -----\n");
-	curr_tlv = HDR_SIZE;
-	tlv_end  = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
+	curr_tlv = TLV_INFO_HEADER_SIZE;
+	tlv_end  = TLV_INFO_HEADER_SIZE + be16_to_cpu(eeprom_hdr->totallen);
 	while (curr_tlv < tlv_end) {
 		eeprom_tlv = to_entry(&eeprom[curr_tlv]);
 		if (!is_valid_tlvinfo_entry(eeprom_tlv)) {
@@ -171,7 +166,7 @@ static void show_eeprom(int devnum, u8 *eeprom)
 			return;
 		}
 		decode_tlv(eeprom_tlv);
-		curr_tlv += ENT_SIZE + eeprom_tlv->length;
+		curr_tlv += TLV_INFO_ENTRY_SIZE + eeprom_tlv->length;
 	}
 
 	printf("Checksum is %s.\n",
@@ -339,10 +334,10 @@ void tlvinfo_update_crc(u8 *eeprom)
 	if (!tlvinfo_find_tlv(eeprom, TLV_CODE_CRC_32, &eeprom_index)) {
 		unsigned int totallen = be16_to_cpu(eeprom_hdr->totallen);
 
-		if ((totallen + ENT_SIZE + 4) > TLV_TOTAL_LEN_MAX)
+		if ((totallen + TLV_INFO_ENTRY_SIZE + 4) > TLV_TOTAL_LEN_MAX)
 			return;
-		eeprom_index = HDR_SIZE + totallen;
-		eeprom_hdr->totallen = cpu_to_be16(totallen + ENT_SIZE + 4);
+		eeprom_index = TLV_INFO_HEADER_SIZE + totallen;
+		eeprom_hdr->totallen = cpu_to_be16(totallen + TLV_INFO_ENTRY_SIZE + 4);
 	}
 	eeprom_crc = to_entry(&eeprom[eeprom_index]);
 	eeprom_crc->type = TLV_CODE_CRC_32;
@@ -350,7 +345,7 @@ void tlvinfo_update_crc(u8 *eeprom)
 
 	// Calculate the checksum
 	calc_crc = crc32(0, (void *)eeprom,
-			 HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen) - 4);
+			 TLV_INFO_HEADER_SIZE + be16_to_cpu(eeprom_hdr->totallen) - 4);
 	eeprom_crc->value[0] = (calc_crc >> 24) & 0xFF;
 	eeprom_crc->value[1] = (calc_crc >> 16) & 0xFF;
 	eeprom_crc->value[2] = (calc_crc >>  8) & 0xFF;
@@ -370,7 +365,7 @@ int write_tlvinfo_tlv_eeprom(void *eeprom, int dev)
 
 	tlvinfo_update_crc(eeprom);
 
-	eeprom_len = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
+	eeprom_len = TLV_INFO_HEADER_SIZE + be16_to_cpu(eeprom_hdr->totallen);
 	ret = write_tlv_eeprom(eeprom, eeprom_len, dev);
 	if (ret) {
 		printf("Programming failed.\n");
@@ -539,15 +534,15 @@ bool tlvinfo_find_tlv(u8 *eeprom, u8 tcode, int *eeprom_index)
 
 	// Search through the TLVs, looking for the first one which matches the
 	// supplied type code.
-	*eeprom_index = HDR_SIZE;
-	eeprom_end = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
+	*eeprom_index = TLV_INFO_HEADER_SIZE;
+	eeprom_end = TLV_INFO_HEADER_SIZE + be16_to_cpu(eeprom_hdr->totallen);
 	while (*eeprom_index < eeprom_end) {
 		eeprom_tlv = to_entry(&eeprom[*eeprom_index]);
 		if (!is_valid_tlvinfo_entry(eeprom_tlv))
 			return false;
 		if (eeprom_tlv->type == tcode)
 			return true;
-		*eeprom_index += ENT_SIZE + eeprom_tlv->length;
+		*eeprom_index += TLV_INFO_ENTRY_SIZE + eeprom_tlv->length;
 	}
 	return(false);
 }
@@ -558,7 +553,7 @@ bool tlvinfo_find_tlv(u8 *eeprom, u8 tcode, int *eeprom_index)
  *  This function deletes the TLV with the specified type code from the
  *  EEPROM.
  */
-static bool tlvinfo_delete_tlv(u8 *eeprom, u8 code)
+bool tlvinfo_delete_tlv(u8 *eeprom, u8 code)
 {
 	int eeprom_index;
 	int tlength;
@@ -568,9 +563,9 @@ static bool tlvinfo_delete_tlv(u8 *eeprom, u8 code)
 	// Find the TLV and then move all following TLVs "forward"
 	if (tlvinfo_find_tlv(eeprom, code, &eeprom_index)) {
 		eeprom_tlv = to_entry(&eeprom[eeprom_index]);
-		tlength = ENT_SIZE + eeprom_tlv->length;
+		tlength = TLV_INFO_ENTRY_SIZE + eeprom_tlv->length;
 		memcpy(&eeprom[eeprom_index], &eeprom[eeprom_index + tlength],
-		       HDR_SIZE +
+		       TLV_INFO_HEADER_SIZE +
 		       be16_to_cpu(eeprom_hdr->totallen) - eeprom_index -
 		       tlength);
 		eeprom_hdr->totallen =
@@ -589,7 +584,7 @@ static bool tlvinfo_delete_tlv(u8 *eeprom, u8 code)
  *  the format in which it will be stored in the EEPROM.
  */
 #define MAX_TLV_VALUE_LEN   256
-static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
+bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
 {
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
 	struct tlvinfo_tlv *eeprom_tlv;
@@ -656,7 +651,7 @@ static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
 	}
 
 	// Is there room for this TLV?
-	if ((be16_to_cpu(eeprom_hdr->totallen) + ENT_SIZE + new_tlv_len) >
+	if ((be16_to_cpu(eeprom_hdr->totallen) + TLV_INFO_ENTRY_SIZE + new_tlv_len) >
 			TLV_TOTAL_LEN_MAX) {
 		printf("ERROR: There is not enough room in the EERPOM to save data.\n");
 		return false;
@@ -666,9 +661,9 @@ static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
 	if (tlvinfo_find_tlv(eeprom, TLV_CODE_CRC_32, &eeprom_index))
 		eeprom_hdr->totallen =
 			cpu_to_be16(be16_to_cpu(eeprom_hdr->totallen) -
-					ENT_SIZE - 4);
+					TLV_INFO_ENTRY_SIZE - 4);
 	else
-		eeprom_index = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
+		eeprom_index = TLV_INFO_HEADER_SIZE + be16_to_cpu(eeprom_hdr->totallen);
 	eeprom_tlv = to_entry(&eeprom[eeprom_index]);
 	eeprom_tlv->type = tcode;
 	eeprom_tlv->length = new_tlv_len;
@@ -676,7 +671,7 @@ static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
 
 	// Update the total length and calculate (add) a new CRC-32 TLV
 	eeprom_hdr->totallen = cpu_to_be16(be16_to_cpu(eeprom_hdr->totallen) +
-			ENT_SIZE + new_tlv_len);
+			TLV_INFO_ENTRY_SIZE + new_tlv_len);
 	tlvinfo_update_crc(eeprom);
 
 	return true;
@@ -954,7 +949,7 @@ int read_tlvinfo_tlv_eeprom(void *eeprom, struct tlvinfo_header **hdr,
 	struct tlvinfo_tlv *tlv_ent;
 
 	/* Read TLV header */
-	ret = read_tlv_eeprom(eeprom, 0, HDR_SIZE, dev_num);
+	ret = read_tlv_eeprom(eeprom, 0, TLV_INFO_HEADER_SIZE, dev_num);
 	if (ret < 0)
 		return ret;
 
@@ -964,7 +959,7 @@ int read_tlvinfo_tlv_eeprom(void *eeprom, struct tlvinfo_header **hdr,
 
 	/* Read TLV entries */
 	tlv_ent = to_entry(&tlv_hdr[1]);
-	ret = read_tlv_eeprom(tlv_ent, HDR_SIZE,
+	ret = read_tlv_eeprom(tlv_ent, TLV_INFO_HEADER_SIZE,
 			      be16_to_cpu(tlv_hdr->totallen), dev_num);
 	if (ret < 0)
 		return ret;

@@ -24,11 +24,11 @@ struct __attribute__ ((__packed__)) tlvinfo_header {
 };
 
 // Header Field Constants
+#define TLV_INFO_HEADER_SIZE    sizeof(struct tlvinfo_header)
 #define TLV_INFO_ID_STRING      "TlvInfo"
 #define TLV_INFO_VERSION        0x01
 #define TLV_INFO_MAX_LEN        2048
-#define TLV_TOTAL_LEN_MAX       (TLV_INFO_MAX_LEN - \
-				sizeof(struct tlvinfo_header))
+#define TLV_TOTAL_LEN_MAX       (TLV_INFO_MAX_LEN - TLV_INFO_HEADER_SIZE)
 
 /*
  * TlvInfo TLV: Layout of a TLV field
@@ -39,6 +39,7 @@ struct __attribute__ ((__packed__)) tlvinfo_tlv {
 	u8  value[0];
 };
 
+#define TLV_INFO_ENTRY_SIZE      sizeof(struct tlvinfo_tlv)
 /* Maximum length of a TLV value in bytes */
 #define TLV_VALUE_MAX_LEN        255
 
@@ -133,6 +134,30 @@ int write_tlvinfo_tlv_eeprom(void *eeprom, int dev);
  *  eeprom_index parameter if the TLV is found.
  */
 bool tlvinfo_find_tlv(u8 *eeprom, u8 tcode, int *eeprom_index);
+
+/**
+ *  tlvinfo_add_tlv
+ *
+ *  This function adds a TLV to the EEPROM, converting the value (a string) to
+ *  the format in which it will be stored in the EEPROM.
+ * @eeprom: Pointer to buffer to hold the binary data. Must point to a buffer
+ *          of size at least TLV_INFO_MAX_LEN.
+ * @code The TLV Code for the new entry.
+ * @eeprom_index success offset into EEPROM where the new entry has been stored
+ *
+ */
+bool tlvinfo_add_tlv(u8 *eeprom, int code, char *strval);
+
+/**
+ *  tlvinfo_delete_tlv
+ *
+ *  This function deletes the TLV with the specified type code from the
+ *  EEPROM.
+ * @eeprom: Pointer to buffer to hold the binary data. Must point to a buffer
+ *          of size at least TLV_INFO_MAX_LEN.
+ * @code The TLV Code of the entry to delete.
+ */
+bool tlvinfo_delete_tlv(u8 *eeprom, u8 code);
 
 /**
  *  tlvinfo_update_crc
