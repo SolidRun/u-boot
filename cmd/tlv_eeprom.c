@@ -431,7 +431,7 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	// If no arguments, read the EERPOM and display its contents
 	if (argc == 1) {
 		if (has_been_read != current_dev) {
-			if (read_eeprom(current_dev, eeprom) == 0)
+			if (read_tlv_eeprom(eeprom, 0, TLV_INFO_MAX_LEN, current_dev) == 0)
 				has_been_read = current_dev;
 		}
 		show_eeprom(current_dev, eeprom);
@@ -445,7 +445,7 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	// Read the EEPROM contents
 	if (cmd == 'r') {
 		has_been_read = -1;
-		if (read_eeprom(current_dev, eeprom) == 0) {
+		if (read_tlv_eeprom(eeprom, 0, TLV_INFO_MAX_LEN, current_dev) == 0) {
 			printf("EEPROM data loaded from device to memory.\n");
 			has_been_read = current_dev;
 		}
