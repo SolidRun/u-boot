@@ -7,6 +7,7 @@
  * Copyright (C) 2014 Srideep <srideep_devireddy@dell.com>
  * Copyright (C) 2013 Miles Tseng <miles_tseng@accton.com>
  * Copyright (C) 2014,2016 david_yang <david_yang@accton.com>
+ * Copyright (C) 2022 Josua Mayer <josua@solid-run.com>
  */
 
 #include <common.h>
