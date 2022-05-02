@@ -25,8 +25,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define MAX_TLV_DEVICES	2
-
 /* File scope function prototypes */
 static int read_eeprom(int devnum, u8 *eeprom);
 static void show_eeprom(int devnum, u8 *eeprom);
@@ -39,7 +37,7 @@ static void show_tlv_devices(int current_dev);
 /* The EERPOM contents after being read into memory */
 static u8 eeprom[TLV_INFO_MAX_LEN];
 
-static struct udevice *tlv_devices[MAX_TLV_DEVICES];
+static struct udevice *tlv_devices[TLV_MAX_DEVICES];
 
 #define to_header(p) ((struct tlvinfo_header *)p)
 #define to_entry(p) ((struct tlvinfo_tlv *)p)
@@ -873,7 +871,7 @@ static void show_tlv_devices(int current_dev)
 {
 	unsigned int dev;
 
-	for (dev = 0; dev < MAX_TLV_DEVICES; dev++)
+	for (dev = 0; dev < TLV_MAX_DEVICES; dev++)
 		if (exists_tlv_eeprom(dev))
 			printf("TLV: %u%s\n", dev,
 			       (dev == current_dev) ? " (*)" : "");
@@ -890,7 +888,7 @@ static int find_tlv_devices(struct udevice **tlv_devices_p)
 			ret = uclass_next_device_check(&dev)) {
 		if (ret == 0)
 			tlv_devices_p[count_dev++] = dev;
-		if (count_dev >= MAX_TLV_DEVICES)
+		if (count_dev >= TLV_MAX_DEVICES)
 			break;
 	}
 
@@ -899,7 +897,7 @@ static int find_tlv_devices(struct udevice **tlv_devices_p)
 
 static struct udevice *find_tlv_device_by_index(int dev_num)
 {
-	struct udevice *local_tlv_devices[MAX_TLV_DEVICES] = {};
+	struct udevice *local_tlv_devices[TLV_MAX_DEVICES] = {};
 	struct udevice **tlv_devices_p;
 	int ret;
 
@@ -926,7 +924,7 @@ int read_tlv_eeprom(void *eeprom, int offset, int len, int dev_num)
 {
 	struct udevice *dev;
 
-	if (dev_num >= MAX_TLV_DEVICES)
+	if (dev_num >= TLV_MAX_DEVICES)
 		return -EINVAL;
 
 	dev = find_tlv_device_by_index(dev_num);
