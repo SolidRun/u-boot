@@ -351,6 +351,31 @@ bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
 }
 
 /**
+ * Read the TLV entry with specified code to a buffer as terminated C string.
+ */
+ssize_t tlvinfo_read_tlv(u8 *eeprom, u8 code, u8 *buffer, size_t length)
+{
+	int index;
+	struct tlvinfo_tlv *tlv;
+
+	// read sku from part-number field
+	if (tlvinfo_find_tlv(eeprom, code, &index)) {
+		tlv = (struct tlvinfo_tlv *)&eeprom[index];
+		if (tlv->length > length) {
+			pr_err("%s: tlv value (%d) larger than buffer (%zu)!\n",
+			       __func__, tlv->length + 1, length);
+			return -1;
+		}
+		memcpy(buffer, tlv->value, tlv->length);
+		buffer[tlv->length] = 0;
+
+		return tlv->length;
+	}
+
+	return -1;
+}
+
+/**
  *  set_mac
  *
  *  Converts a string MAC address into a binary buffer.

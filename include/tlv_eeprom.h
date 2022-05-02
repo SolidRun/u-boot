@@ -167,6 +167,18 @@ bool tlvinfo_add_tlv(u8 *eeprom, int code, char *strval);
 bool tlvinfo_delete_tlv(u8 *eeprom, u8 code);
 
 /**
+ * Read the TLV entry with specified code to a buffer as terminated C string.
+ * @eeprom: Pointer to buffer holding the TLV EEPROM binary data.
+ * @code:   The TLV Code of the entry to read.
+ * @buffer: Pointer to buffer where the value will be stored. Must have capacity
+ *          for the string representation of the data including null terminator.
+ * @length: size of the buffer where the value will be stored.
+ *
+ * Return length of string on success, -1 on error.
+ */
+ssize_t tlvinfo_read_tlv(u8 *eeprom, u8 code, u8 *buffer, size_t length);
+
+/**
  *  tlvinfo_update_crc
  *
  *  This function updates the CRC-32 TLV. If there is no CRC-32 TLV, then
