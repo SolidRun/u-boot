@@ -42,8 +42,6 @@ static int set_date(char *buf, const char *string);
 static int set_bytes(char *buf, const char *string, int *converted_accum);
 static void show_tlv_devices(int current_dev);
 
-/* Set to 1 if we've read EEPROM into memory */
-static int has_been_read;
 /* The EERPOM contents after being read into memory */
 static u8 eeprom[TLV_INFO_MAX_LEN];
 
@@ -130,9 +128,6 @@ static int read_eeprom(int devnum, u8 *eeprom)
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
 	struct tlvinfo_tlv *eeprom_tlv = to_entry(&eeprom[HDR_SIZE]);
 
-	if (has_been_read)
-		return 0;
-
 	/* Read the header */
 	ret = read_tlv_eeprom((void *)eeprom_hdr, 0, HDR_SIZE, devnum);
 	/* If the header was successfully read, read the TLVs */
@@ -149,10 +144,8 @@ static int read_eeprom(int devnum, u8 *eeprom)
 		update_crc(eeprom);
 	}
 
-	has_been_read = 1;
-
 #ifdef DEBUG
-	show_eeprom(eeprom);
+	show_eeprom(devnum, eeprom);
 #endif
 
 	return ret;
@@ -432,10 +425,15 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	char cmd;
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
 	static unsigned int current_dev;
+	/* Set to devnum if we've read EEPROM into memory */
+	static int has_been_read = -1;
 
 	// If no arguments, read the EERPOM and display its contents
 	if (argc == 1) {
-		read_eeprom(current_dev, eeprom);
+		if (has_been_read != current_dev) {
+			if (read_eeprom(current_dev, eeprom) == 0)
+				has_been_read = current_dev;
+		}
 		show_eeprom(current_dev, eeprom);
 		return 0;
 	}
@@ -446,14 +444,16 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	// Read the EEPROM contents
 	if (cmd == 'r') {
-		has_been_read = 0;
-		if (!read_eeprom(current_dev, eeprom))
+		has_been_read = -1;
+		if (read_eeprom(current_dev, eeprom) == 0) {
 			printf("EEPROM data loaded from device to memory.\n");
+			has_been_read = current_dev;
+		}
 		return 0;
 	}
 
 	// Subsequent commands require that the EEPROM has already been read.
-	if (!has_been_read) {
+	if (has_been_read != current_dev) {
 		printf("Please read the EEPROM data first, using the 'tlv_eeprom read' command.\n");
 		return 0;
 	}
@@ -509,7 +509,6 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return 0;
 		}
 		current_dev = devnum;
-		has_been_read = 0;
 	} else {
 		cmd_usage(cmdtp);
 	}
