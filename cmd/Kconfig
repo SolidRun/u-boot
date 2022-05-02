@@ -159,6 +159,7 @@ config CMD_REGINFO
 
 config CMD_TLV_EEPROM
 	bool "tlv_eeprom"
+	select EEPROM_TLV_LIB
 	depends on I2C_EEPROM
 	help
 	  Display and program the system EEPROM data block in ONIE Tlvinfo
@@ -166,6 +167,7 @@ config CMD_TLV_EEPROM
 
 config SPL_CMD_TLV_EEPROM
 	bool "tlv_eeprom for SPL"
+	select SPL_EEPROM_TLV_LIB
 	depends on SPL_I2C_EEPROM
 	select SPL_DRIVERS_MISC
 	help
