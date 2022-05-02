@@ -44,6 +44,14 @@ static struct udevice *tlv_devices[MAX_TLV_DEVICES];
 #define to_header(p) ((struct tlvinfo_header *)p)
 #define to_entry(p) ((struct tlvinfo_tlv *)p)
 
+/**
+ * Check whether eeprom device exists.
+ */
+bool exists_tlv_eeprom(int dev)
+{
+	return dev < TLV_MAX_DEVICES && tlv_devices[dev] != 0;
+}
+
 static inline bool is_digit(char c)
 {
 	return (c >= '0' && c <= '9');
@@ -481,7 +489,7 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		unsigned int devnum;
 
 		devnum = simple_strtoul(argv[2], NULL, 0);
-		if (devnum > MAX_TLV_DEVICES || !tlv_devices[devnum]) {
+		if (!exists_tlv_eeprom(devnum)) {
 			printf("Invalid device number\n");
 			return 0;
 		}
@@ -866,7 +874,7 @@ static void show_tlv_devices(int current_dev)
 	unsigned int dev;
 
 	for (dev = 0; dev < MAX_TLV_DEVICES; dev++)
-		if (tlv_devices[dev])
+		if (exists_tlv_eeprom(dev))
 			printf("TLV: %u%s\n", dev,
 			       (dev == current_dev) ? " (*)" : "");
 }

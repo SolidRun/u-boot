@@ -70,6 +70,13 @@ struct __attribute__ ((__packed__)) tlvinfo_tlv {
 #define TLV_MAX_DEVICES			2
 
 /**
+ * Check whether eeprom device exists.
+ *
+ * @dev: EEPROM device to check.
+ */
+bool exists_tlv_eeprom(int dev);
+
+/**
  * read_tlv_eeprom - Read the EEPROM binary data from the hardware
  * @eeprom: Pointer to buffer to hold the binary data
  * @offset: Offset within EEPROM block to read data from
