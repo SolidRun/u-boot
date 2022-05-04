@@ -249,7 +249,7 @@ int eth_intf_link_up_dwn(u8 rpm, u8 lmac, u8 up_dwn, u64 *lnk_sts)
 	cmd.cmd.id = up_dwn ? ETH_CMD_LINK_BRING_UP : ETH_CMD_LINK_BRING_DOWN;
 	cmd.lnk_bringup.timeout = 0;
 
-	ret = eth_intf_req(rpm, lmac, cmd, &scr0.u, 1);
+	ret = eth_intf_req(rpm, lmac, cmd, &scr0.u, 0);
 	if (ret)
 		return -1;
 
