@@ -113,6 +113,7 @@ enum eth_cmd_id {
 	ETH_CMD_DO_CMU_RESET,
 	ETH_CMD_CPRI_MISC,
 	ETH_CMD_LINK_TIMEOUT,
+	ETH_CMD_GET_PORT_MODE,
 };
 
 /* async event ids */
@@ -193,8 +194,14 @@ typedef enum {
 	ETH_MODE_CPRI_4_9G_BIT,
 	ETH_MODE_CPRI_6_1G_BIT,
 	ETH_MODE_CPRI_9_8G_BIT,
-	ETH_MODE_CPRI_10_1_BIT,
-	ETH_MODE_CPRI_24_3G_BIT,
+
+	ETH_MODE_CPRI_2_4G_TEST_BIT,
+	ETH_MODE_CPRI_3_1G_TEST_BIT,
+	ETH_MODE_CPRI_4_9G_TEST_BIT,
+	ETH_MODE_CPRI_6_1G_TEST_BIT,
+	ETH_MODE_CPRI_9_8G_TEST_BIT,
+	ETH_MODE_CPRI_12_3G_TEST_BIT,
+	ETH_MODE_CPRI_19_7G_TEST_BIT,
 } eth_cpri_mode_t;
 
 typedef enum {
@@ -335,11 +342,22 @@ struct eth_get_flash_ignore_s {
 	u64 reserved2:54;
 };
 
+struct eth_get_port_mode_s {
+	uint64_t reserved1:9;
+	uint64_t mode_group_idx:2;	/* mode_group_t */
+	uint64_t mode:6;		/* eth_mode_t or eth_cpri_mode_t depending on
+					 * the mode_group_idx
+					 */
+	uint64_t reserved2:47;
+};
+
 union eth_rsp_sts {
 	/* Fixed, applicable for all commands/events */
 	struct eth_evt_sts_s evt_sts;
 	/* response to ETH_CMD_LINK_BRINGUP/DOWN/LINK_CHANGE */
 	struct eth_lnk_sts_s link_sts;
+	/* response to ETH_CMD_GET_PORT_MODE */
+	struct eth_get_port_mode_s port_mode;
 	/* response to ETH_CMD_GET_FW_VER */
 	struct eth_ver_s ver;
 	/* response to ETH_CMD_GET_MAC_ADDR */
@@ -428,6 +446,12 @@ struct eth_mode_change_args {
 	*/
 	u64 mode_group_idx:2;
 	u64 mode:42;	/* (1 << eth_mode_t) enum */
+};
+
+struct eth_get_port_mode_args {
+	uint64_t reserved1:8;
+	uint64_t portm_idx:5;
+	uint64_t reserved2:51;
 };
 
 /* command argument to be passed for cmd ID - ETH_CMD_LINK_CHANGE */
@@ -574,6 +598,7 @@ union eth_cmd_s {
 	struct cgx_link_bringup_args lnk_bringup;
 	struct eth_set_mode_args mode_args;
 	struct eth_mode_change_args mode_change_args;
+	struct eth_get_port_mode_args port_mode_args;
 	struct eth_set_fec_args fec_args;
 	struct eth_do_cmu_reset cmu_args;
 	struct eth_set_phy_mod_args phy_mod_args;

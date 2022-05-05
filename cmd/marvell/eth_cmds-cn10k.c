@@ -12,7 +12,7 @@
 #include <net.h>
 
 extern int eth_intf_set_mode(struct udevice *ethdev, int mode, int port);
-extern int eth_intf_get_mode(struct udevice *ethdev);
+extern int eth_intf_get_mode(struct udevice *ethdev, int port);
 extern int eth_intf_set_fec(struct udevice *ethdev, int type);
 extern int eth_intf_get_fec(struct udevice *ethdev);
 extern void nix_print_mac_info(struct udevice *dev);
@@ -73,7 +73,12 @@ static int do_ethparam_common(struct cmd_tbl *cmdtp, int flag, int argc,
 	} else if (strcmp(cmd, "get_fec") == 0) {
 		ret = eth_intf_get_fec(dev);
 	} else if (strcmp(cmd, "get_mode") == 0) {
-                ret = eth_intf_get_mode(dev);
+		if (argc < 3)
+			port = -1;
+		else
+			port = simple_strtol(argv[2], &endp, 0);
+
+		ret = eth_intf_get_mode(dev, port);
 	} else if (strcmp(cmd, "set_mode") == 0) {
 		if (argc < 3)
 			return CMD_RET_FAILURE;
@@ -108,10 +113,26 @@ U_BOOT_CMD(
 	"Use 'ethlist' command to display network interface names\n"
 );
 
-U_BOOT_CMD(get_mode, 2, 1, do_ethparam_common,
-	"Display Interface mode for selected ethernet interface",
-	"Example - get_mode <ethX>\n"
-	"Use 'ethlist' command to display network interface names\n"
+U_BOOT_CMD(get_mode, 3, 1, do_ethparam_common,
+	   "Display Interface mode for selected ethernet interface",
+	   "Example - get_mode <ethX> [portm#]\n"
+	   "Use 'ethlist' command to display network interface names\n\n"
+
+	   "For NIX connected interfaces, the target interface\n"
+	   "to query mode from is selected by providing <ethX>\n"
+	   "parameter.\n\n"
+
+	   "For Ethernet Ports connected to BPHY, u-boot doesn't\n"
+	   "register ethX interface. Thus to query mode use one\n"
+	   "of the registered ethX interface connected to NIX\n"
+	   "for sending message to ATF, and pass PORTM# index\n"
+	   "of BPHY interface to query mode from.\n\n"
+
+	   "Example 1 - get mode from eth1 (NIX connected port):\n"
+	   "get_mode eth1\n\n"
+
+	   "Example 2 - get mode from PORTM10 (BPHY connected port):\n"
+	   "get_mode eth0 10\n"
 );
 
 /* Mode Encoding for command help should be in compliant

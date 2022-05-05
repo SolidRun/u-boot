@@ -581,103 +581,167 @@ int eth_intf_set_mode(struct udevice *ethdev, int mode, int port)
 	return 0;
 }
 
-int eth_intf_get_mode(struct udevice *ethdev)
+int eth_intf_get_mode(struct udevice *ethdev, int port)
 {
 	struct rvu_pf *rvu = dev_get_priv(ethdev);
 	struct nix *nix = rvu->nix;
 	union eth_scratchx0 scr0;
 	int ret;
 	union eth_cmd_s cmd;
+	int mode, mode_group;
 
 	memset(&cmd, 0, sizeof(u64));
-	cmd.cmd.id = ETH_CMD_GET_LINK_STS;
+
+	if (port != -1) {
+		cmd.cmd.id = ETH_CMD_GET_PORT_MODE;
+		cmd.port_mode_args.portm_idx = port;
+	} else {
+		cmd.cmd.id = ETH_CMD_GET_LINK_STS;
+	}
+
 	ret = eth_intf_req(nix->lmac->rpm->rpm_id, nix->lmac->lmac_id,
-			   cmd, &scr0.u, 1);
+			   cmd, &scr0.u, 0);
 	if (ret) {
-		printf("Get link status failed for %s\n", ethdev->name);
+		printf("Get mode failed for %s\n", ethdev->name);
 		return -1;
 	}
+
+	if (port != -1) {
+		mode = scr0.s.port_mode.mode;
+		mode_group = scr0.s.port_mode.mode_group_idx;
+	} else {
+		mode = scr0.s.link_sts.mode;
+		mode_group = 0;
+	}
+
 	printf("Current Interface Mode: ");
-	switch (scr0.s.link_sts.mode) {
-	case ETH_MODE_SGMII_BIT:
-		printf("SGMII\n");
+	switch (mode_group) {
+	case 0:
+		switch (mode) {
+		case ETH_MODE_SGMII_BIT:
+			printf("SGMII\n");
+			break;
+		case ETH_MODE_1000_BASEX_BIT:
+			printf("1000 BASE-X\n");
+			break;
+		case ETH_MODE_10G_C2C_BIT:
+			printf("10G_C2C\n");
+			break;
+		case ETH_MODE_10G_C2M_BIT:
+			printf("10G_C2M\n");
+			break;
+		case ETH_MODE_10G_KR_BIT:
+			printf("10G_KR\n");
+			break;
+		case ETH_MODE_25G_C2C_BIT:
+			printf("25GAUI_C2C\n");
+			break;
+		case ETH_MODE_25G_C2M_BIT:
+			printf("25GAUI_C2M\n");
+			break;
+		case ETH_MODE_25G_KR_BIT:
+			printf("25G_KR\n");
+			break;
+		case ETH_MODE_25G_CR_BIT:
+			printf("25G_CR\n");
+			break;
+		case ETH_MODE_40G_C2C_BIT:
+			printf("40GAUI_4_C2C\n");
+			break;
+		case ETH_MODE_40G_C2M_BIT:
+			printf("40GAUI_4_C2M\n");
+			break;
+		case ETH_MODE_40G_KR4_BIT:
+			printf("40G_KR4\n");
+			break;
+		case ETH_MODE_40G_CR4_BIT:
+			printf("40G_CR4\n");
+			break;
+		case ETH_MODE_100G_C2C_BIT:
+			printf("100GAUI_4_C2C\n");
+			break;
+		case ETH_MODE_100G_C2M_BIT:
+			printf("100GAUI_4_C2M\n");
+			break;
+		case ETH_MODE_100G_KR4_BIT:
+			printf("100G_KR4");
+			break;
+		case ETH_MODE_100G_CR4_BIT:
+			printf("100G_CR4");
+			break;
+		case ETH_MODE_50G_C2C_BIT:
+			printf("50GAUI_1_C2C\n");
+			break;
+		case ETH_MODE_50G_C2M_BIT:
+			printf("50GAUI_1_C2M\n");
+			break;
+		case ETH_MODE_100GAUI_2_C2C_BIT:
+			printf("100GAUI_2_C2C\n");
+			break;
+		case ETH_MODE_100GAUI_2_C2M_BIT:
+			printf("100GAUI_2_C2M\n");
+			break;
+		case ETH_MODE_50GAUI_2_C2C_BIT:
+			printf("50GAUI_2_C2C\n");
+			break;
+		case ETH_MODE_50GAUI_2_C2M_BIT:
+			printf("50GAUI_2_C2M\n");
+			break;
+		case ETH_MODE_50GBASE_KR2_C_BIT:
+			printf("50G_KR2_C");
+			break;
+		case ETH_MODE_50GBASE_CR2_C_BIT:
+			printf("50G_CR2_C");
+			break;
+		case ETH_MODE_SFI_1G_BIT:
+			printf("SFI_1G\n");
+			break;
+		/* FIXME: Add other modes when supported by ATF */
+		default:
+			printf("Unknown\n");
+			break;
+		}
 		break;
-	case ETH_MODE_1000_BASEX_BIT:
-		printf("1000 BASE-X\n");
+	case 2:
+		switch (mode) {
+		case ETH_MODE_CPRI_2_4G_BIT:
+			printf("CPRI_2_4G\n");
+			break;
+		case ETH_MODE_CPRI_3_1G_BIT:
+			printf("CPRI_3_1G\n");
+			break;
+		case ETH_MODE_CPRI_4_9G_BIT:
+			printf("CPRI_4_9G\n");
+			break;
+		case ETH_MODE_CPRI_6_1G_BIT:
+			printf("CPRI_6_1G\n");
+			break;
+		case ETH_MODE_CPRI_9_8G_BIT:
+			printf("CPRI_9_8G\n");
+			break;
+		case ETH_MODE_CPRI_2_4G_TEST_BIT:
+			printf("CPRI_2_4G_TEST\n");
+			break;
+		case ETH_MODE_CPRI_3_1G_TEST_BIT:
+			printf("CPRI_3_1G_TEST\n");
+			break;
+		case ETH_MODE_CPRI_4_9G_TEST_BIT:
+			printf("CPRI_4_9G_TEST\n");
+			break;
+		case ETH_MODE_CPRI_6_1G_TEST_BIT:
+			printf("CPRI_6_1G_TEST\n");
+			break;
+		case ETH_MODE_CPRI_9_8G_TEST_BIT:
+			printf("CPRI_9_8G_TEST\n");
+			break;
+		case ETH_MODE_CPRI_12_3G_TEST_BIT:
+			printf("CPRI_12_3G_TEST\n");
+			break;
+		case ETH_MODE_CPRI_19_7G_TEST_BIT:
+			printf("CPRI_19_7G_TEST\n");
+			break;
+		}
 		break;
-	case ETH_MODE_10G_C2C_BIT:
-		printf("10G_C2C\n");
-		break;
-	case ETH_MODE_10G_C2M_BIT:
-		printf("10G_C2M\n");
-		break;
-	case ETH_MODE_10G_KR_BIT:
-		printf("10G_KR\n");
-		break;
-	case ETH_MODE_25G_C2C_BIT:
-		printf("25GAUI_C2C\n");
-		break;
-	case ETH_MODE_25G_C2M_BIT:
-		printf("25GAUI_C2M\n");
-		break;
-	case ETH_MODE_25G_KR_BIT:
-		printf("25G_KR\n");
-		break;
-	case ETH_MODE_25G_CR_BIT:
-		printf("25G_CR\n");
-		break;
-	case ETH_MODE_40G_C2C_BIT:
-		printf("40GAUI_4_C2C\n");
-		break;
-	case ETH_MODE_40G_C2M_BIT:
-		printf("40GAUI_4_C2M\n");
-		break;
-	case ETH_MODE_40G_KR4_BIT:
-		printf("40G_KR4\n");
-		break;
-	case ETH_MODE_40G_CR4_BIT:
-		printf("40G_CR4\n");
-		break;
-	case ETH_MODE_100G_C2C_BIT:
-		printf("100GAUI_4_C2C\n");
-		break;
-	case ETH_MODE_100G_C2M_BIT:
-		printf("100GAUI_4_C2M\n");
-		break;
-	case ETH_MODE_100G_KR4_BIT:
-		printf("100G_KR4");
-		break;
-	case ETH_MODE_100G_CR4_BIT:
-		printf("100G_CR4");
-		break;
-	case ETH_MODE_50G_C2C_BIT:
-		printf("50GAUI_1_C2C\n");
-		break;
-	case ETH_MODE_50G_C2M_BIT:
-		printf("50GAUI_1_C2M\n");
-		break;
-	case ETH_MODE_100GAUI_2_C2C_BIT:
-		printf("100GAUI_2_C2C\n");
-		break;
-	case ETH_MODE_100GAUI_2_C2M_BIT:
-		printf("100GAUI_2_C2M\n");
-		break;
-	case ETH_MODE_50GAUI_2_C2C_BIT:
-		printf("50GAUI_2_C2C\n");
-		break;
-	case ETH_MODE_50GAUI_2_C2M_BIT:
-		printf("50GAUI_2_C2M\n");
-		break;
-	case ETH_MODE_50GBASE_KR2_C_BIT:
-		printf("50G_KR2_C");
-		break;
-	case ETH_MODE_50GBASE_CR2_C_BIT:
-		printf("50G_CR2_C");
-		break;
-	case ETH_MODE_SFI_1G_BIT:
-		printf("SFI_1G\n");
-		break;
-	/* FIXME: Add other modes when supported by ATF */
 	default:
 		printf("Unknown\n");
 		break;
