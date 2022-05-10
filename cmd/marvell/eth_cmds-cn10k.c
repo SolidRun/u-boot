@@ -182,6 +182,14 @@ U_BOOT_CMD(set_mode, 4, 1, do_ethparam_common,
 	"   86 - CPRI_4_9G\n"
 	"   87 - CPRI_6_1G\n"
 	"   88 - CPRI_9_8G\n"
+	"   89 - CPRI_2_4G_TEST\n"
+	"   90 - CPRI_3_1G_TEST\n"
+	"   91 - CPRI_4_9G_TEST\n"
+	"   92 - CPRI_6_1G_TEST\n"
+	"   93 - CPRI_9_8G_TEST\n"
+	"   94 - CPRI_12_3G_TEST\n"
+	"   95 - CPRI_19_7G_TEST\n"
+
 	"Use 'ethlist' command to display network interface names\n"
 );
 
