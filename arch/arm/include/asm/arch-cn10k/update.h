@@ -224,7 +224,8 @@ struct smc_version_info_entry {
 	uint16_t hash_size;		/** Size of hash in bytes */
 	uint16_t flags;			/** Flags for this object */
 	enum smc_version_entry_retcode retcode;	/** Return code if error */
-	uint64_t reserved[7];		/** Reserved for future growth */
+	uint64_t perform_clone;         /** run clone operation on that image */
+	uint64_t reserved[6];		/** Reserved for future growth */
 	uint8_t log[VERIFY_LOG_SIZE];	/** Log for object */
 };
 
@@ -266,6 +267,11 @@ struct smc_version_info_entry {
 #define SMC_VERSION_COPY_TO_BACKUP_OFFSET	BIT(6)
 
 /**
+ * Set this to force copy all objects into backup storage
+ */
+#define SMC_VERSION_FORCE_COPY_OBJECTS		BIT(7)
+
+/**
  * Maximum number of objects that can return the version info
  */
 #define SMC_MAX_VERSION_ENTRIES			32
@@ -302,7 +308,7 @@ enum smc_version_ret {
 };
 
 #define VERSION_MAGIC		0x4e535256	/** VRSN */
-#define VERSION_INFO_VERSION	0x0101	/** 1.1 */
+#define VERSION_INFO_VERSION	0x0102	/** 1.1 */
 
 struct smc_version_info {
 	uint32_t	magic_number;	/** VRSN */
