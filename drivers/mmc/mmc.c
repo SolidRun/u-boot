@@ -407,6 +407,17 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 #endif
 			return 0;
 		}
+#ifdef CONFIG_MMC_STOP_CMD_WORKAROUND
+		/*
+		Data transfer error is notcied randomly when block transfer
+		command is issued after CMD12. Replicate this on selected emmc
+		modes.
+		*/
+		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
+		cmd.cmdarg = 0;
+		cmd.resp_type = MMC_RSP_R1b;
+		mmc_send_cmd(mmc, &cmd, NULL);
+#endif
 	}
 
 	return blkcnt;
