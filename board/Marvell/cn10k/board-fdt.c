@@ -798,7 +798,8 @@ static int ft_board_clean_props(void *blob, int node)
 					"RESET-COUNT-MCP-WDOG",
 					"RESET-COUNT-ECP-WDOG",
 					"DDR-SPEED",
-					"DDR-DMC-MASK"
+					"DDR-DMC-MASK",
+					"SWITCH-RESET"
 					};
 	int offset;
 	const char *name;
