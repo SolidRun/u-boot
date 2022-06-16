@@ -134,7 +134,7 @@ static int do_ethparam_common(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (argc < 3)
 			return CMD_RET_FAILURE;
 		arg = simple_strtol(argv[2], &endp, 0);
-		if (arg < 0 || arg > 6)
+		if (arg < 0 || arg > 8)
 			return ret;
 		ret = cgx_intf_set_mode(dev, arg);
 	}
@@ -221,5 +221,7 @@ U_BOOT_CMD(set_mode, 3, 1, do_ethparam_common,
 	   "	4 - 25G_2_C2C\n"
 	   "	5 - 50G_C2C\n"
 	   "	6 - 50G_4_C2C\n"
+	   "	7 - 100G_C2C\n"
+	   "	8 - 100G_C2M\n"
 	   "Use 'ethlist' command to display network interface names\n"
 );

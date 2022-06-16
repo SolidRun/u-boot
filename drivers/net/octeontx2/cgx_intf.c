@@ -295,7 +295,9 @@ enum cgx_mode {
 	MODE_25G_C2C,
 	MODE_25G_2_C2C,
 	MODE_50G_C2C,
-	MODE_50G_4_C2C
+	MODE_50G_4_C2C,
+	MODE_100G_C2C,
+	MODE_100G_C2M
 };
 
 static char intf_speed_to_str[][8] = {
@@ -348,6 +350,15 @@ static void mode_to_args(int mode, struct cgx_mode_change_args *args)
 	case MODE_50G_4_C2C:
 		args->speed = CGX_LINK_50G;
 		args->mode = BIT_ULL(CGX_MODE_50G_4_C2C_BIT);
+		break;
+	case MODE_100G_C2C:
+		args->speed = CGX_LINK_100G;
+		args->mode = BIT_ULL(CGX_MODE_100G_C2C_BIT);
+		break;
+	case MODE_100G_C2M:
+		args->speed = CGX_LINK_100G;
+		args->mode = BIT_ULL(CGX_MODE_100G_C2M_BIT);
+		break;
 	}
 }
 
@@ -418,6 +429,7 @@ int cgx_intf_get_mode(struct udevice *ethdev)
 		return -1;
 	}
 	printf("Current Interface Mode: ");
+	debug("link_sts = %d\n", scr0.s.link_sts.mode);
 	switch (scr0.s.link_sts.mode) {
 	case CGX_MODE_10G_C2C_BIT:
 		printf("10G_C2C\n");
@@ -439,6 +451,12 @@ int cgx_intf_get_mode(struct udevice *ethdev)
 		break;
 	case CGX_MODE_50G_4_C2C_BIT:
 		printf("50G_4_C2C\n");
+		break;
+	case CGX_MODE_100G_C2C_BIT:
+		printf("100G_C2C\n");
+		break;
+	case CGX_MODE_100G_C2M_BIT:
+		printf("100G_C2M\n");
 		break;
 	default:
 		printf("Unknown\n");
