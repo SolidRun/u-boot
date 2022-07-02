@@ -33,13 +33,11 @@
 #define CONSOLE_NAME	"ttymem"
 #endif
 
-#ifdef CONFIG_CN10K_TTYMEM
-#define CONSOLE_NAME	"ttymem"
-#endif
-
 extern ssize_t smc_flsf_fw_booted(void);
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define BOOTCMD_NAME   "pci-bootcmd"
 
 #ifdef CONFIG_CN10K_TTYMEM
 static int init_ttymem_console(void)
@@ -287,6 +285,47 @@ int dram_init(void)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
+static int init_bootcmd_console(void)
+{
+	int ret = 0;
+	char *stdinname = env_get("stdin");
+	struct udevice *bootcmd_dev = NULL;
+	bool stdin_set;
+	char iomux_name[128];
+
+	debug("%s: stdin before: %s\n", __func__,
+	      stdinname ? stdinname : "NONE");
+	if (!stdinname) {
+		env_set("stdin", "serial");
+		stdinname = env_get("stdin");
+	}
+	stdin_set = !!strstr(stdinname, BOOTCMD_NAME);
+	ret = uclass_get_device_by_driver(UCLASS_SERIAL,
+					  DM_GET_DRIVER(octeontx_bootcmd),
+					  &bootcmd_dev);
+	if (ret) {
+		pr_err("%s: Error getting %s serial class\n", __func__,
+		       BOOTCMD_NAME);
+	} else if (bootcmd_dev) {
+		if (stdin_set)
+			strncpy(iomux_name, stdinname, sizeof(iomux_name));
+		else
+			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
+				 stdinname, bootcmd_dev->name);
+		ret = iomux_doenv(stdin, iomux_name);
+		if (ret)
+			pr_err("%s: Error %d enabling the PCI bootcmd input console \"%s\"\n",
+			       __func__, ret, iomux_name);
+		if (!stdin_set)
+			env_set("stdin", iomux_name);
+	}
+	debug("%s: Set iomux and stdin to %s (ret: %d)\n",
+	      __func__, iomux_name, ret);
+	return ret;
+}
+#endif
+
 #if CONFIG_IS_ENABLED(GENERATE_SMBIOS_TABLE)
 u64 fdt_get_smbios_info(void);
 #endif
@@ -346,6 +385,10 @@ int board_late_init(void)
 	if (IS_ENABLED(CONFIG_TARGET_CN10K_A))
 		board_switch_init();
 
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
+	if (init_bootcmd_console())
+		printf("Failed to init bootcmd input\n");
+#endif
 	if (save_env)
 		env_save();
 
