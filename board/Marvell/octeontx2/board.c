@@ -151,6 +151,22 @@ void board_quiesce_devices(void)
 		printf("couldn't stop watchdog\n");
 }
 
+/* Add board_early_init_f function for octeontx2. This function will be called
+ * in common/board_f.c when enable CONFIG_BOARD_EARLY_INIT_F */
+int board_early_init_f(void)
+{
+/* Disable console if define CONFIG_DISABLE_CONSOLE */
+#ifdef CONFIG_DISABLE_CONSOLE
+	gd->flags |= GD_FLG_DISABLE_CONSOLE;
+#endif
+
+/* Enable slient function if define CONFIG_SILENT_CONSOLE*/
+#ifdef CONFIG_SILENT_CONSOLE
+	gd->flags |= GD_FLG_SILENT;
+#endif
+	return 0;
+}
+
 int board_early_init_r(void)
 {
 	pci_init();
