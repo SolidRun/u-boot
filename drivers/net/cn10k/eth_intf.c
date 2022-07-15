@@ -632,6 +632,29 @@ static int mode_to_args(int mode, struct eth_mode_change_args *args, int flag, i
 	return ret;
 }
 
+int eth_intf_ecp_dump(struct udevice *ethdev, int port, int lmac_id)
+{
+	struct rvu_pf *rvu = dev_get_priv(ethdev);
+	struct nix *nix = rvu->nix;
+	union eth_scratchx0 scr0;
+	int ret;
+	union eth_cmd_s cmd;
+
+	memset(&cmd, 0, sizeof(u64));
+	cmd.cmd.id = ETH_CMD_ECP_DUMP_STATE;
+	cmd.ecp_dump_state_args.portm_idx = port;
+	cmd.ecp_dump_state_args.lmac_id = lmac_id;
+
+	ret = eth_intf_req(nix->lmac->rpm->rpm_id, nix->lmac->lmac_id,
+		cmd, &scr0.u, 0);
+	if (ret) {
+		printf("ECP dump command failed for %s\n", ethdev->name);
+		return -1;
+	}
+
+	return 0;
+}
+
 int eth_intf_set_mode(struct udevice *ethdev, int mode, int port)
 {
 	struct rvu_pf *rvu = dev_get_priv(ethdev);

@@ -114,6 +114,7 @@ enum eth_cmd_id {
 	ETH_CMD_CPRI_MISC,
 	ETH_CMD_LINK_TIMEOUT,
 	ETH_CMD_GET_PORT_MODE,
+	ETH_CMD_ECP_DUMP_STATE,		/* = 45 */
 };
 
 /* async event ids */
@@ -454,6 +455,13 @@ struct eth_get_port_mode_args {
 	uint64_t reserved2:51;
 };
 
+struct eth_ecp_dump_state_args {
+	uint64_t reserved1:8;
+	uint64_t portm_idx:8;
+	uint64_t lmac_id:4;     /* only required for multi-lmac ports */
+	uint64_t reserved2:44;
+};
+
 /* command argument to be passed for cmd ID - ETH_CMD_LINK_CHANGE */
 struct eth_link_change_args {		/* start from bit 8 */
 	u64 reserved1:8;
@@ -599,6 +607,7 @@ union eth_cmd_s {
 	struct eth_set_mode_args mode_args;
 	struct eth_mode_change_args mode_change_args;
 	struct eth_get_port_mode_args port_mode_args;
+	struct eth_ecp_dump_state_args ecp_dump_state_args;
 	struct eth_set_fec_args fec_args;
 	struct eth_do_cmu_reset cmu_args;
 	struct eth_set_phy_mod_args phy_mod_args;
