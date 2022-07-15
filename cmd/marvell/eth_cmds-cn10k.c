@@ -13,6 +13,7 @@
 
 extern int eth_intf_set_mode(struct udevice *ethdev, int mode, int port);
 extern int eth_intf_get_mode(struct udevice *ethdev, int port);
+extern int eth_intf_ecp_dump(struct udevice *ethdev, int port, int lmac_id);
 extern int eth_intf_set_fec(struct udevice *ethdev, int type);
 extern int eth_intf_get_fec(struct udevice *ethdev);
 extern void nix_print_mac_info(struct udevice *dev);
@@ -92,6 +93,23 @@ static int do_ethparam_common(struct cmd_tbl *cmdtp, int flag, int argc,
 			port = simple_strtol(argv[3], &endp, 0);
 
 		ret = eth_intf_set_mode(dev, arg, port);
+	} else if (strcmp(cmd, "ecp_dump") == 0) {
+		int lmac_id = 0;
+
+		if (argc < 3)
+			return CMD_RET_USAGE;
+
+		port = simple_strtol(argv[2], &endp, 0);
+		if (port < 0)
+			return CMD_RET_USAGE;
+
+		if (argc > 3)
+			lmac_id = simple_strtol(argv[3], &endp, 0);
+
+		if (lmac_id < 0)
+			return CMD_RET_USAGE;
+
+		ret = eth_intf_ecp_dump(dev, port, lmac_id);
 	}
 	return (ret == 0) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
@@ -133,6 +151,19 @@ U_BOOT_CMD(get_mode, 3, 1, do_ethparam_common,
 
 	   "Example 2 - get mode from PORTM10 (BPHY connected port):\n"
 	   "get_mode eth0 10\n"
+);
+
+U_BOOT_CMD(
+	ecp_dump, 4, 1, do_ethparam_common,
+	"Dump ECP state log tables for a given PORTM",
+	"<ethX> <portm#> [lmac#]\n\n"
+
+	"Parameters:\n"
+	"ethX:   Registered network interface for sending the message to ATF\n"
+	"\tUse 'ethlist' command to display network interface names\n"
+	"portm#: Port index for which to dump the ECP state tables\n"
+	"lmac#:  (Optional) - provide it only for multi-lmac ports (QSGMII, USGMII etc)\n"
+	"\tto indicate particular lmac within the port for which the tables should be dumped\n"
 );
 
 /* Mode Encoding for command help should be in compliant
