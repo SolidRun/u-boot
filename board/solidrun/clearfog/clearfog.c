@@ -167,11 +167,11 @@ struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 	}
 
 	switch (cf_tlv_data.ram_channels) {
-	default:
 	case 1:
 		for (uint8_t i = 0; i < 5; i++)
 			ifp->as_bus_params[i].cs_bitmask = 0x1;
 		break;
+	default:
 	case 2:
 		for (uint8_t i = 0; i < 5; i++)
 			ifp->as_bus_params[i].cs_bitmask = 0x3;
