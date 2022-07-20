@@ -598,15 +598,6 @@ int fdt_get_board_mac_cnt(bool *use_id)
 	} else {
 		printf("Error: cannot retrieve mac count prop from fdt\n");
 	}
-	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS-NUM-OVERRIDE",
-			  &len);
-	if (str) {
-		if (simple_strtol(str, NULL, 10) >= 0)
-			mac_count = simple_strtol(str, NULL, 10);
-		debug("fdt: MAC_NUM %d\n", mac_count);
-	} else {
-		printf("Error: cannot retrieve mac num override prop\n");
-	}
 	str = fdt_getprop(fdt, node, "BOARD-MAC-ADDRESS-ID-NUM", &len);
 	if (str) {
 		mac_id_count = simple_strtol(str, NULL, 10);
