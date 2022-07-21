@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier:    GPL-2.0
  *
- * Copyright (C) 2020 Marvell International Ltd.
+ * Copyright (C) 2022 Marvell
  *
  * https://spdx.org/licenses
  */
@@ -21,9 +21,7 @@
  * Enumeration rvu_af_int_vec_e
  *
  * RVU Admin Function Interrupt Vector Enumeration Enumerates the MSI-X
- * interrupt vectors. Internal: RVU maintains the state of these vectors
- * internally, and generates GIB messages for it without accessing the
- * MSI-X table region in LLC/DRAM.
+ * interrupt vectors.
  */
 #define RVU_AF_INT_VEC_E_GEN (3)
 #define RVU_AF_INT_VEC_E_MBOX (4)
@@ -35,14 +33,14 @@
  * Enumeration rvu_bar_e
  *
  * RVU Base Address Register Enumeration Enumerates the base address
- * registers. Internal: For documentation only.
+ * registers.
  */
 #define RVU_BAR_E_RVU_PFX_BAR0(a) (0x840000000000ll + 0x1000000000ll * (a))
 #define RVU_BAR_E_RVU_PFX_BAR0_SIZE 0x10000000ull
-#define RVU_BAR_E_RVU_PFX_FUNCX_BAR2(a, b)	\
+#define RVU_BAR_E_RVU_PFX_FUNCX_BAR2(a,b)	\
 	(0x840200000000ll + 0x1000000000ll * (a) + 0x2000000ll * (b))
 #define RVU_BAR_E_RVU_PFX_FUNCX_BAR2_SIZE 0x100000ull
-#define RVU_BAR_E_RVU_PFX_FUNCX_BAR4(a, b)	\
+#define RVU_BAR_E_RVU_PFX_FUNCX_BAR4(a,b)	\
 	(0x840400000000ll + 0x1000000000ll * (a) + 0x2000000ll * (b))
 #define RVU_BAR_E_RVU_PFX_FUNCX_BAR4_SIZE 0x10000ull
 
@@ -92,58 +90,13 @@
 #define RVU_BLOCK_TYPE_E_ZIP (0xc)
 
 /**
- * Enumeration rvu_bus_lf_e
- *
- * INTERNAL: RVU Bus LF Range Enumeration  Enumerates the LF range for
- * the RVU bus. Internal: This is an enum used in csr3 virtual equations.
- */
-#define RVU_BUS_LF_E_RVU_BUS_LFX(a) (0 + 0x2000000 * (a))
-
-/**
- * Enumeration rvu_bus_lf_slot_e
- *
- * INTERNAL: RVU Bus LF Slot Range Enumeration  Enumerates the LF and
- * Slot range for the RVU bus. Internal: This is an enum used in csr3
- * virtual equations.
- */
-#define RVU_BUS_LF_SLOT_E_RVU_BUS_LFX_SLOTX(a, b)	\
-	(0 + 0x2000000 * (a) + 0x1000 * (b))
-
-/**
- * Enumeration rvu_bus_pf_e
- *
- * INTERNAL: RVU Bus PF Range Enumeration  Enumerates the PF range for
- * the RVU bus. Internal: This is an enum used in csr3 virtual equations.
- */
-#define RVU_BUS_PF_E_RVU_BUS_PFX(a) (0ll + 0x1000000000ll * (a))
-
-/**
- * Enumeration rvu_bus_pfvf_e
- *
- * INTERNAL: RVU Bus PFVF Range Enumeration  Enumerates the PF and VF
- * ranges for the RVU bus. Internal: This is an enum used in csr3 virtual
- * equations.
- */
-#define RVU_BUS_PFVF_E_RVU_BUS_PFX(a) (0 + 0x2000000 * (a))
-#define RVU_BUS_PFVF_E_RVU_BUS_VFX(a) (0 + 0x2000000 * (a))
-
-/**
  * Enumeration rvu_busbar_e
  *
  * INTERNAL: RVU Bus Base Address Region Enumeration  Enumerates the base
- * address region for the RVU bus. Internal: This is an enum used in csr3
- * virtual equations.
+ * address region for the RVU bus.
  */
 #define RVU_BUSBAR_E_RVU_BUSBAR0 (0)
 #define RVU_BUSBAR_E_RVU_BUSBAR2 (0x200000000ll)
-
-/**
- * Enumeration rvu_busdid_e
- *
- * INTERNAL: RVU Bus DID Enumeration  Enumerates the DID offset for the
- * RVU bus. Internal: This is an enum used in csr3 virtual equations.
- */
-#define RVU_BUSDID_E_RVU_BUSDID (0x840000000000ll)
 
 /**
  * Enumeration rvu_mbox_e
@@ -151,7 +104,7 @@
  * RVU PF/VF MBOX Address Range Enumeration Enumerates VF BAR2 address
  * range for accessing PF/VF mailbox memory region.
  */
-#define RVU_MBOX_E_RVU_PFX_FUNCX_MBOX(a, b)	\
+#define RVU_MBOX_E_RVU_PFX_FUNCX_MBOX(a,b)	\
 	(0x8402000c0000ll + 0x1000000000ll * (a) + 0x2000000ll * (b))
 
 /**
@@ -231,9 +184,7 @@ union rvu_msix_vec_s {
  *
  * RVU PF Function Identification Structure Identifies an RVU PF/VF, and
  * format of *_PRIV_LF()_CFG[PF_FUNC] in RVU resource blocks, e.g.
- * NPA_PRIV_LF()_CFG[PF_FUNC].  Internal: Also used for PF/VF
- * identification on inter-coprocessor hardware interfaces (NPA, SSO,
- * CPT, ...).
+ * NPA_PRIV_LF()_CFG[PF_FUNC].
  */
 union rvu_pf_func_s {
 	u32 u;
@@ -243,6 +194,31 @@ union rvu_pf_func_s {
 		u32 reserved_16_31                   : 16;
 	} s;
 	/* struct rvu_pf_func_s_s cn; */
+};
+
+/**
+ * Structure rvu_tln_s
+ *
+ * RVU Address Translation Structure Address translation format received
+ * from SMMU in two FLITs.
+ */
+union rvu_tln_s {
+	u64 u;
+	struct rvu_tln_s_s {
+		u64 cacheable                        : 1;
+		u64 qos                              : 4;
+		u64 mpam                             : 11;
+		u64 zero                             : 1;
+		u64 abort_ind                        : 1;
+		u64 ppn                              : 40;
+		u64 nsbypass                         : 1;
+		u64 perm_dre                         : 1;
+		u64 prem_write                       : 1;
+		u64 perm_read                        : 1;
+		u64 non_sec                          : 1;
+		u64 block_size_lsb                   : 1;
+	} s;
+	/* struct rvu_tln_s_s cn; */
 };
 
 /**
@@ -330,51 +306,6 @@ static inline u64 RVU_AF_BLK_RST(void)
 static inline u64 RVU_AF_BLK_RST(void)
 {
 	return 0x30;
-}
-
-/**
- * Register (RVU_PF_BAR0) rvu_af_bp_test
- *
- * INTERNAL: RVUM Backpressure Test Registers
- */
-union rvu_af_bp_test {
-	u64 u;
-	struct rvu_af_bp_test_s {
-		u64 lfsr_freq                        : 12;
-		u64 reserved_12_15                   : 4;
-		u64 bp_cfg                           : 16;
-		u64 enable                           : 8;
-		u64 reserved_40_63                   : 24;
-	} s;
-	/* struct rvu_af_bp_test_s cn; */
-};
-
-static inline u64 RVU_AF_BP_TEST(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RVU_AF_BP_TEST(void)
-{
-	return 0x4000;
-}
-
-/**
- * Register (RVU_PF_BAR0) rvu_af_eco
- *
- * INTERNAL: RVU Admin Function ECO Register
- */
-union rvu_af_eco {
-	u64 u;
-	struct rvu_af_eco_s {
-		u64 eco_rw                           : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct rvu_af_eco_s cn; */
-};
-
-static inline u64 RVU_AF_ECO(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RVU_AF_ECO(void)
-{
-	return 0x20;
 }
 
 /**
@@ -1072,10 +1003,16 @@ static inline u64 RVU_AF_RAS_W1S(void)
 union rvu_af_smmu_addr_req {
 	u64 u;
 	struct rvu_af_smmu_addr_req_s {
+		u64 va                               : 53;
+		u64 reserved_53_63                   : 11;
+	} s;
+	struct rvu_af_smmu_addr_req_cn10ka {
 		u64 va                               : 52;
 		u64 reserved_52_63                   : 12;
-	} s;
-	/* struct rvu_af_smmu_addr_req_s cn; */
+	} cn10ka;
+	/* struct rvu_af_smmu_addr_req_s cn10kb; */
+	/* struct rvu_af_smmu_addr_req_s cnf10ka; */
+	/* struct rvu_af_smmu_addr_req_s cnf10kb; */
 };
 
 static inline u64 RVU_AF_SMMU_ADDR_REQ(void)
@@ -1133,7 +1070,7 @@ static inline u64 RVU_AF_SMMU_ADDR_TLN(void)
 /**
  * Register (RVU_PF_BAR0) rvu_af_smmu_tln_flit0
  *
- * INTERNAL: RVU Admin Function SMMU Translation FLIT0 Register
+ * RVU Admin Function SMMU Translation FLIT0 Register
  */
 union rvu_af_smmu_tln_flit0 {
 	u64 u;
@@ -1148,68 +1085,6 @@ static inline u64 RVU_AF_SMMU_TLN_FLIT0(void)
 static inline u64 RVU_AF_SMMU_TLN_FLIT0(void)
 {
 	return 0x6020;
-}
-
-/**
- * Register (RVU_PF_BAR0) rvu_af_smmu_tln_flit0_1
- *
- * INTERNAL: RVU Admin Function SMMU Translation FLIT0_1 Register
- */
-union rvu_af_smmu_tln_flit0_1 {
-	u64 u;
-	struct rvu_af_smmu_tln_flit0_1_s {
-		u64 data                             : 15;
-		u64 reserved_15_63                   : 49;
-	} s;
-	/* struct rvu_af_smmu_tln_flit0_1_s cn; */
-};
-
-static inline u64 RVU_AF_SMMU_TLN_FLIT0_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RVU_AF_SMMU_TLN_FLIT0_1(void)
-{
-	return 0x6028;
-}
-
-/**
- * Register (RVU_PF_BAR0) rvu_af_smmu_tln_flit1
- *
- * INTERNAL: RVU Admin Function SMMU Translation FLIT1 Register
- */
-union rvu_af_smmu_tln_flit1 {
-	u64 u;
-	struct rvu_af_smmu_tln_flit1_s {
-		u64 data                             : 64;
-	} s;
-	/* struct rvu_af_smmu_tln_flit1_s cn; */
-};
-
-static inline u64 RVU_AF_SMMU_TLN_FLIT1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RVU_AF_SMMU_TLN_FLIT1(void)
-{
-	return 0x6030;
-}
-
-/**
- * Register (RVU_PF_BAR0) rvu_af_smmu_tln_flit1_1
- *
- * INTERNAL: RVU Admin Function SMMU Translation FLIT1_1 Register
- */
-union rvu_af_smmu_tln_flit1_1 {
-	u64 u;
-	struct rvu_af_smmu_tln_flit1_1_s {
-		u64 data                             : 15;
-		u64 reserved_15_63                   : 49;
-	} s;
-	/* struct rvu_af_smmu_tln_flit1_1_s cn; */
-};
-
-static inline u64 RVU_AF_SMMU_TLN_FLIT1_1(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 RVU_AF_SMMU_TLN_FLIT1_1(void)
-{
-	return 0x6038;
 }
 
 /**

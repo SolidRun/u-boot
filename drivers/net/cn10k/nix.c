@@ -407,11 +407,11 @@ struct nix *nix_lf_alloc(struct udevice *dev)
 		return NULL;
 	}
 	nix->lmac->link_num =
-		NIX_LINK_E_RPMX_LMACX(nix->lmac->rpm->rpm_id,
-				      nix->lmac->lmac_id);
+		NIX_LINK_E_RPMX_LMACX_CN10KA(nix->lmac->rpm->rpm_id,
+					     nix->lmac->lmac_id);
 	nix->lmac->chan_num =
-		NIX_CHAN_E_RPMX_LMACX_CHX(nix->lmac->rpm->rpm_id,
-					  nix->lmac->lmac_id, 0);
+		NIX_CHAN_RPM_LMAC_CHX(nix->lmac->rpm->rpm_id,
+				      nix->lmac->lmac_id, 0);
 	/* This is rx pkind in 1:1 mapping to NIX_LINK_E */
 	nix->lmac->pknd = nix->lmac->link_num;
 

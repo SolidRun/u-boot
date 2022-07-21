@@ -590,7 +590,6 @@ static int nix_attach_completion_queue(struct nix *nix, int cq_idx)
 	memset(&cq_req, 0, sizeof(cq_req));
 	cq_req.cq.s.ena = 1;
 	cq_req.cq.s.bpid = nix->lmac->pknd;
-	cq_req.cq.s.substream = 0;
 	cq_req.cq.s.drop_ena = 0;
 	cq_req.cq.s.caching = 1;
 	cq_req.cq.s.qsize = CQS_QSIZE;
