@@ -130,7 +130,7 @@ void cn10k_board_get_mac_addr(u8 index, u8 *mac_addr)
 	memset(mac_addr, 0, ARP_HLEN);
 	mac_num = fdt_get_board_mac_cnt(&use_id);
 
-	if (mac_num && index < mac_num) {
+	if (mac_num && (index < mac_num)) {
 		mac = fdt_get_board_mac_addr(use_id, index);
 		if (!is_zero_ethaddr((u8 *)&mac)) {
 			tmp_mac = mac;
