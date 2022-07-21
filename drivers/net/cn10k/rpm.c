@@ -29,6 +29,7 @@ char lmac_type_to_str[][8] = {
 	"50G_R",
 	"100G_R",
 	"USXGMII",
+	"USGMII",
 };
 
 char lmac_speed_to_str[][8] = {

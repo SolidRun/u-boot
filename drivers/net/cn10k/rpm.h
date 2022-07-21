@@ -35,6 +35,8 @@ enum lmac_type {
 	LMAC_MODE_50G_R		= 8,
 	LMAC_MODE_100G_R	= 9,
 	LMAC_MODE_USXGMII	= 10,
+	LMAC_MODE_USGMII	= 11,
+	LMAC_MODE_MAX		= 12,
 };
 
 extern char lmac_type_to_str[][8];
