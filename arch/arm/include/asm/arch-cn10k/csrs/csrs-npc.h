@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier:    GPL-2.0
  *
- * Copyright (C) 2020 Marvell International Ltd.
+ * Copyright (C) 2022 Marvell
  *
  * https://spdx.org/licenses
  */
@@ -41,6 +41,16 @@
 #define NPC_ERRLEV_E_NIX (0xf)
 #define NPC_ERRLEV_E_RX(a) (0 + (a))
 #define NPC_ERRLEV_E_RE (0)
+
+/**
+ * Enumeration npc_exact_opc_e
+ *
+ * NPC MCAM Search Key Width Enumeration
+ */
+#define NPC_EXACT_OPC_E_INVAL (0)
+#define NPC_EXACT_OPC_E_RESERVED (3)
+#define NPC_EXACT_OPC_E_VAL_CAM (1)
+#define NPC_EXACT_OPC_E_VAL_MEM (2)
 
 /**
  * Enumeration npc_intf_e
@@ -88,6 +98,24 @@
  * NPC Port Kind Type Enumeration Enumerates the NPC pkind PTYPEs.
  */
 #define NPC_PTYPE_E_PTYPEX(a) (0 + (a))
+
+/**
+ * Structure npc_exact_result_s
+ *
+ * NPC Exact Match Search Results Structure This structure specifies the
+ * format of each of the exact match search results to kex.
+ */
+union npc_exact_result_s {
+	u32 u;
+	struct npc_exact_result_s_s {
+		u32 hit                              : 1;
+		u32 opc                              : 2;
+		u32 way                              : 2;
+		u32 index                            : 11;
+		u32 reserved_16_31                   : 16;
+	} s;
+	/* struct npc_exact_result_s_s cn; */
+};
 
 /**
  * Structure npc_layer_info_s
@@ -264,7 +292,7 @@ union npc_result_s {
 /**
  * Register (RVU_PF_BAR0) npc_af_active_pc
  *
- * NPC Interrupt-Timer Configuration Register
+ * NPC AF Active Cycles Register
  */
 union npc_af_active_pc {
 	u64 u;
@@ -392,7 +420,8 @@ union npc_af_const2 {
 	struct npc_af_const2_s {
 		u64 mcam_bank_depth_ext              : 16;
 		u64 match_stats_ext                  : 16;
-		u64 reserved_32_47                   : 16;
+		u64 mcam_subbanks                    : 8;
+		u64 reserved_40_47                   : 8;
 		u64 ctypes                           : 4;
 		u64 ptypes                           : 4;
 		u64 reserved_56_60                   : 5;
@@ -419,12 +448,25 @@ static inline u64 NPC_AF_CONST2(void)
 union npc_af_const3 {
 	u64 u;
 	struct npc_af_const3_s {
-		u64 reserved_0_60                    : 61;
+		u64 exact_match_mem_depth            : 16;
+		u64 exact_match_mem_ways             : 4;
+		u64 reserved_20_23                   : 4;
+		u64 exact_match_cam_depth            : 8;
+		u64 reserved_32_59                   : 28;
+		u64 have_field_hash                  : 1;
 		u64 have_sa_lookup                   : 1;
 		u64 have_exact_match                 : 1;
 		u64 have_const4                      : 1;
 	} s;
-	/* struct npc_af_const3_s cn; */
+	struct npc_af_const3_cn10ka {
+		u64 reserved_0_60                    : 61;
+		u64 have_sa_lookup                   : 1;
+		u64 have_exact_match                 : 1;
+		u64 have_const4                      : 1;
+	} cn10ka;
+	/* struct npc_af_const3_s cn10kb; */
+	/* struct npc_af_const3_cn10ka cnf10ka; */
+	/* struct npc_af_const3_cn10ka cnf10kb; */
 };
 
 static inline u64 NPC_AF_CONST3(void)
@@ -546,45 +588,133 @@ static inline u64 NPC_AF_DBG_STATUS(void)
 }
 
 /**
- * Register (RVU_PF_BAR0) npc_af_dv_fc_scratch
+ * Register (RVU_PF_BAR0) npc_af_exact_cam#
  *
- * INTERNAL: NPC AF Scratch Register  Internal: This register is for
- * internal DV purpose.
+ * NPC AF Exact Match CAM Entry Registers These registers provide the
+ * interface to the exact match lookup cam. The cam is organized as a
+ * fully associative 32 entry lookup. Each exact match search first
+ * search the cam for a match before proceeding to the exact match memory
+ * if no match is found. The depth of the cam is specified by
+ * NPC_AF_CONST3[EXACT_MATCH_CAM_DEPTH].
  */
-union npc_af_dv_fc_scratch {
+union npc_af_exact_camx {
 	u64 u;
-	struct npc_af_dv_fc_scratch_s {
-		u64 it                               : 64;
+	struct npc_af_exact_camx_s {
+		u64 ldata                            : 48;
+		u64 chan                             : 12;
+		u64 ctype                            : 2;
+		u64 reserved_62                      : 1;
+		u64 en                               : 1;
 	} s;
-	/* struct npc_af_dv_fc_scratch_s cn; */
+	/* struct npc_af_exact_camx_s cn; */
 };
 
-static inline u64 NPC_AF_DV_FC_SCRATCH(void)
+static inline u64 NPC_AF_EXACT_CAMX(u64 a)
 	__attribute__ ((pure, always_inline));
-static inline u64 NPC_AF_DV_FC_SCRATCH(void)
+static inline u64 NPC_AF_EXACT_CAMX(u64 a)
 {
-	return 0x60;
+	return 0xc00 + 8 * a;
 }
 
 /**
- * Register (RVU_PF_BAR0) npc_af_eco0
+ * Register (RVU_PF_BAR0) npc_af_exact_dbg
  *
- * INTERNAL: ECO 0 Register
+ * NPC AF Interface Exact Match Debug Register Capture the Exact Match
+ * hash result on a debug packet (NPC_AF_DBG_CTL[INTF_DBG or LKUP_DBG]).
  */
-union npc_af_eco0 {
+union npc_af_exact_dbg {
 	u64 u;
-	struct npc_af_eco0_s {
-		u64 eco_rw                           : 32;
-		u64 reserved_32_63                   : 32;
+	struct npc_af_exact_dbg_s {
+		u64 result                           : 16;
+		u64 index                            : 11;
+		u64 reserved_27_62                   : 36;
+		u64 val                              : 1;
 	} s;
-	/* struct npc_af_eco0_s cn; */
+	/* struct npc_af_exact_dbg_s cn; */
 };
 
-static inline u64 NPC_AF_ECO0(void)
+static inline u64 NPC_AF_EXACT_DBG(void)
 	__attribute__ ((pure, always_inline));
-static inline u64 NPC_AF_ECO0(void)
+static inline u64 NPC_AF_EXACT_DBG(void)
 {
-	return 0x200;
+	return 0xe80;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_exact_way#_entry#
+ *
+ * NPC AF Exact Match Entry Registers These registers provide the
+ * interface to the exact match memory. The memory is organized into 4
+ * ways of 2k entries. Each exact match search that misses in the exact
+ * match cam will attempt to match against all ways at the specified
+ * entry. The number of ways and entries are specified by the registers
+ * NPC_AF_CONST3[EXACT_MATCH_MEM_WAYS] and
+ * NPC_AF_CONST3[EXACT_MATCH_MEM_DEPTH], respectively.
+ */
+union npc_af_exact_wayx_entryx {
+	u64 u;
+	struct npc_af_exact_wayx_entryx_s {
+		u64 ldata                            : 48;
+		u64 chan                             : 12;
+		u64 ctype                            : 2;
+		u64 reserved_62                      : 1;
+		u64 en                               : 1;
+	} s;
+	/* struct npc_af_exact_wayx_entryx_s cn; */
+};
+
+static inline u64 NPC_AF_EXACT_WAYX_ENTRYX(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_EXACT_WAYX_ENTRYX(u64 a, u64 b)
+{
+	return 0x300000 + 0x8000 * a + 8 * b;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_gbl_hash_ctl
+ *
+ * NPC AF Interface Field Hash No Match Value Register This register
+ * value is returned as the hash result for either field hash unit when
+ * there is no match for the LID or LTYPE as configured and there is no
+ * LDATA extracted.
+ */
+union npc_af_gbl_hash_ctl {
+	u64 u;
+	struct npc_af_gbl_hash_ctl_s {
+		u64 nomatch                          : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct npc_af_gbl_hash_ctl_s cn; */
+};
+
+static inline u64 NPC_AF_GBL_HASH_CTL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_GBL_HASH_CTL(void)
+{
+	return 0xa40;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_hash#_dbg
+ *
+ * NPC AF Interface Field Hash Debug Register Capture the Field Hash
+ * result on a debug packet (NPC_AF_DBG_CTL[INTF_DBG or LKUP_DBG]).
+ */
+union npc_af_hashx_dbg {
+	u64 u;
+	struct npc_af_hashx_dbg_s {
+		u64 hash                             : 32;
+		u64 reserved_32_62                   : 31;
+		u64 val                              : 1;
+	} s;
+	/* struct npc_af_hashx_dbg_s cn; */
+};
+
+static inline u64 NPC_AF_HASHX_DBG(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_HASHX_DBG(u64 a)
+{
+	return 0xe90 + 8 * a;
 }
 
 /**
@@ -617,6 +747,175 @@ static inline u64 NPC_AF_IKPU_ERR_CTL(void)
 }
 
 /**
+ * Register (RVU_PF_BAR0) npc_af_intf#_exact_cfg
+ *
+ * NPC AF Interface Exact Match Configuration Registers These registers
+ * control the extraction of layer data (LDATA) into a field that is
+ * compared with values stored in NPC_AF_EXACT_WAY()_ENTRY(). One LDATA
+ * value up to 48b may be extracted from the layer specified by LID or
+ * LTYPE. The extracted data is optionally concatenated with
+ * NPC_RESULT_S[CHAN], then hashed to create a lookup address for the
+ * NPC_AF_EXACT_WAY()_ENTRY() array. 4 ways per address are stored at
+ * each index to handle hash collisions.
+ */
+union npc_af_intfx_exact_cfg {
+	u64 u;
+	struct npc_af_intfx_exact_cfg_s {
+		u64 ltype_mask                       : 4;
+		u64 ltype_match                      : 4;
+		u64 lid                              : 3;
+		u64 lid_en                           : 1;
+		u64 lt_en                            : 1;
+		u64 reserved_13_15                   : 3;
+		u64 bytesm1                          : 3;
+		u64 reserved_19_31                   : 13;
+		u64 hdr_offset                       : 8;
+		u64 reserved_40_63                   : 24;
+	} s;
+	/* struct npc_af_intfx_exact_cfg_s cn; */
+};
+
+static inline u64 NPC_AF_INTFX_EXACT_CFG(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_INTFX_EXACT_CFG(u64 a)
+{
+	return 0xa00 + 8 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_intf#_exact_mask
+ *
+ * NPC AF INTF Exact Match Mask Registers These registers allow for
+ * precise control over which bits are to be included in a match
+ * operation. A value of zero in any of the mask fields [CTYPE, CHAN,
+ * LDATA] indicate that the bit will be treated as zero for the purposes
+ * of matching. The value one indicates that the data field bit will be
+ * included normally.
+ */
+union npc_af_intfx_exact_mask {
+	u64 u;
+	struct npc_af_intfx_exact_mask_s {
+		u64 ldata                            : 48;
+		u64 chan                             : 12;
+		u64 ctype                            : 2;
+		u64 reserved_62_63                   : 2;
+	} s;
+	/* struct npc_af_intfx_exact_mask_s cn; */
+};
+
+static inline u64 NPC_AF_INTFX_EXACT_MASK(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_INTFX_EXACT_MASK(u64 a)
+{
+	return 0x660 + 8 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_intf#_exact_result_ctl
+ *
+ * NPC AF INTF Exact Match Result Control Registers Provides the ability
+ * to adjust the resulting hash value for lookup into
+ * NPC_AF_EXACT_WAY()_ENTRY().
+ */
+union npc_af_intfx_exact_result_ctl {
+	u64 u;
+	struct npc_af_intfx_exact_result_ctl_s {
+		u64 offset                           : 11;
+		u64 reserved_11_31                   : 21;
+		u64 mask                             : 11;
+		u64 reserved_43_63                   : 21;
+	} s;
+	/* struct npc_af_intfx_exact_result_ctl_s cn; */
+};
+
+static inline u64 NPC_AF_INTFX_EXACT_RESULT_CTL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_INTFX_EXACT_RESULT_CTL(u64 a)
+{
+	return 0x680 + 8 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_intf#_hash#_cfg
+ *
+ * NPC AF Interface Field Hash Configuration Registers These registers
+ * control the extraction of layer data (LDATA) into a field that is
+ * hashed and can be inserted into the MCAM key. See
+ * NPC_AF_INTF()_LID()_LT()_LD()_CFG[USE_HASH]. The LDATA value up to
+ * 128b may be extracted from the layer specified by LID or LTYPE.
+ */
+union npc_af_intfx_hashx_cfg {
+	u64 u;
+	struct npc_af_intfx_hashx_cfg_s {
+		u64 ltype_mask                       : 4;
+		u64 ltype_match                      : 4;
+		u64 lid                              : 3;
+		u64 lid_en                           : 1;
+		u64 lt_en                            : 1;
+		u64 reserved_13_15                   : 3;
+		u64 bytesm1                          : 4;
+		u64 reserved_20_31                   : 12;
+		u64 hdr_offset                       : 8;
+		u64 reserved_40_63                   : 24;
+	} s;
+	/* struct npc_af_intfx_hashx_cfg_s cn; */
+};
+
+static inline u64 NPC_AF_INTFX_HASHX_CFG(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_INTFX_HASHX_CFG(u64 a, u64 b)
+{
+	return 0xb00 + 0x40 * a + 0x10 * b;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_intf#_hash#_mask#
+ *
+ * NPC AF INTF HASH Mask Registers These registers allow for precise
+ * control over which bits are to be included in the data hash operation.
+ * A value of zero in DATA indicate that the bit will be treated as zero
+ * for the purposes of hashing. The value one indicates that the
+ * extracted packet header data bit will included normally.
+ */
+union npc_af_intfx_hashx_maskx {
+	u64 u;
+	struct npc_af_intfx_hashx_maskx_s {
+		u64 data                             : 64;
+	} s;
+	/* struct npc_af_intfx_hashx_maskx_s cn; */
+};
+
+static inline u64 NPC_AF_INTFX_HASHX_MASKX(u64 a, u64 b, u64 c)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_INTFX_HASHX_MASKX(u64 a, u64 b, u64 c)
+{
+	return 0x700 + 0x20 * a + 0x10 * b + 8 * c;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_intf#_hash#_result_ctl
+ *
+ * NPC AF INTF Exact Match Result Control Registers Provides the ability
+ * to adjust the resulting hash value to be inserted into the MCAM key.
+ * See NPC_AF_INTF()_LID()_LT()_LD()_CFG[USE_HASH].
+ */
+union npc_af_intfx_hashx_result_ctl {
+	u64 u;
+	struct npc_af_intfx_hashx_result_ctl_s {
+		u64 offset                           : 32;
+		u64 mask                             : 32;
+	} s;
+	/* struct npc_af_intfx_hashx_result_ctl_s cn; */
+};
+
+static inline u64 NPC_AF_INTFX_HASHX_RESULT_CTL(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_INTFX_HASHX_RESULT_CTL(u64 a, u64 b)
+{
+	return 0x6c0 + 0x10 * a + 8 * b;
+}
+
+/**
  * Register (RVU_PF_BAR0) npc_af_intf#_kex_cfg
  *
  * NPC AF Interface Key Extract Configuration Registers
@@ -627,9 +926,19 @@ union npc_af_intfx_kex_cfg {
 		u64 parse_nibble_ena                 : 31;
 		u64 reserved_31                      : 1;
 		u64 keyw                             : 3;
-		u64 reserved_35_63                   : 29;
+		u64 reserved_35_39                   : 5;
+		u64 exact_nibble_ena                 : 4;
+		u64 reserved_44_63                   : 20;
 	} s;
-	/* struct npc_af_intfx_kex_cfg_s cn; */
+	struct npc_af_intfx_kex_cfg_cn10ka {
+		u64 parse_nibble_ena                 : 31;
+		u64 reserved_31                      : 1;
+		u64 keyw                             : 3;
+		u64 reserved_35_63                   : 29;
+	} cn10ka;
+	/* struct npc_af_intfx_kex_cfg_s cn10kb; */
+	/* struct npc_af_intfx_kex_cfg_cn10ka cnf10ka; */
+	/* struct npc_af_intfx_kex_cfg_cn10ka cnf10kb; */
 };
 
 static inline u64 NPC_AF_INTFX_KEX_CFG(u64 a)
@@ -696,9 +1005,20 @@ union npc_af_intfx_lidx_ltx_ldx_cfg {
 		u64 ena                              : 1;
 		u64 hdr_offset                       : 8;
 		u64 bytesm1                          : 4;
-		u64 reserved_20_63                   : 44;
+		u64 use_hash                         : 1;
+		u64 reserved_21_63                   : 43;
 	} s;
-	/* struct npc_af_intfx_lidx_ltx_ldx_cfg_s cn; */
+	struct npc_af_intfx_lidx_ltx_ldx_cfg_cn10ka {
+		u64 key_offset                       : 6;
+		u64 flags_ena                        : 1;
+		u64 ena                              : 1;
+		u64 hdr_offset                       : 8;
+		u64 bytesm1                          : 4;
+		u64 reserved_20_63                   : 44;
+	} cn10ka;
+	/* struct npc_af_intfx_lidx_ltx_ldx_cfg_s cn10kb; */
+	/* struct npc_af_intfx_lidx_ltx_ldx_cfg_cn10ka cnf10ka; */
+	/* struct npc_af_intfx_lidx_ltx_ldx_cfg_cn10ka cnf10kb; */
 };
 
 static inline u64 NPC_AF_INTFX_LIDX_LTX_LDX_CFG(u64 a, u64 b, u64 c, u64 d)
@@ -745,7 +1065,14 @@ union npc_af_intfx_miss_stat_act {
 		u64 reserved_12_62                   : 51;
 		u64 ena                              : 1;
 	} s;
-	/* struct npc_af_intfx_miss_stat_act_s cn; */
+	/* struct npc_af_intfx_miss_stat_act_s cn10ka; */
+	struct npc_af_intfx_miss_stat_act_cn10kb {
+		u64 stat_sel                         : 10;
+		u64 reserved_10_62                   : 53;
+		u64 ena                              : 1;
+	} cn10kb;
+	/* struct npc_af_intfx_miss_stat_act_s cnf10ka; */
+	/* struct npc_af_intfx_miss_stat_act_s cnf10kb; */
 };
 
 static inline u64 NPC_AF_INTFX_MISS_STAT_ACT(u64 a)
@@ -777,6 +1104,70 @@ static inline u64 NPC_AF_INTFX_MISS_TAG_ACT(u64 a)
 static inline u64 NPC_AF_INTFX_MISS_TAG_ACT(u64 a)
 {
 	return 0x1b00008 + 0x10 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_intf#_secret_key0
+ *
+ * NPC AF Interface Hash Key0 Registers First 64 bits of key for the
+ * Toeplitz hash for both the exact and field hashes.
+ */
+union npc_af_intfx_secret_key0 {
+	u64 u;
+	struct npc_af_intfx_secret_key0_s {
+		u64 key                              : 64;
+	} s;
+	/* struct npc_af_intfx_secret_key0_s cn; */
+};
+
+static inline u64 NPC_AF_INTFX_SECRET_KEY0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_INTFX_SECRET_KEY0(u64 a)
+{
+	return 0xe00 + 8 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_intf#_secret_key1
+ *
+ * NPC AF Interface Hash Key1 Registers Second 64 bits of key for
+ * Toeplitz hash for field hashes.
+ */
+union npc_af_intfx_secret_key1 {
+	u64 u;
+	struct npc_af_intfx_secret_key1_s {
+		u64 key                              : 64;
+	} s;
+	/* struct npc_af_intfx_secret_key1_s cn; */
+};
+
+static inline u64 NPC_AF_INTFX_SECRET_KEY1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_INTFX_SECRET_KEY1(u64 a)
+{
+	return 0xe20 + 8 * a;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_intf#_secret_key2
+ *
+ * NPC AF Interface Hash Key2 Registers Last 31 bits of key for Toeplitz
+ * hash for exact and field hashes.
+ */
+union npc_af_intfx_secret_key2 {
+	u64 u;
+	struct npc_af_intfx_secret_key2_s {
+		u64 key                              : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct npc_af_intfx_secret_key2_s cn; */
+};
+
+static inline u64 NPC_AF_INTFX_SECRET_KEY2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_INTFX_SECRET_KEY2(u64 a)
+{
+	return 0xe40 + 8 * a;
 }
 
 /**
@@ -1186,7 +1577,17 @@ union npc_af_mcam_dbg {
 		u64 miss                             : 1;
 		u64 reserved_17_63                   : 47;
 	} s;
-	/* struct npc_af_mcam_dbg_s cn; */
+	/* struct npc_af_mcam_dbg_s cn10ka; */
+	struct npc_af_mcam_dbg_cn10kb {
+		u64 hit_entry                        : 10;
+		u64 reserved_10_11                   : 2;
+		u64 hit_bank                         : 2;
+		u64 reserved_14_15                   : 2;
+		u64 miss                             : 1;
+		u64 reserved_17_63                   : 47;
+	} cn10kb;
+	/* struct npc_af_mcam_dbg_s cnf10ka; */
+	/* struct npc_af_mcam_dbg_s cnf10kb; */
 };
 
 static inline u64 NPC_AF_MCAM_DBG(void)
@@ -1194,27 +1595,6 @@ static inline u64 NPC_AF_MCAM_DBG(void)
 static inline u64 NPC_AF_MCAM_DBG(void)
 {
 	return 0x3001000;
-}
-
-/**
- * Register (RVU_PF_BAR0) npc_af_mcam_pwr_cfg
- *
- * INTERNAL: NPC AF MCAM Power Configuration Register
- */
-union npc_af_mcam_pwr_cfg {
-	u64 u;
-	struct npc_af_mcam_pwr_cfg_s {
-		u64 dis_pwr_save                     : 1;
-		u64 reserved_1_63                    : 63;
-	} s;
-	/* struct npc_af_mcam_pwr_cfg_s cn; */
-};
-
-static inline u64 NPC_AF_MCAM_PWR_CFG(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 NPC_AF_MCAM_PWR_CFG(void)
-{
-	return 0x3005000;
 }
 
 /**
@@ -1499,7 +1879,14 @@ union npc_af_mcamex_bankx_stat_act_ext {
 		u64 reserved_12_62                   : 51;
 		u64 ena                              : 1;
 	} s;
-	/* struct npc_af_mcamex_bankx_stat_act_ext_s cn; */
+	/* struct npc_af_mcamex_bankx_stat_act_ext_s cn10ka; */
+	struct npc_af_mcamex_bankx_stat_act_ext_cn10kb {
+		u64 stat_sel                         : 10;
+		u64 reserved_10_62                   : 53;
+		u64 ena                              : 1;
+	} cn10kb;
+	/* struct npc_af_mcamex_bankx_stat_act_ext_s cnf10ka; */
+	/* struct npc_af_mcamex_bankx_stat_act_ext_s cnf10kb; */
 };
 
 static inline u64 NPC_AF_MCAMEX_BANKX_STAT_ACT_EXT(u64 a, u64 b)
@@ -1529,54 +1916,6 @@ static inline u64 NPC_AF_MCAMEX_BANKX_TAG_ACT_EXT(u64 a, u64 b)
 static inline u64 NPC_AF_MCAMEX_BANKX_TAG_ACT_EXT(u64 a, u64 b)
 {
 	return 0x8000048 + 0x100 * a + 0x400000 * b;
-}
-
-/**
- * Register (RVU_PF_BAR0) npc_af_nife_bp_test
- *
- * INTERNAL: NPC AF NIFE Backpressure Test Register
- */
-union npc_af_nife_bp_test {
-	u64 u;
-	struct npc_af_nife_bp_test_s {
-		u64 lfsr_freq                        : 12;
-		u64 reserved_12_15                   : 4;
-		u64 bp_cfg                           : 8;
-		u64 reserved_24_59                   : 36;
-		u64 enable                           : 4;
-	} s;
-	/* struct npc_af_nife_bp_test_s cn; */
-};
-
-static inline u64 NPC_AF_NIFE_BP_TEST(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 NPC_AF_NIFE_BP_TEST(void)
-{
-	return 0x3003008;
-}
-
-/**
- * Register (RVU_PF_BAR0) npc_af_nifi_bp_test
- *
- * INTERNAL: NPC AF NIFI Backpressure Test Register
- */
-union npc_af_nifi_bp_test {
-	u64 u;
-	struct npc_af_nifi_bp_test_s {
-		u64 lfsr_freq                        : 12;
-		u64 reserved_12_15                   : 4;
-		u64 bp_cfg                           : 8;
-		u64 reserved_24_59                   : 36;
-		u64 enable                           : 4;
-	} s;
-	/* struct npc_af_nifi_bp_test_s cn; */
-};
-
-static inline u64 NPC_AF_NIFI_BP_TEST(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 NPC_AF_NIFI_BP_TEST(void)
-{
-	return 0x3003000;
 }
 
 /**
@@ -1708,6 +2047,28 @@ static inline u64 NPC_AF_PCK_DEF_OL2(void)
 static inline u64 NPC_AF_PCK_DEF_OL2(void)
 {
 	return 0x610;
+}
+
+/**
+ * Register (RVU_PF_BAR0) npc_af_pck_scrub_ctl
+ *
+ * NPC AF PCK Scrub Control Register
+ */
+union npc_af_pck_scrub_ctl {
+	u64 u;
+	struct npc_af_pck_scrub_ctl_s {
+		u64 ena_mem                          : 1;
+		u64 ena_cam                          : 1;
+		u64 reserved_2_63                    : 62;
+	} s;
+	/* struct npc_af_pck_scrub_ctl_s cn; */
+};
+
+static inline u64 NPC_AF_PCK_SCRUB_CTL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 NPC_AF_PCK_SCRUB_CTL(void)
+{
+	return 0x650;
 }
 
 /**

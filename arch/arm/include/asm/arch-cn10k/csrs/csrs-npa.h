@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier:    GPL-2.0
  *
- * Copyright (C) 2020 Marvell International Ltd.
+ * Copyright (C) 2022 Marvell
  *
  * https://spdx.org/licenses
  */
@@ -163,15 +163,13 @@
  * Structure npa_aq_inst_s
  *
  * NPA Admin Queue Instruction Structure This structure specifies the AQ
- * instruction. Instructions and associated software structures are
- * stored in memory as little-endian unless NPA_AF_GEN_CFG[AF_BE] is set.
- * Hardware reads of NPA_AQ_INST_S do not allocate into LLC.  Hardware
- * reads and writes of the context structure selected by [CTYPE], [LF]
- * and [CINDEX] use the NDC and LLC caching style configured for that
- * context, i.e.: * NPA_AURA_HW_S reads and writes use
- * NPA_AF_LF()_AURAS_CFG[CACHING] and NPA_AF_LF()_AURAS_CFG[WAY_MASK]. *
- * NPA_POOL_HW_S reads and writes use NPA_AURA_HW_S[POOL_CACHING] and
- * NPA_AURA_HW_S[POOL_WAY_MASK].
+ * instruction.  Hardware reads of NPA_AQ_INST_S do not allocate into
+ * LLC.  Hardware reads and writes of the context structure selected by
+ * [CTYPE], [LF] and [CINDEX] use the NDC and LLC caching style
+ * configured for that context, i.e.: * NPA_AURA_HW_S reads and writes
+ * use NPA_AF_LF()_AURAS_CFG[CACHING] and
+ * NPA_AF_LF()_AURAS_CFG[WAY_MASK]. * NPA_POOL_HW_S reads and writes use
+ * NPA_AURA_HW_S[POOL_CACHING] and NPA_AURA_HW_S[POOL_WAY_MASK].
  */
 union npa_aq_inst_s {
 	u64 u[2];
@@ -194,11 +192,9 @@ union npa_aq_inst_s {
  * NPA Admin Queue Result Structure NPA writes this structure after it
  * completes the NPA_AQ_INST_S instruction. The result structure is
  * exactly 16 bytes, and each instruction completion produces exactly one
- * result structure.  Results and associated software structures are
- * stored in memory as little-endian unless NPA_AF_GEN_CFG[AF_BE] is set.
- * When [OP] = NPA_AQ_INSTOP_E::INIT, WRITE or READ, this structure is
- * immediately followed by context read or write data. See
- * NPA_AQ_INSTOP_E.  Hardware writes of NPA_AQ_RES_S and context data
+ * result structure.  When [OP] = NPA_AQ_INSTOP_E::INIT, WRITE or READ,
+ * this structure is immediately followed by context read or write data.
+ * See NPA_AQ_INSTOP_E.  Hardware writes of NPA_AQ_RES_S and context data
  * always allocate into LLC. Hardware reads of context data do not
  * allocate into LLC.
  */
@@ -350,100 +346,6 @@ union npa_batch_alloc_swap_s {
 };
 
 /**
- * Structure npa_lf_aura_op_free0_swap_s
- *
- * NPA LF AURA OP FREE0 SWAP Structure This structure specifies the swap
- * data format of a 128-bit atomic CAS operation to NPA_LF_POOL_OP_FREE0
- * register.
- */
-union npa_lf_aura_op_free0_swap_s {
-	u64 u;
-	struct npa_lf_aura_op_free0_swap_s_s {
-		u64 addr                             : 64;
-	} s;
-	/* struct npa_lf_aura_op_free0_swap_s_s cn; */
-};
-
-/**
- * Structure npa_lf_aura_op_free1_swap_s
- *
- * NPA LF AURA OP FREE1 SWAP Structure This structure specifies the swap
- * data format of a 128-bit atomic CAS operation to NPA_LF_POOL_OP_FREE1
- * register.
- */
-union npa_lf_aura_op_free1_swap_s {
-	u64 u;
-	struct npa_lf_aura_op_free1_swap_s_s {
-		u64 aura                             : 20;
-		u64 reserved_20_62                   : 43;
-		u64 fabs                             : 1;
-	} s;
-	/* struct npa_lf_aura_op_free1_swap_s_s cn; */
-};
-
-/**
- * Structure npa_pool_ptr_end0_swap_s
- *
- * NPA LF POOL OP Pointer END0 SWAP Structure This structure specifies
- * the swap data format of a 128-bit atomic CAS operation to
- * NPA_LF_POOL_OP_PTR_END0 register.
- */
-union npa_pool_ptr_end0_swap_s {
-	u64 u;
-	struct npa_pool_ptr_end0_swap_s_s {
-		u64 ptr_end                          : 64;
-	} s;
-	/* struct npa_pool_ptr_end0_swap_s_s cn; */
-};
-
-/**
- * Structure npa_pool_ptr_end1_swap_s
- *
- * NPA LF POOL OP Pointer END1 SWAP Structure This structure specifies
- * the swap data format of a 128-bit atomic CAS operation to
- * NPA_LF_POOL_OP_PTR_END1 register.
- */
-union npa_pool_ptr_end1_swap_s {
-	u64 u;
-	struct npa_pool_ptr_end1_swap_s_s {
-		u64 aura                             : 20;
-		u64 reserved_20_63                   : 44;
-	} s;
-	/* struct npa_pool_ptr_end1_swap_s_s cn; */
-};
-
-/**
- * Structure npa_pool_ptr_start0_swap_s
- *
- * NPA LF POOL OP Pointer Start0 SWAP Structure This structure specifies
- * the swap data format of a 128-bit atomic CAS operation to
- * NPA_LF_POOL_OP_PTR_START0 register.
- */
-union npa_pool_ptr_start0_swap_s {
-	u64 u;
-	struct npa_pool_ptr_start0_swap_s_s {
-		u64 ptr_start                        : 64;
-	} s;
-	/* struct npa_pool_ptr_start0_swap_s_s cn; */
-};
-
-/**
- * Structure npa_pool_ptr_start1_swap_s
- *
- * NPA LF POOL OP Pointer START1 SWAP Structure This structure specifies
- * the swap data format of a 128-bit atomic CAS operation to
- * NPA_LF_POOL_OP_PTR_START1 register.
- */
-union npa_pool_ptr_start1_swap_s {
-	u64 u;
-	struct npa_pool_ptr_start1_swap_s_s {
-		u64 aura                             : 20;
-		u64 reserved_20_63                   : 44;
-	} s;
-	/* struct npa_pool_ptr_start1_swap_s_s cn; */
-};
-
-/**
  * Structure npa_pool_s
  *
  * NPA Pool Context Structure This structure specifies the format used by
@@ -518,8 +420,7 @@ union npa_pool_s {
  * in NDC/LLC/DRAM. Software accesses this structure with the
  * NPA_LF_QINT()_* registers. Hardware maintains a table of
  * NPA_AF_CONST[QINTS] contiguous NPA_QINT_HW_S structures per LF
- * starting at IOVA NPA_AF_LF()_QINTS_BASE. Always stored in byte
- * invariant little-endian format (LE8).
+ * starting at IOVA NPA_AF_LF()_QINTS_BASE.
  */
 union npa_qint_hw_s {
 	u32 u;
@@ -700,27 +601,6 @@ static inline u64 NPA_AF_AQ_DONE_INT(void)
 static inline u64 NPA_AF_AQ_DONE_INT(void)
 {
 	return 0x680;
-}
-
-/**
- * Register (RVU_PF_BAR0) npa_af_aq_done_int_w1s
- *
- * INTERNAL: NPA AF AQ Done Interrupt Set Register
- */
-union npa_af_aq_done_int_w1s {
-	u64 u;
-	struct npa_af_aq_done_int_w1s_s {
-		u64 done                             : 1;
-		u64 reserved_1_63                    : 63;
-	} s;
-	/* struct npa_af_aq_done_int_w1s_s cn; */
-};
-
-static inline u64 NPA_AF_AQ_DONE_INT_W1S(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 NPA_AF_AQ_DONE_INT_W1S(void)
-{
-	return 0x688;
 }
 
 /**
@@ -922,50 +802,6 @@ static inline u64 NPA_AF_BATCH_ACCEPT_CTL(void)
 }
 
 /**
- * Register (RVU_PF_BAR0) npa_af_batch_aux_dbg_sel
- *
- * INTERNAL: NPA AF BATCH AUX Debug Select Register
- */
-union npa_af_batch_aux_dbg_sel {
-	u64 u;
-	struct npa_af_batch_aux_dbg_sel_s {
-		u64 sel                              : 8;
-		u64 reserved_8_63                    : 56;
-	} s;
-	/* struct npa_af_batch_aux_dbg_sel_s cn; */
-};
-
-static inline u64 NPA_AF_BATCH_AUX_DBG_SEL(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 NPA_AF_BATCH_AUX_DBG_SEL(void)
-{
-	return 0x6e0;
-}
-
-/**
- * Register (RVU_PF_BAR0) npa_af_batch_bp_test
- *
- * INTERNAL: NPA AF BATCH Backpressure Test Register
- */
-union npa_af_batch_bp_test {
-	u64 u;
-	struct npa_af_batch_bp_test_s {
-		u64 lfsr_freq                        : 12;
-		u64 reserved_12_15                   : 4;
-		u64 bp_cfg                           : 32;
-		u64 enable                           : 16;
-	} s;
-	/* struct npa_af_batch_bp_test_s cn; */
-};
-
-static inline u64 NPA_AF_BATCH_BP_TEST(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 NPA_AF_BATCH_BP_TEST(void)
-{
-	return 0x6b0;
-}
-
-/**
  * Register (RVU_PF_BAR0) npa_af_batch_ctl
  *
  * NPA AF Batch Control Register Specifies control parameters.
@@ -985,27 +821,6 @@ static inline u64 NPA_AF_BATCH_CTL(void)
 static inline u64 NPA_AF_BATCH_CTL(void)
 {
 	return 0x6a0;
-}
-
-/**
- * Register (RVU_PF_BAR0) npa_af_batch_eco
- *
- * INTERNAL: NPA AF BATCH ECO Register
- */
-union npa_af_batch_eco {
-	u64 u;
-	struct npa_af_batch_eco_s {
-		u64 eco_rw                           : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct npa_af_batch_eco_s cn; */
-};
-
-static inline u64 NPA_AF_BATCH_ECO(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 NPA_AF_BATCH_ECO(void)
-{
-	return 0x6b8;
 }
 
 /**
@@ -1072,29 +887,6 @@ static inline u64 NPA_AF_BLK_RST(void)
 static inline u64 NPA_AF_BLK_RST(void)
 {
 	return 0;
-}
-
-/**
- * Register (RVU_PF_BAR0) npa_af_bp_test
- *
- * INTERNAL: NPA AF Backpressure Test Register
- */
-union npa_af_bp_test {
-	u64 u;
-	struct npa_af_bp_test_s {
-		u64 lfsr_freq                        : 12;
-		u64 reserved_12_15                   : 4;
-		u64 bp_cfg                           : 32;
-		u64 enable                           : 16;
-	} s;
-	/* struct npa_af_bp_test_s cn; */
-};
-
-static inline u64 NPA_AF_BP_TEST(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 NPA_AF_BP_TEST(void)
-{
-	return 0x200;
 }
 
 /**
@@ -1168,27 +960,6 @@ static inline u64 NPA_AF_DTX_FILTER_CTL(void)
 static inline u64 NPA_AF_DTX_FILTER_CTL(void)
 {
 	return 0x10040;
-}
-
-/**
- * Register (RVU_PF_BAR0) npa_af_eco
- *
- * INTERNAL: NPA AF ECO Register
- */
-union npa_af_eco {
-	u64 u;
-	struct npa_af_eco_s {
-		u64 eco_rw                           : 32;
-		u64 reserved_32_63                   : 32;
-	} s;
-	/* struct npa_af_eco_s cn; */
-};
-
-static inline u64 NPA_AF_ECO(void)
-	__attribute__ ((pure, always_inline));
-static inline u64 NPA_AF_ECO(void)
-{
-	return 0x300;
 }
 
 /**
@@ -1308,9 +1079,25 @@ union npa_af_gen_cfg {
 		u64 ocla_bp                          : 1;
 		u64 reserved_11                      : 1;
 		u64 ratem1                           : 4;
-		u64 reserved_16_63                   : 48;
+		u64 stash_cmd_ststf                  : 1;
+		u64 reserved_17_63                   : 47;
 	} s;
-	/* struct npa_af_gen_cfg_s cn; */
+	struct npa_af_gen_cfg_cn10ka_p1 {
+		u64 reserved_0                       : 1;
+		u64 af_be                            : 1;
+		u64 reserved_2                       : 1;
+		u64 force_cond_clk_en                : 1;
+		u64 force_intf_clk_en                : 1;
+		u64 reserved_5_9                     : 5;
+		u64 ocla_bp                          : 1;
+		u64 reserved_11                      : 1;
+		u64 ratem1                           : 4;
+		u64 reserved_16_63                   : 48;
+	} cn10ka_p1;
+	/* struct npa_af_gen_cfg_s cn10ka_p2; */
+	/* struct npa_af_gen_cfg_s cn10kb; */
+	/* struct npa_af_gen_cfg_cn10ka_p1 cnf10ka; */
+	/* struct npa_af_gen_cfg_cn10ka_p1 cnf10kb; */
 };
 
 static inline u64 NPA_AF_GEN_CFG(void)
@@ -1836,8 +1623,7 @@ static inline u64 NPA_AF_RVU_LF_CFG_DEBUG(void)
  * was accepted, or non-zero value if not accepted as enumerated by
  * NPA_BATCH_ALLOC_RESULT_E. All other accesses to this register (e.g.
  * reads and writes) are RAZ/WI.  RSL accesses to this register are
- * RAZ/WI.  NPA always assumes that the atomic operand data is little-
- * endian.  If processed, the batch allocate request will DMA write one
+ * RAZ/WI.  If processed, the batch allocate request will DMA write one
  * or more cachelines to address beginning at
  * NPA_BATCH_ALLOC_SWAP_S[ADDRESS].  A Status field as described by
  * NPA_BATCH_ALLOC_STATUS_S will be updated by HW upon DMA write
@@ -1926,9 +1712,8 @@ static inline u64 NPA_LF_AURA_BATCH_FREE0(void)
  * two pointers. The atomic write data format is NPA_AURA_OP_WDATA_S. For
  * CASP, the first SWAP word in the write data contains
  * NPA_AURA_OP_WDATA_S and the remaining write data words are ignored.
- * NPA always assumes that the atomic operand data is little-endian.  All
- * other accesses to this register (e.g. reads and writes) are RAZ/WI.
- * RSL accesses to this register are RAZ/WI.
+ * All other accesses to this register (e.g. reads and writes) are
+ * RAZ/WI. RSL accesses to this register are RAZ/WI.
  */
 union npa_lf_aura_op_allocx {
 	u64 u;
@@ -1974,15 +1759,11 @@ static inline u64 NPA_LF_AURA_OP_CNT(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_free0
  *
- * NPA LF Aura Free Operation Register 0 A 128-bit atomic CAS to
+ * NPA LF Aura Free Operation Register 0 A 128-bit write (STP) to
  * NPA_LF_AURA_OP_FREE0 and NPA_LF_AURA_OP_FREE1 frees a pointer into a
  * given aura's pool. All other accesses to these registers (e.g. reads
  * and 64-bit writes) are RAZ/WI.  RSL accesses to this register are
- * RAZ/WI. The CAS data format is given by NPA_LF_AURA_OP_FREE0_SWAP_S
- * and NPA_LF_AURA_OP_FREE1_SWAP_S. The swap data for the CAS is written
- * to the registers, while the compare data is ignored. The CAS result
- * value will always be zero. Note that the register field descriptions
- * below are OBSOLETE.
+ * RAZ/WI.
  */
 union npa_lf_aura_op_free0 {
 	u64 u;
@@ -2002,11 +1783,8 @@ static inline u64 NPA_LF_AURA_OP_FREE0(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_aura_op_free1
  *
- * NPA LF Aura Free Operation Register 1 See NPA_LF_AURA_OP_FREE0. Access
- * only as part of a CAS operation to NPA_LF_AURA_OP_FREE0. All other
- * accesses to these registers (e.g. reads and 64-bit writes) are RAZ/WI.
- * RSL accesses to this register are RAZ/WI. Note that the register field
- * descriptions below are OBSOLETE.
+ * NPA LF Aura Free Operation Register 1 See NPA_LF_AURA_OP_FREE0.  RSL
+ * accesses to this register are RAZ/WI.
  */
 union npa_lf_aura_op_free1 {
 	u64 u;
@@ -2319,15 +2097,11 @@ static inline u64 NPA_LF_POOL_OP_PC(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_ptr_end0
  *
- * NPA LF Pool Pointer End Operation Register 0 A 128-bit CAS to the
- * NPA_LF_POOL_OP_PTR_END0 and NPA_LF_POOL_OP_PTR_END1 registers writes
- * to a given pool's pointer end value. CAS data format is given by
- * NPA_POOL_PTR_END0_SWAP_S and NPA_POOL_PTR_END1_SWAP_S. The swap data
- * for the CAS is written to the registers, while the compare data is
- * ignored. The CAS result value will always be zero. Note that the
- * register field descriptions below are OBSOLETE.  All other accesses to
- * this register (e.g. reads and 64-bit writes) are RAZ/WI. RSL accesses
- * to this register are RAZ/WI.
+ * NPA LF Pool Pointer End Operation Register 0 A 128-bit write (STP) to
+ * the NPA_LF_POOL_OP_PTR_END0 and NPA_LF_POOL_OP_PTR_END1 registers
+ * writes to a given pool's pointer end value. All other accesses to
+ * these registers (e.g. reads and 64-bit writes) are RAZ/WI.  RSL
+ * accesses to this register are RAZ/WI.
  */
 union npa_lf_pool_op_ptr_end0 {
 	u64 u;
@@ -2348,10 +2122,7 @@ static inline u64 NPA_LF_POOL_OP_PTR_END0(void)
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_ptr_end1
  *
  * NPA LF Pool Pointer End Operation Register 1 See
- * NPA_LF_POOL_OP_PTR_END0. Access only with 128-bit CAS operation. Note
- * that the register field descriptions below are OBSOLETE.  All other
- * accesses to this register (e.g. reads and 64-bit writes) are RAZ/WI.
- * RSL accesses to this register are RAZ/WI.
+ * NPA_LF_POOL_OP_PTR_END0.  RSL accesses to this register are RAZ/WI.
  */
 union npa_lf_pool_op_ptr_end1 {
 	u64 u;
@@ -2372,15 +2143,11 @@ static inline u64 NPA_LF_POOL_OP_PTR_END1(void)
 /**
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_ptr_start0
  *
- * NPA LF Pool Pointer Start Operation Register 0 A 128-bit CAS to the
- * NPA_LF_POOL_OP_PTR_START0 and NPA_LF_POOL_OP_PTR_START1 registers
- * writes to a given pool's pointer start value. CAS data format is given
- * by NPA_POOL_PTR_START0_SWAP_S and NPA_POOL_PTR_START1_SWAP_S. The swap
- * data for the CAS is written to the registers, while the compare data
- * is ignored. The CAS result value will always be zero. Note that the
- * register field descriptions below are OBSOLETE.  All other accesses to
- * this register (e.g. reads and 64-bit writes) are RAZ/WI. RSL accesses
- * to this register are RAZ/WI.
+ * NPA LF Pool Pointer Start Operation Register 0 A 128-bit write (STP)
+ * to the NPA_LF_POOL_OP_PTR_START0 and NPA_LF_POOL_OP_PTR_START1
+ * registers writes to a given pool's pointer start value. All other
+ * accesses to these registers (e.g. reads and 64-bit writes) are RAZ/WI.
+ * RSL accesses to this register are RAZ/WI.
  */
 union npa_lf_pool_op_ptr_start0 {
 	u64 u;
@@ -2401,10 +2168,7 @@ static inline u64 NPA_LF_POOL_OP_PTR_START0(void)
  * Register (RVU_PFVF_BAR2) npa_lf_pool_op_ptr_start1
  *
  * NPA LF Pool Pointer Start Operation Register 1 See
- * NPA_LF_POOL_OP_PTR_START0. Access only with 128-bit CAS operation.
- * Note that the register field descriptions below are OBSOLETE.  All
- * other accesses to this register (e.g. reads and 64-bit writes) are
- * RAZ/WI. RSL accesses to this register are RAZ/WI.
+ * NPA_LF_POOL_OP_PTR_START0.  RSL accesses to this register are RAZ/WI.
  */
 union npa_lf_pool_op_ptr_start1 {
 	u64 u;
@@ -2536,27 +2300,6 @@ static inline u64 NPA_LF_QINTX_INT(u64 a)
 }
 
 /**
- * Register (RVU_PFVF_BAR2) npa_lf_qint#_int_w1s
- *
- * INTERNAL: NPA LF Queue Interrupt Set Registers
- */
-union npa_lf_qintx_int_w1s {
-	u64 u;
-	struct npa_lf_qintx_int_w1s_s {
-		u64 intr                             : 1;
-		u64 reserved_1_63                    : 63;
-	} s;
-	/* struct npa_lf_qintx_int_w1s_s cn; */
-};
-
-static inline u64 NPA_LF_QINTX_INT_W1S(u64 a)
-	__attribute__ ((pure, always_inline));
-static inline u64 NPA_LF_QINTX_INT_W1S(u64 a)
-{
-	return 0x318 + 0x1000 * a;
-}
-
-/**
  * Register (RVU_PFVF_BAR2) npa_lf_ras
  *
  * NPA LF RAS Interrupt Register
@@ -2685,8 +2428,7 @@ static inline u64 NPA_PRIV_AF_INT_CFG(void)
  * for RVU. See also NPA_AF_RVU_LF_CFG_DEBUG.  Software should read this
  * register after write to ensure that the LF is mapped to [PF_FUNC]
  * before issuing transactions to the mapped PF and function.  [SLOT]
- * must be zero.  Internal: Hardware ignores [SLOT] and always assumes
- * 0x0.
+ * must be zero.
  */
 union npa_priv_lfx_cfg {
 	u64 u;
