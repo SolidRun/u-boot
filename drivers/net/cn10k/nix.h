@@ -145,6 +145,7 @@ struct npa {
 	u32			q_len[NPA_POOL_COUNT];
 	u32			buf_size[NPA_POOL_COUNT];
 	u32			stack_pages[NPA_POOL_COUNT];
+	int			lf;
 };
 
 struct nix_af {
@@ -329,7 +330,7 @@ int npa_attach_pool(struct nix_af *nix_af, int lf,
 		    const union npa_pool_s *desc, u32 pool_id);
 int npa_af_setup(struct npa_af *npa_af);
 int npa_af_shutdown(struct npa_af *npa_af);
-int npa_lf_setup(struct nix *nix);
+int npa_lf_setup(struct nix *nix, int npa_lf);
 int npa_lf_shutdown(struct nix *nix);
 int npa_lf_admin_setup(struct npa *npa, int lf, dma_addr_t aura_base);
 int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count);
@@ -341,7 +342,7 @@ int nix_af_setup(struct nix_af *nix_af);
 int nix_af_shutdown(struct nix_af *nix_af);
 int nix_lf_setup(struct nix *nix);
 int nix_lf_shutdown(struct nix *nix);
-struct nix *nix_lf_alloc(struct udevice *dev);
+struct nix *nix_lf_alloc(struct udevice *dev, int nix_id);
 int nix_lf_admin_setup(struct nix *nix);
 int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
 			  u32 cq_count, u32 rq_count, u32 sq_count);
