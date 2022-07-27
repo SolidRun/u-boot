@@ -407,7 +407,9 @@ struct nix *nix_lf_alloc(struct udevice *dev, int nix_id)
 		free(nix);
 		return NULL;
 	}
-	nix->lmac->link_num =
+	nix->lmac->link_num = nix->lmac->rpm->is_v2 ?
+		NIX_LINK_E_RPMX_LMACX_CN10KB(nix->lmac->rpm->rpm_id,
+					     nix->lmac->lmac_id) :
 		NIX_LINK_E_RPMX_LMACX_CN10KA(nix->lmac->rpm->rpm_id,
 					     nix->lmac->lmac_id);
 	nix->lmac->chan_num =

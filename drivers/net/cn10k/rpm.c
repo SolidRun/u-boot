@@ -14,7 +14,7 @@
 #include <errno.h>
 #include <linux/list.h>
 #include <asm/arch/board.h>
-#include <asm/arch/csrs/csrs-rpm.h>
+
 #include "rpm.h"
 
 char lmac_type_to_str[][8] = {
@@ -48,20 +48,25 @@ char lmac_speed_to_str[][8] = {
 	"100G",
 };
 
-extern struct sh_fwdata *get_fwdata_base(void);
+extern u64 get_fwdata_base(void);
 
-void print_fwdata_lmac_type(int rpm_id, int lmac_id)
+void print_fwdata_lmac_type(int rpm_id, int lmac_id, u8 rpm_v2)
 {
-	int lmac_type;
-	struct sh_fwdata *data = get_fwdata_base();
+	int lmac_type, portm_idx;
+	u64 fwdata_base = get_fwdata_base();
+	struct sh_fwdata *p_sh_fwdata = (struct sh_fwdata *)fwdata_base;
+	struct eth_lmac_fwdata_s *data;
 
-	if (data) {
-		lmac_type = data->eth_fw_data[rpm_id][lmac_id].lmac_type;
-		printf("PORTM%d: RPM%d LMAC%d [%s]\n",
-		       data->eth_fw_data[rpm_id][lmac_id].portm_idx,
-		       rpm_id, lmac_id,
-		       lmac_type_to_str[lmac_type]);
-	}
+	if (!fwdata_base)
+		return;
+
+	data = rpm_v2 ? &p_sh_fwdata->eth_fw_data_usx[rpm_id][lmac_id] :
+			&p_sh_fwdata->eth_fw_data[rpm_id][lmac_id];
+	lmac_type = data->lmac_type;
+	portm_idx = data->portm_idx;
+	printf("PORTM%d: RPM%d LMAC%d [%s]\n",
+	       portm_idx, rpm_id, lmac_id,
+	       lmac_type_to_str[lmac_type]);
 }
 
 /**
@@ -77,10 +82,14 @@ struct lmac *nix_get_rpm_lmac(int lmac_instance)
 	struct rpm *rpm;
 	struct udevice *dev;
 	int i, idx, err;
+	unsigned int devid = PCI_DEVICE_ID_CAVIUM_RPM;
+
+	if (otx_is_soc(CN10KB))
+		devid = PCI_DEVICE_ID_CAVIUM_RPM2;
 
 	for (i = 0; i < MAX_RPM; i++) {
 		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
-					 PCI_DEVICE_ID_CN10K_RPM, i,
+					 devid, i,
 					 &dev);
 		if (err)
 			continue;
@@ -88,7 +97,7 @@ struct lmac *nix_get_rpm_lmac(int lmac_instance)
 		rpm = dev_get_priv(dev);
 		debug("%s udev %p rpm %p instance %d\n", __func__, dev, rpm,
 		      lmac_instance);
-		for (idx = 0; idx < MAX_LMAC_PER_RPM; idx++) {
+		for (idx = 0; idx < rpm->max_lmac; idx++) {
 			if (rpm->lmac[idx] &&
 			    rpm->lmac[idx]->instance == lmac_instance)
 				return rpm->lmac[idx];
@@ -130,9 +139,15 @@ void rpm_lmac_mac_filter_setup(struct lmac *lmac)
 	mac = swab64(tmp) >> 16;
 	debug("%s: mac %llx\n", __func__, mac);
 	dmac_cam0.u = 0x0;
-	dmac_cam0.s.id = lmac->lmac_id;
-	dmac_cam0.s.adr = mac;
-	dmac_cam0.s.en = 1;
+	if (lmac->rpm->is_v2) {
+		dmac_cam0.s.id = lmac->lmac_id;
+		dmac_cam0.s.adr = mac;
+		dmac_cam0.s.en = 1;
+	} else {
+		dmac_cam0.cn10ka.id = lmac->lmac_id;
+		dmac_cam0.cn10ka.adr = mac;
+		dmac_cam0.cn10ka.en = 1;
+	}
 	reg_addr = lmac->rpm->reg_base +
 			RPMX_CMR_RX_DMACX_CAM0(lmac->lmac_id * 8);
 	writeq(dmac_cam0.u, reg_addr);
@@ -154,14 +169,14 @@ int rpm_lmac_set_chan(struct lmac *lmac)
 	link_cfg.u = 0;
 	link_cfg.s.log2_range = 0x4;
 	link_cfg.s.base_chan = lmac->chan_num;
-	rpm_write(lmac->rpm, lmac->lmac_id, RPMX_CMRX_LINK_CFG(0),
+	rpm_write(lmac->rpm, RPMX_CMRX_LINK_CFG(lmac->lmac_id),
 		  link_cfg.u);
 	return 0;
 }
 
 int rpm_lmac_set_pkind(struct lmac *lmac, u8 lmac_id, int pkind)
 {
-	rpm_write(lmac->rpm, lmac_id, RPMX_CMRX_RX_ID_MAP(0),
+	rpm_write(lmac->rpm, RPMX_CMRX_RX_ID_MAP(lmac_id),
 		  (pkind & 0x3f));
 	return 0;
 }
@@ -187,11 +202,11 @@ int rpm_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable)
 	if (!rpm || lmac_id >= rpm->lmac_count)
 		return -ENODEV;
 
-	command_config.u = rpm_read(rpm, lmac_id,
-				    RPMX_MTI_MAC100X_COMMAND_CONFIG(0));
+	command_config.u = rpm_read(rpm,
+				    RPMX_MTI_MAC100X_COMMAND_CONFIG(lmac_id));
 	command_config.s.rx_ena =
 	command_config.s.tx_ena = enable ? 1 : 0;
-	rpm_write(rpm, lmac_id, RPMX_MTI_MAC100X_COMMAND_CONFIG(0),
+	rpm_write(rpm, RPMX_MTI_MAC100X_COMMAND_CONFIG(lmac_id),
 		  command_config.u);
 	return 0;
 }
@@ -215,16 +230,20 @@ static int rpm_lmac_init(struct rpm *rpm)
 {
 	struct lmac *lmac;
 	static int instance = 1;
+	union rpmx_cmrx_config cmrx_cfg;
 	union rpmx_cmr_rx_lmacs rx_lmacs;
+	union rpmx_const rpm_const;
 	int i, lmac_exist;
 
-	rx_lmacs.u = rpm_read(rpm, 0, RPMX_CMR_RX_LMACS());
-	if (otx_is_soc(CN10KB))
-		lmac_exist = rx_lmacs.cn10kb.lmac_exist;
-	else
-		lmac_exist = rx_lmacs.cn10ka.lmac_exist;
+	rpm_const.u = rpm_read(rpm, RPMX_CONST());
+	rpm->max_lmac = rpm_const.s.lmacs;
+	rpm->is_v2 = (rpm_const.s.ver == 2);
 
-	for (i = 0; i < MAX_LMAC_PER_RPM; i++)
+	rx_lmacs.u = rpm_read(rpm, RPMX_CMR_RX_LMACS());
+	lmac_exist = rpm->is_v2 ? rx_lmacs.cn10kb.lmac_exist :
+				rx_lmacs.cn10ka.lmac_exist;
+
+	for (i = 0; i < rpm->max_lmac; i++)
 		if (lmac_exist & BIT(i))
 			rpm->lmac_count++;
 	debug("%s: Found %d lmacs for rpm %d@%p\n", __func__, rpm->lmac_count,
@@ -240,18 +259,21 @@ static int rpm_lmac_init(struct rpm *rpm)
 		snprintf(lmac->name, sizeof(lmac->name), "rpm_fwi_%d_%d",
 			 rpm->rpm_id, i);
 
+		cmrx_cfg.u = rpm_read(rpm, RPMX_CMRX_CONFIG(i));
+		lmac->p2x_sel = cmrx_cfg.s.p2x_select;
+
 		lmac->lmac_id = i;
 		lmac->rpm = rpm;
 		rpm->lmac[i] = lmac;
 		debug("%s: map id %d to lmac %p (%s), instance %d\n",
 		      __func__, i, lmac, lmac->name, lmac->instance);
 		lmac->init_pend = 1;
-		cn10k_board_get_mac_addr((rpm->rpm_id * 4 + i),
+		cn10k_board_get_mac_addr((rpm->rpm_id * rpm->max_lmac + i),
 					 lmac->mac_addr);
 		debug("%s: MAC %pM\n", __func__, lmac->mac_addr);
 		rpm_lmac_mac_filter_setup(lmac);
-		print_fwdata_lmac_type(rpm->rpm_id, i);
-		rpm_write(rpm, i, RPMX_CMRX_SCRATCHX(0, 0), 0x0);
+		print_fwdata_lmac_type(rpm->rpm_id, i, rpm->is_v2);
+		rpm_write(rpm, RPMX_CMRX_SCRATCHX(i, 0), 0x0);
 	}
 	return 0;
 }
@@ -276,7 +298,7 @@ int rpm_remove(struct udevice *dev)
 	struct rpm *rpm = dev_get_priv(dev);
 	int i;
 
-	for (i = 0; i < MAX_LMAC_PER_RPM; i++)
+	for (i = 0; i < rpm->max_lmac; i++)
 		if (rpm->lmac[i])
 			rpm_lmac_mac_filter_clear(rpm->lmac[i]);
 
@@ -292,7 +314,8 @@ U_BOOT_DRIVER(rpm) = {
 };
 
 static struct pci_device_id rpm_supported[] = {
-	{PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_CN10K_RPM) },
+	{PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_CAVIUM_RPM) },
+	{PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_CAVIUM_RPM2) },
 	{}
 };
 

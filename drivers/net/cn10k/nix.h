@@ -12,9 +12,6 @@
 #include <asm/arch/csrs/csrs-nix.h>
 #include "rvu.h"
 
-/** Maximum number of LMACs supported */
-#define MAX_LMAC			12
-
 /* NIX RX action operation*/
 #define NIX_RX_ACTIONOP_DROP		(0x0ull)
 #define NIX_RX_ACTIONOP_UCAST		(0x1ull)
@@ -150,12 +147,10 @@ struct npa {
 
 struct nix_af {
 	struct udevice			*dev;
-	struct nix			*lmacs[MAX_LMAC];
 	struct npa_af			*npa_af;
 	void __iomem			*nix_af_base;
 	void __iomem			*npc_af_base;
 	struct admin_queue		aq;
-	u8				num_lmacs;
 	s8				index;
 	u8				xqe_size;
 	u32				sqb_size;

@@ -8,21 +8,11 @@
 #ifndef __RPM_H__
 #define __RPM_H__
 
-#include "eth_intf.h"
+#include <asm/arch/csrs/csrs-rpm.h>
 
-#define PCI_DEVICE_ID_CN10K_RPM	0xA060
+#define MAX_RPM			9
 
-#define MAX_LMAC_PER_RPM		4
-#define MAX_RPM				9
-
-/* Register offsets */
-#define RPM_CMR_INT		0x87e0e0000040
-#define RPM_CMR_SW_INT		0x87e0e0000180
-#define RPM_CMR_SCRATCH0	0x87e0e0001050
-#define RPM_CMR_SCRATCH1	0x87e0e0001058
-
-#define RPM_SHIFT(x)		(0x1000000 * ((x) & 0x3))
-#define CMR_SHIFT(x)		(0x100000 * ((x) & 0x3))
+#define RPM_BAR(x)		RPM_BAR_E_RPMX_PF_BAR0(x)
 
 enum lmac_type {
 	LMAC_MODE_SGMII		= 0,
@@ -80,19 +70,22 @@ struct rpm {
 	struct nix_af		*nix_af;
 	void __iomem		*reg_base;
 	struct udevice		*dev;
-	struct lmac		*lmac[MAX_LMAC_PER_RPM];
+#define LMAC_LIMIT 8
+	struct lmac		*lmac[LMAC_LIMIT];
 	u8			rpm_id;
 	u8			lmac_count;
+	u8			max_lmac;
+	u8			is_v2;
 };
 
-static inline void rpm_write(struct rpm *rpm, u8 lmac, u64 offset, u64 val)
+static inline void rpm_write(struct rpm *rpm, u64 offset, u64 val)
 {
-	writeq(val, rpm->reg_base + CMR_SHIFT(lmac) + offset);
+	writeq(val, rpm->reg_base + offset);
 }
 
-static inline u64 rpm_read(struct rpm *rpm, u8 lmac, u64 offset)
+static inline u64 rpm_read(struct rpm *rpm, u64 offset)
 {
-	return readq(rpm->reg_base + CMR_SHIFT(lmac) + offset);
+	return readq(rpm->reg_base + offset);
 }
 
 /* SH FWDATA Structure Definitions */
@@ -158,12 +151,18 @@ struct sh_fwdata {
 	u64 mcam_addr;
 	u64 mcam_sz;
 	u64 rvu_af_msixtr_base;
- #define FWDATA_RESERVED_MEM 1023
+	u32 ptp_ext_clk_rate;
+	u32 ptp_ext_tstamp;
+ #define FWDATA_RESERVED_MEM 1022
 	u64 reserved[FWDATA_RESERVED_MEM];
 	/* Do not add new fields below this line */
-#define ETH_MAX		5
+#define ETH_MAX		9
 #define ETH_LMACS_MAX	4
-	struct eth_lmac_fwdata_s eth_fw_data[ETH_MAX][ETH_LMACS_MAX];
+#define ETH_LMACS_USX   8       /* Applicable for CN10KB */
+	union {
+		struct eth_lmac_fwdata_s eth_fw_data[ETH_MAX][ETH_LMACS_MAX];
+		struct eth_lmac_fwdata_s eth_fw_data_usx[ETH_MAX][ETH_LMACS_USX];
+	};
 };
 
 /**
