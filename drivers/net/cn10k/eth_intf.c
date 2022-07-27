@@ -24,8 +24,8 @@ static u64 eth_rd_scrx(u8 rpm, u8 lmac, u8 index)
 {
 	u64 addr;
 
-	addr = (index == 1) ? RPM_CMR_SCRATCH1 : RPM_CMR_SCRATCH0;
-	addr += RPM_SHIFT(rpm) + CMR_SHIFT(lmac);
+	addr = RPM_BAR(rpm);
+	addr += RPMX_CMRX_SCRATCHX(lmac, index);
 	return readq(addr);
 }
 
@@ -33,8 +33,8 @@ static void eth_wr_scrx(u8 rpm, u8 lmac, u8 index, u64 val)
 {
 	u64 addr;
 
-	addr = (index == 1) ? RPM_CMR_SCRATCH1 : RPM_CMR_SCRATCH0;
-	addr += RPM_SHIFT(rpm) + CMR_SHIFT(lmac);
+	addr = RPM_BAR(rpm);
+	addr += RPMX_CMRX_SCRATCHX(lmac, index);
 	writeq(val, addr);
 }
 
@@ -81,11 +81,11 @@ static int wait_for_ownership(u8 rpm, u8 lmac)
 		if (scr0.s.evt_sts.evt_type == ETH_EVT_ASYNC &&
 		    scr0.s.evt_sts.ack) {
 			/* clear interrupt */
-			cmrx_int = readq(RPM_CMR_SW_INT +
-					 RPM_SHIFT(rpm) + CMR_SHIFT(lmac));
+			cmrx_int = readq(RPM_BAR(rpm) +
+					 RPMX_CMRX_SW_INT(lmac));
 			cmrx_int |= 0x2; // Overflw bit
-			writeq(cmrx_int, RPM_CMR_SW_INT +
-					 RPM_SHIFT(rpm) + CMR_SHIFT(lmac));
+			writeq(cmrx_int, RPM_BAR(rpm) +
+					 RPMX_CMRX_SW_INT(lmac));
 
 			/* clear ack */
 			scr0.s.evt_sts.ack = 0;
@@ -167,9 +167,9 @@ int eth_intf_req(u8 rpm, u8 lmac, union eth_cmd_s cmd_args, u64 *rsp,
 
 error:
 	/* clear interrupt */
-	cmrx_int = readq(RPM_CMR_SW_INT + RPM_SHIFT(rpm) + CMR_SHIFT(lmac));
+	cmrx_int = readq(RPM_BAR(rpm) + RPMX_CMRX_SW_INT(lmac));
 	cmrx_int |= 0x2; // Overflw bit
-	writeq(cmrx_int, RPM_CMR_SW_INT + RPM_SHIFT(rpm) + CMR_SHIFT(lmac));
+	writeq(cmrx_int, RPM_BAR(rpm) + RPMX_CMRX_SW_INT(lmac));
 
 	/* clear ownership and ack */
 	scr0.s.evt_sts.ack = 0;
@@ -1165,8 +1165,8 @@ void init_sh_fwdata(void)
 		printf("Shared FW Base init failed\n");
 }
 
-struct sh_fwdata *get_fwdata_base(void)
+u64 get_fwdata_base(void)
 {
-	return (struct sh_fwdata *)sh_fwbase;
+	return sh_fwbase;
 }
 

@@ -220,6 +220,7 @@ void probe_network_devices(bool probe)
 {
 	struct udevice *dev;
 	int err, rpm_cnt, i;
+	unsigned int devid = PCI_DEVICE_ID_CAVIUM_RPM;
 
 	switch (read_partnum()) {
 	case CNF10KA:
@@ -228,6 +229,8 @@ void probe_network_devices(bool probe)
 	case CNF10KB:
 		rpm_cnt = 9;
 		break;
+	case CN10KB:
+		devid = PCI_DEVICE_ID_CAVIUM_RPM2;
 	default:
 		rpm_cnt = 3;
 		break;
@@ -235,7 +238,7 @@ void probe_network_devices(bool probe)
 	/* MAC(RPM) and RVU AF devices */
 	for (i = 0; i < rpm_cnt; i++) {
 		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
-					 PCI_DEVICE_ID_CAVIUM_RPM, i, &dev);
+					 devid, i, &dev);
 		if (err)
 			debug("%s RPM%d device not found\n", __func__, i);
 		if (!probe)
