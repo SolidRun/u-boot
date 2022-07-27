@@ -97,7 +97,7 @@ static int npa_setup_pool(struct npa *npa, u32 pool_id,
 	return 0;
 }
 
-int npa_lf_setup(struct nix *nix)
+int npa_lf_setup(struct nix *nix, int npa_lf)
 {
 	struct rvu_pf *rvu = dev_get_priv(nix->dev);
 	struct nix_af *nix_af = nix->nix_af;
@@ -121,6 +121,7 @@ int npa_lf_setup(struct nix *nix)
 	npa->npa_base = rvu->pf_base + block_addr.u;
 	npa->lmt_base = rvu->pf_base + RVU_PF_LMTLINE_ADDR();
 	npa->npa_af = nix_af->npa_af;
+	npa->lf = npa_lf;
 	nix->npa = npa;
 
 	npa_af_const.u = npa_af_reg_read(npa->npa_af, NPA_AF_CONST());
@@ -173,10 +174,10 @@ int npa_lf_setup(struct nix *nix)
 		}
 	}
 
-	err = npa_lf_admin_setup(npa, nix->lf, (dma_addr_t)npa->aura_ctx);
+	err = npa_lf_admin_setup(npa, npa->lf, (dma_addr_t)npa->aura_ctx);
 	if (err) {
 		printf("%s: Error setting up NPA LF admin for lf %d\n",
-		       __func__, nix->lf);
+		       __func__, npa->lf);
 		return err;
 	}
 
@@ -192,7 +193,7 @@ int npa_lf_setup(struct nix *nix)
 		aura->s.count = npa->q_len[idx];
 		aura->s.limit = npa->q_len[idx];
 		aura->s.ena = 1;
-		err = npa_attach_aura(nix_af, nix->lf, aura, idx);
+		err = npa_attach_aura(nix_af, npa->lf, aura, idx);
 		if (err)
 			return err;
 
@@ -210,7 +211,7 @@ int npa_lf_setup(struct nix *nix)
 		pool->s.ptr_start = 0;
 		pool->s.ptr_end = (1ULL << 40) -  1;
 		pool->s.ena = 1;
-		err = npa_attach_pool(nix_af, nix->lf, pool, idx);
+		err = npa_attach_pool(nix_af, npa->lf, pool, idx);
 		if (err)
 			return err;
 	}
@@ -243,7 +244,7 @@ int npa_lf_shutdown(struct nix *nix)
 	int err;
 	int pool;
 
-	err = npa_lf_admin_shutdown(nix->nix_af, nix->lf, NPA_POOL_COUNT);
+	err = npa_lf_admin_shutdown(nix->nix_af, npa->lf, NPA_POOL_COUNT);
 	if (err) {
 		printf("%s: Error %d shutting down NPA LF admin\n",
 		       __func__, err);
@@ -362,7 +363,7 @@ int nix_lf_shutdown(struct nix *nix)
 	return 0;
 }
 
-struct nix *nix_lf_alloc(struct udevice *dev)
+struct nix *nix_lf_alloc(struct udevice *dev, int nix_id)
 {
 	union rvu_func_addr_s block_addr;
 	struct nix *nix;
@@ -376,10 +377,10 @@ struct nix *nix_lf_alloc(struct udevice *dev)
 		printf("%s: Out of memory for nix instance\n", __func__);
 		return NULL;
 	}
-	nix->nix_af = rvu_af->nix_af;
+	nix->nix_af = rvu_af->nix_af[nix_id];
 
 	block_addr.u = 0;
-	block_addr.s.block = RVU_BLOCK_ADDR_E_NIXX(0);
+	block_addr.s.block = RVU_BLOCK_ADDR_E_NIXX(nix_id);
 	nix->nix_base = rvu->pf_base + block_addr.u;
 	block_addr.u = 0;
 	block_addr.s.block = RVU_BLOCK_ADDR_E_NPC;
@@ -422,7 +423,7 @@ struct nix *nix_lf_alloc(struct udevice *dev)
 	debug("%s(%s Link %x Chan %x Pknd %x)\n", __func__, dev->name,
 	      nix->lmac->link_num, nix->lmac->chan_num,	nix->lmac->pknd);
 
-	err = npa_lf_setup(nix);
+	err = npa_lf_setup(nix, rvu->npa_lfid);
 	if (err) {
 		free(nix);
 		return NULL;

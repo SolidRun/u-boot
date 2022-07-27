@@ -12,10 +12,8 @@
 
 #define ALIGNED		__aligned(CONFIG_SYS_CACHELINE_SIZE)
 
-/* PCI device IDs */
-#define	PCI_DEVID_OCTEONTX2_RVU_AF		0xA065
-#define	PCI_DEVID_OCTEONTX2_RVU_PF		0xA063
-#define	PCI_DEVID_OCTEONTX2_RVU_VF		0xA064
+/* Maximum number of NIX blocks supported */
+#define MAX_RVU_NIX             2
 
 #define Q_SIZE_16		0ULL /* 16 entries */
 #define Q_SIZE_64		1ULL /* 64 entries */
@@ -57,7 +55,7 @@ struct admin_queue {
 struct rvu_af {
 	struct udevice *dev;
 	void __iomem *af_base;
-	struct nix_af *nix_af;
+	struct nix_af *nix_af[MAX_RVU_NIX];
 };
 
 struct rvu_pf {
@@ -120,7 +118,7 @@ int rvu_aq_alloc(struct admin_queue *aq, unsigned int qsize,
  */
 void rvu_aq_free(struct admin_queue *aq);
 
-void rvu_get_lfid_for_pf(int pf, int *nixid, int *npaid);
+void rvu_get_lfid_for_pf(int pf, int nix_id, int *nix_lfid, int *npa_lfid);
 
 #endif /* __RVU_H__ */
 
