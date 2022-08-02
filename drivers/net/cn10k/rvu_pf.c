@@ -84,7 +84,12 @@ int rvu_pf_probe(struct udevice *dev)
 	switch (rpm_lmac->p2x_sel) {
 	case P2X1_NIX0:
 	case P2X2_NIX1:
-		nix_id = rpm_lmac->p2x_sel - P2X1_NIX0;
+		/* For CN10KB, although RPM uses NIX0/1 HW has only
+		 * NIX0 block.
+		 */
+		nix_id = rpm_lmac->rpm->is_v2 ?
+			 P2X1_NIX0 : rpm_lmac->p2x_sel;
+		nix_id -= P2X1_NIX0;
 		break;
 	default:
 		printf("RVU PF%d: invalid LMAC P2X_SEL %d, unknown NIX ID\n",
