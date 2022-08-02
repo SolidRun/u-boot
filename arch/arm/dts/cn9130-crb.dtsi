@@ -99,16 +99,15 @@
 &cp0_pinctl {
 	/* MPP Bus:
 	 *	[0-11]	RGMII1
-	 *	[12-26]	GPIO
-	 *	[27-30]	SPI1
-	 *	[31]	GPIO
-	 *	[32]	GPIO
+	 *	[12]	GPIO
+	 *	[13-16] SPI1
+	 *	[17-32] GPIO
 	 *	[33]	SD_PWR_OFF
 	 *	[34]	CP_PCIE0_CLKREQn
-	 *	[35-38]	I2C1 I2C0
+	 *	[35-38] I2C1 I2C0
 	 *	[39]	GPIO
-	 *	[40-43]	SMI/XSMI
-	 *	[44-46]	GPIO
+	 *	[40-43] SMI/XSMI
+	 *	[44-46] GPIO
 	 *	[47]	UART1_TX
 	 *	[48]	GPIO
 	 *	[49]	SD_HST_18_EN
@@ -122,19 +121,12 @@
 	 */
 		/*   0   1   2   3   4   5   6   7   8   9 */
 	pin-func = < 3   3   3   3   3   3   3   3   3   3
-		     3   3   0   0   0   0   0   0   0   0
-		     0   0   0   0   0   0   0   2   2   2
-		     2   0   0   6   9   2   2   2   2   0
+		     3   3   0   3   3   3   3   0   0   0
+		     0   0   0   0   0   0   0   0   0   0
+		     0   0   0   6   9   2   2   2   2   0
 		     8   8   8   8   0   0   0   7   0   0xa
 		     0   0xa 9   7   0   0xb 0xe 0xe 0xe 0xe
 		     0xe 0xe 0xe>;
-};
-
-&cp0_pinctl {
-	cp0_spi1_pins_crb: cp0-spi-pins-crb {
-		marvell,pins = < 27 28 29 30 >;
-		marvell,function = <2>;
-	};
 };
 
 /*
@@ -160,7 +152,7 @@
 
 &cp0_spi1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&cp0_spi1_pins_crb>;
+	pinctrl-0 = <&cp0_spi0_pins>;
 	reg = <0x700680 0x50>,		/* control */
 	      <0x2000000 0x1000000>,	/* CS0 */
 	      <0 0xffffffff>,		/* CS1 */
