@@ -13,6 +13,7 @@
 #include <asm/psci.h>
 #include <asm/ptrace.h>
 #include <asm/system.h>
+#include <efi_loader.h>
 
 /*
  * Issue the hypervisor call
@@ -53,7 +54,7 @@ static void hvc_call(struct pt_regs *args)
  * x0~x3: output arguments
  */
 
-void smc_call(struct pt_regs *args)
+__efi_runtime void smc_call(struct pt_regs *args)
 {
 	asm volatile(
 		"ldr x0, %0\n"
