@@ -35,6 +35,9 @@
 /** Reduce hashes printed out */
 #define CONFIG_TFTP_TSIZE
 
+/* TFTP port can be defined in env */
+#define CONFIG_TFTP_PORT
+
 /* Autoboot options */
 #define CONFIG_RESET_TO_RETRY
 #define CONFIG_BOOT_RETRY_TIME		-1
