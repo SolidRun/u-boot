@@ -42,7 +42,7 @@
 
 /** Extra environment settings */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-					"loadaddr=040080000\0"	\
+					"loadaddr=020080000\0"	\
 					"ethrotate=yes\0"	\
 					"autoload=0\0"
 
