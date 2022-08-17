@@ -321,6 +321,11 @@ static int setup(const efi_handle_t handle,
 		efi_st_error("Failed to set timer\n");
 		return EFI_ST_FAILURE;
 	}
+	/* Disable eth interface rotation*/
+	EFI_ENTRY("%p", handle);
+	env_set("ethrotate", "no");
+	EFI_EXIT(ret);
+
 	return EFI_ST_SUCCESS;
 }
 
@@ -365,17 +370,18 @@ static int execute(void)
 			continue;
 		}
 
+		efi_st_printf("Testing eth%d\n", i);
 		/*
 		 * Check hardware address size.
 		 */
 		if (!net->mode) {
 			efi_st_error("Mode not provided\n");
-			return EFI_ST_FAILURE;
+			continue;
 		}
 		if (net->mode->hwaddr_size != ARP_HLEN) {
 			efi_st_error("HwAddressSize = %u, expected %u\n",
 				     net->mode->hwaddr_size, ARP_HLEN);
-			return EFI_ST_FAILURE;
+			continue;
 		}
 
 		/*
@@ -383,7 +389,7 @@ static int execute(void)
 		 */
 		if (!net->wait_for_packet) {
 			efi_st_error("WaitForPacket event missing\n");
-			return EFI_ST_FAILURE;
+			continue;
 		}
 
 		if (net->mode->state == EFI_NETWORK_INITIALIZED) {
@@ -393,7 +399,7 @@ static int execute(void)
 			ret = net->shutdown(net);
 			if (ret != EFI_SUCCESS) {
 				efi_st_error("Failed to shut down network adapter\n");
-				return EFI_ST_FAILURE;
+				continue;
 			}
 		}
 		if (net->mode->state == EFI_NETWORK_STARTED) {
@@ -403,7 +409,7 @@ static int execute(void)
 			ret = net->stop(net);
 			if (ret != EFI_SUCCESS) {
 				efi_st_error("Failed to stop network adapter\n");
-				return EFI_ST_FAILURE;
+				continue;
 			}
 		}
 		/*
@@ -412,11 +418,11 @@ static int execute(void)
 		ret = net->start(net);
 		if (ret != EFI_SUCCESS && ret != EFI_ALREADY_STARTED) {
 			efi_st_error("Failed to start network adapter\n");
-			return EFI_ST_FAILURE;
+			continue;
 		}
 		if (net->mode->state != EFI_NETWORK_STARTED) {
 			efi_st_error("Failed to start network adapter\n");
-			return EFI_ST_FAILURE;
+			continue;
 		}
 		/*
 		 * Initialize network adapter.
@@ -424,11 +430,11 @@ static int execute(void)
 		ret = net->initialize(net, 0, 0);
 		if (ret != EFI_SUCCESS) {
 			efi_st_error("Failed to initialize network adapter\n");
-			return EFI_ST_FAILURE;
+			continue;
 		}
 		if (net->mode->state != EFI_NETWORK_INITIALIZED) {
 			efi_st_error("Failed to initialize network adapter\n");
-			return EFI_ST_FAILURE;
+			continue;
 		}
 
 		ret = create_dhcp_discover();
@@ -461,11 +467,11 @@ static int execute(void)
 		ret = net->shutdown(net);
 		if (ret != EFI_SUCCESS) {
 			efi_st_error("Failed to shut down network adapter\n");
-			return EFI_ST_FAILURE;
+			continue;
 		}
 		if (net->mode->state != EFI_NETWORK_STARTED) {
 			efi_st_error("Failed to shutdown network adapter\n");
-			return EFI_ST_FAILURE;
+			continue;
 		}
 		/*
 		 * Stop network adapter.
@@ -473,11 +479,11 @@ static int execute(void)
 		ret = net->stop(net);
 		if (ret != EFI_SUCCESS) {
 			efi_st_error("Failed to stop network adapter\n");
-			return EFI_ST_FAILURE;
+			continue;
 		}
 		if (net->mode->state != EFI_NETWORK_STOPPED) {
 			efi_st_error("Failed to stop network adapter\n");
-			return EFI_ST_FAILURE;
+			continue;
 		}
 	}
 	return EFI_ST_SUCCESS;
