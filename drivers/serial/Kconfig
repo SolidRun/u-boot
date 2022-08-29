@@ -1091,9 +1091,9 @@ config SYS_SDMR
 	depends on MPC8XX_CONS
 	default 0
 
-config CN10K_TTYMEM
+config FWLOG_TTYMEM
 	bool "Memory console"
-	depends on ARCH_CN10K
+	depends on (ARCH_CN10K || ARCH_OCTEONTX2)
 	select CONSOLE_MUX
 	default n
 

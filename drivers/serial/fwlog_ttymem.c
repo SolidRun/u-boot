@@ -13,8 +13,8 @@
 #include <debug_uart.h>
 #endif
 
-#define FW_LOGMEM_BASE		(48 * 1024 * 1024)
-#define FW_LOGMEM_SIZE		(2 * 1024 * 1024)
+#define FW_LOGMEM_BASE		(60 * 1024 * 1024)
+#define FW_LOGMEM_SIZE		(4 * 1024 * 1024)
 
 struct fw_logbuf_header {
     uint64_t fwlog_base;
@@ -37,19 +37,19 @@ static inline void _debug_uart_putc(int ch)
 DEBUG_UART_FUNCS
 #endif
 
-void cn10k_disconnect_ttymem(void)
+void fwlog_disconnect_ttymem(void)
 {
 	flush_dcache_range(FW_LOGMEM_BASE, (FW_LOGMEM_BASE + FW_LOGMEM_SIZE));
-	return 0;
+	return;
 }
 
 #ifndef CONFIG_DM_SERIAL
-static int cn10k_ttymem_init(void)
+static int fwlog_ttymem_init(void)
 {
 	return 0;
 }
 
-void cn10k_ttymem_putc(const char c)
+void fwlog_ttymem_putc(const char c)
 {
 	struct fw_logbuf_header *logbuf = (struct fw_logbuf_header *) FW_LOGMEM_BASE;
 
@@ -60,30 +60,30 @@ void cn10k_ttymem_putc(const char c)
 	}
 }
 
-struct serial_device cn10k_ttymem_device = {
+struct serial_device fwlog_ttymem_device = {
 	.name = "ttymem",
-	.start = cn10k_ttymem_init,
+	.start = fwlog_ttymem_init,
 	.stop = NULL,
 	.setbrg = NULL,
 	.getc = NULL,
 	.tstc = NULL,
-	.putc = cn10k_ttymem_putc,
+	.putc = fwlog_ttymem_putc,
 	.puts = default_serial_puts,
 };
 
-void cn10k_serial_initialize(void)
+void fwlog_serial_initialize(void)
 {
-	serial_register(&cn10k_ttymem_device);
+	serial_register(&fwlog_ttymem_device);
 }
 __weak struct serial_device *default_serial_console(void)
 {
-	return &cn10k_ttymem_device;
+	return &fwlog_ttymem_device;
 }
 #endif
 
 #ifdef CONFIG_DM_SERIAL
 
-int cn10k_ttymem_putc(struct udevice *dev, const char c)
+int fwlog_ttymem_putc(struct udevice *dev, const char c)
 {
 	struct fw_logbuf_header *logbuf = (struct fw_logbuf_header *) FW_LOGMEM_BASE;
 
@@ -95,27 +95,27 @@ int cn10k_ttymem_putc(struct udevice *dev, const char c)
 	return 0;
 }
 
-int cn10k_ttymem_probe(struct udevice *dev)
+int fwlog_ttymem_probe(struct udevice *dev)
 {
 	return 0;
 }
-static const struct dm_serial_ops cn10k_ttymem_ops = {
-	.putc = cn10k_ttymem_putc,
+static const struct dm_serial_ops fwlog_ttymem_ops = {
+	.putc = fwlog_ttymem_putc,
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static const struct udevice_id cn10k_ttymem_id[] = {
-	{.compatible = "cn10k,ttymem", .data = 0},
+static const struct udevice_id fwlog_ttymem_id[] = {
+	{.compatible = "fwlog,ttymem", .data = 0},
 	{}
 };
 #endif
 
 U_BOOT_DRIVER(serial_ttymem) = {
-	.name	= "serial_cn10k_ttymem",
+	.name	= "serial_fwlog_ttymem",
 	.id	= UCLASS_SERIAL,
-	.of_match = of_match_ptr(cn10k_ttymem_id),
-	.probe = cn10k_ttymem_probe,
-	.ops = &cn10k_ttymem_ops,
+	.of_match = of_match_ptr(fwlog_ttymem_id),
+	.probe = fwlog_ttymem_probe,
+	.ops = &fwlog_ttymem_ops,
 };
 
 #endif
