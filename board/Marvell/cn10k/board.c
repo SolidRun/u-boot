@@ -29,7 +29,7 @@
 #include <wdt.h>
 #include <linux/iopoll.h>
 
-#ifdef CONFIG_CN10K_TTYMEM
+#ifdef CONFIG_FWLOG_TTYMEM
 #define CONSOLE_NAME	"ttymem"
 #endif
 
@@ -39,7 +39,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define BOOTCMD_NAME   "pci-bootcmd"
 
-#ifdef CONFIG_CN10K_TTYMEM
+#ifdef CONFIG_FWLOG_TTYMEM
 static int init_ttymem_console(void)
 {
 	struct udevice *ttymem_dev = NULL;
@@ -343,7 +343,7 @@ int board_late_init(void)
 	bool save_env = false;
 	const char *str;
 
-#ifdef CONFIG_CN10K_TTYMEM
+#ifdef CONFIG_FWLOG_TTYMEM
 	init_ttymem_console();
 #endif
 	debug("%s()\n", __func__);
