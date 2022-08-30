@@ -527,12 +527,12 @@ static int nix_attach_receive_queue(struct nix_af *nix_af, int lf)
 	rq_req.rq.s.xqe_pass = 0;
 	rq_req.rq.s.wqe_pool_drop = 0;	/* No WQE pool */
 	rq_req.rq.s.wqe_pool_pass = 0;	/* No WQE pool */
-	rq_req.rq.s.spb_aura_drop = 255;
-	rq_req.rq.s.spb_aura_pass = 255;
+	rq_req.rq.s.spb_aura_drop = 0;
+	rq_req.rq.s.spb_aura_pass = 0;
 	rq_req.rq.s.spb_pool_drop = 0;
 	rq_req.rq.s.spb_pool_pass = 0;
-	rq_req.rq.s.lpb_aura_drop = 255;
-	rq_req.rq.s.lpb_aura_pass = 255;
+	rq_req.rq.s.lpb_aura_drop = 0;
+	rq_req.rq.s.lpb_aura_pass = 0;
 	rq_req.rq.s.lpb_pool_drop = 0;
 	rq_req.rq.s.lpb_pool_pass = 0;
 	rq_req.rq.s.qint_idx = 0;
