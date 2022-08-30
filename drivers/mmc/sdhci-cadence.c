@@ -909,23 +909,27 @@ static int sdhci_cdns_sd6_phy_init(struct udevice *dev, struct sdhci_cdns_plat *
 	DEBUG_DRV("HRS10 0x%x\n", reg);
 	writel(reg, plat->hrs_addr + SDHCI_CDNS_HRS10);
 
-	reg = 0x0;
-	reg = FIELD_PREP(SDHCI_CDNS_HRS16_WRDATA1_SDCLK_DLY,
+	if ((phy->mode == MMC_HS_52) || (phy->mode == MMC_DDR_52))
+		reg = 0x202;
+	else {
+		reg = 0x0;
+		reg = FIELD_PREP(SDHCI_CDNS_HRS16_WRDATA1_SDCLK_DLY,
 			 phy->settings.sdhc_wrdata1_sdclk_dly);
-	reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRDATA0_SDCLK_DLY,
+		reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRDATA0_SDCLK_DLY,
 			 phy->settings.sdhc_wrdata0_sdclk_dly);
-	reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRCMD1_SDCLK_DLY,
+		reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRCMD1_SDCLK_DLY,
 			 phy->settings.sdhc_wrcmd1_sdclk_dly);
-	reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRCMD0_SDCLK_DLY,
+		reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRCMD0_SDCLK_DLY,
 			 phy->settings.sdhc_wrcmd0_sdclk_dly);
-	reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRDATA1_DLY,
+		reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRDATA1_DLY,
 			 phy->settings.sdhc_wrdata1_dly);
-	reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRDATA0_DLY,
+		reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRDATA0_DLY,
 			 phy->settings.sdhc_wrdata0_dly);
-	reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRCMD1_DLY,
+		reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRCMD1_DLY,
 			 phy->settings.sdhc_wrcmd1_dly);
-	reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRCMD0_DLY,
+		reg |= FIELD_PREP(SDHCI_CDNS_HRS16_WRCMD0_DLY,
 			 phy->settings.sdhc_wrcmd0_dly);
+	}
 
 	DEBUG_DRV("HRS16 0x%x\n", reg);
 	writel(reg, plat->hrs_addr + SDHCI_CDNS_HRS16);
