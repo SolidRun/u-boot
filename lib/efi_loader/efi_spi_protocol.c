@@ -366,7 +366,7 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 	spi_bus->clock_parameter = NULL;
 
 	device_foreach_child_probe(dev, bus_dev) {
-		if (device_get_uclass_id(dev) != UCLASS_SPI_FLASH)
+		if (dev && device_get_uclass_id(dev) != UCLASS_SPI_FLASH)
 			continue;
 		if (dev)
 			flash_dev = dev_get_uclass_priv(dev);

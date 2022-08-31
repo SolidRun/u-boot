@@ -2936,15 +2936,16 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 #define SPINOR_OP_RDAR		0x65	/* Read any register */
 int spansion_read_any_reg(struct spi_nor *nor, u32 addr, u8 *val)
 {
-	u8 buf;
+	u8 buf = 0;
 	u8 addr_width = 3, dummy_bytes = 1; /* Pre-SDFP defaults */
 	int ret;
 	struct spi_mem_op op;
 
 	/* Device name check for sf-cmd/uboot shell use-case */
 	if (!nor->info->name || (strcmp(nor->info->name, "s25fs128s"))) {
-		printf("\n%s() unsupported for %s!\n", __func__,
-		       nor->info->name);
+		if (nor->info->name)
+			printf("\n%s() unsupported for %s!\n", __func__,
+			       nor->info->name);
 		return -ENOTSUPP;
 	}
 
@@ -2980,8 +2981,9 @@ int spansion_write_any_reg(struct spi_nor *nor, u32 addr, u8 val)
 
 	/* Device name check for sf-cmd/uboot shell use-case */
 	if (!nor->info->name || (strcmp(nor->info->name, "s25fs128s"))) {
-		printf("\n%s() unsupported for %s!\n",
-		       __func__, nor->info->name);
+		if (nor->info->name)
+			printf("\n%s() unsupported for %s!\n",
+			       __func__, nor->info->name);
 
 		return -ENOTSUPP;
 	}

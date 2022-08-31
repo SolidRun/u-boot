@@ -110,7 +110,7 @@ static int execute(void)
 
 		snprintf(name_str, sizeof(name_str), "spi%d", bus);
 		node_path = fdt_get_alias(fdt, name_str);
-		if (node_path < 0)
+		if (node_path == NULL)
 			continue;
 
 		node_offset = fdt_path_offset(fdt, node_path);
