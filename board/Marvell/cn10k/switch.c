@@ -915,21 +915,17 @@ void board_switch_init(void)
 	writel(0x300e1a80, sw_bar2 + 0x0500);
 
 	debug("done.%p %p\n", sw_bar0, sw_bar2);
-	mdelay(5000);
 
 	/* Check for successful initialization of switch firmware */
 	/* Check first magic word at fixed location */
 	timeout = 10;
 	while (readl(sw_bar2 + SW_MAGWRD_OFFSET) != SW_MAGIC_WORD) {
-		mdelay(1);
-		if (--timeout < 0)
-			break;
-	}
-
-	if (readl(sw_bar2 + SW_MAGWRD_OFFSET) != SW_MAGIC_WORD) {
-		printf("%s ERROR: Switch not init![0x%x]\n", __func__,
-		       readl(sw_bar2 + SW_MAGWRD_OFFSET));
-		return;
+		mdelay(100);
+		if (--timeout < 0) {
+			printf("\n%s ERROR: MI Load not done![0x%x]\n",
+			       __func__, readl(sw_bar2 + SW_MAGWRD_OFFSET));
+			return;
+		}
 	}
 
 	/* Check boot status */
@@ -937,24 +933,23 @@ void board_switch_init(void)
 	mailbox_offset = readl(sw_bar2 + SW_MAGWRD2_OFFSET);
 	/* MG0 SRAM Offset for hardware */
 	mailbox_offset |= 0x80000;
-	debug("%s Mailbox Offset:0x%llx\n", __func__, mailbox_offset);
+	debug("\n%s Mailbox Offset:0x%llx\n", __func__, mailbox_offset);
 	while (readl(sw_bar2 + mailbox_offset + 4) != SW_BOOT_INIT_DONE) {
-		mdelay(1);
-		if (--timeout < 0)
-			break;
-	}
-	debug("%s Boot Status:0x%x[0x%llx]\n", __func__,
-	      readl(sw_bar2 + mailbox_offset + 4), mailbox_offset + 4);
-	if (readl(sw_bar2 + mailbox_offset + 4) != SW_BOOT_INIT_DONE) {
-		/* Check firmware boot error code */
-		printf("%s ERROR: Switch not init! [Boot Status:0x%x]\n",
-		       __func__, readl(sw_bar2 + mailbox_offset + 4));
-		printf("Boot Err Code:0x%x General Err Code:0x%x\n",
-		       readl(sw_bar2 + mailbox_offset + 8),
-		       readl(sw_bar2 + mailbox_offset + 12));
-		return;
+		mdelay(10);
+		if (--timeout < 0) {
+			debug("\n%s Boot Status:0x%x[0x%llx]\n", __func__,
+			      readl(sw_bar2 + mailbox_offset + 4),
+			      mailbox_offset + 4);
+			/* Check firmware boot error code */
+			printf("\n%s ERROR: MI init not done! [Boot Status:0x%x]\n",
+			       __func__, readl(sw_bar2 + mailbox_offset + 4));
+			printf("\nBoot Err Code:0x%x General Err Code:0x%x\n",
+			       readl(sw_bar2 + mailbox_offset + 8),
+			       readl(sw_bar2 + mailbox_offset + 12));
+			return;
+		}
 	}
 
-	printf("Switch Init Success\n");
+	printf(" success\n");
 }
 
