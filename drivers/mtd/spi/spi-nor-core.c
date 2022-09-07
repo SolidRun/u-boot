@@ -1183,6 +1183,9 @@ static void mx_get_locked_range(struct spi_nor *nor, u8 sr, u8 cr, loff_t *ofs,
 		*len = 0;
 	} else {
 		pow = ((sr & mask) ^ mask) >> shift;
+		if (pow < 2)
+			pow = 2;
+
 		*len = mtd->size >> (pow - 2);
 		if (cr & CR_TB_MX)
 			*ofs = 0;
@@ -1495,6 +1498,9 @@ static void stm_get_locked_range(struct spi_nor *nor, u8 sr, loff_t *ofs,
 		*len = 0;
 	} else {
 		pow = ((sr & mask) ^ mask) >> shift;
+		if (pow < 2)
+			pow = 2;
+
 		*len = mtd->size >> (pow - 2);
 		if (nor->flags & SNOR_F_HAS_SR_TB && sr & SR_TB)
 			*ofs = 0;
