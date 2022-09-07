@@ -29,6 +29,11 @@
 
 #define SDHCI_CDNS_SD6_MAXCLK		200000000
 
+#define DEFAULT_CMD_DELAY		16
+#define SDHCI_CDNS_TUNE_START		0
+#define SDHCI_CDNS_TUNE_STEP		2
+#define SDHCI_CDNS_TUNE_ITERATIONS	255
+
 #define SDHCI_CDNS_HRS00			0x00
 #define SDHCI_CDNS_HRS00_SWR			BIT(0)
 
@@ -286,6 +291,10 @@ struct sdhci_cdns_plat {
 	void *priv;
 };
 
+static int tune_val_start = SDHCI_CDNS_TUNE_START;
+static int tune_val_step = SDHCI_CDNS_TUNE_STEP;
+static int max_tune_iter = SDHCI_CDNS_TUNE_ITERATIONS;
+static uint32_t read_dqs_cmd_delay;
 static struct sdhci_cdns_sd6_phy sd6_phy_config;
 
 static void init_hs(struct sdhci_cdns_sd6_phy_timings *t, int t_sdclk)
@@ -613,6 +622,32 @@ static void sdhci_cdns_sd6_writeb(struct sdhci_host *host, u8 val, int reg)
 	writeb(val, host->ioaddr + reg);
 }
 
+static int sdhci_cdns_sd6_get_delay_params(struct udevice *dev, struct sdhci_cdns_plat *plat)
+{
+	struct sdhci_cdns_sd6_phy *phy = plat->priv;
+	int ret;
+
+	ret = dev_read_u32(dev, "cdns,read_dqs_cmd_delay",
+					&phy->settings.cp_read_dqs_cmd_delay);
+	if (ret)
+		phy->settings.cp_read_dqs_cmd_delay = DEFAULT_CMD_DELAY;
+
+	ret = dev_read_u32(dev, "cdns,tune_val_start", &tune_val_start);
+	if (ret)
+		tune_val_start = SDHCI_CDNS_TUNE_START;
+
+	ret = dev_read_u32(dev, "cdns,tune_val_step", &tune_val_step);
+	if (ret)
+		tune_val_step = SDHCI_CDNS_TUNE_STEP;
+
+	ret = dev_read_u32(dev, "cdns,max_tune_iter", &max_tune_iter);
+	if (ret)
+		max_tune_iter = SDHCI_CDNS_TUNE_ITERATIONS;
+
+	read_dqs_cmd_delay = phy->settings.cp_read_dqs_cmd_delay;
+	return 0;
+}
+
 static void sdhci_cdns_set_emmc_mode(struct sdhci_cdns_plat *priv, u32 mode)
 {
 	u32 tmp;
@@ -712,6 +747,7 @@ static int sdhci_cdns_sd6_get_fdt_params(struct udevice *dev, struct sdhci_cdns_
 	} else
 		phy->mode = MMC_HS;
 
+	sdhci_cdns_sd6_get_delay_params(dev, plat);
 	return 0;
 }
 
@@ -951,7 +987,7 @@ static int sdhci_cdns_sd6_set_tune_val(struct sdhci_cdns_plat *plat,
 	struct sdhci_cdns_sd6_phy *phy = plat->priv;
 
 	phy->settings.hs200_tune_val = val;
-	phy->settings.cp_read_dqs_cmd_delay = val;
+	phy->settings.cp_read_dqs_cmd_delay = read_dqs_cmd_delay;
 	phy->settings.cp_read_dqs_delay = val;
 
 	return sdhci_cdns_sd6_phy_init(NULL, plat);
@@ -1565,9 +1601,9 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 	int cur_streak = 0;
 	int max_streak = 0;
 	int end_of_streak = 0;
-	int cnt = 0;
+	int cnt = 0, midpoint;
 
-	for (cnt = 0; cnt < SDHCI_CDNS_MAX_TUNING_LOOP; cnt++) {
+	for (cnt = tune_val_start; cnt <= max_tune_iter; cnt += tune_val_step) {
 		if (sdhci_cdns_sd6_set_tune_val(plat, cnt) ||
 			mmc_send_tuning(mmc, opcode, NULL)) { /* bad */
 				cur_streak = 0;
@@ -1576,7 +1612,12 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 			if (cur_streak > max_streak) {
 				max_streak = cur_streak;
 				end_of_streak = cnt;
-			}
+				DEBUG_DRV("%s (%d-%d = %d)\n", __func__,
+					end_of_streak-((cur_streak-1)*tune_val_step),
+					end_of_streak, cur_streak);
+			} else
+				DEBUG_DRV("%s (%d-%d)\n", __func__,
+					cnt - ((cur_streak-1)*tune_val_step), cnt);
 		}
 	}
 
@@ -1584,8 +1625,11 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 		printf(dev, "no tuning point found\n");
 		return -EIO;
 	}
+	DEBUG_DRV("max_streak: %d-%d\n", end_of_streak-((max_streak-1)*tune_val_step), end_of_streak);
 
-	return sdhci_cdns_sd6_set_tune_val(plat, end_of_streak - max_streak / 2);
+	midpoint = end_of_streak - (((max_streak - 1)*tune_val_step) / 2);
+
+	return sdhci_cdns_sd6_set_tune_val(plat, midpoint);
 }
 
 static struct dm_mmc_ops sdhci_cdns_mmc_ops;
