@@ -125,8 +125,13 @@
 		     0   0   0   0   0   0   0   0   0   0
 		     0   0   0   6   9   2   2   2   2   0
 		     8   8   8   8   0   0   0   7   0   0xa
-		     0   0xa 9   7   0   0xb 0xe 0xe 0xe 0xe
-		     0xe 0xe 0xe>;
+		     0   0xa 9   7   0   0   0xe 0xe 0xe 0xe
+		     0xe 0xe 0>;
+
+	cp0_sdhci_cd_pins_crb: cp0-sdhci-cd-pins-crb {
+		marvell,pins = < 55 >;
+		marvell,function = <0>;
+	};
 };
 
 /*
@@ -145,7 +150,8 @@
 
 &cp0_sdhci0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&cp0_sdhci_pins>;
+	pinctrl-0 = <&cp0_sdhci_pins
+		     &cp0_sdhci_cd_pins_crb>;
 	bus-width = <4>;
 	status = "okay";
 };
