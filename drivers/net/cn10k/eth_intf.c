@@ -587,6 +587,22 @@ static inline int eth_mode_to_args(int mode, int flag, struct eth_mode_change_ar
 			debug("SFI 1G\n");
 		}
 		break;
+	case ETH_MODE_25GBASE_CR_C_BIT:
+		if (flag) {
+			args->speed = ETH_LINK_25G;
+			args->mode = BIT_ULL(ETH_MODE_25GBASE_CR_C_BIT);
+		} else {
+			debug("25G_CR_C\n");
+		}
+		break;
+        case ETH_MODE_25GBASE_KR_C_BIT:
+                if (flag) {
+                        args->speed = ETH_LINK_25G;
+                        args->mode = BIT_ULL(ETH_MODE_25GBASE_KR_C_BIT);
+                } else {
+                        debug("25G_KR_C\n");
+                }
+                break;
 	default:
 		printf("%d is not a valid ethernet mode\n", mode);
 		return -1;
@@ -841,6 +857,12 @@ int eth_intf_get_mode(struct udevice *ethdev, int port)
 		case ETH_MODE_SFI_1G_BIT:
 			printf("SFI_1G\n");
 			break;
+		case ETH_MODE_25GBASE_CR_C_BIT:
+			printf("25G_CR_C\n");
+			break;
+                case ETH_MODE_25GBASE_KR_C_BIT:
+                        printf("25G_KR_C\n");
+                        break;
 		/* FIXME: Add other modes when supported by ATF */
 		default:
 			printf("Unknown\n");
