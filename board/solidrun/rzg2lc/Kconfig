@@ -4,7 +4,7 @@ config SYS_SOC
 	default "rmobile"
 
 config SYS_BOARD
-	default "rzg2lc-solidrun"
+	default "rzg2lc"
 
 config SYS_VENDOR
 	default "solidrun"
