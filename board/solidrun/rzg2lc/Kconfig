@@ -1,15 +1,15 @@
-if TARGET_RZG2LC_HUMMINGBOARD
+if TARGET_RZG2LC_SOLIDRUN
 
 config SYS_SOC
 	default "rmobile"
 
 config SYS_BOARD
-	default "rzg2lc-hummingboard"
+	default "rzg2lc-solidrun"
 
 config SYS_VENDOR
 	default "solidrun"
 
 config SYS_CONFIG_NAME
-	default "rzg2lc-hummingboard"
+	default "rzg2lc-solidrun"
 
 endif
