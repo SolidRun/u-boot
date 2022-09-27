@@ -69,7 +69,10 @@
 	"sd1load=ext4load mmc 1:1 0x4A080000 boot/Image.gz;ext4load mmc 1:1 0x48000000 boot/r9a07g044l-smarc-rzg2l.dtb;run prodsdbootargs \0" \
 	"bootcmd_check=if mmc dev 1; then run sd1load; else run emmcload; fi \0"
 
-#define CONFIG_BOOTCOMMAND	"env default -a;run bootcmd_check;run bootimage"
+#define CONFIG_BOOTCOMMAND	"env default -a;run bootcmd_check;run bootimage;" \
+"setenv bootargs 'root=/dev/mmcblk0p2 rootwait' ;echo 'smarc-evk';" \
+"mmc dev 0;fatload mmc 0:1 0x48080000 Image; fatload mmc 0:1 0x48000000 r9a07g044c2-smarc.dtb;" \
+"booti 0x48080000 - 0x48000000"
 
 /* For board */
 /* Ethernet RAVB */
