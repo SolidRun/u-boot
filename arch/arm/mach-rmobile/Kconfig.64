@@ -202,6 +202,12 @@ config TARGET_SMARC_RZG2LC
 	help
           Support for Renesas RZ/G2LC Dev Platform
 
+config TARGET_RZG2LC_SOLIDRUN
+	bool "RZ/G2LC SolidRun board"
+	help
+          Support for Solidrun RZ/G2LC Dev Platform
+
+
 config TARGET_RZG2UL_TYPE1_DEV
 	bool "RZ/G2UL TYPE1 Dev board"
 	help
