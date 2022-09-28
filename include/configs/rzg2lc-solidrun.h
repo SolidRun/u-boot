@@ -70,7 +70,7 @@
 	"bootcmd_check=if mmc dev 1; then run sd1load; else run emmcload; fi \0"
 
 #define CONFIG_BOOTCOMMAND	"env default -a;run bootcmd_check;run bootimage;echo test;" \
-"setenv bootargs 'root=/dev/mmcblk0p2 rootwait' ;echo 'rzg2lc-solidrun';" \
+"setenv bootargs 'root=/dev/sda2 rootwait' ;echo 'rzg2lc-solidrun';" \
 "mmc dev 0;fatload mmc 0:1 0x48080000 Image; fatload mmc 0:1 0x48000000 r9a07g044c2-smarc.dtb;" \
 "booti 0x48080000 - 0x48000000"
 
