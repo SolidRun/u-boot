@@ -94,4 +94,11 @@ config CMD_BOOTIMGUP_BACKUP
 	 Enable support for a backup image in the SPI NOR flash.  This
 	 requires that the SPI NOR be at least 32MiB in size.
 
+config CMD_SECUPDATE
+	depends on ARCH_OCTEONTX2
+	depends on SPI_FLASH
+	bool "secure update"
+	help
+	 Enable support for secure update function
+
 endmenu
