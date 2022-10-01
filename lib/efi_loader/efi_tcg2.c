@@ -1225,6 +1225,7 @@ efi_status_t efi_tcg2_register(void)
 		goto fail;
 	}
 
+#if !CONFIG_IS_ENABLED(ARCH_CN10K)
 	ret = efi_init_event_log();
 	if (ret != EFI_SUCCESS) {
 		tcg2_uninit();
@@ -1236,6 +1237,7 @@ efi_status_t efi_tcg2_register(void)
 		tcg2_uninit();
 		goto fail;
 	}
+#endif
 
 	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 			       (void *)&efi_tcg2_protocol);
@@ -1247,5 +1249,8 @@ efi_status_t efi_tcg2_register(void)
 
 fail:
 	log_err("Cannot install EFI_TCG2_PROTOCOL\n");
+#if CONFIG_IS_ENABLED(ARCH_CN10K)
+	ret = EFI_SUCCESS;
+#endif
 	return ret;
 }
