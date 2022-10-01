@@ -105,7 +105,7 @@ static int tpm_tis_i2c_probe(struct udevice *udev)
 	struct tpm_tis_chip_data *drv_data = (void *)dev_get_driver_data(udev);
 	struct tpm_chip_priv *priv = dev_get_uclass_priv(udev);
 	int rc;
-	u8 loc = 0;
+	u8 loc = 0, cnt = 0, retries = 10;
 
 	tpm_tis_ops_register(udev, &phy_ops);
 
@@ -115,6 +115,12 @@ static int tpm_tis_i2c_probe(struct udevice *udev)
 	 * bits of the selected locality.
 	 */
 	rc = dm_i2c_write(udev, 0, &loc, 1);
+	do {
+		if (cnt++ > retries)
+			break;
+		mdelay(5);
+		rc = dm_i2c_write(udev, 0, &loc, 1);
+	} while (rc);
 	if (rc)
 		return rc;
 
