@@ -665,6 +665,49 @@ u32 tpm2_disable_platform_hierarchy(struct udevice *dev)
 	return 0;
 }
 
+u32 __tpm2_submit_command(struct udevice *dev, const u8 *command,
+			  u8 *response, size_t *size_ptr)
+{
+	int err = 0;
+	u8 response_buffer[COMMAND_BUFFER_SIZE];
+	size_t response_length;
+	int i;
+	uint size;
+
+	if (response) {
+		response_length = *size_ptr;
+	} else {
+		response = response_buffer;
+		response_length = sizeof(response_buffer);
+	}
+
+	size = tpm_command_size(command);
+
+	/* sanity check, which also helps coverity */
+	if (size > COMMAND_BUFFER_SIZE)
+		return log_msg_ret("size", -E2BIG);
+
+	log_debug("TPM request [size:%d]: ", size);
+	for (i = 0; i < size; i++)
+		log_debug("%02x ", ((u8 *)command)[i]);
+	log_debug("\n");
+
+	err = tpm_xfer(dev, command, size, response, &response_length);
+
+	if (err < 0)
+		return err;
+
+	if (size_ptr)
+		*size_ptr = response_length;
+
+	log_debug("TPM response [ret:%d]: ", tpm_return_code(response));
+	for (i = 0; i < response_length; i++)
+		log_debug("%02x ", ((u8 *)response)[i]);
+	log_debug("\n");
+
+	return err;
+}
+
 u32 tpm2_submit_command(struct udevice *dev, const u8 *sendbuf,
 			u8 *recvbuf, size_t *recv_size)
 {
