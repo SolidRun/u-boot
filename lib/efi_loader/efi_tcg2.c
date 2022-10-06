@@ -1186,8 +1186,8 @@ efi_tcg2_submit_command(struct efi_tcg2_protocol *this,
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	rc = tpm2_submit_command(dev, input_param_block,
-				 output_param_block, &resp_buf_size);
+	rc = __tpm2_submit_command(dev, input_param_block,
+				   output_param_block, &resp_buf_size);
 	if (rc) {
 		ret = (rc == -ENOSPC) ? EFI_OUT_OF_RESOURCES : EFI_DEVICE_ERROR;
 

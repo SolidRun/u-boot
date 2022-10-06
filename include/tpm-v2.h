@@ -657,6 +657,8 @@ u32 tpm2_disable_platform_hierarchy(struct udevice *dev);
  */
 u32 tpm2_submit_command(struct udevice *dev, const u8 *sendbuf,
 			u8 *recvbuf, size_t *recv_size);
+u32 __tpm2_submit_command(struct udevice *dev, const u8 *command,
+			  u8 *response, size_t *size_ptr);
 
 /**
  * tpm_cr50_report_state() - Report the Cr50 internal state
