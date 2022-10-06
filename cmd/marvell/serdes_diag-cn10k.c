@@ -876,16 +876,29 @@ static int do_serdes_tx(struct cmd_tbl *cmdtp, int flag, int argc,
 	while (arg_idx < argc) {
 		int param;
 		unsigned long value;
+		const char *cp;
+		int sign;
 
 		param = tx_param_str2enum(argv[arg_idx]);
 		if (param == -1)
 			return CMD_RET_USAGE;
 
 		arg_idx++;
-		if (arg_idx == argc || strict_strtoul(argv[arg_idx], 0, &value))
+
+		if (arg_idx == argc)
 			return CMD_RET_USAGE;
 
-		value &= 0xffff;
+		cp = argv[arg_idx];
+		if (*cp == '-') {
+			sign = -1;
+			cp++;
+		} else {
+			sign = 1;
+		}
+		if (strict_strtoul(cp, 0, &value))
+			return CMD_RET_USAGE;
+
+		value = (sign * (int)value) & 0xffff;
 		arg_idx++;
 
 		switch (param) {
