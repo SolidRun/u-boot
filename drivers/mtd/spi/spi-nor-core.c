@@ -1459,6 +1459,320 @@ static int mx_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 }
 #endif /* CONFIG_SPI_FLASH_MACRONIX */
 
+#if defined(CONFIG_SPI_FLASH_WINBOND)
+/* Write status register and ensure bits in mask match written values */
+static int wnb_write_sr_and_check(struct spi_nor *nor, u8 status_new, u8 mask)
+{
+	int ret;
+
+	write_enable(nor);
+	ret = write_sr(nor, status_new);
+	if (ret)
+		return ret;
+
+	ret = spi_nor_wait_till_ready(nor);
+	if (ret)
+		return ret;
+
+	ret = read_sr(nor);
+	if (ret < 0)
+		return ret;
+
+	return ((ret & mask) != (status_new & mask)) ? -EIO : 0;
+}
+
+static void wnb_get_locked_range(struct spi_nor *nor, u8 sr, loff_t *ofs,
+				 uint64_t *len)
+{
+	struct mtd_info *mtd = &nor->mtd;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	int shift = ffs(mask) - 1;
+	int pow;
+
+	if (!(sr & mask)) {
+		/* No protection */
+		*ofs = 0;
+		*len = 0;
+	} else {
+		pow = ((sr & mask) ^ mask) >> shift;
+
+		*len = mtd->size >> pow;
+		if (nor->flags & SNOR_F_HAS_SR_TB && sr & SR_TB)
+			*ofs = 0;
+		else
+			*ofs = mtd->size - *len;
+		if (!strcmp(mtd->name, "w25q128fw"))
+			*ofs = 0;
+		debug("%s sr %x shift %x mask %x xor %x pow %x\n", __func__,
+		      sr, shift, mask, (sr & mask) ^ mask, pow);
+	}
+	debug("%s ofs %llx len %llx\n", __func__, *ofs, *len);
+}
+
+/*
+ * Return 1 if the entire region is locked (if @locked is true) or unlocked (if
+ * @locked is false); 0 otherwise
+ */
+static int wnb_check_lock_status_sr(struct spi_nor *nor, loff_t ofs, u64 len,
+				    u8 sr, bool locked)
+{
+	loff_t lock_offs;
+	u64 lock_len;
+
+	if (!len)
+		return 1;
+
+	wnb_get_locked_range(nor, sr, &lock_offs, &lock_len);
+	debug("%s ofs %llx len %llx\n", __func__, ofs, len);
+	debug("%s lock_offs %llx lock_len %llx\n", __func__, lock_offs,
+	      lock_len);
+	if (locked)
+		/* Requested range is a sub-range of locked range */
+		return (ofs + len <= lock_offs + lock_len) && (ofs >= lock_offs);
+	else
+		/* Requested range does not overlap with locked range */
+		return (ofs >= lock_offs + lock_len) || (ofs + len <= lock_offs);
+}
+
+static int wnb_is_locked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
+			    u8 sr)
+{
+	return wnb_check_lock_status_sr(nor, ofs, len, sr, true);
+}
+
+static int wnb_is_unlocked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
+			      u8 sr)
+{
+	return wnb_check_lock_status_sr(nor, ofs, len, sr, false);
+}
+
+/*
+ * Lock a region of the flash. Compatible with ST Micro and similar flash.
+ * Supports the block protection bits BP{0,1,2} in the status register
+ * (SR). Does not support these features found in newer SR bitfields:
+ *   - SEC: sector/block protect - only handle SEC=0 (block protect)
+ *   - CMP: complement protect - only support CMP=0 (range is not complemented)
+ *
+ * Support for the following is provided conditionally for some flash:
+ *   - TB: top/bottom protect
+ *
+ * Sample table portion for 8MB flash (Winbond w25q64fw):
+ *
+ *   SEC  |  TB   |  BP2  |  BP1  |  BP0  |  Prot Length  | Protected Portion
+ *  --------------------------------------------------------------------------
+ *    X   |   X   |   0   |   0   |   0   |  NONE         | NONE
+ *    0   |   0   |   0   |   0   |   1   |  128 KB       | Upper 1/64
+ *    0   |   0   |   0   |   1   |   0   |  256 KB       | Upper 1/32
+ *    0   |   0   |   0   |   1   |   1   |  512 KB       | Upper 1/16
+ *    0   |   0   |   1   |   0   |   0   |  1 MB         | Upper 1/8
+ *    0   |   0   |   1   |   0   |   1   |  2 MB         | Upper 1/4
+ *    0   |   0   |   1   |   1   |   0   |  4 MB         | Upper 1/2
+ *    X   |   X   |   1   |   1   |   1   |  8 MB         | ALL
+ *  ------|-------|-------|-------|-------|---------------|-------------------
+ *    0   |   1   |   0   |   0   |   1   |  128 KB       | Lower 1/64
+ *    0   |   1   |   0   |   1   |   0   |  256 KB       | Lower 1/32
+ *    0   |   1   |   0   |   1   |   1   |  512 KB       | Lower 1/16
+ *    0   |   1   |   1   |   0   |   0   |  1 MB         | Lower 1/8
+ *    0   |   1   |   1   |   0   |   1   |  2 MB         | Lower 1/4
+ *    0   |   1   |   1   |   1   |   0   |  4 MB         | Lower 1/2
+ *
+ * Returns negative on errors, 0 on success.
+ */
+static int wnb_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	struct mtd_info *mtd = &nor->mtd;
+	int status_old, status_new;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	u8 shift = ffs(mask) - 1, pow, val;
+	loff_t lock_len;
+	bool can_be_top = true, can_be_bottom = nor->flags & SNOR_F_HAS_SR_TB;
+	bool use_top;
+
+	status_old = read_sr(nor);
+	if (status_old < 0)
+		return status_old;
+
+	/* If nothing in our range is unlocked, we don't need to do anything */
+	if (wnb_is_locked_sr(nor, ofs, len, status_old))
+		return 0;
+
+	/* If anything below us is unlocked, we can't use 'bottom' protection */
+	if (!wnb_is_locked_sr(nor, 0, ofs, status_old))
+		can_be_bottom = false;
+
+	debug("%s ofs %llx len %llx\n", __func__, ofs, len);
+	debug("%s 1ofs %llx 1len %llx\n", __func__, ofs + len,
+	      mtd->size - ofs - len);
+	/* If anything above us is unlocked, we can't use 'top' protection */
+	if (!wnb_is_locked_sr(nor, ofs + len, mtd->size - (ofs + len),
+			      status_old))
+		can_be_top = false;
+
+	if (!can_be_bottom && !can_be_top)
+		return -EINVAL;
+
+	/* Prefer top, if both are valid */
+	use_top = can_be_top;
+	if (!strcmp(mtd->name, "w25q128fw"))
+		use_top = false;
+
+	/* lock_len: length of region that should end up locked */
+	if (use_top)
+		lock_len = mtd->size - ofs;
+	else
+		lock_len = ofs + len;
+
+	/*
+	 * Need smallest pow such that:
+	 *
+	 *   1 / (2^pow) <= (len / size)
+	 *
+	 * so (assuming power-of-2 size) we do:
+	 *
+	 *   pow = ceil(log2(size / len)) = log2(size) - floor(log2(len))
+	 */
+	pow = ilog2(mtd->size) - ilog2(lock_len);
+	val = mask - ((pow - 1) << shift);
+	if (val & ~mask)
+		return -EINVAL;
+	debug("%s val %x mask %x pow %x shift %x\n", __func__, val, mask, pow,
+	      shift);
+
+	/* Don't "lock" with no region! */
+	if (!(val & mask))
+		return -EINVAL;
+
+	/* For this flash device, BP3 of mask is in position 5 instead of 6
+	 * so move it to fall inline with register bits
+	 */
+	status_new = (status_old & ~mask & ~SR_TB) | val;
+
+	/* Disallow further writes if WP pin is asserted */
+	status_new |= SR_SRWD;
+
+	if (!use_top)
+		status_new |= SR_TB;
+
+	/* Don't bother if they're the same */
+	if (status_new == status_old)
+		return 0;
+
+	/* Only modify protection if it will not unlock other areas */
+	if ((status_new & mask) < (status_old & mask))
+		return -EINVAL;
+	debug("%s SRN %x mask %x\n", __func__, status_new, mask);
+	return wnb_write_sr_and_check(nor, status_new, mask);
+}
+
+/*
+ * Unlock a region of the flash. See stm_lock() for more info
+ *
+ * Returns negative on errors, 0 on success.
+ */
+static int wnb_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	struct mtd_info *mtd = &nor->mtd;
+	int status_old, status_new;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	u8 shift = ffs(mask) - 1, pow, val;
+	loff_t lock_len;
+	bool can_be_top = true, can_be_bottom = nor->flags & SNOR_F_HAS_SR_TB;
+	bool use_top;
+
+	status_old = read_sr(nor);
+	if (status_old < 0)
+		return status_old;
+
+	/* If nothing in our range is locked, we don't need to do anything */
+	if (wnb_is_unlocked_sr(nor, ofs, len, status_old))
+		return 0;
+
+	/* If anything below us is locked, we can't use 'top' protection */
+	if (!wnb_is_unlocked_sr(nor, 0, ofs, status_old))
+		can_be_top = false;
+
+	/* If anything above us is locked, we can't use 'bottom' protection */
+	if (!wnb_is_unlocked_sr(nor, ofs + len, mtd->size - (ofs + len),
+				status_old))
+		can_be_bottom = false;
+
+	if (!can_be_bottom && !can_be_top)
+		return -EINVAL;
+
+	/* Prefer top, if both are valid */
+	use_top = can_be_top;
+	if (!strcmp(mtd->name, "w25q128fw"))
+		use_top = false;
+
+	/* lock_len: length of region that should remain locked */
+	if (use_top)
+		lock_len = mtd->size - (ofs + len);
+	else
+		lock_len = ofs;
+
+	/*
+	 * Need largest pow such that:
+	 *
+	 *   1 / (2^pow) >= (len / size)
+	 *
+	 * so (assuming power-of-2 size) we do:
+	 *
+	 *   pow = floor(log2(size / len)) = log2(size) - ceil(log2(len))
+	 */
+	pow = ilog2(mtd->size) - order_base_2(lock_len);
+	debug("%s il1 %x il2 %x\n", __func__, ilog2(mtd->size),
+	      order_base_2(lock_len));
+	if (lock_len == 0) {
+		val = 0; /* fully unlocked */
+	} else {
+		val = mask - (pow << shift);
+		debug("%s val %x mask %x po %x\n", __func__, val, mask,
+		      pow << shift);
+		/* Some power-of-two sizes are not supported */
+		if (val & ~mask)
+			return -EINVAL;
+	}
+	debug("%s val %x mask %x\n", __func__, val, mask);
+	status_new = (status_old & ~mask & ~SR_TB) | val;
+
+	/* Don't protect status register if we're fully unlocked */
+	if (lock_len == 0)
+		status_new &= ~SR_SRWD;
+
+	if (!use_top)
+		status_new |= SR_TB;
+
+	/* Don't bother if they're the same */
+	if (status_new == status_old)
+		return 0;
+
+	/* Only modify protection if it will not lock other areas */
+	if ((status_new & mask) > (status_old & mask))
+		return -EINVAL;
+
+	debug("%s SRN %x mask %x\n", __func__, status_new, mask);
+	return wnb_write_sr_and_check(nor, status_new, mask);
+}
+
+/*
+ * Check if a region of the flash is (completely) locked. See stm_lock() for
+ * more info.
+ *
+ * Returns 1 if entire region is locked, 0 if any portion is unlocked, and
+ * negative on errors.
+ */
+static int wnb_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	int status;
+
+	status = read_sr(nor);
+	if (status < 0)
+		return status;
+
+	return wnb_is_locked_sr(nor, ofs, len, status);
+}
+#endif /* CONFIG_SPI_FLASH_WINBOND */
+
 #if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
 /* Write status register and ensure bits in mask match written values */
 static int write_sr_and_check(struct spi_nor *nor, u8 status_new, u8 mask)
@@ -4646,6 +4960,17 @@ int spi_nor_scan(struct spi_nor *nor)
 		nor->flash_lock = stm_lock;
 		nor->flash_unlock = stm_unlock;
 		nor->flash_is_unlocked = stm_is_unlocked;
+	}
+#endif
+
+#if defined(CONFIG_SPI_FLASH_WINBOND)
+	/* NOR protection support for Winbond chips */
+	if (JEDEC_MFR(info) == SNOR_MFR_WINBOND) {
+		if (!strcmp(mtd->name, "w25q128fw")) {
+			nor->flash_lock = wnb_lock;
+			nor->flash_unlock = wnb_unlock;
+			nor->flash_is_locked = wnb_is_locked;
+		}
 	}
 #endif
 
