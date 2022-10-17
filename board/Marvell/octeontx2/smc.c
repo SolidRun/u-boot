@@ -222,11 +222,11 @@ __efi_runtime int smc_write_efi_var(u64 var_addr, u64 var_size)
 	return regs.regs[0];
 }
 
-int smc_update(u64 var_addr, u64 var_size)
+int smc_sec_fw_update(u64 var_addr, u64 var_size)
 {
 	struct pt_regs regs;
 
-	regs.regs[0] = PLAT_OCTEON_SW_UPDATE;
+	regs.regs[0] = PLAT_OCTEON_SEC_FW_UPDATE;
 	regs.regs[1] = var_addr;
 	regs.regs[2] = var_size;
 

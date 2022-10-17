@@ -5,7 +5,7 @@
 
 ifdef CONFIG_ARCH_OCTEONTX2
 obj-$(CONFIG_CMD_BOOTIMGUP) += bootimgup.o
-obj-$(CONFIG_CMD_SECUPDATE) += loki_update.o
+obj-$(CONFIG_CMD_SEC_FW_UPDATE) += loki_sec_fw_update.o
 obj-$(CONFIG_CMD_FAILSAFE) += octeontx2_failsafe_cmds.o
 obj-$(CONFIG_CMD_ETH) += eth_cmds.o
 obj-$(CONFIG_CMD_MDIO_DBG) += mdio_dbg.o
