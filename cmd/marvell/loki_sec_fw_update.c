@@ -9,8 +9,8 @@
 #include <command.h>
 #include <asm/arch/smc.h>
 
-static int do_sec_update(struct cmd_tbl *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_sec_fw_update(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char * const argv[])
 {
 	char *env1, *env2;
 	int addr, size;
@@ -38,10 +38,10 @@ static int do_sec_update(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (ret)
 		return -1;
 
-	return smc_update(addr, size);
+	return smc_sec_fw_update(addr, size);
 }
 
 U_BOOT_CMD(
-	sec_update, 1, 1, do_sec_update, "Updates Boot Image",
-	"sec_update [image_address] [image_size]"
+	sec_fw_update, 1, 1, do_sec_fw_update, "Secure boot image update",
+	"sec_fw_update [image_address] [image_size]"
 );
