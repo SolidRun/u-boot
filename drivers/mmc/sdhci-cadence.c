@@ -27,12 +27,20 @@
 #define DEBUG_DRV(fmt, ...)
 #endif
 
+#ifdef DEBUG_SDHCI_CADENCE_HS200
+#define DEBUG_HS200_TUNE(fmt, ...)	\
+	if (1) \
+		printf(fmt, ...)
+#else
+#define DEBUG_HS200_TUNE(fmt, ...)
+#endif
+
 #define SDHCI_CDNS_SD6_MAXCLK		200000000
 
 #define DEFAULT_CMD_DELAY		16
-#define SDHCI_CDNS_TUNE_START		0
-#define SDHCI_CDNS_TUNE_STEP		2
-#define SDHCI_CDNS_TUNE_ITERATIONS	255
+#define SDHCI_CDNS_TUNE_START		16
+#define SDHCI_CDNS_TUNE_STEP		6
+#define SDHCI_CDNS_TUNE_ITERATIONS	40
 
 #define SDHCI_CDNS_HRS00			0x00
 #define SDHCI_CDNS_HRS00_SWR			BIT(0)
@@ -987,7 +995,7 @@ static int sdhci_cdns_sd6_set_tune_val(struct sdhci_cdns_plat *plat,
 	struct sdhci_cdns_sd6_phy *phy = plat->priv;
 
 	phy->settings.hs200_tune_val = val;
-	phy->settings.cp_read_dqs_cmd_delay = read_dqs_cmd_delay;
+	phy->settings.cp_read_dqs_cmd_delay = val;
 	phy->settings.cp_read_dqs_delay = val;
 
 	return sdhci_cdns_sd6_phy_init(NULL, plat);
@@ -1601,9 +1609,9 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 	int cur_streak = 0;
 	int max_streak = 0;
 	int end_of_streak = 0;
-	int cnt = 0, midpoint;
+	int cnt = 0, midpoint, iter = 0;
 
-	for (cnt = tune_val_start; cnt <= max_tune_iter; cnt += tune_val_step) {
+	for (cnt = tune_val_start; iter < max_tune_iter; iter++, cnt += tune_val_step) {
 		if (sdhci_cdns_sd6_set_tune_val(plat, cnt) ||
 			mmc_send_tuning(mmc, opcode, NULL)) { /* bad */
 				cur_streak = 0;
@@ -1612,11 +1620,11 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 			if (cur_streak > max_streak) {
 				max_streak = cur_streak;
 				end_of_streak = cnt;
-				DEBUG_DRV("%s (%d-%d = %d)\n", __func__,
+				DEBUG_HS200_TUNE("%s (%d-%d = %d)\n", __func__,
 					end_of_streak-((cur_streak-1)*tune_val_step),
 					end_of_streak, cur_streak);
 			} else
-				DEBUG_DRV("%s (%d-%d)\n", __func__,
+				DEBUG_HS200_TUNE("%s (%d-%d)\n", __func__,
 					cnt - ((cur_streak-1)*tune_val_step), cnt);
 		}
 	}
@@ -1625,7 +1633,7 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 		printf(dev, "no tuning point found\n");
 		return -EIO;
 	}
-	DEBUG_DRV("max_streak: %d-%d\n", end_of_streak-((max_streak-1)*tune_val_step), end_of_streak);
+	DEBUG_HS200_TUNE("max_streak: %d-%d\n", end_of_streak-((max_streak-1)*tune_val_step), end_of_streak);
 
 	midpoint = end_of_streak - (((max_streak - 1)*tune_val_step) / 2);
 
