@@ -583,13 +583,13 @@ static int octeontx_pcie_console_init(struct udevice *dev)
 			goto error;
 		}
 		if (le64_to_cpu(cons->input_base_addr) +
-		    le32_to_cpu(cons->input_buf_size) > size) {
+		    le32_to_cpu(cons->input_buf_size) > addr + size) {
 			dev_err(dev, "Input buffer address invalid\n");
 			ret = -EINVAL;
 			goto error;
 		}
 		if (le64_to_cpu(cons->output_base_addr) +
-		    le32_to_cpu(cons->output_buf_size) > size) {
+		    le32_to_cpu(cons->output_buf_size) > addr + size) {
 			dev_err(dev, "Output buffer address invalid\n");
 			ret = -EINVAL;
 			goto error;
