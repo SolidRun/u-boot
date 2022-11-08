@@ -1587,6 +1587,13 @@ config CMD_NFS
 	help
 	  Boot image via network using NFS protocol.
 
+config CMD_WGET
+	bool "wget"
+	select TCP
+	help
+	  wget is a simple command to download kernel, or other files,
+	  from a http server over TCP.
+
 config CMD_MII
 	bool "mii"
 	imply CMD_MDIO
