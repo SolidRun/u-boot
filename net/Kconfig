@@ -99,4 +99,20 @@ config SERVERIP_FROM_PROXYDHCP_DELAY_MS
 		receiving response from main DHCP server. Has no effect if
 		SERVERIP_FROM_PROXYDHCP is false.
 
+config PROT_TCP
+	bool "TCP stack"
+	help
+	  Enable a generic tcp framework that allows defining a custom
+	  handler for tcp protocol.
+
+config PROT_TCP_SACK
+	bool "TCP SACK support"
+	depends on PROT_TCP
+	help
+	  TCP protocol with SACK. SACK means selective acknowledgements.
+	  By turning this option on TCP will learn what segments are already
+	  received. So that it improves TCP's retransmission efficiency.
+	  This option should be turn on if you want to achieve the fastest
+	  file transfer possible.
+
 endif   # if NET
