@@ -458,6 +458,14 @@ config MMC_SDHCI
 
 	  If unsure, say N.
 
+config MMC_SDHCI_DATA_POLL_DELAY
+	int "sdhci data poll delay value in micro seconds"
+	default 10
+	depends on MMC_SDHCI
+	help
+	   This configures the dealy value to poll for data available status
+	   and retry after the selected timeout value.
+
 config MMC_SDHCI_IO_ACCESSORS
 	bool
 	depends on MMC_SDHCI

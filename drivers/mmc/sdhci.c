@@ -170,7 +170,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data)
 			}
 		}
 		if (timeout-- > 0)
-			udelay(10);
+			udelay(CONFIG_MMC_SDHCI_DATA_POLL_DELAY);
 		else {
 			printf("%s: Transfer data timeout\n", __func__);
 			return -ETIMEDOUT;
