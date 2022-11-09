@@ -68,6 +68,11 @@
 			reg = <0>;
 			enable-method = "psci";
 		};
+
+		tee@4400000 {
+			reg = <0 0x4400000 0 0x1000000>;
+			no-map;
+		};
 	};
 
 	psci {
