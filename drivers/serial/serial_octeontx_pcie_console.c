@@ -930,7 +930,8 @@ int octeontx_pcie_console_init_nexus(struct udevice *dev)
 		/* If already initialized then we're done. */
 		if (pcd->num_consoles)
 			return 0;
-	}
+	} else
+		memset(pcd, 0, sizeof(*pcd));
 
 	/*
 	 * Fill in the number of consoles and their addresses.  This
