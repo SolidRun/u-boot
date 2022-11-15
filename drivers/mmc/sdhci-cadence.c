@@ -298,10 +298,10 @@ struct sdhci_cdns_plat {
 	void *priv;
 };
 
-static int tune_val_start = SDHCI_CDNS_TUNE_START;
-static int tune_val_step = SDHCI_CDNS_TUNE_STEP;
-static int max_tune_iter = SDHCI_CDNS_TUNE_ITERATIONS;
-static uint32_t read_dqs_cmd_delay;
+static u32 tune_val_start = SDHCI_CDNS_TUNE_START;
+static u32 tune_val_step = SDHCI_CDNS_TUNE_STEP;
+static u32 max_tune_iter = SDHCI_CDNS_TUNE_ITERATIONS;
+static u32 read_dqs_cmd_delay;
 static struct sdhci_cdns_sd6_phy sd6_phy_config;
 
 static void init_hs(struct sdhci_cdns_sd6_phy_timings *t, int t_sdclk)
@@ -655,6 +655,7 @@ static int sdhci_cdns_sd6_get_delay_params(struct udevice *dev, struct sdhci_cdn
 	return 0;
 }
 
+#ifdef CONFIG_MMC_HS400_ES_SUPPORT
 static void sdhci_cdns_set_emmc_mode(struct sdhci_cdns_plat *priv, u32 mode)
 {
 	u32 tmp;
@@ -665,6 +666,7 @@ static void sdhci_cdns_set_emmc_mode(struct sdhci_cdns_plat *priv, u32 mode)
 	tmp |= FIELD_PREP(SDHCI_CDNS_HRS06_MODE, mode);
 	writel(tmp, priv->hrs_addr + SDHCI_CDNS_HRS06);
 }
+#endif
 
 static u32 sdhci_cdns_get_emmc_mode(struct sdhci_cdns_plat *priv)
 {
@@ -1504,6 +1506,7 @@ static void sdhci_cdns_sd6_set_clock(struct sdhci_host *host,
                debug("%s: phy init failed\n", __func__);
 #ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
 	dump_sdhci_regs(host);
+	printf("%s sdhci mode %d\n", __func__, sdhci_cdns_get_emmc_mode(plat));
 #endif
 }
 
@@ -1582,10 +1585,8 @@ static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 		}
 	}
 
-	if (!max_streak) {
-		printf(dev, "no tuning point found\n");
+	if (!max_streak)
 		return -EIO;
-	}
 
 	return sdhci_cdns_set_tune_val(plat, end_of_streak - max_streak / 2);
 }
@@ -1601,7 +1602,7 @@ static void sdhci_cdns_hs400_enhanced_strobe(struct udevice *dev)
 }
 #endif
 
-static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigned int opcode)
+static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigned char opcode)
 {
 	struct udevice *dev = mmc->dev;
 	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
@@ -1628,10 +1629,9 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 		}
 	}
 
-	if (!max_streak) {
-		printf(dev, "no tuning point found\n");
+	if (!max_streak)
 		return -EIO;
-	}
+
 	DEBUG_HS200_TUNE("max_streak: %d-%d\n", end_of_streak-((max_streak-1)*tune_val_step), end_of_streak);
 
 	midpoint = end_of_streak - (((max_streak - 1)*tune_val_step) / 2);
