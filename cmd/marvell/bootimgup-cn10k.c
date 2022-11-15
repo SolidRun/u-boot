@@ -569,6 +569,7 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 	bool dst_spi = false;
 	bool src_media = true;
 	bool force_clone = false;
+	bool skip_sorce_check = false;
 
 	memset(&vinfo, 0, sizeof(vinfo));
 
@@ -595,6 +596,12 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 		if (!strcmp(argv[0], "-f")) {
 			force_clone = true;
+			argv++;
+			argc--;
+			continue;
+		}
+		if (!strcmp(argv[0], "-x")) {
+			skip_sorce_check = true;
 			argv++;
 			argc--;
 			continue;
@@ -683,6 +690,8 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 		vinfo.version_flags |= SMC_VERSION_COPY_TO_BACKUP_EMMC;
 	if (force_clone)
 		vinfo.version_flags |= SMC_VERSION_FORCE_COPY_OBJECTS;
+	if (skip_sorce_check)
+		vinfo.version_flags |= SMC_VERSION_SKIP_FAIL_CHECK;
 
 	pr_debug("%s: Calling smc_spi_verify(%p, flags: 0x%x)...\n",
 		 __func__, &vinfo, vinfo.version_flags);
@@ -695,9 +704,10 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-U_BOOT_CMD(bootimgcopy, 7, 0, do_copy_image,
+U_BOOT_CMD(bootimgcopy, 8, 0, do_copy_image,
 	   "Copy firmware image between flash devices",
 	   " [<-b>] <mmc [devid] | spi [bus[:cs]]> [<-B>] <mmc [devid] | spi [bus[:cs]]>\n"
 	   " -b - specify backup location in source storage\n"
 	   " -B - specify backup location in target storage\n"
-	   " -f - force clone operation\n");
+	   " -f - force clone operation\n"
+	   " -x - skip source verification check");
