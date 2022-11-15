@@ -272,6 +272,11 @@ struct smc_version_info_entry {
 #define SMC_VERSION_FORCE_COPY_OBJECTS		BIT(7)
 
 /**
+ * Set this to skip failed images, instead of faili whole clone operation
+ */
+#define SMC_VERSION_SKIP_FAIL_CHECK			BIT(9)
+
+/**
  * Maximum number of objects that can return the version info
  */
 #define SMC_MAX_VERSION_ENTRIES			32
