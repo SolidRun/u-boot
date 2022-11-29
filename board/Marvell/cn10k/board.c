@@ -30,7 +30,7 @@
 #include <linux/iopoll.h>
 
 #ifdef CONFIG_FWLOG_TTYMEM
-#define CONSOLE_NAME	"ttymem"
+#define FWLOG_CONSOLE_NAME	"ttymem"
 #endif
 
 extern ssize_t smc_flsf_fw_booted(void);
@@ -65,8 +65,8 @@ static int init_ttymem_console(void)
 		return -1;
 	}
 
-	stdout_set = !!strstr(stdoutname, CONSOLE_NAME);
-	stderr_set = !!strstr(stderrname, CONSOLE_NAME);
+	stdout_set = !!strstr(stdoutname, FWLOG_CONSOLE_NAME);
+	stderr_set = !!strstr(stderrname, FWLOG_CONSOLE_NAME);
 
 	printf("stdout: %s \nstderr: %s\n",stdoutname, stderrname);
 
