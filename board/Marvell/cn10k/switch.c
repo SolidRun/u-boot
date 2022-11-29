@@ -916,6 +916,9 @@ void board_switch_init(void)
 
 	debug("done.%p %p\n", sw_bar0, sw_bar2);
 
+	/* Add delay for above writes to take effect */
+	mdelay(1000);
+
 	/* Check for successful initialization of switch firmware */
 	/* Check first magic word at fixed location */
 	timeout = 10;
