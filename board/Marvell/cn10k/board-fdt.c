@@ -707,6 +707,7 @@ void board_fdt_get_rsvd_size(u64 *size)
 {
 	int node, child;
 	const void *fdt = gd->fdt_blob;
+	u64 ram_top = gd->ram_size + CONFIG_SYS_SDRAM_BASE;
 	fdt_addr_t addr;
 	fdt_size_t len;
 
@@ -723,9 +724,9 @@ void board_fdt_get_rsvd_size(u64 *size)
 								"reg", 0,
 								&len,
 								false);
-			if (addr && len) {
-				debug("%s Rsvd address 0x%llx size 0x%llx\n",
-				      __func__, addr, len);
+			if (addr && addr > ram_top && len) {
+				debug("%s Rsvd address 0x%llx 0x%llx size 0x%llx\n",
+				      __func__, addr, ram_top, len);
 				*size += len;
 			}
 		}
