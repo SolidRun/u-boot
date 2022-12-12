@@ -30,10 +30,10 @@ static struct nix_aq_sq_dis sq_dis ALIGNED;
 /***************
  * NPA API
  ***************/
-int npa_attach_aura(struct nix_af *nix_af, int lf,
+int npa_attach_aura(struct npa_af *npa_af, int lf,
 		    const union npa_aura_s *desc, u32 aura_id)
 {
-	struct npa_af *npa = nix_af->npa_af;
+	struct npa_af *npa = npa_af;
 	union npa_aq_inst_s *inst;
 	union npa_aq_res_s *res;
 	union npa_af_aq_status aq_stat;
@@ -41,7 +41,7 @@ int npa_attach_aura(struct nix_af *nix_af, int lf,
 	u64 head;
 	ulong start;
 
-	debug("%s(%p, lf %d, %p, aura id %u)\n", __func__, nix_af, lf, desc,
+	debug("%s(%p, lf %d, %p, aura id %u)\n", __func__, npa_af, lf, desc,
 	      aura_id);
 	aq_stat.u = npa_af_reg_read(npa, NPA_AF_AQ_STATUS());
 	head = aq_stat.s.head_ptr;
@@ -76,18 +76,18 @@ int npa_attach_aura(struct nix_af *nix_af, int lf,
 	return 0;
 }
 
-int npa_attach_pool(struct nix_af *nix_af, int lf,
+int npa_attach_pool(struct npa_af *npa_af, int lf,
 		    const union npa_pool_s *desc, u32 pool_id)
 {
 	union npa_aq_inst_s *inst;
 	union npa_aq_res_s *res;
 	union npa_af_aq_status aq_stat;
-	struct npa_af *npa = nix_af->npa_af;
+	struct npa_af *npa = npa_af;
 	union npa_aura_s *context;
 	u64 head;
 	ulong start;
 
-	debug("%s(%p, %d, %p, %u)\n", __func__, nix_af, lf, desc, pool_id);
+	debug("%s(%p, %d, %p, %u)\n", __func__, npa_af, lf, desc, pool_id);
 	aq_stat.u = npa_af_reg_read(npa, NPA_AF_AQ_STATUS());
 	head = aq_stat.s.head_ptr;
 
@@ -155,7 +155,7 @@ int npa_lf_admin_setup(struct npa *npa, int lf, dma_addr_t aura_base)
 	return 0;
 }
 
-int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
+int npa_lf_admin_shutdown(struct npa_af *npa, int lf, u32 pool_count)
 {
 	int pool_id;
 	u32 head;
@@ -173,7 +173,6 @@ int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
 	} aura_req ALIGNED;
 	union npa_af_aq_status aq_stat;
 	union npa_af_lf_rst lf_rst;
-	struct npa_af *npa = nix_af->npa_af;
 	ulong start;
 
 	for (pool_id = 0; pool_id < pool_count; pool_id++) {
