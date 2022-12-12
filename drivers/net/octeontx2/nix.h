@@ -319,16 +319,19 @@ static inline void npc_af_reg_write(struct nix_af *nix_af, u64 offset,
 	writeq(val, nix_af->npc_af_base + offset);
 }
 
-int npa_attach_aura(struct nix_af *nix_af, int lf,
+int npa_attach_aura(struct npa_af *npa_af, int lf,
 		    const union npa_aura_s *desc, u32 aura_id);
-int npa_attach_pool(struct nix_af *nix_af, int lf,
+int npa_attach_pool(struct npa_af *npa_af, int lf,
 		    const union npa_pool_s *desc, u32 pool_id);
+int npa_setup_pool(struct npa *npa, u32 pool_id,
+		   size_t buffer_size, u32 queue_length, void *buffers[]);
+u64 npa_aura_op_alloc(struct npa *npa, u64 aura_id);
 int npa_af_setup(struct npa_af *npa_af);
 int npa_af_shutdown(struct npa_af *npa_af);
 int npa_lf_setup(struct nix *nix, int npa_lf);
 int npa_lf_shutdown(struct nix *nix);
 int npa_lf_admin_setup(struct npa *npa, int lf, dma_addr_t aura_base);
-int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count);
+int npa_lf_admin_shutdown(struct npa_af *npa, int lf, u32 pool_count);
 
 int npc_lf_admin_setup(struct nix *nix);
 int npc_af_shutdown(struct nix_af *nix_af);

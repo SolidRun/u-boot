@@ -68,8 +68,8 @@ int npc_lf_setup(struct nix *nix)
 	return 0;
 }
 
-static int npa_setup_pool(struct npa *npa, u32 pool_id,
-			  size_t buffer_size, u32 queue_length, void *buffers[])
+int npa_setup_pool(struct npa *npa, u32 pool_id,
+		   size_t buffer_size, u32 queue_length, void *buffers[])
 {
 	struct {
 		union npa_lf_aura_op_free0 f0;
@@ -194,7 +194,7 @@ int npa_lf_setup(struct nix *nix, int npa_lf)
 		aura->s.count = npa->q_len[idx];
 		aura->s.limit = npa->q_len[idx];
 		aura->s.ena = 1;
-		err = npa_attach_aura(nix_af, npa->lf, aura, idx);
+		err = npa_attach_aura(nix_af->npa_af, npa->lf, aura, idx);
 		if (err)
 			return err;
 
@@ -212,7 +212,7 @@ int npa_lf_setup(struct nix *nix, int npa_lf)
 		pool->s.ptr_start = 0;
 		pool->s.ptr_end = (1ULL << 40) -  1;
 		pool->s.ena = 1;
-		err = npa_attach_pool(nix_af, npa->lf, pool, idx);
+		err = npa_attach_pool(nix_af->npa_af, npa->lf, pool, idx);
 		if (err)
 			return err;
 	}
@@ -245,7 +245,7 @@ int npa_lf_shutdown(struct nix *nix)
 	int err;
 	int pool;
 
-	err = npa_lf_admin_shutdown(nix->nix_af, npa->lf, NPA_POOL_COUNT);
+	err = npa_lf_admin_shutdown(nix->nix_af->npa_af, npa->lf, NPA_POOL_COUNT);
 	if (err) {
 		printf("%s: Error %d shutting down NPA LF admin\n",
 		       __func__, err);

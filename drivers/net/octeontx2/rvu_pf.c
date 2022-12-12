@@ -61,7 +61,7 @@ int rvu_pf_probe(struct udevice *dev)
 
 	rvu->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, 0, 0,
 				      PCI_REGION_TYPE, PCI_REGION_MEM);
-	rvu->pfid = dev_seq(dev) + 1; // RVU PF's start from 1;
+	rvu->pfid = ((u64)rvu->pf_base >> 36) & 0xf;
 	rvu->dev = dev;
 	if (!rvu_af_dev) {
 		printf("%s: Error: Could not find RVU AF device\n",
@@ -101,7 +101,7 @@ int rvu_pf_probe(struct udevice *dev)
 	 * modify device name to include index/sequence number,
 	 * for better readability, this is 1:1 mapping with eth0/1/2.. names.
 	 */
-	sprintf(name, "rvu_pf#%d", dev_seq(dev));
+	sprintf(name, "rvu_pf#%d", rvu->pfid - 1);
 	device_set_name(dev, name);
 	debug("%s: name: %s\n", __func__, dev->name);
 	return err;

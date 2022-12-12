@@ -307,6 +307,10 @@ void board_late_probe_devices(void)
 				 PCI_DEVICE_ID_CAVIUM_RVU_AF, 0, &dev);
 	if (err)
 		debug("NIC AF device not found\n");
+	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
+				 PCI_DEVICE_ID_CAVIUM_NPA_PF, 0, &dev);
+	if (err)
+		debug("NPA AF device not found\n");
 }
 
 #if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
