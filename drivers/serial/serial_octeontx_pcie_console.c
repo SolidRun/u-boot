@@ -501,7 +501,9 @@ int octeontx_pcie_console_available(struct udevice *ndev, int console_num,
  *
  * @param	dev	serial device
  *
- * @return	0 for success, otherwise error
+ * @return	0 for success,
+ *              EEXIST if console was already initialized & owned by U-Boot,
+ *              negative errno for error
  */
 /**
  * Initializes a PCIe console
@@ -521,6 +523,7 @@ static int octeontx_pcie_console_init(struct udevice *dev)
 	fdt_addr_t addr;
 	fdt_addr_t size;
 	u32 input_buf_size, output_buf_size;
+	bool console_preowned;
 	int ret = 0;
 
 	addr = ofnode_get_addr_size_index(node, 0, &size);
@@ -559,6 +562,13 @@ static int octeontx_pcie_console_init(struct udevice *dev)
 		 */
 		octeontx_init_spin_lock(&cons->excl_lock);
 		octeontx_pcie_init_target_lock(&cons->pcie_lock);
+	} else {
+		/* Here, console is already initialized;
+		 * set 'console_preowned' flag if WE currently own it.
+		 */
+		console_preowned =
+			(cons->owner_id ==
+			 cpu_to_le32(OCTEONTX_PCIE_CONSOLE_OWNER_UBOOT));
 	}
 
 	octeontx_pcie_target_lock(&cons->pcie_lock);
@@ -566,6 +576,9 @@ static int octeontx_pcie_console_init(struct udevice *dev)
 	cons->owner_id = cpu_to_le32(OCTEONTX_PCIE_CONSOLE_OWNER_UBOOT);
 
 	if (cons->host_console_connected) {
+		debug("%s: console at %p (%s) already connected (%d), skip init\n",
+		      __func__, cons, cons->name,
+		      le32_to_cpu(cons->host_console_connected));
 		/*
 		 * If we're here then a host console is already connected
 		 * so we can't change the pointers manipulated by the host.
@@ -652,8 +665,11 @@ static int octeontx_pcie_console_init(struct udevice *dev)
 error:
 	octeontx_pcie_target_unlock(&cons->pcie_lock);
 
-	if (!ret)
+	if (!ret) {
 		priv->console = cons;
+		if (console_preowned)
+			ret = EEXIST; /* NOTE: positive retval is not an error */
+	}
 
 	return ret;
 }
@@ -679,6 +695,7 @@ static int octeontx_pcie_console_probe(struct udevice *dev)
 	bool ok;
 	ulong start;
 	int ret;
+	bool console_preowned;
 #ifdef DEBUG
 	struct stdio_dev *_sdev;
 #endif
@@ -718,6 +735,14 @@ static int octeontx_pcie_console_probe(struct udevice *dev)
 	debug("%s(%s): console #%d\n", __func__, dev->name, priv->console_num);
 
 	ret = octeontx_pcie_console_init(dev);
+	/* Check if console was already initialized AND was owned by U-Boot. */
+	if (ret == EEXIST) {
+		debug("%s: found pre-existing console #%d\n", __func__,
+		      priv->console_num);
+		console_preowned = true;
+		ret = 0;
+	}
+
 	if (ret) {
 		dev_err(dev, "Error initializing console %s\n", dev->name);
 		return ret;
@@ -733,7 +758,12 @@ static int octeontx_pcie_console_probe(struct udevice *dev)
 	new_mask |= (new_mask << 32);
 	start = get_timer(0);
 	do {
-		if (nexus->in_use & (1 << console_num)) {
+		/* Disregard pre-existing console-in-use flag IF we detected
+		 * that the console was already owned by U-Boot.
+		 * This can occur on CN10K when 'reset' is issued in U-Boot.
+		 */
+		if ((nexus->in_use & (1 << console_num)) &&
+		    !console_preowned) {
 			debug("%s: console %d already in use\n",
 			      __func__, console_num);
 			return -ENODEV;
@@ -925,8 +955,8 @@ int octeontx_pcie_console_init_nexus(struct udevice *dev)
 				pcd->major_version, pcd->minor_version);
 			return -EINVAL;
 		}
-		debug("%s: console descriptor already initialized\n",
-		      dev->name);
+		debug("%s: console descriptor already initialized, num_consoles %u\n",
+		      dev->name, pcd->num_consoles);
 		/* If already initialized then we're done. */
 		if (pcd->num_consoles)
 			return 0;
