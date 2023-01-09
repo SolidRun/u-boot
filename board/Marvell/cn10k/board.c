@@ -497,15 +497,6 @@ int board_late_init(void)
 	if (IS_ENABLED(CONFIG_TARGET_CN10K_A))
 		board_switch_init();
 
-#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
-	if (init_bootcmd_console())
-		printf("Failed to init bootcmd input\n");
-#endif
-#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)
-	if (init_pcie_console())
-		printf("Failed to init pci console\n");
-#endif
-
 	if (save_env)
 		env_save();
 
@@ -594,6 +585,14 @@ int board_acquire_flash_arb(bool acquire)
 #ifdef CONFIG_LAST_STAGE_INIT
 int last_stage_init(void)
 {
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
+	if (init_bootcmd_console())
+		printf("Failed to init bootcmd input\n");
+#endif
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)
+	if (init_pcie_console())
+		printf("Failed to init pci console\n");
+#endif
 	(void)smc_flsf_fw_booted();
 	return 0;
 }
