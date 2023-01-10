@@ -52,6 +52,8 @@ struct event_log_buffer {
 
 static struct event_log_buffer event_log;
 static bool tcg2_efi_app_invoked;
+static struct efi_tcg2_boot_service_capability capability_store;
+
 /*
  * When requesting TPM2_CAP_TPM_PROPERTIES the value is on a standard offset.
  * Since the current tpm2_get_capability() response buffers starts at
@@ -811,6 +813,9 @@ efi_tcg2_get_capability(struct efi_tcg2_protocol *this,
 		goto out;
 	}
 
+	/* Save capability for later use */
+	memcpy(&capability_store, capability, sizeof(struct efi_tcg2_boot_service_capability));
+
 	return EFI_EXIT(EFI_SUCCESS);
 out:
 	return EFI_EXIT(efi_ret);
@@ -1177,7 +1182,9 @@ efi_tcg2_submit_command(struct efi_tcg2_protocol *this,
 	EFI_ENTRY("%p, %u, %p, %u, %p", this, input_param_block_size,
 		  input_param_block, output_param_block_size, output_param_block);
 
-	if (!this || !input_param_block || !input_param_block_size) {
+	if (!this || !input_param_block || !input_param_block_size ||
+	    !capability_store.max_command_size ||
+	    input_param_block_size > capability_store.max_command_size) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
@@ -2451,6 +2458,10 @@ efi_status_t efi_tcg2_register(void)
 		tcg2_uninit();
 		goto fail;
 	}
+
+	/* Init capability store */
+	memset(&capability_store, 0, sizeof(struct efi_tcg2_boot_service_capability));
+	tpm2_get_max_command_size(dev, &capability_store.max_command_size);
 
 	return ret;
 
