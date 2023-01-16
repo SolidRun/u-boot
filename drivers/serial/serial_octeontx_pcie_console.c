@@ -362,8 +362,13 @@ static void octeontx_pcie_console_stdio_putc(struct stdio_dev *dev,
 {
 	struct udevice *udev = dev->priv;
 	struct octeontx_pcie_console_priv *priv = dev_get_priv(udev);
-	struct octeontx_pcie_console *console = priv->console;
+	struct octeontx_pcie_console *console;
 	u8 v = c;
+
+	if (priv)
+		console = priv->console;
+	else
+		return;
 
 #ifdef DEBUG
 	if (in_debug)
@@ -379,7 +384,12 @@ static void octeontx_pcie_console_stdio_puts(struct stdio_dev *dev,
 	struct udevice *udev = dev->priv;
 	size_t len = strlen(s);
 	struct octeontx_pcie_console_priv *priv = dev_get_priv(udev);
-	struct octeontx_pcie_console *console = priv->console;
+	struct octeontx_pcie_console *console;
+
+	if (priv)
+		console = priv->console;
+	else
+		return;
 
 #ifdef DEBUG
 	if (in_debug)
@@ -397,8 +407,13 @@ static int octeontx_pcie_console_setbrg(struct udevice *dev, int baudrate)
 static int octeontx_pcie_console_getc(struct udevice *dev)
 {
 	struct octeontx_pcie_console_priv *priv = dev_get_priv(dev);
-	struct octeontx_pcie_console *console = priv->console;
+	struct octeontx_pcie_console *console;
 	int ret;
+
+	if (priv)
+		console = priv->console;
+	else
+		return 0;
 
 #ifdef DEBUG
 	if (in_debug)
@@ -412,9 +427,14 @@ static int octeontx_pcie_console_getc(struct udevice *dev)
 static int octeontx_pcie_console_putc(struct udevice *dev, const char c)
 {
 	struct octeontx_pcie_console_priv *priv = dev_get_priv(dev);
-	struct octeontx_pcie_console *console = priv->console;
+	struct octeontx_pcie_console *console;
 	int ret;
 	u8 v = (u8)c;
+
+	if (priv)
+		console = priv->console;
+	else
+		return 0;
 
 #ifdef DEBUG
 	if (in_debug)
