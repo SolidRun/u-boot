@@ -33,6 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern struct dram_timing_info dram_timing_3gb_micron;
 extern struct dram_timing_info dram_timing_1gb_samsung;
+extern struct dram_timing_info dram_timing_2gb_samsung;
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
@@ -60,35 +61,76 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 #endif
 }
 
-void spl_dram_init(void)
+int check_mirror_ddr(unsigned int addr_1, unsigned int addr_2)
 {
 
-       int ret, retrain_1gb;
-       unsigned int save1, save2, mirror;
-       volatile unsigned int *ptr;
+	/* return 1 if mirror detected between addr_1 & addre_2, else return 0*/
+	int retrain_tmp;
+	unsigned int save1, save2, mirror;
+	volatile unsigned int *ptr;
 
-       printf ("Training for 3GByte Micron\n");
-       ret = ddr_init(&dram_timing_3gb_micron);
-       retrain_1gb = 0;
-       if (ret == 0) {
-	       ptr = (volatile unsigned int *)CONFIG_SYS_SDRAM_BASE;
-	       save1 = ptr[0];
-	       save2 = ptr[ONE_GB/4];
-	       ptr[ONE_GB/4] = save1 << 1;
-	       ptr[0] = ~save1;
-	       mirror = ptr[ONE_GB/4];
-	       if (mirror == ~save1) {
-		       retrain_1gb = 1;
-	       }
-	       ptr[0] = save1;
-	       ptr[ONE_GB/4] = save2;
-       } else retrain_1gb = 1;
+	retrain_tmp = 0;
 
-       if (retrain_1gb) {
-	       printf ("Re-training for 1GByte Samsung memory\n");
-	       ddr_init(&dram_timing_1gb_samsung);
-       }
+	ptr = (volatile unsigned int *)CONFIG_SYS_SDRAM_BASE;
+	save1 = ptr[addr_1];
+	save2 = ptr[addr_2];
+	ptr[addr_2] = save1 << 2;
+	ptr[addr_1] = ~save1;
+	mirror = ptr[addr_2];
+	if (mirror == ~save1) {
+	       printf ("Mirror detected\n");
+	       retrain_tmp = 1;
+	}
+	ptr[addr_1] = save1;
+	ptr[addr_2] = save2;
 
+	// Check if mirror have detected
+	if (retrain_tmp == 1)
+	       return 1;
+
+	return 0;
+}
+
+void spl_dram_init(void)
+{
+	int ret, retrain_1gb, retrain_2gb;
+
+	printf ("Training for 3GByte Mimcron\n");
+	ret = ddr_init(&dram_timing_3gb_micron);
+	if (ret == 0) {
+		// Check Mirror for 1GB
+		retrain_1gb = check_mirror_ddr(0, ONE_GB/4);
+		if (retrain_1gb == 1)
+		{
+			printf ("Re-training for 1GByte Samsung (3->1)\n");
+			ret = ddr_init(&dram_timing_1gb_samsung);
+			return;
+		}
+		// Check Mirror for 2GB
+		retrain_2gb = check_mirror_ddr(0, 2*ONE_GB/4);
+		if (retrain_2gb == 1)
+		{
+			printf ("Re-training for 2GByte Samsung (3->2)\n");
+			ret = ddr_init(&dram_timing_2gb_samsung);
+			return;
+		}
+	} else {
+		printf ("Re-training for 2GByte Samsung\n");
+		ret = ddr_init(&dram_timing_2gb_samsung);
+		if (ret == 0) {
+			// Check Mirror for 1GB
+			retrain_1gb = check_mirror_ddr(0, ONE_GB/4);
+			if (retrain_1gb == 1) {
+				printf ("Re-training for 1GByte Samsung (2->1)\n");
+				ret = ddr_init(&dram_timing_1gb_samsung);
+				return;
+			}
+		} else {
+			printf ("Re-training for 1GByte Samsung(1)\n");
+			ddr_init(&dram_timing_1gb_samsung);
+			return;
+		}
+	}
 }
 
 #if CONFIG_IS_ENABLED(DM_PMIC_PCA9450)

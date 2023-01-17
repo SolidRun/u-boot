@@ -88,25 +88,51 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int board_phys_sdram_size(phys_size_t *size)
+int check_mirror_ddr_tmp(unsigned int addr_1, unsigned int addr_2)
 {
+	/* return 1 if mirror detected between addr_1 and addre_2, else return 0*/
+	int retrain_tmp;
 	unsigned int save1, save2, mirror;
 	volatile unsigned int *ptr;
+
+	retrain_tmp = 0;
+	ptr = (volatile unsigned int *)CONFIG_SYS_SDRAM_BASE;
+	save1 = ptr[addr_1];
+	save2 = ptr[addr_2];
+	ptr[addr_2] = save1 << 1;
+	ptr[addr_1] = ~save1;
+	mirror = ptr[addr_2];
+	if (mirror == ~save1) {
+		retrain_tmp = 1;
+	}
+	ptr[addr_1] = save1;
+	ptr[addr_2] = save2;
+
+	// Check if mirror have detected
+	if (retrain_tmp == 1)
+		return 1;
+
+	return 0;
+}
+
+int board_phys_sdram_size(phys_size_t *size)
+{
 	if (!size)
 		return -EINVAL;
 
-	ptr = (volatile unsigned int *)CONFIG_SYS_SDRAM_BASE;
-	save1 = ptr[0];
-	save2 = ptr[ONE_GB/4];
-	ptr[ONE_GB/4] = save1 << 1;
-	ptr[0] = ~save1;
-	mirror = ptr[ONE_GB/4];
-	if (mirror == ~save1)
+	// Check Mirror for 1GB
+	if (check_mirror_ddr_tmp(0, ONE_GB/4)) {
 		*size = ONE_GB;
-	else
-		*size = 3*ONE_GB;
-	ptr[0] = save1;
-	ptr[ONE_GB/4] = save2;
+		return 0;
+	}
+	// Check Mirror for 2GB
+	if (check_mirror_ddr_tmp(0, 2*ONE_GB/4)) {
+		*size = 2*ONE_GB;
+		return 0;
+	}
+
+	// Default size 3GByte
+	*size = 3*ONE_GB;
 	return 0;
 }
 
