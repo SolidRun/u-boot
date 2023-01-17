@@ -10,6 +10,7 @@
 #include <dm/device_compat.h>
 #include <errno.h>
 #include <asm/io.h>
+#include <env.h>
 #include <serial.h>
 #include <linux/compiler.h>
 #include <linux/delay.h>
@@ -228,6 +229,7 @@ static int octeontx_bootcmd_probe(struct udevice *dev)
 	struct octeontx_pci_io_buf *buf;
 	struct octeontx_bootcmd_platdata *plat = dev_get_platdata(dev);
 	struct stdio_dev bdev;
+	char *tok, *env, *work;
 	int ret;
 
 	dev_dbg(dev, "%s(%s)\n", __func__, dev->name);
@@ -248,9 +250,40 @@ static int octeontx_bootcmd_probe(struct udevice *dev)
 		pr_debug("%s: Registering stdin driver %s from device %s, bootcmd_dev: %p\n",
 			 __func__, bdev.name, bootcmd_dev->name, bootcmd_dev);
 		ret = stdio_register(&bdev);
-		if (ret)
+		if (ret) {
 			printf("%s: Error registering stdin device %s\n",
 			       __func__, bdev.name);
+		} else {
+			/* If 'stdin' uses this device, ensure that the setting
+			 * is correct.
+			 * If the setting is incorrect, then the host utils
+			 * will not work properly.
+			 * This issues a warning to the user if an invalid
+			 * setting is detected.
+			 */
+			env = env_get("stdin");
+
+			if (env && strstr(env, DRIVER_NAME)) {
+				env = strdup(env);
+				work = env;
+				/* parse each token from "stdin" */
+				while ((tok = strsep(&work, ",")) != NULL) {
+					/* tok isn't for this device, ignore */
+					if (!strstr(tok, DRIVER_NAME))
+						continue;
+					/* token should match the dev name */
+					if (strcmp(tok, dev->name))
+						dev_warn(dev,
+							 "Warning: incorrect 'stdin' setting for %s support.\n"
+							 "'%s' should be used instead of '%s'\n",
+							 DRIVER_NAME,
+							 dev->name, tok);
+					break;
+				}
+
+				free(env);
+			}
+		}
 	}
 	return ret;
 }
