@@ -17,6 +17,7 @@
 #include <asm-generic/gpio.h>
 #include <asm/arch/imx8mp_pins.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/ddr.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
@@ -99,6 +100,135 @@ struct efi_capsule_update_info update_info = {
 u8 num_image_type_guids = ARRAY_SIZE(fw_images);
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
+int check_mirror_ddr_tmp(unsigned int addr_1, unsigned int addr_2)
+{
+	/* return 1 if mirror detected between addr_1 and addre_2, else return 0*/
+	int retrain_tmp;
+	unsigned int save1, save2, mirror;
+	volatile unsigned int *ptr;
+
+	retrain_tmp = 0;
+	ptr = (volatile unsigned int *)CFG_SYS_SDRAM_BASE;
+	save1 = ptr[addr_1];
+	save2 = ptr[addr_2];
+	ptr[addr_2] = save1 << 1;
+	ptr[addr_1] = ~save1;
+	mirror = ptr[addr_2];
+	if (mirror == ~save1) {
+		retrain_tmp = 1;
+	}
+	ptr[addr_1] = save1;
+	ptr[addr_2] = save2;
+
+	// Check if mirror have detected
+	if (retrain_tmp == 1)
+		return 1;
+
+	return 0;
+}
+
+__weak unsigned int lpddr4_mr_read(unsigned int mr_rank, unsigned int mr_addr)
+{
+	unsigned int tmp;
+
+	reg32_write(DRC_PERF_MON_MRR0_DAT(0), 0x1);
+
+	do {
+		tmp = reg32_read(DDRC_MRSTAT(0));
+	} while (tmp & 0x1);
+
+	reg32_write(DDRC_MRCTRL0(0), (mr_rank << 4) | 0x1);
+	reg32_write(DDRC_MRCTRL1(0), (mr_addr << 8));
+	reg32setbit(DDRC_MRCTRL0(0), 31);
+	do {
+		tmp = reg32_read(DRC_PERF_MON_MRR0_DAT(0));
+	} while ((tmp & 0x8) == 0);
+	tmp = reg32_read(DRC_PERF_MON_MRR1_DAT(0));
+	reg32_write(DRC_PERF_MON_MRR0_DAT(0), 0x4);
+
+	while (tmp) { //try to find a significant byte in the word
+		if (tmp & 0xff) {
+			tmp &= 0xff;
+			break;
+		}
+		tmp >>= 8;
+	}
+
+	return tmp;
+}
+
+int board_phys_sdram_size(phys_size_t *size)
+{
+	if (!size)
+		return -EINVAL;
+
+	// Check Mirror for 1GB
+	if (check_mirror_ddr_tmp(0, ONE_GB/4)) {
+		*size = ONE_GB;
+		return 0;
+	}
+	// Check Mirror for 2GB
+	if (check_mirror_ddr_tmp(0, 2*ONE_GB/4)) {
+		*size = 2*ONE_GB;
+		return 0;
+	}
+
+	// Default size 3GByte
+	*size = 3*ONE_GB;
+	return 0;
+}
+
+
+int board_phys_sdram2_size(phys_size_t *size)
+{
+	phys_size_t output = 0;
+	unsigned int mr5, mr8;
+	int ret;
+
+	ret = board_phys_sdram_size(size);
+	if (ret)
+		return ret;
+
+	/* 4G configuration are Samsung/Micron.
+	 * If SDRAM1 size is 3G, there are 3 options:
+	 *
+	 * (*) A 3G Micron chip.
+	 * (*) 4G Micron/Samsung
+	 * (*) 8G Micron
+	 *
+	 */
+
+	if (*size != 3*ONE_GB)
+		goto exit;
+
+	/* Read LPDDr MR5 register, if MAN. ID is Samsung, this is a 4G Samsung DDR */
+	mr5 = lpddr4_mr_read(0xF, 0x5);
+	if (mr5 == LPDDR4_SAMSUNG_MANID) {
+		output = ONE_GB;
+		goto exit;
+	}
+
+	/* At this point, this is either:
+	 * - 3G Micron
+	 * - 4G Micron
+	 * - 8G Micron
+	 * Can be determined based on MR8.
+	 * If MR8 = 0x10, then the density is 16Gb per die (8Gb per channel),
+	 * Since the Micron 4G is dual die, this means 32Gb => 4GB
+	 * If MR8 = 0x18, then density is 16Gb per die, single channel,
+	 * since Micron 8G is quad die, this means 64Gb => 8GB
+	 */
+	mr8 = lpddr4_mr_read(0xF, 0x8);
+	if (mr8 == 0x10)
+		output = ONE_GB;
+	else if (mr8 == 0x18)
+		output = 5*ONE_GB;
+
+exit:
+	*size = output;
+	return 0;
+}
+
 int board_early_init_f(void)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
@@ -113,29 +243,6 @@ int board_early_init_f(void)
 
 	return 0;
 }
-
-int board_phys_sdram_size(phys_size_t *size)
-{
-	unsigned int save1, save2, mirror;
-	volatile unsigned int *ptr;
-	if (!size)
-		return -EINVAL;
-
-	ptr = (volatile unsigned int *)CONFIG_SYS_SDRAM_BASE;
-	save1 = ptr[0];
-	save2 = ptr[ONE_GB/4];
-	ptr[ONE_GB/4] = save1 << 1;
-	ptr[0] = ~save1;
-	mirror = ptr[ONE_GB/4];
-	if (mirror == ~save1)
-		*size = ONE_GB;
-	else
-		*size = 3*ONE_GB;
-	ptr[0] = save1;
-	ptr[ONE_GB/4] = save2;
-	return 0;
-}
-
 
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)
@@ -248,6 +355,7 @@ static void dwc3_nxp_usb_phy_init(struct dwc3_device *dwc3)
 	RegData &= ~(USB_PHY_CTRL1_RESET | USB_PHY_CTRL1_ATERESET);
 	writel(RegData, dwc3->base + USB_PHY_CTRL1);
 }
+
 #endif
 
 #if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_IMX8M)

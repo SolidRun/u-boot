@@ -137,12 +137,15 @@
 
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 
-/* Totally 6GB DDR */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+/* Totally 8GB DDR */
+#define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0xC0000000	/* 3 GB */
 #define PHYS_SDRAM_2			0x100000000
-#define PHYS_SDRAM_2_SIZE		0xC0000000	/* 3 GB */
+#define PHYS_SDRAM_2_SIZE		0x140000000	/* 5 GB */
+
+/* Some general LPDDR4 macros */
+#define LPDDR4_SAMSUNG_MANID		0x1
 
 #define CFG_MXC_UART_BASE		UART2_BASE_ADDR
 

@@ -252,6 +252,19 @@ __weak int board_phys_sdram_size(phys_size_t *size)
 	return 0;
 }
 
+__weak int board_phys_sdram2_size(phys_size_t *size)
+{
+	if (!size)
+		return -EINVAL;
+
+#ifdef PHYS_SDRAM_2_SIZE
+	*size = PHYS_SDRAM_2_SIZE;
+#else
+	*size = 0;
+#endif
+	return 0;
+}
+
 int dram_init(void)
 {
 	phys_size_t sdram_size;
@@ -266,6 +279,12 @@ int dram_init(void)
 		gd->ram_size = sdram_size - rom_pointer[1];
 	else
 		gd->ram_size = sdram_size;
+
+	ret = board_phys_sdram2_size(&sdram_size);
+	if (ret)
+		return ret;
+
+	gd->ram_size += sdram_size;
 
 	return 0;
 }
@@ -310,6 +329,12 @@ int dram_init_banksize(void)
 		gd->bd->bi_dram[bank].size = sdram_b1_size;
 	}
 
+#ifdef PHYS_SDRAM_2_SIZE
+	ret = board_phys_sdram2_size(&sdram_b2_size);
+	if(ret)
+		return ret;
+#endif
+	
 	if (sdram_b2_size) {
 		if (++bank >= CONFIG_NR_DRAM_BANKS) {
 			puts("CONFIG_NR_DRAM_BANKS is not enough for SDRAM_2\n");
