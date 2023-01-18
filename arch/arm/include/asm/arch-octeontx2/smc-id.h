@@ -51,6 +51,6 @@
 
 #define OCTEONTX_SET_AVS_STATUS         0xc2000b08
 
-#define PLAT_OCTEON_SEC_FW_UPDATE  0xc2000b0b
+#define PLAT_OCTEONTX_GENERIC_FW_UPDATE  0xc2000b19
 
 #endif /* __SMC_ID_H__ */
