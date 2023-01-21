@@ -89,8 +89,7 @@
 #define PEM_BAR4_INDEX_OFFSET(x) (0x700 + (x << 3))
 
 #define GLOBAL_REG_OFFSET	0
-#define VERSION_REG		(GLOBAL_REG_OFFSET + 0)
-#define DEV_TYPE_REG		(GLOBAL_REG_OFFSET + 8)
+#define HOST_VERSION_REG	(GLOBAL_REG_OFFSET + 8)
 
 #define HOST_DOWN                 0
 #define HOST_READY                1
@@ -110,6 +109,9 @@
 #define TARGET_GOING_DOWN         3
 #define TARGET_FATAL              4
 
+#define TARGET_VERSION                    0x0100
+
+#define TARGET_VERSION_REG                0x60
 #define TARGET_RW_OFFSET                  256
 #define TARGET_STATUS_REG                 (TARGET_RW_OFFSET + 0)
 #define TARGET_INTR_REG                   (TARGET_RW_OFFSET + 8)
