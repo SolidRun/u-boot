@@ -112,6 +112,8 @@ void pem_ep_bar4_init(struct dpi_pf *pf)
 
 	addr = BAR4_DRAM_OFFSET;
 	writel(0xABCDABCD, (void *)addr);
+
+	write_bar4_reg(TARGET_VERSION, TARGET_VERSION_REG);
 }
 
 void dpi_setup_queues(struct dpi_pf *pf)
@@ -730,6 +732,8 @@ int dpi_pf_remove(struct udevice *dev)
 	}
 	write_dpi_reg(dpi, DPI_CTL, 0x0);
 	write_dpi_reg(dpi, DPI_DMA_CONTROL, 0x0);
+
+	write_bar4_reg(0x0, PEM_BASE + PEM_BAR4_INDEX_OFFSET(8));
 
 	device_remove(dpi->npa_dev, DM_REMOVE_NORMAL);
 	debug("%s: dpi pf down --\n", __func__);
