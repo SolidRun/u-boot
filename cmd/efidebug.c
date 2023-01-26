@@ -376,7 +376,7 @@ static int efi_get_driver_handle_info(efi_handle_t handle, u16 **driver_name,
 	} else {
 		struct efi_component_name2 *component_name2 = handler->protocol_interface;
 
-		ret = component_name2->get_driver_name(component_name2, "en", driver_name);
+		ret = component_name2->get_driver_name(component_name2, "en", &driver_name);
 	}
 
 	/* image name */

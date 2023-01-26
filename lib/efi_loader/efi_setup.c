@@ -382,6 +382,7 @@ efi_status_t efi_init_obj_list(void)
 		ret = efi_launch_capsules();
 
 	const char *str = get_boot_device();
+
 	if (str) {
 		ret = EFI_CALL(efi_set_variable(L"BootDevice",
 						&efi_global_variable_guid,

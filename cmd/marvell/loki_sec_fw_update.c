@@ -13,7 +13,7 @@ static int do_sec_fw_update(struct cmd_tbl *cmdtp, int flag, int argc,
 			    char * const argv[])
 {
 	char *env1, *env2;
-	int addr, size;
+	unsigned long addr, size;
 	int ret;
 
 	if (argc == 1) {

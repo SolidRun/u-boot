@@ -509,13 +509,13 @@ static int sdhci_cdns_sd4_phy_init(struct sdhci_cdns_plat *plat,
 
 static u32 sdhci_cdns_sd6_readl(struct sdhci_host *host, int reg)
 {
-        return readl(host->ioaddr + reg);
+	return readl(host->ioaddr + reg);
 }
 static u32 sdhci_cdns_sd6_read_phy_reg(struct sdhci_cdns_plat *plat,
-                                        u32 addr)
+					u32 addr)
 {
-        writel(addr, plat->hrs_addr + SDHCI_CDNS_HRS04);
-        return readl(plat->hrs_addr + SDHCI_CDNS_HRS05);
+	writel(addr, plat->hrs_addr + SDHCI_CDNS_HRS04);
+	return readl(plat->hrs_addr + SDHCI_CDNS_HRS05);
 }
 
 #ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
@@ -1505,8 +1505,8 @@ static void sdhci_cdns_sd6_set_clock(struct sdhci_host *host,
 	else
 		host->clock = clock;
 
-        if (sdhci_cdns_sd6_phy_init(dev, plat))
-               debug("%s: phy init failed\n", __func__);
+	if (sdhci_cdns_sd6_phy_init(dev, plat))
+		debug("%s: phy init failed\n", __func__);
 #ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
 	dump_sdhci_regs(host);
 	printf("%s sdhci mode %d\n", __func__, sdhci_cdns_get_emmc_mode(plat));
@@ -1595,13 +1595,14 @@ static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 }
 
 #if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
-static void sdhci_cdns_hs400_enhanced_strobe(struct udevice *dev)
+static int sdhci_cdns_hs400_enhanced_strobe(struct udevice *dev)
 {
 	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
 
 	plat->enhanced_strobe = 1;
 	sdhci_cdns_set_emmc_mode(plat, SDHCI_CDNS_HRS06_MODE_MMC_HS400ES);
 
+	return 0;
 }
 #endif
 
@@ -1616,7 +1617,7 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 
 	for (cnt = tune_val_start; iter < max_tune_iter; iter++, cnt += tune_val_step) {
 		if (sdhci_cdns_sd6_set_tune_val(plat, cnt) ||
-			mmc_send_tuning(mmc, opcode, NULL)) { /* bad */
+		    mmc_send_tuning(mmc, opcode, NULL)) { /* bad */
 				cur_streak = 0;
 		} else { /* good */
 			cur_streak++;
@@ -1624,20 +1625,22 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 				max_streak = cur_streak;
 				end_of_streak = cnt;
 				DEBUG_HS200_TUNE("%s (%d-%d = %d)\n", __func__,
-					end_of_streak-((cur_streak-1)*tune_val_step),
-					end_of_streak, cur_streak);
-			} else
+						 end_of_streak - ((cur_streak - 1) * tune_val_step),
+						 end_of_streak, cur_streak);
+			} else {
 				DEBUG_HS200_TUNE("%s (%d-%d)\n", __func__,
-					cnt - ((cur_streak-1)*tune_val_step), cnt);
+						 cnt - ((cur_streak - 1) * tune_val_step), cnt);
+			}
 		}
 	}
 
 	if (!max_streak)
 		return -EIO;
 
-	DEBUG_HS200_TUNE("max_streak: %d-%d\n", end_of_streak-((max_streak-1)*tune_val_step), end_of_streak);
+	DEBUG_HS200_TUNE("max_streak: %d-%d\n", end_of_streak - ((max_streak - 1) * tune_val_step),
+			 end_of_streak);
 
-	midpoint = end_of_streak - (((max_streak - 1)*tune_val_step) / 2);
+	midpoint = end_of_streak - (((max_streak - 1) * tune_val_step) / 2);
 
 	return sdhci_cdns_sd6_set_tune_val(plat, midpoint);
 }

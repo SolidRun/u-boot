@@ -156,14 +156,14 @@ static int validate_bdk(unsigned long addr, size_t size, ssize_t *next_offset)
 		return 1;
 	}
 
-        if (next_offset) {
+	if (next_offset) {
 		if ((bhdr->next_offset) &&
 		    !strncmp(bhdr->next_off_magic,
-		             AP_NBL1FW_HEADER_NEXT_OFF_MAGIC, 4))
+			AP_NBL1FW_HEADER_NEXT_OFF_MAGIC, 4))
 			*next_offset = bhdr->next_offset;
 		else
 			*next_offset = -1;
-		debug("%s: next offset: 0x%x\n", __func__, *next_offset);
+		debug("%s: next offset: 0x%lx\n", __func__, *next_offset);
 	}
 
 	crc = crc32(0, (u8 *)bhdr, 0x10);
@@ -269,7 +269,7 @@ static int validate_bootimg_header(unsigned long addr, bool secure)
 	else
 		fip_off = ATF_FIP_ADDRESS;
 
-	debug("%s: FIP offset: 0x%x\n", __func__, fip_off);
+	debug("%s: FIP offset: 0x%lx\n", __func__, fip_off);
 	fip_toc_header = *(u32 *)(addr + fip_off);
 
 	if (le32_to_cpu(fip_toc_header) != ATF_FIP_NAME) {
@@ -921,7 +921,7 @@ static int do_bootu_spi(int argc, char * const argv[], bool update_scr,
 		return CMD_RET_USAGE;
 	debug("%s len %#lx\n", __func__, len);
 
-	if( !addr || !len) {
+	if (!addr || !len) {
 		printf("image address or length is 0\n");
 		return CMD_RET_USAGE;
 	}
@@ -1111,7 +1111,7 @@ static int do_bootu_mmc(int argc, char * const argv[],
 	if (ret)
 		return -1;
 	debug("%s len %ld\n", __func__, len);
-	if( !addr || !len) {
+	if (!addr || !len) {
 		printf("image address or length is 0\n");
 		return CMD_RET_USAGE;
 	}
@@ -1259,12 +1259,12 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (overwrite_part)
 			puts("-p is ignored for SPI\n");
 		ret = do_bootu_spi(argc, argv, update_scp, secure);
-	}
-	else if (strcmp(cmd, "mmc") == 0)
+	} else if (strcmp(cmd, "mmc") == 0) {
 		ret = do_bootu_mmc(argc, argv, update_scp, secure,
 				   overwrite_part);
-	else
+	} else {
 		ret = -1;
+	}
 
 	if (ret != -1)
 		return ret;
