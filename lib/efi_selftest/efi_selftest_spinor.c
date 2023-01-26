@@ -103,7 +103,7 @@ static int execute(void)
 		int node_offset, subnode_offset, flash_offset;
 
 		/* Determine offset in SPI flash that can be used for testing */
-		utf16_to_utf8(&name_str, spinor->spi_peripheral->friendly_name,
+		utf16_to_utf8((uint8_t *)&name_str[0], spinor->spi_peripheral->friendly_name,
 			      u16_strlen(spinor->spi_peripheral->friendly_name));
 		bus = name_str[4] - '0';
 		cs = name_str[6] - '0';

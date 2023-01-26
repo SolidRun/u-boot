@@ -539,9 +539,9 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (object->hash_size) {
 			printf("  TIM hash:                    ");
 			print_hash(object->tim_hash, object->hash_size);
-                } else {
+		} else {
 			printf("  TIM hash missing\n");
-                }
+		}
 		printf("  Version:\n");
 		print_version(&object->version, "    ");
 		printf("\n");
@@ -619,13 +619,13 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 				return CMD_RET_USAGE;
 			}
 			if (src_media) {
-				pr_debug("Setting source MMC to bus %d\n", value);
+				pr_debug("Setting source MMC to bus %ld\n", value);
 				src_mmc = true;
 				vinfo.bus = value;
 				pr_debug("Source MMC device: %lu\n", value);
 				src_media = false;
 			} else {
-				pr_debug("Setting destination MMC to bus %d\n", value);
+				pr_debug("Setting destination MMC to bus %ld\n", value);
 				dst_mmc = true;
 				vinfo.target_bus = value;
 				pr_debug("Destination MMC device: %lu\n", value);
@@ -679,7 +679,7 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	vinfo.version_flags = SMC_VERSION_CHECK_VALIDATE_HASH |
-			      SMC_VERSION_COPY_TO_BACKUP_FLASH ;
+			      SMC_VERSION_COPY_TO_BACKUP_FLASH;
 	if (src_backup_offset)
 		vinfo.version_flags |= VERSION_FLAG_BACKUP;
 	if (dst_backup_offset)

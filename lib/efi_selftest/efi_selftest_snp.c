@@ -370,7 +370,7 @@ static int execute(void)
 			continue;
 		}
 
-		efi_st_printf("Testing eth%d\n", i);
+		efi_st_printf("Testing eth%ld\n", i);
 		/*
 		 * Check hardware address size.
 		 */

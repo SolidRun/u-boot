@@ -467,11 +467,11 @@ static int cdns_xspi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct cdns_xspi_dev *plat = dev_get_priv(bus);
 	ofnode node;
-	int property;
+	u32 property;
 
-	plat->iobase = ofnode_get_addr_index(bus->node, 0);
-	plat->sdmabase = ofnode_get_addr_index(bus->node, 1);
-	plat->auxbase = ofnode_get_addr_index(bus->node, 2);
+	plat->iobase = (void *)ofnode_get_addr_index(bus->node, 0);
+	plat->sdmabase = (void *)ofnode_get_addr_index(bus->node, 1);
+	plat->auxbase = (void *)ofnode_get_addr_index(bus->node, 2);
 	plat->irq = 0;
 	plat->spi_mem_avalible = 0;
 
@@ -480,7 +480,7 @@ static int cdns_xspi_ofdata_to_platdata(struct udevice *bus)
 		plat->read_size = 0;
 	}
 
-	if (plat->iobase == 0x805000000000)
+	if (plat->iobase == (void *)0x805000000000)
 		plat->xspi_bus = 1;
 	else
 		plat->xspi_bus = 0;
@@ -496,10 +496,10 @@ static int cdns_xspi_ofdata_to_platdata(struct udevice *bus)
 		if (ofnode_device_is_compatible(node, "spi-flash"))
 			plat->spi_mem_avalible = 1;
 	}
-	if (IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO))
-		prepare_gpio(plat->xspi_bus, plat->spi_mem_avalible);
-
-	debug(bus, "%s: regbase=%llx ahbbase=%llx sdma-base=%llx xspi=%d read_size=%d mem=%d\n",
+#if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO)
+	prepare_gpio(plat->xspi_bus, plat->spi_mem_avalible);
+#endif
+	debug(bus->name, "%s: regbase=%p ahbbase=%p sdma-base=%p xspi=%d read_size=%d mem=%d\n",
 	      __func__, plat->iobase, plat->auxbase, plat->sdmabase,
 	      plat->xspi_bus, plat->read_size, plat->spi_mem_avalible);
 
@@ -862,9 +862,9 @@ static bool cdns_xspi_supports_op(struct spi_slave *slave,
 }
 
 #if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO) && ( \
-    IS_ENABLED(CONFIG_TARGET_CN10K_A) || \
-    IS_ENABLED(CONFIG_TARGET_CNF10K_A) || \
-    IS_ENABLED(CONFIG_TARGET_CNF10K_B))
+	IS_ENABLED(CONFIG_TARGET_CN10K_A) || \
+	IS_ENABLED(CONFIG_TARGET_CNF10K_A) || \
+	IS_ENABLED(CONFIG_TARGET_CNF10K_B))
 void cdns_cs_change(int bus, int cs, int active)
 {
 	int cs0 = bus == 0 ? SPI0_CS0 : SPI1_CS0;
@@ -897,7 +897,8 @@ int cdns_soft_spi_getval_sdi(int bus)
 	return gpio_get_value(sdi);
 }
 
-int cdns_xspi_fix_gpio_config(int bus) {
+int cdns_xspi_fix_gpio_config(int bus)
+{
 	if (bus == 1) {
 		gpio_direction_output(SPI1_CLK, 1);
 		gpio_direction_output(SPI1_CS0, 1);
@@ -998,7 +999,6 @@ static int cdns_xspi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (flags & SPI_XFER_END)
 		cdns_cs_change(bus, cs, 1);
 
-
 	return 0;
 }
 #endif
@@ -1014,9 +1014,9 @@ static struct dm_spi_ops cdns_spi_ops = {
 	.set_speed	= cdns_xspi_set_speed,
 	.set_mode	= cdns_xspi_set_mode,
 	#if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO) && ( \
-    	    IS_ENABLED(CONFIG_TARGET_CN10K_A) || \
-            IS_ENABLED(CONFIG_TARGET_CNF10K_A) || \
-            IS_ENABLED(CONFIG_TARGET_CNF10K_B))
+		IS_ENABLED(CONFIG_TARGET_CN10K_A) || \
+		IS_ENABLED(CONFIG_TARGET_CNF10K_A) || \
+		IS_ENABLED(CONFIG_TARGET_CNF10K_B))
 	.xfer		= cdns_xspi_xfer,
 	#endif
 	.mem_ops	= &cdns_mem_ops,
