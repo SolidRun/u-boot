@@ -450,12 +450,10 @@ static int spi_flash_update(struct spi_flash *flash, u32 offset,
 
 static int do_spi_flash_probe(unsigned int bus, unsigned int cs)
 {
-	unsigned int speed = CONFIG_SF_DEFAULT_SPEED;
-	unsigned int mode = CONFIG_SF_DEFAULT_MODE;
 	struct udevice *new;
 	int ret;
 
-	ret = spi_flash_probe_bus_cs(bus, cs, speed, mode, &new);
+	ret = spi_flash_probe_bus_cs(bus, cs, &new);
 	if (ret) {
 		printf("Failed to initialize SPI flash at %u:%u (error %d)\n",
 		       bus, cs, ret);

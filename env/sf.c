@@ -57,9 +57,7 @@ extern void board_get_env_spi_bus_cs(int *bus, int *cs);
 	}
 
 	/* speed and mode will be read from DT */
-	ret = spi_flash_probe_bus_cs(bus, cs,
-				     CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE,
-				     &new);
+	ret = spi_flash_probe_bus_cs(bus, cs, &new);
 	if (ret) {
 		env_set_default("spi_flash_probe_bus_cs() failed", 0);
 		return ret;

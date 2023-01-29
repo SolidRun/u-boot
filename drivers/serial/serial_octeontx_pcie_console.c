@@ -308,7 +308,7 @@ static int octeontx_pcie_console_stdio_stop(struct stdio_dev *dev)
 	if (!(le32_to_cpu(desc->exclusive) & 1 << priv->console_num))
 		if (le32_to_cpu(console->owner_id) !=
 					OCTEONTX_PCIE_CONSOLE_OWNER_UBOOT) {
-			dev_dbg(dev,
+			dev_dbg(udev,
 				"Console %d is shared, not shutting it down\n",
 				priv->console_num);
 			return 0;
@@ -548,7 +548,7 @@ static int octeontx_pcie_console_init(struct udevice *dev)
 
 	addr = ofnode_get_addr_size_index(node, 0, &size);
 	if (addr == FDT_ADDR_T_NONE) {
-		dev_err("%s: Could not read address and size\n", __func__);
+		dev_err(dev, "%s: Could not read address and size\n", __func__);
 		return -EINVAL;
 	}
 	input_buf_size = ofnode_read_u32_default(node, "rx-buffer-size", 0);
@@ -849,7 +849,7 @@ static int octeontx_pcie_console_probe(struct udevice *dev)
 
 int octeontx_pcie_console_ofdata_to_platdata(struct udevice *dev)
 {
-	struct octeontx_pcie_console_plat_data *plat = dev_get_platdata(dev);
+	struct octeontx_pcie_console_plat_data *plat = dev_get_plat(dev);
 	struct octeontx_pcie_console_plat_data *pplat;
 	ofnode node = dev_ofnode(dev);
 	fdt_addr_t addr;
@@ -863,7 +863,7 @@ int octeontx_pcie_console_ofdata_to_platdata(struct udevice *dev)
 		dev_err(dev, "Address and/or size not found in reg field\n");
 		return -EINVAL;
 	}
-	pplat = dev_get_platdata(dev_get_parent(dev));
+	pplat = dev_get_plat(dev_get_parent(dev));
 	if (!pplat) {
 		dev_err(dev, "%s(%s): Error: parent platdata is NULL!\n",
 			__func__, dev->name);
@@ -949,7 +949,7 @@ static int octeontx_pcie_console_remove(struct udevice *dev)
 
 int octeontx_pcie_console_init_nexus(struct udevice *dev)
 {
-	struct octeontx_pcie_console_plat_data *pdata = dev_get_platdata(dev);
+	struct octeontx_pcie_console_plat_data *pdata = dev_get_plat(dev);
 	struct octeontx_pcie_console_nexus *pcd = pdata->nexus;
 	ofnode node;
 	fdt_addr_t addr;
@@ -1072,7 +1072,7 @@ static int octeontx_pcie_console_nexus_child_pre_probe(struct udevice *dev)
 static int octeontx_pcie_console_nexus_probe(struct udevice *dev)
 {
 	struct octeontx_pcie_console_nexus_priv *priv = dev_get_priv(dev);
-	struct octeontx_pcie_console_plat_data *plat = dev_get_platdata(dev);
+	struct octeontx_pcie_console_plat_data *plat = dev_get_plat(dev);
 	struct octeontx_pcie_console_nexus *pcd;
 	struct uclass *uc;
 	struct udevice *sdev, *next;
@@ -1137,12 +1137,12 @@ static int octeontx_pcie_console_nexus_probe(struct udevice *dev)
  */
 static int octeontx_pcie_console_nexus_ofdata_to_platdata(struct udevice *dev)
 {
-	struct octeontx_pcie_console_plat_data *plat = dev_get_platdata(dev);
+	struct octeontx_pcie_console_plat_data *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 	fdt_size_t size;
 	ofnode node = dev_ofnode(dev);
 
-	if (!dev_of_valid(dev) || !dev_read_enabled(dev))
+	if (!dev_has_ofnode(dev) || !dev_read_enabled(dev))
 		return -ENOENT;
 
 
@@ -1176,11 +1176,10 @@ U_BOOT_DRIVER(octeontx_pcie_console_nexus) = {
 	.id = UCLASS_MISC,
 	.flags = DM_FLAG_PRE_RELOC,
 	.of_match = of_match_ptr(octeontx_pcie_console_nexus_serial_id),
-	.ofdata_to_platdata = octeontx_pcie_console_nexus_ofdata_to_platdata,
-	.platdata_auto_alloc_size =
-				sizeof(struct octeontx_pcie_console_plat_data),
+	.of_to_plat = octeontx_pcie_console_nexus_ofdata_to_platdata,
+	.plat_auto = sizeof(struct octeontx_pcie_console_plat_data),
 	.probe = octeontx_pcie_console_nexus_probe,
-	.priv_auto_alloc_size = sizeof(struct octeontx_pcie_console_nexus_priv),
+	.priv_auto = sizeof(struct octeontx_pcie_console_nexus_priv),
 	.child_pre_probe = octeontx_pcie_console_nexus_child_pre_probe,
 };
 
@@ -1203,10 +1202,9 @@ U_BOOT_DRIVER(octeontx_pcie_console) = {
 	.ops = &octeontx_pcie_console_ops,
 	.of_match = of_match_ptr(octeontx_pcie_console_serial_id),
 	.probe = octeontx_pcie_console_probe,
-	.ofdata_to_platdata = octeontx_pcie_console_ofdata_to_platdata,
+	.of_to_plat = octeontx_pcie_console_ofdata_to_platdata,
 	.remove = octeontx_pcie_console_remove,
-	.priv_auto_alloc_size = sizeof(struct octeontx_pcie_console_priv),
-	.platdata_auto_alloc_size =
-				sizeof(struct octeontx_pcie_console_plat_data),
+	.priv_auto = sizeof(struct octeontx_pcie_console_priv),
+	.plat_auto = sizeof(struct octeontx_pcie_console_plat_data),
 	.flags = DM_FLAG_OS_PREPARE | DM_FLAG_PRE_RELOC | DM_FLAG_ACTIVE_DMA,
 };

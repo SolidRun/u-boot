@@ -17,6 +17,7 @@
 #include <fdt_support.h>
 #include <asm/arch/smc.h>
 #include <asm/arch/board.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -882,4 +883,15 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	debug("/cavium,bdk node: 0x%x\n", nodeoff);
 	ret = ft_board_clean_props(blob, nodeoff);
 	return ret;
+}
+
+/**
+ * Return the FDT base address that was passed by ATF
+ *
+ * Return:	FDT base address received from ATF in x1 register
+ */
+void *board_fdt_blob_setup(int *err)
+{
+	*err = 0;
+	return (void *)fdt_base_addr;
 }

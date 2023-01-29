@@ -1443,7 +1443,7 @@ static int mx_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
  * Returns 1 if entire region is locked, 0 if any portion is unlocked, and
  * negative on errors.
  */
-static int mx_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+static int mx_is_unlocked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	int status, config;
 
@@ -1455,7 +1455,7 @@ static int mx_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (config < 0)
 		return config;
 
-	return mx_is_locked_sr(nor, ofs, len, status, config);
+	return mx_is_unlocked_sr(nor, ofs, len, status, config);
 }
 #endif /* CONFIG_SPI_FLASH_MACRONIX */
 
@@ -1761,7 +1761,7 @@ static int wnb_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
  * Returns 1 if entire region is locked, 0 if any portion is unlocked, and
  * negative on errors.
  */
-static int wnb_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+static int wnb_is_unlocked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	int status;
 
@@ -1769,7 +1769,7 @@ static int wnb_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (status < 0)
 		return status;
 
-	return wnb_is_locked_sr(nor, ofs, len, status);
+	return wnb_is_unlocked_sr(nor, ofs, len, status);
 }
 #endif /* CONFIG_SPI_FLASH_WINBOND */
 
@@ -4969,7 +4969,7 @@ int spi_nor_scan(struct spi_nor *nor)
 		if (!strcmp(mtd->name, "w25q128fw")) {
 			nor->flash_lock = wnb_lock;
 			nor->flash_unlock = wnb_unlock;
-			nor->flash_is_locked = wnb_is_locked;
+			nor->flash_is_unlocked = wnb_is_unlocked;
 		}
 	}
 #endif
@@ -4979,7 +4979,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	if (JEDEC_MFR(info) == SNOR_MFR_MACRONIX) {
 		nor->flash_lock = mx_lock;
 		nor->flash_unlock = mx_unlock;
-		nor->flash_is_locked = mx_is_locked;
+		nor->flash_is_unlocked = mx_is_unlocked;
 		if (!strcmp(mtd->name, "mx66l2g45g"))
 			nor->flags |= SNOR_F_USE_SCUR;
 	}

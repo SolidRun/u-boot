@@ -92,9 +92,9 @@ struct udevice *get_switch_dev(void)
 	}
 	uclass_id_foreach_dev(UCLASS_PCI, bus, uc) {
 		device_foreach_child(dev, bus) {
-			struct pci_child_platdata *pplat;
+			struct pci_child_plat *pplat;
 
-			pplat = dev_get_parent_platdata(dev);
+			pplat = dev_get_parent_plat(dev);
 			if (pplat && pplat->vendor == PCI_VENDOR_ID_MARVELL) {
 				if (0x21 == ((pplat->device >> 8) & 0xFF))
 					return dev;
@@ -707,12 +707,14 @@ void board_switch_reset(void)
 	if (!dev)
 		return;
 
-	sw_bar0 = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+	sw_bar0 = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0,
+				 PCI_REGION_TYPE, PCI_REGION_MEM);
 	if (!sw_bar0) {
 		debug("Switch device BAR not configured\n");
 		return;
 	}
-	sw_bar2 = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
+	sw_bar2 = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, 0, 0,
+				 PCI_REGION_TYPE, PCI_REGION_MEM);
 	if (!sw_bar2) {
 		debug("Switch device BAR not configured\n");
 		return;
@@ -811,7 +813,7 @@ void board_switch_reset(void)
 void board_switch_init(void)
 {
 	struct udevice *dev;
-	struct pci_child_platdata *pplat;
+	struct pci_child_plat *pplat;
 	void *sw_bar0/*, *sw_bar2*/;
 	u32 sw_bar2_lo, sw_bar2_hi;
 	u64 cm3_img_sz;
@@ -822,12 +824,14 @@ void board_switch_init(void)
 	if (!dev)
 		return;
 
-	sw_bar0 = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+	sw_bar0 = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0,
+				 PCI_REGION_TYPE, PCI_REGION_MEM);
 	if (!sw_bar0) {
 		debug("Switch device BAR not configured\n");
 		return;
 	}
-	sw_bar2 = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
+	sw_bar2 = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, 0, 0,
+				 PCI_REGION_TYPE, PCI_REGION_MEM);
 	if (!sw_bar2) {
 		debug("Switch device BAR not configured\n");
 		return;
@@ -835,7 +839,7 @@ void board_switch_init(void)
 	sw_bar2_lo = (u32)((ulong)sw_bar2 & 0xffffffff);
 	sw_bar2_hi = (u32)(((ulong)sw_bar2 >> 32) & 0xffffffff);
 
-	pplat = dev_get_parent_platdata(dev);
+	pplat = dev_get_parent_plat(dev);
 	printf("Switch device [%x:%x] detected\n", pplat->vendor, pplat->device);
 	debug("BAR0 %p BAR2 %p\n", sw_bar0, sw_bar2);
 	printf("Executing micro-init sequence... ");

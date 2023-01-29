@@ -212,8 +212,8 @@ int npa_pf_probe(struct udevice *dev)
 	rvu_af = dev_get_priv(npa_pf->afdev);
 	npa_af_base = rvu_af->nix_af[0]->npa_af->npa_af_base;
 
-	npa_pf->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2,
-					 PCI_REGION_MEM);
+	npa_pf->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, 0, 0,
+					 PCI_REGION_TYPE, PCI_REGION_MEM);
 	npa_pf->dev = dev;
 
 	npa_pf->pf_id = ((u64)npa_pf->pf_base >> 36) & 0xf;
@@ -240,7 +240,7 @@ int npa_pf_probe(struct udevice *dev)
 	 * modify device name to include index/sequence number,
 	 * for better readability, this is 1:1 mapping with eth0/1/2.. names.
 	 */
-	sprintf(name, "npa_pf#%d", dev->seq);
+	sprintf(name, "npa_pf#%d", dev_seq(dev));
 	device_set_name(dev, name);
 	debug("%s: name: %s\n", __func__, dev->name);
 
@@ -264,7 +264,7 @@ U_BOOT_DRIVER(npa_pf) = {
 	.id     = UCLASS_MISC,
 	.probe	= npa_pf_probe,
 	.remove = npa_pf_remove,
-	.priv_auto_alloc_size = sizeof(struct npa_pf),
+	.priv_auto = sizeof(struct npa_pf),
 };
 
 static struct pci_device_id npa_pf_supported[] = {

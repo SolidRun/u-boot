@@ -984,7 +984,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 					 * earlier need to update end to max
 					 * for ARI chain.
 					 */
-					end = PCI_BDF(bus->seq,
+					end = PCI_BDF(dev_seq(bus),
 						PCI_MAX_PCI_DEVICES - 1,
 						PCI_MAX_PCI_FUNCTIONS - 1);
 				}

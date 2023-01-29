@@ -75,7 +75,7 @@ static int init_ttymem_console(void)
 	printf("stdout: %s \nstderr: %s\n",stdoutname, stderrname);
 
 	ret = uclass_get_device_by_driver(UCLASS_SERIAL,
-			DM_GET_DRIVER(serial_ttymem),
+			DM_DRIVER_GET(serial_ttymem),
 			&ttymem_dev);
 	if (!ttymem_dev) {
 		printf("ttymem dev not found %s\n", ttymem_dev->name);
@@ -336,7 +336,7 @@ static int init_bootcmd_console(void)
 	}
 	stdin_set = !!strstr(stdinname, BOOTCMD_NAME);
 	ret = uclass_get_device_by_driver(UCLASS_SERIAL,
-					  DM_GET_DRIVER(octeontx_bootcmd),
+					  DM_DRIVER_GET(octeontx_bootcmd),
 					  &bootcmd_dev);
 	if (ret) {
 		pr_err("%s: Error getting %s serial class\n", __func__,

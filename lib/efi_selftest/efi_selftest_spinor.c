@@ -16,12 +16,12 @@ static const efi_guid_t fdt_guid = EFI_FDT_GUID;
 extern const efi_guid_t efi_guid_spi_nor_flash_protocol;
 
 /**
- * efi_st_get_config_table() - get configuration table
+ * efi_spi_nor_st_get_config_table() - get configuration table
  *
  * @guid:      GUID of the configuration table
  * Return:     pointer to configuration table or NULL
  */
-static void *efi_st_get_config_table(const efi_guid_t *guid)
+static void *efi_spi_nor_st_get_config_table(const efi_guid_t *guid)
 {
 	size_t i;
 
@@ -38,7 +38,7 @@ static int setup(const efi_handle_t handle,
 	boottime = systable->boottime;
 	systemtab = systable;
 
-	fdt = efi_st_get_config_table(&fdt_guid);
+	fdt = efi_spi_nor_st_get_config_table(&fdt_guid);
 
 	if (!fdt) {
 		efi_st_error("Missing device tree\n");

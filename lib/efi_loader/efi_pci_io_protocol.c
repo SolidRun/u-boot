@@ -170,7 +170,8 @@ efi_status_t EFIAPI mem_read(const struct efi_pci_io_protocol *this,
 		break;
 	}
 
-	addr = dm_pci_map_bar(pdev, bar, PCI_REGION_MEM);
+	addr = dm_pci_map_bar(pdev, bar, 0, 0,
+			      PCI_REGION_TYPE, PCI_REGION_MEM);
 	if (!addr)
 		return EFI_EXIT(EFI_UNSUPPORTED);
 	cpu_addr = (u64)addr;
@@ -285,7 +286,8 @@ efi_status_t EFIAPI mem_write(const struct efi_pci_io_protocol *this,
 		break;
 	}
 
-	addr = dm_pci_map_bar(pdev, bar, PCI_REGION_MEM);
+	addr = dm_pci_map_bar(pdev, bar, 0, 0,
+			      PCI_REGION_TYPE, PCI_REGION_MEM);
 	if (!addr)
 		return EFI_EXIT(EFI_UNSUPPORTED);
 	cpu_addr = (u64)addr;
@@ -674,7 +676,7 @@ efi_status_t EFIAPI unmap(const struct efi_pci_io_protocol *this,
  */
 efi_status_t EFIAPI alloc_buffer(const struct efi_pci_io_protocol *this,
 				 efi_pci_io_protocol_width proto_width,
-				 int alloc_type, enum efi_mem_type mem_type,
+				 int alloc_type, enum efi_memory_type mem_type,
 				 u32 pages, void **host_address,
 				 u64 attributes)
 {
@@ -711,7 +713,7 @@ efi_status_t EFIAPI free_buffer(const struct efi_pci_io_protocol *this,
  * @return EFI_DEVICE_ERROR      The PCI posted write transactions were not flushed from the PCI
  *                               host bridge due to a hardware error.
  */
-efi_status_t EFIAPI flush(const struct efi_pci_io_protocol *this)
+efi_status_t EFIAPI pci_io_flush(const struct efi_pci_io_protocol *this)
 {
 	EFI_ENTRY("%p", this);
 
@@ -891,7 +893,7 @@ static efi_status_t install_pci_io_protocol(struct udevice *dev, u8 domain)
 	proto_obj->efi_pci_io_protocol.unmap = unmap;
 	proto_obj->efi_pci_io_protocol.alloc_buffer = alloc_buffer;
 	proto_obj->efi_pci_io_protocol.free_buffer = free_buffer;
-	proto_obj->efi_pci_io_protocol.flush = flush;
+	proto_obj->efi_pci_io_protocol.flush = pci_io_flush;
 	proto_obj->efi_pci_io_protocol.get_location = get_location;
 	proto_obj->efi_pci_io_protocol.attributes = attributes;
 	proto_obj->efi_pci_io_protocol.get_bar_attributes = get_bar_attributes;
@@ -937,7 +939,7 @@ efi_status_t efi_pci_io_protocol_register(void)
 	struct uclass *uc;
 
 	uclass_id_foreach_dev(UCLASS_PCI, bus, uc) {
-		if (dev_of_valid(bus) &&
+		if (dev_has_ofnode(bus) &&
 		    device_is_compatible(bus, "pci-host-ecam-generic")) {
 			if (device_has_children(bus))
 				efi_pci_io_probe_domain(bus);

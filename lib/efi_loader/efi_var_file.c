@@ -44,8 +44,6 @@ __efi_runtime_data int cs;
 
 static efi_status_t __maybe_unused efi_init_spi_flash(void)
 {
-	unsigned int speed = CONFIG_SF_DEFAULT_SPEED;
-	unsigned int mode = CONFIG_SF_DEFAULT_MODE;
 	struct udevice *new;
 	int ret;
 
@@ -56,7 +54,7 @@ static efi_status_t __maybe_unused efi_init_spi_flash(void)
 		cs = 0;
 	}
 
-	ret = spi_flash_probe_bus_cs(bus, cs, speed, mode, &new);
+	ret = spi_flash_probe_bus_cs(bus, cs, &new);
 	if (ret) {
 		printf("Failed to initialize SPI flash at %u:%u (error %d)\n",
 		       bus, cs, ret);

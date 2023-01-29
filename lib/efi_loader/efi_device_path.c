@@ -1299,14 +1299,10 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	if (!path)
 		return EFI_SUCCESS;
 
-	filename = calloc(1, strlen(path) + 1);
-	if (!filename)
-		return EFI_OUT_OF_RESOURCES;
-
 	if (!net_dev)
 		snprintf(filename, sizeof(filename), "%s", path);
 	else
-		snprintf(filename, sizeof(filename), "%d:%s", net_dev->seq, path);
+		snprintf(filename, sizeof(filename), "%d:%s", dev_seq(net_dev), path);
 
 	/* DOS style file path: */
 	s = filename;

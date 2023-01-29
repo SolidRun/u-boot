@@ -3143,6 +3143,7 @@ static int octeontx_mmc_set_output_bus_timing(struct mmc *mmc)
 
 	return 0;
 }
+#endif
 
 static void octeontx_mmc_set_clock(struct mmc *mmc)
 {
@@ -3441,7 +3442,7 @@ static u32 xlate_voltage(u32 voltage)
  */
 static bool octeontx_mmc_get_valid(struct udevice *dev)
 {
-	const char *stat = ofnode_read_string(dev->node, "status");
+	const char *stat = ofnode_read_string(dev_ofnode(dev), "status");
 
 	if (!stat || !strncmp(stat, "ok", 2))
 		return true;
@@ -3463,14 +3464,14 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 	uint low, high;
 	char env_name[32];
 	int err, i;
-	ofnode node = dev->node;
+	ofnode node = dev_ofnode(dev);
 	int bus_width = 1;
 	ulong new_max_freq;
 
 	debug("%s(%s)", __func__, dev->name);
 	slot->cfg.name = dev->name;
 
-	slot->cfg.f_max = ofnode_read_s32_default(dev->node, "max-frequency",
+	slot->cfg.f_max = ofnode_read_s32_default(dev_ofnode(dev), "max-frequency",
 						  26000000);
 	snprintf(env_name, sizeof(env_name), "mmc_max_frequency%d",
 		 slot->bus_id);
@@ -3488,25 +3489,25 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 
 	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX2)) {
 		slot->hs400_tuning_block =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs400-tuning-block",
 						-1);
 		debug("%s(%s): mmc HS400 tuning block: %d\n", __func__,
 		      dev->name, slot->hs400_tuning_block);
 
 		slot->hs200_tap_adj =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs200-tap-adjust", 0);
 		debug("%s(%s): hs200-tap-adjust: %d\n", __func__, dev->name,
 		      slot->hs200_tap_adj);
 		slot->hs400_tap_adj =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs400-tap-adjust", 0);
 		debug("%s(%s): hs400-tap-adjust: %d\n", __func__, dev->name,
 		      slot->hs400_tap_adj);
 	}
 
-	err = ofnode_read_u32_array(dev->node, "voltage-ranges", voltages, 2);
+	err = ofnode_read_u32_array(dev_ofnode(dev), "voltage-ranges", voltages, 2);
 	if (err) {
 		slot->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	} else {
@@ -3603,117 +3604,116 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 	}
 
 	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX2)) {
-	if (!slot->is_asim && !slot->is_emul) {
-		if (ofnode_read_bool(node, "mmc-hs200-1_8v"))
-			slot->cfg.host_caps |= MMC_MODE_HS200 |
-					       MMC_MODE_HS_52MHz;
-		if (ofnode_read_bool(node, "mmc-hs400-1_8v"))
-			slot->cfg.host_caps |= MMC_MODE_HS400 |
-					       MMC_MODE_HS_52MHz |
-					       MMC_MODE_HS200 |
-					       MMC_MODE_DDR_52MHz;
-		if (ofnode_read_bool(node, "mmc-ddr52-only"))
-			slot->cfg.host_caps |= MMC_MODE_DDR_52MHz;
+		if (!slot->is_asim && !slot->is_emul) {
+			if (ofnode_read_bool(node, "mmc-hs200-1_8v"))
+				slot->cfg.host_caps |= MMC_MODE_HS200 |
+						       MMC_MODE_HS_52MHz;
+			if (ofnode_read_bool(node, "mmc-hs400-1_8v"))
+				slot->cfg.host_caps |= MMC_MODE_HS400 |
+						       MMC_MODE_HS_52MHz |
+						       MMC_MODE_HS200 |
+						       MMC_MODE_DDR_52MHz;
+			if (ofnode_read_bool(node, "mmc-ddr52-only"))
+				slot->cfg.host_caps |= MMC_MODE_DDR_52MHz;
 
-		/* Configure bus output timings for specific modes */
-		/* MMC HS 200 mode */
-		ofnode_read_u32(node, "marvell,cmd-out-hs200-dly",
-				&slot->cmd_out_taps_delay[MMC_HS_200]);
-		ofnode_read_u32(node, "marvell,data-out-hs200-dly",
-				&slot->data_out_taps_delay[MMC_HS_200]);
-		debug("%s(%s): HS200 out delays cmd=%u, data=%u\n",
-		      __func__, dev->name,
-		      slot->cmd_out_taps_delay[MMC_HS_200],
-		      slot->data_out_taps_delay[MMC_HS_200]);
-		/* MMC HS 400 mode */
-		ofnode_read_u32(node, "marvell,cmd-out-hs400-dly",
-				&slot->cmd_out_taps_delay[MMC_HS_400]);
-		ofnode_read_u32(node, "marvell,data-out-hs400-dly",
-				&slot->data_out_taps_delay[MMC_HS_400]);
-		debug("%s(%s): HS400 out delays cmd=%u, data=%u\n",
-		      __func__, dev->name,
-		      slot->cmd_out_taps_delay[MMC_HS_400],
-		      slot->data_out_taps_delay[MMC_HS_400]);
-		/* MMC HS 52 mode (SDR) */
-		ofnode_read_u32(node, "marvell,cmd-out-hs-sdr-dly",
-				&slot->cmd_out_taps_delay[MMC_HS_52]);
-		ofnode_read_u32(node, "marvell,data-out-hs-sdr-dly",
-				&slot->data_out_taps_delay[MMC_HS_52]);
-		debug("%s(%s): HS SDR out delays cmd=%u, data=%u\n",
-		      __func__, dev->name,
-		      slot->cmd_out_taps_delay[MMC_HS_52],
-		      slot->data_out_taps_delay[MMC_HS_52]);
-		/* MMC HS 52 mode (DDR) */
-		ofnode_read_u32(node, "marvell,cmd-out-hs-ddr-dly",
-				&slot->cmd_out_taps_delay[MMC_DDR_52]);
-		ofnode_read_u32(node, "marvell,data-out-hs-ddr-dly",
-				&slot->data_out_taps_delay[MMC_DDR_52]);
-		debug("%s(%s): DDR52 out delays cmd=%u, data=%u\n",
-		      __func__, dev->name,
-		      slot->cmd_out_taps_delay[MMC_DDR_52],
-		      slot->data_out_taps_delay[MMC_DDR_52]);
-		/* MMC Legacy mode */
-		ofnode_read_u32(node, "marvell,cmd-out-legacy-dly",
-				&slot->cmd_out_taps_delay[MMC_LEGACY]);
-		ofnode_read_u32(node, "marvell,data-out-legacy-dly",
-				&slot->data_out_taps_delay[MMC_LEGACY]);
-		debug("%s(%s): Legacy out delays cmd=%u, data=%u\n",
-		      __func__, dev->name,
-		      slot->cmd_out_taps_delay[MMC_LEGACY],
-		      slot->data_out_taps_delay[MMC_LEGACY]);
+			/* Configure bus output timings for specific modes */
+			/* MMC HS 200 mode */
+			ofnode_read_u32(node, "marvell,cmd-out-hs200-dly",
+					&slot->cmd_out_taps_delay[MMC_HS_200]);
+			ofnode_read_u32(node, "marvell,data-out-hs200-dly",
+					&slot->data_out_taps_delay[MMC_HS_200]);
+			debug("%s(%s): HS200 out delays cmd=%u, data=%u\n",
+			      __func__, dev->name,
+			      slot->cmd_out_taps_delay[MMC_HS_200],
+			      slot->data_out_taps_delay[MMC_HS_200]);
+			/* MMC HS 400 mode */
+			ofnode_read_u32(node, "marvell,cmd-out-hs400-dly",
+					&slot->cmd_out_taps_delay[MMC_HS_400]);
+			ofnode_read_u32(node, "marvell,data-out-hs400-dly",
+					&slot->data_out_taps_delay[MMC_HS_400]);
+			debug("%s(%s): HS400 out delays cmd=%u, data=%u\n",
+			      __func__, dev->name,
+			      slot->cmd_out_taps_delay[MMC_HS_400],
+			      slot->data_out_taps_delay[MMC_HS_400]);
+			/* MMC HS 52 mode (SDR) */
+			ofnode_read_u32(node, "marvell,cmd-out-hs-sdr-dly",
+					&slot->cmd_out_taps_delay[MMC_HS_52]);
+			ofnode_read_u32(node, "marvell,data-out-hs-sdr-dly",
+					&slot->data_out_taps_delay[MMC_HS_52]);
+			debug("%s(%s): HS SDR out delays cmd=%u, data=%u\n",
+			      __func__, dev->name,
+			      slot->cmd_out_taps_delay[MMC_HS_52],
+			      slot->data_out_taps_delay[MMC_HS_52]);
+			/* MMC HS 52 mode (DDR) */
+			ofnode_read_u32(node, "marvell,cmd-out-hs-ddr-dly",
+					&slot->cmd_out_taps_delay[MMC_DDR_52]);
+			ofnode_read_u32(node, "marvell,data-out-hs-ddr-dly",
+					&slot->data_out_taps_delay[MMC_DDR_52]);
+			debug("%s(%s): DDR52 out delays cmd=%u, data=%u\n",
+			      __func__, dev->name,
+			      slot->cmd_out_taps_delay[MMC_DDR_52],
+			      slot->data_out_taps_delay[MMC_DDR_52]);
+			/* MMC Legacy mode */
+			ofnode_read_u32(node, "marvell,cmd-out-legacy-dly",
+					&slot->cmd_out_taps_delay[MMC_LEGACY]);
+			ofnode_read_u32(node, "marvell,data-out-legacy-dly",
+					&slot->data_out_taps_delay[MMC_LEGACY]);
+			debug("%s(%s): Legacy out delays cmd=%u, data=%u\n",
+			      __func__, dev->name,
+			      slot->cmd_out_taps_delay[MMC_LEGACY],
+			      slot->data_out_taps_delay[MMC_LEGACY]);
 
-		/* Configure bus input timings for specific modes */
-		/* MMC HS 200 mode */
-		ofnode_read_u32(node, "marvell,cmd-in-hs200-dly",
-				&slot->cmd_in_taps_delay[MMC_HS_200]);
-		ofnode_read_u32(node, "marvell,data-in-hs200-dly",
-				&slot->data_in_taps_delay[MMC_HS_200]);
-		debug("%s(%s): HS 200 in delays cmd=%u, data%u\n",
-		      __func__, dev->name,
-		      slot->cmd_in_taps_delay[MMC_HS_200],
-		      slot->data_in_taps_delay[MMC_HS_200]);
+			/* Configure bus input timings for specific modes */
+			/* MMC HS 200 mode */
+			ofnode_read_u32(node, "marvell,cmd-in-hs200-dly",
+					&slot->cmd_in_taps_delay[MMC_HS_200]);
+			ofnode_read_u32(node, "marvell,data-in-hs200-dly",
+					&slot->data_in_taps_delay[MMC_HS_200]);
+			debug("%s(%s): HS 200 in delays cmd=%u, data%u\n",
+			      __func__, dev->name,
+			      slot->cmd_in_taps_delay[MMC_HS_200],
+			      slot->data_in_taps_delay[MMC_HS_200]);
 
-		/* MMC HS 400 modes */
-		ofnode_read_u32(node, "marvell,cmd-in-hs400-dly",
-				&slot->cmd_in_taps_delay[MMC_HS_400]);
-		ofnode_read_u32(node, "marvell,data-in-hs400-dly",
-				&slot->data_in_taps_delay[MMC_HS_400]);
-		debug("%s(%s): HS SDR in delays cmd=%u, data%u\n",
-		      __func__, dev->name,
-		      slot->cmd_in_taps_delay[MMC_HS_400],
-		      slot->data_in_taps_delay[MMC_HS_400]);
+			/* MMC HS 400 modes */
+			ofnode_read_u32(node, "marvell,cmd-in-hs400-dly",
+					&slot->cmd_in_taps_delay[MMC_HS_400]);
+			ofnode_read_u32(node, "marvell,data-in-hs400-dly",
+					&slot->data_in_taps_delay[MMC_HS_400]);
+			debug("%s(%s): HS SDR in delays cmd=%u, data%u\n",
+			      __func__, dev->name,
+			      slot->cmd_in_taps_delay[MMC_HS_400],
+			      slot->data_in_taps_delay[MMC_HS_400]);
 
-		/* MMC HS 52 mode (SDR) */
-		ofnode_read_u32(node, "marvell,cmd-in-hs-sdr-dly",
-				&slot->cmd_in_taps_delay[MMC_HS_52]);
-		ofnode_read_u32(node, "marvell,data-in-hs-sdr-dly",
-				&slot->data_in_taps_delay[MMC_HS_52]);
-		debug("%s(%s): HS SDR in delays cmd=%u, data%u\n",
-		      __func__, dev->name,
-		      slot->cmd_in_taps_delay[MMC_HS_52],
-		      slot->data_in_taps_delay[MMC_HS_52]);
+			/* MMC HS 52 mode (SDR) */
+			ofnode_read_u32(node, "marvell,cmd-in-hs-sdr-dly",
+					&slot->cmd_in_taps_delay[MMC_HS_52]);
+			ofnode_read_u32(node, "marvell,data-in-hs-sdr-dly",
+					&slot->data_in_taps_delay[MMC_HS_52]);
+			debug("%s(%s): HS SDR in delays cmd=%u, data%u\n",
+			      __func__, dev->name,
+			      slot->cmd_in_taps_delay[MMC_HS_52],
+			      slot->data_in_taps_delay[MMC_HS_52]);
 
-		/* MMC HS 52 mode (DDR) */
-		ofnode_read_u32(node, "marvell,cmd-in-hs-ddr-dly",
-				&slot->cmd_in_taps_delay[MMC_DDR_52]);
-		ofnode_read_u32(node, "marvell,data-in-hs-ddr-dly",
-				&slot->data_in_taps_delay[MMC_DDR_52]);
-		debug("%s(%s): HS DDR in delays cmd=%u, data%u\n",
-		      __func__, dev->name,
-		      slot->cmd_in_taps_delay[MMC_DDR_52],
-		      slot->data_in_taps_delay[MMC_DDR_52]);
+			/* MMC HS 52 mode (DDR) */
+			ofnode_read_u32(node, "marvell,cmd-in-hs-ddr-dly",
+					&slot->cmd_in_taps_delay[MMC_DDR_52]);
+			ofnode_read_u32(node, "marvell,data-in-hs-ddr-dly",
+					&slot->data_in_taps_delay[MMC_DDR_52]);
+			debug("%s(%s): HS DDR in delays cmd=%u, data%u\n",
+			      __func__, dev->name,
+			      slot->cmd_in_taps_delay[MMC_DDR_52],
+			      slot->data_in_taps_delay[MMC_DDR_52]);
 
-		/* MMC Legacy mode */
-		ofnode_read_u32(node, "marvell,cmd-in-legacy-dly",
-				&slot->cmd_in_taps_delay[MMC_LEGACY]);
-		ofnode_read_u32(node, "marvell,data-in-legacy-dly",
-				&slot->data_in_taps_delay[MMC_LEGACY]);
-		debug("%s(%s): MMC Legacy in delays cmd=%u, data%u\n",
-		      __func__, dev->name,
-		      slot->cmd_in_taps_delay[MMC_LEGACY],
-		      slot->data_in_taps_delay[MMC_LEGACY]);
-	}
-	}
+			/* MMC Legacy mode */
+			ofnode_read_u32(node, "marvell,cmd-in-legacy-dly",
+					&slot->cmd_in_taps_delay[MMC_LEGACY]);
+			ofnode_read_u32(node, "marvell,data-in-legacy-dly",
+					&slot->data_in_taps_delay[MMC_LEGACY]);
+			debug("%s(%s): MMC Legacy in delays cmd=%u, data%u\n",
+			      __func__, dev->name,
+			      slot->cmd_in_taps_delay[MMC_LEGACY],
+			      slot->data_in_taps_delay[MMC_LEGACY]);
+		}
 	}
 	slot->disable_ddr = ofnode_read_bool(node, "marvell,disable-ddr");
 	slot->non_removable = ofnode_read_bool(node, "non-removable");

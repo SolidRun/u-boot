@@ -369,7 +369,7 @@ bool efi_secure_boot_enabled(void)
 	return efi_secure_boot;
 }
 
-enum efi_auth_var_type __efi_runtime efi_auth_var_get_type(u16 *name, const efi_guid_t *guid)
+enum efi_auth_var_type __efi_runtime efi_auth_var_get_type(const u16 *name, const efi_guid_t *guid)
 {
 	for (size_t i = 0; i < ARRAY_SIZE(name_type); ++i) {
 		if (!u16_strcmp(name, name_type[i].name) &&

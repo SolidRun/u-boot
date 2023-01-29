@@ -264,8 +264,7 @@ efi_status_t efi_init_secure_state(void);
  * @guid:	guid of UEFI variable
  * Return:	identifier for authentication related variables
  */
-enum efi_auth_var_type efi_auth_var_get_type(const u16 *name,
-					     const efi_guid_t *guid);
+enum efi_auth_var_type __efi_runtime efi_auth_var_get_type(const u16 *name, const efi_guid_t *guid);
 
 /**
  * efi_auth_var_get_guid() - get the predefined GUID for a variable name

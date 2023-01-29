@@ -9,6 +9,7 @@
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 #include <asm/arch/board.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,7 +52,7 @@ struct mm_region *mem_map = cn10k_mem_map;
 void mem_map_fill(u64 rvu_addr, u64 rvu_size)
 {
 	int banks = CN10K_MEM_MAP_USED;
-	u32 dram_start = CONFIG_SYS_TEXT_BASE;
+	u32 dram_start = CONFIG_TEXT_BASE;
 
 	for (int i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		cn10k_mem_map[banks].virt = dram_start;
@@ -79,6 +80,6 @@ u64 get_page_table_size(void)
 	return 0x80000;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }

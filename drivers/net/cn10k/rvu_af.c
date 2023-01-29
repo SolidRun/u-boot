@@ -153,10 +153,10 @@ int rvu_af_probe(struct udevice *dev)
 	void __iomem *bar2_base;
 	int nix_id, blk;
 
-	af_ptr->af_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
-					 PCI_REGION_MEM);
-	bar2_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2,
-				   PCI_REGION_MEM);
+	af_ptr->af_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0,
+					 PCI_REGION_TYPE, PCI_REGION_MEM);
+	bar2_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, 0, 0,
+				   PCI_REGION_TYPE, PCI_REGION_MEM);
 	debug("%s RVU AF BAR0 %p, BAR2 %p\n", __func__, af_ptr->af_base,
 	      bar2_base);
 	af_ptr->dev = dev;
@@ -170,7 +170,7 @@ int rvu_af_probe(struct udevice *dev)
 			break;
 
 		af_ptr->nix_af[nix_id] = rvu_af_init(af_ptr, nix_id);
-		if (!af_ptr->nix_af) {
+		if (!af_ptr->nix_af[nix_id]) {
 			printf("%s: Error: could not initialize NIX%d AF\n",
 			       __func__, nix_id);
 			return -1;
@@ -208,7 +208,7 @@ U_BOOT_DRIVER(rvu_af) = {
 	.id     = UCLASS_MISC,
 	.probe  = rvu_af_probe,
 	.remove = rvu_af_remove,
-	.priv_auto_alloc_size = sizeof(struct rvu_af),
+	.priv_auto = sizeof(struct rvu_af),
 };
 
 static struct pci_device_id rvu_af_supported[] = {

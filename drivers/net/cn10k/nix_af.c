@@ -64,7 +64,7 @@ int npa_attach_aura(struct nix_af *nix_af, int lf,
 	start = get_timer(0);
 	while ((res->s.compcode == NPA_AQ_COMP_E_NOTDONE) &&
 	       (get_timer(start) < 1000))
-		WATCHDOG_RESET();
+		schedule();
 	if (res->s.compcode != NPA_AQ_COMP_E_GOOD) {
 		printf("%s: Error: result 0x%x not good\n",
 		       __func__, (u8)res->s.compcode);
@@ -109,7 +109,7 @@ int npa_attach_pool(struct nix_af *nix_af, int lf,
 	start = get_timer(0);
 	while ((res->s.compcode == NPA_AQ_COMP_E_NOTDONE) &&
 	       (get_timer(start) < 1000))
-		WATCHDOG_RESET();
+		schedule();
 
 	if (res->s.compcode != NPA_AQ_COMP_E_GOOD) {
 		printf("%s: Error: result 0x%x not good\n",
@@ -135,7 +135,7 @@ int npa_lf_admin_setup(struct npa *npa, int lf, dma_addr_t aura_base)
 	start = get_timer(0);
 	do {
 		lf_rst.u = npa_af_reg_read(npa_af, NPA_AF_LF_RST());
-		WATCHDOG_RESET();
+		schedule();
 	} while (lf_rst.s.exec && (get_timer(start) < 1000));
 	if (lf_rst.s.exec)
 		printf("\n%s: LF reset timed out\n", __func__);
@@ -200,7 +200,7 @@ int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
 		start = get_timer(0);
 		while ((res->s.compcode == NPA_AQ_COMP_E_NOTDONE) &&
 		       (get_timer(start) < 1000))
-			WATCHDOG_RESET();
+			schedule();
 
 		if (res->s.compcode != NPA_AQ_COMP_E_GOOD) {
 			printf("%s: Error: result 0x%x not good for lf %d\n"
@@ -234,7 +234,7 @@ int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
 		start = get_timer(0);
 		while ((res->s.compcode == NPA_AQ_COMP_E_NOTDONE) &&
 		       (get_timer(start) < 1000))
-			WATCHDOG_RESET();
+			schedule();
 
 		if (res->s.compcode != NPA_AQ_COMP_E_GOOD) {
 			printf("%s: Error: result 0x%x not good for lf %d\n"
@@ -253,7 +253,7 @@ int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count)
 	start = get_timer(0);
 	do {
 		lf_rst.u = npa_af_reg_read(npa, NPA_AF_LF_RST());
-		WATCHDOG_RESET();
+		schedule();
 	} while (lf_rst.s.exec && (get_timer(start) < 1000));
 	if (lf_rst.s.exec)
 		printf("\n%s: LF reset timed out\n", __func__);
@@ -286,7 +286,7 @@ int npa_af_setup(struct npa_af *npa_af)
 	start = get_timer(0);
 	do {
 		blk_rst.u = npa_af_reg_read(npa_af, NPA_AF_BLK_RST());
-		WATCHDOG_RESET();
+		schedule();
 	} while (blk_rst.s.busy && (get_timer(start) < 1000));
 	if (blk_rst.s.busy)
 		printf("\n%s: Block reset timed out\n", __func__);
@@ -322,7 +322,7 @@ int npa_af_shutdown(struct npa_af *npa_af)
 	start = get_timer(0);
 	do {
 		blk_rst.u = npa_af_reg_read(npa_af, NPA_AF_BLK_RST());
-		WATCHDOG_RESET();
+		schedule();
 	} while (blk_rst.s.busy && (get_timer(start) < 1000));
 	if (blk_rst.s.busy)
 		printf("\n%s: Block reset timed out\n", __func__);
@@ -477,7 +477,7 @@ static int nix_aq_issue_command(struct nix_af *nix_af,
 	start = get_timer(0);
 	/* Wait for completion */
 	do {
-		WATCHDOG_RESET();
+		schedule();
 		dsb();
 	} while (result->s.compcode == 0 && get_timer(start) < 2);
 
@@ -636,7 +636,7 @@ int nix_lf_admin_setup(struct nix *nix)
 	start = get_timer(0);
 	do {
 		lf_rst.u = nix_af_reg_read(nix_af, NIXX_AF_LF_RST());
-		WATCHDOG_RESET();
+		schedule();
 	} while (lf_rst.s.exec && (get_timer(start) < 1000));
 	if (lf_rst.s.exec)
 		printf("\n%s: LF reset timed out\n", __func__);
@@ -731,7 +731,7 @@ int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
 
 	do {
 		sw_sync.u = nix_af_reg_read(nix_af, NIXX_AF_RX_SW_SYNC());
-		WATCHDOG_RESET();
+		schedule();
 	} while (sw_sync.s.ena);
 
 	for (index = 0; index < rq_count; index++) {
@@ -793,7 +793,7 @@ int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
 
 	do {
 		lf_rst.u = nix_af_reg_read(nix_af, NIXX_AF_LF_RST());
-		WATCHDOG_RESET();
+		schedule();
 	} while (lf_rst.s.exec);
 
 	return 0;
@@ -939,7 +939,7 @@ int npc_af_shutdown(struct nix_af *nix_af)
 	start = get_timer(0);
 	do {
 		blk_rst.u = npc_af_reg_read(nix_af, NPC_AF_BLK_RST());
-		WATCHDOG_RESET();
+		schedule();
 	} while (blk_rst.s.busy && (get_timer(start) < 1000));
 	if (blk_rst.s.busy)
 		printf("\n%s: Block reset timed out\n", __func__);
@@ -976,7 +976,7 @@ int nix_af_setup(struct nix_af *nix_af)
 	start = get_timer(0);
 	do {
 		blk_rst.u = nix_af_reg_read(nix_af, NIXX_AF_BLK_RST());
-		WATCHDOG_RESET();
+		schedule();
 	} while (blk_rst.s.busy && (get_timer(start) < 1000));
 	if (blk_rst.s.busy)
 		printf("\n%s: Block reset timed out\n", __func__);
@@ -1002,7 +1002,7 @@ int nix_af_setup(struct nix_af *nix_af)
 	start = get_timer(0);
 	do {
 		af_status.u = nix_af_reg_read(nix_af, NIXX_AF_STATUS());
-		WATCHDOG_RESET();
+		schedule();
 	} while ((af_status.s.calibrate_done == 0) &&
 		 (get_timer(start) < 1000));
 	if (!af_status.s.calibrate_done)
@@ -1066,7 +1066,7 @@ int nix_af_shutdown(struct nix_af *nix_af)
 	start = get_timer(0);
 	do {
 		blk_rst.u = nix_af_reg_read(nix_af, NIXX_AF_BLK_RST());
-		WATCHDOG_RESET();
+		schedule();
 	} while (blk_rst.s.busy && (get_timer(start) < 1000));
 	if (blk_rst.s.busy)
 		printf("\n%s: Block reset timed out\n", __func__);

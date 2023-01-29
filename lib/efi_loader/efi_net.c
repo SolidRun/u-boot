@@ -352,7 +352,7 @@ static efi_status_t EFIAPI efi_net_station_address
 		memcpy(this->mode->current_address.mac_addr,
 		       new_mac->mac_addr, 6);
 
-	pdata = dev->platdata;
+	pdata = dev_get_plat(dev);
 	memcpy(pdata->enetaddr, this->mode->current_address.mac_addr, 6);
 	if (eth_get_ops(dev)->write_hwaddr) {
 		if (!is_valid_ethaddr(pdata->enetaddr)) {
@@ -923,7 +923,6 @@ efi_status_t efi_net_register(void)
 	struct udevice *net_dev;
 	struct efi_net_obj *netobj;
 	int dev_idx;
-	efi_status_t r;
 	uchar mac_addr[ARP_HLEN];
 
 	net_dev = NULL;

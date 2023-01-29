@@ -288,7 +288,6 @@ static int smbios_write_type0(ulong *current, int handle,
 #endif
 #ifdef CONFIG_EFI_LOADER
 	t->bios_characteristics_ext2 |= BIOS_CHARACTERISTICS_EXT2_UEFI;
-	t->bios_characteristics_ext2 |= BIOS_CHARACTERISTICS_EXT1_UEFI;
 #endif
 	t->bios_characteristics_ext2 |= BIOS_CHARACTERISTICS_EXT2_TARGET;
 
@@ -441,7 +440,8 @@ static void set_cache_handle(struct smbios_type7 *type7)
 }
 
 static void smbios_write_type4_dm(struct smbios_type4 *t,
-				  struct smbios_ctx *ctx)
+				  struct smbios_ctx *ctx,
+				  ofnode node_type4)
 {
 	u8 proc_type = 0;
 	u8 voltage = 0;
@@ -609,16 +609,17 @@ static int smbios_write_type4(ulong *current, int handle,
 			t = map_sysmem(*current, len);
 			memset(t, 0, sizeof(struct smbios_type4));
 			fill_smbios_header(t, SMBIOS_PROCESSOR_INFORMATION, len, handle);
+			smbios_set_eos(ctx, t->eos);
 			t->processor_type = SMBIOS_PROCESSOR_TYPE_CENTRAL;
 			t->processor_upgrade = SMBIOS_PROCESSOR_UPGRADE_NONE;
-			smbios_write_type4_dm(t, node_type4);
+			smbios_write_type4_dm(t, ctx, node_type4);
 			t->status = SMBIOS_PROCESSOR_STATUS_ENABLED;
 
 			t->l1_cache_handle = 0xFFFF;
 			t->l2_cache_handle = 0xFFFF;
 			t->l3_cache_handle = 0xFFFF;
 
-			len = t->length + smbios_string_table_len(t->eos);
+			len = t->length + smbios_string_table_len(ctx);
 			*current += len;
 			unmap_sysmem(t);
 
@@ -631,11 +632,12 @@ static int smbios_write_type4(ulong *current, int handle,
 	return len * i;
 }
 
-static void smbios_write_type7_dm(struct smbios_type7 *t, ofnode node_type7)
+static void smbios_write_type7_dm(struct smbios_type7 *t, ofnode node_type7,
+				  struct smbios_ctx *ctx)
 {
 	u32 tmp;
 
-	t->socket_designation = smbios_add_string(t->eos, ofnode_read_string(node_type7, "socket"));
+	t->socket_designation = smbios_add_string(ctx, ofnode_read_string(node_type7, "socket"));
 	tmp = 0;
 	ofnode_read_u32(node_type7, "ecorr-type", &tmp);
 	t->error_correction_type = (u8)tmp;
@@ -678,7 +680,8 @@ static void smbios_write_type7_dm(struct smbios_type7 *t, ofnode node_type7)
 	t->current_sram_type = (u16)tmp;
 }
 
-static int smbios_write_type7(ulong *current, int handle)
+static int smbios_write_type7(ulong *current, int handle,
+			      struct smbios_ctx *ctx)
 {
 	struct smbios_type7 *t;
 	char node_path[32];
@@ -693,9 +696,10 @@ static int smbios_write_type7(ulong *current, int handle)
 			t = map_sysmem(*current, len);
 			memset(t, 0, sizeof(struct smbios_type7));
 			fill_smbios_header(t, SMBIOS_CACHE_INFORMATION, len, handle);
-			smbios_write_type7_dm(t, node_type7);
+			smbios_set_eos(ctx, t->eos);
+			smbios_write_type7_dm(t, node_type7, ctx);
 			set_cache_handle(t);
-			len = t->length + smbios_string_table_len(t->eos);
+			len = t->length + smbios_string_table_len(ctx);
 			total_len += len;
 			*current += len;
 			unmap_sysmem(t);
@@ -733,7 +737,8 @@ static void smbios_write_type8_dm(struct smbios_type8 *t, ofnode node_type8)
 	t->port_type = (u8)tmp;
 }
 
-static int smbios_write_type8(ulong *current, int handle)
+static int smbios_write_type8(ulong *current, int handle,
+			      struct smbios_ctx *ctx)
 {
 	struct smbios_type8 *t;
 	char node_path[32];
@@ -748,8 +753,9 @@ static int smbios_write_type8(ulong *current, int handle)
 			t = map_sysmem(*current, len);
 			memset(t, 0, sizeof(struct smbios_type8));
 			fill_smbios_header(t, SMBIOS_PORT_INFORMATION, len, handle);
+			smbios_set_eos(ctx, t->eos);
 			smbios_write_type8_dm(t, node_type8);
-			len = t->length + smbios_string_table_len(t->eos);
+			len = t->length + smbios_string_table_len(ctx);
 			total_len += len;
 			*current += len;
 			unmap_sysmem(t);
@@ -762,12 +768,13 @@ static int smbios_write_type8(ulong *current, int handle)
 	return total_len;
 }
 
-static void smbios_write_type9_dm(struct smbios_type9 *t, ofnode node_type9)
+static void smbios_write_type9_dm(struct smbios_type9 *t, ofnode node_type9,
+				  struct smbios_ctx *ctx)
 {
 	u32 tmp;
 
-	t->slot_designation = smbios_add_string(t->eos, ofnode_read_string(node_type9,
-									   "slot-designation"));
+	t->slot_designation = smbios_add_string(ctx, ofnode_read_string(node_type9,
+									"slot-designation"));
 
 	tmp = 0;
 	ofnode_read_u32(node_type9, "slot-id", &tmp);
@@ -794,7 +801,8 @@ static void smbios_write_type9_dm(struct smbios_type9 *t, ofnode node_type9)
 	t->slot_characteristics_1 =  (u8)tmp;
 }
 
-static int smbios_write_type9(ulong *current, int handle)
+static int smbios_write_type9(ulong *current, int handle,
+			      struct smbios_ctx *ctx)
 {
 	struct smbios_type9 *t;
 	char node_path[32];
@@ -809,8 +817,9 @@ static int smbios_write_type9(ulong *current, int handle)
 			t = map_sysmem(*current, len);
 			memset(t, 0, sizeof(struct smbios_type9));
 			fill_smbios_header(t, SMBIOS_SYSTEM_SLOTS, len, handle);
-			smbios_write_type9_dm(t, node_type9);
-			len = t->length + smbios_string_table_len(t->eos);
+			smbios_set_eos(ctx, t->eos);
+			smbios_write_type9_dm(t, node_type9, ctx);
+			len = t->length + smbios_string_table_len(ctx);
 			total_len += len;
 			*current += len;
 			unmap_sysmem(t);
@@ -823,7 +832,8 @@ static int smbios_write_type9(ulong *current, int handle)
 	return total_len;
 }
 
-static int smbios_write_type13(ulong *current, int handle)
+static int smbios_write_type13(ulong *current, int handle,
+			       struct smbios_ctx *ctx)
 {
 	u32 tmp;
 
@@ -840,6 +850,7 @@ static int smbios_write_type13(ulong *current, int handle)
 		t = map_sysmem(*current, len);
 		memset(t, 0, sizeof(struct smbios_type13));
 		fill_smbios_header(t, SMBIOS_BIOS_LANGUAGE_INFORMATION, len, handle);
+		smbios_set_eos(ctx, t->eos);
 
 		ofnode_read_u32(node_type13, "installable-languages", &tmp);
 		t->installable_languages = (u8)tmp;
@@ -847,10 +858,10 @@ static int smbios_write_type13(ulong *current, int handle)
 		ofnode_read_u32(node_type13, "flags", &tmp);
 		t->flags = (u8)tmp;
 
-		t->current_language = smbios_add_string(t->eos,
+		t->current_language = smbios_add_string(ctx,
 							ofnode_read_string(node_type13,
 									   "current-language"));
-		len = t->length + smbios_string_table_len(t->eos);
+		len = t->length + smbios_string_table_len(ctx);
 		*current += len;
 		unmap_sysmem(t);
 
@@ -859,7 +870,8 @@ static int smbios_write_type13(ulong *current, int handle)
 	return len;
 }
 
-static int smbios_write_type16(ulong *current, int handle)
+static int smbios_write_type16(ulong *current, int handle,
+			       struct smbios_ctx *ctx)
 {
 	struct smbios_type16 *t;
 	ofnode node_type16;
@@ -870,6 +882,7 @@ static int smbios_write_type16(ulong *current, int handle)
 	t = map_sysmem(*current, len);
 	memset(t, 0, sizeof(struct smbios_type16));
 	fill_smbios_header(t, SMBIOS_PHYS_MEMORY_ARRAY, len, handle);
+	smbios_set_eos(ctx, t->eos);
 
 	t->location = DMTF_TYPE16_LOCATION_SYSTEM_BOARD_OR_MOTHERBOARD;
 	t->use = DMTF_TYPE16_USE_SYSTEM_MEMORY;
@@ -903,7 +916,7 @@ static int smbios_write_type16(ulong *current, int handle)
 		t->extended_maximum_capacity = tmp64;
 	}
 
-	len = t->length + smbios_string_table_len(t->eos);
+	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -912,7 +925,8 @@ static int smbios_write_type16(ulong *current, int handle)
 }
 
 static void smbios_write_type17_dm(struct smbios_type17 *t, ofnode node_type17,
-				   ulong *current, int handle, int index)
+				   ulong *current, int handle, int index,
+				   struct smbios_ctx *ctx)
 {
 	u32 tmp;
 	u64 tmp64;
@@ -953,7 +967,7 @@ static void smbios_write_type17_dm(struct smbios_type17 *t, ofnode node_type17,
 	ofnode_read_u32(node_type17, "device-set", &tmp);
 	t->device_set = (u8)tmp;
 
-	t->device_locator = smbios_add_string(t->eos,
+	t->device_locator = smbios_add_string(ctx,
 					      ofnode_read_string(node_type17, "device-loc"));
 
 	tmp = 0;
@@ -992,19 +1006,20 @@ static void smbios_write_type17_dm(struct smbios_type17 *t, ofnode node_type17,
 	ofnode_read_u32(node_type17, "module-manufacturer-id", &tmp);
 	t->module_manufacturer_id = (u16)tmp;
 
-	t->serial_number = smbios_add_string(t->eos,
+	t->serial_number = smbios_add_string(ctx,
 					      ofnode_read_string(node_type17, "serial-number"));
 
-	t->manufacturer = smbios_add_string(t->eos,
+	t->manufacturer = smbios_add_string(ctx,
 					      ofnode_read_string(node_type17, "manufacturer"));
 
-	t->part_number = smbios_add_string(t->eos,
+	t->part_number = smbios_add_string(ctx,
 					      ofnode_read_string(node_type17, "part-number"));
 
 	t->memory_technology = 0x03; // DRAM
 }
 
-static int smbios_write_type17(ulong *current, int handle)
+static int smbios_write_type17(ulong *current, int handle,
+			       struct smbios_ctx *ctx)
 {
 	struct smbios_type17 *t;
 	char node_path[32];
@@ -1019,8 +1034,9 @@ static int smbios_write_type17(ulong *current, int handle)
 			t = map_sysmem(*current, len);
 			memset(t, 0, sizeof(struct smbios_type17));
 			fill_smbios_header(t, SMBIOS_MEMORY_DEVICE, len, handle);
-			smbios_write_type17_dm(t, node_type17,  current, handle, i);
-			len = t->length + smbios_string_table_len(t->eos);
+			smbios_set_eos(ctx, t->eos);
+			smbios_write_type17_dm(t, node_type17,  current, handle, i, ctx);
+			len = t->length + smbios_string_table_len(ctx);
 			total_len += len;
 			*current += len;
 			unmap_sysmem(t);
@@ -1064,7 +1080,8 @@ static void smbios_write_type19_dm(struct smbios_type19 *t, ofnode node_type19,
 	t->extended_ending_address = tmp64;
 }
 
-static int smbios_write_type19(ulong *current, int handle)
+static int smbios_write_type19(ulong *current, int handle,
+			       struct smbios_ctx *ctx)
 {
 	struct smbios_type19 *t;
 	char node_path[32];
@@ -1079,8 +1096,9 @@ static int smbios_write_type19(ulong *current, int handle)
 			t = map_sysmem(*current, len);
 			memset(t, 0, sizeof(struct smbios_type19));
 			fill_smbios_header(t, SMBIOS_MEMORY_ARRAY_MAPPED_ADDRESS, len, handle);
+			smbios_set_eos(ctx, t->eos);
 			smbios_write_type19_dm(t, node_type19,  current, handle, i);
-			len = t->length + smbios_string_table_len(t->eos);
+			len = t->length + smbios_string_table_len(ctx);
 			total_len += len;
 			*current += len;
 			unmap_sysmem(t);
@@ -1093,7 +1111,8 @@ static int smbios_write_type19(ulong *current, int handle)
 	return total_len;
 }
 
-static int smbios_write_type20_dm(ulong *current, int handle, int index)
+static int smbios_write_type20_dm(ulong *current, int handle, int index,
+				  struct smbios_ctx *ctx)
 {
 	struct smbios_type20 *t;
 	int len = sizeof(struct smbios_type20);
@@ -1101,6 +1120,7 @@ static int smbios_write_type20_dm(ulong *current, int handle, int index)
 	t = map_sysmem(*current, len);
 	memset(t, 0, sizeof(struct smbios_type20));
 	fill_smbios_header(t, SMBIOS_MEMORY_DEVICE_MAPPED_ADDRESS, len, handle + index);
+	smbios_set_eos(ctx, t->eos);
 
 	/* Data to be filled by OEM */
 	/* ...
@@ -1108,7 +1128,7 @@ static int smbios_write_type20_dm(ulong *current, int handle, int index)
 	 * ...
 	 */
 
-	len = t->length + smbios_string_table_len(t->eos);
+	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -1116,33 +1136,19 @@ static int smbios_write_type20_dm(ulong *current, int handle, int index)
 	return len;
 }
 
-static int smbios_write_type20(ulong *current, int handle)
+static int smbios_write_type20(ulong *current, int handle,
+			       struct smbios_ctx *ctx)
 {
 	u32 no_of_handles = MAX_MEMORY_MAPPED_DEV, i = 0, len = 0;
 
 	for (; i < no_of_handles; i++)
-		len += smbios_write_type20_dm(current, handle, i);
+		len += smbios_write_type20_dm(current, handle, i, ctx);
 
 	return len;
 }
 
-static int smbios_write_type32(ulong *current, int handle)
-{
-	struct smbios_type32 *t;
-	int len = sizeof(struct smbios_type32);
-
-	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type32));
-	fill_smbios_header(t, SMBIOS_SYSTEM_BOOT_INFORMATION, len, handle);
-
-	*current += len;
-	unmap_sysmem(t);
-
-	smbios_struct_count++;
-	return len;
-}
-
-static int smbios_write_type41_dm(ulong *current, int handle, int index)
+static int smbios_write_type41_dm(ulong *current, int handle, int index,
+				  struct smbios_ctx *ctx)
 {
 	struct smbios_type41 *t;
 	int len = sizeof(struct smbios_type41);
@@ -1150,6 +1156,7 @@ static int smbios_write_type41_dm(ulong *current, int handle, int index)
 	t = map_sysmem(*current, len);
 	memset(t, 0, sizeof(struct smbios_type41));
 	fill_smbios_header(t, SMBIOS_ONBOARD_EVICES_EXTENDED_INFORMATION, len, handle + index);
+	smbios_set_eos(ctx, t->eos);
 
 	/* Data to be filled by OEM */
 	/* ...
@@ -1157,7 +1164,7 @@ static int smbios_write_type41_dm(ulong *current, int handle, int index)
 	 * ...
 	 */
 
-	len = t->length + smbios_string_table_len(t->eos);
+	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -1165,12 +1172,13 @@ static int smbios_write_type41_dm(ulong *current, int handle, int index)
 	return len;
 }
 
-static int smbios_write_type41(ulong *current, int handle)
+static int smbios_write_type41(ulong *current, int handle,
+			       struct smbios_ctx *ctx)
 {
 	u32 no_of_handles = MAX_MEMORY_MAPPED_DEV, i = 0, len = 0;
 
 	for (; i < no_of_handles; i++)
-		len += smbios_write_type41_dm(current, handle, i);
+		len += smbios_write_type41_dm(current, handle, i, ctx);
 
 	return len;
 }
@@ -1202,6 +1210,7 @@ static int smbios_write_type127(ulong *current, int handle,
 	t = map_sysmem(*current, len);
 	memset(t, 0, sizeof(struct smbios_type127));
 	fill_smbios_header(t, SMBIOS_END_OF_TABLE, len, handle);
+	smbios_set_eos(ctx, t->eos);
 
 	*current += len;
 	unmap_sysmem(t);

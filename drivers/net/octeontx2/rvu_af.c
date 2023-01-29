@@ -152,7 +152,7 @@ int rvu_af_probe(struct udevice *dev)
 
 	af_ptr->af_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
 					 PCI_REGION_MEM);
-	bar2_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2,
+	bar2_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, 0, 0, PCI_REGION_TYPE,
 				   PCI_REGION_MEM);
 	debug("%s RVU AF BAR0 %p, BAR2 %p\n", __func__, af_ptr->af_base,
 	      bar2_base);

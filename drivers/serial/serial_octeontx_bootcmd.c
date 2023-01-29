@@ -20,7 +20,7 @@
 #include <cpu_func.h>
 
 #undef CONFIG_LOGLEVEL
-#define CONFIG_LOGLEVEL 10
+#define CONFIG_LOGLEVEL 4
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -67,7 +67,7 @@ static int octeontx_bootcmd_start(struct udevice *dev)
 {
 	struct octeontx_bootcmd_data *bc = dev_get_priv(dev);
 	struct octeontx_pci_io_buf *buf = bc->buf;
-	struct octeontx_bootcmd_platdata *plat = dev_get_platdata(bc->dev);
+	struct octeontx_bootcmd_platdata *plat = dev_get_plat(bc->dev);
 
 	if (bc->started) {
 		debug("%s: Already started\n", __func__);
@@ -110,7 +110,7 @@ static int octeontx_bootcmd_pending(struct udevice *dev, bool input)
 	struct octeontx_pci_io_buf *buf = bc->buf;
 
 	if (!bc->started) {
-		dev_dbg("%s: Error: not started\n", __func__);
+		dev_dbg(dev, "%s: Error: not started\n", __func__);
 		return 0;
 	}
 
@@ -154,7 +154,7 @@ static int octeontx_bootcmd_getc(struct udevice *dev)
 	}
 
 	while (!octeontx_bootcmd_pending(dev, true)) {
-		WATCHDOG_RESET();
+		schedule();
 		udelay(0);
 	}
 
@@ -227,7 +227,7 @@ static int octeontx_bootcmd_probe(struct udevice *dev)
 {
 	struct octeontx_bootcmd_data *bc;
 	struct octeontx_pci_io_buf *buf;
-	struct octeontx_bootcmd_platdata *plat = dev_get_platdata(dev);
+	struct octeontx_bootcmd_platdata *plat = dev_get_plat(dev);
 	struct stdio_dev bdev;
 	char *tok, *env, *work;
 	int ret;
@@ -297,7 +297,7 @@ static int octeontx_bootcmd_probe(struct udevice *dev)
  */
 static int octeontx_bootcmd_ofdata_to_platdata(struct udevice *dev)
 {
-	struct octeontx_bootcmd_platdata *plat = dev_get_platdata(dev);
+	struct octeontx_bootcmd_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 	fdt_size_t size;
 
@@ -327,10 +327,10 @@ U_BOOT_DRIVER(octeontx_bootcmd) = {
 	.name	= DRIVER_NAME,
 	.id	= UCLASS_SERIAL,
 	.of_match = of_match_ptr(octeontx_bootcmd_serial_id),
-	.ofdata_to_platdata = of_match_ptr(octeontx_bootcmd_ofdata_to_platdata),
-	.platdata_auto_alloc_size = sizeof(struct octeontx_bootcmd_platdata),
+	.of_to_plat = of_match_ptr(octeontx_bootcmd_ofdata_to_platdata),
+	.plat_auto = sizeof(struct octeontx_bootcmd_platdata),
 	.probe = octeontx_bootcmd_probe,
 	.ops = &octeontx_bootcmd_ops,
-	.priv_auto_alloc_size = sizeof(struct octeontx_bootcmd_data),
+	.priv_auto = sizeof(struct octeontx_bootcmd_data),
 	.flags = DM_FLAG_PRE_RELOC,
 };

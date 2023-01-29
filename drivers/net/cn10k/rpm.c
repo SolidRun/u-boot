@@ -283,8 +283,8 @@ int rpm_probe(struct udevice *dev)
 	struct rpm *rpm = dev_get_priv(dev);
 	int err;
 
-	rpm->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
-				       PCI_REGION_MEM);
+	rpm->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0,
+				       PCI_REGION_TYPE, PCI_REGION_MEM);
 	rpm->dev = dev;
 	rpm->rpm_id = ((u64)(rpm->reg_base) >> 24) & 0xf;
 
@@ -310,7 +310,7 @@ U_BOOT_DRIVER(rpm) = {
 	.id	= UCLASS_MISC,
 	.probe	= rpm_probe,
 	.remove	= rpm_remove,
-	.priv_auto_alloc_size = sizeof(struct rpm),
+	.priv_auto = sizeof(struct rpm),
 };
 
 static struct pci_device_id rpm_supported[] = {

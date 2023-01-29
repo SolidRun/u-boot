@@ -694,7 +694,7 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Disable watch dog */
 #if CONFIG_IS_ENABLED(WDT)
-	wdt_stop(gd->watchdog_dev);
+	wdt_stop_all();
 #endif
 	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) {
 		if (!strcmp(argv[1], "bootmgr"))

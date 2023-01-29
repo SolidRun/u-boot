@@ -1471,7 +1471,7 @@ static int sdhci_cdns_sd6_phy_update_timings(struct sdhci_cdns_plat *plat)
 void dump_sdhci_regs(struct sdhci_host *host)
 {
 	struct udevice *dev = host->mmc->dev;
-	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+	struct sdhci_cdns_plat *plat = dev_get_plat(dev);
 	struct sdhci_cdns_sd6_phy *phy = plat->priv;
 
 	sdhci_cdns_sd6_phy_dump(phy);
@@ -1483,7 +1483,7 @@ static void sdhci_cdns_sd6_set_clock(struct sdhci_host *host,
 				unsigned int div)
 {
 	struct udevice *dev = host->mmc->dev;
-	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+	struct sdhci_cdns_plat *plat = dev_get_plat(dev);
 	struct sdhci_cdns_sd6_phy *phy = plat->priv;
 	unsigned int clock;
 
@@ -1597,7 +1597,7 @@ static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 #if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
 static int sdhci_cdns_hs400_enhanced_strobe(struct udevice *dev)
 {
-	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+	struct sdhci_cdns_plat *plat = dev_get_plat(dev);
 
 	plat->enhanced_strobe = 1;
 	sdhci_cdns_set_emmc_mode(plat, SDHCI_CDNS_HRS06_MODE_MMC_HS400ES);
@@ -1609,7 +1609,7 @@ static int sdhci_cdns_hs400_enhanced_strobe(struct udevice *dev)
 static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigned char opcode)
 {
 	struct udevice *dev = mmc->dev;
-	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+	struct sdhci_cdns_plat *plat = dev_get_plat(dev);
 	int cur_streak = 0;
 	int max_streak = 0;
 	int end_of_streak = 0;

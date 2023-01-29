@@ -369,8 +369,8 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 	/* Configure bus number registers */
 	u32 buses;
 	dm_pci_read_config32(dev, PCI_PRIMARY_BUS, &buses);
-	buses = PCI_BUS(dm_pci_get_bdf(dev)) - ctlr->seq;
-	buses |= (((sub_bus - ctlr->seq) & 0xff) << 8);
+	buses = PCI_BUS(dm_pci_get_bdf(dev)) - dev_seq(ctlr);
+	buses |= (((sub_bus - dev_seq(ctlr)) & 0xff) << 8);
 	buses |= (0xff << 16);
 	dm_pci_write_config32(dev, PCI_PRIMARY_BUS, buses);
 #else
@@ -476,7 +476,7 @@ void dm_pciauto_postscan_setup_bridge(struct udevice *dev, int sub_bus)
 	u32 buses;
 	dm_pci_read_config32(dev, PCI_PRIMARY_BUS, &buses);
 	buses &= 0xff00ffff;
-	buses |= (((sub_bus - ctlr->seq) & 0xff) << 16);
+	buses |= (((sub_bus - dev_seq(ctlr)) & 0xff) << 16);
 	dm_pci_write_config32(dev, PCI_PRIMARY_BUS, buses);
 #else
 	/* Configure bus number registers */

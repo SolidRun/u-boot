@@ -25,7 +25,7 @@ static int do_ethlist(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	for (uclass_find_first_device(UCLASS_ETH, &dev); dev;
 	     uclass_find_next_device(&dev)) {
-		printf("eth%d [%s]", dev->seq, dev->name);
+		printf("eth%d [%s]", dev_seq(dev), dev->name);
 		if (!strncmp(dev->name, "rvu_", 4))
 			nix_print_mac_info(dev);
 		printf("\n");

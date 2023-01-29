@@ -220,7 +220,7 @@ efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
 }
 
 efi_status_t __efi_runtime
-efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+efi_set_variable_int(const u16 *variable_name, const efi_guid_t *vendor,
 		     u32 attributes, efi_uintn_t data_size,
 		     const void *data, bool ro_check)
 {

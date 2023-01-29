@@ -555,11 +555,11 @@ int dpi_recv(struct udevice *dev, int flags, uchar **packetp)
 int dpi_setup_mac(struct udevice *dev)
 {
 	struct dpi_pf *dpi = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	if (memcmp(dpi->hw_addr, pdata->enetaddr, ARP_HLEN)) {
 		memcpy(dpi->hw_addr, pdata->enetaddr, 6);
-		eth_env_set_enetaddr_by_index("eth", dev->seq,
+		eth_env_set_enetaddr_by_index("eth", dev_seq(dev),
 					      pdata->enetaddr);
 	}
 	return 0;
@@ -589,7 +589,7 @@ int dpi_start(struct udevice *dev)
 
 int dpi_pf_init(struct dpi_pf *dpi)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dpi->dev);
+	struct eth_pdata *pdata = dev_get_plat(dpi->dev);
 	u64 reg;
 	u32 mps_val, mrrs_val, aura = NPA_POOL_INST;
 	u16 npa_pf_func;
@@ -664,7 +664,7 @@ int dpi_pf_init(struct dpi_pf *dpi)
 		net_random_ethaddr(dpi->hw_addr);
 		memcpy(pdata->enetaddr, dpi->hw_addr, 6);
 	}
-	eth_env_set_enetaddr_by_index("eth", dpi->dev->seq,
+	eth_env_set_enetaddr_by_index("eth", dev_seq(dpi->dev),
 				      pdata->enetaddr);
 	return 0;
 }
@@ -684,8 +684,8 @@ int dpi_pf_probe(struct udevice *dev)
 	int err;
 	struct udevice *ndev;
 
-	dpi->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
-				      PCI_REGION_MEM);
+	dpi->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0,
+				      PCI_REGION_TYPE, PCI_REGION_MEM);
 	dpi->vf_base = dpi->pf_base + BIT_ULL(33);
 	dpi->dev = dev;
 
@@ -747,8 +747,8 @@ U_BOOT_DRIVER(dpi_pf) = {
 	.probe	= dpi_pf_probe,
 	.remove = dpi_pf_remove,
 	.ops    = &dpi_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct dpi_pf),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto = sizeof(struct dpi_pf),
+	.plat_auto = sizeof(struct eth_pdata),
 };
 
 static struct pci_device_id dpi_pf_supported[] = {

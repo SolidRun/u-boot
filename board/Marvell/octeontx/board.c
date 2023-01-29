@@ -123,7 +123,7 @@ static int init_bootcmd_console(void)
 	}
 	stdin_set = !!strstr(stdinname, BOOTCMD_NAME);
 	ret = uclass_get_device_by_driver(UCLASS_SERIAL,
-					  DM_GET_DRIVER(octeontx_bootcmd),
+					  DM_DRIVER_GET(octeontx_bootcmd),
 					  &bootcmd_dev);
 	if (ret) {
 		pr_err("%s: Error getting %s serial class\n", __func__,
@@ -319,7 +319,6 @@ void board_quiesce_devices(void)
 {
 #if CONFIG_IS_ENABLED(WDT)
 	/* Stop watchdog */
-	if (gd && (gd->flags & GD_FLG_WDT_READY))
-		wdt_stop(gd->watchdog_dev);
+	wdt_stop_all();
 #endif
 }

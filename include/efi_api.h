@@ -2263,7 +2263,7 @@ struct efi_pci_io_protocol {
 	efi_status_t (EFIAPI * alloc_buffer)(const struct efi_pci_io_protocol *this,
 					     efi_pci_io_protocol_width proto_width,
 					     int alloc_type,
-					     enum efi_mem_type mem_type,
+					     enum efi_memory_type mem_type,
 					     u32 pages, void **host_address,
 					     u64 attributes);
 	efi_status_t (EFIAPI * free_buffer)(const struct efi_pci_io_protocol *this,

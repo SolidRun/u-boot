@@ -201,7 +201,7 @@ static int get_fit_image_ids(const char *img_str,
 	fit_hdr = (void *)img_addr;
 
 	if ((genimg_get_format(fit_hdr) != IMAGE_FORMAT_FIT) ||
-	    !fit_check_format(fit_hdr))
+	    !fit_check_format(fit_hdr, IMAGE_SIZE_INVAL))
 		return ret;
 
 	/* Find images parent node offset */

@@ -407,8 +407,7 @@ static int cdns_xspi_controller_init(struct cdns_xspi_dev *cdns_xspi)
 	ctrl_ver = readl(cdns_xspi->iobase + CDNS_XSPI_CTRL_VERSION_REG);
 	hw_magic_num = FIELD_GET(CDNS_XSPI_MAGIC_NUM, ctrl_ver);
 	if (hw_magic_num != CDNS_XSPI_MAGIC_NUM_VALUE) {
-		dev_err(cdns_xspi->dev,
-			"Incorrect XSPI magic nunber: %x, expected: %x\n",
+		log_err("Incorrect XSPI magic nunber: %x, expected: %x\n",
 			hw_magic_num, CDNS_XSPI_MAGIC_NUM_VALUE);
 		return -EIO;
 	}
@@ -469,38 +468,38 @@ static int cdns_xspi_ofdata_to_platdata(struct udevice *bus)
 	ofnode node;
 	u32 property;
 
-	plat->iobase = (void *)ofnode_get_addr_index(bus->node, 0);
-	plat->sdmabase = (void *)ofnode_get_addr_index(bus->node, 1);
-	plat->auxbase = (void *)ofnode_get_addr_index(bus->node, 2);
+	plat->iobase = (void __iomem *)ofnode_get_addr_index(dev_ofnode(bus), 0);
+	plat->sdmabase = (void __iomem *)ofnode_get_addr_index(dev_ofnode(bus), 1);
+	plat->auxbase = (void __iomem *)ofnode_get_addr_index(dev_ofnode(bus), 2);
 	plat->irq = 0;
 	plat->spi_mem_avalible = 0;
 
-	if (ofnode_read_u32(bus->node, "cdns,read-size", &plat->read_size)) {
-		dev_info(pdev, "Failed to get read_size. Using 8 bit.\n");
+	if (ofnode_read_u32(dev_ofnode(bus), "cdns,read-size", &plat->read_size)) {
+		dev_info(bus, "Failed to get read_size. Using 8 bit.\n");
 		plat->read_size = 0;
 	}
 
-	if (plat->iobase == (void *)0x805000000000)
+	if ((u64)plat->iobase == 0x805000000000)
 		plat->xspi_bus = 1;
 	else
 		plat->xspi_bus = 0;
 
-	ofnode_for_each_subnode(node, bus->node) {
+	ofnode_for_each_subnode(node, dev_ofnode(bus)) {
 		if (ofnode_read_u32(node, "reg", &property)) {
 			dev_err(bus, "Couldn't determine CS value\n");
 			return -ENXIO;
 		}
 	}
 
-	ofnode_for_each_subnode(node, bus->node) {
+	ofnode_for_each_subnode(node, dev_ofnode(bus)) {
 		if (ofnode_device_is_compatible(node, "spi-flash"))
 			plat->spi_mem_avalible = 1;
 	}
 #if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO)
 	prepare_gpio(plat->xspi_bus, plat->spi_mem_avalible);
 #endif
-	debug(bus->name, "%s: regbase=%p ahbbase=%p sdma-base=%p xspi=%d read_size=%d mem=%d\n",
-	      __func__, plat->iobase, plat->auxbase, plat->sdmabase,
+	debug("%s: regbase=%llx ahbbase=%llx sdma-base=%llx xspi=%d read_size=%d mem=%d\n",
+	      __func__, (u64)plat->iobase, (u64)plat->auxbase, (u64)plat->sdmabase,
 	      plat->xspi_bus, plat->read_size, plat->spi_mem_avalible);
 
 	return 0;
@@ -658,28 +657,24 @@ static int cdns_xspi_check_command_status(struct cdns_xspi_dev *cdns_xspi)
 	if (cmd_status & CDNS_XSPI_CMD_STATUS_COMPLETED) {
 		if ((cmd_status & CDNS_XSPI_CMD_STATUS_FAILED) != 0) {
 			if (cmd_status & CDNS_XSPI_CMD_STATUS_DQS_ERROR) {
-				dev_err(cdns_xspi->dev,
-					"Incorrect DQS pulses detected\n");
+				log_err("Incorrect DQS pulses detected\n");
 				ret = -EPROTO;
 			}
 			if (cmd_status & CDNS_XSPI_CMD_STATUS_CRC_ERROR) {
-				dev_err(cdns_xspi->dev,
-					"CRC error received\n");
+				log_err("CRC error received\n");
 				ret = -EPROTO;
 			}
 			if (cmd_status & CDNS_XSPI_CMD_STATUS_BUS_ERROR) {
-				dev_err(cdns_xspi->dev,
-					"Error resp on system DMA interface\n");
+				log_err("Error resp on system DMA interface\n");
 				ret = -EPROTO;
 			}
 			if (cmd_status & CDNS_XSPI_CMD_STATUS_INV_SEQ_ERROR) {
-				dev_err(cdns_xspi->dev,
-					"Invalid command sequence detected\n");
+				log_err("Invalid command sequence detected\n");
 				ret = -EPROTO;
 			}
 		}
 	} else {
-		dev_err(cdns_xspi->dev, "Fatal err - command not completed\n");
+		log_err("Fatal err - command not completed\n");
 		ret = -EPROTO;
 	}
 
@@ -783,7 +778,7 @@ static int cdns_xspi_exec_op(struct spi_slave *slave,
 			     const struct spi_mem_op *op)
 {
 	int ret = 0;
-	struct dm_spi_slave_platdata *slave_dev = dev_get_parent_platdata(slave->dev);
+	struct dm_spi_slave_plat *slave_dev = dev_get_parent_plat(slave->dev);
 	struct udevice *dev = slave->dev->parent;
 	struct cdns_xspi_dev *cdns_xspi = dev_get_priv(dev);
 	bool data_phase = (op->data.dir != SPI_MEM_NO_DATA);
@@ -917,7 +912,7 @@ int cdns_xspi_fix_gpio_config(int bus)
 static int cdns_xspi_xfer(struct udevice *dev, unsigned int bitlen,
 			   const void *dout, void *din, unsigned long flags)
 {
-	struct dm_spi_slave_platdata *slave_dev = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_dev = dev_get_parent_plat(dev);
 	struct cdns_xspi_dev *cdns_xspi = dev_get_priv(dev->parent);
 	int bus = cdns_xspi->xspi_bus;
 	int cs  = slave_dev->cs;
@@ -1032,8 +1027,8 @@ U_BOOT_DRIVER(cadence_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = cdns_xspi_ids,
 	.ops = &cdns_spi_ops,
-	.ofdata_to_platdata = cdns_xspi_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct cdns_xspi_dev),
+	.of_to_plat = cdns_xspi_ofdata_to_platdata,
+	.priv_auto = sizeof(struct cdns_xspi_dev),
 	.probe = cdns_xspi_probe,
 	.flags = DM_FLAG_OS_PREPARE,
 };
