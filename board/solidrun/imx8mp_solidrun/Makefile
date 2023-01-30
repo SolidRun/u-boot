@@ -8,5 +8,5 @@ obj-y += imx8mp_solidrun.o mmc.o
 
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
-obj-$(CONFIG_IMX8M_LPDDR4) += lpddr4_timing_3gb_micron.o lpddr4_timing_2gb_samsung.o lpddr4_timing_1gb_samsung.o
+obj-$(CONFIG_IMX8M_LPDDR4) += lpddr4_timing_4gb_samsung.o lpddr4_timing_3gb_micron.o lpddr4_timing_2gb_samsung.o lpddr4_timing_1gb_samsung.o
 endif
