@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/arch/board.h>
 #include <asm/global_data.h>
+#include <asm/system.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -82,4 +83,5 @@ u64 get_page_table_size(void)
 
 void reset_cpu(void)
 {
+	psci_system_reset();
 }
