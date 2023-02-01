@@ -838,7 +838,7 @@ void board_switch_init(void)
 	pplat = dev_get_parent_platdata(dev);
 	printf("Switch device [%x:%x] detected\n", pplat->vendor, pplat->device);
 	debug("BAR0 %p BAR2 %p\n", sw_bar0, sw_bar2);
-	printf("Executing micro-init sequence... ");
+	printf("Executing micro-init load sequence... ");
 	/*
 	 * Open 1M iATU address translation window into Prestera MG0, at start of BAR2:
 	 *	wr bar0 + 1300 0x00000000;	ATU ctrl reg 1
@@ -946,6 +946,46 @@ void board_switch_init(void)
 			printf("\nBoot Err Code:0x%x General Err Code:0x%x\n",
 			       readl(sw_bar2 + mailbox_offset + 8),
 			       readl(sw_bar2 + mailbox_offset + 12));
+			return;
+		}
+	}
+	printf(" success\n");
+
+	printf("Executing micro-init file sequence... ");
+	/*
+	 * Open 1M iATU address translation window into Prestera DFX-server,
+	 * at ‘second window’ of BAR2 , for addresses with prefix 0x000xxxxx
+	 * (DFX-server)
+	 * mw 0x872000001500 0x00000000; ATU ctrl reg 1
+	 * mw 0x872000001504 0x80000000; ATU ctrl reg 2 (bit 31: enable window)
+	 * mw 0x872000001508 0x00900000; ATU lower base address (start of BAR2)
+	 * mw 0x87200000150c 0x00008720; ATU upper base address
+	 * mw 0x872000001510 0x009fffff; ATU limit address (limit to 1MB)
+	 * mw 0x872000001514 0x00000000; ATU target lower base address
+					 (start of DFX-server)
+	 * mw 0x872000001518 0x00000000; ATU target upper base address
+	 */
+	writel(0x0, sw_bar0 + 0x1500);
+	writel(0x80000000, sw_bar0 + 0x1504);
+	writel(sw_bar2_lo + 0x100000, sw_bar0 + 0x1508);
+	writel(0x0, sw_bar0 + 0x150c);
+	writel(sw_bar2_lo + 0x1fffff, sw_bar0 + 0x1510);
+	writel(0x0, sw_bar0 + 0x1514);
+	writel(0x0, sw_bar0 + 0x1518);
+
+	debug("\n DFX server read ID %x\n",
+	      readl(sw_bar2 + 0x100000 + 0xF8240));
+	/*
+	 * MI sets the Device_General_Control_2 (0x000F8258) register to 0x2
+	 * when the file processing phase is completed
+	 */
+	timeout = 50;
+	while (readl(sw_bar2 + 0x100000 + 0xF8258) != 0x2) {
+		mdelay(100);
+		if (--timeout < 0) {
+			printf("\nFile processing status not set\n");
+			printf("\n Reg Value %x\n",
+			       readl(sw_bar2 + 0x100000 + 0xF8258));
 			return;
 		}
 	}
