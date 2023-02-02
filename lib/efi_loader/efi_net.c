@@ -1005,7 +1005,6 @@ efi_status_t efi_net_register(void)
 		goto out_of_resources;
 	transmit_buffer = (void *)ALIGN((uintptr_t)transmit_buffer, PKTALIGN);
 
-#if 0
 	/* Allocate a number of receive buffers */
 	receive_buffer = calloc(ETH_PACKETS_BATCH_RECV,
 				sizeof(*receive_buffer));
@@ -1021,6 +1020,7 @@ efi_status_t efi_net_register(void)
 	if (!receive_lengths)
 		goto out_of_resources;
 
+#if 0
 	/* Hook net up to the device list */
 	efi_add_handle(&netobj->header);
 

@@ -344,22 +344,6 @@ static int execute(void)
 	efi_handle_t *handles;
 	efi_uintn_t no_handles, i;
 
-	/* Check media connected */
-	ret = net->get_status(net, NULL, NULL);
-	if (ret != EFI_SUCCESS) {
-		efi_st_error("Failed to get status");
-		return EFI_ST_FAILURE;
-	}
-	if (net->mode && net->mode->media_present_supported &&
-	    !net->mode->media_present) {
-		efi_st_error("Network media is not connected");
-		return EFI_ST_FAILURE;
-	}
-
-	ret = create_dhcp_discover();
-	if (ret != EFI_SUCCESS)
-		efi_st_error("DHCP discover failed [MAC:%pm]\n",
-			     &net->mode->current_address);
 	/* Setup may have failed */
 	if (!timer) {
 		efi_st_error("Cannot run test after setup failure\n");
@@ -394,6 +378,13 @@ static int execute(void)
 			efi_st_error("Mode not provided\n");
 			continue;
 		}
+
+		if (net->mode && net->mode->media_present_supported &&
+		    !net->mode->media_present) {
+			efi_st_error("Network media is not connected");
+			return EFI_ST_FAILURE;
+		}
+
 		if (net->mode->hwaddr_size != ARP_HLEN) {
 			efi_st_error("HwAddressSize = %u, expected %u\n",
 				     net->mode->hwaddr_size, ARP_HLEN);
