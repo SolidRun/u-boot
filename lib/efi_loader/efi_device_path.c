@@ -1309,7 +1309,6 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	while ((s = strchr(s, '/')))
 		*s++ = '\\';
 	*file = efi_dp_from_file(desc, part, filename);
-	free(filename);
 
 	if (!*file)
 		return EFI_INVALID_PARAMETER;
