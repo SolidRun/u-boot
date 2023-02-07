@@ -661,7 +661,7 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 	if (ea_pos) {
 		dm_pci_read_config8(bus, ea_pos + sizeof(u32) + sizeof(u8),
 				    &reg);
-		sub_bus = reg;
+		sub_bus = reg ? reg : (pci_get_bus_max() + 1);
 	} else {
 		sub_bus = pci_get_bus_max() + 1;
 	}
