@@ -203,6 +203,8 @@ static efi_status_t install_sec_spi_nor_flash_protocol(char *bus_cs)
 	efi_status_t r;
 	struct efi_sec_spi_nor_flash_protocol_obj *proto_obj = NULL;
 	struct udevice dummy_dev;
+	struct uclass dummy_uclass;
+	struct uclass_driver dummy_uclass_drv;
 	const struct driver dummy_drv = {.id = UCLASS_SPI_FLASH};
 	int idx_bus, idx_cs;
 	int bus, cs;
@@ -283,6 +285,9 @@ static efi_status_t install_sec_spi_nor_flash_protocol(char *bus_cs)
 			/* Fill in object data */
 			dummy_dev.driver = &dummy_drv;
 			dummy_dev.parent = NULL;
+			dummy_uclass_drv.id = UCLASS_SPI_FLASH;
+			dummy_uclass.uc_drv = &dummy_uclass_drv;
+			dummy_dev.uclass = &dummy_uclass;
 			proto_obj->dp = (struct efi_sec_spi_nor_flash_path *)
 					 efi_dp_from_spi(&dummy_dev, bus, cs);
 
