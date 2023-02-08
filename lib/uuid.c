@@ -224,6 +224,18 @@ static const struct {
 		"EFI Conformance Profiles Table",
 		EFI_CONFORMANCE_PROFILES_TABLE_GUID,
 	},
+	{
+		"PCI IO",
+		EFI_PCI_IO_PROTOCOL_GUID,
+	},
+	{
+		"SPI-NOR Flash Protocol",
+		EFI_SPI_NOR_FLASH_PROTOCOL_GUID,
+	},
+	{
+		"Switch Configuration Protocol",
+		EFI_SWITCH_CONFIG_PROTOCOL_GUID,
+	},
 #ifdef CONFIG_EFI_RISCV_BOOT_PROTOCOL
 	{
 		"RISC-V Boot",
