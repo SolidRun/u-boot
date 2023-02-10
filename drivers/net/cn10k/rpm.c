@@ -4,7 +4,6 @@
  *
  * https://spdx.org/licenses
  */
-
 #include <common.h>
 #include <net.h>
 #include <malloc.h>
@@ -67,6 +66,41 @@ void print_fwdata_lmac_type(int rpm_id, int lmac_id, u8 rpm_v2)
 	printf("PORTM%d: RPM%d LMAC%d [%s]\n",
 	       portm_idx, rpm_id, lmac_id,
 	       lmac_type_to_str[lmac_type]);
+}
+
+static inline void mcs_write(u64 val, u64 offset)
+{
+	writeq(val, MCS_BASE + offset);
+}
+
+static inline u64 mcs_read(u64 offset)
+{
+	return readq(MCS_BASE + offset);
+}
+
+void mcs_init(void)
+{
+	u64 reg;
+
+	/*
+	 * Calibrate X2P interface
+	 */
+	reg = mcs_read(MCS_MIL_RX_GBL_STS);
+	reg &= MCS_MIL_RX_GBL_CLB_DONE;
+	if (!reg) {
+		reg = mcs_read(MCS_MIL_GLOBAL);
+		reg |= MCS_MIL_GLOBAL_CLB_X2P;
+		mcs_write(reg, MCS_MIL_GLOBAL);
+
+		reg = mcs_read(MCS_MIL_RX_GBL_STS);
+		while (!(reg & MCS_MIL_RX_GBL_CLB_DONE))
+			reg = mcs_read(MCS_MIL_RX_GBL_STS);
+
+		reg = mcs_read(MCS_MIL_GLOBAL);
+		reg &= ~MCS_MIL_GLOBAL_CLB_X2P;
+		mcs_write(reg, MCS_MIL_GLOBAL);
+		reg = mcs_read(MCS_MIL_GLOBAL);
+	}
 }
 
 /**
@@ -165,12 +199,25 @@ void rpm_lmac_mac_filter_setup(struct lmac *lmac)
 int rpm_lmac_set_chan(struct lmac *lmac)
 {
 	union rpmx_cmrx_link_cfg link_cfg;
+	u64 reg, offset;
 
 	link_cfg.u = 0;
 	link_cfg.s.log2_range = 0x4;
 	link_cfg.s.base_chan = lmac->chan_num;
 	rpm_write(lmac->rpm, RPMX_CMRX_LINK_CFG(lmac->lmac_id),
 		  link_cfg.u);
+
+	/*
+	 * Set MCS channel numbers
+	 */
+	if (lmac->rpm->is_v2) {
+		offset = MCS_LINK_LMACX_CFG(lmac->rpm->rpm_id * 0x8 +
+					    lmac->lmac_id);
+		reg = mcs_read(offset);
+		reg &= ~GENMASK_ULL(11, 0);
+		reg |= lmac->chan_num;
+		mcs_write(reg, offset);
+	}
 	return 0;
 }
 
@@ -275,6 +322,8 @@ static int rpm_lmac_init(struct rpm *rpm)
 		print_fwdata_lmac_type(rpm->rpm_id, i, rpm->is_v2);
 		rpm_write(rpm, RPMX_CMRX_SCRATCHX(i, 0), 0x0);
 	}
+	if (rpm->is_v2)
+		mcs_init();
 	return 0;
 }
 
