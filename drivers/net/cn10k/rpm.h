@@ -14,6 +14,18 @@
 
 #define RPM_BAR(x)		RPM_BAR_E_RPMX_PF_BAR0(x)
 
+/* MACSEC Block */
+#define MCS_BASE		0x87e080000000
+
+#define MCS_MIL_GLOBAL		0x80000
+#define MCS_MIL_GLOBAL_CLB_X2P	BIT_ULL(5)
+
+#define MCS_MIL_RX_GBL_STS	0x800c8
+#define MCS_MIL_RX_GBL_CLB_STS	GENMASK_ULL(16, 1)
+#define MCS_MIL_RX_GBL_CLB_DONE	BIT_ULL(0)
+
+#define MCS_LINK_LMACX_CFG(x)	0x90000 + (0x800 * (x))
+
 enum lmac_type {
 	LMAC_MODE_SGMII		= 0,
 	LMAC_MODE_XAUI		= 1,
