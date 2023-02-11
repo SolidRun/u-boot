@@ -83,7 +83,7 @@ static int wait_for_ownership(u8 rpm, u8 lmac)
 			/* clear interrupt */
 			cmrx_int = readq(RPM_BAR(rpm) +
 					 RPMX_CMRX_SW_INT(lmac));
-			cmrx_int |= 0x2; // Overflw bit
+			cmrx_int |= 0x1; // sw_set bit
 			writeq(cmrx_int, RPM_BAR(rpm) +
 					 RPMX_CMRX_SW_INT(lmac));
 
@@ -168,7 +168,7 @@ int eth_intf_req(u8 rpm, u8 lmac, union eth_cmd_s cmd_args, u64 *rsp,
 error:
 	/* clear interrupt */
 	cmrx_int = readq(RPM_BAR(rpm) + RPMX_CMRX_SW_INT(lmac));
-	cmrx_int |= 0x2; // Overflw bit
+	cmrx_int |= 0x1; // sw_set bit
 	writeq(cmrx_int, RPM_BAR(rpm) + RPMX_CMRX_SW_INT(lmac));
 
 	/* clear ownership and ack */
