@@ -24,4 +24,7 @@
 /** EMMC specific defines */
 #endif
 
+#undef CONFIG_SYS_PROMPT
+#define CONFIG_SYS_PROMPT		env_get("prompt")
+
 #endif /* __OCTEONTX2_COMMON_H__ */
