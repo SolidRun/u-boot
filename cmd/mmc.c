@@ -504,12 +504,12 @@ static int do_mmc_rescan(struct cmd_tbl *cmdtp, int flag,
 	struct mmc *mmc;
 
 	if (argc == 1) {
-		mmc = init_mmc_device(curr_device, true);
+		mmc = init_mmc_device(curr_device, false);
 	} else if (argc == 2) {
 		enum bus_mode speed_mode;
 
 		speed_mode = (int)dectoul(argv[1], NULL);
-		mmc = __init_mmc_device(curr_device, true, speed_mode);
+		mmc = __init_mmc_device(curr_device, false, speed_mode);
 	} else {
 		return CMD_RET_USAGE;
 	}
@@ -548,10 +548,18 @@ static int do_mmc_dev(struct cmd_tbl *cmdtp, int flag,
 
 	if (argc == 1) {
 		dev = curr_device;
-		mmc = init_mmc_device(dev, true);
+		if (curr_device < 0) {
+			if (get_mmc_num() > 0) {
+				curr_device = 0;
+			} else {
+				puts("No MMC device available\n");
+				return 1;
+			}
+		}
+		mmc = init_mmc_device(dev, false);
 	} else if (argc == 2) {
 		dev = (int)dectoul(argv[1], NULL);
-		mmc = init_mmc_device(dev, true);
+		mmc = init_mmc_device(dev, false);
 	} else if (argc == 3) {
 		dev = (int)dectoul(argv[1], NULL);
 		part = (int)dectoul(argv[2], NULL);
@@ -560,7 +568,7 @@ static int do_mmc_dev(struct cmd_tbl *cmdtp, int flag,
 			       PART_ACCESS_MASK);
 			return CMD_RET_FAILURE;
 		}
-		mmc = init_mmc_device(dev, true);
+		mmc = init_mmc_device(dev, false);
 	} else if (argc == 4) {
 		enum bus_mode speed_mode;
 
