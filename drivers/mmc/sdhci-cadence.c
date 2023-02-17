@@ -1421,6 +1421,14 @@ static int sdhci_cdns_sd6_phy_update_timings(struct sdhci_cdns_plat *plat)
 	/* initialize input */
 	init_timings[phy->mode](&phy->t, phy->t_sdclk);
 
+	/* Reset the following setting before the switch statement to make sure
+	 * they are correct if we change speeds like after a mmc rescan
+	 */
+	phy->tune_cmd = false;
+	phy->ddr = false;
+	phy->strobe_dat = false;
+	phy->tune_dat = false;
+
 	switch (phy->mode) {
 	case UHS_SDR104:
 		phy->tune_cmd = true;
