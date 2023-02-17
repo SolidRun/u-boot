@@ -1111,7 +1111,7 @@ static int cdns_xspi_xfer(struct udevice *dev, unsigned int bitlen,
 			  const void *dout, void *din, unsigned long flags)
 {
 	const int max_len = XFER_QWORD_BYTECOUNT * XFER_QWORD_COUNT;
-	struct dm_spi_slave_platdata *slave_dev = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_dev = dev_get_parent_plat(dev);
 	struct cdns_xspi_dev *cdns_xspi = dev_get_priv(dev->parent);
 	int cs  = slave_dev->cs;
 	int bytecount = bitlen / XFER_QWORD_BYTECOUNT;
