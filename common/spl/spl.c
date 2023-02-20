@@ -328,15 +328,14 @@ __weak int spl_parse_legacy_header(struct spl_image_info *spl_image,
 int spl_parse_image_header(struct spl_image_info *spl_image,
 			   const struct image_header *header)
 {
+	int ret;
 #if CONFIG_IS_ENABLED(LOAD_FIT_FULL)
-	int ret = spl_load_fit_image(spl_image, header);
+	ret = spl_load_fit_image(spl_image, header);
 
 	if (!ret)
 		return ret;
 #endif
 	if (image_get_magic(header) == IH_MAGIC) {
-		int ret;
-
 		ret = spl_parse_legacy_header(spl_image, header);
 		if (ret)
 			return ret;
@@ -356,7 +355,8 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 #if CONFIG_IS_ENABLED(OS_BOOT)
 		ulong start, end;
 
-		if (!bootz_setup((ulong)header, &start, &end)) {
+		ret = bootz_setup((ulong)header, &start, &end);
+		if (!ret) {
 			spl_image->name = "Linux";
 			spl_image->os = IH_OS_LINUX;
 			spl_image->load_addr = CONFIG_SYS_LOAD_ADDR;
@@ -365,26 +365,27 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			debug(SPL_TPL_PROMPT
 			      "payload zImage, load addr: 0x%lx size: %d\n",
 			      spl_image->load_addr, spl_image->size);
-			return 0;
+			return ret;
 		}
 #endif
 
-		if (!spl_parse_board_header(spl_image, (const void *)header, sizeof(*header)))
-			return 0;
+		ret = spl_parse_board_header(spl_image, (const void *)header, sizeof(*header));
+		if (!ret)
+			return ret;
 
 #ifdef CONFIG_SPL_RAW_IMAGE_SUPPORT
 		/* Signature not found - assume u-boot.bin */
 		debug("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
 		spl_set_header_raw_uboot(spl_image);
+		return 0;
 #else
 		/* RAW image not supported, proceed to other boot methods. */
 		debug("Raw boot image support not enabled, proceeding to other boot methods\n");
-		return -EINVAL;
 #endif
 	}
 
-	return 0;
+	return -EINVAL;
 }
 
 __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
