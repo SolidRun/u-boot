@@ -876,7 +876,7 @@ static size_t image_headersz_align(size_t headersz, uint8_t blockid)
 	else if (blockid == IBR_HDR_NAND_ID)
 		return ALIGN(headersz, 256);
 	else if (blockid == IBR_HDR_SATA_ID || blockid == IBR_HDR_SDIO_ID)
-		return ALIGN(headersz, 512);
+		return ALIGN(headersz, 4096);
 	else
 		return headersz;
 }
