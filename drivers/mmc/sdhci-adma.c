@@ -48,7 +48,7 @@ void sdhci_prepare_adma_table(struct sdhci_adma_desc *table,
 	int i = desc_count;
 
 	while (--i) {
-		sdhci_adma_desc(desc, addr, ADMA_MAX_LEN, false);
+		sdhci_adma_desc(desc, addr, (u16)ADMA_MAX_LEN, false);
 		addr += ADMA_MAX_LEN;
 		trans_bytes -= ADMA_MAX_LEN;
 		desc++;

@@ -288,7 +288,7 @@ struct sdhci_ops {
 	int	(*set_enhanced_strobe)(struct sdhci_host *host);
 };
 
-#define ADMA_MAX_LEN	65532
+#define ADMA_MAX_LEN	65536
 #ifdef CONFIG_DMA_ADDR_T_64BIT
 #define ADMA_DESC_LEN	12
 #else
