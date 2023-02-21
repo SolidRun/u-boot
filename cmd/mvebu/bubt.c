@@ -173,9 +173,9 @@ static int mmc_burn_image(size_t image_size)
 	}
 
 	/* SD reserves LBA-0 for MBR and boots from LBA-1,
-	 * MMC/eMMC boots from LBA-0
+	 * MMC/eMMC boots from LBA-4096 (or LBA-0)
 	 */
-	start_lba = IS_SD(mmc) ? 1 : 0;
+	start_lba = IS_SD(mmc) ? 1 : 4096;
 #ifdef CONFIG_BLK
 	blk_count = image_size / mmc->write_bl_len;
 	if (image_size % mmc->write_bl_len)
