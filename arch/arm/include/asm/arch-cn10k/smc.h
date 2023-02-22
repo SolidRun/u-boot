@@ -106,6 +106,22 @@ int smc_efi_var_shared_memory(u64 *mem_addr, u64 *mem_size);
 int smc_write_efi_var(u64 var_addr, u64 var_size);
 
 /*
+ * Perform EFI variable store read from flash in ATF
+ *
+ * x1 - Variable store location
+ * x2 - Variable store size
+ *
+ * Return:
+ *	x0:
+ *		0 -- Success
+ *		-1 -- Invalid Arguments
+ *		-27 (EFBIG) -- Store size too small
+ *	x1: (expected) container size
+ *
+ */
+int smc_read_efi_var(u64 var_addr, u64 *var_size);
+
+/*
  * Perform secure SPI flash operation
  *
  * x1 - Offset in flash

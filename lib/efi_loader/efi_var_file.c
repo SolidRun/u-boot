@@ -203,7 +203,7 @@ efi_status_t __efi_runtime efi_var_to_file(void)
 	} else {
 		/* SMC call to write variable store to flash device */
 		ret = smc_write_efi_var((u64)efi_var_mem_base_phy,
-					EFI_VAR_BUF_SIZE);
+					len);
 	}
 #else
 	loff_t actlen;
@@ -294,6 +294,8 @@ efi_status_t efi_var_from_file(void)
 	}
 
 #if IS_ENABLED(CONFIG_EFI_VARIABLE_IN_SPI_FLASH)
+#if IS_ENABLED(CONFIG_ARCH_CN10K)
+	if (systab.boottime) {
 		ret = efi_init_spi_flash();
 		if (ret != EFI_SUCCESS)
 			goto error;
@@ -304,6 +306,24 @@ efi_status_t efi_var_from_file(void)
 		r = spi_flash_read(flash, efi_var_offset,
 				   EFI_VAR_BUF_SIZE, (void *)map_to_sysmem((void *)buf));
 		len = buf->length;
+	} else {
+		len = EFI_VAR_BUF_SIZE;
+		r = smc_read_efi_var((u64)efi_var_mem_base_phy, (u64 *)&len);
+		if (!(r || len < sizeof(struct efi_var_file)))
+			memcpy(buf, efi_var_mem_base, len);
+	}
+#else
+	ret = efi_init_spi_flash();
+	if (ret != EFI_SUCCESS)
+		goto error;
+	/*
+	 * VAR Buffer size is fixed for 16K so assume the file is stored
+	 * at offset configured.
+	 */
+	r = spi_flash_read(flash, efi_var_offset,
+			   EFI_VAR_BUF_SIZE, (void *)map_to_sysmem((void *)buf));
+	len = buf->length;
+#endif
 #else
 		ret = efi_set_blk_dev_to_system_partition();
 		if (ret != EFI_SUCCESS)
