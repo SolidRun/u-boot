@@ -138,6 +138,34 @@ __efi_runtime int smc_write_efi_var(u64 var_addr, u64 var_size)
 }
 
 /*
+ * Perform EFI variable store read from flash in ATF
+ *
+ * x1 - Variable store location
+ * x2 - Variable store size
+ *
+ * Return:
+ *	x0:
+ *		0 -- Success
+ *		-1 -- Invalid Arguments
+ *		-27 (EFBIG) -- Store size too small
+ *	x1: (expected) container size
+ *
+ */
+__efi_runtime int smc_read_efi_var(u64 var_addr, u64 *var_size)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = PLAT_OCTEONTX_READ_EFI_VAR;
+	regs.regs[1] = var_addr;
+	regs.regs[2] = *var_size;
+
+	smc_call(&regs);
+
+	*var_size = regs.regs[1];
+	return regs.regs[0];
+}
+
+/*
  * Perform secure SPI flash operation
  *
  * x1 - Offset in flash
@@ -692,3 +720,4 @@ ssize_t smc_gpio_as_spi(int spi_bus)
 
 	return 0;
 }
+
