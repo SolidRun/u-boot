@@ -37,6 +37,13 @@ extern ssize_t smc_flsf_fw_booted(void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* U-boot boot status */
+#define BOOT_SUCCESS    1
+enum boot_error {
+	BOOT_NEXT_STAGE_SUCCESS = 0x0,
+	BOOT_NEXT_STAGE_ERROR,
+};
+
 #define BOOTCMD_NAME   "pci-bootcmd"
 #define CONSOLE_NAME	"pci-console@0"
 
@@ -585,6 +592,8 @@ int board_acquire_flash_arb(bool acquire)
 #ifdef CONFIG_LAST_STAGE_INIT
 int last_stage_init(void)
 {
+	union rst_cold_data2_s boot_info;
+
 #if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
 	if (init_bootcmd_console())
 		printf("Failed to init bootcmd input\n");
@@ -594,6 +603,13 @@ int last_stage_init(void)
 		printf("Failed to init pci console\n");
 #endif
 	(void)smc_flsf_fw_booted();
+
+	/* U-boot boot successfully with no error */
+	boot_info.u = readq(RST_COLD_DATAX(2));
+	boot_info.s.uboot_boot_status = BOOT_SUCCESS;
+	boot_info.s.uboot_boot_error = BOOT_NEXT_STAGE_SUCCESS;
+	writeq(boot_info.u, RST_COLD_DATAX(2));
+
 	return 0;
 }
 #endif
