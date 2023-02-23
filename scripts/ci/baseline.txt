@@ -10,4 +10,4 @@
 # but this resulted in different commit ID values for commits
 # between v2020.10 and v2020.10-rc4 in u-boot mainline vs devel
 # code base.
-96d66a9b8ce11aae9f8bef5244b83b4740b37644 Prepare v2020.10-rc4
+62e2ad1ceafbfdf2c44d3dc1b6efc81e768a96b9 Prepare v2023.01
