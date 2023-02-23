@@ -134,6 +134,7 @@ u32 get_boot_device(void)
 		return BOOT_DEVICE_SATA;
 #endif
 	case BOOT_FROM_SPI:
+	case BOOT_FROM_SPI_ALT:
 		return BOOT_DEVICE_SPI;
 	default:
 		return BOOT_DEVICE_BOOTROM;

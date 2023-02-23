@@ -166,6 +166,7 @@
 #define BOOT_FROM_SATA_ALT	0x2A
 #define BOOT_FROM_UART_ALT	0x3f
 #define BOOT_FROM_SPI		0x32
+#define BOOT_FROM_SPI_ALT	0x34
 #define BOOT_FROM_MMC		0x30
 #define BOOT_FROM_MMC_ALT	0x31
 
