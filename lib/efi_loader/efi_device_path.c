@@ -214,7 +214,7 @@ static efi_handle_t find_handle(struct efi_device_path *dp,
 		if (len_current > best_len) {
 			best_len = len_current;
 			best_handle = handle;
-			*rem = (void*)((u8 *)dp + len_current);
+			*rem = (void *)((u8 *)dp + len_current);
 		}
 	}
 	return best_handle;
@@ -1268,13 +1268,13 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 
 	if (!strcmp(dev, "Net")) {
 #ifdef CONFIG_NETDEVICES
+		net_dev = eth_get_dev_by_name(devnr);
 		if (device) {
-			net_dev = eth_get_dev_by_name(devnr);
 			*device = efi_dp_from_eth();
+			if (((*device)->type == DEVICE_PATH_TYPE_END) &&
+			    ((*device)->sub_type == DEVICE_PATH_SUB_TYPE_END))
+				return EFI_INVALID_PARAMETER;
 		}
-		if (((*device)->type == DEVICE_PATH_TYPE_END) &&
-				((*device)->sub_type == DEVICE_PATH_SUB_TYPE_END))
-			return EFI_INVALID_PARAMETER;
 #endif
 	} else if (!strcmp(dev, "Uart")) {
 		if (device)
