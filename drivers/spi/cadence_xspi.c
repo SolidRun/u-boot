@@ -1125,7 +1125,8 @@ static int cdns_xspi_xfer(struct udevice *dev, unsigned int bitlen,
 		xfer_control |= (1 << XFER_RECEIVE_ENABLE_BP |
 				 1 << XFER_CLK_CAPTURE_POL_BP |
 				 1 << XFER_FUNC_START_BP |
-				 (1 << cs) << XFER_CS_N_HOLD_BP);
+				 (1 << cs) << XFER_CS_N_HOLD_BP) |
+				 1 << XFER_SOFT_RESET_BP;
 		xfer_control &= ~(1 << XFER_FUNC_ENABLE_BP | 1 << XFER_CLK_DRIVE_POL_BP);
 		writel(xfer_control, cdns_xspi->iobase + SPIX_XFER_FUNC_CTRL);
 	}
@@ -1180,9 +1181,6 @@ static int cdns_xspi_xfer(struct udevice *dev, unsigned int bitlen,
 
 		xfer_control &= ~(1 << XFER_RECEIVE_ENABLE_BP |
 				  1 << XFER_SOFT_RESET_BP);
-		writel(xfer_control, cdns_xspi->iobase + SPIX_XFER_FUNC_CTRL);
-
-		xfer_control |= 1 << XFER_SOFT_RESET_BP;
 		writel(xfer_control, cdns_xspi->iobase + SPIX_XFER_FUNC_CTRL);
 	}
 
