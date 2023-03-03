@@ -431,6 +431,15 @@ int cgx_intf_get_mode(struct udevice *ethdev)
 	printf("Current Interface Mode: ");
 	debug("link_sts = %d\n", scr0.s.link_sts.mode);
 	switch (scr0.s.link_sts.mode) {
+	case CGX_MODE_SGMII_BIT:
+		printf("SGMII\n");
+		break;
+	case CGX_MODE_1000_BASEX_BIT:
+		printf("1000_BASEX\n");
+		break;
+	case CGX_MODE_QSGMII_BIT:
+		printf("QSGMII\n");
+		break;
 	case CGX_MODE_10G_C2C_BIT:
 		printf("10G_C2C\n");
 		break;
@@ -440,11 +449,50 @@ int cgx_intf_get_mode(struct udevice *ethdev)
 	case CGX_MODE_10G_KR_BIT:
 		printf("10G_KR\n");
 		break;
+	case CGX_MODE_20G_C2C_BIT:
+		printf("20G_C2C\n");
+		break;
 	case CGX_MODE_25G_C2C_BIT:
 		printf("25G_C2C\n");
 		break;
+	case CGX_MODE_25G_C2M_BIT:
+		printf("25G_C2M\n");
+		break;
 	case CGX_MODE_25G_2_C2C_BIT:
 		printf("25G_2_C2C\n");
+		break;
+	case CGX_MODE_25GBASE_CR_C_BIT:
+		printf("25GBASE_CR\n");
+		break;
+	case CGX_MODE_25GBASE_KR_C_BIT:
+		printf("25GBASE_KR\n");
+		break;
+	case CGX_MODE_25G_CR_BIT:
+		printf("25G_CR\n");
+		break;
+	case CGX_MODE_25G_KR_BIT:
+		printf("25G_KR\n");
+		break;
+	case CGX_MODE_40G_C2C_BIT:
+		printf("40G_C2C\n");
+		break;
+	case CGX_MODE_40G_C2M_BIT:
+		printf("40G_C2M\n");
+		break;
+	case CGX_MODE_40G_CR4_BIT:
+		printf("40G_CR4\n");
+		break;
+	case CGX_MODE_40G_KR4_BIT:
+		printf("40G_KR4\n");
+		break;
+	case CGX_MODE_40GAUI_C2C_BIT:
+		printf("40GAUI_C2C\n");
+		break;
+	case CGX_MODE_50G_C2C_BIT:
+		printf("50G_C2C\n");
+		break;
+	case CGX_MODE_50G_C2M_BIT:
+		printf("50G_C2M\n");
 		break;
 	case CGX_MODE_50GAUI_2_C2C_BIT:
 		printf("50G_C2C\n");
@@ -452,11 +500,26 @@ int cgx_intf_get_mode(struct udevice *ethdev)
 	case CGX_MODE_50G_4_C2C_BIT:
 		printf("50G_4_C2C\n");
 		break;
+	case CGX_MODE_50G_CR_BIT:
+		printf("50G_CR\n");
+		break;
+	case CGX_MODE_50G_KR_BIT:
+		printf("50G_KR\n");
+		break;
 	case CGX_MODE_100G_C2C_BIT:
 		printf("100G_C2C\n");
 		break;
 	case CGX_MODE_100G_C2M_BIT:
 		printf("100G_C2M\n");
+		break;
+	case CGX_MODE_100G_CR4_BIT:
+		printf("100G_CR4\n");
+		break;
+	case CGX_MODE_100G_KR4_BIT:
+		printf("100G_KR4\n");
+		break;
+	case CGX_MODE_SFI_1G_BIT:
+		printf("SFI_1G\n");
 		break;
 	default:
 		printf("Unknown\n");

@@ -167,7 +167,15 @@ enum cgx_mode_t {
         CGX_MODE_50GAUI_2_C2M_BIT,
         CGX_MODE_50GBASE_CR2_C_BIT,
         CGX_MODE_50GBASE_KR2_C_BIT,
-	CGX_MODE_MAX_BIT /* = 32 */
+	CGX_MODE_100GAUI_2_C2C_BIT,	/* two lanes 100G */
+	CGX_MODE_100GAUI_2_C2M_BIT,
+	CGX_MODE_100GBASE_CR2_BIT,
+	CGX_MODE_100GBASE_KR2_BIT,
+	CGX_MODE_SFI_1G_BIT,		/* = 35 */
+	CGX_MODE_25GBASE_CR_C_BIT,
+	CGX_MODE_25GBASE_KR_C_BIT,	/* = 37 */
+	/* Add new ethernet modes here */
+	CGX_MODE_MAX_BIT,
 };
 
 /* scratchx(0) CSR used for ATF->non-secure SW communication.
