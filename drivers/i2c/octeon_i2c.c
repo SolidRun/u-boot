@@ -701,6 +701,15 @@ static int twsi_init(void __iomem *base, int slaveaddr)
 	return 0;
 }
 
+static int octeon_i2c_deblock(struct udevice *bus)
+{
+	struct octeon_twsi *twsi = dev_get_priv(bus);
+
+	twsi_unblock(twsi->base);
+
+	return 0;
+}
+
 /**
  * Transfers data over the i2c bus
  *
@@ -855,6 +864,7 @@ static int octeon_i2c_probe(struct udevice *dev)
 static const struct dm_i2c_ops octeon_i2c_ops = {
 	.xfer		= octeon_i2c_xfer,
 	.set_bus_speed	= octeon_i2c_set_bus_speed,
+	.deblock	= octeon_i2c_deblock,
 };
 
 static const struct udevice_id octeon_i2c_ids[] = {
