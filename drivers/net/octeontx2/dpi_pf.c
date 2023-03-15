@@ -582,6 +582,12 @@ int dpi_start(struct udevice *dev)
 	}
 
 	mb_check_msg(dpi);
+	mdelay(10);
+	if (read_bar4_reg(HOST_STATUS_REG) != HOST_RUNNING) {
+		printf("%s Host not running\n", __func__);
+		return -1;
+	}
+
 	write_dpi_vf_reg(dpi, DPI_VDMA_EN, 0x1ULL);
 
 	return 0;
