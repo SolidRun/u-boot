@@ -550,6 +550,13 @@ config NET_CN10K
 	  CN10K SoCs.
 	  If unsure, say n.
 
+config NET_CN10K_DPI
+	bool "CN10K Ethernet support over DPI interface"
+	depends on NET_CN10K
+	help
+	  You must select Y to enable network device support over DPI for
+	  CN10K SoCs. If unsure, say n
+
 config CN10K_ETH_INTF
 	bool "CN10K ETH ATF interface support"
 	depends on ARCH_CN10K
