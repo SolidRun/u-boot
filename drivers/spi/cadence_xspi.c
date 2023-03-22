@@ -861,7 +861,7 @@ static int cdns_xspi_set_mode(struct udevice *bus, uint mode)
 static bool cdns_xspi_supports_op(struct spi_slave *slave,
 				  const struct spi_mem_op *op)
 {
-	return true;
+	return spi_mem_default_supports_op(slave, op);
 }
 
 #if IS_ENABLED(CONFIG_ARCH_CN10K)
