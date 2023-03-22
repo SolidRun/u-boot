@@ -428,7 +428,8 @@ static bool octeon_spi_supports_op(struct spi_slave *slave,
 	 */
 	if (op->cmd.buswidth != 1)
 		return false;
-	return true;
+
+	return spi_mem_default_supports_op(slave, op);;
 }
 
 static int octeon_spi_exec_op(struct spi_slave *slave,
