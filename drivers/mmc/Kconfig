@@ -518,7 +518,7 @@ config MMC_SDHCI_CADENCE
 	depends on OF_CONTROL
 	select MMC_SDHCI_IO_ACCESSORS
 	select MMC_SDHCI_ADMA
-	select MMC_STOP_CMD_WORKAROUND if (MMC_HS400_SUPPORT || MMC_HS400_ES_SUPPORT)
+	select MMC_CAP_CMD23 if (MMC_HS400_SUPPORT || MMC_HS400_ES_SUPPORT)
 	help
 	  This selects the Cadence SD/SDIO/eMMC driver.
 
@@ -526,12 +526,12 @@ config MMC_SDHCI_CADENCE
 
 	  If unsure, say N.
 
-config MMC_STOP_CMD_WORKAROUND
-	bool "Workaround for data failure after stop command"
+config MMC_CAP_CMD23
+	bool "Enable MMC_CMD_SET_BLOCK_COUNT command 23 support"
 	depends on MMC_SDHCI_CADENCE
 	help
-	  This option enables the workaround for fixing the data
-	  transfer failue observed randomly.
+	  This option enables the use of the set block count command
+          when reading from mmc.
 
 config MMC_SDHCI_CADENCE_DEBUG
 	bool "Debug support for the Cadence SD/SDIO/eMMC controller"

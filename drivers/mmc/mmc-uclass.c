@@ -232,6 +232,9 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 		if (dev_read_bool(dev, "broken-cd"))
 			cfg->host_caps |= MMC_CAP_NEEDS_POLL;
 	}
+	if (dev_read_bool(dev, "mmc-cmd23")) {
+		cfg->host_caps |= MMC_CAP_CMD23;
+	}
 
 	if (dev_read_bool(dev, "no-1-8-v")) {
 		cfg->host_caps &= ~(UHS_CAPS | MMC_MODE_HS200 |

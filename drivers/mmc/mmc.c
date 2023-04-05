@@ -377,10 +377,19 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 
-	if (blkcnt > 1)
+	if (blkcnt > 1) {
+		if (mmc->host_caps & MMC_CAP_CMD23) {
+			cmd.cmdidx = MMC_CMD_SET_BLOCK_COUNT;
+			cmd.cmdarg = blkcnt & 0x0000FFFF;
+			cmd.resp_type = MMC_RSP_R1;
+
+			mmc_send_cmd(mmc, &cmd, NULL);
+		}
+
 		cmd.cmdidx = MMC_CMD_READ_MULTIPLE_BLOCK;
-	else
+	} else {
 		cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
+	}
 
 	if (mmc->high_capacity)
 		cmd.cmdarg = start;
@@ -398,26 +407,17 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 		return 0;
 
 	if (blkcnt > 1) {
-		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
-		cmd.cmdarg = 0;
-		cmd.resp_type = MMC_RSP_R1b;
-		if (mmc_send_cmd(mmc, &cmd, NULL)) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-			pr_err("mmc fail to send stop cmd\n");
-#endif
-			return 0;
+		if ((mmc->host_caps & MMC_CAP_CMD23) == 0) {
+			cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
+			cmd.cmdarg = 0;
+			cmd.resp_type = MMC_RSP_R1b;
+			if (mmc_send_cmd(mmc, &cmd, NULL)) {
+	#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+				pr_err("mmc fail to send stop cmd\n");
+	#endif
+				return 0;
+			}
 		}
-#ifdef CONFIG_MMC_STOP_CMD_WORKAROUND
-		/*
-		Data transfer error is notcied randomly when block transfer
-		command is issued after CMD12. Replicate this on selected emmc
-		modes.
-		*/
-		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
-		cmd.cmdarg = 0;
-		cmd.resp_type = MMC_RSP_R1b;
-		mmc_send_cmd(mmc, &cmd, NULL);
-#endif
 	}
 
 	return blkcnt;
