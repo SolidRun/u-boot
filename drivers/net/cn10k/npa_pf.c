@@ -169,7 +169,7 @@ int npa_pf_init(struct npa_pf *npa_pf)
 
 int npa_pf_shutdown(struct npa_pf *npa_pf)
 {
-	int err, pool;
+	int err, pool = NPA_POOL_INST;
 	struct npa *npa = npa_pf->npa;
 
 	err = npa_lf_admin_shutdown(npa->npa_af, npa->lf, 1);
