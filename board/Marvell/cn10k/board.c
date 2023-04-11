@@ -263,8 +263,6 @@ void probe_network_devices(bool probe)
 				 PCI_DEVICE_ID_CAVIUM_NPA_PF, 0, &dev);
 	if (err)
 		debug("NPA AF device not found\n");
-	if (!probe)
-		device_remove(dev, DM_REMOVE_NORMAL);
 }
 
 int board_early_init_r(void)
