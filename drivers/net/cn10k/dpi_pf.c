@@ -111,7 +111,7 @@ void pem_ep_bar4_init(struct dpi_pf *pf)
 	writel(0x1, (void *)addr);
 
 	addr = BAR4_DRAM_OFFSET;
-	writel(0xABCDABCD, (void *)addr);
+	writeq(0xABCDABCD, (void *)addr);
 
 	write_bar4_reg(TARGET_VERSION, TARGET_VERSION_REG);
 }
