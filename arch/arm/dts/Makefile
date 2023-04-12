@@ -237,7 +237,10 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	cn9132-db-B.dtb				\
 	cn9130-crb-A.dtb			\
 	cn9130-crb-B.dtb			\
-	cn9130-crb-C.dtb
+	cn9130-crb-C.dtb			\
+	cn9130-crb-r1p3-A.dtb		\
+	cn9130-crb-r1p3-B.dtb		\
+	cn9130-crb-r1p3-C.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
 	uniphier-ld11-global.dtb \
