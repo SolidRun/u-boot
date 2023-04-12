@@ -514,6 +514,8 @@ static void set_vga_bridge_bits(struct udevice *dev)
 	u16 bc;
 
 	while (parent->seq != 0) {
+		if (!dev_get_parent_platdata(parent))
+			return;
 		dm_pci_read_config16(parent, PCI_BRIDGE_CONTROL, &bc);
 		bc |= PCI_BRIDGE_CTL_VGA;
 		dm_pci_write_config16(parent, PCI_BRIDGE_CONTROL, bc);
