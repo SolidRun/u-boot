@@ -3388,6 +3388,9 @@ static int s25fs128s_post_scan_fixups(struct spi_nor *nor)
 		nor->page_size = dev_page_size;
 	}
 
+	/* Hard code to x1 program opcodes per HW limitation */
+	nor->program_opcode  = SPINOR_OP_PP;
+	nor->write_proto  = SNOR_PROTO_1_1_1;
 	return ret;
 }
 #endif /* CONFIG_SPI_FLASH_SPANSION */
