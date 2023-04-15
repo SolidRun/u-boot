@@ -575,6 +575,7 @@ void dpi_halt(struct udevice *dev)
 int dpi_start(struct udevice *dev)
 {
 	struct dpi_pf *dpi = dev_get_priv(dev);
+	int count = 100;
 
 	if (pem_ep_link_sts()) {
 		printf("%s PCIe Link down\n", __func__);
@@ -582,8 +583,14 @@ int dpi_start(struct udevice *dev)
 	}
 
 	mb_check_msg(dpi);
-	mdelay(10);
-	if (read_bar4_reg(HOST_STATUS_REG) != HOST_RUNNING) {
+
+	/* Loop for larger time period for host to setup running state */
+	while (count--) {
+		mdelay(10);
+		if (read_bar4_reg(HOST_STATUS_REG) == HOST_RUNNING)
+			break;
+	}
+	if (!count && (read_bar4_reg(HOST_STATUS_REG) != HOST_RUNNING)) {
 		printf("%s Host not running\n", __func__);
 		return -1;
 	}
