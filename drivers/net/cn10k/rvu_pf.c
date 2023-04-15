@@ -63,7 +63,7 @@ int rvu_pf_probe(struct udevice *dev)
 
 	rvu->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, 0, 0,
 				      PCI_REGION_TYPE, PCI_REGION_MEM);
-	rvu->pfid = ((u64)rvu->pf_base >> 36) & 0xf;
+	rvu->pfid = ((u64)rvu->pf_base >> 36) & 0x3f;
 	rvu->dev = dev;
 	if (!rvu_af_dev) {
 		printf("%s: Error: Could not find RVU AF device\n",
