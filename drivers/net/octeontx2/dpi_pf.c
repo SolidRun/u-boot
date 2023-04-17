@@ -113,6 +113,10 @@ void pem_ep_bar4_init(struct dpi_pf *pf)
 	addr = BAR4_DRAM_OFFSET;
 	writeq(0xABCDABCD, (void *)addr);
 
+	/* Clear MBOX */
+	addr += HOST_MBOX_OFFSET;
+	memset((void *)addr, 0x0, 64);
+
 	write_bar4_reg(TARGET_VERSION, TARGET_VERSION_REG);
 }
 
