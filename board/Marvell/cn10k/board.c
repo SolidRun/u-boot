@@ -547,8 +547,10 @@ void board_quiesce_devices(void)
 	if (IS_ENABLED(CONFIG_TARGET_CN10K_A))
 		board_switch_reset();
 
+#if CONFIG_IS_ENABLED(WDT)
 	/* Stop watchdog */
 	wdt_stop_all();
+#endif
 }
 
 /*
