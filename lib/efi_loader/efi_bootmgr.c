@@ -211,15 +211,10 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 		log_debug("trying to load \"%ls\" from %pD\n", lo.label,
 			  lo.file_path);
 
-		if (EFI_DP_TYPE(lo.file_path, MEDIA_DEVICE, FILE_PATH)) {
-			/* file_path doesn't contain a device path */
-			ret = try_load_from_short_path(lo.file_path, handle);
-		} else {
-			file_path = expand_media_path(lo.file_path);
-			ret = EFI_CALL(efi_load_image(true, efi_root, file_path,
+		file_path = expand_media_path(lo.file_path);
+		ret = EFI_CALL(efi_load_image(true, efi_root, file_path,
 						      NULL, 0, handle));
-			efi_free_pool(file_path);
-		}
+		efi_free_pool(file_path);
 		if (ret != EFI_SUCCESS) {
 			log_warning("Loading %ls '%ls' failed\n",
 				    varname, lo.label);
