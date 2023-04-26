@@ -1611,6 +1611,16 @@ static int sdhci_cdns_hs400_enhanced_strobe(struct udevice *dev)
 
 	return 0;
 }
+
+static int sdhci_cdns_hs400_clear_enhanced_strobe(struct udevice *dev)
+{
+	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+
+	plat->enhanced_strobe = 0;
+	sdhci_cdns_set_emmc_mode(plat, SDHCI_CDNS_HRS06_MODE_MMC_HS400);
+
+	return 0;
+}
 #endif
 
 static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigned char opcode)
@@ -1708,6 +1718,7 @@ static int sdhci_cdns_probe(struct udevice *dev)
 
 #if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
 	sdhci_cdns_mmc_ops.set_enhanced_strobe = sdhci_cdns_hs400_enhanced_strobe;
+	sdhci_cdns_mmc_ops.clear_enhanced_strobe = sdhci_cdns_hs400_clear_enhanced_strobe;
 #endif
 
 	phy = plat->priv;
