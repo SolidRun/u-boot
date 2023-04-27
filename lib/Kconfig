@@ -774,3 +774,5 @@ config PHANDLE_CHECK_SEQ
 	  When there are multiple device tree nodes with same name,
           enable this config option to distinguish them using
 	  phandles in fdtdec_get_alias_seq() function.
+
+source lib/tlv/Kconfig
