@@ -7,67 +7,32 @@
  * Copyright (C) 2014 Srideep <srideep_devireddy@dell.com>
  * Copyright (C) 2013 Miles Tseng <miles_tseng@accton.com>
  * Copyright (C) 2014,2016 david_yang <david_yang@accton.com>
+ * Copyright (C) 2023 Josua Mayer <josua@solid-run.com>
  */
 
-#include <common.h>
 #include <command.h>
-#include <dm.h>
-#include <i2c.h>
-#include <i2c_eeprom.h>
-#include <env.h>
-#include <init.h>
+#include <linux/err.h>
 #include <net.h>
-#include <asm/global_data.h>
-#include <linux/ctype.h>
-#include <u-boot/crc.h>
-
-#include "tlv_eeprom.h"
+#include <stdio.h>
+#include <tlv_eeprom.h>
+#include <vsprintf.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define MAX_TLV_DEVICES	2
-
-/* File scope function prototypes */
-static bool is_checksum_valid(u8 *eeprom);
-static int read_eeprom(int devnum, u8 *eeprom);
-static void show_eeprom(int devnum, u8 *eeprom);
 static void decode_tlv(struct tlvinfo_tlv *tlv);
-static void update_crc(u8 *eeprom);
-static int prog_eeprom(int devnum, u8 *eeprom);
-static bool tlvinfo_find_tlv(u8 *eeprom, u8 tcode, int *eeprom_index);
-static bool tlvinfo_delete_tlv(u8 *eeprom, u8 code);
-static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval);
+static bool tlvinfo_add_tlv(struct tlvinfo_priv *header, int tcode, char *strval);
 static int set_mac(char *buf, const char *string);
 static int set_date(char *buf, const char *string);
 static int set_bytes(char *buf, const char *string, int *converted_accum);
-static void show_tlv_devices(int current_dev);
 
-/* The EERPOM contents after being read into memory */
+/* The EEPROM contents after being read into memory */
 static u8 eeprom[TLV_INFO_MAX_LEN];
 
-static struct udevice *tlv_devices[MAX_TLV_DEVICES];
-
-#define to_header(p) ((struct tlvinfo_header *)p)
-#define to_entry(p) ((struct tlvinfo_tlv *)p)
-
-#define HDR_SIZE sizeof(struct tlvinfo_header)
-#define ENT_SIZE sizeof(struct tlvinfo_tlv)
+static void show_tlv_devices(int current_dev);
 
 static inline bool is_digit(char c)
 {
 	return (c >= '0' && c <= '9');
-}
-
-/**
- *  is_valid_tlv
- *
- *  Perform basic sanity checks on a TLV field. The TLV is pointed to
- *  by the parameter provided.
- *      1. The type code is not reserved (0x00 or 0xFF)
- */
-static inline bool is_valid_tlv(struct tlvinfo_tlv *tlv)
-{
-	return((tlv->type != 0x00) && (tlv->type != 0xFF));
 }
 
 /**
@@ -78,79 +43,8 @@ static inline bool is_valid_tlv(struct tlvinfo_tlv *tlv)
 static inline u8 is_hex(char p)
 {
 	return (((p >= '0') && (p <= '9')) ||
-		((p >= 'A') && (p <= 'F')) ||
-		((p >= 'a') && (p <= 'f')));
-}
-
-/**
- *  is_checksum_valid
- *
- *  Validate the checksum in the provided TlvInfo EEPROM data. First,
- *  verify that the TlvInfo header is valid, then make sure the last
- *  TLV is a CRC-32 TLV. Then calculate the CRC over the EEPROM data
- *  and compare it to the value stored in the EEPROM CRC-32 TLV.
- */
-static bool is_checksum_valid(u8 *eeprom)
-{
-	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
-	struct tlvinfo_tlv    *eeprom_crc;
-	unsigned int       calc_crc;
-	unsigned int       stored_crc;
-
-	// Is the eeprom header valid?
-	if (!is_valid_tlvinfo_header(eeprom_hdr))
-		return false;
-
-	// Is the last TLV a CRC?
-	eeprom_crc = to_entry(&eeprom[HDR_SIZE +
-		be16_to_cpu(eeprom_hdr->totallen) - (ENT_SIZE + 4)]);
-	if (eeprom_crc->type != TLV_CODE_CRC_32 || eeprom_crc->length != 4)
-		return false;
-
-	// Calculate the checksum
-	calc_crc = crc32(0, (void *)eeprom,
-			 HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen) - 4);
-	stored_crc = (eeprom_crc->value[0] << 24) |
-		(eeprom_crc->value[1] << 16) |
-		(eeprom_crc->value[2] <<  8) |
-		eeprom_crc->value[3];
-	return calc_crc == stored_crc;
-}
-
-/**
- *  read_eeprom
- *
- *  Read the EEPROM into memory, if it hasn't already been read.
- */
-static int read_eeprom(int devnum, u8 *eeprom)
-{
-	int ret;
-	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
-	struct tlvinfo_tlv *eeprom_tlv = to_entry(&eeprom[HDR_SIZE]);
-
-	/* Read the header */
-	ret = read_tlv_eeprom((void *)eeprom_hdr, 0, HDR_SIZE, devnum);
-	/* If the header was successfully read, read the TLVs */
-	if (ret == 0 && is_valid_tlvinfo_header(eeprom_hdr))
-		ret = read_tlv_eeprom((void *)eeprom_tlv, HDR_SIZE,
-				      be16_to_cpu(eeprom_hdr->totallen), devnum);
-	else if (ret == -ENODEV)
-		return ret;
-
-	// If the contents are invalid, start over with default contents
-	if (!is_valid_tlvinfo_header(eeprom_hdr) ||
-	    !is_checksum_valid(eeprom)) {
-		strcpy(eeprom_hdr->signature, TLV_INFO_ID_STRING);
-		eeprom_hdr->version = TLV_INFO_VERSION;
-		eeprom_hdr->totallen = cpu_to_be16(0);
-		update_crc(eeprom);
-	}
-
-#ifdef DEBUG
-	show_eeprom(devnum, eeprom);
-#endif
-
-	return ret;
+		   ((p >= 'A') && (p <= 'F')) ||
+		   ((p >= 'a') && (p <= 'f')));
 }
 
 /**
@@ -158,20 +52,13 @@ static int read_eeprom(int devnum, u8 *eeprom)
  *
  *  Display the contents of the EEPROM
  */
-static void show_eeprom(int devnum, u8 *eeprom)
+static void show_eeprom(int devnum, struct tlvinfo_priv *tlv)
 {
-	int tlv_end;
-	int curr_tlv;
 #ifdef DEBUG
 	int i;
 #endif
-	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
-	struct tlvinfo_tlv    *eeprom_tlv;
-
-	if (!is_valid_tlvinfo_header(eeprom_hdr)) {
-		printf("EEPROM does not contain data in a valid TlvInfo format.\n");
-		return;
-	}
+	struct tlvinfo_tlv    *entry = NULL;
+	struct tlvinfo_header *eeprom_hdr = tlv_header_get(tlv);
 
 	printf("TLV: %u\n", devnum);
 	printf("TlvInfo Header:\n");
@@ -181,21 +68,13 @@ static void show_eeprom(int devnum, u8 *eeprom)
 
 	printf("TLV Name             Code Len Value\n");
 	printf("-------------------- ---- --- -----\n");
-	curr_tlv = HDR_SIZE;
-	tlv_end  = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
-	while (curr_tlv < tlv_end) {
-		eeprom_tlv = to_entry(&eeprom[curr_tlv]);
-		if (!is_valid_tlv(eeprom_tlv)) {
-			printf("Invalid TLV field starting at EEPROM offset %d\n",
-			       curr_tlv);
-			return;
-		}
-		decode_tlv(eeprom_tlv);
-		curr_tlv += ENT_SIZE + eeprom_tlv->length;
+	entry = tlv_entry_next(tlv, entry);
+	while (!IS_ERR(entry)) {
+		decode_tlv(entry);
+		entry = tlv_entry_next(tlv, entry);
 	}
-
-	printf("Checksum is %s.\n",
-	       is_checksum_valid(eeprom) ? "valid" : "invalid");
+	if (PTR_ERR(entry) != -ENOENT)
+		printf("Failed to get next entry: %ld\n", PTR_ERR(entry));
 
 #ifdef DEBUG
 	printf("EEPROM dump: (0x%x bytes)", TLV_INFO_MAX_LEN);
@@ -342,66 +221,6 @@ static void decode_tlv(struct tlvinfo_tlv *tlv)
 }
 
 /**
- *  update_crc
- *
- *  This function updates the CRC-32 TLV. If there is no CRC-32 TLV, then
- *  one is added. This function should be called after each update to the
- *  EEPROM structure, to make sure the CRC is always correct.
- */
-static void update_crc(u8 *eeprom)
-{
-	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
-	struct tlvinfo_tlv    *eeprom_crc;
-	unsigned int      calc_crc;
-	int               eeprom_index;
-
-	// Discover the CRC TLV
-	if (!tlvinfo_find_tlv(eeprom, TLV_CODE_CRC_32, &eeprom_index)) {
-		unsigned int totallen = be16_to_cpu(eeprom_hdr->totallen);
-
-		if ((totallen + ENT_SIZE + 4) > TLV_TOTAL_LEN_MAX)
-			return;
-		eeprom_index = HDR_SIZE + totallen;
-		eeprom_hdr->totallen = cpu_to_be16(totallen + ENT_SIZE + 4);
-	}
-	eeprom_crc = to_entry(&eeprom[eeprom_index]);
-	eeprom_crc->type = TLV_CODE_CRC_32;
-	eeprom_crc->length = 4;
-
-	// Calculate the checksum
-	calc_crc = crc32(0, (void *)eeprom,
-			 HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen) - 4);
-	eeprom_crc->value[0] = (calc_crc >> 24) & 0xFF;
-	eeprom_crc->value[1] = (calc_crc >> 16) & 0xFF;
-	eeprom_crc->value[2] = (calc_crc >>  8) & 0xFF;
-	eeprom_crc->value[3] = (calc_crc >>  0) & 0xFF;
-}
-
-/**
- *  prog_eeprom
- *
- *  Write the EEPROM data from CPU memory to the hardware.
- */
-static int prog_eeprom(int devnum, u8 *eeprom)
-{
-	int ret = 0;
-	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
-	int eeprom_len;
-
-	update_crc(eeprom);
-
-	eeprom_len = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
-	ret = write_tlv_eeprom(eeprom, eeprom_len, devnum);
-	if (ret) {
-		printf("Programming failed.\n");
-		return -1;
-	}
-
-	printf("Programming passed.\n");
-	return 0;
-}
-
-/**
  *  show_tlv_code_list - Display the list of TLV codes and names
  */
 void show_tlv_code_list(void)
@@ -425,24 +244,32 @@ void show_tlv_code_list(void)
 int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char cmd;
-	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
+	static struct tlvinfo_priv *tlv;
 	static unsigned int current_dev;
-	/* Set to 1 if we've read EEPROM into memory */
-	static int has_been_read;
+	struct tlvinfo_tlv *entry;
 	int ret;
 
 	// If no arguments, read the EERPOM and display its contents
 	if (argc == 1) {
-		if (!has_been_read) {
-			ret = read_eeprom(current_dev, eeprom);
-			if (ret) {
-				printf("Failed to read EEPROM data from device.\n");
+		if (!tlv) {
+			tlv = tlv_eeprom_read(tlv_eeprom_get_by_index(current_dev),
+								  0, eeprom, ARRAY_SIZE(eeprom));
+			if (IS_ERR(tlv)) {
+				printf("Failed to read EEPROM data from device: %ld\n",
+					   PTR_ERR(tlv));
+
+				printf("Creating new TLV structure in-memory: ");
+				tlv = tlv_init(eeprom, ARRAY_SIZE(eeprom));
+				if (IS_ERR(tlv)) {
+					printf("Error %i\n", (int)PTR_ERR(tlv));
+					tlv = NULL;
+				} else
+					printf("Okay\n");
+
 				return 0;
 			}
-
-			has_been_read = 1;
 		}
-		show_eeprom(current_dev, eeprom);
+		show_eeprom(current_dev, tlv);
 		return 0;
 	}
 
@@ -461,26 +288,27 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return 0;
 		}
 		current_dev = devnum;
-		has_been_read = 0;
+		tlv = NULL;
 
 		return 0;
 	}
 
 	// Read the EEPROM contents
 	if (cmd == 'r') {
-		has_been_read = 0;
-		ret = read_eeprom(current_dev, eeprom);
-		if (ret) {
-			printf("Failed to read EEPROM data from device.\n");
+		tlv = tlv_eeprom_read(tlv_eeprom_get_by_index(current_dev),
+								 0, eeprom, ARRAY_SIZE(eeprom));
+		if (IS_ERR(tlv)) {
+			printf("Failed to read EEPROM data from device: %ld\n",
+				   PTR_ERR(tlv));
+			tlv = NULL;
 			return 0;
 		}
 
 		printf("EEPROM data loaded from device to memory.\n");
-		has_been_read = 1;
 	}
 
 	// Subsequent commands require that the EEPROM has already been read.
-	if (!has_been_read) {
+	if (!tlv) {
 		printf("Please read the EEPROM data first, using the 'tlv_eeprom read' command.\n");
 		return 0;
 	}
@@ -489,13 +317,20 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc == 2) {
 		switch (cmd) {
 		case 'w':   /* write */
-			prog_eeprom(current_dev, eeprom);
+			ret = tlv_eeprom_write(tlv_eeprom_get_by_index(current_dev), 0, tlv);
+			if (ret)
+				printf("Programming failed: %i\n", ret);
+			else
+				printf("Programming passed.\n");
 			break;
 		case 'e':   /* erase */
-			strcpy(eeprom_hdr->signature, TLV_INFO_ID_STRING);
-			eeprom_hdr->version = TLV_INFO_VERSION;
-			eeprom_hdr->totallen = cpu_to_be16(0);
-			update_crc(eeprom);
+			tlv = tlv_init(eeprom, ARRAY_SIZE(eeprom));
+			if (IS_ERR(tlv)) {
+				printf("Failed to initiailise TLV structure in memory: %ld\n",
+					   PTR_ERR(tlv));
+				return 0;
+			}
+
 			printf("EEPROM data in memory reset.\n");
 			break;
 		case 'l':   /* list */
@@ -521,9 +356,20 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		int tcode;
 
 		tcode = simple_strtoul(argv[2], NULL, 0);
-		tlvinfo_delete_tlv(eeprom, tcode);
+		entry = tlv_entry_next_by_code(tlv, NULL, tcode);
+		ret = tlv_entry_remove(tlv, tlv_entry_next_by_code(tlv, NULL, tcode));
+		if (ret && ret != -ENOENT) {
+			printf("Failed to remove existing tlv entry: %d.\n", ret);
+			return 0;
+		}
 		if (argc == 4)
-			tlvinfo_add_tlv(eeprom, tcode, argv[3]);
+			tlvinfo_add_tlv(tlv, tcode, argv[3]);
+		else {
+			// update CRC
+			ret = tlv_crc_update(tlv);
+			if (ret)
+				printf("Failed to update CRC: %d\n", ret);
+		}
 	} else {
 		return CMD_RET_USAGE;
 	}
@@ -558,78 +404,19 @@ U_BOOT_CMD(tlv_eeprom, 4, 1,  do_tlv_eeprom,
 	);
 
 /**
- *  tlvinfo_find_tlv
- *
- *  This function finds the TLV with the supplied code in the EERPOM.
- *  An offset from the beginning of the EEPROM is returned in the
- *  eeprom_index parameter if the TLV is found.
- */
-static bool tlvinfo_find_tlv(u8 *eeprom, u8 tcode, int *eeprom_index)
-{
-	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
-	struct tlvinfo_tlv    *eeprom_tlv;
-	int eeprom_end;
-
-	// Search through the TLVs, looking for the first one which matches the
-	// supplied type code.
-	*eeprom_index = HDR_SIZE;
-	eeprom_end = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
-	while (*eeprom_index < eeprom_end) {
-		eeprom_tlv = to_entry(&eeprom[*eeprom_index]);
-		if (!is_valid_tlv(eeprom_tlv))
-			return false;
-		if (eeprom_tlv->type == tcode)
-			return true;
-		*eeprom_index += ENT_SIZE + eeprom_tlv->length;
-	}
-	return(false);
-}
-
-/**
- *  tlvinfo_delete_tlv
- *
- *  This function deletes the TLV with the specified type code from the
- *  EEPROM.
- */
-static bool tlvinfo_delete_tlv(u8 *eeprom, u8 code)
-{
-	int eeprom_index;
-	int tlength;
-	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
-	struct tlvinfo_tlv *eeprom_tlv;
-
-	// Find the TLV and then move all following TLVs "forward"
-	if (tlvinfo_find_tlv(eeprom, code, &eeprom_index)) {
-		eeprom_tlv = to_entry(&eeprom[eeprom_index]);
-		tlength = ENT_SIZE + eeprom_tlv->length;
-		memcpy(&eeprom[eeprom_index], &eeprom[eeprom_index + tlength],
-		       HDR_SIZE +
-		       be16_to_cpu(eeprom_hdr->totallen) - eeprom_index -
-		       tlength);
-		eeprom_hdr->totallen =
-			cpu_to_be16(be16_to_cpu(eeprom_hdr->totallen) -
-				    tlength);
-		update_crc(eeprom);
-		return true;
-	}
-	return false;
-}
-
-/**
  *  tlvinfo_add_tlv
  *
  *  This function adds a TLV to the EEPROM, converting the value (a string) to
  *  the format in which it will be stored in the EEPROM.
  */
 #define MAX_TLV_VALUE_LEN   256
-static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
+static bool tlvinfo_add_tlv(struct tlvinfo_priv *tlv, int tcode, char *strval)
 {
-	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
-	struct tlvinfo_tlv *eeprom_tlv;
+	int ret;
+	struct tlvinfo_tlv *entry;
 	int new_tlv_len = 0;
 	u32 value;
 	char data[MAX_TLV_VALUE_LEN];
-	int eeprom_index;
 
 	// Encode each TLV type into the format to be stored in the EERPOM
 	switch (tcode) {
@@ -688,29 +475,26 @@ static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
 		break;
 	}
 
-	// Is there room for this TLV?
-	if ((be16_to_cpu(eeprom_hdr->totallen) + ENT_SIZE + new_tlv_len) >
-			TLV_TOTAL_LEN_MAX) {
+	entry = tlv_entry_add(tlv, NULL, tcode, new_tlv_len);
+	if (IS_ERR(entry) && PTR_ERR(entry) == -ENOMEM) {
 		printf("ERROR: There is not enough room in the EERPOM to save data.\n");
+		return false;
+	} else if (IS_ERR(entry)) {
+		printf("Failed to create new tlv entry: %ld\n", PTR_ERR(entry));
 		return false;
 	}
 
-	// Add TLV at the end, overwriting CRC TLV if it exists
-	if (tlvinfo_find_tlv(eeprom, TLV_CODE_CRC_32, &eeprom_index))
-		eeprom_hdr->totallen =
-			cpu_to_be16(be16_to_cpu(eeprom_hdr->totallen) -
-					ENT_SIZE - 4);
-	else
-		eeprom_index = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
-	eeprom_tlv = to_entry(&eeprom[eeprom_index]);
-	eeprom_tlv->type = tcode;
-	eeprom_tlv->length = new_tlv_len;
-	memcpy(eeprom_tlv->value, data, new_tlv_len);
+	// copy data into new entry
+	ret = tlv_entry_set_raw(entry, data, new_tlv_len);
+	if (ret) {
+		printf("Failed to set new tlv entry value: %d\n", ret);
+		return false;
+	}
 
-	// Update the total length and calculate (add) a new CRC-32 TLV
-	eeprom_hdr->totallen = cpu_to_be16(be16_to_cpu(eeprom_hdr->totallen) +
-			ENT_SIZE + new_tlv_len);
-	update_crc(eeprom);
+	// update CRC
+	ret = tlv_crc_update(tlv);
+	if (ret)
+		printf("Failed to update CRC: %d\n", ret);
 
 	return true;
 }
@@ -901,113 +685,13 @@ static int set_bytes(char *buf, const char *string, int *converted_accum)
 
 static void show_tlv_devices(int current_dev)
 {
-	unsigned int dev;
+	int dev;
+	int i;
 
-	for (dev = 0; dev < MAX_TLV_DEVICES; dev++)
-		if (tlv_devices[dev])
+	for (i = 0; i < MAX_TLV_DEVICES; i++)
+		if (!IS_ERR(tlv_eeprom_get_by_index(dev)))
 			printf("TLV: %u%s\n", dev,
 			       (dev == current_dev) ? " (*)" : "");
-}
-
-static int find_tlv_devices(struct udevice **tlv_devices_p)
-{
-	int ret;
-	int count_dev = 0;
-	struct udevice *dev;
-
-	for (ret = uclass_first_device_check(UCLASS_I2C_EEPROM, &dev);
-			dev;
-			ret = uclass_next_device_check(&dev)) {
-		if (ret == 0)
-			tlv_devices_p[count_dev++] = dev;
-		if (count_dev >= MAX_TLV_DEVICES)
-			break;
-	}
-
-	return (count_dev == 0) ? -ENODEV : 0;
-}
-
-static struct udevice *find_tlv_device_by_index(int dev_num)
-{
-	struct udevice *local_tlv_devices[MAX_TLV_DEVICES] = {};
-	struct udevice **tlv_devices_p;
-	int ret;
-
-	if (gd->flags & (GD_FLG_RELOC | GD_FLG_SPL_INIT)) {
-		/* Assume BSS is initialized; use static data */
-		if (tlv_devices[dev_num])
-			return tlv_devices[dev_num];
-		tlv_devices_p = tlv_devices;
-	} else {
-		tlv_devices_p = local_tlv_devices;
-	}
-
-	ret = find_tlv_devices(tlv_devices_p);
-	if (ret == 0 && tlv_devices_p[dev_num])
-		return tlv_devices_p[dev_num];
-
-	return NULL;
-}
-
-/**
- * read_tlv_eeprom - read the hwinfo from i2c EEPROM
- */
-int read_tlv_eeprom(void *eeprom, int offset, int len, int dev_num)
-{
-	struct udevice *dev;
-
-	if (dev_num >= MAX_TLV_DEVICES)
-		return -EINVAL;
-
-	dev = find_tlv_device_by_index(dev_num);
-	if (!dev)
-		return -ENODEV;
-
-	return i2c_eeprom_read(dev, offset, eeprom, len);
-}
-
-/**
- * write_tlv_eeprom - write the hwinfo to i2c EEPROM
- */
-int write_tlv_eeprom(void *eeprom, int len, int dev)
-{
-	if (!(gd->flags & GD_FLG_RELOC))
-		return -ENODEV;
-	if (!tlv_devices[dev])
-		return -ENODEV;
-
-	return i2c_eeprom_write(tlv_devices[dev], 0, eeprom, len);
-}
-
-int read_tlvinfo_tlv_eeprom(void *eeprom, struct tlvinfo_header **hdr,
-			    struct tlvinfo_tlv **first_entry, int dev_num)
-{
-	int ret;
-	struct tlvinfo_header *tlv_hdr;
-	struct tlvinfo_tlv *tlv_ent;
-
-	/* Read TLV header */
-	ret = read_tlv_eeprom(eeprom, 0, HDR_SIZE, dev_num);
-	if (ret < 0)
-		return ret;
-
-	tlv_hdr = eeprom;
-	if (!is_valid_tlvinfo_header(tlv_hdr))
-		return -EINVAL;
-
-	/* Read TLV entries */
-	tlv_ent = to_entry(&tlv_hdr[1]);
-	ret = read_tlv_eeprom(tlv_ent, HDR_SIZE,
-			      be16_to_cpu(tlv_hdr->totallen), dev_num);
-	if (ret < 0)
-		return ret;
-	if (!is_checksum_valid(eeprom))
-		return -EINVAL;
-
-	*hdr = tlv_hdr;
-	*first_entry = tlv_ent;
-
-	return 0;
 }
 
 /**
@@ -1026,31 +710,31 @@ int read_tlvinfo_tlv_eeprom(void *eeprom, struct tlvinfo_header **hdr,
 int mac_read_from_eeprom(void)
 {
 	unsigned int i;
-	int eeprom_index;
+	struct tlvinfo_header *eeprom_hdr;
 	struct tlvinfo_tlv *eeprom_tlv;
-	int maccount;
+	uint16_t maccount;
 	u8 macbase[6];
-	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
+	struct tlvinfo_priv *tlv;
 	int devnum = 0; // TODO: support multiple EEPROMs
 
 	puts("EEPROM: ");
 
-	if (read_eeprom(devnum, eeprom)) {
+	tlv = tlv_eeprom_read(tlv_eeprom_get_by_index(devnum), 0, eeprom, ARRAY_SIZE(eeprom));
+	if (IS_ERR(tlv)) {
 		printf("Read failed.\n");
 		return -1;
 	}
+	eeprom_hdr = tlv_header_get(tlv);
 
-	maccount = 1;
-	if (tlvinfo_find_tlv(eeprom, TLV_CODE_MAC_SIZE, &eeprom_index)) {
-		eeprom_tlv = to_entry(&eeprom[eeprom_index]);
-		maccount = (eeprom_tlv->value[0] << 8) | eeprom_tlv->value[1];
-	}
+	maccount = 0;
+	eeprom_tlv = tlv_entry_next_by_code(tlv, NULL, TLV_CODE_MAC_SIZE);
+	if (!IS_ERR(eeprom_tlv))
+		tlv_entry_get_uint16(eeprom_tlv, &maccount);
 
 	memcpy(macbase, "\0\0\0\0\0\0", 6);
-	if (tlvinfo_find_tlv(eeprom, TLV_CODE_MAC_BASE, &eeprom_index)) {
-		eeprom_tlv = to_entry(&eeprom[eeprom_index]);
-		memcpy(macbase, eeprom_tlv->value, 6);
-	}
+	eeprom_tlv = tlv_entry_next_by_code(tlv, NULL, TLV_CODE_MAC_BASE);
+	if (!IS_ERR(eeprom_tlv))
+		tlv_entry_get_raw(eeprom_tlv, macbase, ARRAY_SIZE(macbase));
 
 	for (i = 0; i < maccount; i++) {
 		if (is_valid_ethaddr(macbase)) {
@@ -1103,22 +787,22 @@ int mac_read_from_eeprom(void)
 int populate_serial_number(void)
 {
 	char serialstr[257];
-	int eeprom_index;
+	struct tlvinfo_priv *tlv;
 	struct tlvinfo_tlv *eeprom_tlv;
 	int devnum = 0; // TODO: support multiple EEPROMs
 
 	if (env_get("serial#"))
 		return 0;
 
-	if (read_eeprom(devnum, eeprom)) {
+	tlv = tlv_eeprom_read(tlv_eeprom_get_by_index(devnum), 0, eeprom, ARRAY_SIZE(eeprom));
+	if (IS_ERR(tlv)) {
 		printf("Read failed.\n");
 		return -1;
 	}
 
-	if (tlvinfo_find_tlv(eeprom, TLV_CODE_SERIAL_NUMBER, &eeprom_index)) {
-		eeprom_tlv = to_entry(&eeprom[eeprom_index]);
-		memcpy(serialstr, eeprom_tlv->value, eeprom_tlv->length);
-		serialstr[eeprom_tlv->length] = 0;
+	eeprom_tlv = tlv_entry_next_by_code(tlv, NULL, TLV_CODE_SERIAL_NUMBER);
+	if (!IS_ERR(eeprom_tlv)) {
+		tlv_entry_get_string(eeprom_tlv, serialstr, ARRAY_SIZE(serialstr));
 		env_set("serial#", serialstr);
 	}
 
