@@ -487,7 +487,7 @@ static void smbios_write_type4_dm(struct smbios_type4 *t,
 		if (!cpu_get_desc(cpu, processor_name, sizeof(processor_name)))
 			name = processor_name;
 
-		core_count = cpu_get_count(dev);
+		core_count = cpu_get_count(ctx->dev);
 		status = plat->status;
 		proc_type = plat->proc_type;
 		voltage = plat->voltage;

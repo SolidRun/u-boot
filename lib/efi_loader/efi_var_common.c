@@ -18,16 +18,14 @@ enum efi_secure_mode {
 	EFI_MODE_DEPLOYED,
 };
 
-__efi_runtime_data const u16 pk[] = u"PK";
-__efi_runtime_data const u16 kek[] = u"KEK";
-__efi_runtime_data const u16 db[] = u"db";
-__efi_runtime_data const u16 dbx[] = u"dbx";
+const efi_guid_t efi_guid_image_security_database =
+		EFI_IMAGE_SECURITY_DATABASE_GUID;
 
-__efi_runtime_data const struct efi_auth_var_name_type name_type[] = {
-	{pk, &efi_global_variable_guid, EFI_AUTH_VAR_PK},
-	{kek, &efi_global_variable_guid, EFI_AUTH_VAR_KEK},
-	{db,  &efi_guid_image_security_database, EFI_AUTH_VAR_DB},
-	{dbx,  &efi_guid_image_security_database, EFI_AUTH_VAR_DBX},
+const struct efi_auth_var_name_type name_type[] = {
+	{u"PK", &efi_global_variable_guid, EFI_AUTH_VAR_PK},
+	{u"KEK", &efi_global_variable_guid, EFI_AUTH_VAR_KEK},
+	{u"db",  &efi_guid_image_security_database, EFI_AUTH_VAR_DB},
+	{u"dbx",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBX},
 	/* not used yet
 	 *{u"dbt",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBT},
 	 *{u"dbr",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBR},

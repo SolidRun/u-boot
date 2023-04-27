@@ -940,48 +940,6 @@ static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void)
 }
 
 /**
- * efi_update_capsule() - process information from operating system
- *
- * This function implements the UpdateCapsule() runtime service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
- *
- * @capsule_header_array:	pointer to array of virtual pointers
- * @capsule_count:		number of pointers in capsule_header_array
- * @scatter_gather_list:	pointer to arry of physical pointers
- * Returns:			status code
- */
-efi_status_t __efi_runtime EFIAPI
-efi_update_capsule(struct efi_capsule_header **capsule_header_array,
-		   efi_uintn_t capsule_count, u64 scatter_gather_list)
-{
-	return EFI_UNSUPPORTED;
-}
-
-/**
- * efi_query_capsule_caps() - check if capsule is supported
- *
- * This function implements the QueryCapsuleCapabilities() runtime service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
- *
- * @capsule_header_array:	pointer to array of virtual pointers
- * @capsule_count:		number of pointers in capsule_header_array
- * @maximum_capsule_size:	maximum capsule size
- * @reset_type:			type of reset needed for capsule update
- * Returns:			status code
- */
-efi_status_t __efi_runtime EFIAPI
-efi_query_capsule_caps(struct efi_capsule_header **capsule_header_array,
-		       efi_uintn_t capsule_count, u64 *maximum_capsule_size,
-		       u32 *reset_type)
-{
-	return EFI_UNSUPPORTED;
-}
-
-/**
  * efi_get_next_high_monotonic_count() - get next value of the counter
  * @count: returned value of the counter
  *

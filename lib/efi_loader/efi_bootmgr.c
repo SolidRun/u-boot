@@ -81,7 +81,7 @@ struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
  * try_load_from_file_path() - try to load a file
  *
  * Given a file media path iterate through a list of handles and try to
- * to load the file from each of them until the first success.
+ * load the file from each of them until the first success.
  *
  * @fs_handles: array of handles with the simple file protocol
  * @num:	number of handles in fs_handles
@@ -140,15 +140,15 @@ static efi_status_t try_load_from_file_path(efi_handle_t *fs_handles,
  *
  * Return:	status code
  */
-static efi_status_t try_load_from_short_path(struct efi_device_path *fp,
-					     efi_handle_t *handle)
+static inline efi_status_t try_load_from_short_path(struct efi_device_path *fp,
+						    efi_handle_t *handle)
 {
 	efi_handle_t *fs_handles;
 	efi_uintn_t num;
 	efi_status_t ret;
 
-	ret = EFI_CALL(efi_locate_handle_buffer(
-					BY_PROTOCOL,
+	ret = EFI_CALL(efi_locate_handle_buffer
+					(BY_PROTOCOL,
 					&efi_simple_file_system_protocol_guid,
 					NULL,
 					&num, &fs_handles));
@@ -213,7 +213,7 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 
 		file_path = expand_media_path(lo.file_path);
 		ret = EFI_CALL(efi_load_image(true, efi_root, file_path,
-						      NULL, 0, handle));
+					      NULL, 0, handle));
 		efi_free_pool(file_path);
 		if (ret != EFI_SUCCESS) {
 			log_warning("Loading %ls '%ls' failed\n",
@@ -404,8 +404,8 @@ efi_status_t efi_bootmgr_load(efi_handle_t *handle, void **load_options)
 						     load_options);
 				if (ret == EFI_SUCCESS)
 					return ret;
-				log_warning(
-					"Loading from BootNext failed, falling back to BootOrder\n");
+				log_warning
+				("Loading from BootNext failed, falling back to BootOrder\n");
 			}
 		} else {
 			log_err("Deleting BootNext failed\n");
