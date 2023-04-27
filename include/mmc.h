@@ -508,6 +508,7 @@ struct dm_mmc_ops {
 #if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
 	/* set_enhanced_strobe() - set HS400 enhanced strobe */
 	int (*set_enhanced_strobe)(struct udevice *dev);
+	int (*clear_enhanced_strobe)(struct udevice *dev);
 #endif
 
 	/**
