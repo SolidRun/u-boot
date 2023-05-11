@@ -87,6 +87,9 @@
 #define SDHCI_CDNS_HRS10			0x28
 #define	SDHCI_CDNS_HRS10_HCSDCLKADJ		GENMASK(19, 16)
 
+#define SDHCI_CDNS_HRS11			0x2c
+#define SDHCI_CDNS_HRS11_EMMC_RESET		BIT(0)
+
 #define SDHCI_CDNS_SRS11			0x2c
 #define SDHCI_CDNS_SRS11_SW_RESET_ALL 		BIT(24)
 #define SDHCI_CDNS_SRS11_SW_RESET_CMD 		BIT(25)
@@ -682,6 +685,10 @@ static u32 sdhci_cdns_get_emmc_mode(struct sdhci_cdns_plat *priv)
 void sdhci_cdns_sd6_fullsw_reset(struct sdhci_cdns_plat *plat)
 {
 	u32 regval;
+
+	regval = readl(plat->hrs_addr + SDHCI_CDNS_HRS11);
+	regval |= SDHCI_CDNS_HRS11_EMMC_RESET;
+	writel(regval, plat->hrs_addr + SDHCI_CDNS_HRS11);
 
 	regval = readl(plat->hrs_addr + SDHCI_CDNS_HRS00);
 	regval |= SDHCI_CDNS_HRS00_SWR;
