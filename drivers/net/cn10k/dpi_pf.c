@@ -118,9 +118,10 @@ void pem_ep_bar4_init(struct dpi_pf *pf)
 	memset((void *)addr, 0x0, 64);
 
 	write_bar4_reg(TARGET_VERSION, TARGET_VERSION_REG);
+	write_bar4_reg(0x0, HOST_RESET_STS_REG);
 }
 
-void dpi_setup_queues(struct dpi_pf *pf)
+void dpi_setup_queues(struct dpi_pf *pf, u8 reset)
 {
 	/* TXQ */
 	struct hw_descq *descq;
@@ -167,20 +168,23 @@ void dpi_setup_queues(struct dpi_pf *pf)
 		 (u32 __iomem *)(descq->shadow_cons_idx_addr);
 	rq->local_cons_idx = 0;
 	rq->refill_prod_idx = 0;
-	rq->dma_list = (u64 *)npa_memalloc(descq->num_entries, sizeof(u64),
-					   "RX DescQ Buffer array");
-	if (!rq->dma_list)
-		printf("out of memory for buffer array\n");
-	count = circq_space(0, rq->refill_prod_idx, rq->mask);
-	for (i = 0; i < descq->num_entries; i++) {
-		rq->dma_list[i] = (u64)npa_memalloc(1, RECV_BUF_SIZE,
-						    "TX DQ Buffer");
-		if (!rq->dma_list[i]) {
-			printf("out of memory for buffer\n");
-			break;
+	if (!reset) {
+		rq->dma_list = (u64 *)npa_memalloc(descq->num_entries,
+						   sizeof(u64),
+						   "RX DescQ Buffer array");
+		if (!rq->dma_list)
+			printf("out of memory for buffer array\n");
+		count = circq_space(0, rq->refill_prod_idx, rq->mask);
+		for (i = 0; i < descq->num_entries; i++) {
+			rq->dma_list[i] = (u64)npa_memalloc(1, RECV_BUF_SIZE,
+							    "TX DQ Buffer");
+			if (!rq->dma_list[i]) {
+				printf("out of memory for buffer\n");
+				break;
+			}
 		}
+		rq->refill_prod_idx = i;
 	}
-	rq->refill_prod_idx = i;
 	__iowmb();
 	debug("TX DQ entries %d remap addr %llx\n",
 	      descq->num_entries, descq->shadow_cons_idx_addr);
@@ -196,7 +200,7 @@ void handle_host_status(struct dpi_pf *pf)
 	switch (tgt_sts) {
 	case TARGET_READY:
 		if (host_sts == HOST_READY) {
-			dpi_setup_queues(pf);
+			dpi_setup_queues(pf, false);
 			write_bar4_reg(TARGET_RUNNING, TARGET_STATUS_REG);
 			mb_send_msg(pf);
 		}
@@ -598,6 +602,10 @@ int dpi_start(struct udevice *dev)
 		return -1;
 	}
 
+	if (read_bar4_reg(HOST_RESET_STS_REG) & BIT(0)) {
+		dpi_setup_queues(dpi, true);
+		write_bar4_reg(0x0, HOST_RESET_STS_REG);
+	}
 	mb_check_msg(dpi);
 
 	/* Loop for larger time period for host to setup running state */

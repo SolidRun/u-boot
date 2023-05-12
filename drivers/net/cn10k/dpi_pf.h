@@ -100,7 +100,7 @@
 
 #define HOST_RW_OFFSET            128
 #define HOST_STATUS_REG           (HOST_RW_OFFSET + 0)
-#define HOST_INTR_REG             (HOST_RW_OFFSET + 8)
+#define HOST_RESET_STS_REG        (HOST_RW_OFFSET + 8)
 #define HOST_MBOX_ACK_REG         (HOST_RW_OFFSET + 16)
 #define HOST_MBOX_OFFSET          (HOST_RW_OFFSET + 24)
 
