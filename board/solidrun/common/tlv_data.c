@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <compiler.h>
+#include <linux/err.h>
 #include <tlv_eeprom.h>
 #include "tlv_data.h"
 
@@ -55,44 +56,31 @@ static void parse_tlv_vendor_ext(struct tlvinfo_tlv *tlv_entry,
 	}
 }
 
-static void parse_tlv_data(u8 *eeprom, struct tlvinfo_header *hdr,
-			   struct tlvinfo_tlv *entry, struct tlv_data *td)
+static void parse_tlv_data(u8 *eeprom, struct tlvinfo_priv *tlv,
+						   struct tlv_data *td)
 {
-	unsigned int tlv_offset, tlv_len;
+	struct tlvinfo_tlv *entry;
 
-	tlv_offset = sizeof(struct tlvinfo_header);
-	tlv_len = sizeof(struct tlvinfo_header) + be16_to_cpu(hdr->totallen);
-	while (tlv_offset < tlv_len) {
-		entry = (struct tlvinfo_tlv *)&eeprom[tlv_offset];
+	entry = tlv_entry_next_by_code(tlv, NULL, TLV_CODE_PRODUCT_NAME);
+	if (!IS_ERR(entry))
+		store_product_name(entry, td);
 
-		switch (entry->type) {
-		case TLV_CODE_PRODUCT_NAME:
-			store_product_name(entry, td);
-			break;
-		case TLV_CODE_VENDOR_EXT:
-			parse_tlv_vendor_ext(entry, td);
-			break;
-		default:
-			break;
-		}
-
-		tlv_offset += sizeof(struct tlvinfo_tlv) + entry->length;
-	}
+	entry = tlv_entry_next_by_code(tlv, NULL, TLV_CODE_VENDOR_EXT);
+	if (!IS_ERR(entry))
+		parse_tlv_vendor_ext(entry, td);
 }
 
 void read_tlv_data(struct tlv_data *td)
 {
 	u8 eeprom_data[TLV_TOTAL_LEN_MAX];
-	struct tlvinfo_header *tlv_hdr;
-	struct tlvinfo_tlv *tlv_entry;
-	int ret, i;
+	struct tlvinfo_priv *priv;
+	int i;
 
 	for (i = 0; i < 2; i++) {
-		ret = read_tlvinfo_tlv_eeprom(eeprom_data, &tlv_hdr,
-					      &tlv_entry, i);
-		if (ret < 0)
+		priv = tlv_eeprom_read(tlv_eeprom_get_by_index(i), 0, eeprom_data, ARRAY_SIZE(eeprom_data));
+		if (IS_ERR(priv))
 			continue;
-		parse_tlv_data(eeprom_data, tlv_hdr, tlv_entry, td);
+		parse_tlv_data(eeprom_data, priv, td);
 	}
 }
 
