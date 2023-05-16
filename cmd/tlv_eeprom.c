@@ -1100,11 +1100,12 @@ int mac_read_from_eeprom(void)
  *
  *  This function must be called after relocation.
  */
-int populate_serial_number(int devnum)
+int populate_serial_number(void)
 {
 	char serialstr[257];
 	int eeprom_index;
 	struct tlvinfo_tlv *eeprom_tlv;
+	int devnum = 0; // TODO: support multiple EEPROMs
 
 	if (env_get("serial#"))
 		return 0;
