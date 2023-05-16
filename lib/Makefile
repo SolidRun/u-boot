@@ -153,6 +153,8 @@ obj-$(CONFIG_LIB_ELF) += elf.o
 
 obj-$(CONFIG_$(SPL_TPL_)SEMIHOSTING) += semihosting.o
 
+obj-y += tlv/
+
 #
 # Build a fast OID lookup registry from include/linux/oid_registry.h
 #

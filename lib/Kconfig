@@ -1200,3 +1200,4 @@ config PHANDLE_CHECK_SEQ
 endmenu
 
 source lib/fwu_updates/Kconfig
+source lib/tlv/Kconfig

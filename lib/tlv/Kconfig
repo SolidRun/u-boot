@@ -1,0 +1,18 @@
+config EEPROM_TLV_LIB
+	bool "Enable EEPROM TLV library"
+	depends on I2C_EEPROM
+	select CRC32
+	help
+	  Selecting this option will enable the shared EEPROM TLV library code.
+	  It provides functions for reading, writing and parsing of
+	  TLV-encoded data from EEPROMs.
+
+config SPL_EEPROM_TLV_LIB
+	bool "Enable EEPROM TLV library for SPL"
+	depends on SPL_I2C_EEPROM
+	select SPL_CRC32
+	select SPL_DRIVERS_MISC
+	help
+	  Selecting this option will enable the shared EEPROM TLV library code.
+	  It provides functions for reading, writing and parsing of
+	  TLV-encoded data from EEPROMs.
