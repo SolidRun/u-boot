@@ -24,6 +24,7 @@
 #include <memalign.h>
 #include <linux/list.h>
 #include <div64.h>
+#include <linux/bitfield.h>
 #include "mmc_private.h"
 
 #define DEFAULT_CMD6_TIMEOUT_MS  500
@@ -2420,6 +2421,28 @@ error:
 	return err;
 }
 
+static void mmc_check_cmd23_support(struct mmc *mmc)
+{
+	int i;
+	u32 ccc;
+	u32 *csd_resp;
+
+	/* CRC is stripped so we need to do some shifting */
+	csd_resp = &mmc->csd[0];
+
+	for (i = 0; i < 4; i++) {
+		csd_resp[i] <<= 8;
+		if (i != 3)
+			csd_resp[i] |= csd_resp[i + 1] >> 24;
+	}
+
+	ccc = FIELD_GET(GENMASK(31, 20), csd_resp[2]);
+
+	/* Command set support the multi-block command 23 */
+	if (ccc & 0x4)
+		mmc->host_caps |= MMC_CAP_CMD23;
+}
+
 static int mmc_startup(struct mmc *mmc)
 {
 	int err, i;
@@ -2552,6 +2575,9 @@ static int mmc_startup(struct mmc *mmc)
 			| (mmc->csd[2] & 0xc0000000) >> 30;
 		cmult = (mmc->csd[2] & 0x00038000) >> 15;
 	}
+
+	/* Check to see if device supports the set block count command 23 */
+	mmc_check_cmd23_support(mmc);
 
 	mmc->capacity_user = (csize + 1) << (cmult + 2);
 	mmc->capacity_user *= mmc->read_bl_len;
