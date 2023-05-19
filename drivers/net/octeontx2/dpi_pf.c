@@ -363,16 +363,20 @@ int dpi_xmit(struct udevice *dev, void *pkt, int pkt_len)
 	mb_check_msg(dpi);
 
 	if (read_bar4_reg(HOST_STATUS_REG) != HOST_RUNNING) {
-		printf("%s Host not running\n", __func__);
+		debug("%s Host not running\n", __func__);
 		return -1;
 	}
 	tq = &dpi->txqs;
 	descq = tq->hw_descq;
+	if (!descq)
+		return -1;
 
 	cons_idx = tq->local_cons_idx;
 	prod_idx = descq->prod_idx;
 
 	ptr = &descq->desc_arr[cons_idx];
+	if (!ptr)
+		return -1;
 	ptr->hdr.s_mgmt_net.total_len = pkt_len;
 	ptr->hdr.s_mgmt_net.ptr_len   = pkt_len;
 	ptr->hdr.s_mgmt_net.is_frag = 0;
@@ -498,11 +502,13 @@ int dpi_recv(struct udevice *dev, int flags, uchar **packetp)
 	mb_check_msg(dpi);
 
 	if (read_bar4_reg(HOST_STATUS_REG) != HOST_RUNNING) {
-		printf("%s Host not running\n", __func__);
+		debug("%s Host not running\n", __func__);
 		return -1;
 	}
 	rq = &dpi->rxqs;
 	descq = rq->hw_descq;
+	if (!descq)
+		return -1;
 
 	cons_idx = rq->local_cons_idx;
 	prod_idx = descq->prod_idx;
@@ -513,6 +519,8 @@ int dpi_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	ptr = &descq->desc_arr[cons_idx];
 	pkt_buf = (void *)rq->dma_list[cons_idx];
+	if (!ptr || !pkt_buf)
+		return -1;
 
 	instr.dma_len = ptr->hdr.s_mgmt_net.total_len;
 	instr.hostaddr = ptr->ptr;
@@ -594,7 +602,7 @@ int dpi_start(struct udevice *dev)
 		if (read_bar4_reg(HOST_STATUS_REG) == HOST_RUNNING)
 			break;
 	}
-	if (!count && (read_bar4_reg(HOST_STATUS_REG) != HOST_RUNNING)) {
+	if (count < 0 && (read_bar4_reg(HOST_STATUS_REG) != HOST_RUNNING)) {
 		printf("%s Host not running\n", __func__);
 		return -1;
 	}
