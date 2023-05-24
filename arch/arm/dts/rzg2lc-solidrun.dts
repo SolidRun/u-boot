@@ -32,6 +32,7 @@
 
 };
 
+
 &pinctrl {
 	eth0_pins: eth0 {
 		pinmux = <RZG2L_PINMUX(20, 0, 1)>,
@@ -55,6 +56,7 @@
 				<RZG2L_PINMUX(28, 1, 1)>;
 	};
 };
+
 
 &xinclk {
         clock-frequency = <24000000>;
@@ -93,7 +95,6 @@
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii";
 	status = "okay";
-
 	phy0: ethernet-phy@0 {
 		reg = <0>;
 	};
@@ -107,4 +108,8 @@
 		compatible = "adi,adv7535";
 		reg = <0x3d>;
 	};
+};
+
+&ehci0 {
+	status = "okay";
 };
