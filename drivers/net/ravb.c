@@ -369,6 +369,11 @@ static int ravb_write_hwaddr(struct udevice *dev)
 	return 0;
 }
 
+static int ravb_read_hwaddr(struct udevice *dev)
+{
+	return mac_read_from_eeprom();
+}
+
 /* E-MAC init function */
 static int ravb_mac_init(struct ravb_priv *eth)
 {
@@ -708,6 +713,7 @@ static const struct eth_ops ravb_ops = {
 	.free_pkt		= ravb_free_pkt,
 	.stop			= ravb_stop,
 	.write_hwaddr		= ravb_write_hwaddr,
+	.read_rom_hwaddr	= ravb_read_hwaddr,
 };
 
 int ravb_of_to_plat(struct udevice *dev)
