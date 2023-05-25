@@ -108,6 +108,11 @@
 		compatible = "adi,adv7535";
 		reg = <0x3d>;
 	};
+
+	m24c02@50 {
+		compatible = "atmel,24c02";
+		reg = <0x50>;
+	};
 };
 
 &ehci0 {
