@@ -3025,8 +3025,7 @@ int mmc_init(struct mmc *mmc)
 
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
-	CONFIG_IS_ENABLED(MMC_HS400_SUPPORT) || \
-	CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 int mmc_deinit(struct mmc *mmc)
 {
 	u32 caps_filtered;
@@ -3042,17 +3041,6 @@ int mmc_deinit(struct mmc *mmc)
 
 		return sd_select_mode_and_width(mmc, caps_filtered);
 	} else {
-		#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
-		// if we are in enhanced strobe mode we have to disable it first in order
-		// to downgrade speed.
-		if (mmc->selected_mode == MMC_HS_400_ES) {
-			mmc_clear_enhanced_strobe(mmc);
-			mmc_set_card_speed(mmc, MMC_HS_400, 1);
-		}
-
-		mmc_set_card_speed(mmc, MMC_HS, 1);
-		#endif
-
 		caps_filtered = mmc->card_caps &
 			~(MMC_CAP(MMC_HS_200) | MMC_CAP(MMC_HS_400) | MMC_CAP(MMC_HS_400_ES));
 
