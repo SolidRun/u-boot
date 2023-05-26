@@ -286,6 +286,7 @@ struct sdhci_ops {
 	 * Return: 0 if successful, -ve on error
 	 */
 	int	(*set_enhanced_strobe)(struct sdhci_host *host);
+	int	(*clear_enhanced_strobe)(struct sdhci_host *host);
 };
 
 #define ADMA_MAX_LEN	65536

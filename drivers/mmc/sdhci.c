@@ -817,8 +817,20 @@ static int sdhci_set_enhanced_strobe(struct udevice *dev)
 	if (host->ops && host->ops->set_enhanced_strobe)
 		return host->ops->set_enhanced_strobe(host);
 
-	return -ENOTSUPP;
+	return -EOPNOTSUPP;
 }
+
+static int sdhci_clear_enhanced_strobe(struct udevice *dev)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	struct sdhci_host *host = mmc->priv;
+
+	if (host->ops && host->ops->clear_enhanced_strobe)
+		return host->ops->clear_enhanced_strobe(host);
+
+	return -EOPNOTSUPP;
+}
+
 #endif
 
 const struct dm_mmc_ops sdhci_ops = {
@@ -832,6 +844,7 @@ const struct dm_mmc_ops sdhci_ops = {
 	.wait_dat0	= sdhci_wait_dat0,
 #if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
 	.set_enhanced_strobe = sdhci_set_enhanced_strobe,
+	.clear_enhanced_strobe = sdhci_clear_enhanced_strobe,
 #endif
 };
 #else
