@@ -2112,7 +2112,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 	if (mmc->selected_mode == MMC_HS_200 ||
 		mmc->selected_mode == MMC_HS_400 ||
 		mmc->selected_mode == MMC_HS_400_ES) {
-		mmc_set_card_speed(mmc, MMC_HS, true);
+			mmc_set_card_speed(mmc, MMC_HS, true);
 	}
 	else
 #endif

@@ -145,17 +145,16 @@ int dm_mmc_clear_enhanced_strobe(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
-	if (ops->set_enhanced_strobe)
+	if (ops->clear_enhanced_strobe)
 		return ops->clear_enhanced_strobe(dev);
 
-	return -ENOTSUPP;
+	return -EOPNOTSUPP;
 }
 
 int mmc_clear_enhanced_strobe(struct mmc *mmc)
 {
 	return dm_mmc_clear_enhanced_strobe(mmc->dev);
 }
-
 #endif
 
 int dm_mmc_host_power_cycle(struct udevice *dev)

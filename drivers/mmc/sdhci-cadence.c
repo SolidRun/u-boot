@@ -1608,7 +1608,6 @@ static int sdhci_cdns_hs400_enhanced_strobe(struct udevice *dev)
 
 	plat->enhanced_strobe = 1;
 	sdhci_cdns_set_emmc_mode(plat, SDHCI_CDNS_HRS06_MODE_MMC_HS400ES);
-
 	return 0;
 }
 
@@ -1618,7 +1617,6 @@ static int sdhci_cdns_hs400_clear_enhanced_strobe(struct udevice *dev)
 
 	plat->enhanced_strobe = 0;
 	sdhci_cdns_set_emmc_mode(plat, SDHCI_CDNS_HRS06_MODE_MMC_HS400);
-
 	return 0;
 }
 #endif
