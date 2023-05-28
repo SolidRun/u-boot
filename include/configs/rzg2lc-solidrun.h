@@ -59,16 +59,30 @@
 
 /* ENV setting */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-        "bootm_size=0x10000000 \0" \
-        "fdtfile=rzg2lc-hummingboard.dtb\0" \
-        "dtb_addr=0x48000000  \0" \
-        "kerenl_addr=0x48080000  \0"
+#define BOOT_TARGET_DEVICES(func) \
+        func(MMC, mmc, 0) \
+        func(USB, usb, 0) \
+        func(DHCP, dhcp, na)
 
-#define CONFIG_BOOTCOMMAND \
-        "setenv bootargs 'root=/dev/mmcblk0p2 rootwait'; echo 'rzg2lc-solidrun';" \
-        "mmc dev 0; fatload mmc 0:1 $kerenl_addr Image; fatload mmc 0:1 $dtb_addr $fdtfile;" \
-        "booti $kerenl_addr - $dtb_addr"
+#include <config_distro_bootcmd.h>
+
+#define KERNEL_ADDR_R	__stringify(0x48000000)
+#define FDT_ADDR_R	__stringify(0x4c000000)
+#define SCRIPT_ADDR_R	__stringify(0x4c100000)
+#define PXEFILE_ADDR_R	__stringify(0x4c200000)
+#define RAMDISK_ADDR_R	__stringify(0x4c800000)
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"kernel_addr_r=" KERNEL_ADDR_R "\0" \
+	"fdt_addr_r=" FDT_ADDR_R "\0" \
+	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
+	"scriptaddr=" SCRIPT_ADDR_R "\0" \
+	"pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
+	"fdt_high=0xffffffffffffffff\0"	\
+	"initrd_high=0xffffffffffffffff\0" \
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+BOOTENV
+
 
 /* For board */
 /* Ethernet RAVB */
