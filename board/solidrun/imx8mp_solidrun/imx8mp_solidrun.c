@@ -35,8 +35,21 @@
 #include <linux/delay.h>
 #include <env.h>
 #include <tlv_eeprom.h>
+#include "../common/tlv_data.h"
 
 #define ONE_GB 0x40000000ULL
+
+static struct tlv_data hb_tlv_data;
+static bool tlv_read_once;
+
+static void hb_read_tlv_data(void)
+{
+        if (tlv_read_once)
+                return;
+        tlv_read_once = true;
+
+        read_tlv_data(&hb_tlv_data);
+}
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -366,104 +379,6 @@ static bool find_i2c_dev(u8 i2c_bus, u8 address) {
 	return true;
 }
 
-/*
- * Read TLV formatted data from eeprom.
- * Only read as much data as indicated by the TLV header.
- */
-// TODO: this should be a library function?!
-static bool get_tlvinfo_from_eeprom(int index, u8 *buffer, size_t length) {
-	struct tlvinfo_header *eeprom_hdr = (struct tlvinfo_header *) buffer;
-	struct tlvinfo_tlv *eeprom_tlv = (struct tlvinfo_tlv *) &buffer[sizeof(struct tlvinfo_header)];
-
-	if(length < TLV_INFO_HEADER_SIZE) {
-		pr_err("%s: buffer too small for tlv header!\n", __func__);
-		return false;
-	}
-	if(read_tlv_eeprom((void *)eeprom_hdr, 0, TLV_INFO_HEADER_SIZE, index) != 0) {
-		pr_err("%s: failed to read from eeprom!\n", __func__);
-		return false;
-	}
-	if(!is_valid_tlvinfo_header(eeprom_hdr)) {
-		pr_warn("%s: invalid tlv header!\n", __func__);
-		return false;
-	}
-	if(length - TLV_INFO_HEADER_SIZE < be16_to_cpu(eeprom_hdr->totallen)) {
-		pr_err("%s: buffer too small for tlv data!\n", __func__);
-		return false;
-	}
-	if(read_tlv_eeprom((void *)eeprom_tlv, sizeof(struct tlvinfo_header), be16_to_cpu(eeprom_hdr->totallen), index) != 0) {
-		pr_err("%s: failed to read from eeprom!\n", __func__);
-		return false;
-	}
-
-	return true;
-}
-
-/*
- * SolidRun TLV vendor extension data format
- * (compatible with format used on Armada 388 Clearfog by Baruch Siach)
- */
-struct __attribute__((__packed__)) sr_tlv_ext {
-	u32 pen; // IANA Private Enterprise Number
-	u8 code; // identification code for data
-	u8 data[];
-};
-
-// SolidRun TLV vendor extension data codes
-enum sr_tlv_code {
-	SR_TLV_CODE_KIT_NUMBER	= 0x10,
-	SR_TLV_CODE_RAM_SIZE	= 0x81,
-};
-
-/**
- * Read TLV SolidRun Vendor Extension entry
- * @eeprom: tlv eeprom data to parse
- * @code: solidrun code to read
- * @buffer: buffer for result data (C string)
- * @size: size of buffer
- */
-int tlvinfo_read_tlv_ext_sr(u8 *eeprom, u8 code, char *buffer, size_t size) {
-	int eeprom_index = 0;
-	struct tlvinfo_tlv *tlv = 0;
-	const struct sr_tlv_ext *vext = 0;
-	size_t vext_data_len = 0;
-
-	// read vendor extension
-	if(!tlvinfo_find_tlv(eeprom, TLV_CODE_VENDOR_EXT, &eeprom_index)) {
-		pr_warn("%s: could not find vendor extension in eeprom\n", __func__);
-		return -ENOENT;
-	} else {
-		tlv = (void *)&eeprom[eeprom_index];
-		vext = (void *)tlv->value;
-		vext_data_len = tlv->length - sizeof(struct sr_tlv_ext);
-		pr_info("%s: read vendor extension with length %#02X\n", __func__, tlv->length);
-	}
-
-	// only match own extension (sadly, we don't have IANA number ...
-	const u32 pen = 0xFFFFFFFF;
-	if(vext->pen != htonl(pen)) {
-		pr_warn("%s: found extension enterprise number %#02X but requested %#02X!\n", __func__, vext->pen, pen);
-		return -ENOENT;
-	}
-
-	// match expected code
-	if(vext->code != code) {
-		pr_warn("%s: found vendor extension code %#02X but requested %#02X!\n", __func__, vext->code, code);
-		return -ENOENT;
-	}
-
-	// validate destination buffer space
-	if(size <= vext_data_len) {
-		pr_err("%s: buffer too small for data: have %0zX, want %0zX!\n", __func__, size, vext_data_len + 1);
-		return -ENOENT;
-	}
-
-	// return data as 0-terminated C string
-	memcpy(buffer, vext->data, vext_data_len);
-	buffer[vext_data_len] = 0;
-	return 0;
-}
-
 static struct board_id {
 	char carrier_name[32];
 	char carrier_rev[3];
@@ -480,30 +395,14 @@ static struct board_id {
  * - som_name: name of SoC
  * - som_rev: revision of SoM
  */
-static void board_id_from_tlv_eeprom(void) {
-	static u8 eeprom[TLV_INFO_MAX_LEN];
-	char sku[257];
-	char kku[257];
+static void board_id_from_tlv_info(void) {
 	char *tmp;
 
-	for(int i = 0; i < 2;i++) {
-		// read eeprom
-		if(!get_tlvinfo_from_eeprom(i, eeprom, sizeof(eeprom))) {
-			pr_info("%s: failed to read eeprom %d\n", __func__, i);
-			continue;
-		}
-
-		// read sku
-		if(!tlvinfo_read_tlv(eeprom, TLV_CODE_PART_NUMBER, (u8 *)sku, sizeof(sku))) {
-			pr_warn("%s: could not find sku in eeprom\n", __func__);
-			continue;
-		}
-		pr_debug("%s: read sku %s\n", __func__, sku);
-
+	for(int i = 0; i < TLV_MAX_DEVICES; i++) {
 		// parse sku - processor or carrier indicated at index 2-6
-		if(memcmp(&sku[2], "HBC", 3) == 0) {
+		if(memcmp(&hb_tlv_data.tlv_part_number[i][2], "HBC", 3) == 0) {
 			// HummingBoard
-			switch(sku[5]) {
+			switch(hb_tlv_data.tlv_part_number[i][5]) {
 			    case 'M': // Mate
 				tmp = "mate";
 				break;
@@ -514,7 +413,7 @@ static void board_id_from_tlv_eeprom(void) {
 				tmp = "pulse";
 				break;
 			    default:
-				pr_err("%s: did not recognise board variant '%c' in sku \"%s\"!\n", __func__, sku[5], sku);
+				pr_err("%s: did not recognise board variant '%c' in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_part_number[i][5], hb_tlv_data.tlv_part_number[i]);
 				tmp = 0;
 			}
 
@@ -526,54 +425,49 @@ static void board_id_from_tlv_eeprom(void) {
 			}
 
 			// board revision at index 12-13
-			if(sku[12] && sku[13]) {
-				board_id.carrier_rev[0] = sku[12];
-				board_id.carrier_rev[1] = sku[13];
+			if(hb_tlv_data.tlv_part_number[i][12] && hb_tlv_data.tlv_part_number[i][13]) {
+				board_id.carrier_rev[0] = hb_tlv_data.tlv_part_number[i][12];
+				board_id.carrier_rev[1] = hb_tlv_data.tlv_part_number[i][13];
 				board_id.carrier_rev[2] = 0;
 			} else {
-			    pr_err("%s: did not find board revision in sku \"%s\"!\n", __func__, sku);
+			    pr_err("%s: did not find board revision in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_part_number[i]);
 			}
-		} else if(memcmp(&sku[2], "MP8", 3) == 0) {
+		} else if(memcmp(&hb_tlv_data.tlv_part_number[i][2], "MP8", 3) == 0) {
 			// i.MX8MP SoM
 			strcpy(board_id.som_name, "imx8mp");
 
 			// variant
-			switch(sku[5]) {
+			switch(hb_tlv_data.tlv_part_number[i][5]) {
 			    case 'D':
 				break;
 			    case 'Q':
 				break;
 			    default:
-				pr_err("%s: did not recognise cpu variant '%c' in sku \"%s\"!\n", __func__, sku[5], sku);
+				pr_err("%s: did not recognise cpu variant '%c' in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_part_number[i][5], hb_tlv_data.tlv_part_number[i]);
 			}
 
 			// SoM revision at index 19-20
-			if(sku[19] && sku[20]) {
-				board_id.som_rev[0] = sku[19];
-				board_id.som_rev[1] = sku[20];
+			if(hb_tlv_data.tlv_part_number[i][19] && hb_tlv_data.tlv_part_number[i][20]) {
+				board_id.som_rev[0] = hb_tlv_data.tlv_part_number[i][19];
+				board_id.som_rev[1] = hb_tlv_data.tlv_part_number[i][20];
 				board_id.som_rev[2] = 0;
 			} else {
-			    pr_err("%s: did not find som revision in sku \"%s\"!\n", __func__, sku);
+			    pr_err("%s: did not find som revision in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_part_number[i]);
 			}
 		} else {
-			pr_err("%s: did not recognise SKU %s!\n", __func__, sku);
+			pr_err("%s: did not recognise SKU %s!\n", __func__, hb_tlv_data.tlv_part_number[i]);
 		}
 
-		// read vendor extension kit number
-		if(!tlvinfo_read_tlv_ext_sr(eeprom, SR_TLV_CODE_KIT_NUMBER, kku, sizeof(kku))) {
-			pr_warn("%s: could not find kit sku in eeprom\n", __func__);
-			continue;
-		}
-		pr_info("%s: read kit sku %s\n", __func__, kku);
+		pr_info("%s: read kit sku %s\n", __func__, hb_tlv_data.tlv_kit_number[i]);
 
 		// SRMP8QDW00D01GE008X01CE
-		if(strlen(kku) != 23) {
-			pr_err("%s: kit sku \"%s\" has wrong length (expecting %0X)\n", __func__, kku, 23);
+		if(strlen(hb_tlv_data.tlv_kit_number[i]) != 23) {
+			pr_err("%s: kit sku \"%s\" has wrong length (expecting %0X)\n", __func__, hb_tlv_data.tlv_kit_number[i], 23);
 			continue;
 		}
 
 		// kit type
-		switch(kku[18]) {
+		switch(hb_tlv_data.tlv_kit_number[i][18]) {
 		    case 'M': // Mate
 			tmp = "hummingboard-mate";
 			break;
@@ -588,7 +482,7 @@ static void board_id_from_tlv_eeprom(void) {
 			break;
 		    default:
 			tmp = 0;
-			pr_err("%s: did not recognise kit variant '%c' in sku \"%s\"!\n", __func__, kku[18], kku);
+			pr_err("%s: did not recognise kit variant '%c' in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_kit_number[i][18], hb_tlv_data.tlv_kit_number[i]);
 		}
 		if(tmp) {
 			if(board_id.product_name[0] && strcmp(board_id.product_name, tmp) != 0) {
@@ -598,8 +492,8 @@ static void board_id_from_tlv_eeprom(void) {
 		}
 
 		// kit revision
-		board_id.product_rev[0] = kku[19];
-		board_id.product_rev[1] = kku[20];
+		board_id.product_rev[0] = hb_tlv_data.tlv_kit_number[i][19];
+		board_id.product_rev[1] = hb_tlv_data.tlv_kit_number[i][20];
 		board_id.product_rev[2] = 0;
 	}
 }
@@ -611,8 +505,11 @@ int board_late_init(void)
 	board_late_mmc_env_init();
 #endif
 
+	// populate tlv_data
+	hb_read_tlv_data();
+
 	// identify device
-	board_id_from_tlv_eeprom();
+	board_id_from_tlv_info();
 
 	// fall-back when identification fails
 	if(!board_id.carrier_name[0]) {
@@ -669,48 +566,6 @@ int board_late_init(void)
 	return 0;
 }
 
-
-static struct board_mac {
-	unsigned char base[2][6];
-	u16 count[2];
-} board_mac = {0};
-/*
- *
- */
-void board_mac_from_tlv_eeprom(void) {
-	static u8 eeprom[TLV_INFO_MAX_LEN] = {0};
-	int eeprom_index = 0;
-	struct tlvinfo_tlv *tlv = 0;
-
-	for(int i = 0; i < 2; i++) {
-		// read eeprom
-		if(!get_tlvinfo_from_eeprom(i, eeprom, sizeof(eeprom))) {
-			pr_info("%s: failed to read eeprom %d\n", __func__, i);
-			continue;
-		}
-
-		// read mac count
-		if(tlvinfo_find_tlv(eeprom, TLV_CODE_MAC_SIZE, &eeprom_index)) {
-			tlv = (void *)&eeprom[eeprom_index];
-			board_mac.count[i] = (tlv->value[0] << 8) | tlv->value[1];
-			pr_debug("%s: read mac count = %u\n", __func__, board_mac.count[i]);
-		}
-		if(!board_mac.count[i])
-			continue;
-
-		// read mac base
-		if(tlvinfo_find_tlv(eeprom, TLV_CODE_MAC_BASE, &eeprom_index)) {
-			tlv = (void *)&eeprom[eeprom_index];
-			memcpy(board_mac.base[i], tlv->value, 6);
-			pr_debug("%s: read mac base = %02X:%02X:%02X:%02X:%02X:%02X\n", __func__, board_mac.base[i][0], board_mac.base[i][1], board_mac.base[i][2], board_mac.base[i][3], board_mac.base[i][4], board_mac.base[i][5]);
-		}
-		if(!is_valid_ethaddr(board_mac.base[i])) {
-			pr_debug("%s: mac base is invalid\n", __func__);
-			continue;
-		}
-	}
-}
-
 // calculate n-th mac from base
 static void mac_add_n(unsigned char *base, u16 n) {
 	union {
@@ -727,7 +582,6 @@ static void mac_add_n(unsigned char *base, u16 n) {
  * select board mac address for given interface
  */
 int board_get_mac(int dev_id, unsigned char *mac) {
-	static bool read_mac = false;
 	int i;
 
 	// HACK: id 1 is the first
@@ -736,12 +590,6 @@ int board_get_mac(int dev_id, unsigned char *mac) {
 		return -ENOENT;
 	}
 	dev_id -= 1;
-
-	// read macs from eeprom
-	if(!read_mac) {
-		board_mac_from_tlv_eeprom();
-		read_mac = true;
-	}
 
 	/*
 	 * Note: Environment ethaddr (eth1addr, eth2addr, ...) has first priority,
@@ -752,19 +600,19 @@ int board_get_mac(int dev_id, unsigned char *mac) {
 
 	// tlv eeproms
 	i = dev_id;
-	for(int j = 0; j < 2; j++) {
-		if(!is_valid_ethaddr(board_mac.base[j]))
+	for(int j = 0; j < TLV_MAX_DEVICES; j++) {
+		if(!is_valid_ethaddr(&hb_tlv_data.tlv_mac_base[i][j]))
 			continue;
 
 		// count if enough macs are provided
-		if(i >= board_mac.count[j]) {
+		if(i >= hb_tlv_data.tlv_mac_count[j]) {
 			// maybe in next eeprom?
-			i -= board_mac.count[j];
+			i -= hb_tlv_data.tlv_mac_count[j];
 			continue;
 		}
 
 		// compute i-th mac
-		memcpy(mac, board_mac.base[j], 6);
+		memcpy(mac, &hb_tlv_data.tlv_mac_base[i][j], 6);
 		mac_add_n(mac, i);
 
 		if(is_valid_ethaddr(mac)) {
