@@ -1059,6 +1059,7 @@ static int eqos_write_hwaddr(struct udevice *dev)
 	struct eth_pdata *plat = dev_get_plat(dev);
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	uint32_t val;
+	int ret, stop_clocks = 0;
 
 	/*
 	 * This function may be called before start() or after stop(). At that
@@ -1082,8 +1083,15 @@ static int eqos_write_hwaddr(struct udevice *dev)
 	 * future-proofing with the expectation the driver will eventually be
 	 * ported to some system where the expectation above is true.
 	 */
-	if (!eqos->config->reg_access_always_ok && !eqos->reg_access_ok)
-		return 0;
+	if (!eqos->config->reg_access_always_ok && !eqos->reg_access_ok) {
+		ret = eqos->config->ops->eqos_start_clks(dev);
+		if (ret < 0) {
+			pr_err("eqos_start_clks() failed eqos_write_hwaddr failed : %d", ret);
+			return 0;
+		} else {
+			stop_clocks = 1;
+		}
+	}
 
 	/* Update the MAC address */
 	val = (plat->enetaddr[5] << 8) |
@@ -1094,6 +1102,9 @@ static int eqos_write_hwaddr(struct udevice *dev)
 		(plat->enetaddr[1] << 8) |
 		(plat->enetaddr[0]);
 	writel(val, &eqos->mac_regs->address0_low);
+
+	if (stop_clocks > 1)
+                ret = eqos->config->ops->eqos_stop_clks(dev);
 
 	return 0;
 }
