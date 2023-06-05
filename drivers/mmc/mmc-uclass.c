@@ -143,6 +143,22 @@ int mmc_set_enhanced_strobe(struct mmc *mmc)
 {
 	return dm_mmc_set_enhanced_strobe(mmc->dev);
 }
+
+int dm_mmc_clear_enhanced_strobe(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (ops->set_enhanced_strobe)
+		return ops->clear_enhanced_strobe(dev);
+
+	return -EOPNOTSUPP;
+}
+
+int mmc_clear_enhanced_strobe(struct mmc *mmc)
+{
+	return dm_mmc_clear_enhanced_strobe(mmc->dev);
+}
+
 #endif
 
 static int dm_mmc_hs400_prepare_ddr(struct udevice *dev)
