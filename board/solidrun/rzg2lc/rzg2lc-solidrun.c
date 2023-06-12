@@ -45,6 +45,17 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PFC_PM37					(PFC_BASE + 0x16E)
 #define PFC_PMC37					(PFC_BASE + 0x237)
 
+/* WDT */
+#define WDT_BASE 					0x12800800
+#define WDTCNT						0x00
+#define WDTSET						0x04
+#define WDTTIM						0x08
+#define WDTINT						0x0C
+#define PECR						0x10
+#define PEEN						0x14
+#define WDTCNT_WDTEN				BIT(0)
+#define WDTINT_INTDISP				BIT(0)
+
 void s_init(void)
 {
 	/* SD1 power control: P39_1 = 0; P39_2 = 1; */
@@ -86,7 +97,26 @@ int board_init(void)
 	return 0;
 }
 
+static void wdt_write(u32 val, unsigned int reg)
+{
+	writel(val, WDT_BASE + reg);
+}
+
+static int reset_wdt_start()
+{
+	/* Clear Lapsed Time Register and clear Interrupt */
+	wdt_write(WDTINT_INTDISP, WDTINT);
+	/* 2 consecutive overflow cycle needed to trigger reset */
+	wdt_write(0, WDTSET);
+	/* Initialize watchdog counter register */
+	wdt_write(0, WDTTIM);
+	/* Enable watchdog timer*/
+	wdt_write(WDTCNT_WDTEN, WDTCNT);
+
+	return 0;
+}
+
 void reset_cpu(void)
 {
-
+	reset_wdt_start();
 }
