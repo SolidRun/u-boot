@@ -3003,23 +3003,30 @@ int mmc_deinit(struct mmc *mmc)
 	} else {
 		// if we are in enhanced strobe mode we have to disable it first in order
 		// to downgrade speed.
-		#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
-		if (mmc->selected_mode == MMC_HS_400_ES) {
-			mmc_clear_enhanced_strobe(mmc);
-			mmc_set_card_speed(mmc, MMC_HS_400, 1);
-		}
+		if (mmc->selected_mode == MMC_HS_200 ||
+		    mmc->selected_mode == MMC_HS_400 ||
+		    mmc->selected_mode == MMC_HS_400_ES) {
+	#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+			if (mmc->selected_mode == MMC_HS_400_ES) {
+				mmc_clear_enhanced_strobe(mmc);
+				mmc_set_card_speed(mmc, MMC_HS_400, 1);
+			}
 
 		mmc_set_card_speed(mmc, MMC_HS, 1);
-		#endif
+	#endif
 
-		caps_filtered = mmc->card_caps &
-			~(MMC_CAP(MMC_HS_200) | MMC_CAP(MMC_HS_400) | MMC_CAP(MMC_HS_400_ES));
+			caps_filtered = mmc->card_caps &
+				~(MMC_CAP(MMC_HS_200) |
+				  MMC_CAP(MMC_HS_400) |
+				  MMC_CAP(MMC_HS_400_ES));
 
-		return mmc_select_mode_and_width(mmc, caps_filtered);
+			return mmc_select_mode_and_width(mmc, caps_filtered);
+		}
 	}
+	return 0;
+
 }
 #endif
-
 int mmc_set_dsr(struct mmc *mmc, u16 val)
 {
 	mmc->dsr = val;
