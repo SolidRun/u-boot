@@ -4,6 +4,9 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+// #define PRINT_DDR_TABLES
+// #define DEBUG
+
 #include <common.h>
 #include <hang.h>
 #include <init.h>
@@ -31,9 +34,10 @@
 #define ONE_GB 0x40000000ULL
 DECLARE_GLOBAL_DATA_PTR;
 
+extern struct dram_timing_info dram_timing_4gb_samsung_micron;
 extern struct dram_timing_info dram_timing_3gb_micron;
-extern struct dram_timing_info dram_timing_1gb_samsung;
 extern struct dram_timing_info dram_timing_2gb_samsung;
+extern struct dram_timing_info dram_timing_1gb_samsung_micron;
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
@@ -61,77 +65,300 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 #endif
 }
 
-int check_mirror_ddr(unsigned int addr_1, unsigned int addr_2)
+#ifdef PRINT_DDR_TABLES
+static void spl_print_ddr_tables(void)
 {
+	struct dram_timing_info *confs[4] = {&dram_timing_4gb_samsung_micron, &dram_timing_3gb_micron,
+					     &dram_timing_2gb_samsung, &dram_timing_1gb_samsung_micron};
+	int ret, i;
+	unsigned int mr5[4];
+	unsigned int mr6[4];
+	unsigned int mr7[4];
+	unsigned int mr8[4];
+	bool is_valid[4];
 
-	/* return 1 if mirror detected between addr_1 & addre_2, else return 0*/
-	int retrain_tmp;
-	unsigned int save1, save2, mirror;
-	volatile unsigned int *ptr;
-
-	retrain_tmp = 0;
-
-	ptr = (volatile unsigned int *)CONFIG_SYS_SDRAM_BASE;
-	save1 = ptr[addr_1];
-	save2 = ptr[addr_2];
-	ptr[addr_2] = save1 << 2;
-	ptr[addr_1] = ~save1;
-	mirror = ptr[addr_2];
-	if (mirror == ~save1) {
-	       printf ("Mirror detected\n");
-	       retrain_tmp = 1;
+	/* Collect data */
+	for (i = 0; i < 4; i++) {
+		ret = ddr_init(confs[i]);
+		if (ret) {
+			is_valid[i] = false;
+		} else {
+			is_valid[i] = true;
+			mr5[i] = lpddr4_mr_read(0xFF, 0x5);
+			mr6[i] = lpddr4_mr_read(0xFF, 0x6);
+			mr7[i] = lpddr4_mr_read(0xFF, 0x7);
+			mr8[i] = lpddr4_mr_read(0xFF, 0x8);
+		}
 	}
-	ptr[addr_1] = save1;
-	ptr[addr_2] = save2;
 
-	// Check if mirror have detected
-	if (retrain_tmp == 1)
-	       return 1;
+	/* Now print table */
 
-	return 0;
+	printf("\n\n\n");
+	printf("****************************************\n");
+	printf("************** DDR Tables **************\n");
+	printf("****************************************\n");
+	printf("(Please print the tables multiple times\nto determine if the values are stable).\n");
+	printf("\n");
+	printf("Size\tMR5\tMR6\tMR7\tMR8\n");
+
+	for (i = 0; i < 4; i++) {
+		if (!is_valid[i])
+			printf("%uG\t********** Failed **********\n", 4 - i);
+		else
+			printf("%uG\t0x%x\t0x%x\t0x%x\t0x%x\n", 4 - i, mr5[i], mr6[i], mr7[i], mr8[i]);
+	}
+	printf("\n");
+	printf("****************************************\n");
+	printf("************ DDR Tables End ************\n");
+	printf("****************************************\n");
+	printf("\n\n\n");
+}
+#endif //PRINT_DDR_TABLES
+
+/* MUST be called after DDR training with 4G parameters! */
+static bool spl_dram_is_3G(void)
+{
+	volatile uint32_t *base;
+	uint32_t backup;
+	bool ret = false;
+
+	/* SDRAM 2 starts after 3G.
+	 * We write 512M after the 3G offset.
+	 * If the value is not written, this is a 3G configuration.
+	 */
+	base = (volatile uint32_t *)(PHYS_SDRAM_2 + SZ_512M);
+
+	/* Backup value */
+	backup = *base;
+
+	/* Write something */
+	*base = ~backup;
+	/* Read back */
+	if (*base != ~backup)
+		ret = true;
+
+	*base = backup;
+	return ret;
 }
 
-void spl_dram_init(void)
+/* MUST be called after DDR training with 2G parameters! */
+static bool spl_dram_is_1G(void)
 {
-	int ret, retrain_1gb, retrain_2gb;
+	volatile uint32_t *base1, *base2;
+	volatile uint32_t tmp;
+	uint32_t backup1, backup2;
+	bool ret = false;
 
-	printf ("Training for 3GByte Mimcron\n");
-	ret = ddr_init(&dram_timing_3gb_micron);
-	if (ret == 0) {
-		// Check Mirror for 1GB
-		retrain_1gb = check_mirror_ddr(0, ONE_GB/4);
-		if (retrain_1gb == 1)
-		{
-			printf ("Re-training for 1GByte Samsung (3->1)\n");
-			ret = ddr_init(&dram_timing_1gb_samsung);
-			return;
+	/* The idea is to write a value in offset 1G and see if it is
+	 * written in offset 0 as well
+	 */
+	base1 = (volatile uint32_t *)CONFIG_SYS_SDRAM_BASE;
+	base2 = (volatile uint32_t *)((uint64_t)CONFIG_SYS_SDRAM_BASE + SZ_1G);
+
+	backup1 = *base1;
+	backup2 = *base2;
+
+	*base2 = 0xAAAAAAAA;
+	*base1 = 0x55555555;
+
+	tmp = *base2;
+	if (tmp == 0x55555555)
+		ret = true;
+
+	*base1 = backup1;
+	*base2 = backup2;
+
+	return ret;
+}
+
+static bool spl_generic_ddr_init(void)
+{
+	int ret;
+	bool output = true;
+	
+	/* Try 4G Samsung.
+	 * Will work with: 3G Micron as well.
+	 */
+	ret = ddr_init(&dram_timing_4gb_samsung_micron);
+	if (!ret) {
+		if (!spl_dram_is_3G()) {
+			printf("DDR 4G Samsung/Micron identified!\n");
+			goto exit;
 		}
-		// Check Mirror for 2GB
-		retrain_2gb = check_mirror_ddr(0, 2*ONE_GB/4);
-		if (retrain_2gb == 1)
-		{
-			printf ("Re-training for 2GByte Samsung (3->2)\n");
-			ret = ddr_init(&dram_timing_2gb_samsung);
-			return;
+	}
+
+	/* Try 3G Micron.
+	 * Will work with: 4G Samsung/Micron, but since we already tested it,
+	 * it's not relevant
+	 */
+	ret = ddr_init(&dram_timing_3gb_micron);
+	if (!ret) {
+		printf("DDR 3G Micron identified!\n");
+		goto exit;
+	}
+
+	/* Try 2G Samsung.
+	 * Will work with: 1G Samsung as well.
+	 */
+	ret = ddr_init(&dram_timing_2gb_samsung);
+	if (!ret) {
+		if (!spl_dram_is_1G()) {
+			printf("DDR 2G Samsung identified!\n");
+			goto exit;
+		}
+	}
+
+	/* Try 1G Samsung/Micron.
+	 * If fails, we give up...
+	 */
+	ret = ddr_init(&dram_timing_1gb_samsung_micron);
+	if (ret) {
+		printf("Failed to initialize the DDR with the generic approach, giving up...\n");
+		output = false;
+	} else {
+		printf("DDR 1G Samsung/Micron identified!\n");
+	}
+
+exit:
+	return output;
+}
+
+/* Function used to identify the DDR.
+ * Function returns the timing parameters to use for DDR training, or NULL if failed
+ * to identify the DDR.
+ *
+ * In order to read the DDR values, the function will train the DDR with
+ * default parameters.
+ * Those parameters may be the same parameters needed to train the DDR.
+ * In this case, this function will set @needs_training to false, indicating that
+ * there is no need to train the DDR again.
+ * Caller can ignore this argument without harm (argument can be NULL).
+ */
+static struct dram_timing_info *spl_identify_ddr(bool *needs_training)
+{
+	int ret;
+	unsigned int mr5, mr6, mr7, mr8;
+	bool tmp;
+
+	/*                    Values for 3G Micron training
+	 *
+	 *		MR5	|	M6	|	MR7	|	MR8
+	 * Samsung 1G   ************** TRAINING FAILURE ********************
+	 * Micron 1G    ************** TRAINING FAILURE ********************
+	 * Samsung 2G   ************** TRAINING FAILURE ********************
+	 * Micron 3G    255		4		1		12
+	 * Samsung 4G   1		6		16		16
+	 * Micron 4G    255		7		0		16
+	 *
+	 *   		      Values for 1G Samsung/Micron training
+	 *
+	 *		MR5	|	M6	|	MR7	|	MR8
+	 * Samsung 1G   1               6               0               8
+	 * Micron 1G    255		3		0		8
+	 * Samsung 2G   1		6		16		16
+	 * Micron 3G    255		4		1		12
+	 * Samsung 4G   ****************** UNSTABLE ************************
+	 * Micron 4G    ****************** UNSTABLE ************************
+	 *
+	 * Algorithm:
+	 * DDR training with 3G Micron, if succeeds, check if this is a 3G Micron,
+	 * 4G Samsung/Micron, or unknown.
+	 * If fails, DDR training with 1G Samsung/Micron, check if this is a 2G Samsung,
+	 * 1G Samsung, 1G Micron or unknown.
+	 */
+
+	/* Init the @needs_training argument */
+	if (!needs_training)
+		needs_training = &tmp;
+	*needs_training = true;
+
+	/* Training with 3G Micron */
+	if (!ddr_init(&dram_timing_3gb_micron)) {
+		/* Training with 3G Micron succedded */
+		mr5 = lpddr4_mr_read(0xF, 0x5);
+		mr6 = lpddr4_mr_read(0xF, 0x6);
+		mr7 = lpddr4_mr_read(0xF, 0x7);
+		mr8 = lpddr4_mr_read(0xF, 0x8);
+
+		debug("MR5=0x%x, MR6=0x%x, MR7=0x%x, MR8=0x%x\n", mr5, mr6, mr7, mr8);
+
+		if (mr5 == 0xFF && mr6 == 0x4 && mr7 == 0x1 && mr8 == 0xC) {
+			printf("DDR 3G Micron identified!\n");
+			*needs_training = false;
+			return &dram_timing_3gb_micron;
+		} else if (mr5 == 0x1 && mr6 == 0x6 && mr7 == 0x10 && mr8 == 0x10) {
+			printf("DDR 4G Samsung identified!\n");
+			return &dram_timing_4gb_samsung_micron;
+		} else if (mr5 == 0xFF && mr6 == 0x7 && mr7 == 0x0 && mr8 == 0x10) {
+			printf("DDR 4G Micron identified!\n");
+			return &dram_timing_4gb_samsung_micron;
+		} else {
+			goto err;
 		}
 	} else {
-		printf ("Re-training for 2GByte Samsung\n");
-		ret = ddr_init(&dram_timing_2gb_samsung);
-		if (ret == 0) {
-			// Check Mirror for 1GB
-			retrain_1gb = check_mirror_ddr(0, ONE_GB/4);
-			if (retrain_1gb == 1) {
-				printf ("Re-training for 1GByte Samsung (2->1)\n");
-				ret = ddr_init(&dram_timing_1gb_samsung);
-				return;
-			}
+		/* Training with 3G Micron failed
+		 * DDR training with 1G Samsung/Micron
+		 */
+		ret = ddr_init(&dram_timing_1gb_samsung_micron);
+		if (ret)
+			goto err;
+
+		mr5 = lpddr4_mr_read(0xF, 0x5);
+		mr6 = lpddr4_mr_read(0xF, 0x6);
+		mr7 = lpddr4_mr_read(0xF, 0x7);
+		mr8 = lpddr4_mr_read(0xF, 0x8);
+
+		debug("MR5=0x%x, MR6=0x%x, MR7=0x%x, MR8=0x%x\n", mr5, mr6, mr7, mr8);
+
+		if (mr5 == 0x1 && mr6 == 0x6 && mr7 == 0x0 && mr8 == 0x8) {
+			printf("DDR 1G Samsung identified!\n");
+			*needs_training = false;
+			return &dram_timing_1gb_samsung_micron;
+		} else if (mr5 == 0xFF && mr6 == 0x3 && mr7 == 0x0 && mr8 == 0x8) {
+			printf("DDR 1G Micron identified!\n");
+			*needs_training = false;
+			return &dram_timing_1gb_samsung_micron;
+		} else if (mr5 == 0x1 && mr6 == 0x6 && mr7 == 0x10 && mr8 == 0x10) {
+			printf("DDR 2G Samsung identified!\n");
+			return &dram_timing_2gb_samsung;
 		} else {
-			printf ("Re-training for 1GByte Samsung(1)\n");
-			ddr_init(&dram_timing_1gb_samsung);
-			return;
+			goto err;
 		}
 	}
+
+err:
+	printf("Could not identify DDR!\n");
+	return NULL;
 }
+
+static void spl_dram_init(void)
+{
+	struct dram_timing_info *dram_info;
+	int ret = -1;
+	bool need_training;
+
+#ifdef PRINT_DDR_TABLES
+	spl_print_ddr_tables();
+#endif
+	dram_info = spl_identify_ddr(&need_training);
+	if (dram_info) {
+		/* DDR was identified, do we need to train the DDR? */
+		if (need_training)
+			ret = ddr_init(dram_info);
+		else
+			ret = 0;
+	}
+
+	/* If we failed to identify the DDR, or the parameters returned from
+	 * spl_identify_ddr caused in DDR training failure - fall back to a
+	 * generic way to train the DDR.
+	 */
+	if (ret == -1) {
+		if (!spl_generic_ddr_init())
+			hang(); //Could not init the DDR - nothing we can do..
+	}
+}
+
 
 #if CONFIG_IS_ENABLED(DM_PMIC_PCA9450)
 int power_init_board(void)

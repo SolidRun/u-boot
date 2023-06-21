@@ -17,6 +17,7 @@
 #include <asm-generic/gpio.h>
 #include <asm/arch/imx8mp_pins.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/ddr.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
@@ -90,21 +91,6 @@ struct efi_capsule_update_info update_info = {
 u8 num_image_type_guids = ARRAY_SIZE(fw_images);
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
-int board_early_init_f(void)
-{
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
-
-	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
-
-	set_wdog_reset(wdog);
-
-	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
-
-	init_uart_clk(1);
-
-	return 0;
-}
-
 int check_mirror_ddr_tmp(unsigned int addr_1, unsigned int addr_2)
 {
 	/* return 1 if mirror detected between addr_1 and addre_2, else return 0*/
@@ -132,6 +118,36 @@ int check_mirror_ddr_tmp(unsigned int addr_1, unsigned int addr_2)
 	return 0;
 }
 
+__weak unsigned int lpddr4_mr_read(unsigned int mr_rank, unsigned int mr_addr)
+{
+	unsigned int tmp;
+
+	reg32_write(DRC_PERF_MON_MRR0_DAT(0), 0x1);
+
+	do {
+		tmp = reg32_read(DDRC_MRSTAT(0));
+	} while (tmp & 0x1);
+
+	reg32_write(DDRC_MRCTRL0(0), (mr_rank << 4) | 0x1);
+	reg32_write(DDRC_MRCTRL1(0), (mr_addr << 8));
+	reg32setbit(DDRC_MRCTRL0(0), 31);
+	do {
+		tmp = reg32_read(DRC_PERF_MON_MRR0_DAT(0));
+	} while ((tmp & 0x8) == 0);
+	tmp = reg32_read(DRC_PERF_MON_MRR1_DAT(0));
+	reg32_write(DRC_PERF_MON_MRR0_DAT(0), 0x4);
+
+	while (tmp) { //try to find a significant byte in the word
+		if (tmp & 0xff) {
+			tmp &= 0xff;
+			break;
+		}
+		tmp >>= 8;
+	}
+
+	return tmp;
+}
+
 int board_phys_sdram_size(phys_size_t *size)
 {
 	if (!size)
@@ -153,6 +169,63 @@ int board_phys_sdram_size(phys_size_t *size)
 	return 0;
 }
 
+
+int board_phys_sdram2_size(phys_size_t *size)
+{
+	phys_size_t output = 0;
+	unsigned int mr5, mr8;
+	int ret;
+
+	ret = board_phys_sdram_size(size);
+	if (ret)
+		return ret;
+
+	/* 4G configuration are Samsung/Micron.
+	 * If SDRAM1 size is 3G, there are 2 options:
+	 *
+	 * (*) A 3G Micron chip.
+	 * (*) 4G Micron/Samsung
+	 *
+	 */
+
+	if (*size != 3*ONE_GB)
+		goto exit;
+
+	/* Read LPDDr MR5 register, if MAN. ID is Samsung, this is a 4G Samsung DDR */
+	mr5 = lpddr4_mr_read(0xF, 0x5);
+	if (mr5 == LPDDR4_SAMSUNG_MANID) {
+		output = ONE_GB;
+		goto exit;
+	}
+
+	/* At this point, this is either 3G Micron or 4G Micron
+	 * Can be determined based on MR8.
+	 * If MR8 = 0x10, then the density is 16Gb per die (8Gb per channel),
+	 * Since the Micron 4G is dual die, this means 32Gb => 4GB
+	 */
+	mr8 = lpddr4_mr_read(0xF, 0x8);
+	if (mr8 == 0x10)
+		output = ONE_GB;
+
+exit:
+	*size = output;
+	return 0;
+}
+
+int board_early_init_f(void)
+{
+	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
+
+	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
+
+	set_wdog_reset(wdog);
+
+	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
+
+	init_uart_clk(1);
+
+	return 0;
+}
 
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)

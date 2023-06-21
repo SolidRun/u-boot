@@ -726,6 +726,8 @@ void get_trained_CDD(unsigned int fsp);
 
 ulong ddrphy_addr_remap(uint32_t paddr_apb_from_ctlr);
 
+unsigned int lpddr4_mr_read(unsigned int mr_rank, unsigned int mr_addr);
+
 static inline void reg32_write(unsigned long addr, u32 val)
 {
 	writel(val, addr);
