@@ -35,6 +35,8 @@ enum boot_error
 {
 	BOOT_NEXT_STAGE_SUCCESS = 0x0,
 	BOOT_NEXT_STAGE_ERROR,
+	/* U-boot boot successfully and Linux boot is not started yet */
+	BOOT_NEXT_STAGE_PENDING,
 };
 
 #define BOOTCMD_NAME	"pci-bootcmd"
@@ -576,10 +578,21 @@ int last_stage_init(void)
 	/* U-boot boot successfully with no error */
 	boot_info.u = readq(RST_COLD_DATAX(2));
 	boot_info.s.uboot_boot_status = BOOT_SUCCESS;
-	boot_info.s.uboot_boot_error = BOOT_NEXT_STAGE_SUCCESS;
+	boot_info.s.uboot_boot_error = BOOT_NEXT_STAGE_PENDING;
 	writeq(boot_info.u, RST_COLD_DATAX(2));
 
 	return 0;
+}
+
+void board_cleanup_before_linux(void)
+{
+	union rst_cold_data2_s boot_info;
+
+	/* Transferring control to Linux */
+	boot_info.u = readq(RST_COLD_DATAX(2));
+	boot_info.s.uboot_boot_status = BOOT_SUCCESS;
+	boot_info.s.uboot_boot_error = BOOT_NEXT_STAGE_SUCCESS;
+	writeq(boot_info.u, RST_COLD_DATAX(2));
 }
 
 static int do_go_uboot(struct cmd_tbl *cmdtp, int flag, int argc,
