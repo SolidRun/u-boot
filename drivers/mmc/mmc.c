@@ -28,6 +28,7 @@
 #include "mmc_private.h"
 
 #define DEFAULT_CMD6_TIMEOUT_MS  500
+static int mmc_set_wp(struct mmc *mmc);
 
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 
@@ -377,6 +378,8 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 {
 	struct mmc_cmd cmd;
 	struct mmc_data data;
+
+	mmc_set_wp(mmc);
 
 	if (blkcnt > 1) {
 		if (mmc->host_caps & MMC_CAP_CMD23) {
@@ -2692,6 +2695,24 @@ static int mmc_startup(struct mmc *mmc)
 	return 0;
 }
 
+static int mmc_set_wp(struct mmc *mmc)
+{
+	struct mmc_cmd cmd;
+	int err;
+
+	cmd.cmdidx = 0x1F/*STD_MMC_CMD31*/;
+	/* We set the bit if the host supports voltages between 2.7 and 3.6 V */
+	cmd.cmdarg = 0x10008;
+	cmd.resp_type = MMC_RSP_R1;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+
+	if (err)
+		return err;
+
+	return 0;
+}
+
 static int mmc_send_if_cond(struct mmc *mmc)
 {
 	struct mmc_cmd cmd;
@@ -2976,6 +2997,7 @@ int mmc_init(struct mmc *mmc)
 
 	if (!err)
 		err = mmc_complete_init(mmc);
+
 	if (err)
 		pr_info("%s: %d, time %lu\n", __func__, err, get_timer(start));
 

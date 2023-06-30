@@ -944,9 +944,11 @@ static struct cmd_tbl cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(info, 1, 0, do_mmcinfo, "", ""),
 	U_BOOT_CMD_MKENT(read, 4, 1, do_mmc_read, "", ""),
 	U_BOOT_CMD_MKENT(wp, 1, 0, do_mmc_boot_wp, "", ""),
+#if !defined(EMMC_NS_READONLY)
 #if CONFIG_IS_ENABLED(MMC_WRITE)
 	U_BOOT_CMD_MKENT(write, 4, 0, do_mmc_write, "", ""),
 	U_BOOT_CMD_MKENT(erase, 3, 0, do_mmc_erase, "", ""),
+#endif //EMMC_NS_READONLY
 #endif
 #if CONFIG_IS_ENABLED(CMD_MMC_SWRITE)
 	U_BOOT_CMD_MKENT(swrite, 3, 0, do_mmc_sparse_write, "", ""),
@@ -1005,7 +1007,9 @@ U_BOOT_CMD(
 	"MMC sub system",
 	"info - display info of the current MMC device\n"
 	"mmc read addr blk# cnt\n"
+#if !defined(EMMC_NS_READONLY)
 	"mmc write addr blk# cnt\n"
+#endif //EMMC_NS_READONLY
 #if CONFIG_IS_ENABLED(CMD_MMC_SWRITE)
 	"mmc swrite addr blk#\n"
 #endif

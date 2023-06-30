@@ -517,7 +517,6 @@ config MMC_SDHCI_CADENCE
 	depends on MMC_SDHCI
 	depends on OF_CONTROL
 	select MMC_SDHCI_IO_ACCESSORS
-	select MMC_SDHCI_ADMA
 	select MMC_CAP_CMD23 if (MMC_HS400_SUPPORT || MMC_HS400_ES_SUPPORT)
 	help
 	  This selects the Cadence SD/SDIO/eMMC driver.

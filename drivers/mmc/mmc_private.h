@@ -77,11 +77,13 @@ void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd);
 #else
 static inline void mmmc_trace_before_send(struct mmc *mmc, struct mmc_cmd *cmd)
 {
+	udelay(1100);
 }
 
 static inline void mmmc_trace_after_send(struct mmc *mmc, struct mmc_cmd *cmd,
 					 int ret)
 {
+	udelay(2900);
 }
 
 static inline void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)

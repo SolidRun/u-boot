@@ -245,7 +245,6 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		      ulong size)
 {
 	int ret;
-
 	/* find ramdisk */
 	ret = boot_get_ramdisk(argc, argv, &images, IH_INITRD_ARCH,
 			       &images.rd_start, &images.rd_end);
@@ -287,7 +286,6 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 	if (CONFIG_IS_ENABLED(CMD_FDT))
 		set_working_fdt_addr(map_to_sysmem(images.ft_addr));
 #endif
-
 #if IMAGE_ENABLE_FIT
 #if defined(CONFIG_FPGA)
 	/* find bitstreams */
@@ -605,6 +603,7 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	/* From now on, we need the OS boot function */
 	if (ret)
 		return ret;
+
 	boot_fn = bootm_os_get_boot_func(images->os.os);
 	need_boot_fn = states & (BOOTM_STATE_OS_CMDLINE |
 			BOOTM_STATE_OS_BD_T | BOOTM_STATE_OS_PREP |
