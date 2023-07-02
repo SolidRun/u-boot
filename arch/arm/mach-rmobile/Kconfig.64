@@ -177,6 +177,11 @@ config TARGET_RZG2L_DEV
 	help
           Support for Renesas RZ/G2L Dev Platform
 
+config TARGET_RZG2L_SOLIDRUN
+        bool "RZ/G2L SolidRun board"
+        help
+          Support for Solidrun RZ/G2L Dev Platform
+
 config TARGET_SMARC_RZG2L
 	bool "RZ/G2L Dev board"
 	help
@@ -248,6 +253,7 @@ source "board/renesas/rzv2l-dev/Kconfig"
 source "board/renesas/rzg2lc-dev/Kconfig"
 source "board/renesas/rzg2ul-dev/Kconfig"
 source "board/solidrun/rzg2lc/Kconfig"
+source "board/solidrun/rzg2l/Kconfig"
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
 	default 0x80000 if TARGET_HIHOPE_RZG2
