@@ -637,6 +637,7 @@ config TEXT_BASE
 	default 0x2a000000 if MACH_SUN9I
 	default 0x4a000000 if SUNXI_MINIMUM_DRAM_MB >= 256
 	default 0x42e00000 if SUNXI_MINIMUM_DRAM_MB >= 64
+	default 0x0
 	hex "Text Base"
 	help
 	  The address in memory that U-Boot will be running from, initially.

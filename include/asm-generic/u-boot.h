@@ -26,7 +26,7 @@
 #include <asm/types.h>
 #include <linux/types.h>
 
-struct bd_info {
+typedef struct bd_info {
 	unsigned long	bi_flashstart;	/* start of FLASH memory */
 	unsigned long	bi_flashsize;	/* size	 of FLASH memory */
 	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
@@ -65,7 +65,7 @@ struct bd_info {
 		phys_addr_t start;
 		phys_size_t size;
 	} bi_dram[CONFIG_NR_DRAM_BANKS];
-};
+} bd_t;
 
 #endif /* __ASSEMBLY__ */
 

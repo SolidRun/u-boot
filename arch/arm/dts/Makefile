@@ -273,6 +273,9 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-8040-puzzle-m801.dtb		\
 	cn9130-db-A.dtb				\
 	cn9130-db-B.dtb				\
+	cn9130-crb-r1p3-A.dtb			\
+	cn9130-crb-r1p3-B.dtb			\
+	cn9130-crb-r1p3-C.dtb			\
 	cn9131-db-A.dtb				\
 	cn9131-db-B.dtb				\
 	cn9132-db-A.dtb				\

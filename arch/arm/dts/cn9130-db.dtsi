@@ -137,7 +137,7 @@
 	status = "okay";
 };
 
-&ap_hd_efuse0 {
+/*&ap_hd_efuse0 {
 	status = "okay";
 };
 
@@ -148,6 +148,7 @@
 &ap_ld_efuse1 {
 	status = "okay";
 };
+*/
 
 /*
  * CP related configuration

@@ -43,7 +43,7 @@ int cpu_armada_bind(struct udevice *dev)
 	char tbd[] = "To Be Filled By O.E.M.";
 	char proc_v[] = "Armada CN9130 SMP arm,cortex-a72";
 
-	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+	struct cpu_plat *plat = dev_get_parent_plat(dev);
 
 	midr = read_midr();
 	plat->id[0] = p_midr[0];
@@ -69,7 +69,7 @@ int cpu_armada_bind(struct udevice *dev)
 
 int cpu_armada_get_desc(struct udevice *dev, char *buf, int size)
 {
-	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+	struct cpu_plat *plat = dev_get_parent_plat(dev);
 
 	snprintf(buf, size, plat->processor_version);
 	return 0;
@@ -77,16 +77,16 @@ int cpu_armada_get_desc(struct udevice *dev, char *buf, int size)
 
 int cpu_armada_get_info(struct udevice *dev, struct cpu_info *info)
 {
-	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+	struct cpu_plat *plat = dev_get_parent_plat(dev);
 
 	info->cpu_freq = plat->max_speed;
-	strncpy(info->cpu_type, "ARMv8", 5);
+	strlcpy(info->cpu_type, "ARMv8", 5);
 	return 0;
 }
 
 int cpu_armada_get_count(struct udevice *dev)
 {
-	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+	struct cpu_plat *plat = dev_get_parent_plat(dev);
 
 	/* No of cores */
 	return plat->core_count;
