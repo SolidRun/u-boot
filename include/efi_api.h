@@ -2023,4 +2023,20 @@ struct efi_component_name2 {
 	char *supported_languages;
 };
 
+/* EFI_GPIO_PROTOCOL */
+#define EFI_GPIO_PROTOCOL_GUID \
+	EFI_GUID(0x5f1729dc, 0xbbf0, 0x4dc2, \
+			0x87, 0x97, 0x96, 0x08, 0x76, 0xae, 0xcb, 0x15)
+
+struct efi_gpio_protocol {
+	efi_status_t (EFIAPI * gpio_get)(const struct efi_gpio_protocol *this,
+					 u32 gpio_num, u8 *value);
+	efi_status_t (EFIAPI * gpio_set)(const struct efi_gpio_protocol *this,
+					 u32 gpio_num, u8 value);
+	efi_status_t (EFIAPI * gpio_get_mode)(const struct efi_gpio_protocol *this,
+					      u32 gpio_num, u32 *mode);
+	efi_status_t (EFIAPI * gpio_set_pull)(const struct efi_gpio_protocol *this,
+					      u32 gpio_num, u8 pull);
+};
+
 #endif

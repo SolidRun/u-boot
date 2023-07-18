@@ -274,6 +274,12 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 #endif
+#ifdef CONFIG_EFI_GPIO_PROTOCOL
+	ret = efi_gpio_protocol_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+#endif
+
 	/* Initialize EFI runtime services */
 	ret = efi_reset_system_init();
 	if (ret != EFI_SUCCESS)
