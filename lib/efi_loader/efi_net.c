@@ -195,7 +195,6 @@ static efi_status_t EFIAPI efi_net_initialize(struct efi_simple_network *this,
 	if (ret < 0) {
 		eth_halt();
 		this->mode->state = EFI_NETWORK_STOPPED;
-		r = EFI_DEVICE_ERROR;
 		goto out;
 	} else {
 		this->int_status = 0;
