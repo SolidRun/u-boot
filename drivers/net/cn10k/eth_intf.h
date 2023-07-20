@@ -104,17 +104,18 @@ enum eth_cmd_id {
 	ETH_CMD_SET_PERSIST_IGNORE,
 	ETH_CMD_SET_MAC_ADDR,
 	ETH_CMD_SET_PTP_MODE,
-	ETH_CMD_CPRI_MODE_CHANGE,	/* = 35 */
-	ETH_CMD_CPRI_TX_CONTROL,
+	ETH_CMD_CPRI_MODE_CHANGE, /* Only supported for T9x */	/* = 35 */
+	ETH_CMD_CPRI_TX_CONTROL, /* Only supported for T9x */
 	ETH_CMD_LOOP_SERDES,
 	ETH_CMD_TUNE_SERDES,
-	ETH_CMD_LEQ_ADAPT_SERDES,
-	ETH_CMD_DFE_ADAPT_SERDES,		/* = 40 */
-	ETH_CMD_DO_CMU_RESET,
-	ETH_CMD_CPRI_MISC,
+	ETH_CMD_LEQ_ADAPT_SERDES, /* Only supported for T9x */
+	ETH_CMD_DFE_ADAPT_SERDES, /* Only supported for T9x */	/* = 40 */
+	ETH_CMD_DO_CMU_RESET,	/* Only supported for T9x */
+	ETH_CMD_CPRI_MISC,      /* Only supported for T9x */
 	ETH_CMD_LINK_TIMEOUT,
-	ETH_CMD_GET_PORT_MODE,
-	ETH_CMD_ECP_DUMP_STATE,		/* = 45 */
+	ETH_CMD_GET_PORT_MODE,	/* Only supported for cn10k */
+	ETH_CMD_ECP_DUMP_STATE, /* Only supported for cn10k */  /* = 45 */
+	ETH_CMD_STOP_TIMERS, /* For UEFI SystemReady test */
 };
 
 /* async event ids */
@@ -185,7 +186,19 @@ typedef enum {
 	ETH_MODE_25GBASE_CR_C_BIT,
 	ETH_MODE_25GBASE_KR_C_BIT,	/* = 37 */
 	/* Add new ethernet modes here */
-	ETH_MODE_MAX_BIT,
+	ETH_MODE_MAX_BIT = 41,       /* = 41 */
+	/* The below modes are applicable only for T103/T102 */
+	ETH_MODE_2500_BASEX_BIT = 42,    /* Start from 42 to indicate Mode group 1 */
+	ETH_MODE_5000_BASEX_BIT,
+	ETH_MODE_O_USGMII_BIT,
+	ETH_MODE_Q_USGMII_BIT,		/* = 45 */
+	ETH_MODE_2_5G_USXGMII_BIT,
+	ETH_MODE_5G_USXGMII_BIT,
+	ETH_MODE_10G_SXGMII_BIT,
+	ETH_MODE_10G_DXGMII_BIT,
+	ETH_MODE_10G_QXGMII_BIT,	/* = 50 */
+	/* Add new ethernet modes here */
+	ETH_MODE_MAX_GROUP2_BIT,        /* = 83 */
 } eth_mode_t;
 
 /* Supported CPRI modes */
@@ -206,7 +219,8 @@ typedef enum {
 } eth_cpri_mode_t;
 
 typedef enum {
-	MODE_GROUP_ETH,		/* Groups 0 and 1 are reserved for ethernet */
+	MODE_GROUP_ETH0,		/* Groups 0 and 1 are reserved for ethernet */
+	MODE_GROUP_ETH1,		/* Groups 0 and 1 are reserved for ethernet */
 	MODE_GROUP_CPRI = 2,
 } mode_group_t;
 
@@ -295,7 +309,8 @@ struct eth_lnk_sts_s {
 	u64 fec:2;		/* Current FEC type if enabled, if not 0 */
 	u64 lmac_type:8;	/* Share the current port info if required */
 	u64 mode:8;	/* eth_mode_t enum integer value */
-	u64 reserved2:20;
+	u64 mode_group_idx:2; /* mode_grp_idx : group 0 or 1 depending on the mode */
+	u64 reserved2:18;
 };
 
 struct sh_fwd_base_s {
@@ -309,12 +324,24 @@ struct eth_link_modes_s {
 };
 
 /* Resp to cmd ID - ETH_CMD_GET_ADV_FEC/ETH_CMD_GET_SUPPORTED_FEC
- * fec : 2 bits
- * typedef enum eth_fec_type {
- *     ETH_FEC_NONE,
- *     ETH_FEC_BASE_R,
- *     ETH_FEC_RS
+ * FEC : 2 bits
+ * For CN9XX, below are the possible FEC types
+ *
+ * typedef enum cgx_fec_type {
+ *     CGX_FEC_NONE = 0,
+ *     CGX_FEC_BASE_R = 1,
+ *     CGX_FEC_RS = 2,
+ *     CGX_FEC_BASE_R_RS = 3
  * } fec_type_t;
+ *
+ *  For CN10K, below are the possible FEC types
+ *
+ * typedef enum {
+ *	PORTM_FEC_DISABLED = 0,
+ *	PORTM_FEC_BASER = 1,
+ *	PORTM_FEC_RS = 2,
+ *	PORTM_FEC_BASER_RS = 3,
+ * } cn10k_portm_fec_t;
  */
 struct eth_fec_types_s {
 	u64 reserved1:9;
@@ -428,7 +455,8 @@ struct eth_mtu_args {
 struct cgx_link_bringup_args {         /* start from bit 8 */
 	uint64_t reserved1:8;
 	uint64_t timeout:14;            /* in ms */
-	uint64_t reserved2:42;
+	uint64_t rx_tx_dis:1;		/* Argument to not enable Rx/Tx when link is up */
+	uint64_t reserved2:41;
 };
 
 /* command argument to be passed for cmd ID - ETH_CMD_MODE_CHANGE */
@@ -519,6 +547,28 @@ struct eth_set_mode_args {
 	u64 mode:56; /* Bitmask of eth_mode_t enum */
 };
 
+/*
+ * Resp to cmd ID - ETH_CMD_GET_ADV_FEC/ETH_CMD_GET_SUPPORTED_FEC
+ * FEC : 2 bits
+ *
+ *  For CN9XX, below are the possible FEC types
+ *
+ * typedef enum cgx_fec_type {
+ *     CGX_FEC_NONE = 0,
+ *     CGX_FEC_BASE_R = 1,
+ *     CGX_FEC_RS = 2,
+ *     CGX_FEC_BASE_R_RS = 3
+ * } fec_type_t;
+ *
+ *  For CN10K, below are the possible FEC types
+ *
+ * typedef enum {
+ *	PORTM_FEC_DISABLED = 0,
+ *	PORTM_FEC_BASER = 1,
+ *	PORTM_FEC_RS = 2,
+ *	PORTM_FEC_BASER_RS = 3,
+ * } cn10k_portm_fec_t;
+ */
 /* command argument to be passed for cmd ID - ETH_CMD_SET_FEC */
 struct eth_set_fec_args {
 	u64 reserved1:8;
@@ -526,7 +576,7 @@ struct eth_set_fec_args {
 	u64 reserved2:54;
 };
 
-/* command argument to be passed for cmd ID - CGX_CMD_SET_FEC */
+/* command argument to be passed for cmd ID - ETH_CMD_DO_CMU_RESET */
 struct eth_do_cmu_reset {
 	u64 reserved1:8;
 	u64 cgx:3;
@@ -590,11 +640,12 @@ struct eth_gser_loop {
 /* Configure TX tuning parameters */
 struct eth_gser_tune {
 	u64 reserved1:8;
-	u64 lane_mask:8;
-	u64 tx_swing:8;
+	u64 portm_idx:8;
+	u64 tx_main:8;
 	u64 tx_pre:8;
 	u64 tx_post:8;
-	u64 reserved2:24;
+	u64 tx_pre2:8;
+	u64 reserved2:16;
 };
 
 union eth_cmd_s {
