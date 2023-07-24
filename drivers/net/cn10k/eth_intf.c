@@ -616,7 +616,35 @@ static inline int eth_mode_to_args(int mode, int flag, struct eth_mode_change_ar
 	return 0;
 }
 
-#define MODE_GR1_OFFSET 42
+static inline int eth_group1_mode_to_args(int mode, int flag, struct eth_mode_change_args *args)
+{
+	int mode_group1 = 0;
+
+	mode_group1 = ETH_MODE_MAX_BIT + mode;	/*ETH_MODE_MAX_BIT is group1 MAX enum value */
+
+	switch (mode_group1) {
+	case ETH_MODE_2500_BASEX_BIT:
+		if (flag) {
+			args->speed = ETH_LINK_2HG;
+			args->mode = BIT_ULL(ETH_MODE_2500_BASEX_BIT - ETH_MODE_MAX_BIT);
+		} else {
+			debug("2500BASE_X\n");
+		}
+		break;
+	default:
+		debug("%d is not a valid ethernet mode\n", mode_group1);
+		return -1;
+	}
+
+	if (flag) {
+		debug("Ethernet mode: %d (mode mask %llx, mode_group_idx %d)\n",
+				mode, (u64)args->mode, args->mode_group_idx);
+	}
+
+	return 0;
+}
+
+#define MODE_GR1_OFFSET 41
 #define MODE_GR2_OFFSET 84
 static int mode_to_args(int mode, struct eth_mode_change_args *args, int flag, int port)
 {
@@ -637,9 +665,9 @@ static int mode_to_args(int mode, struct eth_mode_change_args *args, int flag, i
 	if (mode < MODE_GR1_OFFSET) {
 		args->mode_group_idx = 0;
 		ret = eth_mode_to_args(mode, flag, args);
-	} else if (mode >= MODE_GR1_OFFSET && mode < MODE_GR2_OFFSET) {
-		printf("Group 1 modes are not supported\n");
-		ret = -1;
+	} else if (mode > MODE_GR1_OFFSET && mode < MODE_GR2_OFFSET) {
+		args->mode_group_idx = 1;
+		ret = eth_group1_mode_to_args(mode - MODE_GR1_OFFSET, flag, args);
 	} else {
 		args->mode_group_idx = 2;
 		ret = cpri_mode_to_args(mode - MODE_GR2_OFFSET, flag, args);
@@ -863,6 +891,17 @@ int eth_intf_get_mode(struct udevice *ethdev, int port)
                 case ETH_MODE_25GBASE_KR_C_BIT:
                         printf("25G_KR_C\n");
                         break;
+		/* FIXME: Add other modes when supported by ATF */
+		default:
+			printf("Unknown\n");
+			break;
+		}
+		break;
+	case 1:
+		switch (mode) {
+		case ETH_MODE_2500_BASEX_BIT:
+			printf("2500 BASE-X\n");
+			break;
 		/* FIXME: Add other modes when supported by ATF */
 		default:
 			printf("Unknown\n");
