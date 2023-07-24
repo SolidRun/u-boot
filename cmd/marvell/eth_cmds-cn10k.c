@@ -149,7 +149,8 @@ U_BOOT_CMD(get_mode, 3, 1, do_ethparam_common,
 	   "Example 1 - get mode from eth1 (NIX connected port):\n"
 	   "get_mode eth1\n\n"
 
-	   "Example 2 - get mode from PORTM10 (BPHY connected port):\n"
+	   "Example 2 - get mode from PORTM10 (BPHY connected port or:\n"
+	   "NIX connected port Ex: Multi-LMAC modes)\n"
 	   "get_mode eth0 10\n"
 );
 
@@ -208,7 +209,8 @@ U_BOOT_CMD(set_mode, 4, 1, do_ethparam_common,
 	"   34 - 100G_KR2\n"
 	"   35 - SFI_1G\n"
 	"   36 - 25G_CR_C\n"
-	"   37 - 25G_KR_C\n\n"
+	"   37 - 25G_KR_C\n"
+	"   42 - 2500BASE-X\n"
 	"CPRI modes:\n"
 	"   84 - CPRI_2_4G\n"
 	"   85 - CPRI_3_1G\n"
