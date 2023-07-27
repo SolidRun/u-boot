@@ -452,6 +452,7 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 				printf("Error parsing mmc device/bus number\n");
 				return CMD_RET_USAGE;
 			}
+			vinfo.version_flags |= UPDATE_FLAG_EMMC;
 			vinfo.bus = value;
 			pr_debug("MMC device: %lu\n", value);
 			argv++;
