@@ -33,6 +33,13 @@
 
 
 &pinctrl {
+  pinctrl-names = "default";
+  pinctrl-0 = <&pinctrl_hog>;
+
+  pinctrl_hog: hoggrp {
+    pinmux = <RZG2L_PINMUX(22, 1, 0)>; /* SD0_DEV_SEL_SW */
+  };
+
 	eth0_pins: eth0 {
 		pinmux = <RZG2L_PINMUX(20, 0, 1)>,
 				<RZG2L_PINMUX(20, 1, 1)>,
@@ -40,7 +47,6 @@
 				<RZG2L_PINMUX(21, 0, 1)>,
 				<RZG2L_PINMUX(21, 1, 1)>,
 				<RZG2L_PINMUX(22, 0, 1)>,
-				<RZG2L_PINMUX(22, 1, 1)>,
 				<RZG2L_PINMUX(23, 0, 1)>,
 				<RZG2L_PINMUX(23, 1, 1)>,
 				<RZG2L_PINMUX(24, 0, 1)>,
@@ -62,6 +68,7 @@
 	usb1_pins: usb1 {
 		pinmux = <RZG2L_PINMUX(5, 0, 1)>; /* VBUS */
 	};
+
 };
 
 
