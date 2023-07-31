@@ -299,7 +299,7 @@ U_BOOT_CMD(
 	" -b - updates the backup image location\n"
 #endif
 	" -e - do not erase EBF configuration\n"
-	" -v - skip version check\n"
+	" -v - perform hash check\n"
 	" -f - force writes over matching data\n"
 	" -p - (MMC only) overwrite the partition table\n"
 	" -l - Enable logging to buffer\n"
