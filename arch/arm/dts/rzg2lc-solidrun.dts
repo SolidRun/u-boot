@@ -60,15 +60,6 @@
 				<RZG2L_PINMUX(28, 0, 1)>,
 				<RZG2L_PINMUX(28, 1, 1)>;
 	};
-
-	usb0_pins: usb0 {
-		pinmux = <RZG2L_PINMUX(4, 0, 1)>; /* VBUS */
-	};
-
-	usb1_pins: usb1 {
-		pinmux = <RZG2L_PINMUX(5, 0, 1)>; /* VBUS */
-	};
-
 };
 
 
@@ -146,15 +137,11 @@
 
 
 &ehci0 {
-	pinctrl-0 = <&usb0_pins>;
-	pinctrl-names = "default";
 	status = "okay";
 	phys = <&usb2_phy0>;
 };
 
 &ehci1 {
-	pinctrl-0 = <&usb1_pins>;
-	pinctrl-names = "default";
 	status = "okay";
 	phys = <&usb2_phy1>;
 };
