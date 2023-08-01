@@ -47,8 +47,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PFC_PM37					(PFC_BASE + 0x16E)
 #define PFC_PMC37					(PFC_BASE + 0x237)
 #define PFC_PWPR					(PFC_BASE + 0x3014)
+#define PFC_P14 					(PFC_BASE + 0x0014)
+#define PFC_PM14 					(PFC_BASE + 0x0128)
 #define PFC_PMC14					(PFC_BASE + 0x214)
 #define PFC_PFC14					(PFC_BASE + 0x450)
+#define PFC_P15 					(PFC_BASE + 0x0015)
+#define PFC_PM15 					(PFC_BASE + 0x012A)
 #define PFC_PMC15					(PFC_BASE + 0x215)
 #define PFC_PFC15					(PFC_BASE + 0x454)
 #define PFC_PMC3A					(PFC_BASE + 0x23a)
@@ -74,6 +78,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PEEN						0x14
 #define WDTCNT_WDTEN				BIT(0)
 #define WDTINT_INTDISP				BIT(0)
+
+/**
+ * The Hummingboard requires Open-Drain VBUS signals.
+ * Comment the line below to enable Push-Pull signals instead.
+ * TODO: remove this macro and change signal type based on TLV info.
+*/
+#define USB_VBUS_OD
 
 void s_init(void)
 {
@@ -102,41 +113,36 @@ void s_init(void)
 		;
 }
 
-
 static void board_usb_init(void)
 {
 	/*Enable USB*/
 	(*(volatile u32 *)CPG_RST_USB) = 0x000f000f;
 	(*(volatile u32 *)CPG_CLKON_USB) = 0x000f000f;
 
-	/* Setup  */
-	/* Disable GPIO Write Protect */
-	(*(volatile u32 *)PFC_PWPR) &= ~(0x1u << 7);	/* PWPR.BOWI = 0 */
-	(*(volatile u32 *)PFC_PWPR) |= (0x1u << 6);	/* PWPR.PFCWE = 1 */
+	// /* Setup  */
+	// /* Disable GPIO Write Protect */
+	(*(volatile u32 *)PFC_PWPR) &= ~(0x1u << 7); /* PWPR.BOWI = 0 */
+	(*(volatile u32 *)PFC_PWPR) |= (0x1u << 6);	 /* PWPR.PFCWE = 1 */
 
-	/* set P4_0 as Func.1 for VBUSEN */
-	(*(volatile u8 *)PFC_PMC14) |= (0x1u << 0);	/* PMC14.b0 = 1 */
-	(*(volatile u8 *)PFC_PFC14) &= ~(0x7u << 0);	/* PFC14.PFC0 = 0 */
-	(*(volatile u8 *)PFC_PFC14) |= (0x1u << 0);
+#ifdef USB_VBUS_OD
+	/* Humming board has pulled up signals, enabled by default */
+	/* set P4_0 as GPIO Input */
+	(*(volatile u8 *)PFC_PM14) = 0;
+	/* set P5_0 as GPIO Input */
+	(*(volatile u8 *)PFC_PM15) = 0;
+#elif
+	/* set P4_0 as GPIO Output High VBUSEN */
+	(*(volatile u8 *)PFC_PM14) |= (0x1u << 1);
+	(*(volatile u8 *)PFC_P14) |= (0x1u << 0);
+	// /* set P5_0 as GPIO Output High */
+	(*(volatile u8 *)PFC_PM15) |= (0x1u << 1);
+	(*(volatile u8 *)PFC_P15) |= (0x1u << 0);
 
-	/* set P5_0 as Func.1 for OVERCUR */
-	(*(volatile u8 *)PFC_PMC15) |= (0x1u << 0);	/* PMC15.b0 = 1 */
-	(*(volatile u8 *)PFC_PFC15) &= ~(0x7u << 0);	/* PFC15.PFC0 = 0 */
-	(*(volatile u8 *)PFC_PFC15) |= (0x1u << 0);
+#endif
 
-	/* set P42_0 as Func.1 for VBUSEN */
-	(*(volatile u8 *)PFC_PMC3A) |= (0x1u << 0);	/* PMC14.b0 = 1 */
-	(*(volatile u8 *)PFC_PFC3A) &= ~(0xfu << 0);	/* PFC15.PFC0 = 0 */
-	(*(volatile u8 *)PFC_PFC3A) |= (0x1u << 0);
-
-	/* set P42_1 as Func.1 for OVERCUR */
-	(*(volatile u8 *)PFC_PMC3A) |= (0x1u << 0);	/* PMC14.b1 = 1 */
-	(*(volatile u8 *)PFC_PFC3A) &= ~(0xfu << 4);	/* PFC15.PFC1 = 0 */
-	(*(volatile u8 *)PFC_PFC3A) |= (0x1u << 4);
-
-	/* Enable write protect */
-	(*(volatile u32 *)PFC_PWPR) &= ~(0x1u << 6);	/* PWPR.PFCWE = 0 */
-	(*(volatile u32 *)PFC_PWPR) |= (0x1u << 7);	/* PWPR.BOWI = 1 */
+	// /* Enable write protect */
+	(*(volatile u32 *)PFC_PWPR) &= ~(0x1u << 6); /* PWPR.PFCWE = 0 */
+	(*(volatile u32 *)PFC_PWPR) |= (0x1u << 7);	 /* PWPR.BOWI = 1 */
 
 	/*Enable 2 USB ports*/
 	(*(volatile u32 *)USBPHY_RESET) = 0x00001000u;
@@ -145,10 +151,10 @@ static void board_usb_init(void)
 	/*USB1 is HOST*/
 	(*(volatile u32 *)(USB1_BASE + COMMCTRL)) = 0;
 	/* Set USBPHY normal operation (Function only) */
-	(*(volatile u16 *)(USBF_BASE + LPSTS)) |= (0x1u << 14);		/* USBPHY.SUSPM = 1 (func only) */
+	(*(volatile u16 *)(USBF_BASE + LPSTS)) |= (0x1u << 14); /* USBPHY.SUSPM = 1 (func only) */
 	/* Overcurrent is not supported */
-	(*(volatile u32 *)(USB0_BASE + HcRhDescriptorA)) |= (0x1u << 12);	/* NOCP = 1 */
-	(*(volatile u32 *)(USB1_BASE + HcRhDescriptorA)) |= (0x1u << 12);	/* NOCP = 1 */
+	(*(volatile u32 *)(USB0_BASE + HcRhDescriptorA)) |= (0x1u << 12); /* NOCP = 1 */
+	(*(volatile u32 *)(USB1_BASE + HcRhDescriptorA)) |= (0x1u << 12); /* NOCP = 1 */
 }
 
 
@@ -163,10 +169,15 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
-	board_usb_init();
-
 	return 0;
 }
+
+int board_late_init(void)
+{
+	board_usb_init();	
+	return 0;
+}
+
 
 static void wdt_write(u32 val, unsigned int reg)
 {
