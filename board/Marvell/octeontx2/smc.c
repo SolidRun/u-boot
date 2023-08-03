@@ -12,19 +12,8 @@
 #include <asm/system.h>
 #include <asm/arch/smc.h>
 #include <efi_loader.h>
-#include <display_options.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-typedef enum {
-	UBOOT_VERSION,
-	UEFI_VERSION,
-	ATF_VERSION,
-	AP_BL1_VERSION,
-	MCP_VERSION,
-	SCP_VERSION,
-	FW_VERSION_LAST,
-} fw_version_t;
 
 ssize_t smc_dram_size(unsigned int node)
 {
@@ -144,31 +133,6 @@ ssize_t smc_set_avsstatus(uint8_t avs_status)
 
 	return regs.regs[0];
 }
-
-ssize_t smc_send_fw_version(void)
-{
-	struct pt_regs regs = {0};
-	char buf[DISPLAY_OPTIONS_BANNER_LENGTH];
-	char *p = NULL;
-
-	display_options_get_banner(false, buf, sizeof(buf));
-	p = strstr(buf, "Build: SDK");
-
-	if (p) {
-		p += strlen("Build: SDK");
-
-		if (strlen(p) >= strlen("XX.XX.XX")) {
-			regs.regs[0] = PLAT_OCTEONTX_SEND_FW_VERSION_TO_SCP;
-			regs.regs[1] = UBOOT_VERSION;
-			regs.regs[2] = (unsigned long)p;
-			regs.regs[3] = strlen("XX.XX.XX");
-			smc_call(&regs);
-		}
-	}
-
-	return regs.regs[0];
-}
-
 /*
  * on entry,
  *   subcmd:  one of OCTEONTX_ATTESTATION_QUERY_SUBCMD_xxx

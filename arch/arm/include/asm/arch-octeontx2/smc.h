@@ -28,5 +28,4 @@ ssize_t smc_attest(long subcmd, long ctx_arg);
 int smc_efi_var_shared_memory(u64 *mem_addr, u64 *mem_size);
 int smc_write_efi_var(u64 var_addr, u64 var_size);
 int smc_sec_fw_update(u64 var_addr, u64 var_size);
-ssize_t smc_send_fw_version(void);
 #endif

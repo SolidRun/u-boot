@@ -518,8 +518,6 @@ int board_late_init(void)
 	val = env_get_hex("enable_wfe_mask", 0);
 	smc_configure_wfe_mask(val);
 
-	smc_send_fw_version();
-
 	if (IS_ENABLED(CONFIG_NET_OCTEONTX2))
 		board_late_probe_devices();
 
