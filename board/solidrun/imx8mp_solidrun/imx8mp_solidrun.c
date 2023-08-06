@@ -91,6 +91,15 @@ struct efi_capsule_update_info update_info = {
 u8 num_image_type_guids = ARRAY_SIZE(fw_images);
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
+static struct board_id {
+	char carrier_name[32];
+	char carrier_rev[3];
+	char som_name[8];
+	char som_rev[3];
+	char product_name[32];
+	char product_rev[3];
+} board_id = {0};
+
 int check_mirror_ddr_tmp(unsigned int addr_1, unsigned int addr_2)
 {
 	/* return 1 if mirror detected between addr_1 and addre_2, else return 0*/
@@ -256,8 +265,27 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	}
 #endif
 
+	if (strcmp(board_id.carrier_name, "hummingboard-extended") == 0) {
+		pr_info("Disabling M.2 rfkill for hummingboard extended \n");
+		char *path = "/rfkill_m2_wdis";
+    	int nodeoffset = fdt_path_offset(blob, path);
+    	if (nodeoffset < 0) {
+        	printf("Unable to find node %s\n", path);
+        	return -1;
+    	}
+
+		const char *name = "status";
+    	const char *val = "disabled";
+		int rc = fdt_setprop_string(blob, nodeoffset, name, val);
+		if (rc < 0) {
+			printf("Unable to set property %s to %s\n", name, val);
+			return -1;
+		}
+	}
+
 	return 0;
 }
+
 #endif
 
 #ifdef CONFIG_USB_DWC3
@@ -452,15 +480,6 @@ static bool find_i2c_dev(u8 i2c_bus, u8 address) {
 	return true;
 }
 
-static struct board_id {
-	char carrier_name[32];
-	char carrier_rev[3];
-	char som_name[8];
-	char som_rev[3];
-	char product_name[32];
-	char product_rev[3];
-} board_id = {0};
-
 /*
  * Identify board from TLV EEPROM - store result in board_id:
  * - carrier_name: name of carrier
@@ -482,8 +501,10 @@ static void board_id_from_tlv_info(void) {
 			    case 'R': // Ripple
 				tmp = "ripple";
 				break;
-			    case 'U': // Pulse
+			    case 'U': // Pulse or Extended
 				tmp = "pulse";
+				if (hb_tlv_data.tlv_part_number[i][7] == 'X')
+					tmp = "extended";
 				break;
 			    default:
 				pr_err("%s: did not recognise board variant '%c' in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_part_number[i][5], hb_tlv_data.tlv_part_number[i]);
@@ -612,7 +633,14 @@ int board_late_init(void)
 
 	// auto-select device-tree
 	if (!env_get("fdtfile")) {
-		if(snprintf(fdtfile, sizeof(fdtfile), "%s-%s.dtb", board_id.som_name, board_id.carrier_name) >= sizeof(fdtfile)) {
+		
+		char carrier_name[32] = "hummingboard-pulse";
+		// if not extended board
+		if (strcmp(board_id.carrier_name, "hummingboard-extended") != 0) {
+			strcpy(carrier_name, board_id.carrier_name);
+		}
+
+		if(snprintf(fdtfile, sizeof(fdtfile), "%s-%s.dtb", board_id.som_name, carrier_name) >= sizeof(fdtfile)) {
 			pr_err("%s: buffer too small, fdtfile truncated!\n", __func__);
 		}
 		env_set("fdtfile", fdtfile);
