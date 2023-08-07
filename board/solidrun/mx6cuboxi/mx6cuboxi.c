@@ -775,8 +775,27 @@ board_type:
 
 	if (is_rev_15_som())
 		env_set("som_rev", "V15");
+	else if (has_emmc() && board_type() != HUMMINGBOARD2) {
+		/*
+		 * Workaround for som revision detection when WiFi not assembled:
+		 * - Only SoM revision 1.5 or later can have eMMC
+		 * - Only HummingBoard-2 has ever had eMMC on carrier
+		 * --> set revision 1.5 for all but HummingBoard-2
+		*/
+		env_set("som_rev", "V15");
+	}
 
-	if (has_emmc())
+	if (has_emmc() && !is_rev_15_som() && board_type() == HUMMINGBOARD2) {
+		/*
+		 * Workaround for som revision detection when WiFi not assembled:
+		 * - HummingBoard-2 with eMMC on either SoM or Carrier are compatible
+		 * - environment "findfdt" uses "has_emmc" to add "-emmc" suffix
+		 *   to dtb filename
+		 * - Linux does not have imx6[q/dl]-hummingboard2-emmc.dtb,
+		 *   just imx6[q/dl]-hummingboard2.dtb which includes emmc support
+		 * --> don't set "has_emmc" env for this combination
+		 */
+	} else if (has_emmc())
 		env_set("has_emmc", "yes");
 
 #endif
