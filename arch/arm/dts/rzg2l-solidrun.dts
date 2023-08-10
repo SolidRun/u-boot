@@ -136,4 +136,21 @@
 		compatible = "adi,adv7535";
 		reg = <0x3d>;
 	};
+
+	eeprom_carrier: eeprom@57 {
+		compatible = "st,24c02", "atmel,24c02";
+		reg = <0x57>;
+		pagesize = <8>;
+	};
+};
+
+&i2c1 {
+
+	pinctrl-names = "default";
+	status = "okay";
+
+	eeprom_som: m24c02@50 {
+		compatible = "atmel,24c02";
+		reg = <0x50>;
+	};
 };
