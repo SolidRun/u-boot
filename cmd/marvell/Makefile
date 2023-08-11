@@ -26,8 +26,3 @@ obj-$(CONFIG_CMD_BOOTIMGUP_CN10K) += bootimgup-cn10k.o
 obj-$(CONFIG_CMD_FAILSAFE) += octeontx2_failsafe_cmds.o
 obj-$(CONFIG_CMD_SWITCH_CMDS) += switch_cmds.o
 endif
-
-ifdef EMMC_NS_READONLY
-    PLATFORM_CPPFLAGS += -DEMMC_NS_READONLY
-endif
-
