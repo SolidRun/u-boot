@@ -46,7 +46,6 @@
 				<RZG2L_PINMUX(20, 2, 1)>,
 				<RZG2L_PINMUX(21, 0, 1)>,
 				<RZG2L_PINMUX(21, 1, 1)>,
-				<RZG2L_PINMUX(22, 0, 1)>,
 				<RZG2L_PINMUX(23, 0, 1)>,
 				<RZG2L_PINMUX(23, 1, 1)>,
 				<RZG2L_PINMUX(24, 0, 1)>,
