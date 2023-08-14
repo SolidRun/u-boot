@@ -76,6 +76,7 @@
         "ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
         "scriptaddr=" SCRIPT_ADDR_R "\0" \
         "pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
+        "ethact=ethernet@11c30000\0" \
         "fdt_high=0xffffffffffffffff\0" \
         "initrd_high=0xffffffffffffffff\0" \
         "fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
