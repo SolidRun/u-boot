@@ -190,10 +190,11 @@ int board_phys_sdram2_size(phys_size_t *size)
 		return ret;
 
 	/* 4G configuration are Samsung/Micron.
-	 * If SDRAM1 size is 3G, there are 2 options:
+	 * If SDRAM1 size is 3G, there are 3 options:
 	 *
 	 * (*) A 3G Micron chip.
 	 * (*) 4G Micron/Samsung
+	 * (*) 8G Micron
 	 *
 	 */
 
@@ -207,14 +208,21 @@ int board_phys_sdram2_size(phys_size_t *size)
 		goto exit;
 	}
 
-	/* At this point, this is either 3G Micron or 4G Micron
+	/* At this point, this is either:
+	 * - 3G Micron
+	 * - 4G Micron
+	 * - 8G Micron
 	 * Can be determined based on MR8.
 	 * If MR8 = 0x10, then the density is 16Gb per die (8Gb per channel),
 	 * Since the Micron 4G is dual die, this means 32Gb => 4GB
+	 * If MR8 = 0x18, then density is 16Gb per die, single channel,
+	 * since Micron 8G is quad die, this means 64Gb => 8GB
 	 */
 	mr8 = lpddr4_mr_read(0xF, 0x8);
 	if (mr8 == 0x10)
 		output = ONE_GB;
+	else if (mr8 == 0x18)
+		output = 5*ONE_GB;
 
 exit:
 	*size = output;

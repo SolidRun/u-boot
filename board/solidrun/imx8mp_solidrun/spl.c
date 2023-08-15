@@ -34,6 +34,7 @@
 #define ONE_GB 0x40000000ULL
 DECLARE_GLOBAL_DATA_PTR;
 
+extern struct dram_timing_info dram_timing_8gb_micron;
 extern struct dram_timing_info dram_timing_4gb_samsung_micron;
 extern struct dram_timing_info dram_timing_3gb_micron;
 extern struct dram_timing_info dram_timing_2gb_samsung;
@@ -72,6 +73,7 @@ static struct dram_configs {
 	unsigned int mr5, mr6, mr7, mr8;
 	bool is_valid;
 } confs[] = {
+	{ .label = "Samsung 8G       ", .timings = &dram_timing_8gb_micron },
 	{ .label = "Samsung/Micron 4G", .timings = &dram_timing_4gb_samsung_micron },
 	{ .label = "Micron 3G        ", .timings = &dram_timing_3gb_micron },
 	{ .label = "Samsung 2G       ", .timings = &dram_timing_2gb_samsung },
@@ -180,7 +182,14 @@ static bool spl_generic_ddr_init(void)
 {
 	int ret;
 	bool output = true;
-	
+
+	/* Try 8GB Micron. */
+	ret = ddr_init(&dram_timing_8gb_micron);
+	if (!ret) {
+		printf("DDR 8G Micron identified!\n");
+		goto exit;
+	}
+
 	/* Try 4G Samsung.
 	 * Will work with: 3G Micron as well.
 	 */
@@ -245,7 +254,12 @@ static struct dram_timing_info *spl_identify_ddr(bool *needs_training)
 	unsigned int mr5, mr6, mr7, mr8;
 	bool tmp;
 
-	/*                    Values for 3G Micron training
+	/*                    Values for 8G Micron training
+	 *
+	 *              MR5     MR6     MR7     MR8
+	 * Micron 8G    255		7		0		24
+	 *
+	 *                    Values for 3G Micron training
 	 *
 	 *		MR5	|	M6	|	MR7	|	MR8
 	 * Samsung 1G   ************** TRAINING FAILURE ********************
@@ -254,6 +268,7 @@ static struct dram_timing_info *spl_identify_ddr(bool *needs_training)
 	 * Micron 3G    255		4		1		12
 	 * Samsung 4G   1		6		16		16
 	 * Micron 4G    255		7		0		16
+	 * Micron 8G    255		7		0		24
 	 *
 	 *   		      Values for 1G Samsung/Micron training
 	 *
@@ -264,10 +279,11 @@ static struct dram_timing_info *spl_identify_ddr(bool *needs_training)
 	 * Micron 3G    255		4		1		12
 	 * Samsung 4G   ****************** UNSTABLE ************************
 	 * Micron 4G    ****************** UNSTABLE ************************
+	 * Micron 8G    255		0		0		0
 	 *
 	 * Algorithm:
 	 * DDR training with 3G Micron, if succeeds, check if this is a 3G Micron,
-	 * 4G Samsung/Micron, or unknown.
+	 * 4G Samsung/Micron, 8G Micron, or unknown.
 	 * If fails, DDR training with 1G Samsung/Micron, check if this is a 2G Samsung,
 	 * 1G Samsung, 1G Micron or unknown.
 	 */
@@ -297,6 +313,9 @@ static struct dram_timing_info *spl_identify_ddr(bool *needs_training)
 		} else if (mr5 == 0xFF && mr6 == 0x7 && mr7 == 0x0 && mr8 == 0x10) {
 			printf("DDR 4G Micron identified!\n");
 			return &dram_timing_4gb_samsung_micron;
+		} else if (mr5 == 0xFF && mr6 == 0x7 && mr7 == 0x0 && mr8 == 0x18) {
+			printf("DDR 8G Micron identified!\n");
+			return &dram_timing_8gb_micron;
 		} else {
 			goto err;
 		}
