@@ -2035,6 +2035,22 @@ static int mmc_select_hs400es(struct mmc *mmc)
 {
 	int err;
 
+	/* Set timing to HS200 for tuning */
+	err = mmc_set_card_speed(mmc, MMC_HS_200, false);
+	if (err)
+		return err;
+
+	/* configure the bus mode (host) */
+	mmc_select_mode(mmc, MMC_HS_200);
+	mmc_set_clock(mmc, mmc->tran_speed, false);
+
+	/* execute tuning if needed */
+	err = mmc_execute_tuning(mmc, MMC_CMD_SEND_TUNING_BLOCK_HS200);
+	if (err) {
+		debug("tuning failed\n");
+		return err;
+	}
+
 	err = mmc_set_card_speed(mmc, MMC_HS, true);
 	if (err)
 		return err;
