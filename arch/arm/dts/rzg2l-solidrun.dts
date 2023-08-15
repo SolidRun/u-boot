@@ -119,7 +119,7 @@
 &eth1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&eth1_pins>;
-	phy-handle = <&phy0>;
+	phy-handle = <&phy1>;
 	phy-mode = "rgmii-id";
 	status = "okay";
 
