@@ -298,13 +298,17 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		tlv = tlv_eeprom_read(tlv_eeprom_get_by_index(current_dev),
 								 0, eeprom, ARRAY_SIZE(eeprom));
 		if (IS_ERR(tlv)) {
-			printf("Failed to read EEPROM data from device: %ld\n",
-				   PTR_ERR(tlv));
-			tlv = NULL;
-			return 0;
+			if (tlv == -EINVAL) {
+				printf("Bad TLV data, initilising new EEPROM \n");
+				tlv = tlv_init(eeprom, ARRAY_SIZE(eeprom));
+			} else {
+				printf("Failed to read EEPROM data from device: %ld\n",
+					PTR_ERR(tlv));
+				tlv = NULL;
+			}
 		}
-
 		printf("EEPROM data loaded from device to memory.\n");
+		return 0;
 	}
 
 	// Subsequent commands require that the EEPROM has already been read.
