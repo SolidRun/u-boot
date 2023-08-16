@@ -66,28 +66,33 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 }
 
 #ifdef PRINT_DDR_TABLES
+static struct dram_configs {
+	const char *const label;
+	struct dram_timing_info *const timings;
+	unsigned int mr5, mr6, mr7, mr8;
+	bool is_valid;
+} confs[] = {
+	{ .label = "Samsung/Micron 4G", .timings = &dram_timing_4gb_samsung_micron },
+	{ .label = "Micron 3G        ", .timings = &dram_timing_3gb_micron },
+	{ .label = "Samsung 2G       ", .timings = &dram_timing_2gb_samsung },
+	{ .label = "Samsung/Micron 1G", .timings = &dram_timing_1gb_samsung_micron },
+};
+
 static void spl_print_ddr_tables(void)
 {
-	struct dram_timing_info *confs[4] = {&dram_timing_4gb_samsung_micron, &dram_timing_3gb_micron,
-					     &dram_timing_2gb_samsung, &dram_timing_1gb_samsung_micron};
 	int ret, i;
-	unsigned int mr5[4];
-	unsigned int mr6[4];
-	unsigned int mr7[4];
-	unsigned int mr8[4];
-	bool is_valid[4];
 
 	/* Collect data */
-	for (i = 0; i < 4; i++) {
-		ret = ddr_init(confs[i]);
+	for (i = 0; i < ARRAY_SIZE(confs); i++) {
+		ret = ddr_init(confs[i].timings);
 		if (ret) {
-			is_valid[i] = false;
+			confs[i].is_valid = false;
 		} else {
-			is_valid[i] = true;
-			mr5[i] = lpddr4_mr_read(0xFF, 0x5);
-			mr6[i] = lpddr4_mr_read(0xFF, 0x6);
-			mr7[i] = lpddr4_mr_read(0xFF, 0x7);
-			mr8[i] = lpddr4_mr_read(0xFF, 0x8);
+			confs[i].is_valid = true;
+			confs[i].mr5 = lpddr4_mr_read(0xFF, 0x5);
+			confs[i].mr6 = lpddr4_mr_read(0xFF, 0x6);
+			confs[i].mr7 = lpddr4_mr_read(0xFF, 0x7);
+			confs[i].mr8 = lpddr4_mr_read(0xFF, 0x8);
 		}
 	}
 
@@ -101,11 +106,11 @@ static void spl_print_ddr_tables(void)
 	printf("\n");
 	printf("Size\tMR5\tMR6\tMR7\tMR8\n");
 
-	for (i = 0; i < 4; i++) {
-		if (!is_valid[i])
-			printf("%uG\t********** Failed **********\n", 4 - i);
+	for (i = 0; i < ARRAY_SIZE(confs); i++) {
+		if (!confs[i].is_valid)
+			printf("%-17s\t********** Failed **********\n", confs[i].label);
 		else
-			printf("%uG\t0x%x\t0x%x\t0x%x\t0x%x\n", 4 - i, mr5[i], mr6[i], mr7[i], mr8[i]);
+			printf("%-17s\t0x%x\t0x%x\t0x%x\t0x%x\n", confs[i].label, confs[i].mr5, confs[i].mr6, confs[i].mr7, confs[i].mr8);
 	}
 	printf("\n");
 	printf("****************************************\n");
