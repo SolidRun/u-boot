@@ -31,14 +31,10 @@
 #include <mmc.h>
 #include <asm/arch/ddr.h>
 
+#include "lpddr4_timing.h"
+
 #define ONE_GB 0x40000000ULL
 DECLARE_GLOBAL_DATA_PTR;
-
-extern struct dram_timing_info dram_timing_8gb_micron;
-extern struct dram_timing_info dram_timing_4gb_samsung_micron;
-extern struct dram_timing_info dram_timing_3gb_micron;
-extern struct dram_timing_info dram_timing_2gb_samsung;
-extern struct dram_timing_info dram_timing_1gb_samsung_micron;
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
@@ -67,16 +63,29 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 }
 
 #ifdef PRINT_DDR_TABLES
+static struct dram_timing_info *const dram_timing_patch(struct dram_timing_info *const timings)
+{
+	if (timings == &dram_timing_patch_2gb_samsung) {
+		timing_patch_apply(&dram_timing_1gb_samsung_micron, timings);
+		return &dram_timing_1gb_samsung_micron;
+	}
+	if (timings == &dram_timing_patch_8gb_micron) {
+		timing_patch_apply(&dram_timing_4gb_samsung_micron, timings);
+		return &dram_timing_4gb_samsung_micron;
+	}
+	return timings;
+}
+
 static struct dram_configs {
 	const char *const label;
 	struct dram_timing_info *const timings;
 	unsigned int mr5, mr6, mr7, mr8;
 	bool is_valid;
 } confs[] = {
-	{ .label = "Samsung 8G       ", .timings = &dram_timing_8gb_micron },
+	{ .label = "Samsung 8G       ", .timings = &dram_timing_patch_8gb_micron },
 	{ .label = "Samsung/Micron 4G", .timings = &dram_timing_4gb_samsung_micron },
 	{ .label = "Micron 3G        ", .timings = &dram_timing_3gb_micron },
-	{ .label = "Samsung 2G       ", .timings = &dram_timing_2gb_samsung },
+	{ .label = "Samsung 2G       ", .timings = &dram_timing_patch_2gb_samsung },
 	{ .label = "Samsung/Micron 1G", .timings = &dram_timing_1gb_samsung_micron },
 };
 
@@ -86,7 +95,8 @@ static void spl_print_ddr_tables(void)
 
 	/* Collect data */
 	for (i = 0; i < ARRAY_SIZE(confs); i++) {
-		ret = ddr_init(confs[i].timings);
+		ret = ddr_init(dram_timing_patch(confs[i].timings));
+		dram_timing_patch(confs[i].timings);
 		if (ret) {
 			confs[i].is_valid = false;
 		} else {
@@ -184,7 +194,9 @@ static bool spl_generic_ddr_init(void)
 	bool output = true;
 
 	/* Try 8GB Micron. */
-	ret = ddr_init(&dram_timing_8gb_micron);
+	timing_patch_apply(&dram_timing_4gb_samsung_micron, &dram_timing_patch_8gb_micron);
+	ret = ddr_init(&dram_timing_4gb_samsung_micron);
+	timing_patch_apply(&dram_timing_4gb_samsung_micron, &dram_timing_patch_8gb_micron);
 	if (!ret) {
 		printf("DDR 8G Micron identified!\n");
 		goto exit;
@@ -214,7 +226,9 @@ static bool spl_generic_ddr_init(void)
 	/* Try 2G Samsung.
 	 * Will work with: 1G Samsung as well.
 	 */
-	ret = ddr_init(&dram_timing_2gb_samsung);
+	timing_patch_apply(&dram_timing_1gb_samsung_micron, &dram_timing_patch_2gb_samsung);
+	ret = ddr_init(&dram_timing_1gb_samsung_micron);
+	timing_patch_apply(&dram_timing_1gb_samsung_micron, &dram_timing_patch_2gb_samsung);
 	if (!ret) {
 		if (!spl_dram_is_1G()) {
 			printf("DDR 2G Samsung identified!\n");
@@ -315,7 +329,8 @@ static struct dram_timing_info *spl_identify_ddr(bool *needs_training)
 			return &dram_timing_4gb_samsung_micron;
 		} else if (mr5 == 0xFF && mr6 == 0x7 && mr7 == 0x0 && mr8 == 0x18) {
 			printf("DDR 8G Micron identified!\n");
-			return &dram_timing_8gb_micron;
+			timing_patch_apply(&dram_timing_4gb_samsung_micron, &dram_timing_patch_8gb_micron);
+			return &dram_timing_4gb_samsung_micron;
 		} else {
 			goto err;
 		}
@@ -344,7 +359,8 @@ static struct dram_timing_info *spl_identify_ddr(bool *needs_training)
 			return &dram_timing_1gb_samsung_micron;
 		} else if (mr5 == 0x1 && mr6 == 0x6 && mr7 == 0x10 && mr8 == 0x10) {
 			printf("DDR 2G Samsung identified!\n");
-			return &dram_timing_2gb_samsung;
+			timing_patch_apply(&dram_timing_1gb_samsung_micron, &dram_timing_patch_2gb_samsung);
+			return &dram_timing_1gb_samsung_micron;
 		} else {
 			goto err;
 		}
