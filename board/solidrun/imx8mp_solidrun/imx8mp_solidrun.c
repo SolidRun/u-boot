@@ -555,7 +555,9 @@ static void board_id_from_tlv_info(void) {
 		pr_info("%s: read kit sku %s\n", __func__, hb_tlv_data.tlv_kit_number[i]);
 
 		// SRMP8QDW00D01GE008X01CE
-		if(strlen(hb_tlv_data.tlv_kit_number[i]) != 23) {
+		if(!hb_tlv_data.tlv_kit_number[i][0])
+			continue;
+		else if (strlen(hb_tlv_data.tlv_kit_number[i]) != 23) {
 			pr_err("%s: kit sku \"%s\" has wrong length (expecting %0X)\n", __func__, hb_tlv_data.tlv_kit_number[i], 23);
 			continue;
 		}

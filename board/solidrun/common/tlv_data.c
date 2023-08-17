@@ -76,9 +76,11 @@ static void parse_tlv_vendor_ext(struct tlvinfo_tlv *tlv_entry,
 		if (tlv_entry->length > 257)
 			break;
 		dest = td->tlv_kit_number[index];
-	        len = min_t(unsigned int, tlv_entry->length,
-			    sizeof(td->tlv_kit_number[index]) - 1);
-		memcpy(dest, tlv_entry->value, len);
+		len = tlv_entry->length - 5;
+		len = min_t(unsigned int, tlv_entry->length - 5,
+					sizeof(td->tlv_kit_number[index]) - 1);
+		memcpy(dest, &tlv_entry->value[5], len);
+		dest[len] = '\0';
 		break;	
 	default:
 		break;
