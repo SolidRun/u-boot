@@ -273,24 +273,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	}
 #endif
 
-	if (strcmp(board_id.carrier_name, "hummingboard-extended") == 0) {
-		pr_info("Disabling M.2 rfkill for hummingboard extended \n");
-		char *path = "/rfkill_m2_wdis";
-    	int nodeoffset = fdt_path_offset(blob, path);
-    	if (nodeoffset < 0) {
-        	printf("Unable to find node %s\n", path);
-        	return -1;
-    	}
-
-		const char *name = "status";
-    	const char *val = "disabled";
-		int rc = fdt_setprop_string(blob, nodeoffset, name, val);
-		if (rc < 0) {
-			printf("Unable to set property %s to %s\n", name, val);
-			return -1;
-		}
-	}
-
 	return 0;
 }
 
