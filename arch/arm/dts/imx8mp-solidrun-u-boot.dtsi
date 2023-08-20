@@ -186,12 +186,6 @@
 	/delete-property/ assigned-clock-rates;
 };
 
-&ethphy0 {
-	reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
-	reset-assert-us = <15000>;
-	reset-deassert-us = <100000>;
-};
-
 &lcdif1 {
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;

@@ -22,6 +22,11 @@
 	model = "NXP i.MX8MPlus LPDDR4 SolidRun board";
 	compatible = "fsl,imx8mp-solidrun", "fsl,imx8mp";
 
+	aliases {
+		ethernet0 = &eqos;
+		ethernet1 = &fec;
+	};
+
 	chosen {
 		bootargs = "console=ttymxc1,115200 earlycon=ec_imx6q,0x30890000,115200";
 		stdout-path = &uart2;
@@ -77,16 +82,15 @@
 	phy-mode = "rgmii-id";
 	phy-handle = <&ethphy1>;
 	fsl,magic-packet;
-	status = "disabled";
+	status = "okay";
 
 	mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
 
 		ethphy1: ethernet-phy@1 {
-			compatible = "ethernet-phy-ieee802.3-c22";
 			reg = <1>;
-			eee-broken-1000t;
+			reset-gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
 		};
 	};
 };
@@ -97,19 +101,15 @@
 	phy-mode = "rgmii-id";
 	phy-handle = <&ethphy0>;
 	status = "okay";
-        compatible = "fsl,imx-eqos";
-        /delete-property/ assigned-clocks;
-        /delete-property/ assigned-clock-parents;
-        /delete-property/ assigned-clock-rates;
 
 	mdio {
+		compatible = "snps,dwmac-mdio";
 		#address-cells = <1>;
 		#size-cells = <0>;
 
 		ethphy0: ethernet-phy@0 {
-			compatible = "ethernet-phy-ieee802.3-c22";
 			reg = <0>;
-			eee-broken-1000t;
+			reset-gpios = <&gpio4 19 GPIO_ACTIVE_LOW>;
 		};
 	};
 };
@@ -387,7 +387,7 @@
 			MX8MP_IOMUXC_ENET_TD3__ENET_QOS_RGMII_TD3	0x1f
 			MX8MP_IOMUXC_ENET_TX_CTL__ENET_QOS_RGMII_TX_CTL	0x1f
 			MX8MP_IOMUXC_ENET_TXC__CCM_ENET_QOS_CLOCK_GENERATE_TX_CLK	0x1f
-			MX8MP_IOMUXC_SAI1_TXD7__GPIO4_IO19		0x19
+			MX8MP_IOMUXC_SAI1_TXD7__GPIO4_IO19		0x34
 		>;
 	};
 
@@ -407,7 +407,7 @@
 			MX8MP_IOMUXC_SAI1_TXD3__ENET1_RGMII_TD3		0x1f
 			MX8MP_IOMUXC_SAI1_TXD4__ENET1_RGMII_TX_CTL	0x1f
 			MX8MP_IOMUXC_SAI1_TXD5__ENET1_RGMII_TXC		0x1f
-			MX8MP_IOMUXC_SAI1_RXD0__GPIO4_IO02		0x19
+			MX8MP_IOMUXC_SAI1_RXD0__GPIO4_IO02		0x34
 		>;
 	};
 

@@ -410,15 +410,6 @@ static int setup_eqos(void)
 	return set_clk_eqos(ENET_125MHZ);
 }
 
-#if CONFIG_IS_ENABLED(NET)
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-	return 0;
-}
-#endif
-
 #define DISPMIX				13
 #define MIPI				15
 
@@ -685,13 +676,6 @@ static void mac_add_n(unsigned char *base, u16 n) {
  */
 int board_get_mac(int dev_id, unsigned char *mac) {
 	int i;
-
-	// HACK: id 1 is the first
-	if(dev_id == 0) {
-		pr_err("%s: requested mac address for unknown interface 0!\n", __func__);
-		return -ENOENT;
-	}
-	dev_id -= 1;
 
 	/*
 	 * Note: Environment ethaddr (eth1addr, eth2addr, ...) has first priority,
