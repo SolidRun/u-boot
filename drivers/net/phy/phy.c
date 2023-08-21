@@ -427,6 +427,11 @@ int genphy_config(struct phy_device *phydev)
 			features |= SUPPORTED_1000baseX_Half;
 	}
 
+	/* disable power-down */
+	val = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
+	if (val & BMCR_PDOWN)
+		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, val ^ BMCR_PDOWN);
+
 	phydev->supported &= features;
 	phydev->advertising &= features;
 
