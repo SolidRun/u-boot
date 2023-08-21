@@ -654,14 +654,30 @@ int board_late_init(void)
 
 // calculate n-th mac from base
 static void mac_add_n(unsigned char *base, u16 n) {
-	union {
-		unsigned char byte[8];
-		u64 number;
-	} temp;
+	if (n == 0)
+		return;
 
-	memcpy(temp.byte, base, 6);
-	temp.number += n;
-	memcpy(base, temp.byte, 6);
+	/*
+	 * There is no 48 or 64-bit capable big-endian / host order
+	 * conversion function available, increment byte for byte ...
+	 */
+	base[5]++;
+	if (base[5] == 0) {
+		base[4]++;
+		if (base[4] == 0) {
+			base[3]++;
+			if (base[3] == 0) {
+				base[2]++;
+				if (base[2] == 0) {
+					base[1]++;
+					if (base[1] == 0)
+						base[0]++;
+				}
+			}
+		}
+	}
+
+	return mac_add_n(base, n-1);
 }
 
 /*
@@ -687,21 +703,20 @@ int board_get_mac(int dev_id, unsigned char *mac) {
 	// tlv eeproms
 	i = dev_id;
 	for(int j = 0; j < TLV_MAX_DEVICES; j++) {
-		if(!is_valid_ethaddr(&hb_tlv_data.tlv_mac_base[i][j]))
+		if(!is_valid_ethaddr(&hb_tlv_data.tlv_mac_base[j]))
 			continue;
 
 		// count if enough macs are provided
-		if(i >= hb_tlv_data.tlv_mac_count[j]) {
-			// maybe in next eeprom?
+		if (i >= hb_tlv_data.tlv_mac_count[j]) {
 			i -= hb_tlv_data.tlv_mac_count[j];
 			continue;
 		}
 
 		// compute i-th mac
-		memcpy(mac, &hb_tlv_data.tlv_mac_base[i][j], 6);
+		memcpy(mac, &hb_tlv_data.tlv_mac_base[j], 6);
 		mac_add_n(mac, i);
 
-		if(is_valid_ethaddr(mac)) {
+		if (is_valid_ethaddr(mac)) {
 			printf("%s: interface %i: using mac from tlv eeprom: %02X:%02X:%02X:%02X:%02X:%02X\n", __func__, dev_id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 			return 0;
 		} else {
