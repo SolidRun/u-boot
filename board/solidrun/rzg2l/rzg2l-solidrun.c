@@ -1,88 +1,10 @@
 #include <common.h>
-#include <cpu_func.h>
-#include <image.h>
 #include <init.h>
-#include <malloc.h>
-#include <netdev.h>
-#include <dm.h>
-#include <dm/platform_data/serial_sh.h>
-#include <asm/processor.h>
-#include <asm/mach-types.h>
 #include <asm/io.h>
-#include <linux/bitops.h>
-#include <linux/errno.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/gpio.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/rmobile.h>
-#include <asm/arch/rcar-mstp.h>
-#include <asm/arch/sh_sdhi.h>
-#include <i2c.h>
-#include <mmc.h>
+#include "../rzg-common/rzg-common.h"
+#include "../rzg-common/rzg2l-regs.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define PFC_BASE 0x11030000
-
-#define ETH_CH0 (PFC_BASE + 0x300c)
-#define ETH_CH1 (PFC_BASE + 0x3010)
-#define I2C_CH1 (PFC_BASE + 0x1870)
-#define ETH_PVDD_3300 0x00
-#define ETH_PVDD_1800 0x01
-#define ETH_PVDD_2500 0x02
-#define ETH_MII_RGMII (PFC_BASE + 0x3018)
-
-/* CPG */
-#define CPG_BASE 0x11010000
-#define CPG_CLKON_BASE (CPG_BASE + 0x500)
-#define CPG_RESET_BASE (CPG_BASE + 0x800)
-#define CPG_RESET_ETH (CPG_RESET_BASE + 0x7C)
-#define CPG_RESET_I2C (CPG_RESET_BASE + 0x80)
-#define CPG_RST_USB (CPG_BASE + 0x878)
-#define CPG_CLKON_USB (CPG_BASE + 0x578)
-
-/* PFC */
-#define PFC_P37 (PFC_BASE + 0x037)
-#define PFC_PM37 (PFC_BASE + 0x16E)
-#define PFC_PMC37 (PFC_BASE + 0x237)
-#define PFC_PWPR (PFC_BASE + 0x3014)
-
-#define PFC_P14 (PFC_BASE + 0x0014)
-#define PFC_PM14 (PFC_BASE + 0x0128)
-#define PFC_PMC14 (PFC_BASE + 0x214)
-#define PFC_PFC14 (PFC_BASE + 0x450)
-
-#define PFC_P3A (PFC_BASE + 0x003A)
-#define PFC_PM3A (PFC_BASE + 0x0174)
-#define PFC_PMC3A (PFC_BASE + 0x23A)
-#define PFC_PFC3A (PFC_BASE + 0x4E8)
-
-#define USBPHY_BASE (0x11c40000)
-#define USB0_BASE (0x11c50000)
-#define USB1_BASE (0x11c70000)
-#define USBF_BASE (0x11c60000)
-#define USBPHY_RESET (USBPHY_BASE + 0x000u)
-#define COMMCTRL 0x800
-#define HcRhDescriptorA 0x048
-#define LPSTS 0x102
-
-/* WDT */
-#define WDT_BASE 0x12800800
-#define WDTCNT 0x00
-#define WDTSET 0x04
-#define WDTTIM 0x08
-#define WDTINT 0x0C
-#define PECR 0x10
-#define PEEN 0x14
-#define WDTCNT_WDTEN BIT(0)
-#define WDTINT_INTDISP BIT(0)
-
-/**
- * The Hummingboard requires Open-Drain VBUS signals.
- * Comment the line below to enable Push-Pull signals instead.
- * TODO: remove this macro and change signal type based on TLV info.
- */
-#define USB_VBUS_OD
 
 void s_init(void)
 {
@@ -110,7 +32,7 @@ void s_init(void)
 }
 
 // VBUS: P4_0 and P42_0
-static void board_usb_init(void)
+static void board_usb_init(int pin_type)
 {
 	/*Enable USB*/
 	(*(volatile u32 *)CPG_RST_USB) = 0x000f000f;
@@ -121,21 +43,25 @@ static void board_usb_init(void)
 	(*(volatile u32 *)PFC_PWPR) &= ~(0x1u << 7); /* PWPR.BOWI = 0 */
 	(*(volatile u32 *)PFC_PWPR) |= (0x1u << 6);	 /* PWPR.PFCWE = 1 */
 
-#ifdef USB_VBUS_OD
-	/* Humming board has pulled up signals, enabled by default */
-	/* set P4_0 as GPIO Input */
-	(*(volatile u8 *)PFC_PM14) = 0;
-	/* set P42_0 as GPIO Input */
-	(*(volatile u8 *)PFC_PM3A) = 0;
-#elif
-	/* set P4_0 as GPIO Output High VBUSEN */
-	(*(volatile u8 *)PFC_PM14) |= (0x1u << 1);
-	(*(volatile u8 *)PFC_P14) |= (0x1u << 0);
-	// /* set P42_0 as GPIO Output High */
-	(*(volatile u8 *)PFC_PM3A) |= (0x1u << 1);
-	(*(volatile u8 *)PFC_P3A) |= (0x1u << 0);
-
-#endif
+	if (pin_type == VBUS_OUT_OD || CONFIG_IS_ENABLED(SOLIDRUN_VBUS_OUT_OD))
+	{
+		pr_info("Using VBUS open-drain \n");
+		/* Humming board has pulled up signals, enabled by default */
+		/* set P4_0 as GPIO Input */
+		(*(volatile u8 *)PFC_PM14) = 0;
+		/* set P42_0 as GPIO Input */
+		(*(volatile u8 *)PFC_PM3A) = 0;
+	}
+	else if (pin_type == VBUS_OUT_PP || CONFIG_IS_ENABLED(SOLIDRUN_VBUS_OUT_PP))
+	{
+		pr_info("Using VBUS push-pull\n");
+		/* set P4_0 as GPIO Output High VBUSEN */
+		(*(volatile u8 *)PFC_PM14) |= (0x1u << 1);
+		(*(volatile u8 *)PFC_P14) |= (0x1u << 0);
+		// /* set P42_0 as GPIO Output High */
+		(*(volatile u8 *)PFC_PM3A) |= (0x1u << 1);
+		(*(volatile u8 *)PFC_P3A) |= (0x1u << 0);
+	}
 
 	// /* Enable write protect */
 	(*(volatile u32 *)PFC_PWPR) &= ~(0x1u << 6); /* PWPR.PFCWE = 0 */
@@ -154,6 +80,53 @@ static void board_usb_init(void)
 	(*(volatile u32 *)(USB1_BASE + HcRhDescriptorA)) |= (0x1u << 12); /* NOCP = 1 */
 }
 
+int board_check_sd_emmc(void)
+{
+	int value = 0;
+	/* Read SD0_DEV_SEL_SW value - P22_1 */
+	/* eMMC/uSD Device Select - SD0_DEV_SEL_SW (LOW: uSD ; HIGH: eMMC) */
+
+	generic_clear_bit(1, PFC_PMC26); /* P22_1 Port GPIO mode */
+	generic_set_bit(2, PFC_PM26);	 /* P22_1 GPIO input mode */
+
+	value = ((u32)(((*(volatile u32 *)(PFC_PIN26)) & (1 << 1))) != 0); /* Port 22[1] read input value */
+	if (value == 0 || CONFIG_IS_ENABLED(SOLIDRUN_FORCE_SD_BOOT)) // Note: sd is LOW in g2l.
+		return 1;
+
+	return 0;
+}
+
+void board_select_sd_emmc(int select_sd)
+{
+	if (select_sd == 0 || CONFIG_IS_ENABLED(SOLIDRUN_FORCE_EMMC_BOOT))
+	{
+		printf("%s: select emmc.\n", __func__);
+		/* Enable eMMC */
+		/* Set SD0 VDD = 1.8v -> PFC-eMMC - LDO_SEL1 (High: 3.3v ; Low: 1.8v) */
+		generic_clear_bit(1, PFC_PMC26); /* P22_1 Port GPIO mode */
+		generic_set_bit(3, PFC_PM26);	 /* P22_1 GPIO output mode */
+		generic_set_bit(1, PFC_P26);	 /* P22_1 GPIO out HIGH */
+
+		/* Select eMMC */
+		generic_clear_bit(0, PFC_PMC37); /* P39_0 Port GPIO mode */
+		generic_set_bit(1, PFC_PM37);	 /* P39_0 GPIO output mode */
+		generic_clear_bit(0, PFC_P37);	 /* P39_0 GPIO out LOW */
+	}
+	else if (select_sd != 0 || CONFIG_IS_ENABLED(SOLIDRUN_FORCE_SD_BOOT))
+	{
+		printf("%s: select uSD.\n", __func__);
+		/* Enable uSD */
+		generic_clear_bit(1, PFC_PMC26); /* P22_1 Port GPIO mode */
+		generic_set_bit(3, PFC_PM26);	 /* P22_1 GPIO output mode */
+		generic_clear_bit(1, PFC_P26);	 /* P22_1 GPIO out LOW */
+
+		/* Select uSD */
+		generic_clear_bit(0, PFC_PMC37); /* P39_0 Port GPIO mode */
+		generic_set_bit(1, PFC_PM37);	 /* P39_0 GPIO output mode */
+		generic_set_bit(0, PFC_P37);	 /* P39_0 GPIO out HIGH */
+	}
+}
+
 int board_early_init_f(void)
 {
 
@@ -167,18 +140,76 @@ int board_init(void)
 	return 0;
 }
 
+static void carrier_usb_init(int carrier)
+{
+	switch (carrier)
+	{
+	case CARRIER_HB_MATE:
+	case CARRIER_HB_RIPPLE:
+	case CARRIER_HB_PULSE:
+	case CARRIER_HB_EXTENDED:
+		board_usb_init(VBUS_OUT_OD);
+		break;
+	default:
+		board_usb_init(VBUS_OUT_PP);
+		break;
+	}
+}
+
+static void carrier_select_fdt(int carrier)
+{
+	pr_info("Selecting fdt file for board %d...\n", carrier);
+	switch (carrier)
+	{
+	case CARRIER_HB_MATE:
+	case CARRIER_HB_RIPPLE:
+	case CARRIER_HB_PULSE:
+		env_set("fdtfile", "rzg2l-hummingboard-ripple.dtb");
+		break;
+	case CARRIER_HB_EXTENDED:
+		env_set("fdtfile", "rzg2l-hummingboard-extended.dtb");
+		break;
+	default:
+		pr_warn("Leaving default fdtfile \n");
+		break;
+	}
+}
+
 int board_late_init(void)
 {
-	board_usb_init();
+#ifndef CONFIG_SOLIDRUN_DISABLE_TLV
+	int carrier = get_carrier();
+	if (carrier < 0)
+	{
+		pr_err("Can't recognize the carrier board \n");
+	}
+	carrier_usb_init(carrier);
+	carrier_select_fdt(carrier);
+#else
+	board_usb_init(0);
+#endif
+
+	rzg_sd_emmc_init();
+
 	return 0;
 }
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_SYSTEM_SETUP)
+
+int ft_system_setup(void *blob, struct bd_info *bd)
+{
+	return rzg_preboot_sd_emmc_setup(blob, bd);
+}
+
+void ft_board_setup_ex(void *blob, struct bd_info *bd) {}
+#endif
 
 static void wdt_write(u32 val, unsigned int reg)
 {
 	writel(val, WDT_BASE + reg);
 }
 
-static int reset_wdt_start()
+static int reset_wdt_start(void)
 {
 	/* Clear Lapsed Time Register and clear Interrupt */
 	wdt_write(WDTINT_INTDISP, WDTINT);
