@@ -1,0 +1,77 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
+#ifndef __RZG2L_REGS_H__
+#define __RZG2L_REGS_H__
+
+
+#define PFC_BASE 0x11030000
+
+#define ETH_CH0 (PFC_BASE + 0x300c)
+#define ETH_CH1 (PFC_BASE + 0x3010)
+#define I2C_CH1 (PFC_BASE + 0x1870)
+#define ETH_PVDD_3300 0x00
+#define ETH_PVDD_1800 0x01
+#define ETH_PVDD_2500 0x02
+#define ETH_MII_RGMII (PFC_BASE + 0x3018)
+
+/* CPG */
+#define CPG_BASE 0x11010000
+#define CPG_CLKON_BASE (CPG_BASE + 0x500)
+#define CPG_RESET_BASE (CPG_BASE + 0x800)
+#define CPG_RESET_ETH (CPG_RESET_BASE + 0x7C)
+#define CPG_RESET_I2C (CPG_RESET_BASE + 0x80)
+#define CPG_PL2_SDHI_DSEL (CPG_BASE + 0x218)
+#define CPG_CLK_STATUS (CPG_BASE + 0x280)
+#define CPG_RST_USB (CPG_BASE + 0x878)
+#define CPG_CLKON_USB (CPG_BASE + 0x578)
+
+/* PFC */
+#define PFC_P37 (PFC_BASE + 0x037)
+#define PFC_PM37 (PFC_BASE + 0x16E)
+#define PFC_PMC37 (PFC_BASE + 0x237)
+#define PFC_PWPR (PFC_BASE + 0x3014)
+
+#define PFC_P14 (PFC_BASE + 0x0014)
+#define PFC_PM14 (PFC_BASE + 0x0128)
+#define PFC_PMC14 (PFC_BASE + 0x214)
+#define PFC_PFC14 (PFC_BASE + 0x450)
+
+#define PFC_P15 (PFC_BASE + 0x0015)
+#define PFC_PM15 (PFC_BASE + 0x012A)
+#define PFC_PMC15 (PFC_BASE + 0x215)
+#define PFC_PFC15 (PFC_BASE + 0x454)
+
+#define PFC_P3A (PFC_BASE + 0x003A)
+#define PFC_PM3A (PFC_BASE + 0x0174)
+#define PFC_PMC3A (PFC_BASE + 0x23A)
+#define PFC_PFC3A (PFC_BASE + 0x4E8)
+
+#define USBPHY_BASE (0x11c40000)
+#define USB0_BASE (0x11c50000)
+#define USB1_BASE (0x11c70000)
+#define USBF_BASE (0x11c60000)
+#define USBPHY_RESET (USBPHY_BASE + 0x000u)
+#define COMMCTRL 0x800
+#define HcRhDescriptorA 0x048
+#define LPSTS 0x102
+
+#define PFC_P26 (PFC_BASE + 0x026)	 /* PORT REGISTER26 */
+#define PFC_PM26 (PFC_BASE + 0x14C)	 /* PORT MODE REGISTER26 */
+#define PFC_PMC26 (PFC_BASE + 0x226) /* PORT MODE CONTROL REGISTER26 */
+#define PFC_PIN26 (PFC_BASE + 0x826)
+#define PFC_PUPD26 (PFC_BASE + 0x1d30) /* PULL UP/PULL DOWN SWITCHING REGISTER26 */
+#define FILONOFF26 (PFC_BASE + 0x2130) /* Digital Noise Filter Switching Register */
+#define FILNUM26 (PFC_BASE + 0x2530)   /* DIGITAL NOISE FILTER NUMBER REGISTER26 */
+
+/* WDT */
+#define WDT_BASE 0x12800800
+#define WDTCNT 0x00
+#define WDTSET 0x04
+#define WDTTIM 0x08
+#define WDTINT 0x0C
+#define PECR 0x10
+#define PEEN 0x14
+#define WDTCNT_WDTEN BIT(0)
+#define WDTINT_INTDISP BIT(0)
+
+
+#endif // __RZG2L_REGS_H__

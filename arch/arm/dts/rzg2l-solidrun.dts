@@ -18,6 +18,8 @@
 
 	aliases {
 		serial0 = &scif0;
+		eeprom_som = &eeprom_som;
+		eeprom_carrier = &eeprom_carrier;
 	};
 
 	chosen {
