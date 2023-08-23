@@ -10,4 +10,5 @@ ifdef CONFIG_SPL_BUILD
 obj-y	:= ../rcar-common/gen3-spl.o
 else
 obj-y	:= rzg2l-solidrun.o ../rcar-common/common.o
+obj-y 	+= ../rzg-common/
 endif

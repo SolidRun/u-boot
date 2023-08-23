@@ -1,0 +1,44 @@
+config RZG_SOLIDRUN_COMMON
+    bool "Common configuration for RZG2L_SOLIDRUN targets"
+    depends on TARGET_RZG2L_SOLIDRUN || TARGET_RZG2LC_SOLIDRUN
+    default y
+    help
+      This option enables common board support code for both RZG2L/RZG2LC solidrun SOMs.
+
+config SOLIDRUN_VBUS_OUT_PP
+    bool "Set USB VBUS Push-Pull"
+    depends on RZG_SOLIDRUN_COMMON
+    default n
+    help
+      Set USB VBUS Push-Pull
+
+config SOLIDRUN_VBUS_OUT_OD
+    bool "Set USB VBUS Open-Drain"
+    depends on RZG_SOLIDRUN_COMMON && !SOLIDRUN_VBUS_OUT_PP
+    default n
+    help
+      Set USB VBUS Open-Drain
+
+config SOLIDRUN_DISABLE_TLV
+    bool "Do not use tlv eeprom for dts selection and vbus output type choice"
+	depends on RZG_SOLIDRUN_COMMON
+	depends on SOLIDRUN_VBUS_OUT_PP || SOLIDRUN_VBUS_OUT_OD
+    default n
+    help
+      Do not use tlv eeprom for dts selection and vbus output type choice.
+
+config SOLIDRUN_FORCE_SD_BOOT
+    bool "Force the SD/eMMC selection to always use SD"
+	depends on RZG_SOLIDRUN_COMMON
+    default n
+    help
+      Force the SD/eMMC selection to always use SD.
+
+config SOLIDRUN_FORCE_MMC_BOOT
+    bool "Force the SD/eMMC selection to always use eMMC"
+	depends on RZG_SOLIDRUN_COMMON && !SOLIDRUN_FORCE_SD_BOOT
+    default n
+    help
+      Force the SD/eMMC selection to always use SD.
+
+
