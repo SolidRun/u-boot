@@ -18,6 +18,8 @@
 
 	aliases {
 		serial0 = &scif0;
+		eeprom_som = &eeprom_som;
+		eeprom_carrier = &eeprom_carrier;
 	};
 
 	chosen {
@@ -33,12 +35,12 @@
 
 
 &pinctrl {
-  pinctrl-names = "default";
-  pinctrl-0 = <&pinctrl_hog>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hog>;
 
-  pinctrl_hog: hoggrp {
-    pinmux = <RZG2L_PINMUX(22, 1, 0)>; /* SD0_DEV_SEL_SW */
-  };
+	pinctrl_hog: hoggrp {
+		pinmux = <RZG2L_PINMUX(22, 1, 0)>; /* SD0_DEV_SEL_SW */
+	};
 
 	eth0_pins: eth0 {
 		pinmux = <RZG2L_PINMUX(20, 0, 1)>,
@@ -63,7 +65,7 @@
 
 
 &xinclk {
-        clock-frequency = <24000000>;
+		clock-frequency = <24000000>;
 };
 
 &scif0 {
