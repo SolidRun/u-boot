@@ -49,6 +49,7 @@ efi_selftest_variables.o \
 efi_selftest_variables_runtime.o \
 efi_selftest_watchdog.o \
 
+obj-$(CONFIG_EFI_I2C_PROTOCOL) += efi_selftest_i2c.o
 obj-$(CONFIG_EFI_SPI_NOR_FLASH_PROTOCOL) += efi_selftest_spinor.o
 obj-$(CONFIG_EFI_PCI_IO_PROTOCOL) += efi_selftest_pci_io.o
 

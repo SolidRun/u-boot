@@ -376,6 +376,11 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 #endif
+#ifdef CONFIG_EFI_I2C_PROTOCOL
+	ret = efi_i2c_protocol_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+#endif
 
 	/* Initialize EFI runtime services */
 	ret = efi_reset_system_init();

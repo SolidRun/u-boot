@@ -2348,4 +2348,20 @@ struct efi_gpio_protocol {
 					      u32 gpio_num, u8 pull);
 };
 
+/* EFI_I2C_PROTOCOL */
+#define EFI_I2C_PROTOCOL_GUID \
+	EFI_GUID(0x8de8346d, 0xffec, 0x4a09, \
+			0x8f, 0xe3, 0x6f, 0x0c, 0xe0, 0x74, 0x76, 0x5f)
+
+struct efi_i2c_protocol {
+	efi_status_t (EFIAPI * i2c_probe_device)(const struct efi_i2c_protocol *this,
+						 u8 dev_addr);
+	efi_status_t (EFIAPI * i2c_read_device)(const struct efi_i2c_protocol *this,
+						u8 dev_addr, u32 reg_addr, u32 addr_size,
+						u32 length, void *buffer);
+	efi_status_t (EFIAPI * i2c_write_device)(const struct efi_i2c_protocol *this,
+						 u8 dev_addr, u32 reg_addr, u32 addr_size,
+						 u32 length, void *buffer);
+};
+
 #endif
