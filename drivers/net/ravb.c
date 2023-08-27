@@ -538,6 +538,24 @@ static void ravb_stop(struct udevice *dev)
 	ravb_reset(dev);
 }
 
+// Glue to the legacy mii bitbang driver
+int ravb_bb_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg)
+{
+	struct ravb_priv *priv = bus->priv;
+	bb_miiphy_buses[0].priv = priv;
+	sprintf(bb_miiphy_buses[0].name, bus->name);
+	return bb_miiphy_read(bus, addr, devad, reg);
+}
+
+int ravb_bb_miiphy_write(struct mii_dev *bus, int addr, int devad, int reg,
+						 u16 val)
+{
+	struct ravb_priv *priv = bus->priv;
+	bb_miiphy_buses[0].priv = priv;
+	sprintf(bb_miiphy_buses[0].name, bus->name);
+	return bb_miiphy_write(bus, addr, devad, reg, val);
+}
+
 static int ravb_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -571,9 +589,10 @@ static int ravb_probe(struct udevice *dev)
 		goto err_mdio_alloc;
 	}
 
-	mdiodev->read = bb_miiphy_read;
-	mdiodev->write = bb_miiphy_write;
-	bb_miiphy_buses[0].priv = eth;
+	mdiodev->read = ravb_bb_miiphy_read;
+	mdiodev->write = ravb_bb_miiphy_write;
+	mdiodev->priv = eth;
+
 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
 
 	ret = mdio_register(mdiodev);
