@@ -1,6 +1,6 @@
 config RZG_SOLIDRUN_COMMON
     bool "Common configuration for RZG2L_SOLIDRUN targets"
-    depends on TARGET_RZG2L_SOLIDRUN || TARGET_RZG2LC_SOLIDRUN
+    depends on TARGET_RZG2L_SOLIDRUN || TARGET_RZG2LC_SOLIDRUN || TARGET_RZV2L_SOLIDRUN
     default y
     help
       This option enables common board support code for both RZG2L/RZG2LC solidrun SOMs.

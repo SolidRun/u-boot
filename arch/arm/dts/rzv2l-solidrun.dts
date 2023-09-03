@@ -1,0 +1,176 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source for the GR-Peach board
+ *
+ * Copyright (C) 2017 Jacopo Mondi <jacopo+renesas@jmondi.org>
+ * Copyright (C) 2016 Renesas Electronics
+ */
+
+/dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+#include "r9a07g054l.dtsi"
+#include "r9a07g054l-u-boot.dtsi"
+#include <dt-bindings/pinctrl/rzv2l-pinctrl.h>
+
+/ {
+	model = "sr-rzv2l";
+	compatible = "renesas,r9a07g054l", "renesas,rzv2l";
+
+	aliases {
+		serial0 = &scif0;
+		eeprom_som = &eeprom_som;
+		eeprom_carrier = &eeprom_carrier;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory@48000000 {
+		device_type = "memory";
+		/* first 128MB is reserved for secure area. */
+		reg = <0 0x48000000 0 0x78000000>; /*2GB*/
+	};
+
+};
+
+&pinctrl {
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hog>;
+	pinctrl_hog: hoggrp {
+		pinmux = <RZV2L_PINMUX(22, 1, 0)>, /* SD0_DEV_SEL_SW */
+				<RZV2L_PINMUX(23, 0, 0)>, /* BT_REG_ON */
+				<RZV2L_PINMUX(23, 1, 0)>; /* WL_REG_ON */ 
+	};
+	
+	eth0_pins: eth0 {
+		pinmux = <RZV2L_PINMUX(28, 1, 1)>, /* ET0_LINKSTA */
+			<RZV2L_PINMUX(27, 1, 1)>, /* ET0_MDC */
+			<RZV2L_PINMUX(28, 0, 1)>, /* ET0_MDIO */
+			<RZV2L_PINMUX(20, 0, 1)>, /* ET0_TXC */
+			<RZV2L_PINMUX(20, 1, 1)>, /* ET0_TX_CTL */
+			<RZV2L_PINMUX(20, 2, 1)>, /* ET0_TXD0 */
+			<RZV2L_PINMUX(21, 0, 1)>, /* ET0_TXD1 */
+			<RZV2L_PINMUX(21, 1, 1)>, /* ET0_TXD2 */
+			<RZV2L_PINMUX(22, 0, 1)>, /* ET0_TXD3 */
+			<RZV2L_PINMUX(24, 0, 1)>, /* ET0_RXC */
+			<RZV2L_PINMUX(24, 1, 1)>, /* ET0_RX_CTL */
+			<RZV2L_PINMUX(25, 0, 1)>, /* ET0_RXD0 */
+			<RZV2L_PINMUX(25, 1, 1)>, /* ET0_RXD1 */
+			<RZV2L_PINMUX(26, 0, 1)>, /* ET0_RXD2 */
+			<RZV2L_PINMUX(26, 1, 1)>; /* ET0_RXD3 */
+	};
+
+	eth1_pins: eth1 {
+		pinmux = <RZV2L_PINMUX(37, 2, 1)>, /* ET1_LINKSTA */
+			<RZV2L_PINMUX(37, 0, 1)>, /* ET1_MDC */
+			<RZV2L_PINMUX(37, 1, 1)>, /* ET1_MDIO */
+			<RZV2L_PINMUX(29, 0, 1)>, /* ET1_TXC */
+			<RZV2L_PINMUX(29, 1, 1)>, /* ET1_TX_CTL */
+			<RZV2L_PINMUX(30, 0, 1)>, /* ET1_TXD0 */
+			<RZV2L_PINMUX(30, 1, 1)>, /* ET1_TXD1 */
+			<RZV2L_PINMUX(31, 0, 1)>, /* ET1_TXD2 */
+			<RZV2L_PINMUX(31, 1, 1)>, /* ET1_TXD3 */
+			<RZV2L_PINMUX(33, 1, 1)>, /* ET1_RXC */
+			<RZV2L_PINMUX(34, 0, 1)>, /* ET1_RX_CTL */
+			<RZV2L_PINMUX(34, 1, 1)>, /* ET1_RXD0 */
+			<RZV2L_PINMUX(35, 0, 1)>, /* ET1_RXD1 */
+			<RZV2L_PINMUX(35, 1, 1)>, /* ET1_RXD2 */
+			<RZV2L_PINMUX(36, 0, 1)>; /* ET1_RXD3 */
+  };
+};
+
+&xinclk {
+        clock-frequency = <24000000>;
+};
+
+&scif0 {
+	status = "okay";
+	clock = <100000000>;
+};
+
+&sdhi0 {
+	/* pinctrl placeholder
+	 * If this channel is used for interfacing with a SD card, a power enable
+	 * pin (SD0_PWR_EN) must be defined.
+	 * The SD0_PWR_EN pin is associated with P4_1.
+	 * A HIGH signal on SD0_PWR_EN will enable supply voltage for SD card.
+	*/
+	bus-width = <8>;
+	status = "okay";
+};
+
+&sdhi1 {
+	status = "disabled";
+};
+
+&eth0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&eth0_pins>;
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+	status = "okay";
+
+	phy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+&eth1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&eth1_pins>;
+	phy-handle = <&phy1>;
+	phy-mode = "rgmii-id";
+	status = "okay";
+
+	phy1: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+&i2c0 {
+	pinctrl-names = "default";
+	status = "okay";
+
+	adv7535: hdmi@3d {
+		compatible = "adi,adv7535";
+		reg = <0x3d>;
+	};
+
+	eeprom_carrier: eeprom@57 {
+		compatible = "st,24c02", "atmel,24c02";
+		reg = <0x57>;
+		pagesize = <8>;
+	};
+};
+
+&i2c1 {
+
+	pinctrl-names = "default";
+	status = "okay";
+
+	eeprom_som: m24c02@50 {
+		compatible = "atmel,24c02";
+		reg = <0x50>;
+	};
+};
+
+&usb2_phy0 {
+	status = "okay";
+};
+
+&usb2_phy1 {
+	status = "okay";
+};
+
+
+&ehci0 {
+	status = "okay";
+	phys = <&usb2_phy0>;
+};
+
+&ehci1 {
+	status = "okay";
+	phys = <&usb2_phy1>;
+};

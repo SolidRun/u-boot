@@ -1,0 +1,15 @@
+if TARGET_RZV2L_SOLIDRUN
+
+config SYS_SOC
+        default "rmobile"
+
+config SYS_BOARD
+        default "rzv2l"
+
+config SYS_VENDOR
+        default "solidrun"
+
+config SYS_CONFIG_NAME
+        default "rzv2l-solidrun"
+
+endif
