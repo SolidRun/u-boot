@@ -192,6 +192,11 @@ config TARGET_RZV2L_DEV
 	help
           Support for Renesas RZ/V2L Dev Platform
 
+config TARGET_RZV2L_SOLIDRUN
+        bool "RZ/V2L SolidRun board"
+        help
+          Support for Solidrun RZ/V2L Dev Platform
+
 config TARGET_SMARC_RZV2L
 	bool "RZ/V2L Dev board"
 	help
@@ -254,6 +259,7 @@ source "board/renesas/rzg2lc-dev/Kconfig"
 source "board/renesas/rzg2ul-dev/Kconfig"
 source "board/solidrun/rzg2lc/Kconfig"
 source "board/solidrun/rzg2l/Kconfig"
+source "board/solidrun/rzv2l/Kconfig"
 source "board/solidrun/rzg-common/Kconfig"
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
