@@ -21,7 +21,7 @@
 #define CONFIG_INITRD_TAG
 
 /* Generic Interrupt Controller Definitions */
-/* RZ/G2L use GIC-v3 */
+/* RZ/V2L use GIC-v3 */
 #define CONFIG_GICV3
 #define GICD_BASE	0x11900000
 #define GICR_BASE	0x11960000
@@ -43,11 +43,11 @@
 
 #define DRAM_RSV_SIZE			0x08000000
 #define CONFIG_SYS_SDRAM_BASE		(0x40000000 + DRAM_RSV_SIZE)
-#define CONFIG_SYS_SDRAM_SIZE		(0x40000000u - DRAM_RSV_SIZE) //total 1GB
+#define CONFIG_SYS_SDRAM_SIZE		(0x80000000u - DRAM_RSV_SIZE) //total 2GB
 #define CONFIG_SYS_LOAD_ADDR		0x58000000
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR // Default load address for tfpt,bootp...
 #define CONFIG_VERY_BIG_RAM
-#define CONFIG_MAX_MEM_MAPPED		(0x40000000u - DRAM_RSV_SIZE)
+#define CONFIG_MAX_MEM_MAPPED		(0x80000000u - DRAM_RSV_SIZE)
 
 #define CONFIG_SYS_MONITOR_BASE		0x00000000
 #define CONFIG_SYS_MONITOR_LEN		(1 * 1024 * 1024)
@@ -86,4 +86,4 @@ BOOTENV
 /* Ethernet RAVB */
 #define CONFIG_BITBANGMII_MULTI
 
-#endif /* __RZV2L_SOLIDRUN_H */
+#endif /* __RZV2L_DEV_H */
