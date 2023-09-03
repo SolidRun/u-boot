@@ -926,6 +926,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	rzg2l-solidrun.dtb \
 	smarc-rzg2l.dtb \
 	rzv2l-dev.dtb \
+	rzv2l-solidrun.dtb \
 	smarc-rzv2l.dtb \
 	rzg2lc-dev.dtb \
 	rzg2lc-solidrun.dtb \
