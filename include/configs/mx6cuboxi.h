@@ -41,6 +41,9 @@
 #define CONFIG_DWC_AHSATA_BASE_ADDR     SATA_ARB_BASE_ADDR
 #define CONFIG_LBA48
 #endif
+#ifdef CONFIG_SCSI_AHCI
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID 1
+#endif
 
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC
