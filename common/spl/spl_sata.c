@@ -65,9 +65,11 @@ static int spl_sata_load_image(struct spl_image_info *spl_image,
 #endif
 		return err;
 	} else {
+#ifdef CONFIG_SCSI
 		/* try to recognize storage devices immediately */
 		scsi_scan(false);
 		stor_dev = blk_get_devnum_by_type(IF_TYPE_SCSI, 0);
+#endif
 		if (!stor_dev)
 			return -ENODEV;
 	}
