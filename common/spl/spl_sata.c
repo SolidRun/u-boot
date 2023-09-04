@@ -57,14 +57,20 @@ static int spl_sata_load_image(struct spl_image_info *spl_image,
 {
 	int err;
 	struct blk_desc *stor_dev;
-
+#ifndef CONFIG_AHCI
+	err = sata_initialize();
+#else
 	err = init_sata(CONFIG_SPL_SATA_BOOT_DEVICE);
+#endif
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("spl: sata init failed: err - %d\n", err);
 #endif
 		return err;
 	} else {
+#ifndef CONFIG_AHCI
+		stor_dev = sata_get_dev(CONFIG_SPL_SATA_BOOT_DEVICE);
+#endif
 #ifdef CONFIG_SCSI
 		/* try to recognize storage devices immediately */
 		scsi_scan(false);
