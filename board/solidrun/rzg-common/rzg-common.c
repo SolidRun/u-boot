@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
+#include <env.h>
+#include <dm/uclass.h>
 #include <tlv_eeprom.h>
 #include <linux/err.h>
 #include "rzg-common.h"
+
+#define SD_EMMC_SEL_ENV "sdio_select"
 
 static int get_tlv_udevice_by_alias(struct udevice **dev, const char *alias)
 {
@@ -111,9 +115,9 @@ static void set_bootsource_env(int select_sd)
 {
 	int ret;
 	if (select_sd)
-		ret = env_set("boot_source", "sd");
+		ret = env_set(SD_EMMC_SEL_ENV, "sd");
 	else
-		ret = env_set("boot_source", "emmc");
+		ret = env_set(SD_EMMC_SEL_ENV, "emmc");
 	if (ret)
 		pr_err("Failed to set boot_source env, err: %d \n", ret);
 }
@@ -135,12 +139,12 @@ void rzg_sd_emmc_init(void)
 static bool preboot_check_sd_emmc(void)
 {
 	int sd_select = 0;
-	char *boot_source_env = from_env("boot_source");
-	if (!boot_source_env)
+	char *sd_select_env = from_env(SD_EMMC_SEL_ENV); // here is the fail!!
+	if (!sd_select_env)
 	{
 		sd_select = board_check_sd_emmc();
 	}
-	else if (strcmp(boot_source_env, "sd") == 0)
+	else if (strcmp(sd_select_env, "sd") == 0)
 	{
 		sd_select = 1;
 	}
@@ -150,7 +154,6 @@ static bool preboot_check_sd_emmc(void)
 
 int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
 {
-
 	int ret, node_sdhi0, node = 0;
 	bool enable_sdhc = preboot_check_sd_emmc();
 

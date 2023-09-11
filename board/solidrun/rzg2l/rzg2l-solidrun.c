@@ -1,6 +1,7 @@
 #include <common.h>
 #include <init.h>
 #include <asm/io.h>
+#include <env.h>
 #include "../rzg-common/rzg-common.h"
 #include "../rzg-common/rzg2l-regs.h"
 
@@ -85,14 +86,11 @@ int board_check_sd_emmc(void)
 	int value = 0;
 	/* Read SD0_DEV_SEL_SW value - P22_1 */
 	/* eMMC/uSD Device Select - SD0_DEV_SEL_SW (LOW: uSD ; HIGH: eMMC) */
-
 	generic_clear_bit(1, PFC_PMC26); /* P22_1 Port GPIO mode */
 	generic_set_bit(2, PFC_PM26);	 /* P22_1 GPIO input mode */
-
 	value = ((u32)(((*(volatile u32 *)(PFC_PIN26)) & (1 << 1))) != 0); /* Port 22[1] read input value */
 	if (value == 0 || CONFIG_IS_ENABLED(SOLIDRUN_FORCE_SD_BOOT)) // Note: sd is LOW in g2l.
 		return 1;
-
 	return 0;
 }
 
