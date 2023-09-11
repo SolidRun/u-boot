@@ -1,6 +1,7 @@
 #include <common.h>
 #include <init.h>
 #include <asm/io.h>
+#include <env.h>
 #include "../rzg-common/rzg-common.h"
 #include "../rzg-common/rzg2l-regs.h"
 
