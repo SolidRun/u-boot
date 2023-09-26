@@ -766,7 +766,7 @@ int dpi_pf_remove(struct udevice *dev)
 	write_dpi_reg(dpi, DPI_CTL, 0x0);
 	write_dpi_reg(dpi, DPI_DMA_CONTROL, 0x0);
 
-	write_bar4_reg(0x0, PEM_BASE + PEM_BAR4_INDEX_OFFSET(8));
+	writel(0x0, PEM_BASE + PEM_BAR4_INDEX_OFFSET(8));
 
 	device_remove(dpi->npa_dev, DM_REMOVE_NORMAL);
 	debug("%s: dpi pf down --\n", __func__);
