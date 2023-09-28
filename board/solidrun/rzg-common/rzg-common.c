@@ -130,6 +130,15 @@ void rzg_sd_emmc_init(void)
 	set_bootsource_env(value);
 }
 
+uint mmc_get_env_part(struct mmc *mmc)
+{
+	int value = board_check_sd_emmc();
+	if (value == 1)
+		return 0;
+	else
+		return CONFIG_SYS_MMC_ENV_PART;
+}
+
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_SYSTEM_SETUP)
 /*
  * Configure the correct sdhi0 node (eMMC/SD) in device-tree:
@@ -222,5 +231,5 @@ int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
 
 	return 0;
 }
-
 #endif
+
