@@ -10,6 +10,7 @@
 #include <efi_loader.h>
 #include <linux/sizes.h>
 #include <dm/device.h>
+#include <dm/uclass.h>
 #include <asm-generic/gpio.h>
 
 const efi_guid_t efi_guid_gpio_protocol = EFI_GPIO_PROTOCOL_GUID;

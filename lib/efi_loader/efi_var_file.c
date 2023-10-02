@@ -168,7 +168,6 @@ efi_status_t __efi_runtime efi_var_to_file(void)
 	efi_status_t ret;
 	struct efi_var_file *buf;
 	loff_t len;
-	int r;
 
 	ret = efi_var_collect(&buf, &len, EFI_VARIABLE_NON_VOLATILE);
 	if (ret != EFI_SUCCESS)
@@ -190,7 +189,8 @@ efi_status_t __efi_runtime efi_var_to_file(void)
 	if (ret != EFI_SUCCESS)
 		goto error;
 
-	r = fs_write(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, len, &actlen);
+	int r = fs_write(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, len, &actlen);
+
 	if (r || len != actlen)
 		ret = EFI_DEVICE_ERROR;
 #endif
