@@ -755,7 +755,6 @@ static int smbios_write_type8(ulong *current, int handle,
 			fill_smbios_header(t, SMBIOS_PORT_INFORMATION, len, handle);
 			smbios_set_eos(ctx, t->eos);
 			smbios_write_type8_dm(t, node_type8);
-			len = t->length + smbios_string_table_len(ctx);
 			total_len += len;
 			*current += len;
 			unmap_sysmem(t);
@@ -916,7 +915,6 @@ static int smbios_write_type16(ulong *current, int handle,
 		t->extended_maximum_capacity = tmp64;
 	}
 
-	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -1098,7 +1096,6 @@ static int smbios_write_type19(ulong *current, int handle,
 			fill_smbios_header(t, SMBIOS_MEMORY_ARRAY_MAPPED_ADDRESS, len, handle);
 			smbios_set_eos(ctx, t->eos);
 			smbios_write_type19_dm(t, node_type19,  current, handle, i);
-			len = t->length + smbios_string_table_len(ctx);
 			total_len += len;
 			*current += len;
 			unmap_sysmem(t);
@@ -1128,7 +1125,6 @@ static int smbios_write_type20_dm(ulong *current, int handle, int index,
 	 * ...
 	 */
 
-	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -1164,7 +1160,6 @@ static int smbios_write_type41_dm(ulong *current, int handle, int index,
 	 * ...
 	 */
 
-	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
