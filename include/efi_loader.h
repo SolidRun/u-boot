@@ -1044,6 +1044,8 @@ void efi_memset_runtime(void *dest, int value, size_t n);
 /* Create EFI_SPI_NOR_FLASH_PROTOCOL */
 efi_status_t efi_spinor_protocol_register(void);
 efi_status_t efi_sec_spinor_protocol_register(void);
+efi_status_t efi_gpio_protocol_register(void);
+efi_status_t efi_i2c_protocol_register(void);
 
 extern const struct efi_firmware_management_protocol efi_fmp_fit;
 extern const struct efi_firmware_management_protocol efi_fmp_raw;
