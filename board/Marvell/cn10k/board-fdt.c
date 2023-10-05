@@ -704,31 +704,35 @@ int fdt_get_switch_reset(void)
 }
 
 #if CONFIG_IS_ENABLED(CN10K_MAP_RESERVE)
-void board_fdt_get_rsvd_size(u64 *size)
+void board_fdt_get_rsvd_size(u64 *addr, u64 *size)
 {
 	int node, child;
 	const void *fdt = gd->fdt_blob;
 	u64 ram_top = gd->ram_size + CONFIG_SYS_SDRAM_BASE;
-	fdt_addr_t addr;
-	fdt_size_t len;
+	fdt_addr_t dt_addr;
+	fdt_size_t dt_len;
 
-	*size = 0;
 	node = fdt_path_offset(fdt, "/reserved-memory");
 	if (node) {
 		fdt_for_each_subnode(child, fdt, node) {
-			addr = 0;
-			len = 0;
-			if (!fdt_node_check_compatible(fdt, child, "marvell"))
-				continue;
-			addr = fdtdec_get_addr_size_auto_parent(fdt, node,
+			dt_addr = 0;
+			dt_len = 0;
+			dt_addr = fdtdec_get_addr_size_auto_parent(fdt, node,
 								child,
 								"reg", 0,
-								&len,
+								&dt_len,
 								false);
-			if (addr && addr > ram_top && len) {
+			if (dt_addr && dt_addr > ram_top && dt_len) {
 				debug("%s Rsvd address 0x%llx 0x%llx size 0x%llx\n",
-				      __func__, addr, ram_top, len);
-				*size += len;
+					__func__, dt_addr, ram_top, dt_len);
+
+				if (dt_addr < *addr) {
+					*size += *addr - dt_addr;
+					*addr = dt_addr;
+				}
+
+				if (dt_addr + dt_len > *addr + *size)
+					*size = dt_addr + dt_len - *addr;
 			}
 		}
 	}
