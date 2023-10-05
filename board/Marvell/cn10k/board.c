@@ -285,7 +285,7 @@ int timer_init(void)
 
 int dram_init(void)
 {
-	u64 rvu_addr, rvu_size, rsvd_size = 0;
+	u64 rvu_addr, rvu_size;
 	int ret;
 
 	gd->ram_size = smc_dram_size(0);
@@ -293,10 +293,8 @@ int dram_init(void)
 
 	ret = smc_rvu_rsvd_reg_info(&rvu_addr, &rvu_size);
 
-	if (IS_ENABLED(CONFIG_CN10K_MAP_RESERVE)) {
-		board_fdt_get_rsvd_size(&rsvd_size);
-		rvu_size += rsvd_size;
-	}
+	if (IS_ENABLED(CONFIG_CN10K_MAP_RESERVE))
+		board_fdt_get_rsvd_size(&rvu_addr, &rvu_size);
 
 	mem_map_fill(rvu_addr, rvu_size);
 
