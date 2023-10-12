@@ -130,7 +130,7 @@
 		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		     0xff 0    7    0xa  7    2    2    2    2    0xa
 		     7    7    8    8    0    0    0    0    0    0
-		     0    0    0    0    0    0    0xe  0xe  0xe  0xe
+		     0    0    0    0    0    0xb  0xe  0xe  0xe  0xe
 		     0xe  0xe  0 >;
 
 	cp0_xhci_vbus_pins: cp0-xhci-vbus-pins {
@@ -142,12 +142,17 @@
 		marvell,pins = < 52 >;
 		marvell,function = <0>;
 	};
+
+	cp0_sdhci_cd_pins: cp0-sdhi-cd-pins-0 {
+		marvell,pins = < 55 >;
+		marvell,function = <11>;
+	};
 };
 
 /* uSD slot */
 &cp0_sdhci0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&cp0_sdhci_pins>;
+	pinctrl-0 = <&cp0_sdhci_pins &cp0_sdhci_cd_pins>;
 	bus-width= <4>;
 	vmmc-supply = <&v_3_3>;
 	status = "okay";
