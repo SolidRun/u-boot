@@ -51,6 +51,15 @@
 			gpio = <&cp0_gpio1 15 GPIO_ACTIVE_HIGH>; /* GPIO[47] */
 		};
 	};
+
+	v_3_3: regulator-3-3v {
+		compatible = "regulator-fixed";
+		regulator-name = "v_3_3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+		status = "okay";
+	};
 };
 
 /* Accessible over the mini-USB CON9 connector on the main board */
@@ -140,6 +149,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&cp0_sdhci_pins>;
 	bus-width= <4>;
+	vmmc-supply = <&v_3_3>;
 	status = "okay";
 };
 
