@@ -32,6 +32,19 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"scriptaddr=0x5400000\0"	\
+	"pxefile_addr_r=0x5500000\0"	\
+	"fdt_addr_r=0x5600000\0"	\
+	"kernel_addr_r=0x5700000\0"	\
+	"ramdisk_addr_r=0x8700000\0"	\
+	"fdtfile=marvell/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+	CONFIG_DEFAULT_CONSOLE "\0"\
+	BOOTENV
+
+#include <config_distro_bootcmd.h>
+
 /* RTC configuration */
 #ifdef CONFIG_MARVELL_RTC
 #define ERRATA_FE_3124064
