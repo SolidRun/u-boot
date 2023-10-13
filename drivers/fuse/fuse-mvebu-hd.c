@@ -99,22 +99,22 @@ static int do_mvebu_efuse_hd_prog(struct udevice *dev, int row_id, u32 *new_val)
 			fuse_read_value[i] = readl(otp_mem + 4 * i);
 
 		for (i = 0; i < GET_LEN(row_widths); i++) {
-			dev_dbg(&dev->dev, "Expected value: 0x%x\n",
+			dev_dbg(dev, "Expected value: 0x%x\n",
 				*(new_val + i));
 			/* Bank 1 has ECC bits which should
 			 * be masked while comparing
 			 */
 			if (i == 1)
 				fuse_read_value[i] &= ~ECC_BITS_MASK;
-			dev_dbg(&dev->dev, "Read value: 0x%x\n",
+			dev_dbg(dev, "Read value: 0x%x\n",
 				fuse_read_value[i]);
 			/* If comparison fails,
 			 * set error flag to initiate retry
 			 */
 			if (fuse_read_value[i] != *(new_val + i)) {
-				dev_dbg(&dev->dev, "Fuse prog failed\n");
+				dev_dbg(dev, "Fuse prog failed\n");
 				err_flag = 1;
-				dev_dbg(&dev->dev, "Retrying fuse prog..\n");
+				dev_dbg(dev, "Retrying fuse prog..\n");
 			}
 		}
 		retry_cnt++;
@@ -122,7 +122,7 @@ static int do_mvebu_efuse_hd_prog(struct udevice *dev, int row_id, u32 *new_val)
 
 	/* If we exceed retries limit, report error */
 	if (err_flag != 0) {
-		dev_err(&dev->dev, "fuse prog failed after %d retries\n",
+		dev_err(dev, "fuse prog failed after %d retries\n",
 			retry_cnt);
 		return -EIO;
 	}
@@ -134,7 +134,7 @@ int mvebu_efuse_hd_prog(struct udevice *dev, int word, int row_id, u32 new_val)
 	int res = 0;
 
 #ifdef EFUSE_READ_ONLY
-	dev_err(&dev->dev, "ERROR: fuse programming disabled!\n");
+	dev_err(dev, "ERROR: fuse programming disabled!\n");
 	return -EPERM;
 #endif
 
