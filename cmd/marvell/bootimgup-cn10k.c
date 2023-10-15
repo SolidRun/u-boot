@@ -409,7 +409,7 @@ static void print_version(struct tim_opaque_data_version_info *vi,
 static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			       char * const argv[])
 {
-	struct smc_version_info vinfo;
+	struct smc_version_info *vinfo;
 	unsigned long value;
 	int ret;
 	bool mmc = false;
@@ -417,11 +417,17 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	bool verify = false;
 	bool backup = false;
 	int i;
+	enum command_ret_t cmd_ret = CMD_RET_SUCCESS;
 
+	vinfo = malloc(sizeof(struct smc_version_info));
+	if (!vinfo) {
+		printf("Error allocating version info\n");
+		return CMD_RET_FAILURE;
+	}
 	memset(&vinfo, 0, sizeof(vinfo));
 
-	vinfo.magic_number = VERSION_MAGIC;
-	vinfo.version = VERSION_INFO_VERSION;
+	vinfo->magic_number = VERSION_MAGIC;
+	vinfo->version = VERSION_INFO_VERSION;
 
 	argv++;
 	argc--;
@@ -445,14 +451,16 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			argc--;
 			if (argc < 1) {
 				printf("mmc missing device ID\n");
-				return CMD_RET_USAGE;
+				cmd_ret = CMD_RET_USAGE;
+				goto end;
 			}
 			ret = strict_strtoul(argv[0], 0, &value);
 			if (ret) {
 				printf("Error parsing mmc device/bus number\n");
-				return CMD_RET_USAGE;
+				cmd_ret = CMD_RET_USAGE;
+				goto end;
 			}
-			vinfo.bus = value;
+			vinfo->bus = value;
 			pr_debug("MMC device: %lu\n", value);
 			argv++;
 			argc--;
@@ -465,57 +473,61 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			spi = true;
 			argv++;
 			argc--;
-			vinfo.bus = 0;
+			vinfo->bus = 0;
 			if (argc > 0) {
-				vinfo.bus = simple_strtoul(argv[0], &end, 0);
+				vinfo->bus = simple_strtoul(argv[0], &end, 0);
 				if (end && *end == ':')
-					vinfo.cs = simple_strtoul(end + 1,
-								  NULL, 0);
+					vinfo->cs = simple_strtoul(end + 1, NULL, 0);
 				argv++;
 				argc--;
 			}
 			continue;
 		}
 		printf("Unknown argument %s\n", argv[0]);
-		return CMD_RET_USAGE;
+		cmd_ret = CMD_RET_USAGE;
+		goto end;
 	}
 	if (mmc && spi) {
 		printf("Only specify mmc or spi, not both\n");
-		return CMD_RET_USAGE;
+		cmd_ret = CMD_RET_USAGE;
+		goto end;
 	}
 	if (!mmc && !spi) {
 		printf("Error: either SPI or eMMC must be specified\n");
-		return CMD_RET_USAGE;
+		cmd_ret = CMD_RET_USAGE;
+		goto end;
 	}
-	vinfo.num_objects = SMC_MAX_VERSION_ENTRIES;
+	vinfo->num_objects = SMC_MAX_VERSION_ENTRIES;
 
 	if (verify)
-		vinfo.version_flags |= SMC_VERSION_CHECK_VALIDATE_HASH;
+		vinfo->version_flags |= SMC_VERSION_CHECK_VALIDATE_HASH;
 	if (backup)
-		vinfo.version_flags |= VERSION_FLAG_BACKUP;
+		vinfo->version_flags |= VERSION_FLAG_BACKUP;
 
 	pr_debug("%s: Calling smc_spi_verify(%p)...\n", __func__, &vinfo);
-	ret = smc_spi_verify(&vinfo);
+	ret = smc_spi_verify(vinfo);
 	if (ret) {
 		printf("Error verifying flash: %s\n",
-		       vret_to_str((enum smc_version_ret)vinfo.retcode));
-		if (vinfo.retcode == TOO_MANY_OBJECTS) {
+		       vret_to_str((enum smc_version_ret)vinfo->retcode));
+		if (vinfo->retcode == TOO_MANY_OBJECTS) {
 			printf("Too many flash objects (%d) in flash for descriptor.  Max supported is %d\n",
-			       vinfo.num_objects, SMC_MAX_VERSION_ENTRIES);
+			       vinfo->num_objects, SMC_MAX_VERSION_ENTRIES);
 		}
-		return CMD_RET_FAILURE;
+		cmd_ret = CMD_RET_FAILURE;
+		goto end;
 	}
 
-	if (vinfo.num_objects > SMC_MAX_VERSION_ENTRIES) {
+	if (vinfo->num_objects > SMC_MAX_VERSION_ENTRIES) {
 		/* This should never happen */
 		printf("Error: descriptor reports too many (%d) objects!\n",
-		       vinfo.num_objects);
-		return CMD_RET_FAILURE;
+		       vinfo->num_objects);
+		cmd_ret = CMD_RET_FAILURE;
+		goto end;
 	}
 
-	printf("Found %d objects\n", vinfo.num_objects);
-	for (i = 0; i < vinfo.num_objects; i++) {
-		struct smc_version_info_entry *object = &vinfo.objects[i];
+	printf("Found %d objects\n", vinfo->num_objects);
+	for (i = 0; i < vinfo->num_objects; i++) {
+		struct smc_version_info_entry *object = &vinfo->objects[i];
 
 		printf("Object %d: %s\n", i, object->name);
 		if (object->retcode != RET_OK) {
@@ -532,7 +544,7 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("  Object size:                 0x%llx\n",
 		       object->object_size);
 		printf("  Object flags:                0x%x\n", object->flags);
-		if (vinfo.version_flags & SMC_VERSION_CHECK_VALIDATE_HASH) {
+		if (vinfo->version_flags & SMC_VERSION_CHECK_VALIDATE_HASH) {
 			printf("  Object hash:                 ");
 			print_hash(object->obj_hash, object->hash_size);
 		}
@@ -546,7 +558,11 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		print_version(&object->version, "    ");
 		printf("\n");
 	}
-	return CMD_RET_SUCCESS;
+	cmd_ret = CMD_RET_SUCCESS;
+
+end:
+	free(vinfo);
+	return cmd_ret;
 }
 
 U_BOOT_CMD(bootimgversion, 5, 1, do_get_version_info,
@@ -558,7 +574,7 @@ U_BOOT_CMD(bootimgversion, 5, 1, do_get_version_info,
 static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char * const argv[])
 {
-	struct smc_version_info vinfo;
+	struct smc_version_info *vinfo;
 	unsigned long value;
 	int ret;
 	bool src_backup_offset = false;
@@ -570,12 +586,18 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 	bool src_media = true;
 	bool force_clone = false;
 	bool skip_sorce_check = false;
+	enum command_ret_t cmd_ret = CMD_RET_SUCCESS;
 
+	vinfo = malloc(sizeof(struct smc_version_info));
+	if (!vinfo) {
+		printf("Error allocating version info\n");
+		return CMD_RET_FAILURE;
+	}
 	memset(&vinfo, 0, sizeof(vinfo));
 
-	vinfo.magic_number = VERSION_MAGIC;
-	vinfo.version = VERSION_INFO_VERSION;
-	vinfo.num_objects = SMC_MAX_VERSION_ENTRIES;
+	vinfo->magic_number = VERSION_MAGIC;
+	vinfo->version = VERSION_INFO_VERSION;
+	vinfo->num_objects = SMC_MAX_VERSION_ENTRIES;
 
 	argv++;
 	argc--;
@@ -611,23 +633,25 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 			argc--;
 			if (argc < 1) {
 				printf("mmc missing device ID\n");
-				return CMD_RET_USAGE;
+				cmd_ret = CMD_RET_USAGE;
+				goto done;
 			}
 			ret = strict_strtoul(argv[0], 0, &value);
 			if (ret) {
 				printf("Error parsing mmc device/bus number\n");
-				return CMD_RET_USAGE;
+				cmd_ret = CMD_RET_USAGE;
+				goto done;
 			}
 			if (src_media) {
 				pr_debug("Setting source MMC to bus %ld\n", value);
 				src_mmc = true;
-				vinfo.bus = value;
+				vinfo->bus = value;
 				pr_debug("Source MMC device: %lu\n", value);
 				src_media = false;
 			} else {
 				pr_debug("Setting destination MMC to bus %ld\n", value);
 				dst_mmc = true;
-				vinfo.target_bus = value;
+				vinfo->target_bus = value;
 				pr_debug("Destination MMC device: %lu\n", value);
 			}
 			argv++;
@@ -642,29 +666,28 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 
 			if (src_media) {
 				src_spi = true;
-				vinfo.bus = 0;
+				vinfo->bus = 0;
 				if (argc > 0 && argv[0][0] != '-') {
-					vinfo.bus = simple_strtoul(argv[0],
-								   &end, 0);
+					vinfo->bus = simple_strtoul(argv[0], &end, 0);
 					if (end && *end == ':')
-						vinfo.cs = simple_strtoul(end + 1, NULL, 0);
+						vinfo->cs = simple_strtoul(end + 1, NULL, 0);
 				}
 				pr_debug("Setting source SPI to bus:cs %d:%d\n",
-					 vinfo.bus, vinfo.cs);
+					 vinfo->bus, vinfo->cs);
 				src_media = false;
 			} else {
 				dst_spi = true;
-				vinfo.target_bus = 0;
+				vinfo->target_bus = 0;
 				if (argc > 0 && argv[0][0] != '-') {
-					vinfo.target_bus =
+					vinfo->target_bus =
 						simple_strtoul(argv[0], &end, 0);
 					if (end && *end == ':')
-						vinfo.target_cs =
+						vinfo->target_cs =
 							simple_strtoul(end + 1,
 								       NULL, 0);
 				}
 				pr_debug("Setting destination SPI to bus:cs %d:%d\n",
-					 vinfo.target_bus, vinfo.target_cs);
+					 vinfo->target_bus, vinfo->target_cs);
 			}
 			argv++;
 			argc--;
@@ -675,33 +698,38 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("Error: SPI or MMC must be specified for source and destination\n");
 		pr_debug("src:dst mmc: %d:%d, spi: %d:%d\n", src_mmc, dst_mmc,
 			 src_spi, dst_spi);
-		return CMD_RET_USAGE;
+		cmd_ret = CMD_RET_USAGE;
+		goto done;
 	}
 
-	vinfo.version_flags = SMC_VERSION_CHECK_VALIDATE_HASH |
+	vinfo->version_flags = SMC_VERSION_CHECK_VALIDATE_HASH |
 			      SMC_VERSION_COPY_TO_BACKUP_FLASH;
 	if (src_backup_offset)
-		vinfo.version_flags |= VERSION_FLAG_BACKUP;
+		vinfo->version_flags |= VERSION_FLAG_BACKUP;
 	if (dst_backup_offset)
-		vinfo.version_flags |= SMC_VERSION_COPY_TO_BACKUP_OFFSET;
+		vinfo->version_flags |= SMC_VERSION_COPY_TO_BACKUP_OFFSET;
 	if (src_mmc)
-		vinfo.version_flags |= VERSION_FLAG_EMMC;
+		vinfo->version_flags |= VERSION_FLAG_EMMC;
 	if (dst_mmc)
-		vinfo.version_flags |= SMC_VERSION_COPY_TO_BACKUP_EMMC;
+		vinfo->version_flags |= SMC_VERSION_COPY_TO_BACKUP_EMMC;
 	if (force_clone)
-		vinfo.version_flags |= SMC_VERSION_FORCE_COPY_OBJECTS;
+		vinfo->version_flags |= SMC_VERSION_FORCE_COPY_OBJECTS;
 	if (skip_sorce_check)
-		vinfo.version_flags |= SMC_VERSION_SKIP_FAIL_CHECK;
+		vinfo->version_flags |= SMC_VERSION_SKIP_FAIL_CHECK;
 
 	pr_debug("%s: Calling smc_spi_verify(%p, flags: 0x%x)...\n",
-		 __func__, &vinfo, vinfo.version_flags);
-	ret = smc_spi_verify(&vinfo);
+		 __func__, &vinfo, vinfo->version_flags);
+	ret = smc_spi_verify(vinfo);
 	if (ret) {
 		printf("Error copying flash: %s\n",
-		       vret_to_str((enum smc_version_ret)vinfo.retcode));
-		return CMD_RET_FAILURE;
+		       vret_to_str((enum smc_version_ret)vinfo->retcode));
+		cmd_ret = CMD_RET_FAILURE;
 	}
-	return CMD_RET_SUCCESS;
+	cmd_ret =  CMD_RET_SUCCESS;
+
+done:
+	free(vinfo);
+	return cmd_ret;
 }
 
 U_BOOT_CMD(bootimgcopy, 8, 0, do_copy_image,
