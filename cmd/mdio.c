@@ -109,6 +109,7 @@ static int mdio_read_ranges(struct mii_dev *bus,
 					printf("%d.", devad);
 
 				printf("%d - 0x%x\n", reg, val & 0xffff);
+				env_set_hex("regval", val & 0xffff);
 			}
 		}
 	}
