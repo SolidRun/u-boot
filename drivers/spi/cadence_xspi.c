@@ -915,6 +915,8 @@ int cdns_xspi_fix_gpio_config(int bus)
 		gpio_direction_output(SPI0_IO0, 1);
 		gpio_direction_input(SPI0_IO1);
 	}
+
+	return 0;
 }
 
 static int cdns_xspi_xfer(struct udevice *dev, unsigned int bitlen,
