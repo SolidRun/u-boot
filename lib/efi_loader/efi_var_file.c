@@ -67,7 +67,7 @@ static efi_status_t __maybe_unused efi_init_spi_flash(void)
 	if (efi_var_offset == -1)
 		efi_var_offset = CONFIG_EFI_VARIABLE_IN_SPI_FLASH_AT_OFFSET;
 
-	return flash ? EFI_SUCCESS : ret;
+	return flash ? EFI_SUCCESS : EFI_DEVICE_ERROR;
 }
 #endif
 
@@ -184,9 +184,10 @@ efi_status_t __efi_runtime efi_var_to_file(void)
 		if (ret != EFI_SUCCESS)
 			goto error;
 	}
+
 	/* SMC call to write variable store to flash device */
-	ret = smc_write_efi_var((u64)efi_var_mem_base_phy,
-				len);
+	if (smc_write_efi_var((u64)efi_var_mem_base_phy, len))
+		ret = EFI_DEVICE_ERROR;
 #else
 	loff_t actlen;
 
