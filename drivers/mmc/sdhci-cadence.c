@@ -1034,7 +1034,10 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 			phy->mode = MMC_HS_52;
 	} else {
 		if (mmc->ddr_mode)
-			phy->mode = MMC_HS_400;
+			if (plat->enhanced_strobe)
+				phy->mode = MMC_HS_400_ES;
+			else
+				phy->mode = MMC_HS_400;
 		else
 			phy->mode = MMC_HS_200;
 	}
@@ -1615,6 +1618,7 @@ static int sdhci_cdns_hs400_enhanced_strobe(struct udevice *dev)
 
 	plat->enhanced_strobe = 1;
 	sdhci_cdns_set_emmc_mode(plat, SDHCI_CDNS_HRS06_MODE_MMC_HS400ES);
+
 	return 0;
 }
 
