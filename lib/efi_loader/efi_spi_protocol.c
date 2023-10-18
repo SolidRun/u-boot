@@ -339,6 +339,15 @@ static efi_status_t EFIAPI erase_blocks(const struct efi_spi_nor_flash_protocol 
 	return EFI_EXIT(ret);
 }
 
+void free_spibus(const struct efi_spi_peripheral *spi_peripheral)
+{
+	if (!spi_peripheral)
+		return;
+	free_spibus(spi_peripheral->next_spi_peripheral);
+	free((void *)spi_peripheral->spi_part);
+	free((void *)spi_peripheral);
+}
+
 static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 {
 	efi_status_t r;
@@ -350,6 +359,7 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 	int bus, cs;
 	u16 *name;
 
+	r = EFI_SUCCESS;
 	/* Create SpiBus */
 	struct efi_spi_bus *spi_bus = calloc(1, sizeof(struct efi_spi_bus));
 
@@ -381,7 +391,8 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 
 			if (!spi_part) {
 				debug("%s:%d ERROR: Out of memory\n", __func__, __LINE__);
-				return EFI_OUT_OF_RESOURCES;
+				r = EFI_OUT_OF_RESOURCES;
+				goto rel;
 			}
 			spi_part->max_clk_hz = flash_dev->spi->max_hz;
 
@@ -391,7 +402,8 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 
 			if (!spi_peripheral) {
 				debug("%s:%d ERROR: Out of memory\n", __func__, __LINE__);
-				return EFI_OUT_OF_RESOURCES;
+				r = EFI_OUT_OF_RESOURCES;
+				goto rel;
 			}
 
 			/* First child of spi_bus */
@@ -420,7 +432,8 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 			proto_obj = calloc(1, sizeof(*proto_obj));
 			if (!proto_obj) {
 				debug("%s:%d ERROR: Out of memory\n", __func__, __LINE__);
-				return EFI_OUT_OF_RESOURCES;
+				r = EFI_OUT_OF_RESOURCES;
+				goto rel;
 			}
 			proto_obj->efi_spi_nor_flash_protocol.spi_peripheral = spi_peripheral;
 
@@ -446,14 +459,14 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 					     &proto_obj->efi_spi_nor_flash_protocol);
 			if (r != EFI_SUCCESS) {
 				debug("%s ERROR: Failure to add protocol\n", __func__);
-				return r;
+				goto rel;
 			}
 
 			r = efi_add_protocol(&proto_obj->header,
 					     &efi_guid_device_path, proto_obj->dp);
 			if (r != EFI_SUCCESS) {
 				debug("%s ERROR: Failure to add protocol\n", __func__);
-				return r;
+				goto rel;
 			}
 
 			proto_obj->bus = bus;
@@ -473,10 +486,19 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 			proto_obj->efi_spi_nor_flash_protocol.device_id[0] = 0;
 			r = flash_dev->read_reg(flash_dev, SPINOR_OP_RDID,
 						proto_obj->efi_spi_nor_flash_protocol.device_id, 3);
+			if (r)
+				debug("%s ERROR: Failure to read device id\n", __func__);
 		}
 	}
 
 	return EFI_SUCCESS;
+
+rel:
+	if (spi_bus) {
+		free_spibus(spi_bus->peripheral_list);
+		free(spi_bus);
+	}
+	return r;
 }
 
 efi_status_t efi_spinor_protocol_register(void)
