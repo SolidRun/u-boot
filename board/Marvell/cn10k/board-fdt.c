@@ -281,8 +281,10 @@ static void smbios_add_ddr_info(u8 dimm)
 		fdt_setprop_inplace_u32(fdt, node_offset, "size", 0x7FFF); // If the size is (32 GB-1 MB) or greater, the field value is 7FFFh
 
 	fdt_setprop_inplace_u32(fdt, node_offset, "ext-size", tmp_val32); // Actual size is stored in the Extended Size field.
-	fdt_setprop_inplace_u64(fdt, node_offset, "vol-sizes", tmp_val32 * 1024 * 1024); // Size of the Volatile portion of the memory device in bytes
-	fdt_setprop_inplace_u64(fdt, node_offset, "log-sizes", tmp_val32 * 1024 * 1024); // Size of the Logical memory device in Bytes
+	// Size of the Volatile portion of the memory device in bytes
+	fdt_setprop_inplace_u64(fdt, node_offset, "vol-sizes", tmp_val32 * 1024UL * 1024UL);
+	// Size of the Logical memory device in Bytes
+	fdt_setprop_inplace_u64(fdt, node_offset, "log-sizes", tmp_val32 * 1024UL * 1024UL);
 
 	tmp_val32 = bus_total_width();
 	fdt_setprop_inplace_u32(fdt, node_offset, "total-width", tmp_val32);
@@ -469,7 +471,7 @@ u64 fdt_get_smbios_info(void)
 	int node, ret, i;
 	char tmp_str[80];
 	const void *fdt = gd->fdt_blob;
-	u8 num_sckt;
+	u8 num_sckt = 0;
 	u32 dmc_mask = (u32)(~((u32) 0)); //Assume all memory controllers are enabled.
 	const char *str = NULL;
 

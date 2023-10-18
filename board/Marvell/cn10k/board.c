@@ -221,7 +221,7 @@ void board_get_env_offset(int *offset, const char *property)
 		node = fdt_node_offset_by_compatible(blob, node, "spi-flash");
 	}
 	if (env_offset == -1)
-		debug("\%s property not found in fdt\n", property);
+		debug("\n %s property not found in fdt\n", property);
 
 	*offset = env_offset;
 }
@@ -241,6 +241,8 @@ void probe_network_devices(bool probe)
 		break;
 	case CN10KB:
 		devid = PCI_DEVICE_ID_CAVIUM_RPM2;
+		rpm_cnt = 3;
+		break;
 	default:
 		rpm_cnt = 3;
 		break;
