@@ -108,10 +108,10 @@ static int smbios_write_type0(ulong *current, int handle)
 #ifdef CONFIG_GENERATE_ACPI_TABLE
 	t->bios_characteristics_ext1 = BIOS_CHARACTERISTICS_EXT1_ACPI;
 #endif
+	t->bios_characteristics_ext2 = BIOS_CHARACTERISTICS_EXT2_TARGET;
 #ifdef CONFIG_EFI_LOADER
 	t->bios_characteristics_ext2 |= BIOS_CHARACTERISTICS_EXT1_UEFI;
 #endif
-	t->bios_characteristics_ext2 = BIOS_CHARACTERISTICS_EXT2_TARGET;
 
 	t->bios_major_release = 0xff;
 	t->bios_minor_release = 0xff;
