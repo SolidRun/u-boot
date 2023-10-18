@@ -29,9 +29,9 @@ bool is_ddr5(void)
 	return (mv_ddr_spd_dev_type_get() == SPD_DRAM_TYPE_DDR5_SDRAM);
 }
 
-u8 mv_ddr_spd_module_type_detail_get(void)
+u16 mv_ddr_spd_module_type_detail_get(void)
 {
-	u8 type_detail = TYPE_SYNCHRONOUS;
+	u16 type_detail = TYPE_SYNCHRONOUS;
 	// Regardless if DDR5 or DDR4, module type is always within byte 3:
 	u8 module_type = spd_data->ddr4_spd_data.byte_fields.byte_3.bit_fields.module_type;
 
@@ -259,7 +259,7 @@ u8 mv_ddr_spd_die_count_get(void)
 		}
 	} else {
 		val = spd_data->ddr4_spd_data.byte_fields.byte_6.bit_fields.die_count;
-		if (val >= 0 && val <= 7)
+		if (val <= 7)
 			die_cnt = val + 1;
 		else
 			die_cnt = 0;
@@ -549,7 +549,7 @@ u8 get_product_id(void)
 // For DDR4: returns ranks per DIMM
 enum mv_ddr_pkg_rank mv_ddr_spd_pkg_rank_get(void)
 {
-	u8 pkg_rank;
+	u8 pkg_rank = 0;
 
 	if (is_ddr5()) {	// DDR5: Ranks per channel
 		pkg_rank = spd_data->ddr5_spd_data.byte_fields.byte_234.bit_fields.package_rank_per_channel;
@@ -558,7 +558,7 @@ enum mv_ddr_pkg_rank mv_ddr_spd_pkg_rank_get(void)
 	}
 
 	// Valid rank range according to SPD spec for DDR4/DDR5: <0-7>
-	if (pkg_rank >= 0 && pkg_rank <= 7)
+	if (pkg_rank <= 7)
 		return (pkg_rank+1);
 	else
 		return MV_DDR_PKG_RANK_LAST;
