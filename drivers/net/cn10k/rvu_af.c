@@ -134,7 +134,7 @@ struct nix_af *rvu_af_init(struct rvu_af *rvu_af, int nix_id)
 	return nix_af;
 
 error:
-	if (nix_af->npa_af) {
+	if (nix_af && nix_af->npa_af) {
 		/* only free the actual allocation (i.e. first one) */
 		if (nix_id == 0) {
 			free(nix_af->npa_af);
@@ -170,7 +170,7 @@ int rvu_af_probe(struct udevice *dev)
 			break;
 
 		af_ptr->nix_af[nix_id] = rvu_af_init(af_ptr, nix_id);
-		if (!af_ptr->nix_af) {
+		if (!af_ptr->nix_af[nix_id]) {
 			printf("%s: Error: could not initialize NIX%d AF\n",
 			       __func__, nix_id);
 			return -1;
