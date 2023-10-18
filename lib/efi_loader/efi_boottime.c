@@ -2031,7 +2031,7 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	struct efi_loaded_image *info = NULL;
 	struct efi_loaded_image_obj **image_obj =
 		(struct efi_loaded_image_obj **)image_handle;
-	efi_status_t ret;
+	efi_status_t ret = EFI_SUCCESS;
 	void *dest_buffer;
 
 	EFI_ENTRY("%d, %p, %pD, %p, %zu, %p", boot_policy, parent_image,

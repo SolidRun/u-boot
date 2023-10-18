@@ -227,7 +227,7 @@ static int do_phy_lpbk(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_USAGE;
 
 		type = loopback_types_str2enum(argv[5]);
-		if (type == -1)
+		if ((type == -1) || type > PMA_DEEP)
 			return CMD_RET_USAGE;
 	}
 
@@ -446,7 +446,7 @@ static inline int parse_mdio_op_data(char *const argv[], int argc,
 		/* Cannot ignore devad when using clause 45 */
 		if (optype == CLAUSE_45)
 			return -1;
-	} else if (arg >= 0) {
+	} else if ((long)arg >= 0) {
 		/* device addr or page nr are 5 bits */
 		arg &= 0x1f;
 	} else {

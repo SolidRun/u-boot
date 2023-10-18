@@ -265,11 +265,15 @@ void eth_intf_shutdown(void)
 {
 	union eth_scratchx0 scr0;
 	union eth_cmd_s cmd;
+	int ret;
 
 	memset(&cmd, 0, sizeof(u64));
 	cmd.cmd.id = ETH_CMD_INTF_SHUTDOWN;
 
-	eth_intf_req(0, 0, cmd, &scr0.u, 1);
+	ret = eth_intf_req(0, 0, cmd, &scr0.u, 1);
+	if (ret)
+		debug("%s failed ethernet interface request\n",
+		      __func__);
 }
 
 static char intf_speed_to_str[][8] = {
