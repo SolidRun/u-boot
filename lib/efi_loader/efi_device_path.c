@@ -1210,7 +1210,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			net_dev = eth_get_dev_by_name(devnr);
 			*device = efi_dp_from_eth();
 		}
-		if (((*device)->type == DEVICE_PATH_TYPE_END) &&
+		if (device && ((*device)->type == DEVICE_PATH_TYPE_END) &&
 				((*device)->sub_type == DEVICE_PATH_SUB_TYPE_END))
 			return EFI_INVALID_PARAMETER;
 #endif
