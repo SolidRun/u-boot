@@ -166,6 +166,8 @@ END:
 		ret = boottime->close_protocol(handles[i],
 					      &efi_guid_spi_nor_flash_protocol,
 					      NULL, NULL);
+		if (ret != EFI_SUCCESS)
+			efi_st_error("[%d]Failed to close protocol handle[%u]\n", (int)i, (int)ret);
 	}
 
 	ret = boottime->free_pool(handles);
