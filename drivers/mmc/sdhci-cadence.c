@@ -1035,7 +1035,10 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 			phy->mode = MMC_HS_52;
 	} else {
 		if (mmc->ddr_mode)
-			phy->mode = MMC_HS_400;
+			if (plat->enhanced_strobe)
+				phy->mode = MMC_HS_400_ES;
+			else
+				phy->mode = MMC_HS_400;
 		else
 			phy->mode = MMC_HS_200;
 	}

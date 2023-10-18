@@ -2068,24 +2068,6 @@ static int mmc_select_hs400es(struct mmc *mmc)
 {
 	int err;
 
-		/* Set timing to HS200 for tuning */
-	err = mmc_set_card_speed(mmc, MMC_HS_200, false);
-	if (err)
-		return err;
-
-	/* configure the bus mode (host) */
-	mmc_select_mode(mmc, MMC_HS_200);
-	mmc_set_clock(mmc, mmc->tran_speed, false);
-
-	/* execute tuning if needed */
-	mmc->hs400_tuning = 1;
-	err = mmc_execute_tuning(mmc, MMC_CMD_SEND_TUNING_BLOCK_HS200);
-	mmc->hs400_tuning = 0;
-	if (err) {
-		debug("tuning failed\n");
-		return err;
-	}
-
 	/* Set back to HS */
 	err = mmc_set_card_speed(mmc, MMC_HS, true);
 	if (err)
@@ -2098,6 +2080,10 @@ static int mmc_select_hs400es(struct mmc *mmc)
 		printf("switch to bus width for hs400 failed\n");
 		return err;
 	}
+	err = mmc_set_enhanced_strobe(mmc);
+	if (err)
+		return err;
+
 	/* TODO: driver strength */
 	err = mmc_set_card_speed(mmc, MMC_HS_400_ES, false);
 	if (err)
@@ -2105,10 +2091,8 @@ static int mmc_select_hs400es(struct mmc *mmc)
 
 	mmc_select_mode(mmc, MMC_HS_400_ES);
 	err = mmc_set_clock(mmc, mmc->tran_speed, false);
-	if (err)
-		return err;
 
-	return mmc_set_enhanced_strobe(mmc);
+	return err;
 }
 #else
 static int mmc_select_hs400es(struct mmc *mmc)
