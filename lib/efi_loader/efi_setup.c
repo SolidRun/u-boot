@@ -144,6 +144,7 @@ efi_status_t efi_init_obj_list(void)
 {
 	u64 os_indications_supported = 0; /* None */
 	efi_status_t ret = EFI_SUCCESS;
+	const char *str = get_boot_device();
 
 	/* Initialize once only */
 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
@@ -290,14 +291,12 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	const char *str = get_boot_device();
-
 	if (str) {
 		ret = EFI_CALL(efi_set_variable(L"BootDevice",
 						&efi_global_variable_guid,
 						EFI_VARIABLE_BOOTSERVICE_ACCESS |
 						EFI_VARIABLE_RUNTIME_ACCESS,
-						sizeof(str),
+						strlen(str),
 						str));
 		if (ret != EFI_SUCCESS)
 			printf("Error: cannot set BootDevice EFI variable\n");
