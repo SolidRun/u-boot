@@ -1178,6 +1178,7 @@ efi_status_t EFIAPI efi_load_image_from_net(char *file_name, struct in_addr serv
 		*str++ = '/';
 
 	/* Check eth up else start it */
+	size = 0;
 	str = env_get("ipaddr");
 	if (str == NULL)
 		size = net_loop(DHCP);
@@ -1197,9 +1198,10 @@ efi_status_t EFIAPI efi_load_image_from_net(char *file_name, struct in_addr serv
 	*efi_size = size;
 
 	/* Restore used globals and env variable to original state */
-	env_set("netretry", saved_netretry);
-	if (saved_netretry != NULL)
+	if (saved_netretry) {
+		env_set("netretry", saved_netretry);
 		free(saved_netretry);
+	}
 
 	if (saved_bootfile != NULL) {
 		copy_filename(net_boot_file_name, saved_bootfile,
@@ -1207,8 +1209,9 @@ efi_status_t EFIAPI efi_load_image_from_net(char *file_name, struct in_addr serv
 		free(saved_bootfile);
 	}
 
-	env_set("ethact", saved_ethact);
-	if (saved_ethact != NULL)
+	if (saved_ethact) {
+		env_set("ethact", saved_ethact);
 		free(saved_ethact);
+	}
 	return rv;
 }
