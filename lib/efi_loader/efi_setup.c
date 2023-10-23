@@ -236,6 +236,7 @@ out:
 efi_status_t efi_init_obj_list(void)
 {
 	efi_status_t ret = EFI_SUCCESS;
+	const char *str = get_boot_device();
 
 	/* Initialize once only */
 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
@@ -392,14 +393,12 @@ efi_status_t efi_init_obj_list(void)
 	    !IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK_EARLY))
 		ret = efi_launch_capsules();
 
-	const char *str = get_boot_device();
-
 	if (str) {
 		ret = EFI_CALL(efi_set_variable(L"BootDevice",
 						&efi_global_variable_guid,
 						EFI_VARIABLE_BOOTSERVICE_ACCESS |
 						EFI_VARIABLE_RUNTIME_ACCESS,
-						sizeof(str),
+						strlen(str),
 						str));
 		if (ret != EFI_SUCCESS)
 			printf("Error: cannot set BootDevice EFI variable\n");
