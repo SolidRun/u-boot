@@ -221,9 +221,11 @@ int fuse_bind(struct udevice *dev)
 {
 	struct udevice *bank;
 	struct uclass *uc;
+	const void *blob = gd->fdt_blob;
+	int node = dev_of_offset(dev);
 	int ret = 0;
 
-	dev_read_alias_seq(dev, &dev->req_seq);
+	fdtdec_get_alias_seq(blob, "fuse", node, &dev->req_seq);
 
 	/* Get MISC uclass */
 	ret = uclass_get(UCLASS_MISC, &uc);
@@ -235,7 +237,8 @@ int fuse_bind(struct udevice *dev)
 	 * list by its request sequence number.
 	 */
 	uclass_foreach_dev(bank, uc) {
-		dev_read_alias_seq(dev, &bank->req_seq);
+		node = dev_of_offset(bank);
+		fdtdec_get_alias_seq(blob, "fuse", node, &bank->req_seq);
 
 		if ((device_is_compatible(bank, "marvell,mvebu-fuse-hd")) ||
 		    (device_is_compatible(bank,
