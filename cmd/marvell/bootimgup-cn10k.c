@@ -9,10 +9,10 @@
 #include <command.h>
 #include <div64.h>
 #include <linux/bitops.h>
-#include <asm/arch/update.h>
 #include <asm/arch/smc.h>
 #include <stdio.h>
 #include <malloc.h>
+#include <asm/arch/update.h>
 
 /** Simple macro to set or clear flags */
 #define PARSE_FLAG(parm, flag, set)				\
@@ -29,6 +29,20 @@
 		}						\
 	}
 
+static void print_version_data(const char *str,
+			       const char *name,
+			       const struct tim_opaque_data_version_info *vinfo)
+{
+	printf("%s %s: %d.%d.%d.%d %04d-%02d-%02d %02d:%02d 0x%04x 0x%08x\n    %32s\n",
+	       str, name,
+	       vinfo->major_version, vinfo->minor_version,
+	       vinfo->revision_number, vinfo->revision_type,
+	       vinfo->year, vinfo->month, vinfo->day,
+	       vinfo->hour, vinfo->minute,
+	       vinfo->flags, vinfo->customer_version,
+	       vinfo->version_string);
+}
+
 /**
  * Send update requests to ATF
  */
@@ -37,11 +51,15 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 			char * const argv[])
 {
 	unsigned long value;
+	unsigned num_updated = 0;
+	int i;
 	int ret;
 	struct smc_update_descriptor desc;
 	const char *env_addr, *env_size;
 	bool spi = false, mmc = false;
+	bool reset = false;
 	char *update_log_ptr = NULL;
+	uint64_t total_written = 0;
 
 	memset(&desc, 0, sizeof(desc));
 	desc.magic = UPDATE_MAGIC;
@@ -111,6 +129,12 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 		PARSE_FLAG("-p", UPDATE_FLAG_ERASE_PART, true);
 		PARSE_FLAG("-l", UPDATE_FLAG_LOG_PROGRESS, true);
 
+		if (!strcmp(argv[0], "-r")) {
+			reset = true;
+			argc--;
+			argv++;
+			continue;
+		}
 		/* Parse customer signature */
 		if (CONFIG_IS_ENABLED(CMD_BOOTIMGUP_CUST_SIG) &&
 		    !strcmp(argv[0], "-sig")) {
@@ -261,6 +285,8 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 			desc.output_console_size = UPDATE_LOG_SIZE;
 		}
 	}
+	printf("Using update version %d.%d\n",
+	       (UPDATE_VERSION >> 8) & 0xff, UPDATE_VERSION & 0xff);
 	ret = smc_spi_update(&desc);
 
 	if (update_log_ptr) {
@@ -276,6 +302,53 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 	printf("Bootloader update %s: %llu bytes\n", mmc ? "MMC" : "SPI",
 	       desc.image_size);
+	if (!ret) {
+		bool skipped;
+
+		for (i = 0; i < SMC_MAX_OBJECTS; i++) {
+			struct smc_update_obj_info *obj = &desc.object_retinfo[i];
+			if (obj->tim_name[0] == '\0')
+				break;
+			print_version_data((const char *)obj->tim_name,
+					   "old version",
+					   (const struct tim_opaque_data_version_info *)
+					   obj->old_version_data);
+			print_version_data((const char *)obj->tim_name,
+					   "new version",
+					  (const struct tim_opaque_data_version_info *)
+					  obj->new_version_data);
+			if (obj->object_name[0] != '\0')
+				printf("Loaded file: %.32s\n",
+				       (char *)obj->object_name);
+			printf("Return code: %u\n", obj->retcode);
+			if (obj->retcode == OBJ_UPDATE_SKIP_VERSION_MATCH ||
+			    obj->retcode == OBJ_UPDATE_SKIP_DATA_MATCH)
+				skipped = true;
+			else
+				skipped = false;
+			if (obj->retcode == OBJ_UPDATE_OK)
+				num_updated++;
+			printf("Object was %s\n", skipped ? "skipped" : "installed");
+			if (!skipped) {
+				printf("TIM address: 0x%llx, size: 0x%llx\n",
+				      obj->tim_address, obj->tim_size);
+				printf("Object address: 0x%llx, size: 0x%llx, bytes written: 0x%llx\n",
+					obj->data_address,
+					obj->data_size,
+					obj->bytes_written);
+				total_written += obj->bytes_written;
+			}
+			printf("\n");
+		}
+	}
+
+	printf("Total bytes written: %llu, %u files updated\n",
+	       total_written, num_updated);
+
+	if (reset && total_written > 0) {
+		printf("Resetting after update\n\n\n");
+		do_reset(NULL, 0, 0, NULL);
+	}
 	return CMD_RET_SUCCESS;
 }
 
@@ -291,16 +364,17 @@ U_BOOT_CMD(
 	" <[-v]> <[-b]> <[-e]> <[-p]> <[-l]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
 #else
 	bootimgup, 8, 0, do_bootimgup, "Updates Boot Image",
-	" <[-v]> <[-e]> <[-p]> <[-l]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
+	" <[-v]> <[-e]> <[-p]> <[-l]> <[-r]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
 #endif
 #ifdef CONFIG_CMD_BOOTIMGUP_BACKUP
 	" -b - updates the backup image location\n"
 #endif
 	" -e - do not erase EBF configuration\n"
-	" -v - perform hash check\n"
+	" -v - perform hash check and bypass version check\n"
 	" -f - force writes over matching data\n"
 	" -p - (MMC only) overwrite the partition table\n"
 	" -l - Enable logging to buffer\n"
+	" -r - reset if one or more objects are updated\n"
 	" spi - updates boot image on spi flash\n"
 	" bus and cs should be passed together, if missing, 0 is assumed.\n"
 	" image_address - address at which image is located in RAM\n"
