@@ -11,8 +11,9 @@
 
 #include <common.h>
 #include <phy.h>
-#include <linux/bitops.h>
+#include <dm/device_compat.h>
 #include <linux/bitfield.h>
+#include <linux/bitops.h>
 
 /* PHY IDs */
 #define PHY_ID_MXL86110		0xC1335580
@@ -35,49 +36,14 @@
 #define MXL8611X_LED1_CFG_REG					0xA00D
 #define MXL8611X_LED2_CFG_REG					0xA00E
 
-/**
- * struct mxl8611x_cfg_reg_map - map a config value to aregister value
- * @cfg		value in device configuration
- * @reg		value in the register
- */
-struct mxl8611x_cfg_reg_map {
-	int cfg;
-	int reg;
-};
-
-static const struct mxl8611x_cfg_reg_map mxl8611x_rgmii_delays[] = {
-	{ 0, 0 },
-	{ 150, 1 },
-	{ 300, 2 },
-	{ 450, 3 },
-	{ 600, 4 },
-	{ 750, 5 },
-	{ 900, 6 },
-	{ 1050, 7 },
-	{ 1200, 8 },
-	{ 1350, 9 },
-	{ 1500, 10 },
-	{ 1650, 11 },
-	{ 1800, 12 },
-	{ 1950, 13 },
-	{ 2100, 14 },
-	{ 2250, 15 },
-	{ 0, 0 } // Marks the end of the array
-};
-
-static int mxl8611x_lookup_reg_value(const struct mxl8611x_cfg_reg_map *tbl,
-				     const int cfg, int *reg)
+static int mxl8611x_convert_ps_to_reg(int of_value, int *reg)
 {
-	size_t i;
+	if (of_value < 0 || of_value > 2250)
+		return -EINVAL;
 
-	for (i = 0; i == 0 || tbl[i].cfg; i++) {
-		if (tbl[i].cfg == cfg) {
-			*reg = tbl[i].reg;
-			return 0;
-		}
-	}
+	*reg = DIV_ROUND_CLOSEST(of_value, 150);
 
-	return -EINVAL;
+	return 0;
 }
 
 static u16 mxl8611x_ext_read(struct phy_device *phydev, const u32 regnum)
@@ -115,27 +81,42 @@ static int mxl8611x_extwrite(struct phy_device *phydev, int addr,
 
 static int mxl8611x_led_cfg(struct phy_device *phydev)
 {
-	int ret = 0;
+	int ret;
 	int i;
 	char propname[25];
-	u32 val;
+	u32 of_val;
 
 	ofnode node = phy_get_ofnode(phydev);
 
 	if (!ofnode_valid(node)) {
-		printf("%s: failed to get node\n", __func__);
+		dev_err(phydev->dev, "%s: failed to get node\n", __func__);
+		return -EINVAL;
+	}
+
+	/* Get property from dts */
+	ret = ofnode_read_u32(node, "phy-handle", &of_val);
+	if (ret) {
+		dev_err(phydev->dev, "%s: failed to get phy-handle\n", __func__);
+		return ret;
+	}
+
+	node = ofnode_get_by_phandle(of_val); 
+
+	if (!ofnode_valid(node)) {
+		dev_err(phydev->dev, "%s: failed to get phandle node\n", __func__);
 		return -EINVAL;
 	}
 
 	/* Loop through three the LED registers */
 	for (i = 0; i < 3; i++) {
 		/* Read property from device tree */
-		ret = snprintf(propname, 25, "mxl-8611x,led%d_cfg", i);
-		if (ofnode_read_u32(node, propname, &val))
+		ret = snprintf(propname, sizeof(propname), "mxl-8611x,led%d_cfg", i);
+		if (ofnode_read_u32(node, propname, &of_val))
 			continue;
 
+		printf("setting %s to 0x%x\n", propname, of_val);
 		/* Update PHY LED register */
-		mxl8611x_ext_write(phydev, MXL8611X_LED0_CFG_REG + i, val);
+		mxl8611x_ext_write(phydev, MXL8611X_LED0_CFG_REG + i, of_val);
 	}
 
 	return 0;
@@ -149,19 +130,34 @@ static int mxl8611x_rgmii_cfg_of_delay(struct phy_device *phydev, const char *pr
 	ofnode node = phy_get_ofnode(phydev);
 
 	if (!ofnode_valid(node)) {
-		printf("%s: failed to get node\n", __func__);
+		dev_err(phydev->dev, "%s: failed to get node\n", __func__);
+		return -EINVAL;
+	}
+
+	/* Get property from dts */
+	ret = ofnode_read_u32(node, "phy-handle", &of_val);
+	if (ret) {
+		dev_err(phydev->dev, "%s: failed to get phy-handle\n", __func__);
+		return ret;
+	}
+
+	node = ofnode_get_by_phandle(of_val); 
+
+	if (!ofnode_valid(node)) {
+		dev_err(phydev->dev, "%s: failed to get phandle node\n", __func__);
 		return -EINVAL;
 	}
 
 	/* Get property from dts */
 	ret = ofnode_read_u32(node, property, &of_val);
-	if (ret)
+	if (ret) {
 		return ret;
+	}
 
 	/* Convert delay in ps to register value */
-	ret = mxl8611x_lookup_reg_value(mxl8611x_rgmii_delays, of_val, val);
+	ret = mxl8611x_convert_ps_to_reg(of_val, val);
 	if (ret)
-		printf("%s: Error: %s = %d is invalid, using default value\n",
+		dev_err(phydev->dev, "%s: %s = %d is invalid, using default value\n",
 		       __func__, property, of_val);
 
 	return ret;
