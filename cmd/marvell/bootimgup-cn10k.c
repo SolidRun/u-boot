@@ -60,6 +60,7 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 	bool reset = false;
 	char *update_log_ptr = NULL;
 	uint64_t total_written = 0;
+	const char *data_name;
 
 	memset(&desc, 0, sizeof(desc));
 	desc.magic = UPDATE_MAGIC;
@@ -309,6 +310,10 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 			struct smc_update_obj_info *obj = &desc.object_retinfo[i];
 			if (obj->tim_name[0] == '\0')
 				break;
+			if (obj->object_name[0] != '\0')
+				data_name = (const char *)obj->object_name;
+			else
+				data_name = NULL;
 			print_version_data((const char *)obj->tim_name,
 					   "old version",
 					   (const struct tim_opaque_data_version_info *)
@@ -317,26 +322,36 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 					   "new version",
 					  (const struct tim_opaque_data_version_info *)
 					  obj->new_version_data);
-			if (obj->object_name[0] != '\0')
-				printf("Loaded file: %.32s\n",
-				       (char *)obj->object_name);
-			printf("Return code: %u\n", obj->retcode);
+			if (data_name != NULL)
+				printf("Loaded file: %s\n", data_name);
 			if (obj->retcode == OBJ_UPDATE_SKIP_VERSION_MATCH ||
-			    obj->retcode == OBJ_UPDATE_SKIP_DATA_MATCH)
+			    obj->retcode == OBJ_UPDATE_SKIP_DATA_MATCH) {
 				skipped = true;
-			else
+				printf("Installation skipped due to matching version\n");
+			} else if (obj->retcode == OBJ_UPDATE_OK) {
 				skipped = false;
-			if (obj->retcode == OBJ_UPDATE_OK)
 				num_updated++;
-			printf("Object was %s\n", skipped ? "skipped" : "installed");
+				printf("%s/%s was installed\n",
+				       obj->tim_name,
+				       data_name != NULL ?
+					      data_name : "(none)");
+			} else {
+				printf("Error %d installing %s/%s\n",
+				       obj->retcode, obj->tim_name,
+				       data_name != NULL ? data_name : "(none)");
+			}
 			if (!skipped) {
-				printf("TIM address: 0x%llx, size: 0x%llx\n",
-				      obj->tim_address, obj->tim_size);
-				printf("Object address: 0x%llx, size: 0x%llx, bytes written: 0x%llx\n",
-					obj->data_address,
-					obj->data_size,
-					obj->bytes_written);
 				total_written += obj->bytes_written;
+				printf("TIM address: 0x%llx, size: 0x%llx\n",
+				       obj->tim_address, obj->tim_size);
+				if (data_name != NULL)
+					printf("File address: 0x%llx, size: 0x%llx, bytes written: 0x%llx\n",
+						obj->data_address,
+						obj->data_size,
+						obj->bytes_written);
+				else
+					printf("Bytes written: 0x%llx\n",
+					       obj->bytes_written);
 			}
 			printf("\n");
 		}
@@ -344,6 +359,8 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	printf("Total bytes written: %llu, %u files updated\n",
 	       total_written, num_updated);
+	env_set_hex("update_bytes_written", total_written);
+	env_set_ulong("update_skipped", total_written == 0 ? 1 : 0);
 
 	if (reset && total_written > 0) {
 		printf("Resetting after update\n\n\n");
