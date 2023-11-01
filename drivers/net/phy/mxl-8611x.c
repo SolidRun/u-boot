@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
 /**
- *  Driver for MaxLinear MXL861100 Ethernet PHY
+ *  Driver for MaxLinear MXL8611X Ethernet PHYs
  *
  * Copyright 2023 Variscite Ltd.
  * Copyright 2023 MaxLinear Inc.
+ * Copyright 2023 SolidRun Ltd.
  * Author: Nate Drude <nate.d@variscite.com>
+ * Author: Jon Nettleton <jon@solid-run.com>
  */
+
 #include <common.h>
 #include <phy.h>
 #include <linux/bitops.h>
@@ -236,17 +239,15 @@ static int mxl8611x_config(struct phy_device *phydev)
 
 static int mxl86110_config(struct phy_device *phydev)
 {
-	printf("MXL86110 PHY detected at addr %d\n", phydev->addr);
 	return mxl8611x_config(phydev);
 }
 
 static int mxl86111_config(struct phy_device *phydev)
 {
-	printf("MXL86111 PHY detected at addr %d\n", phydev->addr);
 	return mxl8611x_config(phydev);
 }
 
-U_BOOT_PHY_DRIVER(mxl86110) = {
+static struct phy_driver MXL86110_driver = {
 	.name = "MXL86110",
 	.uid = PHY_ID_MXL86110,
 	.mask = 0xffffffff,
@@ -258,7 +259,7 @@ U_BOOT_PHY_DRIVER(mxl86110) = {
 	.writeext = mxl8611x_extwrite,
 };
 
-U_BOOT_PHY_DRIVER(mxl86111) = {
+static struct phy_driver MXL86111_driver = {
 	.name = "MXL86111",
 	.uid = PHY_ID_MXL86111,
 	.mask = 0xffffffff,
@@ -269,3 +270,11 @@ U_BOOT_PHY_DRIVER(mxl86111) = {
 	.readext = mxl8611x_extread,
 	.writeext = mxl8611x_extwrite,
 };
+
+int phy_mxl8611x_init(void)
+{
+        phy_register(&MXL86110_driver);
+        phy_register(&MXL86111_driver);
+
+        return 0;
+}
