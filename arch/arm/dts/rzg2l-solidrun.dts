@@ -99,7 +99,8 @@
 	 * The SD0_PWR_EN pin is associated with P4_1.
 	 * A HIGH signal on SD0_PWR_EN will enable supply voltage for SD card.
 	*/
-	bus-width = <4>;
+	bus-width = <8>;
+	mutual-channel;
 	status = "okay";
 };
 
