@@ -64,22 +64,25 @@
 
 #include <config_distro_bootcmd.h>
 
-#define KERNEL_ADDR_R   __stringify(0x48000000)
-#define FDT_ADDR_R      __stringify(0x4c000000)
-#define SCRIPT_ADDR_R   __stringify(0x4c100000)
-#define PXEFILE_ADDR_R  __stringify(0x4c200000)
-#define RAMDISK_ADDR_R  __stringify(0x4c800000)
+#define KERNEL_ADDR_R       __stringify(0x48000000)
+#define KERNEL_COMP_ADDR_R  __stringify(0x4a000000)
+#define FDT_ADDR_R          __stringify(0x4c000000)
+#define SCRIPT_ADDR_R       __stringify(0x4c100000)
+#define PXEFILE_ADDR_R      __stringify(0x4c200000)
+#define RAMDISK_ADDR_R      __stringify(0x4c800000)
+#define KERNEL_COMP_SIZE    __stringify(0xb00000)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-        "kernel_addr_r=" KERNEL_ADDR_R "\0" \
-        "fdt_addr_r=" FDT_ADDR_R "\0" \
-        "ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
-        "scriptaddr=" SCRIPT_ADDR_R "\0" \
-        "pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
-        "ethact=ethernet@11c30000\0" \
-        "fdt_high=0xffffffffffffffff\0" \
-        "initrd_high=0xffffffffffffffff\0" \
-        "fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+    "kernel_addr_r=" KERNEL_ADDR_R "\0" \
+    "fdt_addr_r=" FDT_ADDR_R "\0" \
+    "ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
+    "scriptaddr=" SCRIPT_ADDR_R "\0" \
+    "pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
+    "fdt_high=0xffffffffffffffff\0"	\
+    "initrd_high=0xffffffffffffffff\0" \
+    "fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+    "kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0" \
+    "kernel_comp_size=" KERNEL_COMP_SIZE "\0" \
 BOOTENV
 
 /* For board */
