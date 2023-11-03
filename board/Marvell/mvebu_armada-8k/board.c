@@ -12,6 +12,9 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <linux/delay.h>
+#if (IS_ENABLED(CONFIG_BOARD_CONFIG_EEPROM))
+#include <mvebu/cfg_eeprom.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -152,6 +155,8 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
+	if (IS_ENABLED(CONFIG_BOARD_CONFIG_EEPROM))
+		cfg_eeprom_init();
 	return 0;
 }
 

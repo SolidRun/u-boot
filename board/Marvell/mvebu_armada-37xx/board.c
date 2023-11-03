@@ -18,6 +18,10 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <linux/delay.h>
+#include <power/regulator.h>
+#if (IS_ENABLED(CONFIG_BOARD_CONFIG_EEPROM))
+#include <mvebu/cfg_eeprom.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -74,6 +78,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_f(void)
 {
+	if (IS_ENABLED(CONFIG_BOARD_CONFIG_EEPROM))
+		cfg_eeprom_init();
 	return 0;
 }
 

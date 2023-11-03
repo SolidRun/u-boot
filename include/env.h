@@ -377,4 +377,14 @@ void env_import_fdt(void);
 static inline void env_import_fdt(void) {}
 #endif
 
+/*  */
+/**
+ * cmd_hw_info_load() - load HW information to environment
+ *
+ * This is updates environment with HW info.
+ */
+#ifdef CONFIG_CMD_MVEBU_HW_INFO
+int cmd_hw_info_load(char *name, int silence);
+#endif
+
 #endif
