@@ -33,7 +33,7 @@ static void print_version_data(const char *str,
 			       const char *name,
 			       const struct tim_opaque_data_version_info *vinfo)
 {
-	printf("%s %s: %d.%d.%d.%d %04d-%02d-%02d %02d:%02d 0x%04x 0x%08x\n    %32s\n",
+	pr_debug("%s %s: %d.%d.%d.%d %04d-%02d-%02d %02d:%02d 0x%04x 0x%08x\n    %32s\n",
 	       str, name,
 	       vinfo->major_version, vinfo->minor_version,
 	       vinfo->revision_number, vinfo->revision_type,
@@ -286,14 +286,14 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 			desc.output_console_size = UPDATE_LOG_SIZE;
 		}
 	}
-	printf("Using update version %d.%d\n",
+	pr_debug("Using update version %d.%d\n",
 	       (UPDATE_VERSION >> 8) & 0xff, UPDATE_VERSION & 0xff);
 	ret = smc_spi_update(&desc);
 
 	if (update_log_ptr) {
-		printf("Update log:\n");
+		pr_debug("Update log:\n");
 		puts(update_log_ptr);
-		printf("\n\n");
+		pr_debug("\n\n");
 		free(update_log_ptr);
 	}
 
@@ -301,7 +301,7 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("ERROR %d\n", ret);
 		return CMD_RET_FAILURE;
 	}
-	printf("Bootloader update %s: %llu bytes\n", mmc ? "MMC" : "SPI",
+	pr_debug("Bootloader update %s: %llu bytes\n", mmc ? "MMC" : "SPI",
 	       desc.image_size);
 	if (!ret) {
 		bool skipped;
@@ -323,15 +323,15 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 					  (const struct tim_opaque_data_version_info *)
 					  obj->new_version_data);
 			if (data_name != NULL)
-				printf("Loaded file: %s\n", data_name);
+				pr_debug("Loaded file: %s\n", data_name);
 			if (obj->retcode == OBJ_UPDATE_SKIP_VERSION_MATCH ||
 			    obj->retcode == OBJ_UPDATE_SKIP_DATA_MATCH) {
 				skipped = true;
-				printf("Installation skipped due to matching version\n");
+				pr_debug("Installation skipped due to matching version\n");
 			} else if (obj->retcode == OBJ_UPDATE_OK) {
 				skipped = false;
 				num_updated++;
-				printf("%s/%s was installed\n",
+				pr_debug("%s/%s was installed\n",
 				       obj->tim_name,
 				       data_name != NULL ?
 					      data_name : "(none)");
@@ -342,18 +342,18 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 			}
 			if (!skipped) {
 				total_written += obj->bytes_written;
-				printf("TIM address: 0x%llx, size: 0x%llx\n",
+				pr_debug("TIM address: 0x%llx, size: 0x%llx\n",
 				       obj->tim_address, obj->tim_size);
 				if (data_name != NULL)
-					printf("File address: 0x%llx, size: 0x%llx, bytes written: 0x%llx\n",
+					pr_debug("File address: 0x%llx, size: 0x%llx, bytes written: 0x%llx\n",
 						obj->data_address,
 						obj->data_size,
 						obj->bytes_written);
 				else
-					printf("Bytes written: 0x%llx\n",
+					pr_debug("Bytes written: 0x%llx\n",
 					       obj->bytes_written);
 			}
-			printf("\n");
+			pr_debug("\n");
 		}
 	}
 
