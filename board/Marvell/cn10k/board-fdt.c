@@ -724,7 +724,7 @@ void board_fdt_get_rsvd_size(u64 *addr, u64 *size)
 								"reg", 0,
 								&dt_len,
 								false);
-			if (dt_addr && dt_addr > ram_top && dt_len) {
+			if (dt_addr && dt_addr >= ram_top && dt_len) {
 				debug("%s Rsvd address 0x%llx 0x%llx size 0x%llx\n",
 					__func__, dt_addr, ram_top, dt_len);
 
