@@ -226,6 +226,39 @@ void board_get_env_offset(int *offset, const char *property)
 	*offset = env_offset;
 }
 
+#if CONFIG_IS_ENABLED(CN10K_FIXED_MGMT_PORT)
+extern int get_mgmt_port_pf_idx(void);
+void probe_network_mgmt_port(void)
+{
+	struct udevice *dev;
+	int err, dev_idx = 0;
+	struct uclass *uc;
+	int ret;
+
+	dev_idx = get_mgmt_port_pf_idx();
+	if (dev_idx < 0)
+		return;
+
+	ret = uclass_get(UCLASS_ETH, &uc);
+	if (ret)
+		return;
+	if (list_empty(&uc->dev_head))
+		return;
+
+	/* Move mgmt port device sequence as first */
+	uclass_foreach_dev(dev, uc) {
+		if (!dev_seq(dev))
+			dev->seq_ = dev_idx - 1;
+		else if (dev_seq(dev) == (dev_idx - 1))
+			dev->seq_ = 0;
+	}
+}
+#else
+void probe_network_mgmt_port(void)
+{
+}
+#endif
+
 void probe_network_devices(bool probe)
 {
 	struct udevice *dev;
@@ -267,6 +300,9 @@ void probe_network_devices(bool probe)
 				 PCI_DEVICE_ID_CAVIUM_NPA_PF, 0, &dev);
 	if (err)
 		debug("NPA AF device not found\n");
+
+	if (IS_ENABLED(CONFIG_CN10K_FIXED_MGMT_PORT))
+		probe_network_mgmt_port();
 }
 
 int board_early_init_r(void)

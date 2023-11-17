@@ -134,14 +134,16 @@ struct eth_lmac_fwdata_s {
 	u64 supported_link_modes;
 	/* only applicable if AN is supported */
 	u64 advertised_fec;
-	u64 advertised_link_modes;
+	u64 advertised_link_modes_own:1; /* eth_cmd_own */
+	u64 advertised_link_modes:63; /* RO to firmware */
 	/* Only applicable if SFP/QSFP slot is present */
 	struct sfp_eeprom_s sfp_eeprom;
 	struct phy_s phy;
 	/* LMAC type updated with CSR macro CAVM_RPM_LMAC_TYPES_E_* */
 	u32 lmac_type;
 	u32 portm_idx;
-#define LMAC_FWDATA_RESERVED_MEM 1020
+	u64 mgmt_port:1;
+#define LMAC_FWDATA_RESERVED_MEM 1019
 	u64 reserved[LMAC_FWDATA_RESERVED_MEM];
 
 };

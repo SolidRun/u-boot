@@ -103,6 +103,62 @@ void mcs_init(void)
 	}
 }
 
+int get_mgmt_port_pf_idx(void)
+{
+	bool mgmt_port_set = false;
+	int i, rpmid, lmacid, maxlmac, pf_idx = -1;
+	unsigned int pf_devid;
+	struct udevice *rdev;
+	int err = 0;
+	u64 fwdata_base = get_fwdata_base();
+	struct sh_fwdata *p_sh_fwdata = (struct sh_fwdata *)fwdata_base;
+	struct eth_lmac_fwdata_s *p_eth_fwdata = NULL;
+	struct rpm *rpm;
+
+	if (otx_is_soc(CN10KB)) {
+		maxlmac = 8;
+		pf_devid = PCI_DEVICE_ID_CAVIUM_RPM2;
+	} else {
+		maxlmac = 4;
+		pf_devid = PCI_DEVICE_ID_CAVIUM_RPM;
+	}
+
+	for (rpmid = 0; rpmid < 4; rpmid++) {
+		for (lmacid = 0; lmacid < maxlmac; lmacid++) {
+			if (otx_is_soc(CN10KB))
+				p_eth_fwdata = &p_sh_fwdata->eth_fw_data_usx[rpmid][lmacid];
+			else
+				p_eth_fwdata = &p_sh_fwdata->eth_fw_data[rpmid][lmacid];
+			if (p_eth_fwdata->mgmt_port) {
+				mgmt_port_set = true;
+				break;
+			}
+		}
+		if (mgmt_port_set)
+			break;
+	}
+	if (mgmt_port_set) {
+		for (i = 0; i < MAX_RPM; i++) {
+			err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
+						 pf_devid, i, &rdev);
+			if (err) {
+				debug("%s RPM%d device not found\n", __func__, i);
+				continue;
+			} else {
+				if (rdev) {
+					rpm = dev_get_priv(rdev);
+					if (rpm->rpm_id == rpmid) {
+						pf_idx = rpm->lmac[lmacid]->instance;
+						break;
+					}
+				}
+			}
+		}
+	}
+	debug("%s RPM%d LMAC%d PF %d\n", __func__, rpmid, lmacid, pf_idx);
+	return pf_idx;
+}
+
 /**
  * Given an LMAC/PF instance number, return the lmac
  * Per design, each PF has only one LMAC mapped.
