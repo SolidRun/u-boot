@@ -15,6 +15,13 @@ endif
 
 if TARGET_CN10K_A
 
+config CN10K_FIXED_MGMT_PORT
+	bool "Fixed Management port as first interface"
+	default n
+	help
+	  Always set up first ethernet interface to be fixed port
+	  defined in privileged firmware components.
+
 config CN10K_MAP_RESERVE
 	bool "Enable reserved region mapping"
 	default n

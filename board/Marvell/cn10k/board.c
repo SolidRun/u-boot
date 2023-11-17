@@ -226,6 +226,24 @@ void board_get_env_offset(int *offset, const char *property)
 	*offset = env_offset;
 }
 
+#if CONFIG_IS_ENABLED(CN10K_FIXED_MGMT_PORT)
+void probe_network_mgmt_port(void)
+{
+	struct udevice *dev;
+	int err, dev_idx = 0;
+	u64 fwdata_base = get_fwdata_base();
+	struct sh_fwdata *p_sh_fwdata = (struct sh_fwdata *)fwdata_base;
+
+	//Either create a variable or loop on all PF params for all LMAC
+	//dev_idx = p_sh_fwdata->XXX;
+	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
+				 PCI_DEVICE_ID_CAVIUM_RVU_PF, dev_idx, &dev);
+	if (err)
+		debug("RVU PF device not found\n");
+
+}
+#endif
+
 void probe_network_devices(bool probe)
 {
 	struct udevice *dev;
@@ -267,6 +285,9 @@ void probe_network_devices(bool probe)
 				 PCI_DEVICE_ID_CAVIUM_NPA_PF, 0, &dev);
 	if (err)
 		debug("NPA AF device not found\n");
+
+	if (IS_ENABLED(CONFIG_CN10K_FIXED_MGMT_PORT))
+		probe_network_mgmt_port();
 }
 
 int board_early_init_r(void)
