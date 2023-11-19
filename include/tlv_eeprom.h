@@ -52,6 +52,19 @@ struct __attribute__ ((__packed__)) tlvinfo_tlv {
 /* Maximum length of a TLV value in bytes */
 #define TLV_VALUE_MAX_LEN        255
 
+/*
+ * TlvInfo TLV Vendor Extension: Layout of a Vendor Extension field
+ */
+struct __attribute__ ((__packed__)) tlvinfo_tlv_ext {
+	u8  type;
+	u8  length;
+	u32 pen;
+	u8  value[];
+};
+
+#define TLV_INFO_ENTRY_EXT_SIZE      sizeof(struct tlvinfo_tlv_ext)
+#define tlvinfo_tlv_ext_offset(i) (i + TLV_INFO_ENTRY_EXT_SIZE)
+
 /**
  *  The TLV Types.
  *
@@ -174,6 +187,29 @@ struct tlvinfo_tlv *const tlv_entry_next_by_code(struct tlvinfo_priv *const priv
  * @tlv: Pointer to TLV structure.
  */
 int tlv_crc_update(struct tlvinfo_priv *const priv);
+
+/*
+ * Accessors for special TLV fields
+ */
+
+/**
+ * Get the next TLV Vendor Extension entry.
+ *
+ * @tlv: Pointer to TLV structure.
+ * @offset: Start search after this entry; Pass NULL to search from the beginning.
+ * @return: Pointer to TLV Vendor Extension entry, or error code.
+ */
+struct tlvinfo_tlv_ext *const tlv_entry_ext_next(struct tlvinfo_priv *const priv, struct tlvinfo_tlv *const offset);
+
+/**
+ * Get the next TLV Vendor Extension entry by IANA Enterprise Number.
+ *
+ * @tlv: Pointer to TLV structure.
+ * @offset: Start search after this entry; Pass NULL to search from the beginning.
+ * @pen: IANA Enterprise Number to search.
+ * @return: Pointer to TLV Vendor Extension entry, or error code.
+ */
+struct tlvinfo_tlv_ext *const tlv_entry_ext_next_by_vendor(struct tlvinfo_priv *const priv, struct tlvinfo_tlv *const offset, u32 pen);
 
 /*
  * TLV data get/set API

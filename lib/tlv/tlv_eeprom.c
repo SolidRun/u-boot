@@ -466,6 +466,48 @@ struct tlvinfo_tlv *const tlv_entry_next_by_code(struct tlvinfo_priv *const priv
 	return ERR_PTR(-ENOENT);
 }
 
+/**
+ * Get the next TLV Vendor Extension entry.
+ *
+ * @tlv: Pointer to TLV structure.
+ * @offset: Start search after this entry; Pass NULL to search from the beginning.
+ * @return: Pointer to TLV Vendor Extension entry, or error code.
+ */
+struct tlvinfo_tlv_ext *const tlv_entry_ext_next(struct tlvinfo_priv *const priv, struct tlvinfo_tlv *const offset)
+{
+	struct tlvinfo_tlv *entry;
+
+	entry = tlv_entry_next_by_code(priv, offset, TLV_CODE_VENDOR_EXT);
+	if (IS_ERR(entry))
+		return (struct tlvinfo_tlv_ext *)entry;
+
+	/* ensure length includes capacity for 4-byte IANA enterprise ID */
+	if (entry->length < (TLV_INFO_ENTRY_EXT_SIZE - TLV_INFO_ENTRY_SIZE))
+		return ERR_PTR(-EINVAL);
+
+	return (struct tlvinfo_tlv_ext *)entry;
+}
+
+/**
+ * Get the next TLV Vendor Extension entry by IANA Enterprise Number.
+ *
+ * @tlv: Pointer to TLV structure.
+ * @offset: Start search after this entry; Pass NULL to search from the beginning.
+ * @return: Pointer to TLV Vendor Extension entry, or error code.
+ */
+struct tlvinfo_tlv_ext *const tlv_entry_ext_next_by_vendor(struct tlvinfo_priv *const priv, struct tlvinfo_tlv *const offset, u32 pen)
+{
+	struct tlvinfo_tlv_ext *entry;
+
+	for (entry = tlv_entry_ext_next(priv, offset);
+	     !IS_ERR(entry);
+	     entry = tlv_entry_ext_next(priv, (struct tlvinfo_tlv *)entry))
+		if (entry->pen == pen)
+			return entry;
+
+	return ERR_PTR(-ENOENT);
+}
+
 int tlv_crc_update(struct tlvinfo_priv *const priv)
 {
 	struct tlvinfo_tlv *crc;
