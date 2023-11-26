@@ -515,7 +515,7 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("Error allocating version info\n");
 		return CMD_RET_FAILURE;
 	}
-	memset(&vinfo, 0, sizeof(vinfo));
+	memset(vinfo, 0, sizeof(*vinfo));
 
 	vinfo->magic_number = VERSION_MAGIC;
 	vinfo->version = VERSION_INFO_VERSION;
@@ -685,7 +685,7 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("Error allocating version info\n");
 		return CMD_RET_FAILURE;
 	}
-	memset(&vinfo, 0, sizeof(vinfo));
+	memset(vinfo, 0, sizeof(*vinfo));
 
 	vinfo->magic_number = VERSION_MAGIC;
 	vinfo->version = VERSION_INFO_VERSION;
