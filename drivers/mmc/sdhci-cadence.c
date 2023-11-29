@@ -138,7 +138,13 @@
 #define	SDHCI_CDNS_SD6_PHY_DLL_SLAVE_READ_DQS_DELAY		GENMASK(7, 0)
 
 #define SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0				0x201C
+#define SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK		BIT(0)
 #define SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK_MODE		GENMASK(2, 1)
+#define SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_UNLOCK_CNT		GENMASK(7, 3)
+#define SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK_VALUE		GENMASK(15, 8)
+
+#define SDHCI_CDNS_SD6_PHY_DLL_OBS_REG1				0x2020
+#define SDHCI_CDNS_SD6_PHY_DLL_OBS_REG2				0x2024
 
 #define SDHCI_CDNS_SD6_PHY_CTRL					0x2080
 #define	SDHCI_CDNS_SD6_PHY_CTRL_PHONY_DQS_TIMING		GENMASK(9, 4)
@@ -307,6 +313,7 @@ static u32 tune_val_step = SDHCI_CDNS_TUNE_STEP;
 static u32 max_tune_iter = SDHCI_CDNS_TUNE_ITERATIONS;
 static u32 read_dqs_cmd_delay;
 static struct sdhci_cdns_sd6_phy sd6_phy_config;
+static u16 sdhci_cdns_get_delay_element(struct sdhci_host *host);
 
 static void init_hs(struct sdhci_cdns_sd6_phy_timings *t, int t_sdclk)
 {
@@ -533,17 +540,22 @@ void sdhci_cdns_sd6_dump(struct sdhci_cdns_plat *plat)
 		DEBUG_DRV("SRS%d 0x%x\n", i, readl(plat->hrs_addr + 0x200 + (i * 4)));
 
 	printf("SDHCI_CDNS_SD6_PHY_DLL_SLAVE 0x%x\n",
-			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_SLAVE));
+	       sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_SLAVE));
 	printf("SDHCI_CDNS_SD6_PHY_CTRL 0x%x\n",
-			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_CTRL));
+	       sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_CTRL));
 	printf("SDHCI_CDNS_SD6_PHY_DLL_MASTER 0x%x\n",
-			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_MASTER));
+	       sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_MASTER));
+	printf("SDHCI_CDNS_SD6_PHY_GATE_LPBK 0x%x\n",
+	       sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_GATE_LPBK));
+	printf("SDHCI_CDNS_SD6_PHY_DQS_TIMING 0x%x\n",
+	       sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DQS_TIMING));
 	printf("SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0 0x%x\n",
 	       sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0));
-	printf("SDHCI_CDNS_SD6_PHY_GATE_LPBK 0x%x\n",
-			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_GATE_LPBK));
-	printf("SDHCI_CDNS_SD6_PHY_DQS_TIMING 0x%x\n",
-			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DQS_TIMING));
+	printf("SDHCI_CDNS_SD6_PHY_DLL_OBS_REG1 0x%x\n",
+	       sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_OBS_REG1));
+	printf("SDHCI_CDNS_SD6_PHY_DLL_OBS_REG2 0x%x\n",
+	       sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_OBS_REG2));
+
 }
 
 static void sdhci_cdns_sd6_phy_dump(struct sdhci_cdns_sd6_phy *phy)
@@ -1079,8 +1091,104 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 	writel(tmp, plat->hrs_addr + SDHCI_CDNS_HRS06);
 }
 
+static u16 sdhci_cdns_get_delay_element(struct sdhci_host *host)
+{
+	struct mmc *mmc = host->mmc;
+	struct sdhci_cdns_plat *plat = dev_get_plat(mmc->dev);
+	struct sdhci_cdns_sd6_phy *phy = plat->priv;
+
+	int timeout_counter = 1000;
+	u32 delay_element = 0xff;
+	u32 lock_mode = 0xff;
+	u32 locked = 0xff;
+	u32 reg_srs11 = 0;
+	u32 unlock_count = 0;
+	u32 reg = 0;
+	u16 dll_lock_value = 0xff;
+	u16 tmp_lock_value = 0;
+
+	// Setup the registers for 250Mhz clock at HS400 and wait for the DLL lock value
+	sdhci_cdns_sd6_write_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DQS_TIMING, 0x780000);
+	sdhci_cdns_sd6_write_phy_reg(plat, SDHCI_CDNS_SD6_PHY_GATE_LPBK, 0x81a00040);
+	sdhci_cdns_sd6_write_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_MASTER, 0x200004);
+	sdhci_cdns_sd6_write_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_SLAVE, 0x404000);
+	sdhci_cdns_sd6_write_phy_reg(plat, SDHCI_CDNS_SD6_PHY_CTRL, 0x4000);
+	sdhci_cdns_sd6_write_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DQ_TIMING, 0x1);
+
+	reg_srs11 = readl(plat->hrs_addr + SDHCI_CDNS_SRS_BASE + SDHCI_CDNS_SRS11);
+	printf("SRS11: 0x%x\n", reg_srs11);
+	reg_srs11 |= 0x1;
+	writel(reg_srs11, plat->hrs_addr + SDHCI_CDNS_SRS_BASE + SDHCI_CDNS_SRS11);
+
+	udelay(1000);
+
+	reg_srs11 = readl(plat->hrs_addr + SDHCI_CDNS_SRS_BASE + SDHCI_CDNS_SRS11);
+	printf("SRS11: 0x%x\n", reg_srs11);
+	reg_srs11 |= 0x100; // set SDCFSL = 1
+	reg_srs11 &= ~0xc0; // set SDCFSH = 0
+	writel(reg_srs11, plat->hrs_addr + SDHCI_CDNS_SRS_BASE + SDHCI_CDNS_SRS11);
+
+	writel(0xf1c00003, plat->hrs_addr + SDHCI_CDNS_HRS09);
+	writel(0x30004, plat->hrs_addr + SDHCI_CDNS_HRS02);
+	writel(0x5, plat->hrs_addr + SDHCI_CDNS_HRS06);
+
+	udelay(1000);
+
+	reg = sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0);
+	locked = FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK, reg);
+	tmp_lock_value = FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK_VALUE, reg);
+
+	while (dll_lock_value != tmp_lock_value) {
+		locked = FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK, reg);
+		lock_mode = FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK_MODE, reg);
+		unlock_count = FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_UNLOCK_CNT, reg);
+
+		if (timeout_counter-- <= 0) {
+			// delay_element default is 8
+			return 8;
+		}
+
+		if (dll_lock_value != tmp_lock_value)
+			dll_lock_value = tmp_lock_value;
+
+		reg = sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0);
+		tmp_lock_value = FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK_VALUE, reg);
+	}
+
+	dll_lock_value = FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK_VALUE, reg);
+
+	// We are a setup for 250Mhz so the full clock period is 4000 and half-clock is 2000
+	if (lock_mode == 0) {
+		delay_element = 4000 / dll_lock_value;
+		tune_val_step = SDHCI_CDNS_TUNE_STEP;
+	} else if (lock_mode == 2) {
+		delay_element = 2000 / dll_lock_value;
+		tune_val_step = SDHCI_CDNS_TUNE_STEP / 2;
+	} else {
+		// default delay_element is 8 in this case
+		delay_element = 8;
+	}
+
+	#ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
+	locked = FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK, reg);
+	lock_mode = FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK_MODE, reg);
+	unlock_count = FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_UNLOCK_CNT, reg);
+
+	DEBUG_DRV("%s delay_element: %d locked: 0x%x lock_mode: 0x%x dll_lock_value: %x\n",
+		  __func__, delay_element, locked, lock_mode, dll_lock_value);
+
+	DEBUG_DRV("SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0 0x%x value: 0x%x mode: 0x%lx locked: %ld\n",
+		  reg,
+		  dll_lock_value,
+		  FIELD_GET(SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK_MODE,
+			    reg), reg & SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0_DLL_LOCK);
+	#endif
+
+	return delay_element;
+}
+
 static int sdhci_cdns_set_tune_val(struct sdhci_cdns_plat *plat,
-				unsigned int val)
+				   unsigned int val)
 {
 	void __iomem *reg = plat->hrs_addr + SDHCI_CDNS_HRS06;
 	u32 tmp;
@@ -1159,6 +1267,24 @@ static void sdhci_cdns_sd6_phy_configure_dll(struct sdhci_cdns_sd6_phy *phy)
 	sdhci_cdns_sd6_phy_dll_bypass(phy);
 }
 
+static u32 sdhci_cdns_calc_clk_rd_delay(struct sdhci_cdns_sd6_phy *phy, bool cmd_not_dat)
+{
+	u32 in_hold;
+	u32 clk_rd_delay = 0;
+	u32 n;
+
+	in_hold = phy->t.t_dat_input_min;
+
+	n = DIV_ROUND_UP(in_hold, phy->d.delay_element) - 1;
+
+	if (n <= phy->vars.dll_max_value)
+		clk_rd_delay = n;
+	else
+		clk_rd_delay = phy->vars.dll_max_value;
+
+	return clk_rd_delay;
+}
+
 static void sdhci_cdns_sd6_phy_calc_out(struct sdhci_cdns_sd6_phy *phy,
 					bool cmd_not_dat)
 {
@@ -1214,8 +1340,7 @@ static void sdhci_cdns_sd6_phy_calc_out(struct sdhci_cdns_sd6_phy *phy,
 			clk_wr_delay = n;
 		} else {
 			DEBUG_DRV("Warning Expected DLL value setting exceeds DLL capabilities. Applied maximum DLL setting.\n");
-			clk_wr_delay = 255;
-			/* no dll setting*/
+			clk_wr_delay = phy->vars.dll_max_value;
 		}
 	} else {
 		/*  sdhc_extended_wr_mode = 1 - PHY IO cell work in SDR mode */
@@ -1260,7 +1385,11 @@ static void sdhci_cdns_sd6_phy_calc_cmd_in(struct sdhci_cdns_sd6_phy *phy)
 
 	if (phy->strobe_cmd) {
 		phy->settings.cp_use_phony_dqs_cmd = 0;
-		phy->settings.cp_read_dqs_cmd_delay = 64;
+
+		if (phy->settings.cp_dll_bypass_mode == 0)
+			phy->settings.cp_read_dqs_cmd_delay = 127;
+		else
+			phy->settings.cp_read_dqs_cmd_delay = 2500 / phy->d.delay_element;
 	} else {
 		phy->settings.cp_use_phony_dqs_cmd = 1;
 		phy->settings.cp_read_dqs_cmd_delay = 0;
@@ -1278,7 +1407,11 @@ static void sdhci_cdns_sd6_phy_calc_dat_in(struct sdhci_cdns_sd6_phy *phy)
 
 	if (phy->strobe_dat) {
 		phy->settings.cp_use_phony_dqs = 0;
-		phy->settings.cp_read_dqs_delay = 64;
+		if (phy->settings.cp_dll_bypass_mode == 0) {
+			phy->settings.cp_read_dqs_delay = 64;
+		} else {
+			phy->settings.cp_read_dqs_delay = sdhci_cdns_calc_clk_rd_delay(phy, false);
+		}
 	} else {
 		phy->settings.cp_use_phony_dqs = 1;
 		phy->settings.cp_read_dqs_delay = 0;
@@ -1766,6 +1899,10 @@ static int sdhci_cdns_probe(struct udevice *dev)
 
 	upriv->mmc = &plat->mmc;
 	host->mmc->priv = host;
+
+	phy->d.delay_element = sdhci_cdns_get_delay_element(host);
+
+	phy->d.delay_element_org = phy->d.delay_element;
 
 	return sdhci_probe(dev);
 }
