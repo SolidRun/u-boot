@@ -83,6 +83,7 @@
     "fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
     "kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0" \
     "kernel_comp_size=" KERNEL_COMP_SIZE "\0" \
+    "sdio_toggle=gpio toggle gpio-221; gpio toggle gpio-390; mmc rescan 1\0" \
 BOOTENV
 
 /* For board */
