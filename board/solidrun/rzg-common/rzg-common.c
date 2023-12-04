@@ -193,13 +193,16 @@ int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
 			pr_err("%s: failed to set output-low -> gpio-sd0-dev-sel-hog in dtb!\n", __func__);
 
 		node = fdt_path_offset(blob, "/soc/pinctrl@11030000/gpio-sd0-vdd-18v-hog");
-		ret = fdt_delprop(blob, node, "output-high");
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s: failed to delete output-high gpio-sd0-vdd-18v-hog in dtb!\n", __func__);
+		if (node >= 0) {
+			/* This is a legacy node as new device-tree has a vccq regulator to manage this gpio */
+			ret = fdt_delprop(blob, node, "output-high");
+			if (ret < 0 && enable_sdhc)
+				pr_err("%s: failed to delete output-high gpio-sd0-vdd-18v-hog in dtb!\n", __func__);
 
-		ret = fdt_setprop((blob), (node), ("output-low"), ((void *)0), 0);
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s: failed to set output-low -> gpio-sd0-vdd-18v-hog in dtb!\n", __func__);
+			ret = fdt_setprop((blob), (node), ("output-low"), ((void *)0), 0);
+			if (ret < 0 && enable_sdhc)
+				pr_err("%s: failed to set output-low -> gpio-sd0-vdd-18v-hog in dtb!\n", __func__);
+		}
 
 		/* update sdhi0 settings (SD/eMMC) mmc@11c00000 */
 		node_sdhi0 = fdt_path_offset(blob, "/soc/mmc@11c00000");
@@ -211,6 +214,14 @@ int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
 		ret = fdt_setprop_u32(blob, node_sdhi0, "max-frequency", 50000000);
 		if (ret < 0 && enable_sdhc)
 			pr_err("%s : failed to set max-frequency at node mmc@11c00000 in dtb!\n", __func__);
+
+		ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr50");
+		if (ret < 0 && enable_sdhc)
+			pr_err("%s: failed to set sd-uhs-sdr50 at node mmc@11c00000 in dtb!\n", __func__);
+
+		ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr104");
+		if (ret < 0 && enable_sdhc)
+			pr_err("%s: failed to set sd-uhs-sdr104 at node mmc@11c00000 in dtb!\n", __func__);
 
 		ret = fdt_delprop(blob, node_sdhi0, "mmc-hs200-1_8v");
 		if (ret < 0 && enable_sdhc)
