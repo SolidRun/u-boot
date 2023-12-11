@@ -33,66 +33,14 @@
 	};
 };
 
-
-&pinctrl {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_hog>;
-
-	pinctrl_hog: hoggrp {
-		pinmux = <RZG2L_PINMUX(22, 1, 0)>; /* SD0_DEV_SEL_SW */
-	};
-
-	eth0_pins: eth0 {
-		pinmux = <RZG2L_PINMUX(20, 0, 1)>,
-				<RZG2L_PINMUX(20, 1, 1)>,
-				<RZG2L_PINMUX(20, 2, 1)>,
-				<RZG2L_PINMUX(21, 0, 1)>,
-				<RZG2L_PINMUX(21, 1, 1)>,
-				<RZG2L_PINMUX(23, 0, 1)>,
-				<RZG2L_PINMUX(23, 1, 1)>,
-				<RZG2L_PINMUX(24, 0, 1)>,
-				<RZG2L_PINMUX(24, 1, 1)>,
-				<RZG2L_PINMUX(25, 0, 1)>,
-				<RZG2L_PINMUX(25, 1, 1)>,
-				<RZG2L_PINMUX(26, 0, 1)>,
-				<RZG2L_PINMUX(26, 1, 1)>,
-				<RZG2L_PINMUX(27, 0, 1)>,
-				<RZG2L_PINMUX(27, 1, 1)>,
-				<RZG2L_PINMUX(28, 0, 1)>,
-				<RZG2L_PINMUX(28, 1, 1)>;
-	};
-};
-
-
-&xinclk {
-		clock-frequency = <24000000>;
-};
-
-&scif0 {
+&ehci0 {
 	status = "okay";
-	clock = <100000000>;
+	phys = <&usb2_phy0>;
 };
 
-&sdhi0 {
-	/* pinctrl placeholder
-	 * If this channel is used for interfacing with a SD card, a power enable
-	 * pin (SD0_PWR_EN) must be defined.
-	 * The SD0_PWR_EN pin is associated with P4_1.
-	 * A HIGH signal on SD0_PWR_EN will enable supply voltage for SD card.
-	*/
-	bus-width = <4>;
+&ehci1 {
 	status = "okay";
-};
-
-&sdhi1 {
-	/* pinctrl placeholder
-	 * A power enable pin (SD1_PWR_EN) must be defined to interface with a
-	 * SD card.
-	 * The SD1_PWR_EN pin is associated with P39_2.
-	 * A HIGH signal on SD1_PWR_EN will enable supply voltage for SD card.
-	*/
-	bus-width = <4>;
-	status = "okay";
+	phys = <&usb2_phy1>;
 };
 
 &eth0 {
@@ -128,6 +76,56 @@
 
 };
 
+&pinctrl {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hog>;
+
+	pinctrl_hog: hoggrp {
+		pinmux = <RZG2L_PINMUX(22, 1, 0)>; /* SD0_DEV_SEL_SW */
+	};
+
+	eth0_pins: eth0 {
+		pinmux = <RZG2L_PINMUX(20, 0, 1)>,
+			 <RZG2L_PINMUX(20, 1, 1)>,
+			 <RZG2L_PINMUX(20, 2, 1)>,
+			 <RZG2L_PINMUX(21, 0, 1)>,
+			 <RZG2L_PINMUX(21, 1, 1)>,
+			 <RZG2L_PINMUX(23, 0, 1)>,
+			 <RZG2L_PINMUX(23, 1, 1)>,
+			 <RZG2L_PINMUX(24, 0, 1)>,
+			 <RZG2L_PINMUX(24, 1, 1)>,
+			 <RZG2L_PINMUX(25, 0, 1)>,
+			 <RZG2L_PINMUX(25, 1, 1)>,
+			 <RZG2L_PINMUX(26, 0, 1)>,
+			 <RZG2L_PINMUX(26, 1, 1)>,
+			 <RZG2L_PINMUX(27, 0, 1)>,
+			 <RZG2L_PINMUX(27, 1, 1)>,
+			 <RZG2L_PINMUX(28, 0, 1)>,
+			 <RZG2L_PINMUX(28, 1, 1)>;
+	};
+};
+
+&scif0 {
+	status = "okay";
+	clock = <100000000>;
+};
+
+&sdhi0 {
+	/* pinctrl placeholder
+	 * If this channel is used for interfacing with a SD card, a power enable
+	 * pin (SD0_PWR_EN) must be defined.
+	 * The SD0_PWR_EN pin is associated with P4_1.
+	 * A HIGH signal on SD0_PWR_EN will enable supply voltage for SD card.
+	*/
+	bus-width = <8>;
+	mutual-channel;
+	status = "okay";
+};
+
+&sdhi1 {
+	status = "disabled";
+};
+
 &usb2_phy0 {
 	status = "okay";
 };
@@ -136,13 +134,6 @@
 	status = "okay";
 };
 
-
-&ehci0 {
-	status = "okay";
-	phys = <&usb2_phy0>;
-};
-
-&ehci1 {
-	status = "okay";
-	phys = <&usb2_phy1>;
+&xinclk {
+	clock-frequency = <24000000>;
 };
