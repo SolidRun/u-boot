@@ -165,6 +165,7 @@ int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
 {
 	int ret, node_sdhi0, node = 0;
 	bool enable_sdhc = preboot_check_sd_emmc();
+	bool legacy_dt = false;
 
 	if (enable_sdhc)
 	{
@@ -202,6 +203,7 @@ int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
 			ret = fdt_setprop((blob), (node), ("output-low"), ((void *)0), 0);
 			if (ret < 0 && enable_sdhc)
 				pr_err("%s: failed to set output-low -> gpio-sd0-vdd-18v-hog in dtb!\n", __func__);
+			legacy_dt = true;
 		}
 
 		/* update sdhi0 settings (SD/eMMC) mmc@11c00000 */
@@ -211,17 +213,20 @@ int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
 		if (ret < 0 && enable_sdhc)
 			pr_err("%s : failed to set bus-width at node mmc@11c00000 in dtb!\n", __func__);
 
-		ret = fdt_setprop_u32(blob, node_sdhi0, "max-frequency", 50000000);
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s : failed to set max-frequency at node mmc@11c00000 in dtb!\n", __func__);
+		if (legacy_dt) {
+			ret = fdt_setprop_u32(blob, node_sdhi0, "max-frequency", 50000000);
+			if (ret < 0 && enable_sdhc)
+				pr_err("%s : failed to set max-frequency at node mmc@11c00000 in dtb!\n", __func__);
+		} else {
 
-		ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr50");
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s: failed to set sd-uhs-sdr50 at node mmc@11c00000 in dtb!\n", __func__);
+			ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr50");
+			if (ret < 0 && enable_sdhc)
+				pr_err("%s: failed to set sd-uhs-sdr50 at node mmc@11c00000 in dtb!\n", __func__);
 
-		ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr104");
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s: failed to set sd-uhs-sdr104 at node mmc@11c00000 in dtb!\n", __func__);
+			ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr104");
+			if (ret < 0 && enable_sdhc)
+				pr_err("%s: failed to set sd-uhs-sdr104 at node mmc@11c00000 in dtb!\n", __func__);
+		}
 
 		ret = fdt_delprop(blob, node_sdhi0, "mmc-hs200-1_8v");
 		if (ret < 0 && enable_sdhc)
