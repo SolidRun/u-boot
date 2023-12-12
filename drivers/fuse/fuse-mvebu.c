@@ -261,7 +261,7 @@ U_BOOT_DRIVER(mvebu_efuse) = {
 	.id	= UCLASS_MISC,
 	.of_match = mvebu_fuse_ids,
 	.probe	= fuse_probe,
-	.priv_auto_alloc_size = sizeof(struct mvebu_fuse_block_data),
+	.priv_auto = sizeof(struct mvebu_fuse_block_data),
 	.ops	= &fuse_ops,
 	.bind	= fuse_bind,
 };
