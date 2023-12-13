@@ -616,7 +616,7 @@ int board_late_init(void)
 
 	// auto-select device-tree
 	if (!env_get("fdtfile")) {
-		if(snprintf(fdtfile, sizeof(fdtfile), "%s-%s.dtb", board_id.som_name, board_id.carrier_name) >= sizeof(fdtfile)) {
+		if(snprintf(fdtfile, sizeof(fdtfile), "freescale/%s-%s.dtb", board_id.som_name, board_id.carrier_name) >= sizeof(fdtfile)) {
 			pr_err("%s: buffer too small, fdtfile truncated!\n", __func__);
 		}
 		env_set("fdtfile", fdtfile);
