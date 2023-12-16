@@ -2005,6 +2005,17 @@ config ARCH_CN10K
 	select EFI_SIGNATURE_SUPPORT if EFI_LOADER
 	imply OF_HAS_PRIOR_STAGE
 
+config ARCH_CN20K
+	bool "Support Marvell CN20XXX SoCs"
+	select CLK
+	select DM
+	select ARM64
+	select OF_CONTROL
+	select OF_LIVE
+	select BOARD_LATE_INIT
+	select SYS_CACHE_SHIFT_6
+	imply OF_HAS_PRIOR_STAGE
+
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
 	select ARM64
@@ -2191,6 +2202,8 @@ source "arch/arm/mach-octeontx2/Kconfig"
 
 source "arch/arm/mach-cn10k/Kconfig"
 
+source "arch/arm/mach-cn20k/Kconfig"
+
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
 source "arch/arm/mach-imx/mx3/Kconfig"
@@ -2282,6 +2295,7 @@ source "board/bosch/guardian/Kconfig"
 source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
 source "board/Marvell/cn10k/Kconfig"
+source "board/Marvell/cn20k/Kconfig"
 source "board/Marvell/common/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
