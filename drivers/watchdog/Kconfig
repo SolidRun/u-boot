@@ -222,7 +222,7 @@ config WDT_NPCM
 
 config WDT_OCTEONTX
 	bool "Octeon core watchdog support"
-	depends on WDT && (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_CN10K)
+	depends on WDT && (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_CN10K || ARCH_CN20K)
 	default y
 	imply WATCHDOG
 	help

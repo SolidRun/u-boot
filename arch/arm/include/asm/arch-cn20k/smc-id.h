@@ -1,0 +1,25 @@
+/* SPDX-License-Identifier: BSD-2-Clause-Patent
+ * https://spdx.org/licenses
+ *
+ * Copyright (C) 2024 Marvell
+ *
+ */
+
+#ifndef __SMC_ID_H__
+#define __SMC_ID_H__
+
+/* SMC function IDs for general purpose queries */
+
+#define CN20K_SVC_CALL_COUNT	0xc200ff00
+#define CN20K_SVC_UID		0xc200ff01
+
+#define CN20K_SVC_VERSION		0xc200ff03
+
+/* OcteonTX Service Calls version numbers */
+#define CN20K_VERSION_MAJOR	0x1
+#define CN20K_VERSION_MINOR	0x0
+
+/* x1 - node number */
+#define CN20K_DRAM_SIZE		0xc2000301
+
+#endif /* __SMC_ID_H__ */

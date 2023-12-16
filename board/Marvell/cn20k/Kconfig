@@ -1,0 +1,14 @@
+if TARGET_CN20K_A
+
+config SYS_VENDOR
+	string
+	default	"Marvell"
+
+config SYS_BOARD
+	string
+	default "cn20k"
+
+config SYS_CONFIG_NAME
+	default "cn20k_common"
+
+endif

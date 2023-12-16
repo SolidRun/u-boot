@@ -1,0 +1,49 @@
+/* SPDX-License-Identifier: BSD-2-Clause-Patent
+ * https://spdx.org/licenses
+ *
+ * Copyright (C) 2024 Marvell
+ *
+ */
+
+#ifndef __BOARD_H__
+#define __BOARD_H__
+
+#include <asm/arch/soc.h>
+
+/** Reg offsets */
+#define CPC_BOOT_OWNERX(a)	0x86D0000001C0ULL + (8 * (a))
+
+extern unsigned long fdt_base_addr;
+
+/** Structure definitions */
+/**
+ * Register (NCB32b) cpc_boot_owner#
+ *
+ * CPC Boot Owner Registers These registers control an external arbiter
+ * for the boot device (SPI/eMMC) across multiple external devices. There
+ * is a register for each requester:
+ * _ \<0\> - SCP          - reset on SCP reset
+ * _ \<1\> - MCP          - reset on MCP reset
+ * _ \<2\> - AP Secure    - reset on core reset
+ * _ \<3\> - AP Nonsecure - reset on core reset
+ * These register is only writable to the corresponding
+ * requestor(s) permitted with CPC_PERMIT.
+ */
+union cpc_boot_ownerx {
+	u32 u;
+	struct cpc_boot_ownerx_s {
+		u32 boot_req		: 1;
+		u32 reserved_1_7	: 7;
+		u32 boot_wait		: 1;
+		u32 reserved_9_31	: 23;
+	} s;
+};
+
+/** Function definitions */
+void mem_map_fill(void);
+const char *fdt_get_run_platform(void);
+const char *fdt_get_board_model(void);
+const char *fdt_get_board_serial(void);
+const char *fdt_get_board_revision(void);
+struct udevice;
+#endif /* __BOARD_H__ */
