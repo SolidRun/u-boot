@@ -1,0 +1,23 @@
+if ARCH_CN20K
+
+choice
+	prompt "CN20K board select"
+	optional
+
+config TARGET_CN20K_A
+	bool "Marvell CN20KA SoC"
+	help
+	  The MRVL CN20K is a ARM64-based SoC.
+	  It is based ARMv9 architecture.
+
+endchoice
+
+config SYS_SOC
+	string
+	default "cn20k"
+
+config SYS_PCI_64BIT
+	bool
+	default y
+
+endif
