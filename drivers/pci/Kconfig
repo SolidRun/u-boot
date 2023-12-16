@@ -45,7 +45,7 @@ config PCI_REGION_MULTI_ENTRY
 	help
 	  Enable PCI memory regions to be of multiple entry. Multiple entry
 	  here refers to allow more than one count of address ranges for MEMORY
-	  region type. This helps to add support for SoC's like OcteonTX/TX2
+	  region type. This helps to add support for SoC's like OcteonTX/TX2/CN10K/CN20K
 	  where every peripheral is on the PCI bus.
 
 config PCI_CONFIG_HOST_BRIDGE
@@ -198,9 +198,9 @@ config PCI_TEGRA
 
 config PCI_OCTEONTX
 	bool "OcteonTX PCI support"
-	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_CN10K)
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_CN10K || ARCH_CN20K)
 	help
-	  Enable support for the OcteonTX/TX2 SoC family ECAM/PEM controllers.
+	  Enable support for the OcteonTX/TX2/CN10K/CN20K SoC family ECAM/PEM controllers.
 	  These controllers provide PCI configuration access to all on-board
 	  peripherals so it should only be disabled for testing purposes
 

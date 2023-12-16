@@ -55,6 +55,7 @@ void cleanup_env_ethaddr(void)
 
 int board_early_init_r(void)
 {
+	pci_init();
 	return 0;
 }
 
