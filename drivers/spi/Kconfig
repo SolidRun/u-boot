@@ -348,7 +348,7 @@ config OCTEON_SPI
 
 config CADENCE_XSPI
 	bool "Octeon SPI driver"
-	depends on PCI && ARCH_CN10K
+	depends on PCI && (ARCH_CN10K || ARCH_CN20K)
 	help
 	  Enable the Cadence xSPI driver. This driver can be used to
 	  access the SPI NOR flash on CN10X SoC platform.

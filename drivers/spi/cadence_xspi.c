@@ -279,12 +279,12 @@ struct cdns_xspi_dev {
 	int spi_mem_avalible;
 	int mode;
 
-#if IS_ENABLED(CONFIG_ARCH_CN10K)
+#if IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)
 	int current_xfer_qword;
 #endif
 };
 
-#if IS_ENABLED(CONFIG_ARCH_CN10K)
+#if IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)
 const int cdns_xspi_clk_div_list[] = {
 	4,	//0x0 = Divide by 4.   SPI clock is 200 MHz.
 	6,	//0x1 = Divide by 6.   SPI clock is 133.33 MHz.
@@ -432,7 +432,7 @@ static int cdns_xspi_probe(struct udevice *bus)
 	struct cdns_xspi_dev *cdns_xspi = dev_get_priv(bus);
 	int ret;
 
-#if IS_ENABLED(CONFIG_ARCH_CN10K)
+#if IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)
 	cdns_xspi_setup_clock(cdns_xspi, 25000000);
 	cdns_xspi_configure_phy(cdns_xspi);
 #endif
@@ -821,13 +821,13 @@ static int cdns_xspi_exec_op(struct spi_slave *slave,
 	return ret;
 }
 
-#if defined(CONFIG_ARCH_CN10K)
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_CN20K)
 int board_acquire_flash_arb(bool acquire);
 #endif
 
 static int cdns_xspi_claim_bus(struct udevice *dev)
 {
-	if ((IS_ENABLED(CONFIG_ARCH_CN10K))) {
+	if ((IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K))) {
 		if (board_acquire_flash_arb(true))
 			board_acquire_flash_arb(false);
 	}
@@ -837,7 +837,7 @@ static int cdns_xspi_claim_bus(struct udevice *dev)
 
 static int cdns_xspi_release_bus(struct udevice *dev)
 {
-	if ((IS_ENABLED(CONFIG_ARCH_CN10K)))
+	if ((IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)))
 		board_acquire_flash_arb(false);
 
 	return 0;
@@ -845,7 +845,7 @@ static int cdns_xspi_release_bus(struct udevice *dev)
 
 static int cdns_xspi_set_speed(struct udevice *bus, uint max_hz)
 {
-	if ((IS_ENABLED(CONFIG_ARCH_CN10K)))
+	if ((IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)))
 		cdns_xspi_setup_clock(dev_get_priv(bus), max_hz);
 
 	return 0;
@@ -866,7 +866,7 @@ static bool cdns_xspi_supports_op(struct spi_slave *slave,
 	return spi_mem_default_supports_op(slave, op);
 }
 
-#if IS_ENABLED(CONFIG_ARCH_CN10K)
+#if IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)
 #if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO)
 void cdns_cs_change(int bus, int cs, int active)
 {
@@ -1204,7 +1204,7 @@ static struct dm_spi_ops cdns_spi_ops = {
 	.claim_bus	= cdns_xspi_claim_bus,
 	.release_bus	= cdns_xspi_release_bus,
 	.mem_ops	= &cdns_mem_ops,
-#if IS_ENABLED(CONFIG_ARCH_CN10K)
+#if IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)
 	.xfer		= cdns_xspi_xfer,
 #endif
 };

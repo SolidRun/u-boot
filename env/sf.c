@@ -45,7 +45,7 @@ static int setup_flash_device(struct spi_flash **env_flash)
 	struct udevice *new;
 	int	ret;
 
-#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_OCTEONTX2)
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_OCTEONTX2) || defined(CONFIG_ARCH_CN20K)
 	int bus, cs;
 extern void board_get_env_spi_bus_cs(int *bus, int *cs);
 
@@ -225,7 +225,7 @@ static int env_sf_save(void)
 	if (IS_ENABLED(CONFIG_ENV_SECT_SIZE_AUTO))
 		sect_size = env_flash->mtd.erasesize;
 
-#if defined(CONFIG_ARCH_CN10K)
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_CN20K)
 extern void board_get_env_offset(int *offset, const char *property);
 	int env_offset;
 
@@ -333,7 +333,7 @@ static int env_sf_load(void)
 	if (ret)
 		goto out;
 
-#if defined(CONFIG_ARCH_CN10K)
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_CN20K)
 extern void board_get_env_offset(int *offset, const char *property);
 	int env_offset;
 
