@@ -2045,7 +2045,7 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		goto error;
 	}
 
-	if (!source_buffer) {
+	if (IS_ENABLED(CONFIG_NETDEVICES) && !source_buffer) {
 		int flen;
 		char *filename;
 		char *eth_str, *ip_str, *path, *substring;
