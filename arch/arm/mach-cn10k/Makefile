@@ -5,5 +5,5 @@
 # * https://spdx.org/licenses
 # */
 
-obj-y += lowlevel_init.o cpu.o clock.o
+obj-y += lowlevel_init.o cpu.o clock.o time.o
 
