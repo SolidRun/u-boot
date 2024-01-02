@@ -72,6 +72,8 @@ static inline uint64_t RST_COLD_DATAX(uint64_t a)
 {
 	if (a <= 5)
 		return 0x87e0060017c0ULL + 8ULL * ((a) & 0x7);
+
+	return 0;
 }
 
 /** Function definitions */
