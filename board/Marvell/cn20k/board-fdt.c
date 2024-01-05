@@ -68,9 +68,9 @@ static int fdt_get_bdk_node(void)
 		return 0;
 	}
 
-	node = fdt_path_offset(fdt, "/cavium,bdk");
+	node = fdt_path_offset(fdt, "/marvell,ebf");
 	if (node < 0) {
-		printf("%s: /cavium,bdk is missing from device tree: %s\n",
+		printf("%s: /marvell,ebf is missing from device tree: %s\n",
 		       __func__, fdt_strerror(node));
 		return 0;
 	}
@@ -186,7 +186,7 @@ static int ft_board_clean_props(void *blob, int node)
 			}
 		}
 		if (!found) {
-			debug("Deleting cavium,bdk/%s\n", name);
+			debug("Deleting marvell,ebf/%s\n", name);
 			ret = fdt_delprop(blob, node, name);
 			if (ret) {
 				printf("Error: could not delete property %s: %s\n",
@@ -194,13 +194,13 @@ static int ft_board_clean_props(void *blob, int node)
 				return -1;
 			}
 		} else {
-			debug("Keeping cavium,bdk/%s\n", name);
+			debug("Keeping marvell,ebf/%s\n", name);
 		}
 	}
 
 	ret = fdt_set_name(blob, node, "octeontx_brd");
 	if (ret) {
-		printf("Error: could not rename cavium,bdk to octeontx_brd: %s\n",
+		printf("Error: could not rename marvell,ebf to octeontx_brd: %s\n",
 		       fdt_strerror(ret));
 		return -1;
 	}
@@ -223,7 +223,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		return ret;
 	}
 
-	nodeoff = fdt_path_offset(blob, "/cavium,bdk");
+	nodeoff = fdt_path_offset(blob, "/marvell,ebf");
 	if (nodeoff < 0) {
 		/*
 		 * It is possible that the FDT has already been processed if
@@ -235,7 +235,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		printf("ERROR: FDT BDK node not found\n");
 		return nodeoff;
 	}
-	debug("/cavium,bdk node: 0x%x\n", nodeoff);
+	debug("/marvell,ebf node: 0x%x\n", nodeoff);
 	ret = ft_board_clean_props(blob, nodeoff);
 	return ret;
 }
