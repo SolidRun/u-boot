@@ -249,3 +249,7 @@ int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
 }
 #endif
 
+int tlv_get_mac_eeprom_udevice(struct udevice **dev)
+{
+	return get_tlv_udevice_by_alias(dev, "eeprom_som");
+}
