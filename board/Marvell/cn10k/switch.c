@@ -892,6 +892,9 @@ void board_switch_init(void)
 	writel(0x3c200000, sw_bar0 + 0x1314);
 	writel(0x0, sw_bar0 + 0x1318);
 
+	/* Need to wait before programming access window registers (CM3) */
+	mdelay(1);
+
 	writel(0x10000803, sw_bar2 + 0x0490);
 	writel(0x00ff0000, sw_bar2 + 0x0494);
 	writel(0x0, sw_bar2 + 0x0498);
