@@ -698,6 +698,12 @@ static void show_tlv_devices(int current_dev)
 			       (dev == current_dev) ? " (*)" : "");
 }
 
+__weak int tlv_get_mac_eeprom_udevice(struct udevice **dev)
+{
+	*dev = tlv_eeprom_get_by_index(0); // TODO: support multiple EEPROMs
+	return 0;
+}
+
 /**
  *  mac_read_from_eeprom
  *
@@ -719,11 +725,16 @@ int mac_read_from_eeprom(void)
 	uint16_t maccount;
 	u8 macbase[6];
 	struct tlvinfo_priv *tlv;
-	int devnum = 0; // TODO: support multiple EEPROMs
-
+	struct udevice *tlv_dev;
+	int ret;
 	puts("EEPROM: ");
 
-	tlv = tlv_eeprom_read(tlv_eeprom_get_by_index(devnum), 0, eeprom, ARRAY_SIZE(eeprom));
+	ret = tlv_get_mac_eeprom_udevice(&tlv_dev);
+	if (ret) {
+		return ret;
+	}
+
+	tlv = tlv_eeprom_read(tlv_dev, 0, eeprom, ARRAY_SIZE(eeprom));
 	if (IS_ERR(tlv)) {
 		printf("Read failed.\n");
 		return -1;
