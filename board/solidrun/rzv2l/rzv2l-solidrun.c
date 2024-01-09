@@ -138,7 +138,7 @@ static void carrier_usb_init(int carrier)
 	case CARRIER_HB_MATE:
 	case CARRIER_HB_RIPPLE:
 	case CARRIER_HB_PULSE:
-	case CARRIER_HB_EXTENDED:
+	case CARRIER_HB_PRO:
 		board_usb_init(VBUS_OUT_OD);
 		break;
 	default:
@@ -157,8 +157,8 @@ static void carrier_select_fdt(int carrier)
 	case CARRIER_HB_PULSE:
 		env_set("fdtfile", "rzv2l-hummingboard-ripple.dtb");
 		break;
-	case CARRIER_HB_EXTENDED:
-		env_set("fdtfile", "rzv2l-hummingboard-extended.dtb");
+	case CARRIER_HB_PRO:
+		env_set("fdtfile", "rzv2l-hummingboard-pro.dtb");
 		break;
 	default:
 		pr_warn("Leaving default fdtfile \n");
