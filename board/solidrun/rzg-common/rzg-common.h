@@ -8,7 +8,7 @@ enum carrier_boards
 	CARRIER_HB_MATE,
 	CARRIER_HB_RIPPLE,
 	CARRIER_HB_PULSE,
-	CARRIER_HB_EXTENDED,
+	CARRIER_HB_PRO,
 };
 
 enum vbus_out_type

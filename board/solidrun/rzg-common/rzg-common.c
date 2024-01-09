@@ -86,10 +86,10 @@ int get_carrier(void)
 	case 'R': // Ripple
 		board = CARRIER_HB_RIPPLE;
 		break;
-	case 'U': // Pulse or Extended
+	case 'U': // Pulse or Extended or Pro
 		board = CARRIER_HB_PULSE;
-		if (sku[6] == 'E')
-			board = CARRIER_HB_EXTENDED;
+		if (sku[6] == 'E' || sku[6] == 'P')
+			board = CARRIER_HB_PRO;
 		break;
 	default:
 		board = CARRIER_UNRECOGNIZED;
