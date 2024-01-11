@@ -27,6 +27,8 @@
 #include <linux/bitfield.h>
 #include "mmc_private.h"
 
+extern int mmc_clear_enhanced_strobe(struct mmc *mmc);
+
 #define DEFAULT_CMD6_TIMEOUT_MS  500
 
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
@@ -2483,8 +2485,6 @@ static int mmc_startup(struct mmc *mmc)
 	int err, i;
 	uint mult, freq;
 	u64 cmult, csize;
-	u32 ccc;
-	u32 *csd_resp;
 	struct mmc_cmd cmd;
 	struct blk_desc *bdesc;
 
