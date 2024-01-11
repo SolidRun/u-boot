@@ -125,7 +125,7 @@ void cleanup_env_ethaddr(void)
 	char ename[32];
 
 	for (int i = 0; i < 20; i++) {
-		sprintf(ename, i ? "eth%daddr" : "ethaddr", i);
+		snprintf(ename, sizeof(ename)/sizeof(ename[0]), i ? "eth%daddr" : "ethaddr", i);
 		if (env_get(ename))
 			env_set(ename, NULL);
 	}
