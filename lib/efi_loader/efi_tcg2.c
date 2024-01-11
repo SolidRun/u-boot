@@ -1785,7 +1785,7 @@ static efi_status_t efi_append_scrtm_version(struct udevice *dev)
  *
  * Return:		status code
  */
-static efi_status_t efi_init_event_log(void)
+static inline efi_status_t efi_init_event_log(void)
 {
 	/*
 	 * vendor_info_size is currently set to 0, we need to change the length
