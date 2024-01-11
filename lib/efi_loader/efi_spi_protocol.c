@@ -357,6 +357,7 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 	int bus, cs;
 	u16 *name;
 
+	flash_dev = NULL;
 	r = EFI_SUCCESS;
 	/* Create SpiBus */
 	struct efi_spi_bus *spi_bus = calloc(1, sizeof(struct efi_spi_bus));
@@ -381,7 +382,8 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 		bus = -1;
 		cs = -1;
 #ifdef CONFIG_ARCH_CN10K
-		board_get_spi_bus_cs(dev, &bus, &cs);
+		if (dev)
+			board_get_spi_bus_cs(dev, &bus, &cs);
 #endif
 		if ((bus != -1) && (cs != -1)) {
 			/* Create SpiPart */
@@ -442,14 +444,16 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 			proto_obj->dp = (struct efi_spi_nor_flash_path *)
 				efi_dp_from_spi(dev, bus, cs);
 
-			proto_obj->dp->vendor_data[0] = bus;
-			proto_obj->dp->vendor_data[1] = cs;
+			if (proto_obj->dp) {
+				proto_obj->dp->vendor_data[0] = bus;
+				proto_obj->dp->vendor_data[1] = cs;
 
-			proto_obj->dp->dp.length = sizeof(struct efi_spi_nor_flash_path) -
+				proto_obj->dp->dp.length = sizeof(struct efi_spi_nor_flash_path) -
 						sizeof(struct efi_device_path);
-			proto_obj->dp->end.type = DEVICE_PATH_TYPE_END;
-			proto_obj->dp->end.sub_type = DEVICE_PATH_SUB_TYPE_END;
-			proto_obj->dp->end.length = sizeof(struct efi_device_path);
+				proto_obj->dp->end.type = DEVICE_PATH_TYPE_END;
+				proto_obj->dp->end.sub_type = DEVICE_PATH_SUB_TYPE_END;
+				proto_obj->dp->end.length = sizeof(struct efi_device_path);
+			}
 
 			r = efi_add_protocol(&proto_obj->header, &efi_guid_spi_nor_flash_protocol,
 					     &proto_obj->efi_spi_nor_flash_protocol);
