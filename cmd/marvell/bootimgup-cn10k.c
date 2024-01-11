@@ -304,7 +304,7 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 	pr_debug("Bootloader update %s: %llu bytes\n", mmc ? "MMC" : "SPI",
 	       desc.image_size);
 	if (!ret) {
-		bool skipped;
+		bool skipped = true;
 
 		for (i = 0; i < SMC_MAX_OBJECTS; i++) {
 			struct smc_update_obj_info *obj = &desc.object_retinfo[i];
