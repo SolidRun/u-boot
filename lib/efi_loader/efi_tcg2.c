@@ -1091,7 +1091,7 @@ out:
 /**
  * efi_init_event_log() - initialize an eventlog
  */
-static efi_status_t efi_init_event_log(void)
+static inline efi_status_t efi_init_event_log(void)
 {
 	/*
 	 * vendor_info_size is currently set to 0, we need to change the length
