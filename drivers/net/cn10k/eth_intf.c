@@ -161,7 +161,7 @@ int eth_intf_req(u8 rpm, u8 lmac, union eth_cmd_s cmd_args, u64 *rsp,
 	}
 	if (scr0.s.evt_sts.stat != ETH_STAT_SUCCESS) {
 		debug("%s cmd%d failed on rpm%u lmac%u with errcode %d\n",
-		      __func__, cmd, rpm, lmac, scr0.s.link_sts.err_type);
+		      __func__, cmd, rpm, lmac, (u32)scr0.s.link_sts.err_type);
 		err = -1;
 	}
 
@@ -343,7 +343,7 @@ static inline int cpri_mode_to_args(int mode, int flag, struct eth_mode_change_a
 	}
 
 	debug("CPRI Mode: %d (mode mask %llx, mode_group_idx %d)\n",
-	      mode, (u64)args->mode, args->mode_group_idx);
+	      mode, (u64)args->mode, (u8)args->mode_group_idx);
 
 	return 0;
 }
@@ -614,7 +614,7 @@ static inline int eth_mode_to_args(int mode, int flag, struct eth_mode_change_ar
 
 	if (flag) {
 		debug("Ethernet mode: %d (mode mask %llx, mode_group_idx %d)\n",
-		      mode, (u64)args->mode, args->mode_group_idx);
+		      mode, (u64)args->mode, (u8)args->mode_group_idx);
 	}
 
 	return 0;
@@ -642,7 +642,7 @@ static inline int eth_group1_mode_to_args(int mode, int flag, struct eth_mode_ch
 
 	if (flag) {
 		debug("Ethernet mode: %d (mode mask %llx, mode_group_idx %d)\n",
-				mode, (u64)args->mode, args->mode_group_idx);
+				mode, (u64)args->mode, (u8)args->mode_group_idx);
 	}
 
 	return 0;

@@ -711,7 +711,7 @@ int nix_lf_recv(struct udevice *dev, int flags, uchar **packetp)
 	debug("%s: rx parse: desc_sizem1 %x pkt_lenm1 %x\n",
 	      __func__, (u8)rxparse->s.desc_sizem1, (u16)rxparse->s.pkt_lenm1);
 	debug("%s: rx parse: pkind %x chan %x\n",
-	      __func__, rxparse->s.pkind, rxparse->s.chan);
+	      __func__, (u16)rxparse->s.pkind, (u8)rxparse->s.chan);
 
 	if (rx_dr->hdr.s.cqe_type != NIX_XQE_TYPE_E_RX) {
 		printf("%s: Error: Unsupported CQ header type in Rx %d\n",

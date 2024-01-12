@@ -271,7 +271,7 @@ int rpm_lmac_set_chan(struct lmac *lmac)
 					    lmac->lmac_id);
 		reg = mcs_read(offset);
 		reg &= ~GENMASK_ULL(11, 0);
-		reg |= lmac->chan_num;
+		reg |= (u64)lmac->chan_num;
 		mcs_write(reg, offset);
 	}
 	return 0;

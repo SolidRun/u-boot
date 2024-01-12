@@ -235,7 +235,7 @@ int npa_lf_admin_shutdown(struct npa_af *npa, int lf, u32 pool_count)
 
 		if (res->s.compcode != NPA_AQ_COMP_E_GOOD) {
 			printf("%s: Error: result 0x%x not good for lf %d\n"
-			       " aura id %d", __func__, res->s.compcode, lf,
+			       " aura id %d", __func__, (u8)res->s.compcode, lf,
 			       pool_id);
 			return -1;
 		}
