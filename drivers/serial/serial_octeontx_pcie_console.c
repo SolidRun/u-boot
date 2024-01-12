@@ -543,7 +543,7 @@ static int octeontx_pcie_console_init(struct udevice *dev)
 	fdt_addr_t addr;
 	fdt_addr_t size;
 	u32 input_buf_size, output_buf_size;
-	bool console_preowned;
+	bool console_preowned = false;
 	int ret = 0;
 
 	addr = ofnode_get_addr_size_index(node, 0, &size);
@@ -715,7 +715,7 @@ static int octeontx_pcie_console_probe(struct udevice *dev)
 	bool ok;
 	ulong start;
 	int ret;
-	bool console_preowned;
+	bool console_preowned = false;
 #ifdef DEBUG
 	struct stdio_dev *_sdev;
 #endif
@@ -901,8 +901,8 @@ static int modify_env(const char *name, const char *remove_name)
 
 		if (strncmp(start, remove_name, len)) {
 			if (start != temp)
-				strncat(new_env, ",", sizeof(new_env));
-			strncat(new_env, start, sizeof(new_env));
+				strlcat(new_env, ",", sizeof(new_env));
+			strlcat(new_env, start, sizeof(new_env));
 		}
 		if (end)
 			start = end + 1;
