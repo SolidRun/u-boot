@@ -25,6 +25,7 @@
 #include <asm/arch/soc.h>
 #include <asm/arch/board.h>
 #include <dm/util.h>
+#include <spi.h>
 #include <wdt.h>
 #include <linux/iopoll.h>
 
@@ -42,6 +43,9 @@ enum boot_error {
 #define BOOTCMD_NAME   "pci-bootcmd"
 #define CONSOLE_NAME	"pci-console@0"
 
+#define NUM_SPI_CTRL	2
+#define NUM_SPI_CS	2
+
 void cleanup_env_ethaddr(void)
 {
 	char ename[32];
@@ -50,6 +54,24 @@ void cleanup_env_ethaddr(void)
 		sprintf(ename, i ? "eth%daddr" : "ethaddr", i);
 		if (env_get(ename))
 			env_set(ename, NULL);
+	}
+}
+
+void board_get_spi_bus_cs(struct udevice *dev, int *bus, int *cs)
+{
+	struct udevice *busp, *csp;
+	struct udevice *parent = dev_get_parent(dev);
+
+	for (int i = 0; i < NUM_SPI_CTRL; i++) {
+		for (int j = 0; j < NUM_SPI_CS; j++) {
+			if (!spi_find_bus_and_cs(i, j, &busp, &csp)) {
+				if (parent == busp && dev == csp) {
+					*bus = i;
+					*cs = j;
+					break;
+				}
+			}
+		}
 	}
 }
 
@@ -69,9 +91,9 @@ void board_get_env_spi_bus_cs(int *bus, int *cs)
 					      fdt_parent_offset(blob, node),
 					      "reg", -1);
 			/* SPI node will have PCI addr, so map it */
-			if (preg == 0x8040)
+			if (preg == 0xCF10)
 				env_bus = 0;
-			if (preg == 0x8050)
+			if (preg == 0xCF11)
 				env_bus = 1;
 			debug("\n Env SPI [bus:cs] [%d:%d]\n",
 			      env_bus, env_cs);

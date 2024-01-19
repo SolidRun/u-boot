@@ -47,6 +47,7 @@ const char *fdt_get_board_serial(void);
 const char *fdt_get_board_revision(void);
 void board_get_env_spi_bus_cs(int *bus, int *cs);
 void board_get_env_offset(int *offset, const char *property);
+void board_get_spi_bus_cs(struct udevice *dev, int *bus, int *cs);
 struct udevice;
 int board_acquire_flash_arb(bool acquire);
 #endif /* __BOARD_H__ */

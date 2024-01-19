@@ -12,7 +12,7 @@
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
 #include <spi.h>
-#ifdef CONFIG_ARCH_CN10K
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_CN20K)
 #include <asm/arch/board.h>
 #endif
 
@@ -381,10 +381,9 @@ static efi_status_t install_spi_nor_flash_protocol(struct udevice *bus_dev)
 			flash_dev = dev_get_uclass_priv(dev);
 		bus = -1;
 		cs = -1;
-#ifdef CONFIG_ARCH_CN10K
-		if (dev)
+		if (dev && (IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)))
 			board_get_spi_bus_cs(dev, &bus, &cs);
-#endif
+
 		if ((bus != -1) && (cs != -1)) {
 			/* Create SpiPart */
 			struct efi_spi_part *spi_part = calloc(1, sizeof(struct efi_spi_part));
