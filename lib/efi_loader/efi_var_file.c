@@ -17,7 +17,7 @@
 #include <efi_variable.h>
 #include <u-boot/crc.h>
 #include <spi_flash.h>
-#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_OCTEONTX2)
+#if !defined(CONFIG_ARCH_OCTEONTX)
 #include <asm/arch/board.h>
 #include <asm/arch/smc.h>
 #endif
@@ -163,7 +163,7 @@ efi_status_t __efi_runtime efi_var_collect(struct efi_var_file **bufp, loff_t *l
 /**
  * efi_var_to_file() - save non-volatile variables as file
  *
- * File ubootefi.var is created on the EFI system partion.
+ * File ubootefi.var is created on the EFI system partition.
  *
  * Return:	status code
  */
@@ -226,7 +226,6 @@ efi_status_t efi_var_restore(struct efi_var_file *buf, bool safe)
 	for (var = buf->var; var < last_var;
 	     var = (struct efi_var_entry *)
 		   ALIGN((uintptr_t)data + var->length, 8)) {
-
 		data = var->name + u16_strlen(var->name) + 1;
 
 		/*
@@ -278,7 +277,7 @@ efi_status_t efi_var_from_file(void)
 	}
 
 #if IS_ENABLED(CONFIG_EFI_VARIABLE_IN_SPI_FLASH)
-#if IS_ENABLED(CONFIG_ARCH_CN10K)
+#if IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)
 	if (!systab.tables) {	//Do this only on system boot
 		ret = efi_init_spi_flash();
 		if (ret != EFI_SUCCESS)

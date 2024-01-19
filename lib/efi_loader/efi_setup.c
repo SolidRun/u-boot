@@ -22,9 +22,12 @@ const char *get_boot_device(void)
 	ofnode node;
 	const char *str = NULL;
 
-	node = ofnode_path("/cavium,bdk");
+	if (IS_ENABLED(CONFIG_ARCH_CN20K))
+		node = ofnode_path("/marvell,ebf");
+	else
+		node = ofnode_path("/cavium,bdk");
 	if (ofnode_valid(node))
-		if (IS_ENABLED(CONFIG_ARCH_CN10K))
+		if (IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K))
 			str = ofnode_read_string(node, "BOOT-DEVICE");
 		else
 			str = ofnode_read_string(node, "BOOT-DEVICE.N0");

@@ -11,7 +11,7 @@
 #include <linux/sizes.h>
 #include <dm/uclass.h>
 #include <spi.h>
-#ifdef CONFIG_ARCH_CN10K
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_CN20K)
 #include <asm/arch/board.h>
 #include <asm/arch/smc.h>
 #endif
@@ -337,10 +337,10 @@ efi_status_t efi_sec_spinor_protocol_register(void)
 	unsigned long spi_info = 0;
 	char *bus_cs;
 
-#ifdef CONFIG_ARCH_CN10K
-	/* Call ATF to get secure SPI BUS and CS's */
-	spi_info = smc_sec_spi_op(0, 0, 0, 0, 0, OP_INFO);
-#endif
+	if (IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K))
+		/* Call ATF to get secure SPI BUS and CS's */
+		spi_info = smc_sec_spi_op(0, 0, 0, 0, 0, OP_INFO);
+
 	bus_cs = (char *)&spi_info;
 
 	return install_sec_spi_nor_flash_protocol(bus_cs);
