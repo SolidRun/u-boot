@@ -279,7 +279,7 @@ struct cdns_xspi_dev {
 	int spi_mem_avalible;
 	int mode;
 
-#if IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)
+#if IS_ENABLED(CONFIG_ARCH_CN10K)
 	int current_xfer_qword;
 #endif
 };
@@ -489,7 +489,8 @@ static int cdns_xspi_ofdata_to_platdata(struct udevice *bus)
 		plat->read_size = 0;
 	}
 
-	if ((u64)plat->iobase == 0x805000000000)
+	if ((IS_ENABLED(CONFIG_ARCH_CN10K) && ((u64)plat->iobase == 0x805000000000)) ||
+	    (IS_ENABLED(CONFIG_ARCH_CN20K) && ((u64)plat->iobase == 0xCF1100000000)))
 		plat->xspi_bus = 1;
 	else
 		plat->xspi_bus = 0;
@@ -821,13 +822,13 @@ static int cdns_xspi_exec_op(struct spi_slave *slave,
 	return ret;
 }
 
-#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_CN20K)
+#if defined(CONFIG_ARCH_CN10K)
 int board_acquire_flash_arb(bool acquire);
 #endif
 
 static int cdns_xspi_claim_bus(struct udevice *dev)
 {
-	if ((IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K))) {
+	if (IS_ENABLED(CONFIG_ARCH_CN10K)) {
 		if (board_acquire_flash_arb(true))
 			board_acquire_flash_arb(false);
 	}
@@ -837,7 +838,7 @@ static int cdns_xspi_claim_bus(struct udevice *dev)
 
 static int cdns_xspi_release_bus(struct udevice *dev)
 {
-	if ((IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)))
+	if (IS_ENABLED(CONFIG_ARCH_CN10K))
 		board_acquire_flash_arb(false);
 
 	return 0;
@@ -866,7 +867,7 @@ static bool cdns_xspi_supports_op(struct spi_slave *slave,
 	return spi_mem_default_supports_op(slave, op);
 }
 
-#if IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)
+#if IS_ENABLED(CONFIG_ARCH_CN10K)
 #if IS_ENABLED(CONFIG_CADENCE_XSPI_WORKAROUND_GPIO)
 void cdns_cs_change(int bus, int cs, int active)
 {
@@ -1204,7 +1205,7 @@ static struct dm_spi_ops cdns_spi_ops = {
 	.claim_bus	= cdns_xspi_claim_bus,
 	.release_bus	= cdns_xspi_release_bus,
 	.mem_ops	= &cdns_mem_ops,
-#if IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K)
+#if IS_ENABLED(CONFIG_ARCH_CN10K)
 	.xfer		= cdns_xspi_xfer,
 #endif
 };
