@@ -14,6 +14,7 @@ static struct efi_boot_services *boottime;
 static const char *fdt;
 static const efi_guid_t fdt_guid = EFI_FDT_GUID;
 extern const efi_guid_t efi_guid_spi_nor_flash_protocol;
+static efi_handle_t test_handle;
 
 /**
  * efi_spi_nor_st_get_config_table() - get configuration table
@@ -45,6 +46,8 @@ static int setup(const efi_handle_t handle,
 		return EFI_ST_FAILURE;
 	}
 
+	test_handle = handle;
+
 	return EFI_ST_SUCCESS;
 }
 
@@ -74,7 +77,7 @@ static int execute(void)
 	for (i = 0; i < no_handles; ++i) {
 		ret = boottime->open_protocol(handles[i],
 					      &efi_guid_spi_nor_flash_protocol,
-					      (void **)&spinor, NULL, NULL,
+					      (void **)&spinor, test_handle, NULL,
 					      EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 		if (ret != EFI_SUCCESS) {
 			efi_st_error("[%d]Failed to open device path protocol\n", (int)i);
@@ -165,7 +168,7 @@ static int execute(void)
 END:
 		ret = boottime->close_protocol(handles[i],
 					      &efi_guid_spi_nor_flash_protocol,
-					      NULL, NULL);
+					      test_handle, NULL);
 		if (ret != EFI_SUCCESS)
 			efi_st_error("[%d]Failed to close protocol handle[%u]\n", (int)i, (int)ret);
 	}
