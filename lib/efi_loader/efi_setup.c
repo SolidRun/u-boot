@@ -289,13 +289,16 @@ efi_status_t efi_init_obj_list(void)
 	}
 
 	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
-		ret = efi_tcg2_register();
-		if (ret != EFI_SUCCESS)
-			goto out;
 
-		ret = efi_tcg2_do_initial_measurement();
-		if (ret == EFI_SECURITY_VIOLATION)
-			goto out;
+		if (fdt_node_offset_by_compatible(gd->fdt_blob, -1, "tcg,tpm_tis-spi") >= 0) {
+			ret = efi_tcg2_register();
+			if (ret != EFI_SUCCESS)
+				goto out;
+
+			ret = efi_tcg2_do_initial_measurement();
+			if (ret == EFI_SECURITY_VIOLATION)
+				goto out;
+		}
 	}
 
 	/* Install EFI_RNG_PROTOCOL */
