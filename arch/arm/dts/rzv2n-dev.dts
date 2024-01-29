@@ -52,6 +52,7 @@
 #else
 		mmc1 = &sdhi1;
 #endif
+		i2c8 = &i2c8;
 	};
 
 	chosen {
@@ -115,6 +116,10 @@
 
 &scif0 {
 
+	status = "okay";
+};
+
+&i2c8 {
 	status = "okay";
 };
 
