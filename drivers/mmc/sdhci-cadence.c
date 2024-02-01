@@ -30,7 +30,7 @@
 #ifdef DEBUG_SDHCI_CADENCE_HS200
 #define DEBUG_HS200_TUNE(fmt, ...)	\
 	if (1) \
-		printf(fmt, ...)
+		printf(fmt, ##__VA_ARGS__)
 #else
 #define DEBUG_HS200_TUNE(fmt, ...)
 #endif
@@ -538,6 +538,8 @@ void sdhci_cdns_sd6_dump(struct sdhci_cdns_plat *plat)
 			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_CTRL));
 	printf("SDHCI_CDNS_SD6_PHY_DLL_MASTER 0x%x\n",
 			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_MASTER));
+	printf("SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0 0x%x\n",
+	       sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_DLL_OBS_REG0));
 	printf("SDHCI_CDNS_SD6_PHY_GATE_LPBK 0x%x\n",
 			sdhci_cdns_sd6_read_phy_reg(plat, SDHCI_CDNS_SD6_PHY_GATE_LPBK));
 	printf("SDHCI_CDNS_SD6_PHY_DQS_TIMING 0x%x\n",
@@ -1020,6 +1022,8 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 
 	unsigned int clock = mmc->clock;
 	u32 mode, tmp;
+	pr_debug("%s: clock: %u, ddr: %d, es: %d\n",
+		 __func__, clock, mmc->ddr_mode, plat->enhanced_strobe);
 
 	/*
 	 * REVISIT:
@@ -1438,6 +1442,8 @@ static int sdhci_cdns_sd6_phy_update_timings(struct sdhci_cdns_plat *plat)
 	phy->ddr = false;
 	phy->strobe_dat = false;
 	phy->tune_dat = false;
+	phy->strobe_cmd = false;
+	phy->strobe_dat = false;
 
 	switch (phy->mode) {
 	case UHS_SDR104:
@@ -1455,15 +1461,18 @@ static int sdhci_cdns_sd6_phy_update_timings(struct sdhci_cdns_plat *plat)
 		phy->tune_cmd = true;
 		break;
 	case MMC_HS_400:
-	case MMC_HS_400_ES:
 		phy->tune_cmd = true;
 		phy->ddr = true;
-		phy->strobe_dat = true;
+		break;
+	case MMC_HS_400_ES:
+		if (plat->enhanced_strobe) {
+			phy->strobe_cmd = true;
+			phy->strobe_dat = true;
+		}
+		phy->tune_cmd = true;
+		phy->ddr = true;
 		break;
 	}
-
-	if (plat->enhanced_strobe)
-		phy->strobe_cmd = true;
 
 	phy->d.phy_sdclk_delay = 2 * t_sdmclk;
 	phy->d.phy_cmd_o_delay = 2 * t_sdmclk + t_sdmclk / 2;
@@ -1519,12 +1528,12 @@ static void sdhci_cdns_sd6_set_clock(struct sdhci_host *host,
 	phy->t_sdclk = DIV_ROUND_DOWN_ULL(1e12, clock);
 
 	if (sdhci_cdns_sd6_phy_update_timings(plat))
-		debug("%s: update timings failed\n", __func__);
+		pr_debug("%s: update timings failed\n", __func__);
 	else
 		host->clock = clock;
 
 	if (sdhci_cdns_sd6_phy_init(dev, plat))
-		debug("%s: phy init failed\n", __func__);
+		pr_debug("%s: phy init failed\n", __func__);
 #ifdef CONFIG_MMC_SDHCI_CADENCE_DEBUG
 	dump_sdhci_regs(host);
 	printf("%s sdhci mode %d\n", __func__, sdhci_cdns_get_emmc_mode(plat));
@@ -1644,7 +1653,7 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 	for (cnt = tune_val_start; iter < max_tune_iter; iter++, cnt += tune_val_step) {
 		if (sdhci_cdns_sd6_set_tune_val(plat, cnt) ||
 		    mmc_send_tuning(mmc, opcode, NULL)) { /* bad */
-				cur_streak = 0;
+			cur_streak = 0;
 		} else { /* good */
 			cur_streak++;
 			if (cur_streak > max_streak) {
@@ -1660,13 +1669,16 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 		}
 	}
 
-	if (!max_streak)
+	if (!max_streak) {
+		DEBUG_HS200_TUNE("%s: No good streak found\n", __func__);
 		return -EIO;
-
-	DEBUG_HS200_TUNE("max_streak: %d-%d\n", end_of_streak - ((max_streak - 1) * tune_val_step),
-			 end_of_streak);
+	}
 
 	midpoint = end_of_streak - (((max_streak - 1) * tune_val_step) / 2);
+
+	DEBUG_HS200_TUNE("max_streak: %d-%d, midpoint %d\n",
+			 end_of_streak - ((max_streak - 1) * tune_val_step),
+			 end_of_streak, midpoint);
 
 	return sdhci_cdns_sd6_set_tune_val(plat, midpoint);
 }
