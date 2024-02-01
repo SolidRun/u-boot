@@ -17,7 +17,7 @@
 #include <efi_variable.h>
 #include <u-boot/crc.h>
 #include <spi_flash.h>
-#if !defined(CONFIG_ARCH_OCTEONTX)
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_OCTEONTX2) || defined(CONFIG_ARCH_CN20K)
 #include <asm/arch/board.h>
 #include <asm/arch/smc.h>
 #endif
