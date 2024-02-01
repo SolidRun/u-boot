@@ -71,7 +71,7 @@ static int execute(void)
 			else
 				break;
 			if (!ret) {
-				efi_st_printf("I2C Bus:%ld Device:%d\n", count, dev_addr);
+				efi_st_printf("I2C Bus:%d Device:%d\n", count, dev_addr);
 				ret = efi_i2c->i2c_read_device(efi_i2c, dev_addr, 0, 1, 1, &data);
 				if (!ret)
 					efi_st_printf("Byte@0 : %d\n", data);
