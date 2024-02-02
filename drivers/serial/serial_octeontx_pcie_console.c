@@ -114,7 +114,7 @@ int octeontx_pcie_console_output_trunc(struct octeontx_pcie_console *console,
 {
 	u64 old_val;
 	u64 new_val;
-	size_t bytes_avail;
+	int bytes_avail;
 	const u32 out_buf_size = le32_to_cpu(console->output_buf_size);
 	u32 out_wr_idx = le32_to_cpu(console->output_write_index);
 	u32 out_rd_idx = le32_to_cpu(console->output_read_index);
@@ -157,8 +157,8 @@ int octeontx_pcie_console_write(struct octeontx_pcie_console *console,
 				u32 flags)
 {
 	u8 *buf_ptr;
-	size_t bytes_available;
-	size_t bytes_written;
+	int bytes_available;
+	int bytes_written;
 	int ret;
 
 	buf_ptr = (u8 *)le64_to_cpu(console->output_base_addr);
@@ -174,7 +174,7 @@ int octeontx_pcie_console_write(struct octeontx_pcie_console *console,
 								out_wr_idx,
 								out_rd_idx);
 		if (bytes_available > 0) {
-			int write_size = min(bytes_available, bytes_to_write);
+			int write_size = min(bytes_available, (int)bytes_to_write);
 
 			if (out_wr_idx + write_size >= out_size)
 				write_size = out_size - out_wr_idx;
@@ -302,7 +302,7 @@ static int octeontx_pcie_console_stdio_stop(struct stdio_dev *dev)
 	struct octeontx_pcie_console_nexus *desc = priv->nexus;
 	u32 old_in_use;
 	u64 old_val;
-	u64 mask = (1 << priv->console_num);
+	u64 mask = ((u64)1 << priv->console_num);
 
 	debug("%s(%s)\n", __func__, dev->name);
 	if (!(le32_to_cpu(desc->exclusive) & 1 << priv->console_num))
@@ -891,7 +891,8 @@ static int modify_env(const char *name, const char *remove_name)
 	if (!env)
 		return -1;
 
-	strncpy(temp, env, sizeof(temp));
+	memset(temp, 0, sizeof(temp));
+	strncpy(temp, env, sizeof(temp) - 1);
 	new_env[0] = '\0';
 	start = temp;
 	do {
