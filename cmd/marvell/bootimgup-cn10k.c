@@ -817,7 +817,6 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 		       vret_to_str((enum smc_version_ret)vinfo->retcode));
 		cmd_ret = CMD_RET_FAILURE;
 	}
-	cmd_ret =  CMD_RET_SUCCESS;
 
 done:
 	free(vinfo);
