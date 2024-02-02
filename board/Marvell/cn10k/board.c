@@ -370,8 +370,9 @@ static int init_bootcmd_console(void)
 		pr_err("%s: Error getting %s serial class\n", __func__,
 		       BOOTCMD_NAME);
 	} else if (bootcmd_dev) {
+		memset(iomux_name, 0, sizeof(iomux_name));
 		if (stdin_set)
-			strncpy(iomux_name, stdinname, sizeof(iomux_name));
+			strncpy(iomux_name, stdinname, sizeof(iomux_name) - 1);
 		else
 			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
 				 stdinname, bootcmd_dev->name);
@@ -435,8 +436,9 @@ static int init_pcie_console(void)
 		return 0;
 	}
 
+	memset(iomux_name, 0, sizeof(iomux_name));
 	if (stdin_set)
-		strncpy(iomux_name, stdinname, sizeof(iomux_name));
+		strncpy(iomux_name, stdinname, sizeof(iomux_name) - 1);
 	else
 		snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
 			 stdinname, pcie_console_dev->name);
@@ -452,7 +454,7 @@ static int init_pcie_console(void)
 		env_set("stdin", iomux_name);
 
 	if (stdout_set)
-		strncpy(iomux_name, stdoutname, sizeof(iomux_name));
+		strncpy(iomux_name, stdoutname, sizeof(iomux_name) - 1);
 	else
 		snprintf(iomux_name, sizeof(iomux_name), "%s,%s", stdoutname,
 			 pcie_console_dev->name);
