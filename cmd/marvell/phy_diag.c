@@ -309,7 +309,7 @@ static int do_phy_prbs(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	unsigned long eth_idx, lmac_idx;
-	int ret, cmd, host = 0, dir = 0, type = 0;
+	int ret = 0, cmd, host = 0, dir = 0, type = 0;
 	int host_errors, line_errors;
 
 	if (argc < 4)
