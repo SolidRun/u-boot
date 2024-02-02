@@ -381,7 +381,6 @@ struct driver {
 	int (*child_pre_probe)(struct udevice *dev);
 	int (*child_post_remove)(struct udevice *dev);
 	int priv_auto;
-	int priv_auto_alloc_size;
 	int plat_auto;
 	int per_child_auto;
 	int per_child_plat_auto;
