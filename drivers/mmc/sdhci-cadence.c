@@ -416,7 +416,7 @@ static void init_emmc_ddr(struct sdhci_cdns_sd6_phy_timings *t, int t_sdclk)
 	DEBUG_DRV("%s\n", __func__);
 	*t = (struct sdhci_cdns_sd6_phy_timings){
 		.t_cmd_output_min = 3000, .t_cmd_output_max = t_sdclk - 3000,
-		.t_dat_output_min = 2500, .t_dat_output_max = t_sdclk - 2500,
+		.t_dat_output_min = 2500, .t_dat_output_max = t_sdclk / 2 - 2500,
 		.t_cmd_input_min = 13700, .t_cmd_input_max = t_sdclk + 2500,
 		.t_dat_input_min = 7000, .t_dat_input_max = t_sdclk + 1500,
 		.t_sdclk_min = 1000000 / 50, .t_sdclk_max = 1000000 / 0.4
@@ -435,13 +435,13 @@ static void init_emmc_hs200(struct sdhci_cdns_sd6_phy_timings *t, int t_sdclk)
 	};
 }
 
-/* HS400 and HS400ES */
+/* HS400 and 400ES */
 static void init_emmc_hs400(struct sdhci_cdns_sd6_phy_timings *t, int t_sdclk)
 {
 	DEBUG_DRV("%s\n", __func__);
 	*t = (struct sdhci_cdns_sd6_phy_timings){
 		.t_cmd_output_min = 800, .t_cmd_output_max = t_sdclk - 1400,
-		.t_dat_output_min = 400, .t_dat_output_max = t_sdclk - 400,
+		.t_dat_output_min = 400, .t_dat_output_max = (t_sdclk / 2) - 400,
 		.t_cmd_input_min = 1000, .t_cmd_input_max = t_sdclk + 1000,
 		.t_dat_input_min = 1000, .t_dat_input_max = t_sdclk + 1000,
 		.t_sdclk_min = 1000000 / 200, .t_sdclk_max = 1000000 / 100
@@ -1343,7 +1343,7 @@ static void sdhci_cdns_sd6_phy_calc_out(struct sdhci_cdns_sd6_phy *phy,
 			clk_wr_delay = phy->vars.dll_max_value;
 		}
 	} else {
-		/*  sdhc_extended_wr_mode = 1 - PHY IO cell work in SDR mode */
+		/* sdhc_extended_wr_mode = 1 - PHY IO cell work in SDR mode */
 		clk_wr_delay = 0;
 	}
 
@@ -1723,6 +1723,7 @@ static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 	int max_streak = 0;
 	int end_of_streak = 0;
 	int i;
+	int ret;
 
 	/*
 	 * This handler only implements the eMMC tuning that is specific to
@@ -1748,10 +1749,18 @@ static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 		}
 	}
 
-	if (!max_streak)
+	if (!max_streak) {
+		pr_debug("%s: No max streak found\n", __func__);
 		return -EIO;
+	}
 
-	return sdhci_cdns_set_tune_val(plat, end_of_streak - max_streak / 2);
+	ret = sdhci_cdns_set_tune_val(plat, end_of_streak - max_streak / 2);
+	if (IS_ENABLED(CONFIG_MMC_SDHCI_CADENCE_DEBUG)) {
+		pr_debug("%s: Setting tuning to %d, retcode: %d\n",
+			 __func__, end_of_streak - max_streak / 2, ret);
+		dump_sdhci_regs(dev_get_priv(dev));
+	}
+	return ret;
 }
 
 #if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
@@ -1782,6 +1791,7 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 	int max_streak = 0;
 	int end_of_streak = 0;
 	int cnt = 0, midpoint, iter = 0;
+	int ret;
 
 	for (cnt = tune_val_start; iter < max_tune_iter; iter++, cnt += tune_val_step) {
 		if (sdhci_cdns_sd6_set_tune_val(plat, cnt) ||
@@ -1813,7 +1823,12 @@ static int __maybe_unused sdhci_cdns_sd6_execute_tuning(struct mmc *mmc, unsigne
 			 end_of_streak - ((max_streak - 1) * tune_val_step),
 			 end_of_streak, midpoint);
 
-	return sdhci_cdns_sd6_set_tune_val(plat, midpoint);
+	ret = sdhci_cdns_sd6_set_tune_val(plat, midpoint);
+#ifdef DEBUG_SDHCI_CADENCE_HS200
+	pr_debug("%s: Registers after tuning:\n", __func__);
+	dump_sdhci_regs(dev_get_priv(dev));
+#endif
+	return ret;
 }
 
 static struct dm_mmc_ops sdhci_cdns_mmc_ops;
