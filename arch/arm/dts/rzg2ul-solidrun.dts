@@ -1,0 +1,157 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source for the GR-Peach board
+ *
+ * Copyright (C) 2017 Jacopo Mondi <jacopo+renesas@jmondi.org>
+ * Copyright (C) 2016 Renesas Electronics
+ */
+
+/dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+#include "r9a07g043u12.dtsi"
+#include "r9a07g043u12-u-boot.dtsi"
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+
+/ {
+	model = "rzg2ul-solidrun";
+	compatible = "solidrun,hummingboard", "solidrun,rzg2ul-som";
+
+	aliases {
+		serial0 = &scif0;
+		eeprom_som = &eeprom_som;
+		eeprom_carrier = &eeprom_carrier;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory@48000000 {
+		device_type = "memory";
+		/* first 128MB is reserved for secure area. */
+		reg = <0 0x48000000 0 0x38000000>;
+	};
+};
+
+&ehci0 {
+	status = "okay";
+	phys = <&usb2_phy0>;
+};
+
+&ehci1 {
+	status = "okay";
+	phys = <&usb2_phy1>;
+};
+
+&eth0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&eth0_pins>;
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii";
+	status = "okay";
+
+	phy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+&i2c0 {
+	pinctrl-names = "default";
+	status = "okay";
+
+	eeprom_som: m24c02@50 {
+		compatible = "atmel,24c02";
+		reg = <0x50>;
+	};
+
+	eeprom_carrier: eeprom@57 {
+		compatible = "st,24c02", "atmel,24c02";
+		reg = <0x57>;
+		pagesize = <8>;
+	};
+
+};
+
+&i2c2 {
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&pinctrl {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hog>;
+
+	pinctrl_hog: hoggrp {
+		pinmux = <RZG2L_PINMUX(2, 1, 0)>; /* SD0_DEV_SEL_SW */
+		//P0_1 (P18_1 in G2LC A3) GPIO_SD0_PWR_EN//
+	};
+
+	eth0_pins: eth0 {
+		pinmux = <RZG2L_PINMUX(1, 0, 1)>,
+			<RZG2L_PINMUX(1, 1, 1)>,
+			<RZG2L_PINMUX(1, 2, 1)>,
+			<RZG2L_PINMUX(1, 3, 1)>,
+			<RZG2L_PINMUX(1, 4, 1)>,
+			<RZG2L_PINMUX(2, 0, 1)>,
+			<RZG2L_PINMUX(3, 0, 1)>,
+			<RZG2L_PINMUX(3, 1, 1)>,
+			<RZG2L_PINMUX(3, 2, 1)>,
+			<RZG2L_PINMUX(3, 3, 1)>,
+			<RZG2L_PINMUX(4, 0, 1)>,
+			<RZG2L_PINMUX(4, 1, 1)>,
+			<RZG2L_PINMUX(4, 3, 1)>,
+			<RZG2L_PINMUX(4, 4, 1)>,
+			<RZG2L_PINMUX(4, 5, 1)>;
+	};
+	/*
+	Soc RZ/G2UL(Type2) -> Px_x // Function Name (1)
+		M2	P1_0	ET0_TXC/TX_CLK
+		L1	P1_1	ET0_TX_CTL/TX_EN
+		L2	P1_2	ET0_TXD0
+		K1	P1_3	ET0_TXD1
+		J1	P1_4	ET0_TXD2
+		J2	P2_0	ET0_TXD3
+		P2	P3_0	ET0_RXC/RX_CLK
+		N2	P3_1	ET0_RX_CTL/RX_DV
+		N3	P3_2	ET0_RXD0
+		P3	P3_3	ET0_RXD1
+		R1	P4_0	ET0_RXD2
+		P1	P4_1	ET0_RXD3
+		T1	P4_3	ET0_MDC
+		R2	P4_4	ET0_MDIO
+		N1	P4_5	ET0_LINKSTA
+	*/
+};
+
+&scif0 {
+	status = "okay";
+	clock = <100000000>;
+};
+
+&sdhi0 {
+	/* pinctrl placeholder
+	 * If this channel is used for interfacing with a SD card, a power enable
+	 * pin (SD0_PWR_EN) must be defined.
+	 * The SD0_PWR_EN pin is associated with P4_1.
+	 * A HIGH signal on SD0_PWR_EN will enable supply voltage for SD card.
+	*/
+	bus-width = <8>;
+	mutual-channel;
+	status = "okay";
+};
+
+&sdhi1 {
+	status = "disabled";
+};
+
+&usb2_phy0 {
+	status = "okay";
+};
+
+&usb2_phy1 {
+	status = "okay";
+};
+
+&xinclk {
+	clock-frequency = <24000000>;
+};

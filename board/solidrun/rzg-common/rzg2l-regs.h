@@ -40,10 +40,33 @@
 #define PFC_PMC15 (PFC_BASE + 0x215)
 #define PFC_PFC15 (PFC_BASE + 0x454)
 
+#define PFC_PFC16 (PFC_BASE + 0x0458)
+
 #define PFC_P3A (PFC_BASE + 0x003A)
 #define PFC_PM3A (PFC_BASE + 0x0174)
 #define PFC_PMC3A (PFC_BASE + 0x23A)
 #define PFC_PFC3A (PFC_BASE + 0x4E8)
+
+#define	PFC_P10	(PFC_BASE + 0x0010)
+#define	PFC_PM10 (PFC_BASE + 0x0120)
+#define	PFC_PMC10 (PFC_BASE + 0x0210)
+
+#define	PFC_P16	(PFC_BASE + 0x0016)
+#define	PFC_PM16 (PFC_BASE + 0x012C)
+#define	PFC_PMC16 (PFC_BASE + 0x0216)
+
+#define	PFC_P22	(PFC_BASE + 0x0022)
+#define	PFC_PM22 (PFC_BASE + 0x0144)
+#define	PFC_PMC22 (PFC_BASE + 0x0222)
+
+#define	PFC_P1D	(PFC_BASE + 0x001D)
+#define	PFC_PM1D (PFC_BASE + 0x013A)
+#define	PFC_PMC1D (PFC_BASE + 0x021D)
+
+#define	PFC_P12	(PFC_BASE + 0x0012)
+#define	PFC_PM12 (PFC_BASE + 0x0124)
+#define	PFC_PMC12 (PFC_BASE + 0x0212)
+#define	PFC_PIN12 (PFC_BASE + 0x812)
 
 #define USBPHY_BASE (0x11c40000)
 #define USB0_BASE (0x11c50000)

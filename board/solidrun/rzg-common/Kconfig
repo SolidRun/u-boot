@@ -1,6 +1,6 @@
 config RZG_SOLIDRUN_COMMON
     bool "Common configuration for RZG2L_SOLIDRUN targets"
-    depends on TARGET_RZG2L_SOLIDRUN || TARGET_RZG2LC_SOLIDRUN || TARGET_RZV2L_SOLIDRUN
+    depends on TARGET_RZG2L_SOLIDRUN || TARGET_RZG2LC_SOLIDRUN || TARGET_RZG2UL_SOLIDRUN || TARGET_RZV2L_SOLIDRUN
     default y
     help
       This option enables common board support code for both RZG2L/RZG2LC solidrun SOMs.
@@ -40,5 +40,3 @@ config SOLIDRUN_FORCE_MMC_BOOT
     default n
     help
       Force the SD/eMMC selection to always use SD.
-
-

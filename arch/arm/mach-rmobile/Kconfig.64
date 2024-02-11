@@ -238,6 +238,11 @@ config TARGET_SMARC_RZG2UL
 	help
           Support for Renesas RZ/G2UL Dev Platform
 
+config TARGET_RZG2UL_SOLIDRUN
+        bool "RZ/G2UL SolidRun board"
+        help
+          Support for Solidrun RZ/G2UL Dev Platform
+
 endchoice
 
 config SYS_SOC
@@ -259,6 +264,7 @@ source "board/renesas/rzg2lc-dev/Kconfig"
 source "board/renesas/rzg2ul-dev/Kconfig"
 source "board/solidrun/rzg2lc/Kconfig"
 source "board/solidrun/rzg2l/Kconfig"
+source "board/solidrun/rzg2ul/Kconfig"
 source "board/solidrun/rzv2l/Kconfig"
 source "board/solidrun/rzg-common/Kconfig"
 
