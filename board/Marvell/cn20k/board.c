@@ -132,7 +132,7 @@ void board_get_env_offset(int *offset, const char *property)
 
 int board_early_init_r(void)
 {
-	//pci_init();
+	pci_init();
 	return 0;
 }
 
