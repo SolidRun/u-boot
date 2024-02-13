@@ -23,6 +23,28 @@ void s_init(void)
 	*(volatile u32 *)(I2C_CH1) = 0x01010101;
 	/* SD CLK */
 	*(volatile u32 *)(CPG_PL2_SDHI_DSEL) = 0x00110011;
+
+	/* P15_2 -> HOST_INPUT Hi-Z (PM1F: bit5-4=P15_2 '00'=Hi-Z) */
+	generic_clear_bit(2, PFC_PMC1F); /* P15_2 Port GPIO mode */
+
+/*Hi-Z*/
+#if 1
+	generic_clear_bit(5, PFC_PM1F);	 /* P15_2 GPIO Hi-Z */
+	generic_clear_bit(4, PFC_PM1F);	 /* P15_2 GPIO Hi-Z */
+#endif
+
+/*input*/
+#if 0
+	generic_set_bit(4, PFC_PM1F);	 /* P15_2 GPIO input mode */	
+#endif
+
+
+/*OUTPUT='0'*/
+#if 0
+	generic_set_bit(5, PFC_PM1F);	 /* P15_2 GPIO output mode */
+	generic_clear_bit(2, PFC_P1F);	 /* P15_2 GPIO out LOW */
+#endif
+
 	while (*(volatile u32 *)(CPG_CLK_STATUS) != 0)
 		;
 }

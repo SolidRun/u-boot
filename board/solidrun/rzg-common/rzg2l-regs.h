@@ -68,6 +68,11 @@
 #define	PFC_PMC12 (PFC_BASE + 0x0212)
 #define	PFC_PIN12 (PFC_BASE + 0x812)
 
+#define	PFC_P1F	(PFC_BASE + 0x001F)
+#define	PFC_PM1F (PFC_BASE + 0x013E)
+#define	PFC_PMC1F (PFC_BASE + 0x021F)
+#define	PFC_PIN1F (PFC_BASE + 0x81F)
+
 #define USBPHY_BASE (0x11c40000)
 #define USB0_BASE (0x11c50000)
 #define USB1_BASE (0x11c70000)
