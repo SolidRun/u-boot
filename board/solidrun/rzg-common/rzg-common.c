@@ -213,20 +213,20 @@ int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
 		if (ret < 0 && enable_sdhc)
 			pr_err("%s : failed to set bus-width at node mmc@11c00000 in dtb!\n", __func__);
 
-		if (legacy_dt) {
+		// if (legacy_dt) {
 			ret = fdt_setprop_u32(blob, node_sdhi0, "max-frequency", 50000000);
 			if (ret < 0 && enable_sdhc)
 				pr_err("%s : failed to set max-frequency at node mmc@11c00000 in dtb!\n", __func__);
-		} else {
+		// } else {
 
-			ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr50");
-			if (ret < 0 && enable_sdhc)
-				pr_err("%s: failed to set sd-uhs-sdr50 at node mmc@11c00000 in dtb!\n", __func__);
+		// 	ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr50");
+		// 	if (ret < 0 && enable_sdhc)
+		// 		pr_err("%s: failed to set sd-uhs-sdr50 at node mmc@11c00000 in dtb!\n", __func__);
 
-			ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr104");
-			if (ret < 0 && enable_sdhc)
-				pr_err("%s: failed to set sd-uhs-sdr104 at node mmc@11c00000 in dtb!\n", __func__);
-		}
+		// 	ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr104");
+		// 	if (ret < 0 && enable_sdhc)
+		// 		pr_err("%s: failed to set sd-uhs-sdr104 at node mmc@11c00000 in dtb!\n", __func__);
+		// }
 
 		ret = fdt_delprop(blob, node_sdhi0, "mmc-hs200-1_8v");
 		if (ret < 0 && enable_sdhc)
