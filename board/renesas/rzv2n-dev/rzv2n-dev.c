@@ -38,9 +38,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	PM_2A				(PFC_BASE + 0x0154)
 #define	PMC_2A				(PFC_BASE + 0x022A)
 #define PFC_OEN				(PFC_BASE + 0x3C40)
+#define PFC_OEN_OEN0			BIT(0)
+#define PFC_OEN_OEN1			BIT(1)
 
 #define	PMC_20				(PFC_BASE + 0x0220)
 #define	PFC_20				(PFC_BASE + 0x0480)
+
+#define ICU_IPTSR_REG			0x10400060
 
 /* CPG */
 #define CPG_BASE			0x10420000
@@ -69,21 +73,23 @@ void s_init(void)
 	*(volatile u32 *)PFC_20  = (*(volatile u32 *)PFC_20 & 0x00FFFFFF) | (0x01 << 28) | (0x01 << 24);
 	*(volatile u8 *)PMC_20   |= (0x03) << 6;	/* P07,P06 multiplexed function	*/
 
-	*(volatile u32 *)PWPR &= ~(PWPR_REGWE_A | PWPR_REGWE_B);
-
 	*(volatile u32 *)CPG_CLKON_9 = 0x00080008;
 	*(volatile u32 *)CPG_RST_10  = 0x00010001;
 
 	/* Use PLL clock for clk_tx_i only for RGMII mode */
 	/* Wite OEN reg. OEN0 bit "0" for output direction */
-	*(volatile u32 *)(PFC_OEN) &= ~(0x00000001);
-	while ((*(volatile u32 *)(PFC_OEN) & 0x00000001) != 0x0)
+	*(volatile u32 *)(PFC_OEN) &= ~(PFC_OEN_OEN1 | PFC_OEN_OEN0);
+	while((*(volatile u32 *)(PFC_OEN) & (PFC_OEN_OEN1 | PFC_OEN_OEN0)) != 0x0)
 		;
+
+	*(volatile u32 *)PWPR &= ~(PWPR_REGWE_A | PWPR_REGWE_B);
 
 	/* Enable aclk_csr, aclk, tx, rx, tx_180, rx_180 for ETH0 */
 	*(volatile u32 *)(CPG_CLKON_ETH0) = 0x3F003F00;
 	while ((*(volatile u32 *)(CPG_CLKMON_ETH0) & 0x3F000000) != 0x3F000000)
 		;
+
+	*(volatile u32 *)(ICU_IPTSR_REG) = 0;
 
 	/* Reset ETH0 */
 	*(volatile u32 *)(CPG_RESET_ETH) = 0x00010000;
