@@ -1463,12 +1463,12 @@ static int sdhci_cdns_sd6_phy_update_timings(struct sdhci_cdns_plat *plat)
 	case MMC_HS_400:
 		phy->tune_cmd = true;
 		phy->ddr = true;
+		phy->strobe_dat = true;
 		break;
 	case MMC_HS_400_ES:
-		if (plat->enhanced_strobe) {
+		phy->strobe_dat = true;
+		if (plat->enhanced_strobe)
 			phy->strobe_cmd = true;
-			phy->strobe_dat = true;
-		}
 		phy->tune_cmd = true;
 		phy->ddr = true;
 		break;
