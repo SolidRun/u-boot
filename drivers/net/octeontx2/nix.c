@@ -612,7 +612,7 @@ void nix_lf_flush_rx(struct udevice *dev)
 
 	debug("%s cq rx head %d tail %d\n", __func__, head, tail);
 	while (head != tail) {
-		rx_dr = (struct nix_rx_dr *)cq_rx_base + head * rx_cqe_sz;
+		rx_dr = (struct nix_rx_dr *)(cq_rx_base + head * rx_cqe_sz);
 		rxparse = &rx_dr->rx_parse;
 
 		debug("%s: rx parse: %p\n", __func__, rxparse);
