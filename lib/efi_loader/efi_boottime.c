@@ -2100,6 +2100,11 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		free(filename);
 		if (ret != EFI_SUCCESS)
 			goto error;
+	} else if (!source_buffer) {
+		ret = efi_load_image_from_path(boot_policy, file_path,
+					       &dest_buffer, &source_size);
+		if (ret != EFI_SUCCESS)
+			goto error;
 	} else {
 		dest_buffer = source_buffer;
 	}
