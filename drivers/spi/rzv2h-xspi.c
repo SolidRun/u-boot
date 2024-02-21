@@ -498,6 +498,7 @@ static const struct dm_spi_ops xspi_ops = {
 
 static const struct udevice_id xspi_ids[] = {
 	{ .compatible = "renesas,xspi-r9a09g057" },
+	{ .compatible = "renesas,xspi-r9a09g056" },
 	{ .compatible = "renesas,xspi-r9a09g047" },
 	{ }
 };
