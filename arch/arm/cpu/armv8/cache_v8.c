@@ -809,6 +809,5 @@ void invalidate_icache_all(void)
 void __weak enable_caches(void)
 {
 	icache_enable();
-	if (!CONFIG_IS_ENABLED(ARCH_CN20K))
-		dcache_enable();
+	dcache_enable();
 }
