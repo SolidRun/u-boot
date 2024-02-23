@@ -781,7 +781,8 @@ static int mx_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	/* For this flash device, BP3 of status is in position 5
 	 * so add it to mask
 	 */
-	if (!strcmp(mtd->name, "mx66l2g45g"))
+	if (!strcmp(mtd->name, "mx66l2g45g") ||
+	    !strcmp(mtd->name, "mx25u12835f"))
 		mask |= SR_BP3;
 
 	/* If nothing in our range is unlocked, we don't need to do anything */
@@ -805,7 +806,8 @@ static int mx_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	/* Prefer top, if both are valid */
 	use_top = can_be_top;
-	if (!strcmp(mtd->name, "mx66l2g45g"))
+	if (!strcmp(mtd->name, "mx66l2g45g") ||
+	    !strcmp(mtd->name, "mx25u12835f"))
 		use_top = false;
 
 	/* lock_len: length of region that should end up locked */
@@ -883,7 +885,8 @@ static int mx_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	/* For this flash device, BP3 of status is in position 5
 	 * so add it to mask
 	 */
-	if (!strcmp(mtd->name, "mx66l2g45g"))
+	if (!strcmp(mtd->name, "mx66l2g45g") ||
+	    !strcmp(mtd->name, "mx25u12835f"))
 		mask |= SR_BP3;
 
 	/* If nothing in our range is locked, we don't need to do anything */
@@ -904,7 +907,8 @@ static int mx_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	/* Prefer top, if both are valid */
 	use_top = can_be_top;
-	if (!strcmp(mtd->name, "mx66l2g45g"))
+	if (!strcmp(mtd->name, "mx66l2g45g") ||
+	    !strcmp(mtd->name, "mx25u12835f"))
 		use_top = false;
 
 	/* lock_len: length of region that should remain locked */
