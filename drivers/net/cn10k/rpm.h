@@ -101,6 +101,30 @@ static inline u64 rpm_read(struct rpm *rpm, u64 offset)
 }
 
 /* SH FWDATA Structure Definitions */
+
+struct sdp_epf_info {
+	u8 start_vf_idx;
+	u8 num_sdp_vfs;
+	u8 num_sdp_vf_rings;
+};
+
+struct sdp_node_info {
+	/* Node to which this PF belons to */
+	u8 node_id;
+	u8 max_rvu_vfs;
+	u8 num_pf_rings;
+	u8 pf_srn;
+#define RVU_SDP_MAX_VFS         128
+	u8 vf_rings[RVU_SDP_MAX_VFS];
+};
+
+struct sdp_fw_data {
+	struct sdp_node_info info;
+	u8 valid; /* ro to kernel */
+#define RVU_SDP_RESERVED        379
+	u8 reserved[RVU_SDP_RESERVED];
+};
+
 struct sfp_eeprom_s {
 #define SFP_EEPROM_SIZE 256
 	u16 sff_id;
@@ -167,7 +191,8 @@ struct sh_fwdata {
 	u64 rvu_af_msixtr_base;
 	u32 ptp_ext_clk_rate;
 	u32 ptp_ext_tstamp;
- #define FWDATA_RESERVED_MEM 1022
+	struct sdp_fw_data sdp_data;
+ #define FWDATA_RESERVED_MEM 1014
 	u64 reserved[FWDATA_RESERVED_MEM];
 	/* Do not add new fields below this line */
 #define ETH_MAX		9
