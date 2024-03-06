@@ -192,12 +192,13 @@ struct sh_fwdata {
 	u32 ptp_ext_clk_rate;
 	u32 ptp_ext_tstamp;
 	struct sdp_fw_data sdp_data;
- #define FWDATA_RESERVED_MEM 1014
+#define FWDATA_RESERVED_MEM 958
 	u64 reserved[FWDATA_RESERVED_MEM];
 	/* Do not add new fields below this line */
 #define ETH_MAX		9
 #define ETH_LMACS_MAX	4
 #define ETH_LMACS_USX   8       /* Applicable for CN10KB */
+#define FWDATA_CGX_LMAC_OFFSET 10536
 	union {
 		struct eth_lmac_fwdata_s eth_fw_data[ETH_MAX][ETH_LMACS_MAX];
 		struct eth_lmac_fwdata_s eth_fw_data_usx[ETH_MAX][ETH_LMACS_USX];

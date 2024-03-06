@@ -59,6 +59,8 @@ void print_fwdata_lmac_type(int rpm_id, int lmac_id, u8 rpm_v2)
 	if (!fwdata_base)
 		return;
 
+	BUILD_BUG_ON(offsetof(struct sh_fwdata, eth_fw_data) > FWDATA_CGX_LMAC_OFFSET);
+
 	data = rpm_v2 ? &p_sh_fwdata->eth_fw_data_usx[rpm_id][lmac_id] :
 			&p_sh_fwdata->eth_fw_data[rpm_id][lmac_id];
 	lmac_type = data->lmac_type;
