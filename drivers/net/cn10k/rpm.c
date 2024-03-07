@@ -338,7 +338,7 @@ static int rpm_lmac_init(struct rpm *rpm)
 	union rpmx_cmrx_config cmrx_cfg;
 	union rpmx_cmr_rx_lmacs rx_lmacs;
 	union rpmx_const rpm_const;
-	int i, lmac_exist;
+	int i, lmac_exist, mac_index;
 
 	rpm_const.u = rpm_read(rpm, RPMX_CONST());
 	rpm->max_lmac = rpm_const.s.lmacs;
@@ -373,8 +373,8 @@ static int rpm_lmac_init(struct rpm *rpm)
 		debug("%s: map id %d to lmac %p (%s), instance %d\n",
 		      __func__, i, lmac, lmac->name, lmac->instance);
 		lmac->init_pend = 1;
-		cn10k_board_get_mac_addr((rpm->rpm_id * rpm->max_lmac + i),
-					 lmac->mac_addr);
+		mac_index = rpm->rpm_id * (rpm_const.s.ver * 4) + i;
+		cn10k_board_get_mac_addr(mac_index, lmac->mac_addr);
 		debug("%s: MAC %pM\n", __func__, lmac->mac_addr);
 		rpm_lmac_mac_filter_setup(lmac);
 		print_fwdata_lmac_type(rpm->rpm_id, i, rpm->is_v2);
