@@ -18,17 +18,17 @@
  * Version data structure
  */
 struct tim_opaque_data_version_info {
-	uint8_t		major_version;	/** Major version number */
-	uint8_t		minor_version;	/** Minor version number */
-	uint8_t		revision_number;/** Revision number */
-	uint8_t		revision_type;	/** Revision type (TBD) */
-	uint16_t	year;		/** GIT Year */
-	uint8_t		month;		/** GIT Month */
-	uint8_t		day;		/** GIT Day */
-	uint8_t		hour;		/** GIT Hour */
-	uint8_t		minute;		/** GIT Minute */
-	uint16_t	flags;		/** Flags (TBD) */
-	uint32_t	customer_version;/** Customer defined version number */
+	u8	major_version;	/** Major version number */
+	u8	minor_version;	/** Minor version number */
+	u8	revision_number;/** Revision number */
+	u8	revision_type;	/** Revision type (TBD) */
+	u16	year;		/** GIT Year */
+	u8	month;		/** GIT Month */
+	u8	day;		/** GIT Day */
+	u8	hour;		/** GIT Hour */
+	u8	minute;		/** GIT Minute */
+	u16	flags;		/** Flags (TBD) */
+	u32	customer_version;/** Customer defined version number */
 	/**
 	 * String representation of version
 	 * The version string contains:
@@ -45,7 +45,7 @@ struct tim_opaque_data_version_info {
 	 *
 	 * The timestamp is extracted from GIT
 	 */
-	uint8_t		version_string[VERSION_STRING_LENGTH];
+	u8	version_string[VERSION_STRING_LENGTH];
 } __attribute__((packed, aligned(4)));
 
 /*
@@ -75,7 +75,6 @@ struct tim_opaque_data_version_info {
  */
 #define TIM0_FILENAME		"tim0.timb"
 #define TIM0_FDT_NAME		"tim0"
-#define TIM0_OBJECT		"scp_bl1.bin"
 
 /**
  * The default endpoint script is also special since it does not load
@@ -177,25 +176,25 @@ enum object_hash_type {
  * should be 256 bytes.
  */
 struct smc_update_obj_info {
-	uint8_t		tim_name[VER_MAX_NAME_LENGTH];/** TIM binary name */
-	uint8_t		object_name[VER_MAX_NAME_LENGTH];/** Object name */
-	uint8_t		old_version_data[VERSION_DATA_LENGTH];
-	uint8_t		new_version_data[VERSION_DATA_LENGTH];
-	uint8_t		object_hash[512 / 8];		/** Hash of object */
+	u8	tim_name[VER_MAX_NAME_LENGTH];		/** TIM binary name */
+	u8	object_name[VER_MAX_NAME_LENGTH];	/** Object name */
+	u8	old_version_data[VERSION_DATA_LENGTH];
+	u8	new_version_data[VERSION_DATA_LENGTH];
+	u8	object_hash[512 / 8];			/** Hash of object */
 	union {
-		uint32_t : 32;
+		u32 : 32;
 		enum object_hash_type hash_type;	/** Hash type */
 	};
 	union {
-		uint32_t : 32;
+		u32 : 32;
 		enum tim_object_update_retcode	retcode;/** Return code */
 	};
-	uint64_t	tim_address;		/** Media address of TIM */
-	uint64_t	tim_size;		/** Size of TIM in bytes */
-	uint64_t	data_address;		/** Object media address */
-	uint64_t	data_size;		/** Object size in bytes */
-	uint64_t	bytes_written;		/** Number of bytes written */
-	uint64_t	reserved[2];		/** Reserved for future growth */
+	u64	tim_address;		/** Media address of TIM */
+	u64	tim_size;		/** Size of TIM in bytes */
+	u64	data_address;		/** Object media address */
+	u64	data_size;		/** Object size in bytes */
+	u64	bytes_written;		/** Number of bytes written */
+	u64	reserved[2];		/** Reserved for future growth */
 };
 
 /**
@@ -245,68 +244,68 @@ struct smc_update_obj_info {
  * This descriptor is passed by U-Boot or other software performing an update
  */
 struct smc_update_descriptor_0100 {
-	uint32_t	magic;		/** UPDATE_MAGIC */
-	uint16_t	version;	/** Version of descriptor */
-	uint16_t	update_flags;	/** Flags passed to update process */
-	uint64_t	image_addr;	/** Address of image (CPIO file) */
-	uint64_t	image_size;	/** Size of image (CPIO file) */
-	uint32_t	bus;		/** SPI BUS number */
-	uint32_t	cs;		/** SPI chip select number */
-	uint32_t	async_operation; /** use asynchronus SPI operations */
-	uint32_t	retcode;	/** Return code for async operations */
-	uint64_t	user_addr;	/** Passed to customer function */
-	uint64_t	user_size;	/** Passed to customer function */
-	uint64_t	user_flags;	/** Passed to customer function */
+	u32	magic;			/** UPDATE_MAGIC */
+	u16	version;		/** Version of descriptor */
+	u16	update_flags;		/** Flags passed to update process */
+	u64	image_addr;		/** Address of image (CPIO file) */
+	u64	image_size;		/** Size of image (CPIO file) */
+	u32	bus;			/** SPI BUS number */
+	u32	cs;			/** SPI chip select number */
+	u32	async_operation;	/** use asynchronus SPI operations */
+	u32	retcode;		/** Return code for async operations */
+	u64	user_addr;		/** Passed to customer function */
+	u64	user_size;		/** Passed to customer function */
+	u64	user_flags;		/** Passed to customer function */
 	uintptr_t	work_buffer;	/** Used for compressed objects */
-	uint64_t	work_buffer_size;/** Size of work buffer */
+	u64	work_buffer_size;	/** Size of work buffer */
 	uintptr_t	output_console;	/** Text output console for update info */
-	uint32_t	output_console_size;/** Console buffer size in bytes */
-	uint32_t	output_console_end;/** Not used yet */
-	uint64_t	reserved2[8];
+	u32	output_console_size;	/** Console buffer size in bytes */
+	u32	output_console_end;	/** Not used yet */
+	u64	reserved2[8];
 };
 
 /**
  * This descriptor is passed by U-Boot or other software performing an update
  */
 struct smc_update_descriptor {
-	uint32_t	magic;		/** UPDATE_MAGIC */
-	uint16_t	version;	/** Version of descriptor */
-	uint16_t	update_flags;	/** Flags passed to update process */
-	uint64_t	image_addr;	/** Address of image (CPIO file) */
-	uint64_t	image_size;	/** Size of image (CPIO file) */
-	uint32_t	bus;		/** SPI BUS number */
-	uint32_t	cs;		/** SPI chip select number */
-	uint32_t	async_operation; /** use asynchronus SPI operations */
-	uint32_t	retcode;	/** Return code for async operations */
-	uint64_t	user_addr;	/** Passed to customer function */
-	uint64_t	user_size;	/** Passed to customer function */
-	uint64_t	user_flags;	/** Passed to customer function */
+	u32	magic;			/** UPDATE_MAGIC */
+	u16	version;		/** Version of descriptor */
+	u16	update_flags;		/** Flags passed to update process */
+	u64	image_addr;		/** Address of image (CPIO file) */
+	u64	image_size;		/** Size of image (CPIO file) */
+	u32	bus;			/** SPI BUS number */
+	u32	cs;			/** SPI chip select number */
+	u32	async_operation;	/** use asynchronus SPI operations */
+	u32	retcode;		/** Return code for async operations */
+	u64	user_addr;		/** Passed to customer function */
+	u64	user_size;		/** Passed to customer function */
+	u64	user_flags;		/** Passed to customer function */
 	uintptr_t	work_buffer;	/** Used for compressed objects */
-	uint64_t	work_buffer_size;/** Size of work buffer */
+	u64	work_buffer_size;	/** Size of work buffer */
 	uintptr_t	output_console;	/** Text output console for update info */
-	uint32_t	output_console_size;/** Console buffer size in bytes */
-	uint32_t	output_console_end;/** Not used yet */
-	uint64_t	reserved2[8];
+	u32	output_console_size;	/** Console buffer size in bytes */
+	u32	output_console_end;	/** Not used yet */
+	u64	reserved2[8];
 	struct smc_update_obj_info object_retinfo[SMC_MAX_OBJECTS];
 };
 
 #define smc_update_descr_obj_retcode smc_update_descriptor
 
 struct smc_update_descriptor_prev {
-	uint32_t	magic;		/** UPDATE_MAGIC */
-	uint16_t	version;	/** Version of descriptor */
-	uint16_t	update_flags;	/** Flags passed to update process */
-	uint64_t	image_addr;	/** Address of image (CPIO file) */
-	uint64_t	image_size;	/** Size of image (CPIO file) */
-	uint32_t	bus;		/** SPI BUS number */
-	uint32_t	cs;		/** SPI chip select number */
-	uint32_t	async_operation; /** use asynchronus SPI operations */
-	uint32_t	reserved;	/** Space to add stuff */
-	uint64_t	user_addr;	/** Passed to customer function */
-	uint64_t	user_size;	/** Passed to customer function */
-	uint64_t	user_flags;	/** Passed to customer function */
+	u32	magic;			/** UPDATE_MAGIC */
+	u16	version;		/** Version of descriptor */
+	u16	update_flags;		/** Flags passed to update process */
+	u64	image_addr;		/** Address of image (CPIO file) */
+	u64	image_size;		/** Size of image (CPIO file) */
+	u32	bus;			/** SPI BUS number */
+	u32	cs;			/** SPI chip select number */
+	u32	async_operation;	/** use asynchronus SPI operations */
+	u32	reserved;		/** Space to add stuff */
+	u64	user_addr;		/** Passed to customer function */
+	u64	user_size;		/** Passed to customer function */
+	u64	user_flags;		/** Passed to customer function */
 	uintptr_t	work_buffer;	/** Used for compressed objects */
-	uint64_t	work_buffer_size;/** Size of work buffer */
+	u64	work_buffer_size;	/** Size of work buffer */
 	struct smc_update_obj_info object_retinfo[SMC_MAX_OBJECTS];
 };
 
@@ -321,7 +320,7 @@ struct smc_update_descriptor_prev {
 #define READ_VERSION			0x0100
 
 /** Log progress */
-#define READ_FLAG_LOG_PROGRESS	BIT(0)
+#define READ_FLAG_LOG_PROGRESS		BIT(0)
 /** Debug */
 #define READ_FLAG_DEBUG			BIT(1)
 
@@ -329,31 +328,29 @@ struct smc_update_descriptor_prev {
  * This descriptor is used to read data from flash
  */
 struct smc_read_flash_descriptor {
-	uint64_t        addr;           /** Physical buffer address */
-	uint64_t        offset;         /** Offset in flash */
-	uint64_t        length;         /** Length to read */
-	uint32_t        bus;            /** SPI BUS number */
-	uint32_t        cs;             /** SPI chip select number */
-	uint32_t        async_spi;      /** Async SPI operations */
-	uint16_t        version;        /** Version of descriptor */
-	uint16_t        read_flags;     /** Flags passed to read process */
-	uintptr_t       output_console;	/** Text output console */
-	uint32_t        output_console_size;/** Console buffer size in bytes */
-	uint32_t        output_console_end;/** Not used yet */
-	uint64_t        reserved[8];   /** Space to add stuff */
+	u64	addr;			/** Physical buffer address */
+	u64	offset;			/** Offset in flash */
+	u64	length;			/** Length to read */
+	u32	bus;			/** SPI BUS number */
+	u32	cs;			/** SPI chip select number */
+	u32	async_spi;		/** Async SPI operations */
+	u16	version;		/** Version of descriptor */
+	u16	read_flags;		/** Flags passed to read process */
+	uintptr_t output_console;	/** Text output console */
+	u32	output_console_size;	/** Console buffer size in bytes */
+	u32	output_console_end;	/** Not used yet */
+	u64	reserved[8];		/** Space to add stuff */
 };
 
 struct smc_read_flash_descriptor_prev {
-	uint64_t        addr;           /** Physical buffer address */
-	uint64_t        offset;         /** Offset in flash */
-	uint64_t        length;         /** Length to read */
-	uint32_t        bus;            /** SPI BUS number */
-	uint32_t        cs;             /** SPI chip select number */
-	uint32_t        async_spi;      /** Async SPI operations */
-	uint32_t        reserved;       /** Space to add stuff */
+	u64	addr;			/** Physical buffer address */
+	u64	offset;			/** Offset in flash */
+	u64	length;			/** Length to read */
+	u32	bus;			/** SPI BUS number */
+	u32	cs;			/** SPI chip select number */
+	u32	async_spi;		/** Async SPI operations */
+	u32	reserved;		/** Space to add stuff */
 };
-
-int spi_smc_read_flash(uintptr_t desc_buf, uint64_t desc_size);
 
 /** This is used for each object (version entry) */
 enum smc_version_entry_retcode {
@@ -383,21 +380,21 @@ enum smc_version_entry_retcode {
 };
 
 struct smc_version_info_entry {
-	char name[VER_MAX_NAME_LENGTH];
+	char	name[VER_MAX_NAME_LENGTH];
 	struct tim_opaque_data_version_info version;
-	uint8_t tim_hash[512 / 8];	/** Hash value stored in the TIM */
-	uint8_t obj_hash[512 / 8];	/** Calculated hash value */
-	uint64_t tim_address;		/** Address of TIM in flash */
-	uint64_t tim_size;		/** Size of TIM in bytes */
-	uint64_t max_size;		/** Maximum space for object and TIM */
-	uint64_t object_size;		/** Size of flash object in bytes */
-	uint64_t object_address;	/** Address of object in flash */
-	uint16_t hash_size;		/** Size of hash in bytes */
-	uint16_t flags;			/** Flags for this object */
+	u8	tim_hash[512 / 8];	/** Hash value stored in the TIM */
+	u8	obj_hash[512 / 8];	/** Calculated hash value */
+	u64	tim_address;		/** Address of TIM in flash */
+	u64	tim_size;		/** Size of TIM in bytes */
+	u64	max_size;		/** Maximum space for object and TIM */
+	u64	object_size;		/** Size of flash object in bytes */
+	u64	object_address;	/** Address of object in flash */
+	u16	hash_size;		/** Size of hash in bytes */
+	u16	flags;			/** Flags for this object */
 	enum smc_version_entry_retcode retcode;	/** Return code if error */
-	uint64_t perform_clone;         /** run clone operation on that image */
-	uint64_t reserved[6];		/** Reserved for future growth */
-	uint8_t log[VERIFY_LOG_SIZE];	/** Log for object */
+	u64	perform_clone;         /** run clone operation on that image */
+	u64	reserved[6];		/** Reserved for future growth */
+	u8	log[VERIFY_LOG_SIZE];	/** Log for object */
 };
 
 #define VERSION_FLAG_BACKUP	BIT(0)	/** Set to use backup offset */
@@ -508,25 +505,29 @@ enum smc_version_ret {
 #define VERSION_INFO_VERSION	0x0103		/** 1.3 */
 
 #define VERSION_MIN_VERSION	 0x0100
+
 /** Minimum version that includes force clone support */
 #define VERSION_FORCE_CLONE_MIN_VERSION	 0x0102
+
 /** Minimum version that includes log support */
 #define VERSION_LOG_MIN_VERSION	 0x0103
 
+/** Minimum version that includes eMMC support */
+
 struct smc_version_info {
-	uint32_t	magic_number;	/** VRSN */
-	uint16_t	version;	/** Version of descriptor */
-	uint16_t	version_flags;	/** Flags passed to version process */
-	uint32_t	bus;		/** SPI BUS number */
-	uint32_t	cs;		/** SPI chip select number */
-	uint32_t	target_bus;	/** Target bus used for copying */
-	uint32_t	target_cs;	/** Target CS used for copying */
+	u32	magic_number;		/** VRSN */
+	u16	version;		/** Version of descriptor */
+	u16	version_flags;		/** Flags passed to version process */
+	u32	bus;			/** SPI BUS number */
+	u32	cs;			/** SPI chip select number */
+	u32	target_bus;		/** Target bus used for copying */
+	u32	target_cs;		/** Target CS used for copying */
 	/*
 	 * Note that currently the work buffers are not used since the images
 	 * are read from flash in chunks for verification purposes.
 	 */
-	uintptr_t	work_buffer_addr;/** Used to decompress objects */
-	uint64_t	work_buffer_size;/** Size of decompression buffer */
+	uintptr_t work_buffer_addr;	/** Used to decompress objects */
+	u64	work_buffer_size;	/** Size of decompression buffer */
 	enum smc_version_ret	retcode;
 	/**
 	 * On entry, if all objects are to be verified then this contains
@@ -538,107 +539,17 @@ struct smc_version_info {
 	 * actual number of objects which will be greater than the number
 	 * of available entries.
 	 */
-	uint32_t	num_objects;
-	uint32_t	timeout;	/** Timeout in ms */
-	uint32_t	reserved32;	/** Pad to 64 bits */
-	uintptr_t	output_console;	/** Text output console */
-	uint32_t	output_console_size;/** Console buffer size in bytes */
-	uint32_t	output_console_end;/** Not used yet */
-	uint64_t	reserved[2];	/** Reserved for future growth */
+	u32	num_objects;
+	u32	timeout;		/** Timeout in ms */
+	u32	reserved32;		/** Pad to 64 bits */
+	uintptr_t output_console;	/** Text output console */
+	u32	output_console_size;	/** Console buffer size in bytes */
+	u32	output_console_end;	/** Not used yet */
+	u64	reserved[2];		/** Reserved for future growth */
 	/** Array of objects to verify */
 	struct smc_version_info_entry objects[SMC_MAX_VERSION_ENTRIES];
 };
 
-int spi_smc_update(uintptr_t desc_buf, uint64_t desc_size,
-		   uint64_t dram_end, enum update_ret *uret);
-
-/**
- * Check version and verify objects in flash
- * @param	desc_buf	Address of structure smc_version_info
- * @param	desc_size	Size of data structure
- * @param	dram_end	End of DRAM
- * @param[out]	uret		SPI return code
- *
- * @return	0 for success, otherwise error.
- */
-int smc_check_versions(uint64_t desc_buf, uint64_t desc_size,
-		       uint64_t dram_end, int *uret);
-/**
- * Check if async SPI engine is ready
- */
-int async_spi_is_ready(void);
-
-//Asynchronus operations - clone
-//States
-enum async_clone_operations {
-	ACLONE_CHECK_SOURCE=0,
-	ACLONE_CHECK_DESTINATION,
-	ACLONE_MARK_COPY,
-	ACLONE_ERASE_TIM0_DEST,
-	ACLONE_ERASE_EBF_CONFIG,
-	ACLONE_COPY_IMAGES,
-	ACLONE_CLEANUP,
-};
-
-enum read_or_write_operations {
-	READ_OPERATION,
-	WRITE_OPERATION,
-};
-
-struct async_clone_copy_params {
-	struct io_handle *src_handle;
-	struct io_handle *dst_handle;
-	uint64_t src_object_addr;
-	uint64_t src_object_size;
-	uint64_t src_tim_addr;
-	uint64_t src_tim_size;
-	enum read_or_write_operations read_or_write;
-};
-
-//Data structures for clone
-struct async_clone_data {
-	struct smc_version_info *vinfo_source;
-	struct smc_version_info *vinfo_destination;
-	enum async_clone_operations state;
-	struct async_clone_copy_params copy_params;
-	bool force_clone;
-	bool clone_needed;
-	int clone_counter;
-	int clone_object_list[SMC_MAX_OBJECTS];
-};
-
-enum async_file_check_ret {
-	ASYNC_CHECK_CONTINUE,
-	ASYNC_CHECK_DONE,
-	ASYNC_CHECK_ERROR,
-};
-
-enum async_update_operations {
-	AUPDATE_VERIF_IMAGE = 0,
-	AUPDATE_INIT_UPDATE,
-	AUPDATE_PROCESS_TIMS,
-	AUPDATE_CHECK_GROUPS,
-	AUPDATE_CHECK_FILES,
-	AUPDATE_CHECK_FLASH_FILES,
-	AUPDATE_CHECK_FLASH_GROUPS,
-	AUPDATE_ERASE_EBF_CONFIG,
-	AUPDATE_ERASE_TIM0,
-	AUPDATE_WRITE_FILES,
-	AUPDATE_RESTORE_TIM0,
-	AUPDATE_CLEANUP,
-};
-
-struct async_update_data {
-	struct smc_update_descriptor *desc;
-	enum async_update_operations state;
-	struct object_entry *obj;
-	bool all_present;
-	bool old_tim0_saved;
-	bool tim0_updated;
-	bool update_all;
-	bool init_variables;
-	uint32_t cust_verify_count;
-};
 #endif /* __UPDATE_H__ */
 
 /* vim:set sw=8 noet */
