@@ -290,7 +290,8 @@ efi_status_t efi_init_obj_list(void)
 
 	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
 
-		if (fdt_node_offset_by_compatible(gd->fdt_blob, -1, "tcg,tpm_tis-spi") >= 0) {
+		if ((fdt_node_offset_by_compatible(gd->fdt_blob, -1, "tcg,tpm_tis-spi") >= 0) ||
+		    (fdt_node_offset_by_compatible(gd->fdt_blob, -1, "tcg,tpm-tis-i2c") >= 0)) {
 			ret = efi_tcg2_register();
 			if (ret != EFI_SUCCESS)
 				goto out;
