@@ -45,7 +45,7 @@ struct tim_opaque_data_version_info {
 	 *
 	 * The timestamp is extracted from GIT
 	 */
-	u8	version_string[VERSION_STRING_LENGTH];
+	u8		version_string[VERSION_STRING_LENGTH];
 } __attribute__((packed, aligned(4)));
 
 /*
@@ -69,6 +69,19 @@ struct tim_opaque_data_version_info {
 #endif
 
 #define VERIFY_LOG_SIZE		1024
+
+/** Location to put RCA in the cs field */
+#define UPDATE_MMC_CS_RCA(rca)		((rca) & 0xffff)
+/** Set to configure byte addressing (low capacity) */
+#define UPDATE_MMC_CS_FLAG_BYTE_ACCESS	BIT(16)
+/** Set if device is SD, clear for eMMC */
+#define UPDATE_MMC_CS_FLAG_SD		BIT(17)
+/** Flag set for 1.7-1.95V support */
+#define UPDATE_MMC_CS_FLAG_1_8V		BIT(18)
+/** Flag set for 2.7-3.6V */
+#define UPDATE_MMC_CS_FLAG_3_3V		BIT(19)
+/** Flag to set when not SPI NOR CS */
+#define UPDATE_MMC_CS_FLAG		BIT(31)
 
 /**
  * TIM0 is special and needs to be handled different than other TIMs.
@@ -208,8 +221,9 @@ struct smc_update_obj_info {
 #define UPDATE_LOG_VERSION		0x0100
 /** Minimum version with per-object return data */
 #define UPDATE_OBJ_RETCODE_VERSION	0x0200
+#define UPDATE_MMC_DATA_VERSION		0x0201
 /** Current smc_update_descriptor version */
-#define UPDATE_VERSION			0x0200
+#define UPDATE_VERSION			0x0201
 
 #define UPDATE_VERSION_0100_size	sizeof(struct smc_update_0100_descriptor)
 #define UPDATE_VERSION_0200_size	sizeof(struct smc_update_descriptor)
@@ -243,30 +257,6 @@ struct smc_update_obj_info {
 /**
  * This descriptor is passed by U-Boot or other software performing an update
  */
-struct smc_update_descriptor_0100 {
-	u32	magic;			/** UPDATE_MAGIC */
-	u16	version;		/** Version of descriptor */
-	u16	update_flags;		/** Flags passed to update process */
-	u64	image_addr;		/** Address of image (CPIO file) */
-	u64	image_size;		/** Size of image (CPIO file) */
-	u32	bus;			/** SPI BUS number */
-	u32	cs;			/** SPI chip select number */
-	u32	async_operation;	/** use asynchronus SPI operations */
-	u32	retcode;		/** Return code for async operations */
-	u64	user_addr;		/** Passed to customer function */
-	u64	user_size;		/** Passed to customer function */
-	u64	user_flags;		/** Passed to customer function */
-	uintptr_t	work_buffer;	/** Used for compressed objects */
-	u64	work_buffer_size;	/** Size of work buffer */
-	uintptr_t	output_console;	/** Text output console for update info */
-	u32	output_console_size;	/** Console buffer size in bytes */
-	u32	output_console_end;	/** Not used yet */
-	u64	reserved2[8];
-};
-
-/**
- * This descriptor is passed by U-Boot or other software performing an update
- */
 struct smc_update_descriptor {
 	u32	magic;			/** UPDATE_MAGIC */
 	u16	version;		/** Version of descriptor */
@@ -274,7 +264,20 @@ struct smc_update_descriptor {
 	u64	image_addr;		/** Address of image (CPIO file) */
 	u64	image_size;		/** Size of image (CPIO file) */
 	u32	bus;			/** SPI BUS number */
-	u32	cs;			/** SPI chip select number */
+	/**
+	 * For SPI, this is the chip select, typically 0 or 1.
+	 *
+	 * For eMMC, it is formatted as follows:
+	 * bits    description
+	 * 0-15    RCA value
+	 * 16      0 = sector access, 1 = byte access
+	 * 17      0 = eMMC, 1 = SD
+	 * 18      1.70-1.95V
+	 * 19      2.0-2.6V
+	 * 20      2.7-3.6V
+	 * 31      0 = SPI, 1 = eMMC/SD
+	 */
+	u32	cs;
 	u32	async_operation;	/** use asynchronus SPI operations */
 	u32	retcode;		/** Return code for async operations */
 	u64	user_addr;		/** Passed to customer function */
@@ -291,33 +294,16 @@ struct smc_update_descriptor {
 
 #define smc_update_descr_obj_retcode smc_update_descriptor
 
-struct smc_update_descriptor_prev {
-	u32	magic;			/** UPDATE_MAGIC */
-	u16	version;		/** Version of descriptor */
-	u16	update_flags;		/** Flags passed to update process */
-	u64	image_addr;		/** Address of image (CPIO file) */
-	u64	image_size;		/** Size of image (CPIO file) */
-	u32	bus;			/** SPI BUS number */
-	u32	cs;			/** SPI chip select number */
-	u32	async_operation;	/** use asynchronus SPI operations */
-	u32	reserved;		/** Space to add stuff */
-	u64	user_addr;		/** Passed to customer function */
-	u64	user_size;		/** Passed to customer function */
-	u64	user_flags;		/** Passed to customer function */
-	uintptr_t	work_buffer;	/** Used for compressed objects */
-	u64	work_buffer_size;	/** Size of work buffer */
-	struct smc_update_obj_info object_retinfo[SMC_MAX_OBJECTS];
-};
-
-
 /* Read Flash */
 
 /** Minimum allowed read version */
 #define READ_MIN_VERSION		0x0000
 /** Minimum version that includes log support */
 #define READ_LOG_VERSION		0x0100
+/** Include data for eMMC/SD in cs field */
+#define READ_EMMC_DATA_VERSION		0x0101
 /** Current smc_read_flash_descriptor version */
-#define READ_VERSION			0x0100
+#define READ_VERSION			0x0101
 
 /** Log progress */
 #define READ_FLAG_LOG_PROGRESS		BIT(0)
@@ -328,28 +314,31 @@ struct smc_update_descriptor_prev {
  * This descriptor is used to read data from flash
  */
 struct smc_read_flash_descriptor {
-	u64	addr;			/** Physical buffer address */
-	u64	offset;			/** Offset in flash */
-	u64	length;			/** Length to read */
-	u32	bus;			/** SPI BUS number */
-	u32	cs;			/** SPI chip select number */
-	u32	async_spi;		/** Async SPI operations */
-	u16	version;		/** Version of descriptor */
-	u16	read_flags;		/** Flags passed to read process */
-	uintptr_t output_console;	/** Text output console */
-	u32	output_console_size;	/** Console buffer size in bytes */
-	u32	output_console_end;	/** Not used yet */
-	u64	reserved[8];		/** Space to add stuff */
-};
-
-struct smc_read_flash_descriptor_prev {
-	u64	addr;			/** Physical buffer address */
-	u64	offset;			/** Offset in flash */
-	u64	length;			/** Length to read */
-	u32	bus;			/** SPI BUS number */
-	u32	cs;			/** SPI chip select number */
-	u32	async_spi;		/** Async SPI operations */
-	u32	reserved;		/** Space to add stuff */
+	u64        addr;           /** Physical buffer address */
+	u64        offset;         /** Offset in flash */
+	u64        length;         /** Length to read */
+	u32        bus;            /** SPI BUS number */
+	/**
+	 * For SPI, this is the chip select, typically 0 or 1.
+	 *
+	 * For eMMC, it is formatted as follows:
+	 * bits    description
+	 * 0-15    RCA value
+	 * 16      0 = sector access, 1 = byte access
+	 * 17      0 = eMMC, 1 = SD
+	 * 18      1.70-1.95V
+	 * 19      2.0-2.6V
+	 * 20      2.7-3.6V
+	 * 31      0 = SPI, 1 = eMMC
+	 */
+	u32        cs;
+	u32        async_spi;      /** Async SPI operations */
+	u16        version;        /** Version of descriptor */
+	u16        read_flags;     /** Flags passed to read process */
+	uintptr_t       output_console;	/** Text output console */
+	u32        output_console_size;/** Console buffer size in bytes */
+	u32        output_console_end;/** Not used yet */
+	u64        reserved[8];   /** Space to add stuff */
 };
 
 /** This is used for each object (version entry) */
@@ -397,12 +386,12 @@ struct smc_version_info_entry {
 	u8	log[VERIFY_LOG_SIZE];	/** Log for object */
 };
 
-#define VERSION_FLAG_BACKUP	BIT(0)	/** Set to use backup offset */
+#define VERSION_FLAG_BACKUP			BIT(0)	/** Set to use backup offset */
 
 /**
  * Set if objects are stored in eMMC, leave zero for SPI NOR
  */
-#define VERSION_FLAG_EMMC	BIT(1)
+#define VERSION_FLAG_EMMC			BIT(1)
 
 /**
  * If this bit is set, only the object names specified in the objects
@@ -442,12 +431,12 @@ struct smc_version_info_entry {
 /**
  * Set this to enable async operations
  */
-#define SMC_VERSION_ASYNC_OPERATION			BIT(8)
+#define SMC_VERSION_ASYNC_OPERATION		BIT(8)
 
 /**
  * Set this to skip failed images, instead of faili whole clone operation
  */
-#define SMC_VERSION_SKIP_FAIL_CHECK			BIT(9)
+#define SMC_VERSION_SKIP_FAIL_CHECK		BIT(9)
 
 /**
  * Set this to skip failed images, instead of faili whole clone operation
@@ -457,12 +446,12 @@ struct smc_version_info_entry {
 /**
  * Set this to store log progress in buffer
  */
-#define SMC_VERSION_LOG_PROGRESS			BIT(11)
+#define SMC_VERSION_LOG_PROGRESS		BIT(11)
 
 /**
  * Set this to get debug info
  */
-#define SMC_VERSION_DEBUG					BIT(12)
+#define SMC_VERSION_DEBUG			BIT(12)
 
 
 /**
@@ -501,18 +490,18 @@ enum smc_version_ret {
 	BACKUP_IO_ERASE_ERROR,
 };
 
-#define VERSION_MAGIC		0x4e535256	/** VRSN */
-#define VERSION_INFO_VERSION	0x0103		/** 1.3 */
+#define VERSION_MAGIC			0x4e535256	/** VRSN */
 
-#define VERSION_MIN_VERSION	 0x0100
-
+#define VERSION_MIN_VERSION		0x0100
 /** Minimum version that includes force clone support */
-#define VERSION_FORCE_CLONE_MIN_VERSION	 0x0102
+#define VERSION_FORCE_CLONE_MIN_VERSION	0x0102
 
 /** Minimum version that includes log support */
-#define VERSION_LOG_MIN_VERSION	 0x0103
+#define VERSION_LOG_MIN_VERSION		0x0103
 
-/** Minimum version that includes eMMC support */
+/** Adds RCA and other fields passed in cs field */
+#define VERSION_MMC_DATA_VERSION	0x0104
+#define VERSION_INFO_VERSION		0x0104		/** 1.4 */
 
 struct smc_version_info {
 	u32	magic_number;		/** VRSN */

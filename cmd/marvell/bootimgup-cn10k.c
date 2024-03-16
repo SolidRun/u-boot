@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <mmc.h>
 #include <div64.h>
 #include <linux/bitops.h>
 #include <asm/arch/smc.h>
@@ -28,6 +29,46 @@
 			continue;				\
 		}						\
 	}
+
+static struct mmc *init_mmc_device(int dev)
+{
+	struct mmc *mmc;
+
+	mmc = find_mmc_device(dev);
+	if (!mmc) {
+		printf("No mmc device for bus %d\n", dev);
+		return NULL;
+	}
+	if (!mmc_getcd(mmc))
+		mmc->has_init = 0;
+	mmc->user_speed_mode = MMC_MODES_END;
+	if (mmc_init(mmc))
+		return NULL;
+	if (IS_ENABLED(CONFIG_BLOCK_CACHE)) {
+		struct blk_desc *bd = mmc_get_blk_desc(mmc);
+
+		blkcache_invalidate(bd->uclass_id, bd->devnum);
+	}
+	return mmc;
+}
+
+u32 set_mmc_cs_flags(struct mmc *mmc_dev)
+{
+	u32 cs;
+
+	cs = UPDATE_MMC_CS_RCA(mmc_dev->rca) | UPDATE_MMC_CS_FLAG;
+	if (!mmc_dev->high_capacity)
+		cs |= UPDATE_MMC_CS_FLAG_BYTE_ACCESS;
+	if (IS_SD(mmc_dev))
+		cs |= UPDATE_MMC_CS_FLAG_SD;
+	if (mmc_dev->ocr & BIT(7))
+		cs |= UPDATE_MMC_CS_FLAG_1_8V;
+	if (mmc_dev->ocr & 0xff8000)
+		cs |= UPDATE_MMC_CS_FLAG_3_3V;
+	pr_debug("%s: rca: 0x%x, ocr: 0x%x, signal voltage: 0x%x\n",
+		 __func__, mmc_dev->rca, mmc_dev->ocr, mmc_dev->signal_voltage);
+	return cs;
+}
 
 static void print_version_data(const char *str,
 			       const char *name,
@@ -59,8 +100,9 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 	bool spi = false, mmc = false;
 	bool reset = false;
 	char *update_log_ptr = NULL;
-	uint64_t total_written = 0;
+	u64 total_written = 0;
 	const char *data_name;
+	struct mmc *mmc_dev;
 
 	memset(&desc, 0, sizeof(desc));
 	desc.magic = UPDATE_MAGIC;
@@ -286,6 +328,14 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 			desc.output_console_size = UPDATE_LOG_SIZE;
 		}
 	}
+	if (mmc) {
+		mmc_dev = init_mmc_device(desc.bus);
+		if (!mmc_dev) {
+			printf("Could not initialize MMC device %d\n", desc.bus);
+			return CMD_RET_FAILURE;
+		}
+		desc.cs = set_mmc_cs_flags(mmc_dev);
+	}
 	pr_debug("Using update version %d.%d\n",
 	       (UPDATE_VERSION >> 8) & 0xff, UPDATE_VERSION & 0xff);
 	ret = smc_spi_update(&desc);
@@ -501,6 +551,7 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			       char * const argv[])
 {
 	struct smc_version_info *vinfo;
+	struct mmc *mmc_dev = NULL;
 	unsigned long value;
 	int ret;
 	bool mmc = false;
@@ -596,6 +647,15 @@ static int do_get_version_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (backup)
 		vinfo->version_flags |= VERSION_FLAG_BACKUP;
 
+	if (mmc) {
+		mmc_dev = init_mmc_device(vinfo->bus);
+		if (!mmc_dev) {
+			printf("No MMC device present\n");
+			cmd_ret = CMD_RET_FAILURE;
+			goto end;
+		}
+		vinfo->cs = set_mmc_cs_flags(mmc_dev);
+	}
 	pr_debug("%s: Calling smc_spi_verify(%p)...\n", __func__, &vinfo);
 	ret = smc_spi_verify(vinfo);
 	if (ret) {
@@ -667,6 +727,7 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char * const argv[])
 {
 	struct smc_version_info *vinfo;
+	struct mmc *mmc_dev = NULL;
 	unsigned long value;
 	int ret;
 	bool src_backup_offset = false;
@@ -800,10 +861,27 @@ static int do_copy_image(struct cmd_tbl *cmdtp, int flag, int argc,
 		vinfo->version_flags |= VERSION_FLAG_BACKUP;
 	if (dst_backup_offset)
 		vinfo->version_flags |= SMC_VERSION_COPY_TO_BACKUP_OFFSET;
-	if (src_mmc)
+
+	if (src_mmc) {
+		mmc_dev = init_mmc_device(vinfo->bus);
+		if (!mmc_dev) {
+			printf("MMC device %u not found\n", vinfo->bus);
+			ret = CMD_RET_FAILURE;
+			goto done;
+		}
 		vinfo->version_flags |= VERSION_FLAG_EMMC;
-	if (dst_mmc)
+		vinfo->cs = set_mmc_cs_flags(mmc_dev);
+	}
+	if (dst_mmc) {
+		mmc_dev = init_mmc_device(vinfo->target_bus);
+		if (!mmc_dev) {
+			printf("MMC device %u not found\n", vinfo->target_bus);
+			ret = CMD_RET_FAILURE;
+			goto done;
+		}
+		vinfo->target_cs = set_mmc_cs_flags(mmc_dev);
 		vinfo->version_flags |= SMC_VERSION_COPY_TO_BACKUP_EMMC;
+	}
 	if (force_clone)
 		vinfo->version_flags |= SMC_VERSION_FORCE_COPY_OBJECTS;
 	if (skip_sorce_check)
