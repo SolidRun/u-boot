@@ -1309,7 +1309,7 @@ static int sdhci_cdns_set_tune_val(struct sdhci_cdns_plat *plat,
 static int sdhci_cdns_sd6_phy_lock_dll(struct sdhci_cdns_plat *plat)
 {
 	struct sdhci_cdns_sd6_phy *phy = plat->priv;
-	u32 delay_element = phy->d.delay_element_org;
+	u32 delay_element = phy->d.delay_element;
 	u32 delay_elements_in_sdmclk;
 	u32 dll_lock_value = 0xff;
 	u32 tmp_lock_value;
