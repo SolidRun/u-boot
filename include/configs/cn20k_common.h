@@ -19,4 +19,6 @@
 #undef CONFIG_SYS_PROMPT
 #define CONFIG_SYS_PROMPT		env_get("prompt")
 
+#define CONFIG_LAST_STAGE_INIT
+
 #endif /* __CN20K_A_H__ */

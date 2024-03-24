@@ -22,4 +22,8 @@
 /* x1 - node number */
 #define CN20K_DRAM_SIZE		0xc2000301
 
+/* fail safe */
+#define OCTEONTX2_FSAFE_PR_BOOT_SUCCESS		0xc2000b02
+#define OCTEONTX2_FSAFE_CLR_FORCE_SEC		0xc2000b03
+
 #endif /* __SMC_ID_H__ */

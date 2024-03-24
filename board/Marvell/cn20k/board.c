@@ -29,6 +29,8 @@
 #include <wdt.h>
 #include <linux/iopoll.h>
 
+extern ssize_t smc_flsf_fw_booted(void);
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /* U-boot boot status */
@@ -319,6 +321,8 @@ int last_stage_init(void)
 	if (init_bootcmd_console())
 		printf("Failed to init bootcmd input\n");
 #endif
+
+	(void)smc_flsf_fw_booted();
 
 	return 0;
 }
