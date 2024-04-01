@@ -500,6 +500,18 @@
 			status = "disabled";
 		};
 
+		hsusb: usb@15820000 {
+			compatible = "renesas,usbhs-r9a07g044l",
+				     "renesas,g2l-usbhs";
+			reg = <0 0x15820000 0 0x724>;
+			interrupts = <GIC_SPI 751 IRQ_TYPE_EDGE_RISING>;
+			clocks = <&cpg CPG_MOD R9A09G056_USB2_U2P_EXR_CPUCLK>;
+			resets = <&cpg R9A09G056_USB2_U2P_EXL_SYSRST>;
+			renesas,buswait = <7>;
+			power-domains = <&cpg>;
+			status = "disabled";
+		};
+
 		usb2_phy0: usb-phy@15800200 {
 			compatible = "renesas,usb2-phy-r9a09g056",
 						 "renesas,rcar-gen3-usb2-phy";
