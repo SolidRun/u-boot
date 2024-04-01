@@ -24,6 +24,7 @@
 #include <asm/arch/sh_sdhi.h>
 #include <i2c.h>
 #include <mmc.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,12 +38,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	P_2A				(PFC_BASE + 0x002A)
 #define	PM_2A				(PFC_BASE + 0x0154)
 #define	PMC_2A				(PFC_BASE + 0x022A)
+#define PFC_PMC26			(PFC_BASE + 0x0226)
+#define PFC_PFC26			(PFC_BASE + 0x0498)
+
 #define PFC_OEN				(PFC_BASE + 0x3C40)
 #define PFC_OEN_OEN0			BIT(0)
 #define PFC_OEN_OEN1			BIT(1)
 
 #define	PMC_20				(PFC_BASE + 0x0220)
 #define	PFC_20				(PFC_BASE + 0x0480)
+#define PFC_PWPR                        (PFC_BASE + 0x3C04)
 
 #define ICU_IPTSR_REG			0x10400060
 
@@ -56,6 +61,27 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	CPG_CLKON_9			(CPG_BASE + 0x0624)
 #define	CPG_RST_9			(CPG_BASE + 0x0924)
 #define	CPG_RST_10			(CPG_BASE + 0x0928)
+
+#define CPG_RST_USB			(CPG_BASE + 0x0928)
+#define CPG_RSTMON4_USB			(CPG_BASE + 0x0A10)
+#define CPG_RSTMON5_USB			(CPG_BASE + 0x0A14)
+#define CPG_CLKON_USB			(CPG_BASE + 0x062C)
+#define CPG_CLKMON_USB			(CPG_BASE + 0x0814)
+
+/* USB */
+#define USBPHY20_BASE			(0x15830000)
+#define USBPHY20_RESET			(USBPHY20_BASE + 0x000u)
+
+#define USB20_BASE			(0x15800000)
+#define USBF_BASE			(0x15820000)
+
+#define COMMCTRL			0x800
+#define HcRhDescriptorA			0x048
+#define LPSTS				0x102
+#define USB2_PHY_UTMICTRL2		0xb04
+#define USB2_PHY_RESET			0x000
+#define USB2_PHY_OTGR			0x600
+
 
 void s_init(void)
 {
@@ -102,6 +128,80 @@ void s_init(void)
 #endif
 }
 
+static void _usbphy_init(void)
+{
+	/* Overwrite SLEEPM/SUSPENDM signals by USB2PHY Control */
+	(*(volatile u32 *)(USBPHY20_BASE + USB2_PHY_UTMICTRL2)) = 0x00000303;
+
+	/* Assert USB2PHY reset */
+	(*(volatile u32 *)(USBPHY20_BASE + USB2_PHY_RESET)) = 0x00000206;
+
+	/* Delay 10us */
+	udelay(10);
+
+	/* De-Assert USB2PHY reset */
+	(*(volatile u32 *)(USBPHY20_BASE + USB2_PHY_RESET)) = 0x00000200;
+
+	/* Release overwrites of SLEEPM/SUSMENDM signals, and RESET signal */
+	(*(volatile u32 *)(USBPHY20_BASE + USB2_PHY_UTMICTRL2)) = 0x00000003;
+	(*(volatile u32 *)(USBPHY20_BASE + USB2_PHY_RESET)) = 0;
+
+	/* Activate VBUS Valid comparator */
+	(*(volatile u32 *)(USBPHY20_BASE + USB2_PHY_OTGR)) = 0x00000909;
+}
+
+static void _reset_usb2(void)
+{
+	/* Reset for USBTEST */
+	(*(volatile u32 *)CPG_RST_USB) |= 0x80008000;
+	while((*(volatile u32 *)(CPG_RSTMON5_USB) & 0x00000001) != 0x0);
+
+	/* Reset for USB2 host */
+	(*(volatile u32 *)CPG_RST_USB) |= 0x30003000;
+	while((*(volatile u32 *)(CPG_RSTMON4_USB) & 0x60000000) != 0x0);
+}
+
+static void board_usb_init(void)
+{
+	/* Reset USB*/
+	_reset_usb2();
+
+	/* Enable clock for USB */
+	(*(volatile u32 *)CPG_CLKON_USB) = 0x00F800F8;
+	while((*(volatile u32 *)(CPG_CLKMON_USB) & 0x00F80000) != 0x00F80000);
+
+	/* Setup  */
+	/* Disable GPIO Write Protect */
+	(*(volatile u32 *)PFC_PWPR) |= (0x1u << 6);
+
+	/* Set P6_0 as Func.15 for VBUSEN */
+	(*(volatile u32 *)PFC_PMC26) |= (0x1u << 0);
+	(*(volatile u32 *)PFC_PFC26) &= ~(0xF << 0);
+	/* Function mode 15 */
+	(*(volatile u32 *)PFC_PFC26) |= (0xF << 0);
+
+	/* Set P6_1 as Func.15 for OVRCUR */
+	(*(volatile u32 *)PFC_PMC26) |= (0x1u << 1);
+	(*(volatile u32 *)PFC_PFC26) &= ~(0xF << 4);
+	/* Function mode 15 */
+	(*(volatile u32 *)PFC_PFC26) |= (0xF << 4);
+
+	/* Enable Write protect */
+	(*(volatile u32 *)PFC_PWPR) &= ~(0x1u << 6);
+
+	/* Initialize phy */
+	_usbphy_init();
+
+	/*USB0 is HOST*/
+	(*(volatile u32 *)(USB20_BASE + COMMCTRL)) = 0;
+
+	/* Set USBPHY normal operation (Function only) */
+	(*(volatile u16 *)(USBF_BASE + LPSTS)) |= (0x1u << 14);
+
+	/* Overcurrent is not supported */
+	(*(volatile u32 *)(USB20_BASE + HcRhDescriptorA)) |= (0x1u << 12);
+}
+
 int board_early_init_f(void)
 {
 	return 0;
@@ -111,6 +211,8 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
+
+	board_usb_init();
 
 	return 0;
 }
