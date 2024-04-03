@@ -16,7 +16,7 @@ static int usbhs_g2l_power_ctrl(struct platform_device *pdev,
 {
 	struct usbhs_priv *priv = usbhs_pdev_to_priv(pdev);
 	int retval = 0;
-#if !defined(CONFIG_R9A09G057)
+#if !defined(CONFIG_R9A09G057) || !defined(CONFIG_R9A09G056)
 	if (!priv->phy)
 		return -ENODEV;
 #endif
