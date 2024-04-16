@@ -6,6 +6,7 @@
  * author Andy Fleming
  */
 #include <common.h>
+#include <console.h>
 #include <errno.h>
 #include <phy.h>
 #include <linux/bitops.h>
@@ -185,6 +186,17 @@ static int marvell_of_reg_init(struct phy_device *phydev)
 	return 0;
 }
 #endif /* CONFIG_DM_ETH */
+
+/* 88E2110 PHY defines */
+#define MIIM_88E2110_PHY_STATUS		0x8008
+#define MIIM_88E2110_PHYSTAT_SPEED	0xc00c
+#define MIIM_88E2110_PHYSTAT_GBIT	0x8000
+#define MIIM_88E2110_PHYSTAT_100	0x4000
+#define MIIM_88E2110_PHYSTAT_DUPLEX	0x2000
+#define MIIM_88E2110_PHYSTAT_SPDDONE	0x0800
+#define MIIM_88E2110_PHYSTAT_LINK	0x0400
+#define MIIM_88E2110_PHYSTAT_5GBIT	0xc008
+#define MIIM_88E2110_PHYSTAT_2_5GBIT	0xc004
 
 static int m88e1xxx_phy_extread(struct phy_device *phydev, int addr,
 				int devaddr, int regnum)
@@ -700,6 +712,182 @@ static int m88e1680_config(struct phy_device *phydev)
 	return 0;
 }
 
+/* Marvell 88E2110 */
+static int m88e2110_probe(struct phy_device *phydev)
+{
+	/*
+	 * skip reset since phy has its own initial value.
+	 * resettting leads to weird behavior
+	 */
+	phydev->flags |= PHY_FLAG_BROKEN_RESET;
+
+	return 0;
+}
+
+static int m88e2110_config(struct phy_device *phydev)
+{
+	u16 reg;
+	ofnode node = phy_get_ofnode(phydev);
+
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
+	if (ofnode_read_bool(node, "enet-phy-lane-swap")) {
+		/* Perform lane swap */
+		reg = phy_read(phydev, 1, 0xc000);
+		reg |= 0x1;
+		phy_write(phydev, 1, 0xc000, reg);
+	}
+
+	/* Configure auto-negotiation advertisement */
+	if (phydev->interface == PHY_INTERFACE_MODE_SFI) {
+		/* Disabled 10G advertisement */
+		phy_write(phydev, 7, 0x20, 0x1e1);
+	} else {
+		if (phydev->interface == PHY_INTERFACE_MODE_SGMII_2500 ||
+		    phydev->interface == PHY_INTERFACE_MODE_2500BASEX) {
+			/* Disabled 10G/5G advertisements */
+			phy_write(phydev, 7, 0x20, 0xa1);
+		} else {
+			/* Disable 10G/5G/2.5G auto-negotiation advertisement */
+			phy_write(phydev, 7, 0x20, 0x1);
+		}
+	}
+
+	/* Restart auto-negotiation */
+	phy_write(phydev, 7, 0, 0x3200);
+
+	return 0;
+}
+
+/* Parse the 88E2110's status register for speed and duplex
+ * information
+ */
+static uint m88e2110_parse_status(struct phy_device *phydev)
+{
+	unsigned int mii_reg;
+
+	mii_reg = phy_read(phydev, 3, MIIM_88E2110_PHY_STATUS);
+
+	if (!(mii_reg & MIIM_88E2110_PHYSTAT_LINK)) {
+		int i = 0;
+
+		puts("Waiting for PHY realtime link");
+		while (!(mii_reg & MIIM_88E2110_PHYSTAT_LINK)) {
+			/* Timeout reached ? */
+			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
+				puts(" TIMEOUT !\n");
+				phydev->link = 0;
+				break;
+			}
+
+			if ((i++ % 1000) == 0)
+				putc('.');
+			udelay(1000);
+			mii_reg = phy_read(phydev, 3, MIIM_88E2110_PHY_STATUS);
+		}
+		puts(" done\n");
+		mdelay(500);	/* another 500 ms (results in faster booting) */
+	}
+
+	if (mii_reg & MIIM_88E2110_PHYSTAT_LINK)
+		phydev->link = 1;
+	else
+		phydev->link = 0;
+
+	if (mii_reg & MIIM_88E2110_PHYSTAT_DUPLEX)
+		phydev->duplex = DUPLEX_FULL;
+	else
+		phydev->duplex = DUPLEX_HALF;
+
+	switch (mii_reg & MIIM_88E2110_PHYSTAT_SPEED) {
+	case MIIM_88E2110_PHYSTAT_5GBIT:
+		phydev->speed = SPEED_5000;
+		break;
+	case MIIM_88E2110_PHYSTAT_2_5GBIT:
+		phydev->speed = SPEED_2500;
+		break;
+	case MIIM_88E2110_PHYSTAT_GBIT:
+		phydev->speed = SPEED_1000;
+		break;
+	case MIIM_88E2110_PHYSTAT_100:
+		phydev->speed = SPEED_100;
+		break;
+	default:
+		phydev->speed = SPEED_10;
+		break;
+	}
+
+	return 0;
+}
+
+static int m88e2110_update_link(struct phy_device *phydev)
+{
+	unsigned int mii_reg;
+
+	/*
+	 * Wait if the link is up, and autonegotiation is in progress
+	 * (ie - we're capable and it's not done)
+	 */
+	mii_reg = phy_read(phydev, 7, MII_BMSR);
+
+	/*
+	 * If we already saw the link up, and it hasn't gone down, then
+	 * we don't need to wait for autoneg again
+	 */
+	if (phydev->link && mii_reg & BMSR_LSTATUS)
+		return 0;
+
+	if ((mii_reg & BMSR_ANEGCAPABLE) && !(mii_reg & BMSR_ANEGCOMPLETE)) {
+		int i = 0;
+
+		debug("%s Waiting for PHY auto negotiation to complete",
+		      phydev->drv->name);
+		while (!(mii_reg & BMSR_ANEGCOMPLETE)) {
+			/*
+			 * Timeout reached ?
+			 */
+			if (i > PHY_ANEG_TIMEOUT) {
+				debug(" TIMEOUT !\n");
+				phydev->link = 0;
+				return 0;
+			}
+
+			if (ctrlc()) {
+				puts("user interrupt!\n");
+				phydev->link = 0;
+				return -EINTR;
+			}
+
+			if ((i++ % 500) == 0)
+				debug(".");
+
+			udelay(1000);	/* 1 ms */
+			mii_reg = phy_read(phydev, 7, MII_BMSR);
+		}
+		debug(" done\n");
+		phydev->link = 1;
+	} else {
+		/* Read the link a second time to clear the latched state */
+		mii_reg = phy_read(phydev, 7, MII_BMSR);
+
+		if (mii_reg & BMSR_LSTATUS)
+			phydev->link = 1;
+		else
+			phydev->link = 0;
+	}
+
+	return 0;
+}
+
+static int m88e2110_startup(struct phy_device *phydev)
+{
+	m88e2110_update_link(phydev);
+	m88e2110_parse_status(phydev);
+
+	return 0;
+}
+
 static struct phy_driver M88E1011S_driver = {
 	.name = "Marvell 88E1011S",
 	.uid = 0x1410c60,
@@ -812,6 +1000,17 @@ static struct phy_driver M88E1680_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver M88E2110_driver = {
+	.name = "Marvell 88E2110",
+	.uid = 0x2b09b8,
+	.mask = 0xffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.probe = &m88e2110_probe,
+	.config = &m88e2110_config,
+	.startup = &m88e2110_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_marvell_init(void)
 {
 	phy_register(&M88E1310_driver);
@@ -825,6 +1024,7 @@ int phy_marvell_init(void)
 	phy_register(&M88E1240_driver);
 	phy_register(&M88E151x_driver);
 	phy_register(&M88E1680_driver);
+	phy_register(&M88E2110_driver);
 
 	return 0;
 }
