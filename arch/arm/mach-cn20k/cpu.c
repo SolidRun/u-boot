@@ -15,7 +15,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CN20K_MEM_MAP_USED 8
+#define CN20K_MEM_MAP_USED 11
 
 /* +1 is end of list which needs to be empty */
 #define CN20K_MEM_MAP_MAX (CN20K_MEM_MAP_USED + CONFIG_NR_DRAM_BANKS + 3)
@@ -67,6 +67,24 @@ static struct mm_region cn20k_mem_map[CN20K_MEM_MAP_MAX] = {
 		.virt = 0xCc0000000000UL,
 		.phys = 0xCc0000000000UL,
 		.size = 0x40000000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE
+	}, {
+		.virt = 0x400000000000UL,
+		.phys = 0x400000000000UL,
+		.size = 0x10000000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE
+	}, {
+		.virt = 0x500000000000UL,
+		.phys = 0x500000000000UL,
+		.size = 0x10000000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE
+	}, {
+		.virt = 0x600000000000UL,
+		.phys = 0x600000000000UL,
+		.size = 0x10000000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE
 	}
