@@ -3053,10 +3053,10 @@ int mmc_deinit(struct mmc *mmc)
 	#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
 			if (mmc->selected_mode == MMC_HS_400_ES) {
 				mmc_clear_enhanced_strobe(mmc);
-				mmc_set_card_speed(mmc, MMC_HS_400, 1);
+				mmc_set_card_speed(mmc, MMC_HS_400, false);
 			}
 
-			mmc_set_card_speed(mmc, MMC_HS, 1);
+			mmc_set_card_speed(mmc, MMC_HS, true);
 	#endif
 			caps_filtered = mmc->card_caps &
 				~(MMC_CAP(MMC_HS_200) |
