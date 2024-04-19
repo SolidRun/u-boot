@@ -127,7 +127,7 @@ config EFI_GPIO_PROTOCOL
 
 config EFI_I2C_PROTOCOL
 	bool "Enable EFI I2C protocol"
-	depends on ARCH_CN10K
+	depends on ARCH_CN10K || ARCH_CN20K
 	default n
 	help
 	  Select this option if you want to enable I2C protocol that allows

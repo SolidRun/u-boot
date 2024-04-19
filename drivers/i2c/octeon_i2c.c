@@ -515,8 +515,7 @@ static int twsi_write_data(void __iomem *base, u8  slave_addr,
 		debug("%s: status: 0x%x\n", __func__, ret);
 	}
 
-	debug("%s: Stopping\n", __func__);
-	return twsi_stop(base);
+	return 0;
 }
 
 /**
@@ -605,8 +604,6 @@ static int twsi_read_data(void __iomem *base, u8 slave_addr,
 		val = twsi_read_sw(base, val);
 		buffer[curr++] = (u8)val;
 	}
-
-	twsi_stop(base);
 
 	return 0;
 }
@@ -745,6 +742,7 @@ static int octeon_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 		}
 	}
 
+	twsi_stop(twsi->base);
 	return 0;
 }
 
