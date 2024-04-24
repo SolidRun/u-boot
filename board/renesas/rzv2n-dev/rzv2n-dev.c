@@ -85,16 +85,22 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void s_init(void)
 {
-#if CONFIG_TARGET_RZV2N_DEV
 	*(volatile u32 *)PWPR |= (PWPR_REGWE_A | PWPR_REGWE_B);
 
+#if CONFIG_TARGET_RZV2N_DEV
 	/* PA5,PA4 port	*/
 	*(volatile u8 *)PMC_2A   &= ~(0x03 << 4);
 	/* PA5=1,PA4=0 */
 	*(volatile u8 *)P_2A      = (*(volatile u32 *)P_2A  & ~(0x03 << 4)) | (0x01 << 5);
 	/* PA5,PA4 output */
 	*(volatile u16 *)PM_2A    = (*(volatile u32 *)PM_2A & ~(0x0f << 8)) | (0x0c << 8);
-
+#endif
+#if CONFIG_TARGET_RZV2N_EVK
+	/* SD1  */
+	*(volatile u8 *)PMC_2A   &= ~(0x03 << 2);/* PA3,PA2 port */
+	*(volatile u8 *)P_2A      = (*(volatile u32 *)P_2A  & ~(0x03<<2)) | (0x01 <<3); /* PA3=1,PA2=0		*/
+	*(volatile u16 *)PM_2A    = (*(volatile u32 *)PM_2A & ~(0x0f<<4)) | (0x0a <<4); /* PA3,PA2 output	*/
+#endif
 	/* I2C8 */
 	*(volatile u32 *)PFC_20  = (*(volatile u32 *)PFC_20 & 0x00FFFFFF) | (0x01 << 28) | (0x01 << 24);
 	*(volatile u8 *)PMC_20   |= (0x03) << 6;	/* P07,P06 multiplexed function	*/
@@ -125,7 +131,6 @@ void s_init(void)
 	*(volatile u32 *)(CPG_RESET_ETH) = 0x00010001;
 	while ((*(volatile u32 *)(CPG_RESETMON_ETH) & 0x00000002) != 0x0)
 		;
-#endif
 }
 
 static void _usbphy_init(void)
