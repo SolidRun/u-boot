@@ -108,6 +108,9 @@ void s_init(void)
 	*(volatile u32 *)CPG_CLKON_9 = 0x00080008;
 	*(volatile u32 *)CPG_RST_10  = 0x00010001;
 
+	/* Enale OE for IO blocks of xSPI0 */
+	*(volatile u32 *)(PFC_OEN) &= ~GENMASK(5,2);
+
 	/* Use PLL clock for clk_tx_i only for RGMII mode */
 	/* Wite OEN reg. OEN0 bit "0" for output direction */
 	*(volatile u32 *)(PFC_OEN) &= ~(PFC_OEN_OEN1 | PFC_OEN_OEN0);
