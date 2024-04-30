@@ -240,6 +240,10 @@ static const struct {
 		"I2C Protocol",
 		EFI_I2C_PROTOCOL_GUID,
 	},
+	{
+		"GPIO Protocol",
+		EFI_GPIO_PROTOCOL_GUID,
+	},
 #ifdef CONFIG_EFI_RISCV_BOOT_PROTOCOL
 	{
 		"RISC-V Boot",

@@ -119,7 +119,7 @@ config EFI_SWCFG_PROTOCOL
 
 config EFI_GPIO_PROTOCOL
 	bool "Enable GPIO protocol"
-	depends on ARCH_CN10K
+	depends on ARCH_CN10K || ARCH_CN20K
 	default n
 	help
 	  Select this option if you want to enable GPIO protocol that allows
