@@ -307,6 +307,9 @@ const char *uuid_guid_get_str(const unsigned char *guid_bin)
 {
 	int i;
 
+	if (!guid_bin)
+		return NULL;
+
 	for (i = 0; i < ARRAY_SIZE(list_guid); i++) {
 		if (!memcmp(list_guid[i].guid.b, guid_bin, 16)) {
 			return list_guid[i].string;
