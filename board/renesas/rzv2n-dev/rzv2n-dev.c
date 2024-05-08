@@ -54,6 +54,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* CPG */
 #define CPG_BASE			0x10420000
+#define CPG_SSEL0			(CPG_BASE + 0x0300)
+#define CPG_SSEL1			(CPG_BASE + 0x0304)
 #define CPG_CLKON_ETH0			(CPG_BASE + 0x062C)
 #define CPG_CLKMON_ETH0			(CPG_BASE + 0x0814)
 #define CPG_RESET_ETH			(CPG_BASE + 0x092C)
@@ -122,11 +124,6 @@ void s_init(void)
 	/* Set Bypass and Powerdown mode for Audio OSC */
 	*(volatile u32 *)(PFC_OSCBYPS) = 0x001C0406;
 
-	/* Enable aclk_csr, aclk, tx, rx, tx_180, rx_180 for ETH0 */
-	*(volatile u32 *)(CPG_CLKON_ETH0) = 0x3F003F00;
-	while ((*(volatile u32 *)(CPG_CLKMON_ETH0) & 0x3F000000) != 0x3F000000)
-		;
-
 	*(volatile u32 *)(ICU_IPTSR_REG) = 0;
 
 	/* Reset ETH0 */
@@ -134,8 +131,22 @@ void s_init(void)
 	while ((*(volatile u32 *)(CPG_RESETMON_ETH) & 0x00000002) == 0x0)
 		;
 
+	/* Release reset ETH0 */
 	*(volatile u32 *)(CPG_RESET_ETH) = 0x00010001;
 	while ((*(volatile u32 *)(CPG_RESETMON_ETH) & 0x00000002) != 0x0)
+		;
+
+	/* Disable SMUX2_GBE0_RXCLK and SMUX2_GBE1_RXCLK */
+	*(volatile u32 *) (CPG_SSEL0) = 0x10000000;
+	*(volatile u32 *) (CPG_SSEL1) = 0x00100000;
+
+	/* Enable SMUX2_GBE0_RXCLK and SMUX2_GBE1_RXCLK */
+	*(volatile u32 *) (CPG_SSEL0) = 0x10001000;
+	*(volatile u32 *) (CPG_SSEL1) = 0x00100010;
+
+	/* Enable aclk_csr, aclk, tx, rx, tx_180, rx_180 for ETH0 */
+	*(volatile u32 *)(CPG_CLKON_ETH0) = 0x3F003F00;
+	while((*(volatile u32 *)(CPG_CLKMON_ETH0) & 0x3F000000) != 0x3F000000)
 		;
 }
 
