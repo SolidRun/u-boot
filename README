@@ -266,7 +266,7 @@ board_init_f():
 		version as needed.
 	- preloader_console_init() can be called here in extremis
 	- should set up SDRAM, and anything needed to make the UART work
-	- these is no need to clear BSS, it will be done by crt0.S
+	- there is no need to clear BSS, it will be done by crt0.S
 	- for specific scenarios on certain architectures an early BSS *can*
 	  be made available (via CONFIG_SPL_EARLY_BSS by moving the clearing
 	  of BSS prior to entering board_init_f()) but doing so is discouraged.
@@ -1360,6 +1360,7 @@ The following options need to be configured:
 		CONFIG_BOOTP_NISDOMAIN
 		CONFIG_BOOTP_BOOTFILESIZE
 		CONFIG_BOOTP_NTPSERVER
+		CONFIG_BOOTP_TFTP_SERVERIP
 		CONFIG_BOOTP_TIMEOFFSET
 		CONFIG_BOOTP_VENDOREX
 		CONFIG_BOOTP_MAY_FAIL
@@ -1372,6 +1373,12 @@ The following options need to be configured:
 		instead of starting over.  This can be used to fail over
 		to Link-local IP address configuration if the DHCP server
 		is not available.
+
+		CONFIG_BOOTP_TFTP_SERVERIP - Some DHCP servers can send
+		the IP address of the TFTP server.  By setting this,
+		the DHCP client will automatically set the serverip
+		based on the response from the DHCP server via option
+		150.
 
 		CONFIG_BOOTP_DHCP_REQUEST_DELAY
 

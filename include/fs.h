@@ -160,6 +160,8 @@ int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 #define FS_DT_REG  8         /* regular file */
 #define FS_DT_LNK  10        /* symbolic link */
 
+#define FS_DIRENT_NAME_LEN 256
+
 /*
  * A directory entry, returned by fs_readdir().  Returns information
  * about the file/directory at the current directory entry position.
@@ -167,7 +169,8 @@ int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 struct fs_dirent {
 	unsigned type;       /* one of FS_DT_x (not a mask) */
 	loff_t size;         /* size in bytes */
-	char name[256];
+	/** name:		file name */
+	char name[FS_DIRENT_NAME_LEN];
 };
 
 /* Note: fs_dir_stream should be treated as opaque to the user of fs layer */

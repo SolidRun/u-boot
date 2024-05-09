@@ -24,6 +24,7 @@
 #include <memalign.h>
 #include <linux/list.h>
 #include <div64.h>
+#include <linux/bitfield.h>
 #include "mmc_private.h"
 
 #define DEFAULT_CMD6_TIMEOUT_MS  500
@@ -132,7 +133,6 @@ void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(MMC_VERBOSE) || defined(DEBUG)
 const char *mmc_mode_name(enum bus_mode mode)
 {
 	static const char *const names[] = {
@@ -156,7 +156,6 @@ const char *mmc_mode_name(enum bus_mode mode)
 	else
 		return names[mode];
 }
-#endif
 
 static uint mmc_mode2freq(struct mmc *mmc, enum bus_mode mode)
 {
@@ -379,10 +378,19 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 
-	if (blkcnt > 1)
+	if (blkcnt > 1) {
+		if (mmc->host_caps & MMC_CAP_CMD23) {
+			cmd.cmdidx = MMC_CMD_SET_BLOCK_COUNT;
+			cmd.cmdarg = blkcnt & 0x0000FFFF;
+			cmd.resp_type = MMC_RSP_R1;
+
+			mmc_send_cmd(mmc, &cmd, NULL);
+		}
+
 		cmd.cmdidx = MMC_CMD_READ_MULTIPLE_BLOCK;
-	else
+	} else {
 		cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
+	}
 
 	if (mmc->high_capacity)
 		cmd.cmdarg = start;
@@ -400,14 +408,16 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 		return 0;
 
 	if (blkcnt > 1) {
-		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
-		cmd.cmdarg = 0;
-		cmd.resp_type = MMC_RSP_R1b;
-		if (mmc_send_cmd(mmc, &cmd, NULL)) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-			pr_err("mmc fail to send stop cmd\n");
-#endif
-			return 0;
+		if ((mmc->host_caps & MMC_CAP_CMD23) == 0) {
+			cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
+			cmd.cmdarg = 0;
+			cmd.resp_type = MMC_RSP_R1b;
+			if (mmc_send_cmd(mmc, &cmd, NULL)) {
+	#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+				pr_err("mmc fail to send stop cmd\n");
+	#endif
+				return 0;
+			}
 		}
 	}
 
@@ -2036,17 +2046,23 @@ static int mmc_select_hs400es(struct mmc *mmc)
 		printf("switch to bus width for hs400 failed\n");
 		return err;
 	}
+
+	err =  mmc_set_enhanced_strobe(mmc);
+	if (err)
+		return err;
+
 	/* TODO: driver strength */
 	err = mmc_set_card_speed(mmc, MMC_HS_400_ES, false);
 	if (err)
 		return err;
 
 	mmc_select_mode(mmc, MMC_HS_400_ES);
+
 	err = mmc_set_clock(mmc, mmc->tran_speed, false);
 	if (err)
 		return err;
 
-	return mmc_set_enhanced_strobe(mmc);
+	return err;
 }
 #else
 static int mmc_select_hs400es(struct mmc *mmc)
@@ -2092,15 +2108,18 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 	}
 
 #if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	CONFIG_IS_ENABLED(MMC_HS400_SUPPORT) || \
+	CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
 	/*
 	 * In case the eMMC is in HS200/HS400 mode, downgrade to HS mode
 	 * before doing anything else, since a transition from either of
 	 * the HS200/HS400 mode directly to legacy mode is not supported.
 	 */
 	if (mmc->selected_mode == MMC_HS_200 ||
-	    mmc->selected_mode == MMC_HS_400)
-		mmc_set_card_speed(mmc, MMC_HS, true);
+		mmc->selected_mode == MMC_HS_400 ||
+		mmc->selected_mode == MMC_HS_400_ES) {
+			mmc_set_card_speed(mmc, MMC_HS, true);
+	}
 	else
 #endif
 		mmc_set_clock(mmc, mmc->legacy_speed, MMC_CLK_ENABLE);
@@ -2125,6 +2144,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 				    ecbw->ext_csd_bits & ~EXT_CSD_DDR_FLAG);
 			if (err)
 				goto error;
+
 			mmc_set_bus_width(mmc, bus_width(ecbw->cap));
 
 			if (mwt->mode == MMC_HS_400) {
@@ -2408,6 +2428,28 @@ error:
 	return err;
 }
 
+static void mmc_check_cmd23_support(struct mmc *mmc)
+{
+	int i;
+	u32 ccc;
+	u32 *csd_resp;
+
+	/* CRC is stripped so we need to do some shifting */
+	csd_resp = &mmc->csd[0];
+
+	for (i = 0; i < 4; i++) {
+		csd_resp[i] <<= 8;
+		if (i != 3)
+			csd_resp[i] |= csd_resp[i + 1] >> 24;
+	}
+
+	ccc = FIELD_GET(GENMASK(31, 20), csd_resp[2]);
+
+	/* Command set support the multi-block command 23 */
+	if (ccc & 0x4)
+		mmc->host_caps |= MMC_CAP_CMD23;
+}
+
 static int mmc_startup(struct mmc *mmc)
 {
 	int err, i;
@@ -2540,6 +2582,9 @@ static int mmc_startup(struct mmc *mmc)
 			| (mmc->csd[2] & 0xc0000000) >> 30;
 		cmult = (mmc->csd[2] & 0x00038000) >> 15;
 	}
+
+	/* Check to see if device supports the set block count command 23 */
+	mmc_check_cmd23_support(mmc);
 
 	mmc->capacity_user = (csize + 1) << (cmult + 2);
 	mmc->capacity_user *= mmc->read_bl_len;
@@ -2945,8 +2990,9 @@ int mmc_init(struct mmc *mmc)
 }
 
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+	CONFIG_IS_ENABLED(MMC_HS400_SUPPORT) || \
+	CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
 int mmc_deinit(struct mmc *mmc)
 {
 	u32 caps_filtered;
@@ -2962,14 +3008,32 @@ int mmc_deinit(struct mmc *mmc)
 
 		return sd_select_mode_and_width(mmc, caps_filtered);
 	} else {
-		caps_filtered = mmc->card_caps &
-			~(MMC_CAP(MMC_HS_200) | MMC_CAP(MMC_HS_400));
+		// if we are in enhanced strobe mode we have to disable it first in order
+		// to downgrade speed.
+		if (mmc->selected_mode == MMC_HS_200 ||
+		    mmc->selected_mode == MMC_HS_400 ||
+		    mmc->selected_mode == MMC_HS_400_ES) {
+	#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+			if (mmc->selected_mode == MMC_HS_400_ES) {
+				mmc_clear_enhanced_strobe(mmc);
+				mmc_set_card_speed(mmc, MMC_HS_400, 1);
+			}
 
-		return mmc_select_mode_and_width(mmc, caps_filtered);
+		mmc_set_card_speed(mmc, MMC_HS, 1);
+	#endif
+
+			caps_filtered = mmc->card_caps &
+				~(MMC_CAP(MMC_HS_200) |
+				  MMC_CAP(MMC_HS_400) |
+				  MMC_CAP(MMC_HS_400_ES));
+
+			return mmc_select_mode_and_width(mmc, caps_filtered);
+		}
 	}
+	return 0;
+
 }
 #endif
-
 int mmc_set_dsr(struct mmc *mmc, u16 val)
 {
 	mmc->dsr = val;

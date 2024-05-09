@@ -44,6 +44,9 @@ struct udevice;
 
 #define PKTALIGN	ARCH_DMA_MINALIGN
 
+/* Number of packets processed together */
+#define ETH_PACKETS_BATCH_RECV	32
+
 /* ARP hardware address length */
 #define ARP_HLEN 6
 /*
@@ -391,6 +394,8 @@ struct ip_hdr {
 #define IP_FLAGS_MFRAG	0x2000 /* more fragments */
 
 #define IP_HDR_SIZE		(sizeof(struct ip_hdr))
+
+#define IP_MIN_FRAG_DATAGRAM_SIZE	(IP_HDR_SIZE + 8)
 
 /*
  *	Internet Protocol (IP) + UDP header.

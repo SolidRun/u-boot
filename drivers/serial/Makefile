@@ -29,6 +29,8 @@ obj-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_SYS_NS16550_SERIAL) += serial_ns16550.o
 endif
 
+obj-$(CONFIG_FWLOG_TTYMEM) += fwlog_ttymem.o
+
 obj-$(CONFIG_ALTERA_UART) += altera_uart.o
 obj-$(CONFIG_ALTERA_JTAG_UART) += altera_jtag_uart.o
 obj-$(CONFIG_AR933X_UART) += serial_ar933x.o
@@ -65,6 +67,8 @@ obj-$(CONFIG_BCM283X_PL011_SERIAL) += serial_bcm283x_pl011.o
 obj-$(CONFIG_MSM_SERIAL) += serial_msm.o
 obj-$(CONFIG_MVEBU_A3700_UART) += serial_mvebu_a3700.o
 obj-$(CONFIG_MPC8XX_CONS) += serial_mpc8xx.o
+obj-$(CONFIG_OCTEONTX_SERIAL_PCIE_CONSOLE) += serial_octeontx_pcie_console.o
+obj-$(CONFIG_OCTEONTX_SERIAL_BOOTCMD) += serial_octeontx_bootcmd.o
 obj-$(CONFIG_NULLDEV_SERIAL) += serial_nulldev.o
 obj-$(CONFIG_OWL_SERIAL) += serial_owl.o
 obj-$(CONFIG_OMAP_SERIAL) += serial_omap.o

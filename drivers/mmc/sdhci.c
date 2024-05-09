@@ -104,7 +104,7 @@ static void sdhci_prepare_adma_table(struct sdhci_host *host,
 	host->desc_slot = 0;
 
 	while (--i) {
-		sdhci_adma_desc(host, dma_addr, ADMA_MAX_LEN, false);
+		sdhci_adma_desc(host, dma_addr, (uint16_t)ADMA_MAX_LEN, false);
 		dma_addr += ADMA_MAX_LEN;
 		trans_bytes -= ADMA_MAX_LEN;
 	}
@@ -214,15 +214,16 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data)
 			}
 		}
 		if (timeout-- > 0)
-			udelay(10);
+			udelay(CONFIG_MMC_SDHCI_DATA_POLL_DELAY);
 		else {
 			printf("%s: Transfer data timeout\n", __func__);
 			return -ETIMEDOUT;
 		}
 	} while (!(stat & SDHCI_INT_DATA_END));
-
-	dma_unmap_single(host->start_addr, data->blocks * data->blocksize,
-			 mmc_get_dma_dir(data));
+	if (host->flags & USE_DMA)
+		dma_unmap_single(host->start_addr,
+				 data->blocks * data->blocksize,
+				 mmc_get_dma_dir(data));
 
 	return 0;
 }
@@ -253,7 +254,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	unsigned int stat = 0;
 	int ret = 0;
 	int trans_bytes = 0, is_aligned = 1;
-	u32 mask, flags, mode;
+	u32 mask, flags, mode = 0;
 	unsigned int time = 0;
 	int mmc_dev = mmc_get_blk_desc(mmc)->devnum;
 	ulong start = get_timer(0);
@@ -606,6 +607,7 @@ static int sdhci_set_ios(struct mmc *mmc)
 		    mmc->selected_mode == MMC_DDR_52 ||
 		    mmc->selected_mode == MMC_HS_200 ||
 		    mmc->selected_mode == MMC_HS_400 ||
+		    mmc->selected_mode == MMC_HS_400_ES ||
 		    mmc->selected_mode == UHS_SDR25 ||
 		    mmc->selected_mode == UHS_SDR50 ||
 		    mmc->selected_mode == UHS_SDR104 ||
@@ -658,6 +660,10 @@ static int sdhci_init(struct mmc *mmc)
 
 	if (host->ops && host->ops->get_cd)
 		host->ops->get_cd(host);
+
+#ifdef CONFIG_DMA_ADDR_T_64BIT
+	sdhci_writew(host, SDHCI_CTRL_A64B_ADDR, SDHCI_HOST_CONTROL2);
+#endif
 
 	/* Enable only interrupts served by the SD controller */
 	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
@@ -720,6 +726,31 @@ static int sdhci_get_cd(struct udevice *dev)
 		return value;
 }
 
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+static int sdhci_set_enhanced_strobe(struct udevice *dev)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	struct sdhci_host *host = mmc->priv;
+
+	if (host->ops && host->ops->set_enhanced_strobe)
+		return host->ops->set_enhanced_strobe(host);
+
+	return -ENOTSUPP;
+}
+
+static int sdhci_clear_enhanced_strobe(struct udevice *dev)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	struct sdhci_host *host = mmc->priv;
+
+	if (host->ops && host->ops->clear_enhanced_strobe)
+		return host->ops->clear_enhanced_strobe(host);
+
+	return -ENOTSUPP;
+}
+
+#endif
+
 const struct dm_mmc_ops sdhci_ops = {
 	.send_cmd	= sdhci_send_command,
 	.set_ios	= sdhci_set_ios,
@@ -727,6 +758,10 @@ const struct dm_mmc_ops sdhci_ops = {
 	.deferred_probe	= sdhci_deferred_probe,
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning	= sdhci_execute_tuning,
+#endif
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+	.set_enhanced_strobe = sdhci_set_enhanced_strobe,
+	.clear_enhanced_strobe = sdhci_clear_enhanced_strobe,
 #endif
 };
 #else
@@ -765,19 +800,19 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 	}
 #endif
 #if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
-	if (!(caps & SDHCI_CAN_DO_ADMA2)) {
-		printf("%s: Your controller doesn't support SDMA!!\n",
-		       __func__);
-		return -EINVAL;
-	}
-	host->adma_desc_table = memalign(ARCH_DMA_MINALIGN, ADMA_TABLE_SZ);
+	if (caps & SDHCI_CAN_DO_ADMA2) {
+		host->adma_desc_table = memalign(ARCH_DMA_MINALIGN, ADMA_TABLE_SZ);
 
-	host->adma_addr = (dma_addr_t)host->adma_desc_table;
+		host->adma_addr = (dma_addr_t)host->adma_desc_table;
 #ifdef CONFIG_DMA_ADDR_T_64BIT
-	host->flags |= USE_ADMA64;
+		host->flags |= USE_ADMA64;
 #else
-	host->flags |= USE_ADMA;
+		host->flags |= USE_ADMA;
 #endif
+	} else {
+		debug("%s: Your controller doesn't support ADMA2!!\n",
+		       __func__);
+	}
 #endif
 	if (host->quirks & SDHCI_QUIRK_REG32_RW)
 		host->version =

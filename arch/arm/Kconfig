@@ -1739,6 +1739,7 @@ config ARCH_ROCKCHIP
 
 config ARCH_OCTEONTX
 	bool "Support OcteonTX SoCs"
+	select CLK
 	select DM
 	select ARM64
 	select OF_CONTROL
@@ -1748,12 +1749,24 @@ config ARCH_OCTEONTX
 
 config ARCH_OCTEONTX2
 	bool "Support OcteonTX2 SoCs"
+	select CLK
 	select DM
 	select ARM64
 	select OF_CONTROL
 	select OF_LIVE
 	select BOARD_LATE_INIT
 	select SYS_CACHE_SHIFT_7
+
+config ARCH_CN10K
+	bool "Support Marvell CN10XXX SoCs"
+	select CLK
+	select DM
+	select ARM64
+	select OF_CONTROL
+	select OF_LIVE
+	select BOARD_LATE_INIT
+	select SYS_CACHE_SHIFT_7
+	select MMC_SDHCI_CADENCE
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
@@ -1857,6 +1870,8 @@ source "arch/arm/mach-octeontx/Kconfig"
 
 source "arch/arm/mach-octeontx2/Kconfig"
 
+source "arch/arm/mach-cn10k/Kconfig"
+
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
 source "arch/arm/mach-imx/mx2/Kconfig"
@@ -1944,6 +1959,7 @@ source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
 source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
+source "board/Marvell/cn10k/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"

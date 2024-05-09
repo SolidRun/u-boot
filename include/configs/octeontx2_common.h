@@ -10,7 +10,7 @@
 #define CONFIG_SUPPORT_RAW_INITRD
 
 /** Maximum size of image supported for bootm (and bootable FIT images) */
-#define CONFIG_SYS_BOOTM_LEN		(256 << 20)
+#define CONFIG_SYS_BOOTM_LEN		(512 << 20)
 
 /** Memory base address */
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_TEXT_BASE
@@ -19,7 +19,13 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
 
 /** Heap size for U-Boot */
+#ifdef CONFIG_TARGET_OCTEONTX2_98XX
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024 * 1024)
+#elif CONFIG_TARGET_OCTEONTX2_LOKI
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024 * 1024)
+#else
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 64 * 1024 * 1024)
+#endif
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
 
@@ -30,6 +36,9 @@
 
 /** Reduce hashes printed out */
 #define CONFIG_TFTP_TSIZE
+
+/* TFTP port can be defined in env */
+#define CONFIG_TFTP_PORT
 
 /* Autoboot options */
 #define CONFIG_RESET_TO_RETRY

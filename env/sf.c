@@ -42,6 +42,27 @@ static int setup_flash_device(void)
 	struct udevice *new;
 	int	ret;
 
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_OCTEONTX2)
+	int bus, cs;
+extern void board_get_env_spi_bus_cs(int *bus, int *cs);
+
+	board_get_env_spi_bus_cs(&bus, &cs);
+	if (bus < 0) {
+		/* Default to config */
+		bus = CONFIG_ENV_SPI_BUS;
+		cs = CONFIG_ENV_SPI_CS;
+	}
+
+	/* speed and mode will be read from DT */
+	ret = spi_flash_probe_bus_cs(bus, cs,
+				     CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE,
+				     &new);
+	if (ret) {
+		env_set_default("spi_flash_probe_bus_cs() failed", 0);
+		return ret;
+	}
+
+#else
 	/* speed and mode will be read from DT */
 	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
 				     CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE,
@@ -50,7 +71,7 @@ static int setup_flash_device(void)
 		env_set_default("spi_flash_probe_bus_cs() failed", 0);
 		return ret;
 	}
-
+#endif
 	env_flash = dev_get_uclass_priv(new);
 #else
 	if (env_flash)
@@ -194,6 +215,46 @@ static int env_sf_save(void)
 	if (ret)
 		return ret;
 
+#if defined(CONFIG_ARCH_CN10K)
+extern void board_get_env_offset(int *offset, const char *property);
+	int env_offset;
+
+	board_get_env_offset(&env_offset, "u-boot,env-offset");
+	if (env_offset == -1)
+		env_offset = CONFIG_ENV_OFFSET;
+
+	/* Is the sector larger than the env (i.e. embedded) */
+	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
+		saved_size = CONFIG_ENV_SECT_SIZE - CONFIG_ENV_SIZE;
+		saved_offset = env_offset + CONFIG_ENV_SIZE;
+		saved_buffer = malloc(saved_size);
+		if (!saved_buffer)
+			goto done;
+
+		ret = spi_flash_read(env_flash, saved_offset,
+			saved_size, saved_buffer);
+		if (ret)
+			goto done;
+	}
+
+	ret = env_export(&env_new);
+	if (ret)
+		goto done;
+
+	sector = DIV_ROUND_UP(CONFIG_ENV_SIZE, CONFIG_ENV_SECT_SIZE);
+
+	puts("Erasing SPI flash...");
+	ret = spi_flash_erase(env_flash, env_offset,
+			      sector * CONFIG_ENV_SECT_SIZE);
+	if (ret)
+		goto done;
+
+	puts("Writing to SPI flash...");
+	ret = spi_flash_write(env_flash, env_offset,
+			      CONFIG_ENV_SIZE, &env_new);
+	if (ret)
+		goto done;
+#else
 	/* Is the sector larger than the env (i.e. embedded) */
 	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
 		saved_size = CONFIG_ENV_SECT_SIZE - CONFIG_ENV_SIZE;
@@ -225,7 +286,7 @@ static int env_sf_save(void)
 		CONFIG_ENV_SIZE, &env_new);
 	if (ret)
 		goto done;
-
+#endif
 	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
 		ret = spi_flash_write(env_flash, saved_offset,
 			saved_size, saved_buffer);
@@ -258,13 +319,27 @@ static int env_sf_load(void)
 	if (ret)
 		goto out;
 
+#if defined(CONFIG_ARCH_CN10K)
+extern void board_get_env_offset(int *offset, const char *property);
+	int env_offset;
+
+	board_get_env_offset(&env_offset, "u-boot,env-offset");
+	if (env_offset == -1)
+		env_offset = CONFIG_ENV_OFFSET;
+	ret = spi_flash_read(env_flash, env_offset,
+			     CONFIG_ENV_SIZE, buf);
+	if (ret) {
+		env_set_default("spi_flash_read() failed", 0);
+		goto err_read;
+	}
+#else
 	ret = spi_flash_read(env_flash,
 		CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE, buf);
 	if (ret) {
 		env_set_default("spi_flash_read() failed", 0);
 		goto err_read;
 	}
-
+#endif
 	ret = env_import(buf, 1, H_EXTERNAL);
 	if (!ret)
 		gd->env_valid = ENV_VALID;

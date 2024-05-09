@@ -348,7 +348,7 @@ config PIC32_GPIO
 
 config OCTEON_GPIO
 	bool "Octeon II/III/TX/TX2 GPIO driver"
-	depends on DM_GPIO && DM_PCI &&	(ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	depends on DM_GPIO && DM_PCI &&	(ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_CN10K)
 	default y
 	help
 	  Add support for the Marvell Octeon GPIO driver. This is used with
@@ -486,5 +486,16 @@ config NX_GPIO
 	  a number of banks (different for each SoC type) each with 32 GPIOs.
 	  The GPIOs for a device are defined in the device tree with one node
 	  for each bank.
+
+config I2C_GPIO
+	bool  "Generic I2C->GPIO no-irq expander"
+	depends on DM_GPIO
+	help
+	  Select this option to enable GPIO for simple I2C devices,
+	  parameterized by device-tree, and having no interrupts.
+	  Developed to model a custom board's CPLD, but may be useful
+	  for various hardware where i2c-poking flips external pins.
+
+	  If unsure, say N.
 
 endmenu

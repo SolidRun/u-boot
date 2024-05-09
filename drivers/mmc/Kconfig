@@ -174,7 +174,7 @@ config SPL_MMC_HS200_SUPPORT
 
 config MMC_VERBOSE
 	bool "Output more information about the MMC"
-	default y
+	default n
 	help
 	  Enable the output of more information about the card such as the
 	  operating mode.
@@ -428,6 +428,14 @@ config MMC_SDHCI
 
 	  If unsure, say N.
 
+config MMC_SDHCI_DATA_POLL_DELAY
+	int "sdhci data poll delay value in micro seconds"
+	default 10
+	depends on MMC_SDHCI
+	help
+	   This configures the dealy value to poll for data available status
+	   and retry after the selected timeout value.
+
 config MMC_SDHCI_IO_ACCESSORS
 	bool
 	depends on MMC_SDHCI
@@ -508,12 +516,30 @@ config MMC_SDHCI_CADENCE
 	depends on BLK && DM_MMC
 	depends on MMC_SDHCI
 	depends on OF_CONTROL
+	select MMC_SDHCI_IO_ACCESSORS
+	select MMC_SDHCI_ADMA
+	select MMC_CAP_CMD23 if (MMC_HS400_SUPPORT || MMC_HS400_ES_SUPPORT)
 	help
 	  This selects the Cadence SD/SDIO/eMMC driver.
 
 	  If you have a controller with this interface, say Y here.
 
 	  If unsure, say N.
+
+config MMC_CAP_CMD23
+	bool "Enable MMC_CMD_SET_BLOCK_COUNT command 23 support"
+	depends on MMC_SDHCI_CADENCE
+	help
+	  This option enables the use of the set block count command
+          when reading from mmc.
+
+config MMC_SDHCI_CADENCE_DEBUG
+	bool "Debug support for the Cadence SD/SDIO/eMMC controller"
+	depends on MMC_SDHCI_CADENCE
+	default n
+	help
+	  This enables additional debug messages from cadence SDHCI
+	  driver.
 
 config MMC_SDHCI_AM654
 	bool "SDHCI Controller on TI's Am654 devices"

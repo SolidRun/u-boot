@@ -514,6 +514,8 @@ static void set_vga_bridge_bits(struct udevice *dev)
 	u16 bc;
 
 	while (parent->seq != 0) {
+		if (!dev_get_parent_platdata(parent))
+			return;
 		dm_pci_read_config16(parent, PCI_BRIDGE_CONTROL, &bc);
 		bc |= PCI_BRIDGE_CTL_VGA;
 		dm_pci_write_config16(parent, PCI_BRIDGE_CONTROL, bc);
@@ -619,7 +621,7 @@ int pci_generic_mmap_read_config(
 
 int dm_pci_hose_probe_bus(struct udevice *bus)
 {
-	int sub_bus;
+	int sub_bus = 0;
 	int ret;
 	int ea_pos;
 	u8 reg;
@@ -631,7 +633,10 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 		dm_pci_read_config8(bus, ea_pos + sizeof(u32) + sizeof(u8),
 				    &reg);
 		sub_bus = reg;
-	} else {
+		if (!sub_bus)
+			ea_pos = 0;
+	}
+	if (!ea_pos) {
 		sub_bus = pci_get_bus_max() + 1;
 	}
 	debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
@@ -793,6 +798,29 @@ error:
 	return ret;
 }
 
+int pci_only_one_child(struct udevice *dev)
+{
+	u16 class = 0;
+
+	if (!device_is_on_pci_bus(dev))
+		return 0;
+
+	dm_pci_read_config16(dev, PCI_CLASS_DEVICE, &class);
+	if (class == PCI_CLASS_BRIDGE_PCI) {
+		int pos = 0;
+		u16 cap = 0;
+
+		pos = dm_pci_find_capability(dev, PCI_CAP_ID_EXP);
+		if (pos) {
+			dm_pci_read_config16(dev, pos + PCI_EXP_FLAGS, &cap);
+			cap = ((cap & PCI_EXP_FLAGS_TYPE) >> 4);
+			if (cap == PCI_EXP_TYPE_ROOT_PORT)
+				return 1;
+		}
+	}
+	return 0;
+}
+
 int pci_bind_bus_devices(struct udevice *bus)
 {
 	ulong vendor, device;
@@ -803,8 +831,11 @@ int pci_bind_bus_devices(struct udevice *bus)
 	int ret;
 
 	found_multi = false;
-	end = PCI_BDF(bus->seq, PCI_MAX_PCI_DEVICES - 1,
-		      PCI_MAX_PCI_FUNCTIONS - 1);
+	if (pci_only_one_child(bus))
+		end = PCI_BDF(bus->seq, 0, PCI_MAX_PCI_FUNCTIONS - 1);
+	else
+		end = PCI_BDF(bus->seq, PCI_MAX_PCI_DEVICES - 1,
+			      PCI_MAX_PCI_FUNCTIONS - 1);
 	for (bdf = PCI_BDF(bus->seq, 0, 0); bdf <= end;
 	     bdf += PCI_BDF(0, 0, 1)) {
 		struct pci_child_platdata *pplat;
@@ -895,6 +926,14 @@ int pci_bind_bus_devices(struct udevice *bus)
 						      PCI_DEV(ari_cap),
 						      PCI_FUNC(ari_cap));
 					bdf = bdf - 0x100;
+					/*
+					 * Incase only one child is setup
+					 * earlier need to update end to max
+					 * for ARI chain.
+					 */
+					end = PCI_BDF(bus->seq,
+						PCI_MAX_PCI_DEVICES - 1,
+						PCI_MAX_PCI_FUNCTIONS - 1);
 				}
 			}
 		}

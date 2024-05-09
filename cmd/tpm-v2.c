@@ -116,7 +116,8 @@ static int do_tpm2_pcr_extend(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (index >= priv->pcr_count)
 		return -EINVAL;
 
-	rc = tpm2_pcr_extend(dev, index, digest);
+	rc = tpm2_pcr_extend(dev, index, TPM2_ALG_SHA256, digest,
+			     TPM2_DIGEST_LEN);
 
 	unmap_sysmem(digest);
 
@@ -150,7 +151,8 @@ static int do_tpm_pcr_read(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	data = map_sysmem(simple_strtoul(argv[2], NULL, 0), 0);
 
-	rc = tpm2_pcr_read(dev, index, priv->pcr_select_min, data, &updates);
+	rc = tpm2_pcr_read(dev, index, priv->pcr_select_min, TPM2_ALG_SHA256,
+			   data, TPM2_DIGEST_LEN, &updates);
 	if (!rc) {
 		printf("PCR #%u content (%u known updates):\n", index, updates);
 		print_byte_string(data, TPM2_DIGEST_LEN);
@@ -191,10 +193,10 @@ static int do_tpm_get_capability(struct cmd_tbl *cmdtp, int flag, int argc,
 	for (i = 0; i < count; i++) {
 		printf("Property 0x");
 		for (j = 0; j < 4; j++)
-			printf("%02x", data[(i * 8) + j]);
+			printf("%02x", data[(i * 8) + j + sizeof(u32)]);
 		printf(": 0x");
 		for (j = 4; j < 8; j++)
-			printf("%02x", data[(i * 8) + j]);
+			printf("%02x", data[(i * 8) + j + sizeof(u32)]);
 		printf("\n");
 	}
 

@@ -11,8 +11,12 @@
 /* Product PARTNUM */
 #define CN81XX	0xA2
 #define CN83XX	0xA3
+#define CN98XX	0xB1
 #define CN96XX	0xB2
 #define CN95XX	0xB3
+#define LOKI	0xB4
+#define F95MM	0xB5
+#define F95O	0xB6
 
 /* Register defines */
 

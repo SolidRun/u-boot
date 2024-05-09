@@ -140,6 +140,21 @@ int mmc_set_enhanced_strobe(struct mmc *mmc)
 {
 	return dm_mmc_set_enhanced_strobe(mmc->dev);
 }
+
+int dm_mmc_clear_enhanced_strobe(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (ops->clear_enhanced_strobe)
+		return ops->clear_enhanced_strobe(dev);
+
+	return -EOPNOTSUPP;
+}
+
+int mmc_clear_enhanced_strobe(struct mmc *mmc)
+{
+	return dm_mmc_clear_enhanced_strobe(mmc->dev);
+}
 #endif
 
 int dm_mmc_host_power_cycle(struct udevice *dev)
@@ -231,6 +246,9 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 			cfg->host_caps |= MMC_CAP_CD_ACTIVE_HIGH;
 		if (dev_read_bool(dev, "broken-cd"))
 			cfg->host_caps |= MMC_CAP_NEEDS_POLL;
+	}
+	if (dev_read_bool(dev, "mmc-cmd23")) {
+		cfg->host_caps |= MMC_CAP_CMD23;
 	}
 
 	if (dev_read_bool(dev, "no-1-8-v")) {

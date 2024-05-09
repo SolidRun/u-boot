@@ -52,8 +52,17 @@ obj-$(CONFIG_NET) += efi_net.o
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += efi_acpi.o
 obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += efi_smbios.o
 obj-$(CONFIG_EFI_RNG_PROTOCOL) += efi_rng.o
+obj-$(CONFIG_EFI_TCG2_PROTOCOL) += efi_tcg2.o
 obj-$(CONFIG_EFI_LOAD_FILE2_INITRD) += efi_load_initrd.o
 obj-y += efi_signature.o
+obj-$(CONFIG_EFI_SPI_NOR_FLASH_PROTOCOL) += efi_spi_protocol.o
+obj-$(CONFIG_EFI_PCI_IO_PROTOCOL) += efi_pci_io_protocol.o
+obj-$(CONFIG_EFI_SEC_SPI_NOR_FLASH) += efi_sec_spi.o
+ifeq ($(CONFIG_CMD_SWITCH_CMDS),y)
+obj-$(CONFIG_EFI_SWCFG_PROTOCOL) += efi_swcfg_protocol.o
+endif
+obj-$(CONFIG_EFI_GPIO_PROTOCOL) += efi_gpio_protocol.o
+obj-$(CONFIG_EFI_I2C_PROTOCOL) += efi_i2c_protocol.o
 
 EFI_VAR_SEED_FILE := $(subst $\",,$(CONFIG_EFI_VAR_SEED_FILE))
 $(obj)/efi_var_seed.o: $(srctree)/$(EFI_VAR_SEED_FILE)

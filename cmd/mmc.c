@@ -28,8 +28,8 @@ static void print_mmcinfo(struct mmc *mmc)
 			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff);
 
 	printf("Bus Speed: %d\n", mmc->clock);
-#if CONFIG_IS_ENABLED(MMC_VERBOSE)
 	printf("Mode: %s\n", mmc_mode_name(mmc->selected_mode));
+#if CONFIG_IS_ENABLED(MMC_VERBOSE)
 	mmc_dump_capabilities("card capabilities", mmc->card_caps);
 	mmc_dump_capabilities("host capabilities", mmc->host_caps);
 #endif
@@ -483,7 +483,7 @@ static int do_mmc_rescan(struct cmd_tbl *cmdtp, int flag,
 {
 	struct mmc *mmc;
 
-	mmc = init_mmc_device(curr_device, true);
+	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
@@ -518,6 +518,14 @@ static int do_mmc_dev(struct cmd_tbl *cmdtp, int flag,
 
 	if (argc == 1) {
 		dev = curr_device;
+		if (curr_device < 0) {
+			if (get_mmc_num() > 0) {
+				curr_device = 0;
+			} else {
+				puts("No MMC device available\n");
+				return 1;
+			}
+		}
 	} else if (argc == 2) {
 		dev = simple_strtoul(argv[1], NULL, 10);
 	} else if (argc == 3) {
@@ -532,7 +540,7 @@ static int do_mmc_dev(struct cmd_tbl *cmdtp, int flag,
 		return CMD_RET_USAGE;
 	}
 
-	mmc = init_mmc_device(dev, true);
+	mmc = init_mmc_device(dev, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 

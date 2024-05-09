@@ -16,6 +16,8 @@
 
 #include <efi_selftest.h>
 #include <net.h>
+#include <dm/uclass.h>
+#include <dm/device.h>
 
 /*
  * MAC address for broadcasts
@@ -167,124 +169,7 @@ static efi_status_t send_dhcp_discover(void)
 	return ret;
 }
 
-/*
- * Setup unit test.
- *
- * Create a 1 s periodic timer.
- * Start the network driver.
- *
- * @handle:	handle of the loaded image
- * @systable:	system table
- * @return:	EFI_ST_SUCCESS for success
- */
-static int setup(const efi_handle_t handle,
-		 const struct efi_system_table *systable)
-{
-	efi_status_t ret;
-
-	boottime = systable->boottime;
-
-	/*
-	 * Create a timer event.
-	 */
-	ret = boottime->create_event(EVT_TIMER, TPL_CALLBACK, NULL, NULL,
-				     &timer);
-	if (ret != EFI_SUCCESS) {
-		efi_st_error("Failed to create event\n");
-		return EFI_ST_FAILURE;
-	}
-	/*
-	 * Set timer period to 1s.
-	 */
-	ret = boottime->set_timer(timer, EFI_TIMER_PERIODIC, 10000000);
-	if (ret != EFI_SUCCESS) {
-		efi_st_error("Failed to set timer\n");
-		return EFI_ST_FAILURE;
-	}
-	/*
-	 * Find an interface implementing the SNP protocol.
-	 */
-	ret = boottime->locate_protocol(&efi_net_guid, NULL, (void **)&net);
-	if (ret != EFI_SUCCESS) {
-		net = NULL;
-		efi_st_error("Failed to locate simple network protocol\n");
-		return EFI_ST_FAILURE;
-	}
-	/*
-	 * Check hardware address size.
-	 */
-	if (!net->mode) {
-		efi_st_error("Mode not provided\n");
-		return EFI_ST_FAILURE;
-	}
-	if (net->mode->hwaddr_size != ARP_HLEN) {
-		efi_st_error("HwAddressSize = %u, expected %u\n",
-			     net->mode->hwaddr_size, ARP_HLEN);
-		return EFI_ST_FAILURE;
-	}
-	/*
-	 * Check that WaitForPacket event exists.
-	 */
-	if (!net->wait_for_packet) {
-		efi_st_error("WaitForPacket event missing\n");
-		return EFI_ST_FAILURE;
-	}
-	if (net->mode->state == EFI_NETWORK_INITIALIZED) {
-		/*
-		 * Shut down network adapter.
-		 */
-		ret = net->shutdown(net);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("Failed to shut down network adapter\n");
-			return EFI_ST_FAILURE;
-		}
-	}
-	if (net->mode->state == EFI_NETWORK_STARTED) {
-		/*
-		 * Stop network adapter.
-		 */
-		ret = net->stop(net);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("Failed to stop network adapter\n");
-			return EFI_ST_FAILURE;
-		}
-	}
-	/*
-	 * Start network adapter.
-	 */
-	ret = net->start(net);
-	if (ret != EFI_SUCCESS && ret != EFI_ALREADY_STARTED) {
-		efi_st_error("Failed to start network adapter\n");
-		return EFI_ST_FAILURE;
-	}
-	if (net->mode->state != EFI_NETWORK_STARTED) {
-		efi_st_error("Failed to start network adapter\n");
-		return EFI_ST_FAILURE;
-	}
-	/*
-	 * Initialize network adapter.
-	 */
-	ret = net->initialize(net, 0, 0);
-	if (ret != EFI_SUCCESS) {
-		efi_st_error("Failed to initialize network adapter\n");
-		return EFI_ST_FAILURE;
-	}
-	if (net->mode->state != EFI_NETWORK_INITIALIZED) {
-		efi_st_error("Failed to initialize network adapter\n");
-		return EFI_ST_FAILURE;
-	}
-	return EFI_ST_SUCCESS;
-}
-
-/*
- * Execute unit test.
- *
- * A DHCP discover message is sent. The test is successful if a
- * DHCP reply is received within 10 seconds.
- *
- * @return:	EFI_ST_SUCCESS for success
- */
-static int execute(void)
+static efi_status_t create_dhcp_discover(void)
 {
 	efi_status_t ret;
 	struct efi_event *events[2];
@@ -299,15 +184,9 @@ static int execute(void)
 	u8 *addr;
 
 	/*
-	 * The timeout is to occur after 10 s.
+	 * The timeout is to occur after 20 s.
 	 */
-	unsigned int timeout = 10;
-
-	/* Setup may have failed */
-	if (!net || !timer) {
-		efi_st_error("Cannot execute test after setup failure\n");
-		return EFI_ST_FAILURE;
-	}
+	unsigned int timeout = 20;
 
 	/*
 	 * Send DHCP discover message
@@ -409,6 +288,208 @@ static int execute(void)
 }
 
 /*
+ * Setup unit test.
+ *
+ * Create a 1 s periodic timer.
+ * Start the network driver.
+ *
+ * @handle:	handle of the loaded image
+ * @systable:	system table
+ * @return:	EFI_ST_SUCCESS for success
+ */
+static int setup(const efi_handle_t handle,
+		 const struct efi_system_table *systable)
+{
+	efi_status_t ret;
+
+	boottime = systable->boottime;
+
+	/*
+	 * Create a timer event.
+	 */
+	ret = boottime->create_event(EVT_TIMER, TPL_CALLBACK, NULL, NULL,
+				     &timer);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to create event\n");
+		return EFI_ST_FAILURE;
+	}
+	/*
+	 * Set timer period to 1s.
+	 */
+	ret = boottime->set_timer(timer, EFI_TIMER_PERIODIC, 10000000);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to set timer\n");
+		return EFI_ST_FAILURE;
+	}
+	/* Disable eth interface rotation*/
+	EFI_ENTRY("%p", handle);
+	env_set("ethrotate", "no");
+	EFI_EXIT(ret);
+
+	return EFI_ST_SUCCESS;
+}
+
+/*
+ * Execute unit test.
+ *
+ * A DHCP discover message is sent. The test is successful if a
+ * DHCP reply is received within 10 seconds.
+ *
+ * @return:	EFI_ST_SUCCESS for success
+ */
+static int execute(void)
+{
+	efi_status_t ret;
+	struct efi_mac_address srcaddr;
+	efi_handle_t *handles;
+	efi_uintn_t no_handles, i;
+
+	/* Setup may have failed */
+	if (!timer) {
+		efi_st_error("Cannot run test after setup failure\n");
+		return EFI_ST_FAILURE;
+	}
+
+	/* Get the handle for the protocol */
+	ret = boottime->locate_handle_buffer(BY_PROTOCOL,
+				&efi_net_guid, NULL,
+				&no_handles, &handles);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("No SNP protocol handles\n");
+		return EFI_ST_FAILURE;
+	}
+	efi_st_printf("Detected %d SNP handles\n", (int)no_handles);
+
+	for (i = 0; i < no_handles; ++i) {
+		ret = boottime->open_protocol(handles[i],
+					      &efi_net_guid,
+					      (void **)&net, NULL, NULL,
+					      EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("[%d]Failed to open SNP protocol\n", (int)i);
+			continue;
+		}
+
+		efi_st_printf("Testing eth%ld\n", i);
+		/*
+		 * Check hardware address size.
+		 */
+		if (!net->mode) {
+			efi_st_error("Mode not provided\n");
+			continue;
+		}
+		if (net->mode->hwaddr_size != ARP_HLEN) {
+			efi_st_error("HwAddressSize = %u, expected %u\n",
+				     net->mode->hwaddr_size, ARP_HLEN);
+			continue;
+		}
+
+		/*
+		 * Check that WaitForPacket event exists.
+		 */
+		if (!net->wait_for_packet) {
+			efi_st_error("WaitForPacket event missing\n");
+			continue;
+		}
+
+		if (net->mode->state == EFI_NETWORK_INITIALIZED) {
+			/*
+			 * Shut down network adapter.
+			 */
+			ret = net->shutdown(net);
+			if (ret != EFI_SUCCESS) {
+				efi_st_error("Failed to shut down network adapter\n");
+				continue;
+			}
+		}
+		if (net->mode->state == EFI_NETWORK_STARTED) {
+			/*
+			 * Stop network adapter.
+			 */
+			ret = net->stop(net);
+			if (ret != EFI_SUCCESS) {
+				efi_st_error("Failed to stop network adapter\n");
+				continue;
+			}
+		}
+		/*
+		 * Start network adapter.
+		 */
+		ret = net->start(net);
+		if (ret != EFI_SUCCESS && ret != EFI_ALREADY_STARTED) {
+			efi_st_error("Failed to start network adapter\n");
+			continue;
+		}
+		if (net->mode->state != EFI_NETWORK_STARTED) {
+			efi_st_error("Failed to start network adapter\n");
+			continue;
+		}
+		/*
+		 * Initialize network adapter.
+		 */
+		ret = net->initialize(net, 0, 0);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("Failed to initialize network adapter\n");
+			continue;
+		}
+		if (net->mode->state != EFI_NETWORK_INITIALIZED) {
+			efi_st_error("Failed to initialize network adapter\n");
+			continue;
+		}
+
+		ret = create_dhcp_discover();
+		if (ret != EFI_SUCCESS)
+			efi_st_error("DHCP discover failed [MAC:%pm]\n",
+				     &net->mode->current_address);
+
+		/* Change MAC address to a dummy value */
+		srcaddr.mac_addr[0] = 0x02;
+		srcaddr.mac_addr[1] = 0x0B;
+		srcaddr.mac_addr[2] = 0x03;
+		srcaddr.mac_addr[3] = 0x0C;
+		srcaddr.mac_addr[4] = 0x0D;
+		srcaddr.mac_addr[5] = 0x0E;
+
+		ret = net->station_address(net, 0, &srcaddr);
+		if (ret != EFI_SUCCESS)
+			efi_st_error("Cannot change MAC address\n");
+
+		ret = create_dhcp_discover();
+		if (ret != EFI_SUCCESS)
+			efi_st_error("DHCP discover failed [MAC:%pm]\n",
+				     &net->mode->current_address);
+
+		/* Reset MAC to default */
+		ret = net->station_address(net, 1, &srcaddr);
+		/*
+		 * Shut down network adapter.
+		 */
+		ret = net->shutdown(net);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("Failed to shut down network adapter\n");
+			continue;
+		}
+		if (net->mode->state != EFI_NETWORK_STARTED) {
+			efi_st_error("Failed to shutdown network adapter\n");
+			continue;
+		}
+		/*
+		 * Stop network adapter.
+		 */
+		ret = net->stop(net);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("Failed to stop network adapter\n");
+			continue;
+		}
+		if (net->mode->state != EFI_NETWORK_STOPPED) {
+			efi_st_error("Failed to stop network adapter\n");
+			continue;
+		}
+	}
+	return EFI_ST_SUCCESS;
+}
+
+/*
  * Tear down unit test.
  *
  * Close the timer event created in setup.
@@ -437,32 +518,6 @@ static int teardown(void)
 		if (ret != EFI_SUCCESS) {
 			efi_st_error("Failed to close event");
 			exit_status = EFI_ST_FAILURE;
-		}
-	}
-	if (net) {
-		/*
-		 * Shut down network adapter.
-		 */
-		ret = net->shutdown(net);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("Failed to shut down network adapter\n");
-			exit_status = EFI_ST_FAILURE;
-		}
-		if (net->mode->state != EFI_NETWORK_STARTED) {
-			efi_st_error("Failed to shutdown network adapter\n");
-			return EFI_ST_FAILURE;
-		}
-		/*
-		 * Stop network adapter.
-		 */
-		ret = net->stop(net);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("Failed to stop network adapter\n");
-			exit_status = EFI_ST_FAILURE;
-		}
-		if (net->mode->state != EFI_NETWORK_STOPPED) {
-			efi_st_error("Failed to stop network adapter\n");
-			return EFI_ST_FAILURE;
 		}
 	}
 

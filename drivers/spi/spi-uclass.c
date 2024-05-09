@@ -392,6 +392,13 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 			goto err;
 	}
 
+	if (slave->max_hz)
+		speed = min(speed, (int)slave->max_hz);
+
+	ret = spi_set_speed_mode(bus, speed, mode);
+	if (ret)
+		goto err;
+
 	*busp = bus;
 	*devp = slave;
 	debug("%s: bus=%p, slave=%p\n", __func__, bus, *devp);

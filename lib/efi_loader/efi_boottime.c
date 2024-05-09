@@ -18,6 +18,8 @@
 #include <pe.h>
 #include <u-boot/crc.h>
 #include <watchdog.h>
+#include <net.h>
+#include <efi_variable.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,9 +44,9 @@ LIST_HEAD(efi_register_notify_events);
 /* Handle of the currently executing image */
 static efi_handle_t current_image;
 
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 /*
- * The "gd" pointer lives in a register on ARM and AArch64 that we declare
+ * The "gd" pointer lives in a register on ARM and RISC-V that we declare
  * fixed when compiling U-Boot. However, the payload does not know about that
  * restriction so we need to manually swap its and our view of that register on
  * EFI callback entry/exit.
@@ -86,7 +88,7 @@ static efi_status_t EFIAPI efi_disconnect_controller(
 int __efi_entry_check(void)
 {
 	int ret = entry_count++ == 0;
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	assert(efi_gd);
 	app_gd = gd;
 	set_gd(efi_gd);
@@ -98,7 +100,7 @@ int __efi_entry_check(void)
 int __efi_exit_check(void)
 {
 	int ret = --entry_count == 0;
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	set_gd(app_gd);
 #endif
 	return ret;
@@ -107,7 +109,7 @@ int __efi_exit_check(void)
 /**
  * efi_save_gd() - save global data register
  *
- * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
+ * On the ARM and RISC-V architectures gd is mapped to a fixed register.
  * As this register may be overwritten by an EFI payload we save it here
  * and restore it on every callback entered.
  *
@@ -115,7 +117,7 @@ int __efi_exit_check(void)
  */
 void efi_save_gd(void)
 {
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	efi_gd = gd;
 #endif
 }
@@ -123,13 +125,13 @@ void efi_save_gd(void)
 /**
  * efi_restore_gd() - restore global data register
  *
- * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
+ * On the ARM and RISC-V architectures gd is mapped to a fixed register.
  * Restore it after returning from the UEFI world to the value saved via
  * efi_save_gd().
  */
 void efi_restore_gd(void)
 {
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	/* Only restore if we're already in EFI context */
 	if (!efi_gd)
 		return;
@@ -1863,7 +1865,7 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	struct efi_loaded_image *info = NULL;
 	struct efi_loaded_image_obj **image_obj =
 		(struct efi_loaded_image_obj **)image_handle;
-	efi_status_t ret;
+	efi_status_t ret = EFI_SUCCESS;
 	void *dest_buffer;
 
 	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
@@ -1878,8 +1880,58 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	}
 
 	if (!source_buffer) {
-		ret = efi_load_image_from_path(file_path, &dest_buffer,
+		int flen;
+		char *filename;
+		char *eth_str, *ip_str, *path, *substring;
+		u16 *dp_text;
+		/*
+		 * Do not use 'filepath->str' as this may not be
+		 * in text form.  For example, for a USB path, the 'str'
+		 * is in binary form whereas for a NET path, the 'str' is
+		 * in textual form.
+		 *
+		 * So, convert the device path to text before using it.
+		 */
+		flen = 0;
+		dp_text = efi_dp_str(file_path);
+		if (dp_text)
+			flen = u16_strlen(dp_text);
+		else {
+			ret = EFI_OUT_OF_RESOURCES;
+			goto error;
+		}
+		filename = calloc(flen + 1, sizeof(u8));
+		if (!filename) {
+			ret = EFI_OUT_OF_RESOURCES;
+			goto error;
+		}
+		utf16_to_utf8((u8 *)filename, dp_text, flen);
+		efi_free_pool(dp_text);
+		substring = strchr((const char *)filename, ':');
+		/* If file path is <IP>:<File> format, use network */
+		substring = strchr((const char *)filename, ':');
+		if (substring != NULL) {
+			*substring = 0;
+			eth_str = filename;
+			ip_str = ++substring;
+			substring = strchr((const char *)ip_str, ':');
+			if (substring != NULL) {
+				*substring = 0;
+				path = ++substring;
+			}
+			struct in_addr addr = string_to_ip((const char *)ip_str);
+			if (addr.s_addr) {
+				char *s = env_get("loadaddr");
+				if (s != NULL)
+					dest_buffer = (void *)simple_strtoul(s, NULL, 16);
+				ret = efi_load_image_from_net(path, addr,
+					simple_strtol(++eth_str, NULL, 10), image_handle, &source_size);
+			}
+		} else {
+			ret = efi_load_image_from_path(file_path, &dest_buffer,
 					       &source_size);
+		}
+		free(filename);
 		if (ret != EFI_SUCCESS)
 			goto error;
 	} else {
@@ -2037,15 +2089,40 @@ out:
  */
 static efi_status_t EFIAPI efi_get_next_monotonic_count(uint64_t *count)
 {
-	static uint64_t mono;
+	static uint32_t mono;
+	uint32_t mtc;
+	efi_uintn_t mtc_size = 4;
 	efi_status_t ret;
 
 	EFI_ENTRY("%p", count);
+
 	if (!count) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
+
+	/* Get the upper 32-bits of the monotonic count */
+	mtc = 0;
+	ret = efi_get_variable_int(L"MTC", &efi_global_variable_guid, NULL,
+				   &mtc_size, &mtc, NULL);
+	if (ret)
+		log_err("MTC variable not found\n");
+
 	*count = mono++;
+	*count |= (uint64_t)mtc << 32;
+
+	/* If lower 32-bit overflows, increment upper 32-bit */
+	if (mono == 0) {
+		mtc++;
+		ret = efi_set_variable_int(L"MTC", &efi_global_variable_guid,
+					   EFI_VARIABLE_RUNTIME_ACCESS |
+					   EFI_VARIABLE_NON_VOLATILE |
+					   EFI_VARIABLE_BOOTSERVICE_ACCESS,
+					   mtc_size, &mtc, false);
+		if (ret)
+			log_err("Monotonic Count variable not incremented\n");
+	}
+
 	ret = EFI_SUCCESS;
 out:
 	return EFI_EXIT(ret);
@@ -2920,7 +2997,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		 * us to the current line. This implies that the second half
 		 * of the EFI_CALL macro has not been executed.
 		 */
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 		/*
 		 * efi_exit() called efi_restore_gd(). We have to undo this
 		 * otherwise __efi_entry_check() will put the wrong value into

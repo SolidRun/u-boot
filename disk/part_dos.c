@@ -242,6 +242,10 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 		return -1;
 	}
 
+	/* MBR signature valid, mark it as such */
+	if (dev_desc->sig_type == SIG_TYPE_NONE)
+		dev_desc->sig_type = SIG_TYPE_MBR;
+
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	if (!ext_part_sector)
 		disksig = le32_to_int(&buffer[DOS_PART_DISKSIG_OFFSET]);

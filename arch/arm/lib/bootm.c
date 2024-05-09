@@ -114,6 +114,10 @@ static void announce_and_cleanup(int fake)
 
 	printf("\nStarting kernel ...%s\n\n", fake ?
 		"(fake run for tracing)" : "");
+#ifdef CONFIG_FWLOG_TTYMEM
+	extern void fwlog_disconnect_ttymem(void);
+	fwlog_disconnect_ttymem();
+#endif
 	/*
 	 * Call remove function of all devices with a removal flag set.
 	 * This may be useful for last-stage operations, like cancelling

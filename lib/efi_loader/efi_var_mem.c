@@ -9,9 +9,15 @@
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <u-boot/crc.h>
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_OCTEONTX2)
+#include <asm/arch/smc.h>
+#endif
 
-struct efi_var_file __efi_runtime_data *efi_var_buf;
-static struct efi_var_entry __efi_runtime_data *efi_current_var;
+__efi_runtime_data struct efi_var_file *efi_var_buf;
+__efi_runtime_data struct efi_var_entry *efi_current_var;
+extern struct efi_var_file *efi_var_mem_base;
+extern struct efi_var_file *efi_var_mem_base_phy;
+extern struct efi_auth_var_name_type name_type[4];
 
 /**
  * efi_var_mem_compare() - compare GUID and name with a variable
@@ -22,7 +28,7 @@ static struct efi_var_entry __efi_runtime_data *efi_current_var;
  * @next:	pointer to next variable
  * Return:	true if match
  */
-static bool __efi_runtime
+bool __efi_runtime
 efi_var_mem_compare(struct efi_var_entry *var, const efi_guid_t *guid,
 		    const u16 *name, struct efi_var_entry **next)
 {
@@ -127,12 +133,10 @@ void __efi_runtime efi_var_mem_del(struct efi_var_entry *var)
 				   sizeof(struct efi_var_file));
 }
 
-efi_status_t __efi_runtime efi_var_mem_ins(
-				u16 *variable_name,
-				const efi_guid_t *vendor, u32 attributes,
-				const efi_uintn_t size1, const void *data1,
-				const efi_uintn_t size2, const void *data2,
-				const u64 time)
+efi_status_t __efi_runtime efi_var_mem_ins(u16 *variable_name, const efi_guid_t *vendor,
+					   u32 attributes, const efi_uintn_t size1,
+					   const void *data1, const efi_uintn_t size2,
+					   const void *data2, const u64 time)
 {
 	u16 *data;
 	struct efi_var_entry *var;
@@ -211,7 +215,7 @@ static void efi_var_mem_bs_del(void)
  * @event:	callback event
  * @context:	callback context
  */
-static void EFIAPI __efi_runtime
+static void EFIAPI
 efi_var_mem_notify_exit_boot_services(struct efi_event *event, void *context)
 {
 	EFI_ENTRY("%p, %p", event, context);
@@ -223,15 +227,21 @@ efi_var_mem_notify_exit_boot_services(struct efi_event *event, void *context)
 }
 
 /**
- * efi_var_mem_notify_exit_boot_services() - SetVirtualMemoryMap callback
+ * efi_var_mem_notify_virtual_address_map() - SetVirtualMemoryMap callback
  *
  * @event:	callback event
  * @context:	callback context
  */
-static void EFIAPI __efi_runtime
+void EFIAPI __efi_runtime
 efi_var_mem_notify_virtual_address_map(struct efi_event *event, void *context)
 {
 	efi_convert_pointer(0, (void **)&efi_var_buf);
+	efi_convert_pointer(0, (void **)&efi_var_mem_base);
+	for (size_t i = 0; i < ARRAY_SIZE(name_type); ++i) {
+		efi_convert_pointer(0, (void **)&name_type[i].name);
+		efi_convert_pointer(0, (void **)&name_type[i].guid);
+	}
+	efi_convert_pointer(0, (void **)&name_type);
 	efi_current_var = NULL;
 }
 
@@ -241,6 +251,17 @@ efi_status_t efi_var_mem_init(void)
 	efi_status_t ret;
 	struct efi_event *event;
 
+#if defined(CONFIG_ARCH_CN10K) || defined(CONFIG_ARCH_OCTEONTX2)
+	u64 base, size;
+
+	if (!smc_efi_var_shared_memory(&base, &size))
+		efi_var_mem_base = (struct efi_var_file *)base;
+
+	/* Add EFI variable shared memory */
+	efi_add_memory_map((u64)efi_var_mem_base, EFI_VAR_BUF_SIZE, EFI_RUNTIME_SERVICES_DATA);
+	memset(efi_var_mem_base, 0xFF, EFI_VAR_BUF_SIZE);
+	efi_var_mem_base_phy = efi_var_mem_base;
+#endif
 	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
 				 EFI_RUNTIME_SERVICES_DATA,
 				 efi_size_in_pages(EFI_VAR_BUF_SIZE),

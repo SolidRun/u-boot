@@ -180,6 +180,25 @@ static int read_fsr(struct spi_nor *nor)
 }
 
 /*
+ * Read the security register, returning its value in the location
+ * Return the register value.
+ * Returns negative if error occurred.
+ */
+static int read_scur(struct spi_nor *nor)
+{
+	int ret;
+	u8 val;
+
+	ret = nor->read_reg(nor, SPINOR_OP_RD_SCUR, &val, 1);
+	if (ret < 0) {
+		pr_debug("error %d reading SCUR\n", ret);
+		return ret;
+	}
+
+	return val;
+}
+
+/*
  * Read configuration register, returning its value in the
  * location. Return the configuration register value.
  * Returns negative if error occurred.
@@ -403,9 +422,28 @@ static int spi_nor_fsr_ready(struct spi_nor *nor)
 	return fsr & FSR_READY;
 }
 
+static int spi_nor_scur_ready(struct spi_nor *nor)
+{
+	int scur = read_scur(nor);
+
+	if (scur < 0)
+		return scur;
+
+	if (scur & (SCUR_E_ERR | SCUR_P_ERR)) {
+		if (scur & SCUR_E_ERR)
+			dev_dbg(nor->dev, "Erase operation failed.\n");
+		else
+			dev_dbg(nor->dev, "Program operation failed.\n");
+
+		return -EIO;
+	}
+
+	return 1;
+}
+
 static int spi_nor_ready(struct spi_nor *nor)
 {
-	int sr, fsr;
+	int sr, fsr, scur;
 
 	sr = spi_nor_sr_ready(nor);
 	if (sr < 0)
@@ -413,7 +451,11 @@ static int spi_nor_ready(struct spi_nor *nor)
 	fsr = nor->flags & SNOR_F_USE_FSR ? spi_nor_fsr_ready(nor) : 1;
 	if (fsr < 0)
 		return fsr;
-	return sr && fsr;
+	scur = nor->flags & SNOR_F_USE_SCUR ? spi_nor_scur_ready(nor) : 1;
+	if (scur < 0)
+		return scur;
+
+	return sr && fsr && scur;
 }
 
 /*
@@ -593,6 +635,672 @@ erase_err:
 	return ret;
 }
 
+#if defined(CONFIG_SPI_FLASH_MACRONIX)
+/*
+ * Read configuration register, returning its value in the
+ * location. Return the configuration register value.
+ * Returns negative if error occurred.
+ */
+static int read_cr_mx(struct spi_nor *nor)
+{
+	int ret;
+	u8 val;
+
+	ret = nor->read_reg(nor, SPINOR_OP_RD_CR, &val, 1);
+	if (ret < 0) {
+		dev_dbg(nor->dev, "error %d reading CR\n", ret);
+		return ret;
+	}
+
+	return val;
+}
+
+/*
+ * Write status register 2 byte
+ * Returns negative if error occurred.
+ */
+static int write_sr2(struct spi_nor *nor, u8 val, u8 val1)
+{
+	nor->cmd_buf[0] = val;
+	nor->cmd_buf[1] = val1;
+	return nor->write_reg(nor, SPINOR_OP_WRSR, nor->cmd_buf, 2);
+}
+
+/* Write status register and configuration register and
+ * ensure bits in mask match written values
+ */
+static int write_sr_cr_and_check(struct spi_nor *nor, u8 status_new, u8 config,
+				 u8 mask)
+{
+	int ret;
+
+	write_enable(nor);
+	ret = write_sr2(nor, status_new, config);
+	if (ret)
+		return ret;
+
+	ret = spi_nor_wait_till_ready(nor);
+	if (ret)
+		return ret;
+
+	ret = read_sr(nor);
+	if (ret < 0)
+		return ret;
+
+	return ((ret & mask) != (status_new & mask)) ? -EIO : 0;
+}
+
+static void mx_get_locked_range(struct spi_nor *nor, u8 sr, u8 cr, loff_t *ofs,
+				uint64_t *len)
+{
+	struct mtd_info *mtd = &nor->mtd;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	int shift = ffs(mask) - 1;
+	int pow;
+
+	if (!strcmp(mtd->name, "mx66l2g45g"))
+		mask |= SR_BP3;
+
+	if (!(sr & mask)) {
+		/* No protection */
+		*ofs = 0;
+		*len = 0;
+	} else {
+		pow = ((sr & mask) ^ mask) >> shift;
+		if (pow < 2)
+			pow = 2;
+
+		*len = mtd->size >> (pow - 2);
+		if (cr & CR_TB_MX)
+			*ofs = 0;
+		else
+			*ofs = mtd->size - *len;
+		debug("%s sr %x shift %x mask %x xor %x pow %x\n", __func__,
+		      sr, shift, mask, (sr & mask) ^ mask, pow);
+	}
+	debug("%s ofs %llx len %llx\n", __func__, *ofs, *len);
+}
+
+/*
+ * Return 1 if the entire region is locked (if @locked is true) or unlocked (if
+ * @locked is false); 0 otherwise
+ */
+static int mx_check_lock_status_sr(struct spi_nor *nor, loff_t ofs, u64 len,
+				   u8 sr, u8 cr, bool locked)
+{
+	loff_t lock_offs;
+	uint64_t lock_len;
+
+	if (!len)
+		return 1;
+
+	mx_get_locked_range(nor, sr, cr, &lock_offs, &lock_len);
+	debug("%s ofs %llx len %llx\n", __func__, ofs, len);
+	debug("%s lock_offs %llx lock_len %llx\n", __func__, lock_offs,
+	      lock_len);
+	if (locked)
+		/* Requested range is a sub-range of locked range */
+		return (ofs + len <= lock_offs + lock_len) && (ofs >= lock_offs);
+	else
+		/* Requested range does not overlap with locked range */
+		return (ofs >= lock_offs + lock_len) || (ofs + len <= lock_offs);
+}
+
+static int mx_is_locked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
+			   u8 sr, u8 cr)
+{
+	return mx_check_lock_status_sr(nor, ofs, len, sr, cr, true);
+}
+
+static int mx_is_unlocked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
+			     u8 sr, u8 cr)
+{
+	return mx_check_lock_status_sr(nor, ofs, len, sr, cr, false);
+}
+
+static int mx_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	struct mtd_info *mtd = &nor->mtd;
+	int status_old, status_new, reg;
+	u8 config;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	u8 shift = ffs(mask) - 1, pow, val;
+	loff_t lock_len;
+	bool can_be_top = true, can_be_bottom = true;
+	bool use_top;
+
+	status_old = read_sr(nor);
+	if (status_old < 0)
+		return status_old;
+
+	reg = read_cr_mx(nor);
+	if (reg < 0)
+		return reg;
+	config = (u8)reg;
+
+	/* For this flash device, BP3 of status is in position 5
+	 * so add it to mask
+	 */
+	if (!strcmp(mtd->name, "mx66l2g45g") ||
+	    !strcmp(mtd->name, "mx25u12835f"))
+		mask |= SR_BP3;
+
+	/* If nothing in our range is unlocked, we don't need to do anything */
+	if (mx_is_locked_sr(nor, ofs, len, status_old, config))
+		return 0;
+
+	/* If anything below us is unlocked, we can't use 'bottom' protection */
+	if (!mx_is_locked_sr(nor, 0, ofs, status_old, config))
+		can_be_bottom = false;
+
+	debug("%s ofs %llx len %llx\n", __func__, ofs, len);
+	debug("%s 1ofs %llx 1len %llx\n", __func__, ofs + len,
+	      mtd->size - ofs - len);
+	/* If anything above us is unlocked, we can't use 'top' protection */
+	if (!mx_is_locked_sr(nor, ofs + len, mtd->size - (ofs + len),
+			     status_old, config))
+		can_be_top = false;
+
+	if (!can_be_bottom && !can_be_top)
+		return -EINVAL;
+
+	/* Prefer top, if both are valid */
+	use_top = can_be_top;
+	if (!strcmp(mtd->name, "mx66l2g45g") ||
+	    !strcmp(mtd->name, "mx25u12835f"))
+		use_top = false;
+
+	/* lock_len: length of region that should end up locked */
+	if (use_top)
+		lock_len = mtd->size - ofs;
+	else
+		lock_len = ofs + len;
+
+	/*
+	 * Need smallest pow such that:
+	 *
+	 *   1 / (2^pow) <= (len / size)
+	 *
+	 * so (assuming power-of-2 size) we do:
+	 *
+	 *   pow = ceil(log2(size / len)) = log2(size) - floor(log2(len))
+	 */
+	pow = ilog2(mtd->size) - ilog2(lock_len);
+	val = mask - ((pow + 1) << shift);
+	if (val & ~mask)
+		return -EINVAL;
+	debug("%s val %x mask %x pow %x shift %x\n", __func__, val, mask, pow,
+	      shift);
+
+	/* Don't "lock" with no region! */
+	if (!(val & mask))
+		return -EINVAL;
+
+	status_new = (status_old & ~mask) | val;
+
+	/* Disallow further writes if WP pin is asserted */
+	status_new |= SR_SRWD;
+
+	/* Don't bother if they're the same */
+	if (status_new == status_old)
+		return 0;
+
+	/* Only modify protection if it will not unlock other areas */
+	if ((status_new & mask) < (status_old & mask))
+		return -EINVAL;
+
+	if (!use_top)
+		config |= CR_TB_MX;
+	else
+		config &= ~CR_TB_MX;
+
+	debug("%s SRN %x mask %x\n", __func__, status_new, mask);
+	return write_sr_cr_and_check(nor, status_new, config, mask);
+}
+
+/*
+ * Unlock a region of the flash. See stm_lock() for more info
+ *
+ * Returns negative on errors, 0 on success.
+ */
+static int mx_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	struct mtd_info *mtd = &nor->mtd;
+	int status_old, status_new;
+	u8 config;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	u8 shift = ffs(mask) - 1, pow, val;
+	loff_t lock_len;
+	bool can_be_top = true, can_be_bottom = false;
+	bool use_top;
+
+	status_old = read_sr(nor);
+	if (status_old < 0)
+		return status_old;
+
+	config = read_cr_mx(nor);
+	if (config < 0)
+		return config;
+
+	/* For this flash device, BP3 of status is in position 5
+	 * so add it to mask
+	 */
+	if (!strcmp(mtd->name, "mx66l2g45g") ||
+	    !strcmp(mtd->name, "mx25u12835f"))
+		mask |= SR_BP3;
+
+	/* If nothing in our range is locked, we don't need to do anything */
+	if (mx_is_unlocked_sr(nor, ofs, len, status_old, config))
+		return 0;
+
+	/* If anything below us is locked, we can't use 'top' protection */
+	if (!mx_is_unlocked_sr(nor, 0, ofs, status_old, config))
+		can_be_top = false;
+
+	/* If anything above us is locked, we can't use 'bottom' protection */
+	if (!mx_is_unlocked_sr(nor, ofs + len, mtd->size - (ofs + len),
+				status_old, config))
+		can_be_bottom = false;
+
+	if (!can_be_bottom && !can_be_top)
+		return -EINVAL;
+
+	/* Prefer top, if both are valid */
+	use_top = can_be_top;
+	if (!strcmp(mtd->name, "mx66l2g45g") ||
+	    !strcmp(mtd->name, "mx25u12835f"))
+		use_top = false;
+
+	/* lock_len: length of region that should remain locked */
+	if (use_top)
+		lock_len = mtd->size - (ofs + len);
+	else
+		lock_len = ofs;
+
+	/*
+	 * Need largest pow such that:
+	 *
+	 *   1 / (2^pow) >= (len / size)
+	 *
+	 * so (assuming power-of-2 size) we do:
+	 *
+	 *   pow = floor(log2(size / len)) = log2(size) - ceil(log2(len))
+	 */
+	pow = ilog2(mtd->size) - order_base_2(lock_len);
+	debug("%s il1 %x il2 %x\n", __func__, ilog2(mtd->size),
+	      order_base_2(lock_len));
+	if (lock_len == 0) {
+		val = 0; /* fully unlocked */
+	} else {
+		val = mask - (pow << shift);
+		debug("%s val %x mask %x po %x\n", __func__, val, mask,
+		      pow << shift);
+		/* Some power-of-two sizes are not supported */
+		if (val & ~mask)
+			return -EINVAL;
+	}
+	debug("%s val %x mask %x\n", __func__, val, mask);
+
+	status_new = (status_old & ~mask) | val;
+
+	/* Don't protect status register if we're fully unlocked */
+	if (lock_len == 0)
+		status_new &= ~SR_SRWD;
+
+	/* Don't bother if they're the same */
+	if (status_new == status_old)
+		return 0;
+
+	/* Only modify protection if it will not lock other areas */
+	if ((status_new & mask) > (status_old & mask))
+		return -EINVAL;
+
+	if (!use_top)
+		config |= CR_TB_MX;
+	else
+		config &= ~CR_TB_MX;
+
+	debug("%s SRN %x mask %x\n", __func__, status_new, mask);
+	return write_sr_cr_and_check(nor, status_new, config, mask);
+}
+
+/*
+ * Check if a region of the flash is (completely) locked. See stm_lock() for
+ * more info.
+ *
+ * Returns 1 if entire region is locked, 0 if any portion is unlocked, and
+ * negative on errors.
+ */
+static int mx_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	int status, config;
+
+	status = read_sr(nor);
+	if (status < 0)
+		return status;
+
+	config = read_cr_mx(nor);
+	if (config < 0)
+		return config;
+
+	return mx_is_locked_sr(nor, ofs, len, status, config);
+}
+#endif /* CONFIG_SPI_FLASH_MACRONIX */
+
+#if defined(CONFIG_SPI_FLASH_WINBOND)
+/* Write status register and ensure bits in mask match written values */
+static int wnb_write_sr_and_check(struct spi_nor *nor, u8 status_new, u8 mask)
+{
+	int ret;
+
+	write_enable(nor);
+	ret = write_sr(nor, status_new);
+	if (ret)
+		return ret;
+
+	ret = spi_nor_wait_till_ready(nor);
+	if (ret)
+		return ret;
+
+	ret = read_sr(nor);
+	if (ret < 0)
+		return ret;
+
+	return ((ret & mask) != (status_new & mask)) ? -EIO : 0;
+}
+
+static void wnb_get_locked_range(struct spi_nor *nor, u8 sr, loff_t *ofs,
+				 uint64_t *len)
+{
+	struct mtd_info *mtd = &nor->mtd;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	int shift = ffs(mask) - 1;
+	int pow;
+
+	if (!(sr & mask)) {
+		/* No protection */
+		*ofs = 0;
+		*len = 0;
+	} else {
+		pow = ((sr & mask) ^ mask) >> shift;
+
+		*len = mtd->size >> pow;
+		if (nor->flags & SNOR_F_HAS_SR_TB && sr & SR_TB)
+			*ofs = 0;
+		else
+			*ofs = mtd->size - *len;
+		if (!strcmp(mtd->name, "w25q128fw"))
+			*ofs = 0;
+		debug("%s sr %x shift %x mask %x xor %x pow %x\n", __func__,
+		      sr, shift, mask, (sr & mask) ^ mask, pow);
+	}
+	debug("%s ofs %llx len %llx\n", __func__, *ofs, *len);
+}
+
+/*
+ * Return 1 if the entire region is locked (if @locked is true) or unlocked (if
+ * @locked is false); 0 otherwise
+ */
+static int wnb_check_lock_status_sr(struct spi_nor *nor, loff_t ofs, u64 len,
+				    u8 sr, bool locked)
+{
+	loff_t lock_offs;
+	u64 lock_len;
+
+	if (!len)
+		return 1;
+
+	wnb_get_locked_range(nor, sr, &lock_offs, &lock_len);
+	debug("%s ofs %llx len %llx\n", __func__, ofs, len);
+	debug("%s lock_offs %llx lock_len %llx\n", __func__, lock_offs,
+	      lock_len);
+	if (locked)
+		/* Requested range is a sub-range of locked range */
+		return (ofs + len <= lock_offs + lock_len) && (ofs >= lock_offs);
+	else
+		/* Requested range does not overlap with locked range */
+		return (ofs >= lock_offs + lock_len) || (ofs + len <= lock_offs);
+}
+
+static int wnb_is_locked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
+			    u8 sr)
+{
+	return wnb_check_lock_status_sr(nor, ofs, len, sr, true);
+}
+
+static int wnb_is_unlocked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
+			      u8 sr)
+{
+	return wnb_check_lock_status_sr(nor, ofs, len, sr, false);
+}
+
+/*
+ * Lock a region of the flash. Compatible with ST Micro and similar flash.
+ * Supports the block protection bits BP{0,1,2} in the status register
+ * (SR). Does not support these features found in newer SR bitfields:
+ *   - SEC: sector/block protect - only handle SEC=0 (block protect)
+ *   - CMP: complement protect - only support CMP=0 (range is not complemented)
+ *
+ * Support for the following is provided conditionally for some flash:
+ *   - TB: top/bottom protect
+ *
+ * Sample table portion for 8MB flash (Winbond w25q64fw):
+ *
+ *   SEC  |  TB   |  BP2  |  BP1  |  BP0  |  Prot Length  | Protected Portion
+ *  --------------------------------------------------------------------------
+ *    X   |   X   |   0   |   0   |   0   |  NONE         | NONE
+ *    0   |   0   |   0   |   0   |   1   |  128 KB       | Upper 1/64
+ *    0   |   0   |   0   |   1   |   0   |  256 KB       | Upper 1/32
+ *    0   |   0   |   0   |   1   |   1   |  512 KB       | Upper 1/16
+ *    0   |   0   |   1   |   0   |   0   |  1 MB         | Upper 1/8
+ *    0   |   0   |   1   |   0   |   1   |  2 MB         | Upper 1/4
+ *    0   |   0   |   1   |   1   |   0   |  4 MB         | Upper 1/2
+ *    X   |   X   |   1   |   1   |   1   |  8 MB         | ALL
+ *  ------|-------|-------|-------|-------|---------------|-------------------
+ *    0   |   1   |   0   |   0   |   1   |  128 KB       | Lower 1/64
+ *    0   |   1   |   0   |   1   |   0   |  256 KB       | Lower 1/32
+ *    0   |   1   |   0   |   1   |   1   |  512 KB       | Lower 1/16
+ *    0   |   1   |   1   |   0   |   0   |  1 MB         | Lower 1/8
+ *    0   |   1   |   1   |   0   |   1   |  2 MB         | Lower 1/4
+ *    0   |   1   |   1   |   1   |   0   |  4 MB         | Lower 1/2
+ *
+ * Returns negative on errors, 0 on success.
+ */
+static int wnb_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	struct mtd_info *mtd = &nor->mtd;
+	int status_old, status_new;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	u8 shift = ffs(mask) - 1, pow, val;
+	loff_t lock_len;
+	bool can_be_top = true, can_be_bottom = nor->flags & SNOR_F_HAS_SR_TB;
+	bool use_top;
+
+	status_old = read_sr(nor);
+	if (status_old < 0)
+		return status_old;
+
+	/* If nothing in our range is unlocked, we don't need to do anything */
+	if (wnb_is_locked_sr(nor, ofs, len, status_old))
+		return 0;
+
+	/* If anything below us is unlocked, we can't use 'bottom' protection */
+	if (!wnb_is_locked_sr(nor, 0, ofs, status_old))
+		can_be_bottom = false;
+
+	debug("%s ofs %llx len %llx\n", __func__, ofs, len);
+	debug("%s 1ofs %llx 1len %llx\n", __func__, ofs + len,
+	      mtd->size - ofs - len);
+	/* If anything above us is unlocked, we can't use 'top' protection */
+	if (!wnb_is_locked_sr(nor, ofs + len, mtd->size - (ofs + len),
+			      status_old))
+		can_be_top = false;
+
+	if (!can_be_bottom && !can_be_top)
+		return -EINVAL;
+
+	/* Prefer top, if both are valid */
+	use_top = can_be_top;
+	if (!strcmp(mtd->name, "w25q128fw"))
+		use_top = false;
+
+	/* lock_len: length of region that should end up locked */
+	if (use_top)
+		lock_len = mtd->size - ofs;
+	else
+		lock_len = ofs + len;
+
+	/*
+	 * Need smallest pow such that:
+	 *
+	 *   1 / (2^pow) <= (len / size)
+	 *
+	 * so (assuming power-of-2 size) we do:
+	 *
+	 *   pow = ceil(log2(size / len)) = log2(size) - floor(log2(len))
+	 */
+	pow = ilog2(mtd->size) - ilog2(lock_len);
+	val = mask - ((pow - 1) << shift);
+	if (val & ~mask)
+		return -EINVAL;
+	debug("%s val %x mask %x pow %x shift %x\n", __func__, val, mask, pow,
+	      shift);
+
+	/* Don't "lock" with no region! */
+	if (!(val & mask))
+		return -EINVAL;
+
+	/* For this flash device, BP3 of mask is in position 5 instead of 6
+	 * so move it to fall inline with register bits
+	 */
+	status_new = (status_old & ~mask & ~SR_TB) | val;
+
+	/* Disallow further writes if WP pin is asserted */
+	status_new |= SR_SRWD;
+
+	if (!use_top)
+		status_new |= SR_TB;
+
+	/* Don't bother if they're the same */
+	if (status_new == status_old)
+		return 0;
+
+	/* Only modify protection if it will not unlock other areas */
+	if ((status_new & mask) < (status_old & mask))
+		return -EINVAL;
+	debug("%s SRN %x mask %x\n", __func__, status_new, mask);
+	return wnb_write_sr_and_check(nor, status_new, mask);
+}
+
+/*
+ * Unlock a region of the flash. See stm_lock() for more info
+ *
+ * Returns negative on errors, 0 on success.
+ */
+static int wnb_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	struct mtd_info *mtd = &nor->mtd;
+	int status_old, status_new;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	u8 shift = ffs(mask) - 1, pow, val;
+	loff_t lock_len;
+	bool can_be_top = true, can_be_bottom = nor->flags & SNOR_F_HAS_SR_TB;
+	bool use_top;
+
+	status_old = read_sr(nor);
+	if (status_old < 0)
+		return status_old;
+
+	/* If nothing in our range is locked, we don't need to do anything */
+	if (wnb_is_unlocked_sr(nor, ofs, len, status_old))
+		return 0;
+
+	/* If anything below us is locked, we can't use 'top' protection */
+	if (!wnb_is_unlocked_sr(nor, 0, ofs, status_old))
+		can_be_top = false;
+
+	/* If anything above us is locked, we can't use 'bottom' protection */
+	if (!wnb_is_unlocked_sr(nor, ofs + len, mtd->size - (ofs + len),
+				status_old))
+		can_be_bottom = false;
+
+	if (!can_be_bottom && !can_be_top)
+		return -EINVAL;
+
+	/* Prefer top, if both are valid */
+	use_top = can_be_top;
+	if (!strcmp(mtd->name, "w25q128fw"))
+		use_top = false;
+
+	/* lock_len: length of region that should remain locked */
+	if (use_top)
+		lock_len = mtd->size - (ofs + len);
+	else
+		lock_len = ofs;
+
+	/*
+	 * Need largest pow such that:
+	 *
+	 *   1 / (2^pow) >= (len / size)
+	 *
+	 * so (assuming power-of-2 size) we do:
+	 *
+	 *   pow = floor(log2(size / len)) = log2(size) - ceil(log2(len))
+	 */
+	pow = ilog2(mtd->size) - order_base_2(lock_len);
+	debug("%s il1 %x il2 %x\n", __func__, ilog2(mtd->size),
+	      order_base_2(lock_len));
+	if (lock_len == 0) {
+		val = 0; /* fully unlocked */
+	} else {
+		val = mask - (pow << shift);
+		debug("%s val %x mask %x po %x\n", __func__, val, mask,
+		      pow << shift);
+		/* Some power-of-two sizes are not supported */
+		if (val & ~mask)
+			return -EINVAL;
+	}
+	debug("%s val %x mask %x\n", __func__, val, mask);
+	status_new = (status_old & ~mask & ~SR_TB) | val;
+
+	/* Don't protect status register if we're fully unlocked */
+	if (lock_len == 0)
+		status_new &= ~SR_SRWD;
+
+	if (!use_top)
+		status_new |= SR_TB;
+
+	/* Don't bother if they're the same */
+	if (status_new == status_old)
+		return 0;
+
+	/* Only modify protection if it will not lock other areas */
+	if ((status_new & mask) > (status_old & mask))
+		return -EINVAL;
+
+	debug("%s SRN %x mask %x\n", __func__, status_new, mask);
+	return wnb_write_sr_and_check(nor, status_new, mask);
+}
+
+/*
+ * Check if a region of the flash is (completely) locked. See stm_lock() for
+ * more info.
+ *
+ * Returns 1 if entire region is locked, 0 if any portion is unlocked, and
+ * negative on errors.
+ */
+static int wnb_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	int status;
+
+	status = read_sr(nor);
+	if (status < 0)
+		return status;
+
+	return wnb_is_locked_sr(nor, ofs, len, status);
+}
+#endif /* CONFIG_SPI_FLASH_WINBOND */
+
 #if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
 /* Write status register and ensure bits in mask match written values */
 static int write_sr_and_check(struct spi_nor *nor, u8 status_new, u8 mask)
@@ -623,18 +1331,29 @@ static void stm_get_locked_range(struct spi_nor *nor, u8 sr, loff_t *ofs,
 	int shift = ffs(mask) - 1;
 	int pow;
 
+	if (!strcmp(mtd->name, "mt25ql02g"))
+		mask |= SR_BP3;
+
 	if (!(sr & mask)) {
 		/* No protection */
 		*ofs = 0;
 		*len = 0;
 	} else {
 		pow = ((sr & mask) ^ mask) >> shift;
-		*len = mtd->size >> pow;
+		if (pow < 2)
+			pow = 2;
+
+		*len = mtd->size >> (pow - 2);
 		if (nor->flags & SNOR_F_HAS_SR_TB && sr & SR_TB)
 			*ofs = 0;
 		else
 			*ofs = mtd->size - *len;
+		if (!strcmp(mtd->name, "mt25ql02g"))
+			*ofs = 0;
+		debug("%s sr %x shift %x mask %x xor %x pow %x\n", __func__,
+		      sr, shift, mask, (sr & mask) ^ mask, pow);
 	}
+	debug("%s ofs %llx len %llx\n", __func__, *ofs, *len);
 }
 
 /*
@@ -651,7 +1370,9 @@ static int stm_check_lock_status_sr(struct spi_nor *nor, loff_t ofs, u64 len,
 		return 1;
 
 	stm_get_locked_range(nor, sr, &lock_offs, &lock_len);
-
+	debug("%s ofs %llx len %llx\n", __func__, ofs, len);
+	debug("%s lock_offs %llx lock_len %llx\n", __func__, lock_offs,
+	      lock_len);
 	if (locked)
 		/* Requested range is a sub-range of locked range */
 		return (ofs + len <= lock_offs + lock_len) && (ofs >= lock_offs);
@@ -718,6 +1439,16 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (status_old < 0)
 		return status_old;
 
+	/* For this flash device, BP3 of status is in position 6 instead of 5
+	 * so move it to fall inline with mask
+	 */
+	if (!strcmp(mtd->name, "mt25ql02g")) {
+		u8 reg = status_old;
+
+		mask |= SR_BP3;
+		status_old = ((reg & BIT(6)) >> 1) | (reg & ~BIT(5));
+		debug("%s SRO %x\n", __func__, status_old);
+	}
 	/* If nothing in our range is unlocked, we don't need to do anything */
 	if (stm_is_locked_sr(nor, ofs, len, status_old))
 		return 0;
@@ -726,6 +1457,9 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (!stm_is_locked_sr(nor, 0, ofs, status_old))
 		can_be_bottom = false;
 
+	debug("%s ofs %llx len %llx\n", __func__, ofs, len);
+	debug("%s 1ofs %llx 1len %llx\n", __func__, ofs + len,
+	      mtd->size - ofs - len);
 	/* If anything above us is unlocked, we can't use 'top' protection */
 	if (!stm_is_locked_sr(nor, ofs + len, mtd->size - (ofs + len),
 			      status_old))
@@ -736,6 +1470,8 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	/* Prefer top, if both are valid */
 	use_top = can_be_top;
+	if (!strcmp(mtd->name, "mt25ql02g"))
+		use_top = false;
 
 	/* lock_len: length of region that should end up locked */
 	if (use_top)
@@ -753,29 +1489,56 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	 *   pow = ceil(log2(size / len)) = log2(size) - floor(log2(len))
 	 */
 	pow = ilog2(mtd->size) - ilog2(lock_len);
-	val = mask - (pow << shift);
+	val = mask - ((pow + 1) << shift);
 	if (val & ~mask)
 		return -EINVAL;
+	debug("%s val %x mask %x pow %x shift %x\n", __func__, val, mask, pow,
+	      shift);
+
 	/* Don't "lock" with no region! */
 	if (!(val & mask))
 		return -EINVAL;
 
-	status_new = (status_old & ~mask & ~SR_TB) | val;
+	/* For this flash device, BP3 of mask is in position 5 instead of 6
+	 * so move it to fall inline with register bits
+	 */
+	if (!strcmp(mtd->name, "mt25ql02g")) {
+		u8 reg;
 
-	/* Disallow further writes if WP pin is asserted */
-	status_new |= SR_SRWD;
+		status_new = (status_old & ~mask) | val;
 
-	if (!use_top)
-		status_new |= SR_TB;
+		/* Only modify protection if it will not unlock other areas */
+		if ((status_new & mask) < (status_old & mask))
+			return -EINVAL;
 
-	/* Don't bother if they're the same */
-	if (status_new == status_old)
-		return 0;
+		reg = status_new;
+		status_new = ((reg & BIT(5)) << 1) | (reg & ~BIT(6));
 
-	/* Only modify protection if it will not unlock other areas */
-	if ((status_new & mask) < (status_old & mask))
-		return -EINVAL;
+		/* Disallow further writes if WP pin is asserted */
+		status_new |= SR_SRWD;
 
+		if (!use_top)
+			status_new |= SR_TB;
+
+		mask = BIT(6) | SR_BP2 | SR_BP1 | SR_BP0;
+	} else {
+		status_new = (status_old & ~mask & ~SR_TB) | val;
+
+		/* Disallow further writes if WP pin is asserted */
+		status_new |= SR_SRWD;
+
+		if (!use_top)
+			status_new |= SR_TB;
+
+		/* Don't bother if they're the same */
+		if (status_new == status_old)
+			return 0;
+
+		/* Only modify protection if it will not unlock other areas */
+		if ((status_new & mask) < (status_old & mask))
+			return -EINVAL;
+	}
+	debug("%s SRN %x mask %x\n", __func__, status_new, mask);
 	return write_sr_and_check(nor, status_new, mask);
 }
 
@@ -798,6 +1561,17 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (status_old < 0)
 		return status_old;
 
+	/* For this flash device, BP3 of status is in position 6 instead of 5
+	 * so move it to fall inline with mask
+	 */
+	if (!strcmp(mtd->name, "mt25ql02g")) {
+		u8 reg = status_old;
+
+		mask |= SR_BP3;
+		status_old = ((reg & BIT(6)) >> 1) | (reg & ~BIT(5));
+		debug("%s SRO %x\n", __func__, status_old);
+	}
+
 	/* If nothing in our range is locked, we don't need to do anything */
 	if (stm_is_unlocked_sr(nor, ofs, len, status_old))
 		return 0;
@@ -816,6 +1590,8 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	/* Prefer top, if both are valid */
 	use_top = can_be_top;
+	if (!strcmp(mtd->name, "mt25ql02g"))
+		use_top = false;
 
 	/* lock_len: length of region that should remain locked */
 	if (use_top)
@@ -833,32 +1609,63 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	 *   pow = floor(log2(size / len)) = log2(size) - ceil(log2(len))
 	 */
 	pow = ilog2(mtd->size) - order_base_2(lock_len);
+	debug("%s il1 %x il2 %x\n", __func__, ilog2(mtd->size),
+	      order_base_2(lock_len));
 	if (lock_len == 0) {
 		val = 0; /* fully unlocked */
 	} else {
 		val = mask - (pow << shift);
+		debug("%s val %x mask %x po %x\n", __func__, val, mask,
+		      pow << shift);
 		/* Some power-of-two sizes are not supported */
 		if (val & ~mask)
 			return -EINVAL;
 	}
+	debug("%s val %x mask %x\n", __func__, val, mask);
+	/* For this flash device, BP3 of mask is in position 5 instead of 6
+	 * so move it to fall inline with register bits
+	 */
+	if (!strcmp(mtd->name, "mt25ql02g")) {
+		u8 reg;
 
-	status_new = (status_old & ~mask & ~SR_TB) | val;
+		status_new = (status_old & ~mask) | val;
 
-	/* Don't protect status register if we're fully unlocked */
-	if (lock_len == 0)
-		status_new &= ~SR_SRWD;
+		/* Only modify protection if it will not unlock other areas */
+		if ((status_new & mask) > (status_old & mask))
+			return -EINVAL;
 
-	if (!use_top)
-		status_new |= SR_TB;
+		reg = status_new;
+		status_new = ((reg & BIT(5)) << 1) | (reg & ~BIT(6));
+		status_new &= ~SR_TB;
 
-	/* Don't bother if they're the same */
-	if (status_new == status_old)
-		return 0;
+		/* Don't protect status register if we're fully unlocked */
+		if (lock_len == 0)
+			status_new &= ~SR_SRWD;
 
-	/* Only modify protection if it will not lock other areas */
-	if ((status_new & mask) > (status_old & mask))
-		return -EINVAL;
+		if (!use_top)
+			status_new |= SR_TB;
 
+		mask = BIT(6) | SR_BP2 | SR_BP1 | SR_BP0;
+	} else {
+		status_new = (status_old & ~mask & ~SR_TB) | val;
+
+		/* Don't protect status register if we're fully unlocked */
+		if (lock_len == 0)
+			status_new &= ~SR_SRWD;
+
+		if (!use_top)
+			status_new |= SR_TB;
+
+		/* Don't bother if they're the same */
+		if (status_new == status_old)
+			return 0;
+
+		/* Only modify protection if it will not lock other areas */
+		if ((status_new & mask) > (status_old & mask))
+			return -EINVAL;
+	}
+
+	debug("%s SRN %x mask %x\n", __func__, status_new, mask);
 	return write_sr_and_check(nor, status_new, mask);
 }
 
@@ -872,10 +1679,17 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	int status;
+	struct mtd_info *mtd = &nor->mtd;
 
 	status = read_sr(nor);
 	if (status < 0)
 		return status;
+
+	/* For this flash device, BP3 is in position 6 instead of 5
+	 * so move it to fall inline with mask
+	 */
+	if (!strcmp(mtd->name, "mt25ql02g"))
+		status = ((status & BIT(6)) >> 1) | (status & ~BIT(5));
 
 	return stm_is_locked_sr(nor, ofs, len, status);
 }
@@ -2434,6 +3248,194 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 	return 0;
 }
 
+/*
+ * Post device scan hook to set Cypress sf128s in uniform sector mode
+ */
+
+#ifdef CONFIG_SPI_FLASH_SPANSION
+#define SPINOR_REG_ADDR_CR2V	0x00800003
+#define SPINOR_REG_ADDR_CR3V	0x00800004
+#define CR3V_4KBDIS		BIT(3)	/* Uniform sectors (4kB sectors disabled) or not */
+#define CR3V_PBW                BIT(4)  /* Page buffer wrap to 521 or 256 bytes? */
+#define SPINOR_OP_RDAR		0x65	/* Read any register */
+int spansion_read_any_reg(struct spi_nor *nor, u32 addr, u8 *val)
+{
+	u8 buf = 0;
+	u8 addr_width = 3, dummy_bytes = 1; /* Pre-SDFP defaults */
+	int ret;
+	struct spi_mem_op op;
+
+	/* Device name check for sf-cmd/uboot shell use-case */
+	if (!nor->info->name || (strcmp(nor->info->name, "s25fs128s"))) {
+		if (nor->info->name)
+			printf("\n%s() unsupported for %s!\n", __func__,
+			       nor->info->name);
+		return -ENOTSUPP;
+	}
+
+	if (nor->addr_width != 0) /* SFDP done? */
+		addr_width = nor->addr_width;
+	if (nor->read_dummy != 0)
+		dummy_bytes = nor->read_dummy / 8;
+
+	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_RDAR, 1),
+					   SPI_MEM_OP_ADDR(addr_width, addr, 1),
+					   SPI_MEM_OP_DUMMY(dummy_bytes, 1),
+					   SPI_MEM_OP_DATA_IN(1, &buf, 1));
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret)
+		return ret;
+
+	pr_debug("\n%s(0x%08x) -> 0x%02x (dummy: %d/%d ; width: %d)\n",
+		 __func__, addr, buf, nor->read_dummy, op.dummy.nbytes,
+		 addr_width);
+	*val = buf;
+
+	return 0;
+}
+
+#define SPINOR_OP_WRAR		0x71	/* Write any register */
+int spansion_write_any_reg(struct spi_nor *nor, u32 addr, u8 val)
+{
+	u8 addr_width = 3; /* Pre-SDFP defaults */
+	u8 w_val = val;
+	int ret;
+	struct spi_mem_op op;
+
+	/* Device name check for sf-cmd/uboot shell use-case */
+	if (!nor->info->name || (strcmp(nor->info->name, "s25fs128s"))) {
+		if (nor->info->name)
+			printf("\n%s() unsupported for %s!\n",
+			       __func__, nor->info->name);
+
+		return -ENOTSUPP;
+	}
+
+	ret = write_enable(nor);
+	if (ret < 0) {
+		printf("\n%s(reg=0x%08x): WE failed!", __func__, addr);
+		return ret;
+	}
+
+	if (nor->addr_width != 0) /* SFDP done? */
+		addr_width = nor->addr_width;
+
+	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WRAR, 1),
+					   SPI_MEM_OP_ADDR(addr_width, addr, 1),
+					   SPI_MEM_OP_NO_DUMMY,
+					   SPI_MEM_OP_DATA_OUT(1, (const void *)&w_val, 1));
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+
+	if (ret) {
+		printf("\n%s(reg=0x%08x): Write failed!", __func__, addr);
+		return ret;
+	}
+
+	pr_debug("\n%s(0x%08x) <- 0x%02x\n", __func__, addr, val);
+	return 0;
+}
+
+static int s25fs128s_post_scan_fixups(struct spi_nor *nor)
+{
+	int ret = 0;
+	u8  val;
+	u32 dev_page_size;
+
+#ifdef CONFIG_SPI_FLASH_BAR
+	return -ENOTSUPP; /* Bank Address Register is not supported */
+#endif
+	/*
+	 * Read CFR3V to check if uniform sector is selected.
+	 * If so, change erase opcode+size ; Otherwise, returns
+	 * (non uniform sectors) unsupported...
+	 */
+	ret = spansion_read_any_reg(nor, SPINOR_REG_ADDR_CR3V, &val);
+	if (ret)
+		return ret;
+
+	if (val & CR3V_4KBDIS) {
+		pr_debug("%s : Change default erase cmd/size!\n",
+			 nor->info->name);
+		nor->erase_opcode  = SPINOR_OP_SE;
+		nor->mtd.erasesize = SZ_64K;
+		nor->erase_size    = SZ_64K;
+		nor->sector_size   = SZ_64K;
+	} else {
+		printf("\n%s : Non uniform sectors UNSUPPORTED!!!\n",
+		       nor->info->name);
+
+		/*
+		 * To minimize risks of corruption, change defaults anyway,
+		 * this'll work for most device address range (64kB uniform sectors)
+		 * but fail for non uniform sectored area (bottom or top 64kB).
+		 *
+		 * Cannot return -ENOTSUPP here as this'll screw probe (thus read...).
+		 */
+		printf("%s : Change default erase cmd/size\n",
+		       nor->info->name);
+		printf("\n!!! ERASE/WRITE  NON UNIFORM SECTORED AREAS !!!\n");
+		printf("!!! WILL CORRUPT FLASH : YOU'VE BEEN WARNED !!!\n");
+		printf("!!! You may modify device (OTP) CR3NV[BIT3] !!!\n");
+		printf("!!! see datasheet + uboot command 'sf war'. !!!\n\n");
+		nor->erase_opcode  = SPINOR_OP_SE;
+		nor->mtd.erasesize = SZ_64K;
+		nor->erase_size    = SZ_64K;
+		nor->sector_size   = SZ_64K;
+	}
+
+	dev_page_size = (val & CR3V_PBW) ? 512 : 256;
+	if (dev_page_size != nor->page_size) {
+		pr_debug("%s : Bad page size %d ; Fix to %d!\n",
+			 nor->info->name, nor->page_size, dev_page_size);
+		nor->page_size = dev_page_size;
+	}
+
+	/* Hard code to x1 program opcodes per HW limitation */
+	nor->program_opcode  = SPINOR_OP_PP;
+	nor->write_proto  = SNOR_PROTO_1_1_1;
+	return ret;
+}
+#endif /* CONFIG_SPI_FLASH_SPANSION */
+
+static int spi_nor_post_scan_fixups(struct spi_nor *nor)
+{
+	int ret = 0;
+
+	pr_debug("\nBEGIN %s() for %s :\n", __func__, nor->info->name);
+	pr_debug("Dev   flags = 0x%04x\n", nor->info->flags);
+	pr_debug("Erase   cmd = 0x%02x\n", nor->erase_opcode);
+	pr_debug("Program cmd = 0x%02x\n", nor->program_opcode);
+	pr_debug("RD/WR/RG Proto : 0x%04x/0x%04x/0x%04x\n",
+		 nor->read_proto, nor->write_proto, nor->reg_proto);
+	pr_debug("Erase sizes (mtd/nor) : 0x%08x/0x%08x ; Sector : 0x%08x\n",
+		 nor->mtd.erasesize, nor->erase_size, nor->sector_size);
+	pr_debug("Page size = %d\n", nor->page_size);
+
+#ifdef CONFIG_SPI_FLASH_SPANSION
+	/* For Spansion/Cypress s25fs128s, setup post scan fixups function */
+	if (nor->info->name && (!strcmp(nor->info->name, "s25fs128s")))
+		ret = s25fs128s_post_scan_fixups(nor);
+#endif /* CONFIG_SPI_FLASH_SPANSION */
+
+	pr_debug("\nEND %s() for %s :\n", __func__, nor->info->name);
+	pr_debug("Dev   flags = 0x%04x\n", nor->info->flags);
+	pr_debug("Erase   cmd = 0x%02x\n", nor->erase_opcode);
+	pr_debug("Program cmd = 0x%02x\n", nor->program_opcode);
+	pr_debug("RD/WR/RG Proto : 0x%04x/0x%04x/0x%04x\n",
+		 nor->read_proto, nor->write_proto, nor->reg_proto);
+	pr_debug("Erase sizes (mtd/nor) : 0x%08x/0x%08x ; Sector : 0x%08x\n",
+		 nor->mtd.erasesize, nor->erase_size, nor->sector_size);
+	pr_debug("Page size = %d\n", nor->page_size);
+
+	return ret;
+}
+
+/*
+ * /sf128s post-scan hook.
+ */
+
 static int spi_nor_init(struct spi_nor *nor)
 {
 	int err;
@@ -2488,7 +3490,7 @@ int spi_nor_scan(struct spi_nor *nor)
 			SNOR_HWCAPS_PP,
 	};
 	struct spi_slave *spi = nor->spi;
-	int ret;
+	int ret = 0;
 
 	/* Reset SPI protocol for all commands. */
 	nor->reg_proto = SNOR_PROTO_1_1_1;
@@ -2548,6 +3550,28 @@ int spi_nor_scan(struct spi_nor *nor)
 		nor->flash_lock = stm_lock;
 		nor->flash_unlock = stm_unlock;
 		nor->flash_is_locked = stm_is_locked;
+	}
+#endif
+
+#if defined(CONFIG_SPI_FLASH_WINBOND)
+	/* NOR protection support for Winbond chips */
+	if (JEDEC_MFR(info) == SNOR_MFR_WINBOND) {
+		if (!strcmp(mtd->name, "w25q128fw")) {
+			nor->flash_lock = wnb_lock;
+			nor->flash_unlock = wnb_unlock;
+			nor->flash_is_locked = wnb_is_locked;
+		}
+	}
+#endif
+
+#if defined(CONFIG_SPI_FLASH_MACRONIX)
+	/* NOR protection support for Macronix chips */
+	if (JEDEC_MFR(info) == SNOR_MFR_MACRONIX) {
+		nor->flash_lock = mx_lock;
+		nor->flash_unlock = mx_unlock;
+		nor->flash_is_locked = mx_is_locked;
+		if (!strcmp(mtd->name, "mx66l2g45g"))
+			nor->flags |= SNOR_F_USE_SCUR;
 	}
 #endif
 
@@ -2632,6 +3656,8 @@ int spi_nor_scan(struct spi_nor *nor)
 	nor->erase_size = mtd->erasesize;
 	nor->sector_size = mtd->erasesize;
 
+	ret = spi_nor_post_scan_fixups(nor);
+
 #ifndef CONFIG_SPL_BUILD
 	printf("SF: Detected %s with page size ", nor->name);
 	print_size(nor->page_size, ", erase size ");
@@ -2640,5 +3666,5 @@ int spi_nor_scan(struct spi_nor *nor)
 	puts("\n");
 #endif
 
-	return 0;
+	return ret;
 }

@@ -24,6 +24,7 @@
 #include <memalign.h>
 #include <asm-generic/sections.h>
 #include <linux/linkage.h>
+#include <wdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -333,7 +334,8 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 
 	efi_restore_gd();
 
-	free(load_options);
+	if (load_options)
+		free(load_options);
 
 	return ret;
 }
@@ -631,6 +633,10 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	else if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
 
+	/* Disable watch dog */
+#if CONFIG_IS_ENABLED(WDT)
+	wdt_stop(gd->watchdog_dev);
+#endif
 	if (!strcmp(argv[1], "bootmgr"))
 		return do_efibootmgr();
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
@@ -694,10 +700,7 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 		bootefi_device_path = device;
 		if (image) {
 			/* FIXME: image should not contain device */
-			struct efi_device_path *image_tmp = image;
-
 			efi_dp_split_file_path(image, &device, &image);
-			efi_free_pool(image_tmp);
 		}
 		bootefi_image_path = image;
 	} else {

@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <efi_loader.h>
+#include <efi_rng.h>
 #include <exports.h>
 #include <hexdump.h>
 #include <log.h>
@@ -109,11 +110,17 @@ static int efi_get_driver_handle_info(efi_handle_t handle, u16 **driver_name,
 	struct efi_loaded_image *image;
 	efi_status_t ret;
 
-	/*
-	 * driver name
-	 * TODO: support EFI_COMPONENT_NAME2_PROTOCOL
-	 */
-	*driver_name = NULL;
+	/* Find FI_COMPONENT_NAME2_PROTOCOL to get driver name*/
+	const efi_guid_t efi_guid_component_name2_protocol = EFI_COMPONENT_NAME2_PROTOCOL_GUID;
+
+	ret = efi_search_protocol(handle, &efi_guid_component_name2_protocol, &handler);
+	if (ret != EFI_SUCCESS) {
+		*driver_name = NULL;
+	} else {
+		struct efi_component_name2 *component_name2 = handler->protocol_interface;
+
+		ret = component_name2->get_driver_name(component_name2, "en", &driver_name);
+	}
 
 	/* image name */
 	ret = efi_search_protocol(handle, &efi_guid_loaded_image, &handler);
@@ -170,7 +177,6 @@ static int do_efi_show_drivers(struct cmd_tbl *cmdtp, int flag,
 			else
 				printf("%p %-20ls <built-in>\n",
 				       handles[i], driver_name);
-			efi_free_pool(driver_name);
 			efi_free_pool(image_path_text);
 		}
 	}
@@ -249,12 +255,20 @@ static const struct {
 		EFI_LOAD_FILE2_PROTOCOL_GUID,
 	},
 	{
+		"Random Number Generator",
+		EFI_RNG_PROTOCOL_GUID,
+	},
+	{
 		"Simple Network",
 		EFI_SIMPLE_NETWORK_PROTOCOL_GUID,
 	},
 	{
 		"PXE Base Code",
 		EFI_PXE_BASE_CODE_PROTOCOL_GUID,
+	},
+	{
+		"PCI IO",
+		EFI_PCI_IO_PROTOCOL_GUID,
 	},
 	/* Configuration table GUIDs */
 	{
@@ -272,6 +286,14 @@ static const struct {
 	{
 		"Runtime properties",
 		EFI_RT_PROPERTIES_TABLE_GUID,
+	},
+	{
+		"SPI-NOR Flash Protocol",
+		EFI_SPI_NOR_FLASH_PROTOCOL_GUID,
+	},
+	{
+		"Switch Configuration Protocol",
+		EFI_SWITCH_CONFIG_PROTOCOL_GUID,
 	},
 };
 
@@ -1127,6 +1149,14 @@ static int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
 	u16 *exit_data = NULL;
 	efi_status_t ret;
 	void *load_options = NULL;
+	void *fdt;
+
+	fdt = EFI_FDT_USE_INTERNAL;
+	ret = efi_install_fdt(fdt);
+	if (ret == EFI_INVALID_PARAMETER)
+		return CMD_RET_USAGE;
+	else if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
 
 	ret = efi_bootmgr_load(&image, &load_options);
 	printf("efi_bootmgr_load() returned: %ld\n", ret & ~EFI_ERROR_MASK);

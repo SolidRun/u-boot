@@ -428,7 +428,8 @@ static bool octeon_spi_supports_op(struct spi_slave *slave,
 	 */
 	if (op->cmd.buswidth != 1)
 		return false;
-	return true;
+
+	return spi_mem_default_supports_op(slave, op);;
 }
 
 static int octeon_spi_exec_op(struct spi_slave *slave,
@@ -519,7 +520,10 @@ static int octeon_spi_set_speed(struct udevice *bus, uint max_hz)
 	if (max_hz > OCTEON_SPI_MAX_CLOCK_HZ)
 		max_hz = OCTEON_SPI_MAX_CLOCK_HZ;
 
-	clk_rate = clk_get_rate(&priv->clk);
+	if (device_is_compatible(bus, "cavium,thunderx-spi"))
+		clk_rate = 100000000;
+	else
+		clk_rate = clk_get_rate(&priv->clk);
 	if (IS_ERR_VALUE(clk_rate))
 		return -EINVAL;
 

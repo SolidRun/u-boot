@@ -40,7 +40,11 @@ efi_selftest_tpl.o \
 efi_selftest_util.o \
 efi_selftest_variables.o \
 efi_selftest_variables_runtime.o \
-efi_selftest_watchdog.o
+efi_selftest_watchdog.o \
+
+obj-$(CONFIG_EFI_I2C_PROTOCOL) += efi_selftest_i2c.o
+obj-$(CONFIG_EFI_SPI_NOR_FLASH_PROTOCOL) += efi_selftest_spinor.o
+obj-$(CONFIG_EFI_PCI_IO_PROTOCOL) += efi_selftest_pci_io.o
 
 obj-$(CONFIG_NET) += efi_selftest_snp.o
 
@@ -53,6 +57,7 @@ obj-$(CONFIG_EFI_LOADER_HII) += efi_selftest_hii.o
 obj-$(CONFIG_EFI_RNG_PROTOCOL) += efi_selftest_rng.o
 obj-$(CONFIG_EFI_GET_TIME) += efi_selftest_rtc.o
 obj-$(CONFIG_EFI_LOAD_FILE2_INITRD) += efi_selftest_load_initrd.o
+obj-$(CONFIG_EFI_TCG2_PROTOCOL) += efi_selftest_tcg2.o
 
 ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
 obj-y += efi_selftest_fdt.o

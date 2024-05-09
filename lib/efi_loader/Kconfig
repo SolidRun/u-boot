@@ -48,7 +48,77 @@ config EFI_MM_COMM_TEE
 	  variable related operations to that. The application will verify,
 	  authenticate and store the variables on an RPMB.
 
+config EFI_VARIABLE_IN_SPI_FLASH
+	bool "Store non-volatile UEFI variables in SPI-NOR"
+	depends on ARCH_CN10K || ARCH_OCTEONTX2
+	help
+	  Select this option if you want non-volatile UEFI variables to be
+	  stored as raw file on SPI-NOR flash device.
+
 endchoice
+
+config EFI_VARIABLE_IN_SPI_FLASH_AT_OFFSET
+        hex "Store non-volatile UEFI variables in SPI-NOR at this offset"
+        depends on EFI_VARIABLE_IN_SPI_FLASH
+        default 0x00E30000
+        help
+          Store EFI variables at this offset in SPI-NOR device.
+
+config EFI_SPI_NOR_FLASH_PROTOCOL
+	bool "Install EFI_SPI_NOR_FLASH_PROTOCOL on SPI-NOR devices"
+	depends on EFI_LOADER
+	default n
+	help
+	  Select this option if you want to provide UEFI SPI NOR FLASH
+	  PROTOCOL on SPI-NOR flash devices.
+
+config EFI_PCI_IO_PROTOCOL
+	bool "Install EFI_PCI_IO_PROTOCOL"
+	depends on EFI_LOADER
+	default n
+	help
+	  Select this option if you want to provide UEFI PCI IO PROTOCOL
+	  on PCI devices.
+
+config EFI_SEC_SPI_NOR_FLASH
+	bool "Install EFI_SPI_NOR_FLASH_PROTOCOL on secure SPI-NOR devices"
+	depends on EFI_LOADER
+	default n
+	help
+	  Select this option if you want to provide UEFI SPI NOR FLASH
+	  PROTOCOL on secure SPI-NOR flash devices.
+
+config EFI_SWCFG_PROTOCOL
+	bool "Enable Switch Configuration protocol"
+	depends on ARCH_CN10K
+	default n
+	help
+	  Select this option if you want to enable switch configuration
+	  protocol when a switch device is detected.
+
+config EFI_GPIO_PROTOCOL
+	bool "Enable GPIO protocol"
+	depends on ARCH_CN10K
+	default n
+	help
+	  Select this option if you want to enable GPIO protocol that allows
+	  set/get of a GPIO pin.
+
+config EFI_I2C_PROTOCOL
+	bool "Enable EFI I2C protocol"
+	depends on ARCH_CN10K
+	default n
+	help
+	  Select this option if you want to enable I2C protocol that allows
+	  communication with I2C devices.
+
+config RESET_ON_EFI_BOOT_FAIL
+	bool "Reset system if EFI boot fails"
+	depends on ARCH_CN10K
+	default n
+	help
+	  Select this option if you would like to reset the system if none
+	  of the EFI boot options result in successful boot.
 
 config EFI_VARIABLES_PRESEED
 	bool "Initial values for UEFI variables"
@@ -178,6 +248,22 @@ config EFI_RNG_PROTOCOL
 	help
 	  Provide a EFI_RNG_PROTOCOL implementation using the hardware random
 	  number generator of the platform.
+
+config EFI_TCG2_PROTOCOL
+	bool "EFI_TCG2_PROTOCOL support"
+	depends on TPM_V2
+	help
+	  Provide a EFI_TCG2_PROTOCOL implementation using the TPM hardware
+	  of the platform.
+
+config EFI_TCG2_PROTOCOL_EVENTLOG_SIZE
+	int "EFI_TCG2_PROTOCOL EventLog size"
+	depends on EFI_TCG2_PROTOCOL
+	default 4096
+	help
+		Define the size of the EventLog for EFI_TCG2_PROTOCOL. Note that
+		this is going to be allocated twice. One for the eventlog it self
+		and one for the configuration table that is required from the spec
 
 config EFI_LOAD_FILE2_INITRD
 	bool "EFI_FILE_LOAD2_PROTOCOL for Linux initial ramdisk"

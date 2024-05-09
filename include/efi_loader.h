@@ -15,6 +15,7 @@
 #include <efi_api.h>
 #include <image.h>
 #include <pe.h>
+#include <net.h>
 
 struct blk_desc;
 
@@ -79,7 +80,7 @@ const char *__efi_nesting_dec(void);
 	assert(__efi_entry_check()); \
 	debug("%sEFI: Entry %s(" format ")\n", __efi_nesting_inc(), \
 		__func__, ##__VA_ARGS__); \
-	} while(0)
+	} while (0)
 
 /*
  * Exit the u-boot world back to UEFI:
@@ -114,7 +115,7 @@ const char *__efi_nesting_dec(void);
 	exp; \
 	assert(__efi_entry_check()); \
 	debug("%sEFI: Return From: %s\n", __efi_nesting_dec(), #exp); \
-	} while(0)
+	} while (0)
 
 /*
  * Write an indented message with EFI prefix
@@ -154,7 +155,6 @@ extern const struct efi_hii_config_routing_protocol efi_hii_config_routing;
 extern const struct efi_hii_config_access_protocol efi_hii_config_access;
 extern const struct efi_hii_database_protocol efi_hii_database;
 extern const struct efi_hii_string_protocol efi_hii_string;
-extern const struct efi_rng_protocol efi_rng_protocol;
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
 
@@ -205,6 +205,8 @@ extern const efi_guid_t efi_guid_sha256;
 extern const efi_guid_t efi_guid_cert_x509;
 extern const efi_guid_t efi_guid_cert_x509_sha256;
 extern const efi_guid_t efi_guid_cert_type_pkcs7;
+extern const efi_guid_t efi_guid_spi_nor_flash_protocol;
+
 
 /* GUID of RNG protocol */
 extern const efi_guid_t efi_guid_rng_protocol;
@@ -404,6 +406,12 @@ efi_status_t EFIAPI efi_convert_pointer(efi_uintn_t debug_disposition,
 efi_status_t efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
 efi_status_t efi_disk_register(void);
+/* Called by efi_init_obj_list() to install EFI_RNG_PROTOCOL */
+efi_status_t efi_rng_register(void);
+/* Called by efi_init_obj_list() to install EFI_TCG2_PROTOCOL */
+efi_status_t efi_tcg2_register(void);
+/* Do initial measurement */
+efi_status_t efi_tcg2_do_initial_measurement(void);
 /* Create handles and protocols for the partitions of a block device */
 int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 			       const char *if_typename, int diskid,
@@ -473,6 +481,9 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 				   void *source_buffer,
 				   efi_uintn_t source_size,
 				   efi_handle_t *image_handle);
+efi_status_t EFIAPI efi_load_image_from_net(char *file_name,
+				   struct in_addr ip_address, long int interface,
+				   efi_handle_t *image_handle, efi_uintn_t *size);
 /* Start image */
 efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 				    efi_uintn_t *exit_data_size,
@@ -618,6 +629,7 @@ struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part);
 struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 					 const char *path);
 struct efi_device_path *efi_dp_from_eth(void);
+struct efi_device_path *efi_dp_from_eth_index(int index);
 struct efi_device_path *efi_dp_from_mem(uint32_t mem_type,
 					uint64_t start_address,
 					uint64_t end_address);
@@ -633,6 +645,8 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			      struct efi_device_path **file);
 ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 			    const size_t maxlen);
+struct efi_device_path *efi_dp_from_pci(struct udevice *dev);
+struct efi_device_path *efi_dp_from_spi(struct udevice *flash_dev, int bus, int cs);
 
 #define EFI_DP_TYPE(_dp, _type, _subtype) \
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
@@ -785,6 +799,7 @@ static inline bool efi_signature_verify_one(struct efi_image_regions *regs,
 {
 	return efi_signature_verify(regs, msg, db, NULL);
 }
+
 bool efi_signature_check_signers(struct pkcs7_message *msg,
 				 struct efi_signature_store *dbx);
 
@@ -802,6 +817,19 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 
 /* runtime implementation of memcpy() */
 void efi_memcpy_runtime(void *dest, const void *src, size_t n);
+
+/* runtime implementation of memset() */
+void efi_memset_runtime(void *dest, int value, size_t n);
+
+/* Create EFI_SPI_NOR_FLASH_PROTOCOL */
+efi_status_t efi_spinor_protocol_register(void);
+efi_status_t efi_gpio_protocol_register(void);
+efi_status_t efi_i2c_protocol_register(void);
+efi_status_t efi_sec_spinor_protocol_register(void);
+
+efi_status_t efi_pci_io_protocol_register(void);
+
+efi_status_t efi_switch_config_protocol_register(void);
 
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 

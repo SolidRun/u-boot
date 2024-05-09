@@ -501,6 +501,11 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
 	case UCLASS_USB_HUB:
 		return dp_size(dev->parent) +
 			sizeof(struct efi_device_path_usb_class);
+#ifdef CONFIG_SPI_FLASH
+	case UCLASS_SPI_FLASH:
+		return dp_size(dev->parent) +
+			sizeof(struct efi_device_path_vendor) + 1;
+#endif
 	default:
 		/* just skip over unknown classes: */
 		return dp_size(dev->parent);
@@ -700,6 +705,20 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 
 		return &udp[1];
 	}
+#ifdef CONFIG_SPI_FLASH
+	case UCLASS_SPI_FLASH: {
+		struct efi_device_path_vendor *sdp =
+			dp_fill(buf, NULL);
+
+		sdp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+		sdp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_SPI;
+		sdp->dp.length = sizeof(*sdp) + 1;
+		efi_guid_t guid = U_BOOT_GUID;
+
+		memcpy(&sdp->guid, &guid, sizeof(efi_guid_t));
+		return &sdp[1];
+	}
+#endif
 	default:
 		debug("%s(%u) %s: unhandled device class: %s (%u)\n",
 		      __FILE__, __LINE__, __func__,
@@ -1003,6 +1022,85 @@ struct efi_device_path *efi_dp_from_eth(void)
 }
 #endif
 
+#ifdef CONFIG_NET
+struct efi_device_path *efi_dp_from_eth_index(int index)
+{
+#ifndef CONFIG_DM_ETH
+	struct efi_device_path_mac_addr *ndp;
+#endif
+	char eth[20];
+	void *buf, *start;
+	unsigned int dpsize = 0;
+
+	snprintf(eth, sizeof(eth), "eth%d", index);
+	assert(eth_get_dev_by_name(eth));
+
+#ifdef CONFIG_DM_ETH
+	dpsize += dp_size(eth_get_dev_by_name(eth));
+#else
+	dpsize += sizeof(ROOT);
+	dpsize += sizeof(*ndp);
+#endif
+
+	buf = dp_alloc(dpsize + sizeof(END));
+	if (!buf)
+		return NULL;
+	start = buf;
+
+#ifdef CONFIG_DM_ETH
+	buf = dp_fill(buf, eth_get_dev_by_name(eth));
+#else
+	memcpy(buf, &ROOT, sizeof(ROOT));
+	buf += sizeof(ROOT);
+
+	ndp = buf;
+	ndp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+	ndp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR;
+	ndp->dp.length = sizeof(*ndp);
+	ndp->if_type = 1; /* Ethernet */
+	memcpy(ndp->mac.addr, eth_get_ethaddr(), ARP_HLEN);
+	buf = &ndp[1];
+#endif
+
+	*((struct efi_device_path *)buf) = END;
+
+	return start;
+}
+#endif
+
+#ifdef CONFIG_DM_PCI
+struct efi_device_path *efi_dp_from_pci(struct udevice *pci_dev)
+{
+	void *buf;
+
+	buf = dp_alloc(sizeof(struct efi_device_path_acpi_path) +
+			sizeof(char[4]) + sizeof(END));
+	if (!buf)
+		return NULL;
+
+	return buf;
+}
+#endif
+
+#ifdef CONFIG_SPI_FLASH
+struct efi_device_path *efi_dp_from_spi(struct udevice *flash_dev, int bus, int cs)
+{
+	struct efi_device_path_vendor *sdp;
+	void *buf, *start;
+
+	buf = dp_alloc(sizeof(struct efi_device_path) +
+			sizeof(char[2]) + sizeof(efi_guid_t) + sizeof(END));
+	if (!buf)
+		return NULL;
+
+	start = buf;
+	buf = dp_fill(buf, flash_dev);
+	sdp = buf;
+	buf = &sdp[1];
+	return start;
+}
+#endif
+
 /* Construct a device-path for memory-mapped image */
 struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
 					uint64_t start_address,
@@ -1090,8 +1188,9 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	struct blk_desc *desc = NULL;
 	struct disk_partition fs_partition;
 	int part = 0;
-	char filename[32] = { 0 }; /* dp->str is u16[32] long */
+	char filename[320] = { 0 }; /* dp->str is u16[32] long */
 	char *s;
+	struct udevice *net_dev = NULL;
 
 	if (path && !file)
 		return EFI_INVALID_PARAMETER;
@@ -1107,15 +1206,24 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			*device = efi_dp_from_part(desc, part);
 	} else {
 #ifdef CONFIG_NET
-		if (device)
+		if (device) {
+			net_dev = eth_get_dev_by_name(devnr);
 			*device = efi_dp_from_eth();
+		}
+		if (device && ((*device)->type == DEVICE_PATH_TYPE_END) &&
+				((*device)->sub_type == DEVICE_PATH_SUB_TYPE_END))
+			return EFI_INVALID_PARAMETER;
 #endif
 	}
 
 	if (!path)
 		return EFI_SUCCESS;
 
-	snprintf(filename, sizeof(filename), "%s", path);
+	if (!is_net || !net_dev)
+		snprintf(filename, sizeof(filename), "%s", path);
+	else
+		snprintf(filename, sizeof(filename), "%d:%s", net_dev->seq, path);
+
 	/* DOS style file path: */
 	s = filename;
 	while ((s = strchr(s, '/')))

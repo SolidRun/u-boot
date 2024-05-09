@@ -356,6 +356,10 @@ struct efi_runtime_services {
 	EFI_GUID(0x4006c0c1, 0xfcb3, 0x403e, \
 		 0x99, 0x6d, 0x4a, 0x6c, 0x87, 0x24, 0xe0, 0x6d)
 
+#define EFI_TCG2_FINAL_EVENTS_TABLE_GUID \
+	EFI_GUID(0x1e2ed096, 0x30e2, 0x4254, 0xbd, \
+		 0x89, 0x86, 0x3b, 0xbe, 0xf8, 0x23, 0x25)
+
 struct efi_configuration_table {
 	efi_guid_t guid;
 	void *table;
@@ -463,6 +467,7 @@ struct efi_device_path_acpi_path {
 #  define DEVICE_PATH_SUB_TYPE_MSG_NVME		0x17
 #  define DEVICE_PATH_SUB_TYPE_MSG_SD		0x1a
 #  define DEVICE_PATH_SUB_TYPE_MSG_MMC		0x1d
+#  define DEVICE_PATH_SUB_TYPE_MSG_SPI		0x1e
 
 struct efi_device_path_atapi {
 	struct efi_device_path dp;
@@ -1518,7 +1523,7 @@ struct efi_file_io_token {
 	struct efi_event *event;
 	efi_status_t status;
 	efi_uintn_t buffer_size;
-	void *buffer;};
+	void *buffer; };
 
 struct efi_file_handle {
 	u64 rev;
@@ -1778,5 +1783,276 @@ struct efi_signature_list {
 /*	u8		signature_header[signature_header_size]; */
 /*	struct efi_signature_data signatures[...][signature_size]; */
 } __attribute__((__packed__));
+
+/* EFI_SPI_NOR_FLASH_PROTOCOL */
+#define EFI_SPI_NOR_FLASH_PROTOCOL_GUID \
+	EFI_GUID(0xb57ec3fe, 0xf833, 0x4ba6, \
+			0x85, 0x78, 0x2a, 0x7d, 0x6a, 0x87, 0x44, 0x4b)
+
+struct efi_spi_peripheral;
+
+typedef efi_status_t (EFIAPI * efi_spi_chip_select)(const struct efi_spi_peripheral *spi_preipheral,
+		      bool pin_value);
+
+struct efi_spi_part {
+	const u16 *vendor;
+	const u16 *part_number;
+	u32 min_clk_hz;
+	u32 max_clk_hz;
+	bool chip_select_polarity;
+};
+
+struct efi_spi_peripheral {
+	const struct efi_spi_peripheral *next_spi_peripheral;
+	const u16 *friendly_name;
+	const efi_guid_t *spi_peripheral_driver_guid;
+	const struct efi_spi_part *spi_part;
+	u32 max_clock_hz;
+	bool clock_polarity;
+	bool clock_phase;
+	u32 attributes;
+	const void *configuration_data;
+	const struct efi_spi_bus *spi_bus;
+	efi_spi_chip_select chip_select;
+	void *chip_select_parameter;
+};
+
+typedef efi_status_t (EFIAPI * efi_spi_clock)(const struct efi_spi_peripheral *spi_preipheral,
+		      u32 *clock_hz);
+
+struct efi_spi_bus {
+	const u16 *friendly_name;
+	const struct efi_spi_peripheral *peripheral_list;
+	const struct efi_device_path *controller_path;
+	efi_spi_clock clock;
+	void *clock_parameter;
+};
+
+struct efi_spi_nor_flash_protocol {
+	const struct efi_spi_peripheral *spi_peripheral;
+	u32		flash_size;
+	u8		device_id[3];
+	u32		erase_block_size;
+
+	efi_status_t (EFIAPI * get_flash_id)(const struct efi_spi_nor_flash_protocol *this,
+					     u8 *buffer);
+	efi_status_t (EFIAPI * read_data)(const struct efi_spi_nor_flash_protocol *this,
+					  u32 offset, u32 len, u8 *data);
+	efi_status_t (EFIAPI * lf_read_data)(const struct efi_spi_nor_flash_protocol *this,
+					     u32 offset, u32 len, u8 *data);
+	efi_status_t (EFIAPI * read_status)(const struct efi_spi_nor_flash_protocol *this,
+					    u32 num_bytes, u8 *status);
+	efi_status_t (EFIAPI * write_status)(const struct efi_spi_nor_flash_protocol *this,
+					     u32 num_bytes, u8 *status);
+	efi_status_t (EFIAPI * write_data)(const struct efi_spi_nor_flash_protocol *this,
+					   u32 offset, u32 len, u8 *data);
+	efi_status_t (EFIAPI * erase_blocks)(const struct efi_spi_nor_flash_protocol *this,
+					     u32 offset, u32 blk_count);
+};
+
+/* EFI_PCI_IO_PROTOCOL */
+#define EFI_PCI_IO_PROTOCOL_GUID \
+	EFI_GUID(0x4cf5b200, 0x68b8, 0x4ca5, \
+			0x9e, 0xec, 0xb2, 0x3e, 0x3f, 0x50, 0x02, 0x9a)
+
+/* Attribute bits */
+#define EFI_PCI_IO_ATTRIBUTE_ISA_MOTHERBOARD_IO		0x0001
+#define EFI_PCI_IO_ATTRIBUTE_ISA_IO			0x0002
+#define EFI_PCI_IO_ATTRIBUTE_VGA_PALETTE_IO		0x0004
+#define EFI_PCI_IO_ATTRIBUTE_VGA_MEMORY			0x0008
+#define EFI_PCI_IO_ATTRIBUTE_VGA_IO			0x0010
+#define EFI_PCI_IO_ATTRIBUTE_IDE_PRIMARY_IO		0x0020
+#define EFI_PCI_IO_ATTRIBUTE_IDE_SECONDARY_IO		0x0040
+#define EFI_PCI_IO_ATTRIBUTE_MEMORY_WRITE_COMBINE	0x0080
+#define EFI_PCI_IO_ATTRIBUTE_IO				0x0100
+#define EFI_PCI_IO_ATTRIBUTE_MEMORY			0x0200
+#define EFI_PCI_IO_ATTRIBUTE_BUS_MASTER			0x0400
+#define EFI_PCI_IO_ATTRIBUTE_MEMORY_CACHED		0x0800
+#define EFI_PCI_IO_ATTRIBUTE_MEMORY_DISABLE		0x1000
+#define EFI_PCI_IO_ATTRIBUTE_EMBEDDED_DEVICE		0x2000
+#define EFI_PCI_IO_ATTRIBUTE_EMBEDDED_ROM		0x4000
+#define EFI_PCI_IO_ATTRIBUTE_DUAL_ADDRESS_CYCLE		0x8000
+#define EFI_PCI_IO_ATTRIBUTE_ISA_IO_16			0x10000
+#define EFI_PCI_IO_ATTRIBUTE_VGA_PALETTE_IO_16		0x20000
+#define EFI_PCI_IO_ATTRIBUTE_VGA_IO_16			0x40000
+
+typedef enum {
+	EFIPCIIOWIDTHUINT8,
+	EFIPCIIOWIDTHUINT16,
+	EFIPCIIOWIDTHUINT32,
+	EFIPCIIOWIDTHUINT64,
+	EFIPCIIOWIDTHFIFOUINT8,
+	EFIPCIIOWIDTHFIFOUINT16,
+	EFIPCIIOWIDTHFIFOUINT32,
+	EFIPCIIOWIDTHFIFOUINT64,
+	EFIPCIIOWIDTHFILLUINT8,
+	EFIPCIIOWIDTHFILLUINT16,
+	EFIPCIIOWIDTHFILLUINT32,
+	EFIPCIIOWIDTHFILLUINT64,
+	EFIPCIIOWIDTHMAXIMUM
+} efi_pci_io_protocol_width;
+
+typedef enum {
+	BUSMASTERREAD,
+	BUSMASTERWRITE,
+	BUSMASTERCOMMONBUFFER,
+	MAXIMUM
+} efi_pci_io_protocol_op;
+
+typedef enum {
+	OPGET,
+	OPSET,
+	OPENABLE,
+	OPDISABLE,
+	OPSUPPORTED,
+	OPMAXIMUM
+} efi_pci_io_protocol_attr_op;
+
+struct efi_pci_io_protocol;
+
+typedef efi_status_t (EFIAPI * IO_MEM)(const struct efi_pci_io_protocol *this,
+				efi_pci_io_protocol_width proto_width,
+				u8 bar_index, u64 offset, u32 count,
+				void *buffer);
+typedef struct {
+	IO_MEM read;
+	IO_MEM write;
+} EFI_PCI_IO_ACCESS;
+
+typedef efi_status_t (EFIAPI * CONFIG)(const struct efi_pci_io_protocol *this,
+				efi_pci_io_protocol_width proto_width,
+				u32 offset, u32 count, void *buffer);
+typedef struct {
+	CONFIG read;
+	CONFIG write;
+} EFI_PCI_IO_CONFIG_ACCESS;
+
+struct efi_pci_io_protocol {
+	efi_status_t (EFIAPI * poll_mem)(const struct efi_pci_io_protocol *this,
+					 efi_pci_io_protocol_width proto_width,
+					 u8 bar_index, u64 offset, u64 mask,
+					 u64 value, u64 delay, u64 *result);
+	efi_status_t (EFIAPI * poll_io)(const struct efi_pci_io_protocol *this,
+					efi_pci_io_protocol_width proto_width,
+					u8 bar_index, u64 offset, u64 mask,
+					u64 value, u64 delay, u64 *result);
+	EFI_PCI_IO_ACCESS mem;
+	EFI_PCI_IO_ACCESS io;
+	EFI_PCI_IO_CONFIG_ACCESS config;
+
+	efi_status_t (EFIAPI * copy_mem)(const struct efi_pci_io_protocol *this,
+					 efi_pci_io_protocol_width proto_width,
+					 u8 dst_bar_index, u64 dst_offset,
+					 u8 src_bar_index, u64 src_offset,
+					 u32 count);
+	efi_status_t (EFIAPI * map)(const struct efi_pci_io_protocol *this,
+				    efi_pci_io_protocol_op op,
+				    void *host_address, u32 *num_bytes,
+				    u64 *phys_addr, void **mapping);
+	efi_status_t (EFIAPI * unmap)(const struct efi_pci_io_protocol *this,
+				      void *mapping);
+	efi_status_t (EFIAPI * alloc_buffer)(const struct efi_pci_io_protocol *this,
+					     efi_pci_io_protocol_width proto_width,
+					     int alloc_type,
+					     enum efi_mem_type mem_type,
+					     u32 pages, void **host_address,
+					     u64 attributes);
+	efi_status_t (EFIAPI * free_buffer)(const struct efi_pci_io_protocol *this,
+					    u32 pages, void *host_address);
+	efi_status_t (EFIAPI * flush)(const struct efi_pci_io_protocol *this);
+	efi_status_t (EFIAPI * get_location)(const struct efi_pci_io_protocol *this,
+					     u32 *segment_number, u32 *bus_number,
+					     u32 *device_number, u32 *function_number);
+	efi_status_t (EFIAPI * attributes)(const struct efi_pci_io_protocol *this,
+					   efi_pci_io_protocol_attr_op attr_op,
+					   u64 attributes, u64 *result);
+	efi_status_t (EFIAPI * get_bar_attributes)(const struct efi_pci_io_protocol *this,
+						   u8 bar_index, u64 *supports, void **resources);
+	efi_status_t (EFIAPI * set_bar_attributes)(const struct efi_pci_io_protocol *this,
+						   u64 attributes, u8 bar_index,
+						   u64 *offset, u64 *length);
+	u64 rom_size;
+	void *rom_image;
+};
+
+/* EFI_SWITCH_CONFIG_PROTOCOL */
+#define EFI_SWITCH_CONFIG_PROTOCOL_GUID \
+	EFI_GUID(0xe75518a5, 0xcc72, 0x4571, \
+			0x93, 0xb2, 0x99, 0xdb, 0x8b, 0xf0, 0xef, 0x6f)
+
+struct efi_switch_config_protocol {
+	efi_status_t (EFIAPI * set_config_profile)(const struct efi_switch_config_protocol *this,
+						   u8 profile_num);
+	efi_status_t (EFIAPI * get_port_status)(const struct efi_switch_config_protocol *this,
+						u32 dev_num, u32 port_num, u16 *status);
+	efi_status_t (EFIAPI * get_mi_version)(const struct efi_switch_config_protocol *this,
+					       char *buffer);
+	efi_status_t (EFIAPI * get_boot_status)(const struct efi_switch_config_protocol *this,
+						u32 *status);
+	efi_status_t (EFIAPI * get_boot_error)(const struct efi_switch_config_protocol *this,
+					       u32 *error);
+	efi_status_t (EFIAPI * get_general_error)(const struct efi_switch_config_protocol *this,
+						  u32 *error);
+};
+
+/* EFI_COMPONENT_NAME2_PROTOCOL */
+#define EFI_COMPONENT_NAME2_PROTOCOL_GUID \
+	EFI_GUID(0x6a7a5cff, 0xe8d9, 0x4f70, \
+			0xba, 0xda, 0x75, 0xab, 0x30, 0x25, 0xce, 0x14)
+
+struct efi_component_name2 {
+	// Retrieves a string that is the user readable name of the EFI Driver.
+	efi_status_t (EFIAPI * get_driver_name)(const struct efi_component_name2 *this,
+						char *language,
+				  efi_string_t **driver_name);
+
+	// Retrieves a string that is the user readable name of the controller
+	// that is being managed by an EFI Driver.
+	efi_status_t (EFIAPI * get_ctrl_name)(const struct efi_component_name2 *this,
+					      efi_handle_t ctrl_handle,
+				  efi_handle_t child_handle,
+				  char *language,
+				  efi_string_t **ctrl_name);
+	///
+	/// A Null-terminated ASCII string array that contains one or more
+	/// supported language codes. This is the list of language codes that
+	/// this protocol supports. The number of languages supported by a
+	/// driver is up to the driver writer. SupportedLanguages is
+	/// specified in RFC 4646 format.
+	///
+	char *supported_languages;
+};
+
+/* EFI_GPIO_PROTOCOL */
+#define EFI_GPIO_PROTOCOL_GUID \
+	EFI_GUID(0x5f1729dc, 0xbbf0, 0x4dc2, \
+			0x87, 0x97, 0x96, 0x08, 0x76, 0xae, 0xcb, 0x15)
+
+struct efi_gpio_protocol {
+	efi_status_t (EFIAPI * gpio_get)(const struct efi_gpio_protocol *this,
+					 u32 gpio_num, u8 *value);
+	efi_status_t (EFIAPI * gpio_set)(const struct efi_gpio_protocol *this,
+					 u32 gpio_num, u8 value);
+	efi_status_t (EFIAPI * gpio_get_mode)(const struct efi_gpio_protocol *this,
+					      u32 gpio_num, u32 *mode);
+	efi_status_t (EFIAPI * gpio_set_pull)(const struct efi_gpio_protocol *this,
+					      u32 gpio_num, u8 pull);
+};
+
+/* EFI_I2C_PROTOCOL */
+#define EFI_I2C_PROTOCOL_GUID \
+	EFI_GUID(0x8de8346d, 0xffec, 0x4a09, \
+			0x8f, 0xe3, 0x6f, 0x0c, 0xe0, 0x74, 0x76, 0x5f)
+
+struct efi_i2c_protocol {
+	efi_status_t (EFIAPI * i2c_probe_device)(const struct efi_i2c_protocol *this,
+						 u8 dev_addr);
+	efi_status_t (EFIAPI * i2c_read_device)(const struct efi_i2c_protocol *this,
+						u8 dev_addr, u32 reg_addr, u32 addr_size,
+						u32 length, void *buffer);
+	efi_status_t (EFIAPI * i2c_write_device)(const struct efi_i2c_protocol *this,
+						 u8 dev_addr, u32 reg_addr, u32 addr_size,
+						 u32 length, void *buffer);
+};
 
 #endif

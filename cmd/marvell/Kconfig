@@ -1,0 +1,103 @@
+menu "Marvell specific command line interface"
+
+config CMD_FAILSAFE
+	depends on ARCH_OCTEONTX2 || ARCH_CN10K
+	bool "Command for supporting fail safe boot"
+	help
+	   Support for fail safe boot on Marvell's OcteonTX2 or CN10K platforms.
+	   Disables forced secondary boot and reports if boot from
+	   primary device was successful.
+
+config CMD_ETH
+	depends on NET_OCTEONTX2 || NET_CN10K
+	bool "Command to change fec and phy-mod type"
+	help
+	   Support for change of fec and phy-mod type for some specific
+	   LMAC modes on RVU PF [CGX] network interfaces on Marvell
+	   OcteonTX2 platforms.
+
+config CMD_SERDES_DIAGNOSTICS
+	depends on ARCH_CN10K
+	bool "Commands related to CN10K SerDes diagnostics"
+	help
+	   SerDes diagnostics tool used for CN10k platform. Supports
+	   performing PRBS, setting Loopback mode and reading/writing
+	   Tx/Rx tuning parameters.
+
+config CMD_PHY_DIAGNOSTICS
+	bool "Commands related to PHY diagnostics"
+	help
+	   Supports reading temperature, performing PRBS, setting Loopback and
+	   reading/writing PHY registers.
+
+config CMD_EFI_CMDS
+	depends on ARCH_CN10K
+	bool "EFI commands"
+	help
+	   Support to load EFI Application Images from Secure SPI Flash
+	   on CN10K platforms.
+
+config CMD_SWITCH_CMDS
+	depends on ARCH_CN10K
+	bool "Switch commands"
+	help
+	   Support command to configure switch ports on CN10K platforms.
+
+config CMD_MDIO_DBG
+	depends on ARCH_OCTEONTX2
+	bool "PHY registers read/write support on mdio bus"
+	help
+	   Support to debug phy registers over MDIO bus using SMC interface
+	   to ATF for RVU PF [CGX] network interfaces on Marvell OcteonTX2
+	   platforms.
+
+config CMD_ATTEST
+	depends on ARCH_OCTEONTX2
+	bool "Command for supporting Software Attestation"
+	help
+	   Support for Software Attestation on Marvell's OcteonTX2 platforms.
+	   Displays Secure Boot software component version information.
+
+config CMD_AVSSTATUS
+	depends on ARCH_OCTEONTX2
+	bool "Command for supporting setting AVS status"
+	help
+	   Support for setting AVS status.
+
+
+config CMD_BOOTIMGUP
+	depends on ARCH_OCTEONTX || ARCH_OCTEONTX2
+	depends on MMC_OCTEONTX || SPI_FLASH
+	bool "bootimgup"
+	help
+	  bootimgup command support
+
+config CMD_BOOTIMGUP_CN10K
+	depends on ARCH_CN10K
+	bool "bootimgup"
+	help
+	  bootimgup command support
+
+config CMD_BOOTIMGUP_CUST_SIG
+	depends on CMD_BOOTIMGUP_CN10K
+	depends on ARCH_CN10K
+	bool "bootimgup_cust_sig"
+	help
+	 Custom signature support for the bootimgup command used by some
+	 customers.
+
+config CMD_BOOTIMGUP_BACKUP
+	depends on CMD_BOOTIMGUP_CN10K
+	depends on ARCH_CN10K
+	bool "bootimgup_backup"
+	help
+	 Enable support for a backup image in the SPI NOR flash.  This
+	 requires that the SPI NOR be at least 32MiB in size.
+
+config CMD_SEC_FW_UPDATE
+	depends on ARCH_OCTEONTX2
+	bool "secure update command for loki"
+	help
+	 Enable support for secure update function
+
+endmenu

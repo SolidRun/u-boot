@@ -9,10 +9,28 @@
 #include <bootm.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
+#include <dm.h>
 
 #define OBJ_LIST_NOT_INITIALIZED 1
 
-efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
+efi_status_t __efi_runtime_data efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
+
+const char *get_boot_device(void)
+{
+	ofnode node;
+	const char *str = NULL;
+
+	node = ofnode_path("/cavium,bdk");
+	if (ofnode_valid(node))
+		if (IS_ENABLED(CONFIG_ARCH_CN10K))
+			str = ofnode_read_string(node, "BOOT-DEVICE");
+		else
+			str = ofnode_read_string(node, "BOOT-DEVICE.N0");
+	else
+		printf("Error: cannot retrieve boot device from fdt\n");
+
+	return str;
+}
 
 /*
  * Allow unaligned memory access.
@@ -126,6 +144,7 @@ efi_status_t efi_init_obj_list(void)
 {
 	u64 os_indications_supported = 0; /* None */
 	efi_status_t ret = EFI_SUCCESS;
+	const char *str = get_boot_device();
 
 	/* Initialize once only */
 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
@@ -151,6 +170,12 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 #endif
+	if (IS_ENABLED(CONFIG_EFI_RNG_PROTOCOL)) {
+		ret = efi_rng_register();
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
+
 	/* Initialize variable services */
 	ret = efi_init_variables();
 	if (ret != EFI_SUCCESS)
@@ -176,6 +201,19 @@ efi_status_t efi_init_obj_list(void)
 	ret = efi_initialize_system_table();
 	if (ret != EFI_SUCCESS)
 		goto out;
+
+	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
+
+		if (fdt_node_offset_by_compatible(gd->fdt_blob, -1, "tcg,tpm_tis-spi") >= 0) {
+			ret = efi_tcg2_register();
+			if (ret != EFI_SUCCESS)
+				goto out;
+
+			ret = efi_tcg2_do_initial_measurement();
+			if (ret == EFI_SECURITY_VIOLATION)
+				goto out;
+			}
+	}
 
 	/* Secure boot */
 	ret = efi_init_secure_boot();
@@ -220,11 +258,52 @@ efi_status_t efi_init_obj_list(void)
 	ret = efi_watchdog_register();
 	if (ret != EFI_SUCCESS)
 		goto out;
+#ifdef CONFIG_EFI_SPI_NOR_FLASH_PROTOCOL
+	ret = efi_spinor_protocol_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+#endif
+#ifdef CONFIG_EFI_PCI_IO_PROTOCOL
+	ret = efi_pci_io_protocol_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+#endif
+#ifdef CONFIG_EFI_SEC_SPI_NOR_FLASH
+	ret = efi_sec_spinor_protocol_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+#endif
+#ifdef CONFIG_EFI_SWCFG_PROTOCOL
+	ret = efi_switch_config_protocol_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+#endif
+#ifdef CONFIG_EFI_GPIO_PROTOCOL
+	ret = efi_gpio_protocol_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+#endif
+#ifdef CONFIG_EFI_I2C_PROTOCOL
+	ret = efi_i2c_protocol_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+#endif
 
 	/* Initialize EFI runtime services */
 	ret = efi_reset_system_init();
 	if (ret != EFI_SUCCESS)
 		goto out;
+
+	if (str) {
+		ret = EFI_CALL(efi_set_variable(L"BootDevice",
+						&efi_global_variable_guid,
+						EFI_VARIABLE_BOOTSERVICE_ACCESS |
+						EFI_VARIABLE_RUNTIME_ACCESS,
+						strlen(str),
+						str));
+		if (ret != EFI_SUCCESS)
+			printf("Error: cannot set BootDevice EFI variable\n");
+	}
 
 out:
 	efi_obj_list_initialized = ret;

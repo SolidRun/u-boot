@@ -407,6 +407,68 @@ config MT7628_ETH
 	  The MediaTek MT7628 ethernet interface is used on MT7628 and
 	  MT7688 based boards.
 
+config NET_OCTEONTX
+	bool "OcteonTX Ethernet support"
+	depends on ARCH_OCTEONTX
+	depends on PCI_SRIOV
+	help
+	  You must select Y to enable network device support for
+	  OcteonTX SoCs. If unsure, say n
+
+config NET_OCTEONTX2
+	bool "OcteonTX2 Ethernet support"
+	depends on ARCH_OCTEONTX2
+	select OCTEONTX2_CGX_INTF
+	help
+	  You must select Y to enable network device support for
+	  OcteonTX2 SoCs. If unsure, say n
+
+config NET_OCTEONTX2_DPI
+	bool "OcteonTX2 Ethernet support over DPI interface"
+	depends on NET_OCTEONTX2
+	help
+	  You must select Y to enable network device support over DPI for
+	  OcteonTX2 SoCs. If unsure, say n
+
+config NET_CN10K
+	bool "CN10K Ethernet support"
+	depends on ARCH_CN10K
+	help
+	  This will enable all necessary modules for CN10K network support.
+	  You must select Y to enable network device support for
+	  CN10K SoCs.
+	  If unsure, say n.
+
+config NET_CN10K_DPI
+	bool "CN10K Ethernet support over DPI interface"
+	depends on NET_CN10K
+	help
+	  You must select Y to enable network device support over DPI for
+	  CN10K SoCs. If unsure, say n
+
+config CN10K_ETH_INTF
+	bool "CN10K ETH ATF interface support"
+	depends on ARCH_CN10K
+	default y if ARCH_CN10K
+	help
+	  You must select Y to enable Ethernet ATF interface support for
+	  CN10K SoCs. If unsure, say n
+
+config OCTEONTX_SMI
+	bool "OcteonTX SMI Device support"
+	depends on ARCH_OCTEONTX || ARCH_OCTEONTX2
+	help
+	  You must select Y to enable SMI controller support for
+	  OcteonTX or OcteonTX2 SoCs. If unsure, say n
+
+config OCTEONTX2_CGX_INTF
+	bool "OcteonTX2 CGX ATF interface support"
+	depends on ARCH_OCTEONTX2
+	default y if ARCH_OCTEONTX2
+	help
+	  You must select Y to enable CGX ATF interface support for
+	  OcteonTX2 SoCs. If unsure, say n
+
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
 	depends on DM_ETH && DM_PCI

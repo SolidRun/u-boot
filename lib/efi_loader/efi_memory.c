@@ -14,6 +14,7 @@
 #include <asm/cache.h>
 #include <linux/list_sort.h>
 #include <linux/sizes.h>
+#include <efi_variable.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -235,7 +236,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
  * @start:		start address, must be a multiple of EFI_PAGE_SIZE
  * @pages:		number of pages to add
  * @memory_type:	type of memory added
- * @overlap_only_ram:	the memory area must overlap existing
+ * @overlap_only_ram:	region may only overlap RAM
  * Return:		status code
  */
 static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
@@ -327,7 +328,7 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 	}
 
 	/* Add our new map */
-        list_add_tail(&newlist->link, &efi_mem);
+	list_add_tail(&newlist->link, &efi_mem);
 
 	/* And make sure memory is listed in descending order */
 	efi_mem_sort();
@@ -458,7 +459,12 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 {
 	u64 len = pages << EFI_PAGE_SHIFT;
 	efi_status_t ret;
-	uint64_t addr;
+	uint64_t addr, align_addr;
+
+	/* EFI runtime data must be 64KB aligned */
+	/* Increase length to 64KB boundary */
+	if (memory_type == EFI_RUNTIME_SERVICES_DATA)
+		len += (SZ_64K - 1);
 
 	/* Check import parameters */
 	if (memory_type >= EFI_PERSISTENT_MEMORY_TYPE &&
@@ -492,6 +498,16 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 		return EFI_INVALID_PARAMETER;
 	}
 
+	/* EFI runtime data must be 64KB aligned */
+	/* Fix up returned memory area to start at 64KB boundary */
+	if (memory_type == EFI_RUNTIME_SERVICES_DATA) {
+		align_addr = addr + (SZ_64K - 1);
+		align_addr &= ~(SZ_64K - 1);
+		len = len - (align_addr - addr);
+		addr = align_addr;
+		pages = (len >> EFI_PAGE_SHIFT);
+	}
+
 	/* Reserve that map in our memory maps */
 	ret = efi_add_memory_map_pg(addr, pages, memory_type, true);
 	if (ret != EFI_SUCCESS)
@@ -512,7 +528,7 @@ void *efi_alloc(uint64_t len, int memory_type)
 	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, memory_type, pages,
 			       &ret);
 	if (r == EFI_SUCCESS)
-		return (void*)(uintptr_t)ret;
+		return (void *)(uintptr_t)ret;
 
 	return NULL;
 }
@@ -808,7 +824,7 @@ int efi_memory_init(void)
 			       &efi_bounce_buffer_addr) != EFI_SUCCESS)
 		return -1;
 
-	efi_bounce_buffer = (void*)(uintptr_t)efi_bounce_buffer_addr;
+	efi_bounce_buffer = (void *)(uintptr_t)efi_bounce_buffer_addr;
 #endif
 
 	return 0;

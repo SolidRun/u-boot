@@ -13,6 +13,7 @@
 #include <linux/types.h>
 #include <linux/byteorder/little_endian.h>
 #include <linux/byteorder/generic.h>
+#include <linux/compat.h>
 #include <memalign.h>
 #include <stdlib.h>
 #include <string.h>
@@ -154,7 +155,7 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	header = get_unaligned_le16(metadata_buffer + table_offset);
 	metadata = metadata_buffer + table_offset + SQFS_HEADER_SIZE;
 
-	if (!metadata) {
+	if (!metadata || !header) {
 		ret = -ENOMEM;
 		goto free_buffer;
 	}
@@ -434,9 +435,9 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 {
 	struct squashfs_super_block *sblk = ctxt.sblk;
 	char *path, *target, **sym_tokens, *res, *rem;
-	struct squashfs_ldir_inode *ldir = NULL;
 	int j, ret, new_inode_number, offset;
 	struct squashfs_symlink_inode *sym;
+	struct squashfs_ldir_inode *ldir;
 	struct squashfs_dir_inode *dir;
 	struct fs_dir_stream *dirsp;
 	struct fs_dirent *dent;
@@ -448,8 +449,8 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 	table = sqfs_find_inode(dirs->inode_table, le32_to_cpu(sblk->inodes),
 				sblk->inodes, sblk->block_size);
 
-	/* root is a regular directory, not an extended one */
 	dir = (struct squashfs_dir_inode *)table;
+	ldir = (struct squashfs_ldir_inode *)table;
 
 	/* get directory offset in directory table */
 	offset = sqfs_dir_offset(table, m_list, m_count);
@@ -670,7 +671,8 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 		goto free_itb;
 	}
 
-	*inode_table = malloc(metablks_count * SQFS_METADATA_BLOCK_SIZE);
+	*inode_table = kcalloc(metablks_count, SQFS_METADATA_BLOCK_SIZE,
+			       GFP_KERNEL);
 	if (!*inode_table) {
 		ret = -ENOMEM;
 		goto free_itb;
@@ -896,6 +898,7 @@ int sqfs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 	int i_number, offset = 0, ret;
 	struct fs_dirent *dent;
 	unsigned char *ipos;
+	u16 name_size;
 
 	dirs = (struct squashfs_dir_stream *)fs_dirs;
 	if (!dirs->size) {
@@ -978,9 +981,10 @@ int sqfs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 		return -SQFS_STOP_READDIR;
 	}
 
-	/* Set entry name */
-	strncpy(dent->name, dirs->entry->name, dirs->entry->name_size + 1);
-	dent->name[dirs->entry->name_size + 1] = '\0';
+	/* Set entry name (capped at FS_DIRENT_NAME_LEN which is a U-Boot limitation) */
+	name_size = min_t(u16, dirs->entry->name_size + 1, FS_DIRENT_NAME_LEN - 1);
+	strncpy(dent->name, dirs->entry->name, name_size);
+	dent->name[name_size] = '\0';
 
 	offset = dirs->entry->name_size + 1 + SQFS_ENTRY_BASE_LENGTH;
 	dirs->entry_count--;
@@ -1146,7 +1150,10 @@ static int sqfs_get_regfile_info(struct squashfs_reg_inode *reg,
 	finfo->start = get_unaligned_le32(&reg->start_block);
 	finfo->frag = SQFS_IS_FRAGMENTED(get_unaligned_le32(&reg->fragment));
 
-	if (finfo->size < 1 || finfo->offset < 0 || finfo->start < 0)
+	if (finfo->frag && finfo->offset == 0xFFFFFFFF)
+		return -EINVAL;
+
+	if (finfo->size < 1 || finfo->start == 0xFFFFFFFF)
 		return -EINVAL;
 
 	if (finfo->frag) {
@@ -1156,7 +1163,7 @@ static int sqfs_get_regfile_info(struct squashfs_reg_inode *reg,
 		if (ret < 0)
 			return -EINVAL;
 		finfo->comp = true;
-		if (fentry->size < 1 || fentry->start < 0)
+		if (fentry->size < 1 || fentry->start == 0x7FFFFFFF)
 			return -EINVAL;
 	} else {
 		datablk_count = DIV_ROUND_UP(finfo->size, le32_to_cpu(blksz));
@@ -1181,7 +1188,10 @@ static int sqfs_get_lregfile_info(struct squashfs_lreg_inode *lreg,
 	finfo->start = get_unaligned_le64(&lreg->start_block);
 	finfo->frag = SQFS_IS_FRAGMENTED(get_unaligned_le32(&lreg->fragment));
 
-	if (finfo->size < 1 || finfo->offset < 0 || finfo->start < 0)
+	if (finfo->frag && finfo->offset == 0xFFFFFFFF)
+		return -EINVAL;
+
+	if (finfo->size < 1 || finfo->start == 0x7FFFFFFF)
 		return -EINVAL;
 
 	if (finfo->frag) {
@@ -1191,7 +1201,7 @@ static int sqfs_get_lregfile_info(struct squashfs_lreg_inode *lreg,
 		if (ret < 0)
 			return -EINVAL;
 		finfo->comp = true;
-		if (fentry->size < 1 || fentry->start < 0)
+		if (fentry->size < 1 || fentry->start == 0x7FFFFFFF)
 			return -EINVAL;
 	} else {
 		datablk_count = DIV_ROUND_UP(finfo->size, le32_to_cpu(blksz));

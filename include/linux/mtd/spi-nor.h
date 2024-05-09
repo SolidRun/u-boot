@@ -116,6 +116,10 @@
 #define SPINOR_OP_EN4B		0xb7	/* Enter 4-byte mode */
 #define SPINOR_OP_EX4B		0xe9	/* Exit 4-byte mode */
 
+/* Used for Macronix flashes only. */
+#define SPINOR_OP_RD_CR		0x15	/* Read CR register */
+#define SPINOR_OP_RD_SCUR	0x2b	/* Read Security register */
+
 /* Used for Spansion flashes only. */
 #define SPINOR_OP_BRWR		0x17	/* Bank register write */
 #define SPINOR_OP_BRRD		0x16	/* Bank register read */
@@ -132,6 +136,7 @@
 #define SR_BP0			BIT(2)	/* Block protect 0 */
 #define SR_BP1			BIT(3)	/* Block protect 1 */
 #define SR_BP2			BIT(4)	/* Block protect 2 */
+#define SR_BP3			BIT(5)	/* Block protect 3 */
 #define SR_TB			BIT(5)	/* Top/Bottom protect */
 #define SR_SRWD			BIT(7)	/* SR write protect */
 /* Spansion/Cypress specific status bits */
@@ -151,9 +156,14 @@
 
 /* Configuration Register bits. */
 #define CR_QUAD_EN_SPAN		BIT(1)	/* Spansion Quad I/O */
+#define CR_TB_MX		BIT(3)	/* Macronix Top/Bottom Select */
 
 /* Status Register 2 bits. */
 #define SR2_QUAD_EN_BIT7	BIT(7)
+
+/* Macronix Security Register bits */
+#define SCUR_E_ERR		BIT(6)
+#define SCUR_P_ERR		BIT(5)
 
 /* Supported SPI protocols */
 #define SNOR_PROTO_INST_MASK	GENMASK(23, 16)
@@ -247,6 +257,7 @@ enum spi_nor_option_flags {
 	SNOR_F_READY_XSR_RDY	= BIT(4),
 	SNOR_F_USE_CLSR		= BIT(5),
 	SNOR_F_BROKEN_RESET	= BIT(6),
+	SNOR_F_USE_SCUR		= BIT(7),
 };
 
 /**

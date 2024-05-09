@@ -12,7 +12,7 @@
  * Copyright (C) 2001 Peter Bergner, IBM Corp.
  */
 
-#define MAX_LMB_REGIONS 8
+#define MAX_LMB_REGIONS 16
 
 struct lmb_property {
 	phys_addr_t base;

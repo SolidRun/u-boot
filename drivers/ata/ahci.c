@@ -31,6 +31,10 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 
+#if defined(CONFIG_ARCH_OCTEONTX)
+#include <asm/arch/board.h>
+#endif
+
 static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port);
 
 #ifndef CONFIG_DM_SCSI
@@ -624,6 +628,18 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 
 	debug("Exit start port %d\n", port);
 
+#if CONFIG_ARCH_OCTEONTX
+	/*
+	 * Skip interface busy check based on error and status
+	 * information from task file data register as these boards
+	 * have port multiplier and device is always present
+	 * U-boot lacks port multiplier support hence this ugly hack.
+	 */
+
+	if (octeontx_board_has_pmp())
+		return 0;
+#endif
+
 	/*
 	 * Make sure interface is not busy based on error and status
 	 * information from task file data register before proceeding
@@ -653,6 +669,17 @@ static int ahci_device_data_io(struct ahci_uc_priv *uc_priv, u8 port, u8 *fis,
 	if ((port_status & 0xf) != 0x03) {
 		debug("No Link on port %d!\n", port);
 		return -1;
+	}
+
+	/*
+	 * If the device was plugged after boot, the port is not initialized
+	 * Try to restart the port for supporting device hot plug-in
+	 */
+	if (pp->cmd_tbl == 0) {
+		if (ahci_port_start(uc_priv, port)) {
+			printf("Cannot restart port %d\n", port);
+			return -1;
+		}
 	}
 
 	memcpy((unsigned char *)pp->cmd_tbl, fis, fis_len);
@@ -1190,6 +1217,9 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 	 */
 	uc_plat->max_id = max_t(unsigned long, uc_priv->n_ports,
 				uc_plat->max_id);
+	/* If port count is less than max_id, update max_id */
+	if (uc_priv->n_ports < uc_plat->max_id)
+		uc_plat->max_id = uc_priv->n_ports;
 
 	return 0;
 }
