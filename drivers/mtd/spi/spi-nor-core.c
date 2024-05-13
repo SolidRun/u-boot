@@ -1174,7 +1174,9 @@ static void mx_get_locked_range(struct spi_nor *nor, u8 sr, u8 cr, loff_t *ofs,
 	int shift = ffs(mask) - 1;
 	int pow;
 
-	if (!strcmp(mtd->name, "mx66l2g45g"))
+	if (!strcmp(mtd->name, "mx66l2g45g") ||
+	    !strcmp(mtd->name, "mx25u25635f") ||
+	    !strcmp(mtd->name, "mx25u12835f"))
 		mask |= SR_BP3;
 
 	if (!(sr & mask)) {
@@ -1183,10 +1185,13 @@ static void mx_get_locked_range(struct spi_nor *nor, u8 sr, u8 cr, loff_t *ofs,
 		*len = 0;
 	} else {
 		pow = ((sr & mask) ^ mask) >> shift;
-		if (pow < 2)
-			pow = 2;
-
-		*len = mtd->size >> (pow - 2);
+		if (!strcmp(nor->name, "mx25u12835f")) {
+			*len = mtd->size >> (pow + 2);
+		} else {
+			if (pow < 2)
+				pow = 2;
+			*len = mtd->size >> (pow - 2);
+		}
 		if (cr & CR_TB_MX)
 			*ofs = 0;
 		else
@@ -1258,7 +1263,8 @@ static int mx_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	 * so add it to mask
 	 */
 	if (!strcmp(mtd->name, "mx66l2g45g") ||
-	    !strcmp(mtd->name, "mx25u12835f"))
+	    !strcmp(mtd->name, "mx25u12835f") ||
+	    !strcmp(mtd->name, "mx25u25635f"))
 		mask |= SR_BP3;
 
 	/* If nothing in our range is unlocked, we don't need to do anything */
@@ -1283,7 +1289,8 @@ static int mx_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	/* Prefer top, if both are valid */
 	use_top = can_be_top;
 	if (!strcmp(mtd->name, "mx66l2g45g") ||
-	    !strcmp(mtd->name, "mx25u12835f"))
+	    !strcmp(mtd->name, "mx25u12835f") ||
+	    !strcmp(mtd->name, "mx25u25635f"))
 		use_top = false;
 
 	/* lock_len: length of region that should end up locked */
@@ -1302,7 +1309,13 @@ static int mx_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	 *   pow = ceil(log2(size / len)) = log2(size) - floor(log2(len))
 	 */
 	pow = ilog2(mtd->size) - ilog2(lock_len);
-	val = mask - ((pow + 1) << shift);
+	if (!strcmp(nor->name, "mx25u12835f")) {
+		if (pow < 2)
+			pow = 2;
+		val = mask - ((pow - 2) << shift);
+	} else {
+		val = mask - ((pow + 1) << shift);
+	}
 	if (val & ~mask)
 		return -EINVAL;
 	debug("%s val %x mask %x pow %x shift %x\n", __func__, val, mask, pow,
@@ -1362,8 +1375,11 @@ static int mx_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	 * so add it to mask
 	 */
 	if (!strcmp(mtd->name, "mx66l2g45g") ||
-	    !strcmp(mtd->name, "mx25u12835f"))
+	    !strcmp(mtd->name, "mx25u12835f") ||
+	    !strcmp(mtd->name, "mx25u25635f"))
 		mask |= SR_BP3;
+
+	status_new = write_sr_cr_and_check(nor, 0x0, config, mask);
 
 	/* If nothing in our range is locked, we don't need to do anything */
 	if (mx_is_unlocked_sr(nor, ofs, len, status_old, config))
@@ -1384,7 +1400,8 @@ static int mx_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	/* Prefer top, if both are valid */
 	use_top = can_be_top;
 	if (!strcmp(mtd->name, "mx66l2g45g") ||
-	    !strcmp(mtd->name, "mx25u12835f"))
+	    !strcmp(mtd->name, "mx25u12835f") ||
+	    !strcmp(mtd->name, "mx25u25635f"))
 		use_top = false;
 
 	/* lock_len: length of region that should remain locked */
@@ -1408,7 +1425,13 @@ static int mx_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (lock_len == 0) {
 		val = 0; /* fully unlocked */
 	} else {
-		val = mask - (pow << shift);
+		if (!strcmp(nor->name, "mx25u12835f")) {
+			if (pow < 2)
+				pow = 2;
+			val = mask - ((pow - 2) << shift);
+		} else {
+			val = mask - (pow << shift);
+		}
 		debug("%s val %x mask %x po %x\n", __func__, val, mask,
 		      pow << shift);
 		/* Some power-of-two sizes are not supported */
