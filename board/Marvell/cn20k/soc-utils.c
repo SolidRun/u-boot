@@ -47,6 +47,8 @@ u8 read_partnum(void)
 {
 	if (of_machine_is_compatible("marvell,cn20ka"))
 		return CN20KA;
+	if (of_machine_is_compatible("marvell,cnf20ka"))
+		return CNF20KA;
 	return 0;
 }
 

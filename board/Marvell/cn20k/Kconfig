@@ -1,4 +1,4 @@
-if TARGET_CN20K_A
+if TARGET_CN20K_A || TARGET_CNF20K_A
 
 config SYS_VENDOR
 	string

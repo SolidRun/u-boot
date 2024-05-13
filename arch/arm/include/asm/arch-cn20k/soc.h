@@ -19,6 +19,7 @@
 #define CNF10KB 0xBC
 #define CN10KB 0xBD
 #define CN20KA	0xC2
+#define CNF20KA 0xC3
 
 /* Register defines */
 

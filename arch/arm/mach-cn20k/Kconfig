@@ -10,6 +10,12 @@ config TARGET_CN20K_A
 	  The MRVL CN20K is a ARM64-based SoC.
 	  It is based ARMv9 architecture.
 
+config TARGET_CNF20K_A
+	bool "Marvell CNF20KA Fusion SoC"
+	help
+	  The MRVL CNF20K is a ARM64-based SoC.
+	  It is based ARMv9 architecture.
+
 endchoice
 
 config SYS_SOC

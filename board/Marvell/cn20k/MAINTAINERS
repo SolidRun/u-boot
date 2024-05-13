@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/Marvell/cn20k/
 F:	include/configs/cn20k_common.h
 F:	configs/cn20ka_defconfig
+F:	configs/cnf20ka_defconfig
