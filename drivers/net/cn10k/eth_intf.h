@@ -645,7 +645,8 @@ struct eth_gser_tune {
 	u64 tx_pre:8;
 	u64 tx_post:8;
 	u64 tx_pre2:8;
-	u64 reserved2:16;
+	u64 portm_lane_mask:4;
+	u64 reserved2:12;
 };
 
 union eth_cmd_s {
