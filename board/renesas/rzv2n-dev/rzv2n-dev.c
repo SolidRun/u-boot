@@ -40,6 +40,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	PMC_2A				(PFC_BASE + 0x022A)
 #define PFC_PMC26			(PFC_BASE + 0x0226)
 #define PFC_PFC26			(PFC_BASE + 0x0498)
+#define PFC_PMC29			(PFC_BASE + 0x0229)
+#define PFC_PFC29			(PFC_BASE + 0x04A4)
 #define PFC_OSCBYPS                     (PFC_BASE + 0x3C00)
 
 #define PFC_OEN				(PFC_BASE + 0x3C40)
@@ -196,6 +198,7 @@ static void board_usb_init(void)
 	/* Disable GPIO Write Protect */
 	(*(volatile u32 *)PFC_PWPR) |= (0x1u << 6);
 
+#if CONFIG_TARGET_RZV2N_DEV
 	/* Set P6_0 as Func.15 for VBUSEN */
 	(*(volatile u32 *)PFC_PMC26) |= (0x1u << 0);
 	(*(volatile u32 *)PFC_PFC26) &= ~(0xF << 0);
@@ -207,6 +210,24 @@ static void board_usb_init(void)
 	(*(volatile u32 *)PFC_PFC26) &= ~(0xF << 4);
 	/* Function mode 15 */
 	(*(volatile u32 *)PFC_PFC26) |= (0xF << 4);
+#endif /* CONFIG_TARGET_RZV2N_DEV */
+
+#if CONFIG_TARGET_RZV2N_EVK
+        /* Set P9_5 as Func.14 for VBUSEN */
+        /* Control mode (multiplexed function) */
+        (*(volatile u32 *)PFC_PMC29) |= (0x1u << 5);
+        (*(volatile u32 *)PFC_PFC29) &= ~(0xF << 20);
+        /* Function mode 14 */
+        (*(volatile u32 *)PFC_PFC29) |= (0x0E << 20);
+
+        /* Set P9_6 as Func.14 for OVRCUR */
+        /* Control mode (multiplexed function) */
+        (*(volatile u32 *)PFC_PMC29) |= (0x1u << 6);
+        (*(volatile u32 *)PFC_PFC29) &= ~(0xF << 24);
+        /* Function mode 14 */
+        (*(volatile u32 *)PFC_PFC29) |= (0x0E << 24);
+
+#endif /* CONFIG_TARGET_RZV2N_EVK */
 
 	/* Enable Write protect */
 	(*(volatile u32 *)PFC_PWPR) &= ~(0x1u << 6);
