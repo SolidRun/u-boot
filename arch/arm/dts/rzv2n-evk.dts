@@ -175,3 +175,12 @@
 		};
 	};
 };
+
+&ehci0 {
+	status = "okay";
+};
+
+&hsusb {
+	dr_mode = "otg";
+	status = "okay";
+};
