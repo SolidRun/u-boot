@@ -162,6 +162,8 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Default to erasing EBF config data */
 	desc.update_flags |= UPDATE_FLAG_ERASE_CONFIG;
+	/* Default to verifying board information data */
+	desc.update_flags |= UPDATE_FLAG_VERIFY_BOARD_INFO;
 	/* Walk through all arguments */
 	while (argc > 0) {
 		PARSE_FLAG("-f", UPDATE_FLAG_FORCE_WRITE, true);
@@ -171,7 +173,7 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 			PARSE_FLAG("-b", UPDATE_FLAG_BACKUP, true);
 		PARSE_FLAG("-p", UPDATE_FLAG_ERASE_PART, true);
 		PARSE_FLAG("-l", UPDATE_FLAG_LOG_PROGRESS, true);
-
+		PARSE_FLAG("-i", UPDATE_FLAG_VERIFY_BOARD_INFO, false);
 		if (!strcmp(argv[0], "-r")) {
 			reset = true;
 			argc--;
@@ -422,21 +424,22 @@ static int do_bootimgup(struct cmd_tbl *cmdtp, int flag, int argc,
 U_BOOT_CMD(
 #if defined(CONFIG_CMD_BOOTIMGUP_CUST_SIG) && defined(CONFIG_CMD_BOOTIMGUP_BACKUP)
 	bootimgup, 12, 0, do_bootimgup, "Updates Boot Image",
-	" <[-v]> <[-b]> <[-e]> <[-p]> <[-l]> <mmc [devid] | spi [bus:cs]> [image_address] [image_size] -sig [signature address] [signature size]\n"
+	" <[-v]> <[-b]> <[-e]> <[-p]> <[-l]> <[-f]> <[-i]> <mmc [devid] | spi [bus:cs]> [image_address] [image_size] -sig [signature address] [signature size]\n"
 #elif defined(CONFIG_CMD_BOOTIMGUP_CUST_SIG) && !defined(CONFIG_CMD_BOOTIMGUP_BACKUP)
 	bootimgup, 11, 0, do_bootimgup, "Updates Boot Image",
-	" <[-v]> <[-e]> <[-p]> <[-l]> <mmc [devid] | spi [bus:cs]> [image_address] [image_size] -sig [signature address] [signature size]\n"
+	" <[-v]> <[-e]> <[-p]> <[-l]> <[-f]> <[-i]> <mmc [devid] | spi [bus:cs]> [image_address] [image_size] -sig [signature address] [signature size]\n"
 #elif !defined(CONFIG_CMD_BOOTIMGUP_CUST_SIG) && defined(CONFIG_CMD_BOOTIMGUP_BACKUP)
 	bootimgup, 9, 0, do_bootimgup, "Updates Boot Image",
-	" <[-v]> <[-b]> <[-e]> <[-p]> <[-l]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
+	" <[-v]> <[-b]> <[-e]> <[-p]> <[-l]> <[-f]> <[-i]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
 #else
 	bootimgup, 8, 0, do_bootimgup, "Updates Boot Image",
-	" <[-v]> <[-e]> <[-p]> <[-l]> <[-r]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
+	" <[-v]> <[-e]> <[-p]> <[-l]> <[-r]> <[-f]> <[-i]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
 #endif
 #ifdef CONFIG_CMD_BOOTIMGUP_BACKUP
 	" -b - updates the backup image location\n"
 #endif
 	" -e - do not erase EBF configuration\n"
+	" -i - Ignore board and chip ID verification\n"
 	" -v - perform hash check and bypass version check\n"
 	" -f - force writes over matching data\n"
 	" -p - (MMC only) overwrite the partition table\n"

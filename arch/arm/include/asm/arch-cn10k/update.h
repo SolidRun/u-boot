@@ -156,6 +156,16 @@ enum update_ret {
 	UPDATE_IO_DEV_INIT_ERROR = -25,
 	/** Object count exceeds SMC_MAX_OBJECTS */
 	UPDATE_TOO_MANY_OBJECTS = -26,
+	/** TIM manifest is missing */
+	UPDATE_TIM_MANIFEST_MISSING = -27,
+	/** A specific entry was not found in the TIM manifest */
+	UPDATE_TIM_MANIFEST_ENTRY_MISSING = -28,
+	/** TIM manifest is corrupt */
+	UPDATE_TIM_MANIFEST_CORRUPT = -29,
+	/** Board information missing in TIM0 */
+	UPDATE_BOARD_INFO_MISSING = -30,
+	/** Board information is not compatible */
+	UPDATE_BOARD_INFO_INCOMPATIBLE = -31,
 	/** Unknown error */
 	UPDATE_UNKNOWN_ERROR = -1000,
 };
@@ -245,6 +255,8 @@ struct smc_update_obj_info {
 #define UPDATE_FLAG_IGNORE_HASH		BIT(7)
 /** Debug */
 #define UPDATE_FLAG_DEBUG		BIT(8)
+/** Verify board information in update */
+#define UPDATE_FLAG_VERIFY_BOARD_INFO	BIT(9)
 /** Set when user parameters are passed */
 #define UPDATE_FLAG_USER_PARMS		BIT(15)
 
