@@ -882,7 +882,7 @@ static int is_printable_string(const void *data, int len)
 		return 0;
 
 	/* printable or a null byte (concatenated strings) */
-	while (((*s == '\0') || isprint(*s) || isspace(*s)) && (len > 0)) {
+	while ((isascii(*s) && ((*s == '\0') || isprint(*s) || isspace(*s))) && (len > 0)) {
 		/*
 		 * If we see a null, there are three possibilities:
 		 * 1) If len == 1, it is the end of the string, printable
