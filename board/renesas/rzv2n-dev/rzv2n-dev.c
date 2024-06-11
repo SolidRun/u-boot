@@ -87,6 +87,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define USB2_PHY_RESET			0x000
 #define USB2_PHY_OTGR			0x600
 
+/* ADC */
+#define SYS_ADC_CFG			0x10431600
 
 void s_init(void)
 {
@@ -150,6 +152,9 @@ void s_init(void)
 	*(volatile u32 *)(CPG_CLKON_ETH0) = 0x3F003F00;
 	while((*(volatile u32 *)(CPG_CLKMON_ETH0) & 0x3F000000) != 0x3F000000)
 		;
+
+	/* Enable ADC */
+	*(volatile u32 *)(SYS_ADC_CFG) = 0;
 }
 
 static void _usbphy_init(void)
