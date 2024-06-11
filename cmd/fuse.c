@@ -14,6 +14,7 @@
 #include <fuse.h>
 #include <mapmem.h>
 #include <linux/errno.h>
+#include <fs.h>
 
 static int strtou32(const char *str, unsigned int base, u32 *result)
 {
@@ -41,6 +42,54 @@ static int confirm_prog(void)
 	return 0;
 }
 
+static int report(const char *interface, const char *device, const char *filename)
+{
+	int i, j;
+	int ret;
+	uint32_t val[3];
+	char buffer[66*64] = {0};
+	size_t len = 0;
+
+	// open report device
+	if (interface && device && filename) {
+		ret = fs_set_blk_dev(interface, device, FS_TYPE_ANY);
+		if (ret) {
+			printf("Failed to open %s %s: %d\n", interface, device, ret);
+			return 1;
+		}
+	}
+
+	// read all fuse banks
+	for (i = 0; i <= 65; i++) {
+		for (j = 0; j < 3; j++) {
+			ret = fuse_read(i, j, &val[j]);
+			if (ret)
+				return ret;
+			// TODO: report
+		}
+		if (!ret) {
+			printf("EFUSE bank %.2d: 0x%.8x 0x%.8x 0x%.8x\n", i, val[0], val[1], val[2]);
+			len += sprintf(&buffer[len], "EFUSE bank %.2d: 0x%.8x 0x%.8x 0x%.8x\n", i, val[0], val[1], val[2]);
+		} else  {
+			printf("EFUSE bank %.2d: Error %d\n", i, ret);
+			len += sprintf(&buffer[len],  "EFUSE bank %.2d: Error %d\n", i, ret);
+		}
+	}
+
+	// write report
+	if (interface && device && filename) {
+		ret = fs_write(filename, map_to_sysmem(buffer), 0, len, NULL);
+		if (ret < 0) {
+			printf("Failed to write report file \"%s\": %d\n", filename, ret);
+			return 1;
+		}
+
+		printf("Report written to scsi 0:1 \"%s\"\n", filename);
+	}
+
+	return 0;
+}
+
 static int do_fuse(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
@@ -50,6 +99,15 @@ static int do_fuse(struct cmd_tbl *cmdtp, int flag, int argc,
 	ulong addr;
 	void *buf, *start;
 	int ret, i;
+
+	if (!strcmp(op, "report")) {
+		if (argc == 2)
+			return report(NULL, NULL, NULL);
+		else if (argc == 5)
+			return report(argv[2], argv[3], argv[4]);
+		else
+			return CMD_RET_USAGE;
+	}
 
 	argc -= 2 + confirmed;
 	argv += 2 + confirmed;
@@ -189,5 +247,6 @@ U_BOOT_CMD(
 	"fuse prog [-y] <bank> <word> <hexval> [<hexval>...] - program 1 or\n"
 	"    several fuse words, starting at 'word' (PERMANENT)\n"
 	"fuse override <bank> <word> <hexval> [<hexval>...] - override 1 or\n"
-	"    several fuse words, starting at 'word'"
+	"    several fuse words, starting at 'word'\n"
+	"fuse report [<interface> <dev[:part]> <filename>] - read all fuses and generate report"
 );
