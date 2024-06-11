@@ -38,18 +38,26 @@ struct mvebu_hd_efuse {
 	u32 reserved0;
 };
 
-#ifndef DRY_RUN
-static struct mvebu_hd_efuse *efuses =
-	(struct mvebu_hd_efuse *)(MBUS_EFUSE_BASE + 0xF9000);
-static u32 *ld_efuses = (void *)MBUS_EFUSE_BASE + 0xF8F00;
+#ifndef CONFIG_MVEBU_EFUSE_READONLY
+typedef struct mvebu_hd_efuse mvebu_hd_efuse;
+typedef u32 mvebu_ld_efuse;
 #else
-static struct mvebu_hd_efuse efuses[EFUSE_LINE_MAX + 1];
-static u32 ld_efuses[EFUSE_LD_WORDS];
+typedef const struct mvebu_hd_efuse mvebu_hd_efuse;
+typedef const u32 mvebu_ld_efuse;
+#endif
+
+#ifndef DRY_RUN
+static mvebu_hd_efuse *efuses =
+	(mvebu_hd_efuse *)(MBUS_EFUSE_BASE + 0xF9000);
+static mvebu_ld_efuse *ld_efuses = (void *)MBUS_EFUSE_BASE + 0xF8F00;
+#else
+static mvebu_hd_efuse efuses[EFUSE_LINE_MAX + 1];
+static mvebu_ld_efuse ld_efuses[EFUSE_LD_WORDS];
 #endif
 
 static int efuse_initialised;
 
-static struct mvebu_hd_efuse *get_efuse_line(int nr)
+static mvebu_hd_efuse *get_efuse_line(int nr)
 {
 	if (nr < 0 || nr > 63 || !efuse_initialised)
 		return NULL;
@@ -102,9 +110,10 @@ static void disable_efuse_program(void)
 #endif
 }
 
-static int do_prog_efuse(struct mvebu_hd_efuse *efuse,
+static int do_prog_efuse(mvebu_hd_efuse *efuse,
 			 struct efuse_val *new_val, u32 mask0, u32 mask1)
 {
+#ifndef CONFIG_MVEBU_EFUSE_READONLY
 	struct efuse_val val;
 
 	val.dwords.d[0] = readl(&efuse->bits_31_0);
@@ -126,11 +135,15 @@ static int do_prog_efuse(struct mvebu_hd_efuse *efuse,
 	mdelay(5);
 
 	return 0;
+#else
+	printf("Error: Operating in read-only mode, writing not allowed.\n");
+	return -EPERM;
+#endif
 }
 
 static int prog_efuse(int nr, struct efuse_val *new_val, u32 mask0, u32 mask1)
 {
-	struct mvebu_hd_efuse *efuse;
+	mvebu_hd_efuse *efuse;
 	int res = 0;
 
 	res = mvebu_efuse_init_hw();
@@ -168,8 +181,9 @@ static int prog_efuse(int nr, struct efuse_val *new_val, u32 mask0, u32 mask1)
 
 int mvebu_prog_ld_efuse(int ld1, u32 word, u32 val)
 {
+#ifndef CONFIG_MVEBU_EFUSE_READONLY
 	int i, res;
-	u32 line[EFUSE_LD_WORDS];
+	mvebu_ld_efuse line[EFUSE_LD_WORDS];
 
 	res = mvebu_efuse_init_hw();
 	if (res)
@@ -206,6 +220,10 @@ int mvebu_prog_ld_efuse(int ld1, u32 word, u32 val)
 	disable_efuse_program();
 
 	return 0;
+#else
+	printf("Error: Operating in read-only mode, writing not allowed.\n");
+	return -EPERM;
+#endif
 }
 
 int mvebu_efuse_init_hw(void)
@@ -228,7 +246,7 @@ int mvebu_efuse_init_hw(void)
 
 int mvebu_read_efuse(int nr, struct efuse_val *val)
 {
-	struct mvebu_hd_efuse *efuse;
+	mvebu_hd_efuse *efuse;
 	int res;
 
 	res = mvebu_efuse_init_hw();

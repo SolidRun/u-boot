@@ -418,6 +418,14 @@ config MVEBU_EFUSE_FAKE
 	  from a memory block.
 	  This is can be used for testing prog scripts.
 
+config MVEBU_EFUSE_READONLY
+	bool "Read-only eFuse access"
+	depends on MVEBU_EFUSE
+	help
+	  This enables a "read-only" mode where eFuses can only be read.
+	  This is can be used for testing and validating units without any
+	  danger of user error.
+
 config MVEBU_EFUSE_VHV_GPIO
 	string "VHV_Enable GPIO name for eFuse programming"
 	depends on MVEBU_EFUSE && !ARMADA_3700
