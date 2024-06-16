@@ -59,6 +59,28 @@ void cleanup_env_ethaddr(void)
 	}
 }
 
+void cn20k_board_get_mac_addr(u8 index, u8 *mac_addr)
+{
+	u64 tmp_mac, mac;
+	static int mac_num;
+	bool use_id;
+
+	memset(mac_addr, 0, ARP_HLEN);
+	mac_num = fdt_get_board_mac_cnt(&use_id);
+
+	if (mac_num && (index < mac_num)) {
+		mac = fdt_get_board_mac_addr(use_id, index);
+		if (!is_zero_ethaddr((u8 *)&mac)) {
+			tmp_mac = mac;
+			if (!use_id)
+				tmp_mac += index;
+			tmp_mac = swab64(tmp_mac) >> 16;
+			memcpy(mac_addr, (u8 *)&tmp_mac, ARP_HLEN);
+		}
+	}
+	debug("%s mac %pM\n", __func__, mac_addr);
+}
+
 void board_get_spi_bus_cs(struct udevice *dev, int *bus, int *cs)
 {
 	struct udevice *busp, *csp;
@@ -132,6 +154,74 @@ void board_get_env_offset(int *offset, const char *property)
 	*offset = env_offset;
 }
 
+#if CONFIG_IS_ENABLED(CN20K_FIXED_MGMT_PORT)
+extern int get_mgmt_port_pf_idx(void);
+void probe_network_mgmt_port(void)
+{
+	struct udevice *dev;
+	int err, dev_idx = 0;
+	struct uclass *uc;
+	int ret;
+
+	dev_idx = get_mgmt_port_pf_idx();
+	if (dev_idx < 0)
+		return;
+
+	ret = uclass_get(UCLASS_ETH, &uc);
+	if (ret)
+		return;
+	if (list_empty(&uc->dev_head))
+		return;
+
+	/* Move mgmt port device sequence as first */
+	uclass_foreach_dev(dev, uc) {
+		if (!dev_seq(dev))
+			dev->seq_ = dev_idx - 1;
+		else if (dev_seq(dev) == (dev_idx - 1))
+			dev->seq_ = 0;
+	}
+}
+#else
+void probe_network_mgmt_port(void)
+{
+}
+#endif
+
+void probe_network_devices(bool probe)
+{
+	struct udevice *dev;
+	int err, rpm_cnt, i;
+	unsigned int devid = PCI_DEVICE_ID_CAVIUM_RPM;
+
+	switch (read_partnum()) {
+	case CN20KA:
+		devid = PCI_DEVICE_ID_CAVIUM_RPM2;
+		rpm_cnt = 3;
+		break;
+	default:
+		rpm_cnt = 0;
+		break;
+	}
+	/* MAC(RPM) and RVU AF devices */
+	for (i = 0; i < rpm_cnt; i++) {
+		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
+					 devid, i, &dev);
+		if (err)
+			debug("%s RPM%d device not found\n", __func__, i);
+		if (!probe)
+			device_remove(dev, DM_REMOVE_NORMAL);
+	}
+	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
+				 PCI_DEVICE_ID_CAVIUM_RVU_AF, 0, &dev);
+	if (err)
+		debug("NIC AF device not found\n");
+	if (!probe)
+		device_remove(dev, DM_REMOVE_NORMAL);
+
+	if (IS_ENABLED(CONFIG_CN20K_FIXED_MGMT_PORT))
+		probe_network_mgmt_port();
+}
+
 int board_early_init_r(void)
 {
 	pci_init();
@@ -150,11 +240,22 @@ int timer_init(void)
 
 int dram_init(void)
 {
+	u64 rvu_addr, rvu_size;
+	int ret;
+
 	gd->ram_size = smc_dram_size(0);
 	/* Initial Secure region */
 	gd->ram_size += 0x1000000;
 	gd->ram_size -= CONFIG_SYS_SDRAM_BASE;
-	mem_map_fill();
+
+	rvu_addr = 0;
+	rvu_size = 0;
+	ret = smc_rvu_rsvd_reg_info(&rvu_addr, &rvu_size);
+
+	if (IS_ENABLED(CONFIG_CN20K_MAP_RESERVE))
+		board_fdt_get_rsvd_size(&rvu_addr, &rvu_size);
+
+	mem_map_fill(rvu_addr, rvu_size);
 	return 0;
 }
 
@@ -248,6 +349,12 @@ int board_late_init(void)
 			save_env = true;
 		env_set("serial#", boardserial);
 	}
+
+	if (IS_ENABLED(CONFIG_CN20K_ETH_INTF))
+		init_sh_fwdata();
+
+	if (IS_ENABLED(CONFIG_NET_CN20K))
+		probe_network_devices(true);
 
 	if (save_env)
 		env_save();

@@ -40,14 +40,19 @@ union cpc_boot_ownerx {
 };
 
 /** Function definitions */
-void mem_map_fill(void);
+void mem_map_fill(u64 rvu_addr, u64 rvu_size);
+void board_fdt_get_rsvd_size(u64 *addr, u64 *size);
 const char *fdt_get_run_platform(void);
 const char *fdt_get_board_model(void);
 const char *fdt_get_board_serial(void);
 const char *fdt_get_board_revision(void);
+int fdt_get_board_mac_cnt(bool *use_id);
+u64 fdt_get_board_mac_addr(bool use_id, u8 id);
 void board_get_env_spi_bus_cs(int *bus, int *cs);
 void board_get_env_offset(int *offset, const char *property);
 void board_get_spi_bus_cs(struct udevice *dev, int *bus, int *cs);
+void cn20k_board_get_mac_addr(u8 index, u8 *mac_addr);
+void init_sh_fwdata(void);
 struct udevice;
 int board_acquire_flash_arb(bool acquire);
 #endif /* __BOARD_H__ */

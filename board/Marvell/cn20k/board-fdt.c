@@ -240,6 +240,66 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return ret;
 }
 
+u64 fdt_get_board_mac_addr(bool use_id, u8 id)
+{
+	int node, len = 16;
+	const char *str = NULL;
+	const void *fdt = gd->fdt_blob;
+	u64 mac_addr = 0;
+	char name[32];
+
+	node = fdt_get_bdk_node();
+	if (!node)
+		return mac_addr;
+
+	debug("fdt: %d %d\n", use_id, id);
+	if (use_id)
+		snprintf(name, sizeof(name), "BOARD-MAC-ADDRESS-ID%d", id);
+	else
+		snprintf(name, sizeof(name), "BOARD-MAC-ADDRESS");
+
+	debug("fdt: %s\n", name);
+	str = fdt_getprop(fdt, node, name, &len);
+	if (str)
+		mac_addr = simple_strtoul(str, NULL, 16);
+	debug("fdt: %llx\n", mac_addr);
+	return mac_addr;
+}
+
+int fdt_get_board_mac_cnt(bool *use_id)
+{
+	int node, len = 16;
+	const char *str = NULL;
+	const void *fdt = gd->fdt_blob;
+	int mac_count = 0, mac_id_count = 0;
+
+	node = fdt_get_bdk_node();
+	if (!node)
+		return mac_count;
+	str = fdt_getprop(fdt, node, "BOARD-MAC-ADDRESS-NUM", &len);
+	if (str) {
+		mac_count = simple_strtol(str, NULL, 10);
+		if (!mac_count)
+			mac_count = simple_strtol(str, NULL, 16);
+		debug("fdt: MAC_NUM %d\n", mac_count);
+	} else {
+		printf("Error: cannot retrieve mac count prop from fdt\n");
+	}
+	str = fdt_getprop(fdt, node, "BOARD-MAC-ADDRESS-ID-NUM", &len);
+	if (str) {
+		mac_id_count = simple_strtol(str, NULL, 10);
+		if (!mac_id_count)
+			mac_id_count = simple_strtol(str, NULL, 16);
+		debug("fdt: MAC_ID_NUM %d\n", mac_id_count);
+		if (mac_id_count)
+			mac_count = mac_id_count;
+	} else {
+		printf("Error: cannot retrieve mac count prop from fdt\n");
+	}
+	*use_id = mac_id_count ? true : false;
+	return mac_count;
+}
+
 /**
  * Return the FDT base address that was passed by ATF
  *
@@ -250,3 +310,39 @@ void *board_fdt_blob_setup(int *err)
 	*err = 0;
 	return (void *)fdt_base_addr;
 }
+
+#if CONFIG_IS_ENABLED(CN20K_MAP_RESERVE)
+void board_fdt_get_rsvd_size(u64 *addr, u64 *size)
+{
+	int node, child;
+	const void *fdt = gd->fdt_blob;
+	u64 ram_top = gd->ram_size + CONFIG_SYS_SDRAM_BASE;
+	fdt_addr_t dt_addr;
+	fdt_size_t dt_len;
+
+	node = fdt_path_offset(fdt, "/reserved-memory");
+	if (node) {
+		fdt_for_each_subnode(child, fdt, node) {
+			dt_addr = 0;
+			dt_len = 0;
+			dt_addr = fdtdec_get_addr_size_auto_parent(fdt, node,
+								child,
+								"reg", 0,
+								&dt_len,
+								false);
+			if (dt_addr && dt_addr >= ram_top && dt_len) {
+				debug("%s Rsvd address 0x%llx 0x%llx size 0x%llx\n",
+					__func__, dt_addr, ram_top, dt_len);
+
+				if (dt_addr < *addr) {
+					*size += *addr - dt_addr;
+					*addr = dt_addr;
+				}
+
+				if (dt_addr + dt_len > *addr + *size)
+					*size = dt_addr + dt_len - *addr;
+			}
+		}
+	}
+}
+#endif

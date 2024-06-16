@@ -15,7 +15,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CN20K_MEM_MAP_USED 11
+#define CN20K_MEM_MAP_USED 12
 
 /* +1 is end of list which needs to be empty */
 #define CN20K_MEM_MAP_MAX (CN20K_MEM_MAP_USED + CONFIG_NR_DRAM_BANKS + 3)
@@ -93,7 +93,7 @@ static struct mm_region cn20k_mem_map[CN20K_MEM_MAP_MAX] = {
 struct mm_region *mem_map = cn20k_mem_map;
 
 #define SHFW_REGION	0x3000000UL
-void mem_map_fill(void)
+void mem_map_fill(u64 rvu_addr, u64 rvu_size)
 {
 	int banks = CN20K_MEM_MAP_USED;
 	u32 dram_start = CONFIG_TEXT_BASE;
@@ -109,6 +109,12 @@ void mem_map_fill(void)
 	cn20k_mem_map[banks].virt = dram_start - SHFW_REGION;
 	cn20k_mem_map[banks].phys = dram_start - SHFW_REGION;
 	cn20k_mem_map[banks].size = SHFW_REGION;
+	cn20k_mem_map[banks].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+				    PTE_BLOCK_INNER_SHARE;
+	banks++;
+	cn20k_mem_map[banks].virt = rvu_addr;
+	cn20k_mem_map[banks].phys = rvu_addr;
+	cn20k_mem_map[banks].size = rvu_size;
 	cn20k_mem_map[banks].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 				    PTE_BLOCK_INNER_SHARE;
 }
