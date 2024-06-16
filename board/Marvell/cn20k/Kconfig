@@ -11,4 +11,10 @@ config SYS_BOARD
 config SYS_CONFIG_NAME
 	default "cn20k_common"
 
+config CN20K_MAP_RESERVE
+	bool "Enable reserved region mapping"
+	default n
+	help
+	  Enable mapping of reserved regions to MMU for access
+	  from U-Boot.
 endif
