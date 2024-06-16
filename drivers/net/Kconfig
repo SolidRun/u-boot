@@ -565,6 +565,30 @@ config CN10K_ETH_INTF
 	  You must select Y to enable Ethernet ATF interface support for
 	  CN10K SoCs. If unsure, say n
 
+config NET_CN20K
+	bool "CN20K Ethernet support"
+	depends on ARCH_CN20K
+	help
+	  This will enable all necessary modules for CN20K network support.
+	  You must select Y to enable network device support for
+	  CN20K SoCs.
+	  If unsure, say n.
+
+config NET_CN20K_DPI
+	bool "CN20K Ethernet support over DPI interface"
+	depends on NET_CN20K
+	help
+	  You must select Y to enable network device support over DPI for
+	  CN10K SoCs. If unsure, say n
+
+config CN20K_ETH_INTF
+	bool "CN20K ETH ATF interface support"
+	depends on ARCH_CN20K
+	default y if ARCH_CN20K
+	help
+	  You must select Y to enable Ethernet ATF interface support for
+	  CN20K SoCs. If unsure, say n
+
 config OCTEONTX_SMI
 	bool "OcteonTX SMI Device support"
 	depends on ARCH_OCTEONTX || ARCH_OCTEONTX2
