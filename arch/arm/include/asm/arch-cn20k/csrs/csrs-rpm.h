@@ -1,0 +1,13616 @@
+/* SPDX-License-Identifier:    GPL-2.0
+ *
+ * Copyright (C) 2022 Marvell
+ *
+ * https://spdx.org/licenses
+ */
+#ifndef __CSRS_RPM_H__
+#define __CSRS_RPM_H__
+
+/**
+ * @file
+ *
+ * Configuration and status register (CSR) address and type definitions for
+ * RPM.
+ *
+ * This file is auto generated.  Do not edit.
+ *
+ */
+
+/**
+ * Enumeration rpm_bar_e
+ *
+ * RPM Base Address Register Enumeration Enumerates the base address
+ * registers.
+ */
+#define RPM_BAR_E_RPMX_PF_BAR0(a) (0xc0e000000000ll + 0x100000000ll * (a))
+#define RPM_BAR_E_RPMX_PF_BAR0_SIZE 0x800000ull
+#define RPM_BAR_E_RPMX_PF_BAR4(a) (0xc0e080000000ll + 0x100000000ll * (a))
+#define RPM_BAR_E_RPMX_PF_BAR4_SIZE 0x800000ull
+#if 0
+/**
+ * Enumeration rpm_int_vec_e
+ *
+ * RPM MSI-X Vector Enumeration Enumeration the MSI-X interrupt vectors.
+ */
+#define RPM_INT_VEC_E_ANX_INT_CN10KA(a) (0xe + (a))
+#define RPM_INT_VEC_E_ANX_INT_CN10KB(a) (0x1a + (a))
+#define RPM_INT_VEC_E_ANX_INT_CNF10KA(a) (0xe + (a))
+#define RPM_INT_VEC_E_ANX_INT_CNF10KB(a) (0xe + (a))
+#define RPM_INT_VEC_E_CMRX_INT(a) (0 + 2 * (a))
+#define RPM_INT_VEC_E_CMRX_SW_CN10KA(a) (0xa + (a))
+#define RPM_INT_VEC_E_CMRX_SW_CN10KB(a) (0x12 + (a))
+#define RPM_INT_VEC_E_CMRX_SW_CNF10KA(a) (0xa + (a))
+#define RPM_INT_VEC_E_CMRX_SW_CNF10KB(a) (0xa + (a))
+#define RPM_INT_VEC_E_CMR_GLOBAL_INT_CN10KB (0x10)
+#define RPM_INT_VEC_E_CMR_GLOBAL_INT_CNF10KB (8)
+#define RPM_INT_VEC_E_CMR_MEM_INT (8)
+#define RPM_INT_VEC_E_EXT_MTI_PORTX_INT(a) (1 + 2 * (a))
+#define RPM_INT_VEC_E_SW_CN10KA (9)
+#define RPM_INT_VEC_E_SW_CN10KB (0x11)
+#define RPM_INT_VEC_E_SW_CNF10KA (9)
+#define RPM_INT_VEC_E_SW_CNF10KB (9)
+
+/**
+ * Register (RSL) rpm#_active_pc
+ *
+ * RPM ACTIVE PC Register This register counts the conditional clocks for
+ * power management.
+ */
+union rpmx_active_pc {
+	u64 u;
+	struct rpmx_active_pc_s {
+		u64 cnt                              : 64;
+	} s;
+	/* struct rpmx_active_pc_s cn; */
+};
+
+static inline u64 RPMX_ACTIVE_PC(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ACTIVE_PC(void)
+{
+	return 0x2010;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_0
+ *
+ * RPM An  Aneg Lane 0 Control Register 0 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_0 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_0_s {
+		u64 override_ctrl_s                  : 2;
+		u64 ap_aneg_amdisam_s                : 1;
+		u64 ap_aneg_bp_reached_s             : 1;
+		u64 ap_aneg_state_s10_0              : 11;
+		u64 rg_eee_xnp_sel_s                 : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_0_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_0(u64 a)
+{
+	return 0x49000 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_1
+ *
+ * RPM An  Aneg Lane 0 Control Register 1 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_1 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_1_s {
+		u64 ag_lgth_match_cnt_s3_0           : 4;
+		u64 cg_aneg_test0_s                  : 1;
+		u64 cg_aneg_test3_s                  : 1;
+		u64 rg_no_ringosc_s                  : 1;
+		u64 ow_as_nonce_match_s              : 1;
+		u64 rg_as_nonce_match_s              : 1;
+		u64 rg_link_fail_timer_sel1500_s     : 2;
+		u64 rg_link_fail_timer_sel500_s      : 2;
+		u64 rg_link_fail_timer_sel50_s       : 2;
+		u64 rg_link_fail_timer_off_s         : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_1(u64 a)
+{
+	return 0x49008 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_10
+ *
+ * RPM An  Aneg Lane 0 Control Register 10 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_10 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_10_s {
+		u64 advertised_con25gkrcr_location   : 5;
+		u64 advertised_con50gkrcr_location   : 5;
+		u64 advertised_con400grcr8_location  : 3;
+		u64 reg10_reserved13                 : 2;
+		u64 rg_ap_local_reset_s              : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_10_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_10(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_10(u64 a)
+{
+	return 0x49050 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_11
+ *
+ * RPM An  Aneg Lane 0 Control Register 11 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_11 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_11_s {
+		u64 reg11_reserved                   : 3;
+		u64 symbol_lock_override_value       : 1;
+		u64 reg11_reserved4                  : 3;
+		u64 reg11_reserved7                  : 4;
+		u64 chk_dsp_lock_s                   : 1;
+		u64 reg11_reserved12                 : 3;
+		u64 symbol_lock_select               : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_11_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_11(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_11(u64 a)
+{
+	return 0x49058 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_12
+ *
+ * RPM An  Aneg Lane 0 Control Register 12 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_12 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_12_s {
+		u64 reg12_reserved                   : 3;
+		u64 symbol_lock_override_enable      : 1;
+		u64 reg12_my_reserved4               : 4;
+		u64 n_ag_mode_s                      : 5;
+		u64 adv_use_n_agmode_s               : 1;
+		u64 re_agstart_use_n_link_s          : 1;
+		u64 intel_fec_mode                   : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_12_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_12(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_12(u64 a)
+{
+	return 0x49060 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_13
+ *
+ * RPM An  Aneg Lane 0 Control Register 13 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_13 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_13_s {
+		u64 ap_interrupt                     : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_13_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_13(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_13(u64 a)
+{
+	return 0x49068 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_14
+ *
+ * RPM An  Aneg Lane 0 Control Register 14 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_14 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_14_s {
+		u64 advertised_200g_r8_marvell_mode_a15_to_a22_bit_location_select : 2;
+		u64 advertised_25r2_mode_a15_to_a22_bit_location_select : 2;
+		u64 advertised_800g_r8_marvell_mode_a15_to_a22_bit_location_select : 2;
+		u64 advertised_50g_r4_marvell_mode_a15_to_a22_bit_location_select : 2;
+		u64 reserved_8                       : 1;
+		u64 advertised_40g_r2_mode_a15_to_a22_bit_location_select : 3;
+		u64 cfg_40gr2_prio_higher_than_40gr4_s : 1;
+		u64 ap_interrupt_type                : 1;
+		u64 interrupt_time_select            : 1;
+		u64 interrupt_mask                   : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_14_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_14(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_14(u64 a)
+{
+	return 0x49070 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_15
+ *
+ * RPM An  Aneg Lane 0 Control Register 15 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_15 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_15_s {
+		u64 pm_norm_x_state_s                : 1;
+		u64 far_set_restart_all_s            : 1;
+		u64 far_clear_reset_all_s            : 1;
+		u64 reserved_3                       : 1;
+		u64 pcs_link                         : 1;
+		u64 reserved_5_14                    : 10;
+		u64 symbol_lock                      : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_15_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_15(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_15(u64 a)
+{
+	return 0x49078 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_16_consortium_mp5_register_0
+ *
+ * RPM An  Aneg Lane 0 Control Register 16 Consortium Mp5 Register 0
+ * Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_16_consortium_mp5_register_0 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_16_consortium_mp5_register_0_s {
+		u64 reg16_messageunformatted_field   : 11;
+		u64 reg16_toggle                     : 1;
+		u64 reg16_acknowledge2               : 1;
+		u64 reg16_message_page               : 1;
+		u64 reg16_acknowledge                : 1;
+		u64 reg16_next_page                  : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_16_consortium_mp5_register_0_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_16_CONSORTIUM_MP5_REGISTER_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_16_CONSORTIUM_MP5_REGISTER_0(u64 a)
+{
+	return 0x49080 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_17_consortium_mp5_register_1
+ *
+ * RPM An  Aneg Lane 0 Control Register 17 Consortium Mp5 Register 1
+ * Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_17_consortium_mp5_register_1 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_17_consortium_mp5_register_1_s {
+		u64 reg17_oui_23_13                  : 11;
+		u64 reg17_reserved11                 : 5;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_17_consortium_mp5_register_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_17_CONSORTIUM_MP5_REGISTER_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_17_CONSORTIUM_MP5_REGISTER_1(u64 a)
+{
+	return 0x49088 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_18_consortium_mp5_register_2
+ *
+ * RPM An  Aneg Lane 0 Control Register 18 Consortium Mp5 Register 2
+ * Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_18_consortium_mp5_register_2 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_18_consortium_mp5_register_2_s {
+		u64 reg18_oui_12_2                   : 11;
+		u64 reg18_reserved11                 : 5;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_18_consortium_mp5_register_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_18_CONSORTIUM_MP5_REGISTER_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_18_CONSORTIUM_MP5_REGISTER_2(u64 a)
+{
+	return 0x49090 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_19_consortium_et_register_0
+ *
+ * RPM An  Aneg Lane 0 Control Register 19 Consortium Et Register 0
+ * Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_19_consortium_et_register_0 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_19_consortium_et_register_0_s {
+		u64 reg19_messageunformatted_field   : 9;
+		u64 reg19_oui_1_0                    : 2;
+		u64 reg19_toggle                     : 1;
+		u64 reg19_acknowledge2               : 1;
+		u64 reg19_message_page               : 1;
+		u64 reg19_acknowledge                : 1;
+		u64 reg19_next_page                  : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_19_consortium_et_register_0_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_19_CONSORTIUM_ET_REGISTER_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_19_CONSORTIUM_ET_REGISTER_0(u64 a)
+{
+	return 0x49098 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_2
+ *
+ * RPM An  Aneg Lane 0 Control Register 2 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_2 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_2_s {
+		u64 clear_hcd_ow_s                   : 1;
+		u64 rg_clear_hcd_s                   : 1;
+		u64 aneg_enable_ow_s                 : 1;
+		u64 rg_aneg_enable_s                 : 1;
+		u64 restart_aneg_ow_s                : 1;
+		u64 rg_restart_aneg_s                : 1;
+		u64 link_ow_s                        : 1;
+		u64 rg_link_s                        : 1;
+		u64 hcd_resolved_ow_s                : 1;
+		u64 rg_hcd_resolved_s                : 1;
+		u64 reg2_reserved10                  : 6;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_2(u64 a)
+{
+	return 0x49010 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_20_consortium_et_register_1
+ *
+ * RPM An  Aneg Lane 0 Control Register 20 Consortium Et Register 1
+ * Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_20_consortium_et_register_1 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_20_consortium_et_register_1_s {
+		u64 reg20_reserved                   : 4;
+		u64 reg20_consortium_25g_kr1         : 1;
+		u64 reg20_consortium_25g_cr1         : 1;
+		u64 reg20_consortium_reserved        : 2;
+		u64 reg20_consortium_50g_kr2         : 1;
+		u64 reg20_consortium_50g_cr2         : 1;
+		u64 reg20_reserved10                 : 6;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_20_consortium_et_register_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_20_CONSORTIUM_ET_REGISTER_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_20_CONSORTIUM_ET_REGISTER_1(u64 a)
+{
+	return 0x490a0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_21_consortium_et_register_2
+ *
+ * RPM An  Aneg Lane 0 Control Register 21 Consortium Et Register 2
+ * Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_21_consortium_et_register_2 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_21_consortium_et_register_2_s {
+		u64 reg21_marvell_consortium_40gr2   : 1;
+		u64 reg21_reserved1                  : 1;
+		u64 reg21_marvell_consortium_400gr8  : 1;
+		u64 reg21_reserved3                  : 2;
+		u64 reg21_consortium_lf1             : 1;
+		u64 reg21_consortium_lf2             : 1;
+		u64 reg21_consortium_lf3             : 1;
+		u64 reg21_consortium_f1              : 1;
+		u64 reg21_consortium_f2              : 1;
+		u64 reg21_consortium_f3              : 1;
+		u64 reg21_consortium_f4              : 1;
+		u64 reg21_consortium_lfr             : 1;
+		u64 reg21_reserved13                 : 3;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_21_consortium_et_register_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_21_CONSORTIUM_ET_REGISTER_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_21_CONSORTIUM_ET_REGISTER_2(u64 a)
+{
+	return 0x490a8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_22_link_partner_consortium_mp5_register_0
+ *
+ * RPM An  Aneg Lane 0 Control Register 22 Link Partner Consortium Mp5
+ * Register 0 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_22_link_partner_consortium_mp5_register_0 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_22_link_partner_consortium_mp5_register_0_s {
+		u64 reg22_messageunformatted_field   : 11;
+		u64 reg22_toggle                     : 1;
+		u64 reg22_acknowledge2               : 1;
+		u64 reg22_message_page               : 1;
+		u64 reg22_acknowledge                : 1;
+		u64 reg22_next_page                  : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_22_link_partner_consortium_mp5_register_0_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_22_LINK_PARTNER_CONSORTIUM_MP5_REGISTER_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_22_LINK_PARTNER_CONSORTIUM_MP5_REGISTER_0(u64 a)
+{
+	return 0x490b0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_23_link_partner_consortium_mp5_register_1
+ *
+ * RPM An  Aneg Lane 0 Control Register 23 Link Partner Consortium Mp5
+ * Register 1 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_23_link_partner_consortium_mp5_register_1 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_23_link_partner_consortium_mp5_register_1_s {
+		u64 reg23_oui_23_13                  : 11;
+		u64 reserved_11_63                   : 53;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_23_link_partner_consortium_mp5_register_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_23_LINK_PARTNER_CONSORTIUM_MP5_REGISTER_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_23_LINK_PARTNER_CONSORTIUM_MP5_REGISTER_1(u64 a)
+{
+	return 0x490b8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_24_link_partner_consortium_mp5_register_2
+ *
+ * RPM An  Aneg Lane 0 Control Register 24 Link Partner Consortium Mp5
+ * Register 2 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_24_link_partner_consortium_mp5_register_2 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_24_link_partner_consortium_mp5_register_2_s {
+		u64 reg24_oui_12_2                   : 11;
+		u64 reg24_reserved11                 : 5;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_24_link_partner_consortium_mp5_register_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_24_LINK_PARTNER_CONSORTIUM_MP5_REGISTER_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_24_LINK_PARTNER_CONSORTIUM_MP5_REGISTER_2(u64 a)
+{
+	return 0x490c0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_25_link_partner_consortium_et_register_0
+ *
+ * RPM An  Aneg Lane 0 Control Register 25 Link Partner Consortium Et
+ * Register 0 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_25_link_partner_consortium_et_register_0 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_25_link_partner_consortium_et_register_0_s {
+		u64 reg25_messageunformatted_field   : 9;
+		u64 reg25_oui_1_0                    : 2;
+		u64 reg25_toggle                     : 1;
+		u64 reg25_acknowledge2               : 1;
+		u64 reg25_message_page               : 1;
+		u64 reg25_acknowledge                : 1;
+		u64 reg25_next_page                  : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_25_link_partner_consortium_et_register_0_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_25_LINK_PARTNER_CONSORTIUM_ET_REGISTER_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_25_LINK_PARTNER_CONSORTIUM_ET_REGISTER_0(u64 a)
+{
+	return 0x490c8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_26_link_partern_consortium_et_register_1
+ *
+ * RPM An  Aneg Lane 0 Control Register 26 Link Partern Consortium Et
+ * Register 1 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_26_link_partern_consortium_et_register_1 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_26_link_partern_consortium_et_register_1_s {
+		u64 reg26_reserved                   : 4;
+		u64 reg26_consortium_25g_kr1         : 1;
+		u64 reg26_consortium_25g_cr1         : 1;
+		u64 reg26_consortium_reserved        : 2;
+		u64 reg26_consortium_50g_kr2         : 1;
+		u64 reg26_consortium_50g_cr2         : 1;
+		u64 reg26_reserved10                 : 6;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_26_link_partern_consortium_et_register_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_26_LINK_PARTERN_CONSORTIUM_ET_REGISTER_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_26_LINK_PARTERN_CONSORTIUM_ET_REGISTER_1(u64 a)
+{
+	return 0x490d0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_27_link_partner_consortium_et_register_2
+ *
+ * RPM An  Aneg Lane 0 Control Register 27 Link Partner Consortium Et
+ * Register 2 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_27_link_partner_consortium_et_register_2 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_27_link_partner_consortium_et_register_2_s {
+		u64 reg27_marvell_consortium_40gr2   : 1;
+		u64 reg27_reserved1                  : 1;
+		u64 reg27_marvell_consortium_400gr8  : 1;
+		u64 reg27_reserved3                  : 2;
+		u64 reg27_consortium_lf1             : 1;
+		u64 reg27_consortium_lf2             : 1;
+		u64 reg27_consortium_lf3             : 1;
+		u64 reg27_consortium_f1              : 1;
+		u64 reg27_consortium_f2              : 1;
+		u64 reg27_consortium_f3              : 1;
+		u64 reg27_consortium_f4              : 1;
+		u64 reg27_consortium_lfr             : 1;
+		u64 reg27_reserved13                 : 3;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_27_link_partner_consortium_et_register_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_27_LINK_PARTNER_CONSORTIUM_ET_REGISTER_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_27_LINK_PARTNER_CONSORTIUM_ET_REGISTER_2(u64 a)
+{
+	return 0x490d8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_3
+ *
+ * RPM An  Aneg Lane 0 Control Register 3 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_3 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_3_s {
+		u64 reg3_reserved                    : 2;
+		u64 aa_sfec_enable_s                 : 1;
+		u64 aa_fec_enable_s                  : 1;
+		u64 aa_rsfec_enable_overwrite_value  : 1;
+		u64 ap_rsfec_enable_overwrite        : 1;
+		u64 aa_fec_enable_overwrite_value    : 1;
+		u64 ap_fec_enable_overwrite          : 1;
+		u64 tx_pause_enable_ow_s             : 1;
+		u64 rg_tx_pause_enable_s             : 1;
+		u64 rx_pause_enable_ow_s             : 1;
+		u64 rg_rx_pause_enable_s             : 1;
+		u64 pcs_lock_ow_s                    : 1;
+		u64 rg_pcs_lock_s                    : 1;
+		u64 dsp_lock_ow_s                    : 1;
+		u64 rg_dsp_lock_s                    : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_3_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_3(u64 a)
+{
+	return 0x49018 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_4
+ *
+ * RPM An  Aneg Lane 0 Control Register 4 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_4 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_4_s {
+		u64 aa_pwrup_g_s                     : 1;
+		u64 aa_pwrup_2p5g_s                  : 1;
+		u64 aa_pwrup_5gr_s                   : 1;
+		u64 aa_pwrup_10gkr_s                 : 1;
+		u64 aa_pwrup_con25gkr_s              : 1;
+		u64 aa_pwrup_con25gcr_s              : 1;
+		u64 aa_pwrup_ieee25gs_s              : 1;
+		u64 aa_pwrup_ieee25grcr_s            : 1;
+		u64 aa_pwrup_40gkr4_s                : 1;
+		u64 aa_pwrup_40gcr4_s                : 1;
+		u64 aa_pwrup_con50gkr2_s             : 1;
+		u64 aa_pwrup_con50gcr2_s             : 1;
+		u64 aa_pwrup_100gkr4_s               : 1;
+		u64 aa_pwrup_100gcr4_s               : 1;
+		u64 aa_pwrup_50grcr_s                : 1;
+		u64 aa_pwrup_100grcr2_s              : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_4_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_4(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_4(u64 a)
+{
+	return 0x49020 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_5
+ *
+ * RPM An  Aneg Lane 0 Control Register 5 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_5 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_5_s {
+		u64 aa_pwrup_200grcr4_s              : 1;
+		u64 aa_pwrup_25gkr4_s                : 1;
+		u64 aa_pwrup_50gkr4_s                : 1;
+		u64 aa_pwrup_25gkr2_s                : 1;
+		u64 aa_pwrup_40gr2                   : 1;
+		u64 my_reserved5                     : 5;
+		u64 selected_modes_to_overwrite      : 5;
+		u64 pwrup_modes_ow_s                 : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_5_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_5(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_5(u64 a)
+{
+	return 0x49028 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_6
+ *
+ * RPM An  Aneg Lane 0 Control Register 6 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_6 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_6_s {
+		u64 ow_pm_norm_x_state_s             : 1;
+		u64 rg_pm_norm_x_state_s             : 1;
+		u64 ow_pm_loopback_s                 : 1;
+		u64 rg_pm_loopback_s                 : 1;
+		u64 ow_far_clear_reset_all_s         : 1;
+		u64 rg_far_clear_reset_all_s         : 1;
+		u64 ow_far_set_restart_all_s         : 1;
+		u64 rg_far_set_restart_all_s         : 1;
+		u64 ow_ring_osc_s                    : 1;
+		u64 rg_ring_osc_s                    : 1;
+		u64 reg6_reserved10                  : 6;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_6_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_6(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_6(u64 a)
+{
+	return 0x49030 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_7
+ *
+ * RPM An  Aneg Lane 0 Control Register 7 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_7 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_7_s {
+		u64 rg_lostlock_value_s              : 1;
+		u64 rg_lostlock_ow_s                 : 1;
+		u64 rg_lostlock_sel_s                : 1;
+		u64 rg_timer2_length_s_ow_s          : 1;
+		u64 rg_timer2_length_sel_s           : 2;
+		u64 my_reserved6                     : 10;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_7_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_7(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_7(u64 a)
+{
+	return 0x49038 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_8
+ *
+ * RPM An  Aneg Lane 0 Control Register 8 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_8 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_8_s {
+		u64 det_data_timer_window_select     : 3;
+		u64 rg_det_dat_timer_ow_s            : 1;
+		u64 det_clock_timer_window_select    : 3;
+		u64 rg_det_clk_timer_ow_s            : 1;
+		u64 rg_ignore_pulse_too_short_s      : 1;
+		u64 break_link_length_override_value_select : 2;
+		u64 rg_break_link_length_ow_s        : 1;
+		u64 rg_disable_hw_np_s               : 1;
+		u64 rg_chk_clk_tran_s                : 1;
+		u64 my_reserved14                    : 2;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_8_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_8(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_8(u64 a)
+{
+	return 0x49040 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_lane_0_control_register_9
+ *
+ * RPM An  Aneg Lane 0 Control Register 9 Register
+ */
+union rpmx_anx_aneg_lane_0_control_register_9 {
+	u64 u;
+	struct rpmx_anx_aneg_lane_0_control_register_9_s {
+		u64 sw_ag_mode                       : 5;
+		u64 sw_fec_enable_s                  : 1;
+		u64 sw_rsfec_enable_s                : 1;
+		u64 sw_resolved_s                    : 1;
+		u64 sw_llfec_enable_s                : 1;
+		u64 my_reserved9                     : 4;
+		u64 sw_lp_selector_enable_s          : 1;
+		u64 z80_io_resolved                  : 1;
+		u64 sw_ap_enable                     : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_lane_0_control_register_9_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_9(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_LANE_0_CONTROL_REGISTER_9(u64 a)
+{
+	return 0x49048 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_z80_message_reg_0
+ *
+ * RPM An  Aneg Z80 Message Reg 0 Register
+ */
+union rpmx_anx_aneg_z80_message_reg_0 {
+	u64 u;
+	struct rpmx_anx_aneg_z80_message_reg_0_s {
+		u64 aneg_z80_message0                : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_z80_message_reg_0_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_Z80_MESSAGE_REG_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_Z80_MESSAGE_REG_0(u64 a)
+{
+	return 0x49100 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_z80_message_reg_1
+ *
+ * RPM An  Aneg Z80 Message Reg 1 Register
+ */
+union rpmx_anx_aneg_z80_message_reg_1 {
+	u64 u;
+	struct rpmx_anx_aneg_z80_message_reg_1_s {
+		u64 aneg_z80_message1                : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_z80_message_reg_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_Z80_MESSAGE_REG_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_Z80_MESSAGE_REG_1(u64 a)
+{
+	return 0x49108 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_z80_message_reg_2
+ *
+ * RPM An  Aneg Z80 Message Reg 2 Register
+ */
+union rpmx_anx_aneg_z80_message_reg_2 {
+	u64 u;
+	struct rpmx_anx_aneg_z80_message_reg_2_s {
+		u64 aneg_z80_message2                : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_z80_message_reg_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_Z80_MESSAGE_REG_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_Z80_MESSAGE_REG_2(u64 a)
+{
+	return 0x49110 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_aneg_z80_message_reg_3
+ *
+ * RPM An  Aneg Z80 Message Reg 3 Register
+ */
+union rpmx_anx_aneg_z80_message_reg_3 {
+	u64 u;
+	struct rpmx_anx_aneg_z80_message_reg_3_s {
+		u64 aneg_z80_message3                : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_aneg_z80_message_reg_3_s cn; */
+};
+
+static inline u64 RPMX_ANX_ANEG_Z80_MESSAGE_REG_3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_ANEG_Z80_MESSAGE_REG_3(u64 a)
+{
+	return 0x49118 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_auto_negotiation_device_identifier_1
+ *
+ * RPM An  Auto Negotiation Device Identifier 1 Register
+ */
+union rpmx_anx_auto_negotiation_device_identifier_1 {
+	u64 u;
+	struct rpmx_anx_auto_negotiation_device_identifier_1_s {
+		u64 organizationally_unique_identifier_bit_318 : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_auto_negotiation_device_identifier_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_DEVICE_IDENTIFIER_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_DEVICE_IDENTIFIER_1(u64 a)
+{
+	return 0x48010 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_auto_negotiation_device_identifier_2
+ *
+ * RPM An  Auto Negotiation Device Identifier 2 Register
+ */
+union rpmx_anx_auto_negotiation_device_identifier_2 {
+	u64 u;
+	struct rpmx_anx_auto_negotiation_device_identifier_2_s {
+		u64 revision_number                  : 4;
+		u64 model_number                     : 6;
+		u64 organizationally_unique_identifier_bit_1924 : 6;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_auto_negotiation_device_identifier_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_DEVICE_IDENTIFIER_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_DEVICE_IDENTIFIER_2(u64 a)
+{
+	return 0x48018 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_auto_negotiation_devices_in_package_1
+ *
+ * RPM An  Auto Negotiation Devices In Package 1 Register
+ */
+union rpmx_anx_auto_negotiation_devices_in_package_1 {
+	u64 u;
+	struct rpmx_anx_auto_negotiation_devices_in_package_1_s {
+		u64 clause_22_registers_present      : 1;
+		u64 pmdpma_present                   : 1;
+		u64 wis_present                      : 1;
+		u64 pcs_present                      : 1;
+		u64 phy_xs_present                   : 1;
+		u64 dte_xs_present                   : 1;
+		u64 tc_present                       : 1;
+		u64 auto_negotiation_present         : 1;
+		u64 separated_pma_1                  : 1;
+		u64 separated_pma_2                  : 1;
+		u64 separated_pma_3                  : 1;
+		u64 separated_pma_4                  : 1;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_anx_auto_negotiation_devices_in_package_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_DEVICES_IN_PACKAGE_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_DEVICES_IN_PACKAGE_1(u64 a)
+{
+	return 0x48028 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_auto_negotiation_devices_in_package_2
+ *
+ * RPM An  Auto Negotiation Devices In Package 2 Register
+ */
+union rpmx_anx_auto_negotiation_devices_in_package_2 {
+	u64 u;
+	struct rpmx_anx_auto_negotiation_devices_in_package_2_s {
+		u64 reserved_0_12                    : 13;
+		u64 clause_22_extension_present      : 1;
+		u64 marvell_specific_device_1_present : 1;
+		u64 marvell_specific_device_2_present : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_auto_negotiation_devices_in_package_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_DEVICES_IN_PACKAGE_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_DEVICES_IN_PACKAGE_2(u64 a)
+{
+	return 0x48030 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_auto_negotiation_package_identifier_1
+ *
+ * RPM An  Auto Negotiation Package Identifier 1 Register
+ */
+union rpmx_anx_auto_negotiation_package_identifier_1 {
+	u64 u;
+	struct rpmx_anx_auto_negotiation_package_identifier_1_s {
+		u64 organizationally_unique_pkg_identifier_bit_318 : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_auto_negotiation_package_identifier_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_PACKAGE_IDENTIFIER_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_PACKAGE_IDENTIFIER_1(u64 a)
+{
+	return 0x48070 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_auto_negotiation_package_identifier_2
+ *
+ * RPM An  Auto Negotiation Package Identifier 2 Register
+ */
+union rpmx_anx_auto_negotiation_package_identifier_2 {
+	u64 u;
+	struct rpmx_anx_auto_negotiation_package_identifier_2_s {
+		u64 pkg_revision_number              : 4;
+		u64 pkg_model_number                 : 6;
+		u64 pkg_organizationally_unique_identifier_bit_1924 : 6;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_auto_negotiation_package_identifier_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_PACKAGE_IDENTIFIER_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_AUTO_NEGOTIATION_PACKAGE_IDENTIFIER_2(u64 a)
+{
+	return 0x48078 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_backplane_ethernet_status2_register
+ *
+ * RPM An  Backplane Ethernet Status2 Register Register
+ */
+union rpmx_anx_backplane_ethernet_status2_register {
+	u64 u;
+	struct rpmx_anx_backplane_ethernet_status2_register_s {
+		u64 field_50gbase_krcr               : 1;
+		u64 field_100gbase_krcr2             : 1;
+		u64 field_200gbase_krcr4             : 1;
+		u64 field_100gbase_krcr              : 1;
+		u64 field_200gbase_krcr2             : 1;
+		u64 field_400gbase_krcr4             : 1;
+		u64 reserved_6_63                    : 58;
+	} s;
+	/* struct rpmx_anx_backplane_ethernet_status2_register_s cn; */
+};
+
+static inline u64 RPMX_ANX_BACKPLANE_ETHERNET_STATUS2_REGISTER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_BACKPLANE_ETHERNET_STATUS2_REGISTER(u64 a)
+{
+	return 0x48188 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_backplane_ethernet_status_register
+ *
+ * RPM An  Backplane Ethernet Status Register Register
+ */
+union rpmx_anx_backplane_ethernet_status_register {
+	u64 u;
+	struct rpmx_anx_backplane_ethernet_status_register_s {
+		u64 stat_bp_an_ability               : 1;
+		u64 stat_field_1000base_kx           : 1;
+		u64 stat_field_10gbase_kx4           : 1;
+		u64 stat_field_10gbase_kr            : 1;
+		u64 stat_base_r_fec_negotiated       : 1;
+		u64 stat_field_40gbase_kr4           : 1;
+		u64 stat_field_40gbase_cr4           : 1;
+		u64 stat_rs_fec_negotiated           : 1;
+		u64 stat_field_100gbase_cr10         : 1;
+		u64 stat_field_100gbase_kp4          : 1;
+		u64 stat_field_100gbase_kr4          : 1;
+		u64 stat_field_100gbase_cr4          : 1;
+		u64 stat_field_25gbase_kr_s_or_25gbase_cr_s : 1;
+		u64 stat_field_25gbase_kr_or_25gbase_cr : 1;
+		u64 stat_field_2_5gbase_kx           : 1;
+		u64 stat_field_5gbase_kr             : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_backplane_ethernet_status_register_s cn; */
+};
+
+static inline u64 RPMX_ANX_BACKPLANE_ETHERNET_STATUS_REGISTER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_BACKPLANE_ETHERNET_STATUS_REGISTER(u64 a)
+{
+	return 0x48180 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_int
+ *
+ * RPM AN Interrupt Clear Register
+ */
+union rpmx_anx_int {
+	u64 u;
+	struct rpmx_anx_int_s {
+		u64 port_int_sum                     : 1;
+		u64 an_restart                       : 1;
+		u64 hcd_found                        : 1;
+		u64 an_good_ck                       : 1;
+		u64 ch_sm_bp_reached_int             : 1;
+		u64 sd_tx_sm_bp_reached_int          : 1;
+		u64 sd_rx_sm_bp_reached_int          : 1;
+		u64 int_prog_pwm_norm_en_mx_s        : 1;
+		u64 int_prog_pwm_pwrup_en_mx_s       : 1;
+		u64 int_prog_pwm_rxon_en_mx_s        : 1;
+		u64 int_prog_pwm_rxsd_en_mx_s        : 1;
+		u64 int_prog_pwm_txon_en_mx_s        : 1;
+		u64 int_prog_pwm_txrxon_en_mx_s      : 1;
+		u64 int_prog_pwm_txrxsd_en_mx_s      : 1;
+		u64 int_pm_dsp_rxup_time_out         : 1;
+		u64 int_pm_pcs_link_timer_out        : 1;
+		u64 int_rxon_wait_time_out           : 1;
+		u64 int_txon_wait_time_out           : 1;
+		u64 int_txrx_start_wait_time_out     : 1;
+		u64 int_pm_prog_rx_init_s            : 1;
+		u64 int_pm_prog_rx_train_s           : 1;
+		u64 int_pm_prog_tx_train_s           : 1;
+		u64 int_prog_rx_time_out             : 1;
+		u64 int_prog_tx_time_out             : 1;
+		u64 int_rx_init_time_out             : 1;
+		u64 int_rx_pll_up_time_out           : 1;
+		u64 int_rx_train_time_out            : 1;
+		u64 int_tx_pll_up_time_out           : 1;
+		u64 int_tx_train_time_out            : 1;
+		u64 int_prog_time_out                : 1;
+		u64 int_wait_pwrdn_time_out          : 1;
+		u64 tx_tfifo_full                    : 1;
+		u64 tx_tfifo_empty                   : 1;
+		u64 rx_tfifo_full                    : 1;
+		u64 rx_tfifo_empty                   : 1;
+		u64 reserved_35_63                   : 29;
+	} s;
+	/* struct rpmx_anx_int_s cn; */
+};
+
+static inline u64 RPMX_ANX_INT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_INT(u64 a)
+{
+	return 0x62000 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_int_ena_w1c
+ *
+ * RPM AN Interrupt Enable Clear Register This register clears interrupt
+ * enable bits.
+ */
+union rpmx_anx_int_ena_w1c {
+	u64 u;
+	struct rpmx_anx_int_ena_w1c_s {
+		u64 port_int_sum                     : 1;
+		u64 an_restart                       : 1;
+		u64 hcd_found                        : 1;
+		u64 an_good_ck                       : 1;
+		u64 ch_sm_bp_reached_int             : 1;
+		u64 sd_tx_sm_bp_reached_int          : 1;
+		u64 sd_rx_sm_bp_reached_int          : 1;
+		u64 int_prog_pwm_norm_en_mx_s        : 1;
+		u64 int_prog_pwm_pwrup_en_mx_s       : 1;
+		u64 int_prog_pwm_rxon_en_mx_s        : 1;
+		u64 int_prog_pwm_rxsd_en_mx_s        : 1;
+		u64 int_prog_pwm_txon_en_mx_s        : 1;
+		u64 int_prog_pwm_txrxon_en_mx_s      : 1;
+		u64 int_prog_pwm_txrxsd_en_mx_s      : 1;
+		u64 int_pm_dsp_rxup_time_out         : 1;
+		u64 int_pm_pcs_link_timer_out        : 1;
+		u64 int_rxon_wait_time_out           : 1;
+		u64 int_txon_wait_time_out           : 1;
+		u64 int_txrx_start_wait_time_out     : 1;
+		u64 int_pm_prog_rx_init_s            : 1;
+		u64 int_pm_prog_rx_train_s           : 1;
+		u64 int_pm_prog_tx_train_s           : 1;
+		u64 int_prog_rx_time_out             : 1;
+		u64 int_prog_tx_time_out             : 1;
+		u64 int_rx_init_time_out             : 1;
+		u64 int_rx_pll_up_time_out           : 1;
+		u64 int_rx_train_time_out            : 1;
+		u64 int_tx_pll_up_time_out           : 1;
+		u64 int_tx_train_time_out            : 1;
+		u64 int_prog_time_out                : 1;
+		u64 int_wait_pwrdn_time_out          : 1;
+		u64 tx_tfifo_full                    : 1;
+		u64 tx_tfifo_empty                   : 1;
+		u64 rx_tfifo_full                    : 1;
+		u64 rx_tfifo_empty                   : 1;
+		u64 reserved_35_63                   : 29;
+	} s;
+	/* struct rpmx_anx_int_ena_w1c_s cn; */
+};
+
+static inline u64 RPMX_ANX_INT_ENA_W1C(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_INT_ENA_W1C(u64 a)
+{
+	return 0x62010 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_int_ena_w1s
+ *
+ * RPM AN Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
+ */
+union rpmx_anx_int_ena_w1s {
+	u64 u;
+	struct rpmx_anx_int_ena_w1s_s {
+		u64 port_int_sum                     : 1;
+		u64 an_restart                       : 1;
+		u64 hcd_found                        : 1;
+		u64 an_good_ck                       : 1;
+		u64 ch_sm_bp_reached_int             : 1;
+		u64 sd_tx_sm_bp_reached_int          : 1;
+		u64 sd_rx_sm_bp_reached_int          : 1;
+		u64 int_prog_pwm_norm_en_mx_s        : 1;
+		u64 int_prog_pwm_pwrup_en_mx_s       : 1;
+		u64 int_prog_pwm_rxon_en_mx_s        : 1;
+		u64 int_prog_pwm_rxsd_en_mx_s        : 1;
+		u64 int_prog_pwm_txon_en_mx_s        : 1;
+		u64 int_prog_pwm_txrxon_en_mx_s      : 1;
+		u64 int_prog_pwm_txrxsd_en_mx_s      : 1;
+		u64 int_pm_dsp_rxup_time_out         : 1;
+		u64 int_pm_pcs_link_timer_out        : 1;
+		u64 int_rxon_wait_time_out           : 1;
+		u64 int_txon_wait_time_out           : 1;
+		u64 int_txrx_start_wait_time_out     : 1;
+		u64 int_pm_prog_rx_init_s            : 1;
+		u64 int_pm_prog_rx_train_s           : 1;
+		u64 int_pm_prog_tx_train_s           : 1;
+		u64 int_prog_rx_time_out             : 1;
+		u64 int_prog_tx_time_out             : 1;
+		u64 int_rx_init_time_out             : 1;
+		u64 int_rx_pll_up_time_out           : 1;
+		u64 int_rx_train_time_out            : 1;
+		u64 int_tx_pll_up_time_out           : 1;
+		u64 int_tx_train_time_out            : 1;
+		u64 int_prog_time_out                : 1;
+		u64 int_wait_pwrdn_time_out          : 1;
+		u64 tx_tfifo_full                    : 1;
+		u64 tx_tfifo_empty                   : 1;
+		u64 rx_tfifo_full                    : 1;
+		u64 rx_tfifo_empty                   : 1;
+		u64 reserved_35_63                   : 29;
+	} s;
+	/* struct rpmx_anx_int_ena_w1s_s cn; */
+};
+
+static inline u64 RPMX_ANX_INT_ENA_W1S(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_INT_ENA_W1S(u64 a)
+{
+	return 0x62018 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_int_w1s
+ *
+ * RPM AN Interrupt Set Register This register sets interrupt bits.
+ */
+union rpmx_anx_int_w1s {
+	u64 u;
+	struct rpmx_anx_int_w1s_s {
+		u64 port_int_sum                     : 1;
+		u64 an_restart                       : 1;
+		u64 hcd_found                        : 1;
+		u64 an_good_ck                       : 1;
+		u64 ch_sm_bp_reached_int             : 1;
+		u64 sd_tx_sm_bp_reached_int          : 1;
+		u64 sd_rx_sm_bp_reached_int          : 1;
+		u64 int_prog_pwm_norm_en_mx_s        : 1;
+		u64 int_prog_pwm_pwrup_en_mx_s       : 1;
+		u64 int_prog_pwm_rxon_en_mx_s        : 1;
+		u64 int_prog_pwm_rxsd_en_mx_s        : 1;
+		u64 int_prog_pwm_txon_en_mx_s        : 1;
+		u64 int_prog_pwm_txrxon_en_mx_s      : 1;
+		u64 int_prog_pwm_txrxsd_en_mx_s      : 1;
+		u64 int_pm_dsp_rxup_time_out         : 1;
+		u64 int_pm_pcs_link_timer_out        : 1;
+		u64 int_rxon_wait_time_out           : 1;
+		u64 int_txon_wait_time_out           : 1;
+		u64 int_txrx_start_wait_time_out     : 1;
+		u64 int_pm_prog_rx_init_s            : 1;
+		u64 int_pm_prog_rx_train_s           : 1;
+		u64 int_pm_prog_tx_train_s           : 1;
+		u64 int_prog_rx_time_out             : 1;
+		u64 int_prog_tx_time_out             : 1;
+		u64 int_rx_init_time_out             : 1;
+		u64 int_rx_pll_up_time_out           : 1;
+		u64 int_rx_train_time_out            : 1;
+		u64 int_tx_pll_up_time_out           : 1;
+		u64 int_tx_train_time_out            : 1;
+		u64 int_prog_time_out                : 1;
+		u64 int_wait_pwrdn_time_out          : 1;
+		u64 tx_tfifo_full                    : 1;
+		u64 tx_tfifo_empty                   : 1;
+		u64 rx_tfifo_full                    : 1;
+		u64 rx_tfifo_empty                   : 1;
+		u64 reserved_35_63                   : 29;
+	} s;
+	/* struct rpmx_anx_int_w1s_s cn; */
+};
+
+static inline u64 RPMX_ANX_INT_W1S(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_INT_W1S(u64 a)
+{
+	return 0x62008 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_auto_negotiation_control
+ *
+ * RPM An  Reg 802 3ap Auto Negotiation Control Register
+ */
+union rpmx_anx_reg_802_3ap_auto_negotiation_control {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_auto_negotiation_control_s {
+		u64 control_reserved                 : 9;
+		u64 restart_802_3ap_auto_negotiation : 1;
+		u64 reserved_10_11                   : 2;
+		u64 field_802_3ap_auto_negotiation_enable : 1;
+		u64 extended_next_page_control       : 1;
+		u64 reserved_14                      : 1;
+		u64 my_reset                         : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_auto_negotiation_control_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_AUTO_NEGOTIATION_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_AUTO_NEGOTIATION_CONTROL(u64 a)
+{
+	return 0x48000 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_auto_negotiation_status
+ *
+ * RPM An  Reg 802 3ap Auto Negotiation Status Register
+ */
+union rpmx_anx_reg_802_3ap_auto_negotiation_status {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_auto_negotiation_status_s {
+		u64 link_partner_auto_negotiation_ability : 1;
+		u64 reserved_1                       : 1;
+		u64 field_802_3ap_link_status        : 1;
+		u64 field_802_3ap_auto_negotiation_ability : 1;
+		u64 stat_remote_fault                : 1;
+		u64 field_802_3ap_auto_negotiation_complete : 1;
+		u64 page_received                    : 1;
+		u64 extended_next_page_status        : 1;
+		u64 reserved_8                       : 1;
+		u64 field_802_3ap_parallel_detection_fault : 1;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_auto_negotiation_status_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_AUTO_NEGOTIATION_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_AUTO_NEGOTIATION_STATUS(u64 a)
+{
+	return 0x48008 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_extended_next_page_transmit_register_unformatted_code_field_u0_to_u15
+ *
+ * RPM An  Reg 802 3ap Extended Next Page Transmit Register Unformatted
+ * Code Field U0 To U15 Register
+ */
+union rpmx_anx_reg_802_3ap_extended_next_page_transmit_register_unformatted_code_field_u0_to_u15 {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_extended_next_page_transmit_register_unformatted_code_field_u0_to_u15_s {
+		u64 ld_unformatted_field0_15         : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_extended_next_page_transmit_register_unformatted_code_field_u0_to_u15_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_EXTENDED_NEXT_PAGE_TRANSMIT_REGISTER_UNFORMATTED_CODE_FIELD_U0_TO_U15(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_EXTENDED_NEXT_PAGE_TRANSMIT_REGISTER_UNFORMATTED_CODE_FIELD_U0_TO_U15(u64 a)
+{
+	return 0x480b8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_extended_next_page_transmit_register_unformatted_code_field_u16_to_u31
+ *
+ * RPM An  Reg 802 3ap Extended Next Page Transmit Register Unformatted
+ * Code Field U16 To U31 Register
+ */
+union rpmx_anx_reg_802_3ap_extended_next_page_transmit_register_unformatted_code_field_u16_to_u31 {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_extended_next_page_transmit_register_unformatted_code_field_u16_to_u31_s {
+		u64 ld_unformatted_field16_31        : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_extended_next_page_transmit_register_unformatted_code_field_u16_to_u31_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_EXTENDED_NEXT_PAGE_TRANSMIT_REGISTER_UNFORMATTED_CODE_FIELD_U16_TO_U31(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_EXTENDED_NEXT_PAGE_TRANSMIT_REGISTER_UNFORMATTED_CODE_FIELD_U16_TO_U31(u64 a)
+{
+	return 0x480c0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_link_partner_base_page_ability_register_1
+ *
+ * RPM An  Reg 802 3ap Link Partner Base Page Ability Register 1 Register
+ */
+union rpmx_anx_reg_802_3ap_link_partner_base_page_ability_register_1 {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_link_partner_base_page_ability_register_1_s {
+		u64 lp_selector_field                : 5;
+		u64 lp_echoed_nonce_field            : 5;
+		u64 lp_pause_capable                 : 1;
+		u64 lp_asymmetric_pause              : 1;
+		u64 reserved_12                      : 1;
+		u64 lp_remote_fault                  : 1;
+		u64 lp_acknowledge                   : 1;
+		u64 lp_next_page                     : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_link_partner_base_page_ability_register_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_BASE_PAGE_ABILITY_REGISTER_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_BASE_PAGE_ABILITY_REGISTER_1(u64 a)
+{
+	return 0x48098 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_link_partner_base_page_ability_register_2
+ *
+ * RPM An  Reg 802 3ap Link Partner Base Page Ability Register 2 Register
+ */
+union rpmx_anx_reg_802_3ap_link_partner_base_page_ability_register_2 {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_link_partner_base_page_ability_register_2_s {
+		u64 lp_link_partner_transmitted_nonce_field : 5;
+		u64 lp_1000base_kx                   : 1;
+		u64 lp_10gbase_kx4                   : 1;
+		u64 lp_10gbase_kr                    : 1;
+		u64 lp_40gbase_kr4                   : 1;
+		u64 lp_40gbase_cr4                   : 1;
+		u64 lp_100gbase_cr10                 : 1;
+		u64 lp_100gbase_kp4                  : 1;
+		u64 lp_100gbase_kr4                  : 1;
+		u64 lp_100gbase_cr4                  : 1;
+		u64 lp_25gbase_kr_s_or_25gbase_cr_s  : 1;
+		u64 lp_25gbase_kr_or_25gbase_cr      : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_link_partner_base_page_ability_register_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_BASE_PAGE_ABILITY_REGISTER_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_BASE_PAGE_ABILITY_REGISTER_2(u64 a)
+{
+	return 0x480a0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_link_partner_base_page_ability_register_3
+ *
+ * RPM An  Reg 802 3ap Link Partner Base Page Ability Register 3 Register
+ */
+union rpmx_anx_reg_802_3ap_link_partner_base_page_ability_register_3 {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_link_partner_base_page_ability_register_3_s {
+		u64 lp_2_5g_kx                       : 1;
+		u64 lp_5g_kr                         : 1;
+		u64 lp_50g_krcr                      : 1;
+		u64 lp_100g_krcr2                    : 1;
+		u64 lp_200g_krcr4                    : 1;
+		u64 reserved_5_8                     : 4;
+		u64 lp_25g_r2_marvell_mode           : 1;
+		u64 lp_200g_krcr8                    : 1;
+		u64 lp_50g_r4_marvell_mode           : 1;
+		u64 lp_25g_rs_fec_requestedf2        : 1;
+		u64 lp_25g_base_r_requestedf3        : 1;
+		u64 lp_link_partner_fec_ability      : 1;
+		u64 lp_link_partner_requesting_fec_enable : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_link_partner_base_page_ability_register_3_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_BASE_PAGE_ABILITY_REGISTER_3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_BASE_PAGE_ABILITY_REGISTER_3(u64 a)
+{
+	return 0x480a8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_link_partner_extended_next_page_ability_register_unformatted_code_field_u0_to_u15
+ *
+ * RPM An  Reg 802 3ap Link Partner Extended Next Page Ability Register
+ * Unformatted Code Field U0 To U15 Register
+ */
+union rpmx_anx_reg_802_3ap_link_partner_extended_next_page_ability_register_unformatted_code_field_u0_to_u15 {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_link_partner_extended_next_page_ability_register_unformatted_code_field_u0_to_u15_s {
+		u64 lp_unformatted_field0_15         : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_link_partner_extended_next_page_ability_register_unformatted_code_field_u0_to_u15_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_EXTENDED_NEXT_PAGE_ABILITY_REGISTER_UNFORMATTED_CODE_FIELD_U0_TO_U15(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_EXTENDED_NEXT_PAGE_ABILITY_REGISTER_UNFORMATTED_CODE_FIELD_U0_TO_U15(u64 a)
+{
+	return 0x480d0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_link_partner_extended_next_page_ability_register_unformatted_code_field_u16_to_u31
+ *
+ * RPM An  Reg 802 3ap Link Partner Extended Next Page Ability Register
+ * Unformatted Code Field U16 To U31 Register
+ */
+union rpmx_anx_reg_802_3ap_link_partner_extended_next_page_ability_register_unformatted_code_field_u16_to_u31 {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_link_partner_extended_next_page_ability_register_unformatted_code_field_u16_to_u31_s {
+		u64 lp_unformatted_field16_31        : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_link_partner_extended_next_page_ability_register_unformatted_code_field_u16_to_u31_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_EXTENDED_NEXT_PAGE_ABILITY_REGISTER_UNFORMATTED_CODE_FIELD_U16_TO_U31(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_EXTENDED_NEXT_PAGE_ABILITY_REGISTER_UNFORMATTED_CODE_FIELD_U16_TO_U31(u64 a)
+{
+	return 0x480d8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_link_partner_next_page_register_link_partner_extended_next_page_ability_register
+ *
+ * RPM An  Reg 802 3ap Link Partner Next Page Register Link Partner
+ * Extended Next Page Ability Register Register
+ */
+union rpmx_anx_reg_802_3ap_link_partner_next_page_register_link_partner_extended_next_page_ability_register {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_link_partner_next_page_register_link_partner_extended_next_page_ability_register_s {
+		u64 lp_np_messageunformatted_field   : 11;
+		u64 lp_np_toggle                     : 1;
+		u64 lp_np_acknowledge2               : 1;
+		u64 lp_np_message_page               : 1;
+		u64 lp_np_acknowledge                : 1;
+		u64 lp_np_next_page                  : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_link_partner_next_page_register_link_partner_extended_next_page_ability_register_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_NEXT_PAGE_REGISTER_LINK_PARTNER_EXTENDED_NEXT_PAGE_ABILITY_REGISTER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_LINK_PARTNER_NEXT_PAGE_REGISTER_LINK_PARTNER_EXTENDED_NEXT_PAGE_ABILITY_REGISTER(u64 a)
+{
+	return 0x480c8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_local_device_base_page_ability_register_1
+ *
+ * RPM An  Reg 802 3ap Local Device Base Page Ability Register 1 Register
+ */
+union rpmx_anx_reg_802_3ap_local_device_base_page_ability_register_1 {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_local_device_base_page_ability_register_1_s {
+		u64 ld_selector_field                : 5;
+		u64 ld_echoed_nonce_field            : 5;
+		u64 ld_pause_capable                 : 1;
+		u64 ld_asymmetric_pause              : 1;
+		u64 reserved_12                      : 1;
+		u64 ld_remote_fault                  : 1;
+		u64 ld_acknowledge                   : 1;
+		u64 ld_next_page                     : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_local_device_base_page_ability_register_1_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_LOCAL_DEVICE_BASE_PAGE_ABILITY_REGISTER_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_LOCAL_DEVICE_BASE_PAGE_ABILITY_REGISTER_1(u64 a)
+{
+	return 0x48080 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_local_device_base_page_ability_register_2
+ *
+ * RPM An  Reg 802 3ap Local Device Base Page Ability Register 2 Register
+ */
+union rpmx_anx_reg_802_3ap_local_device_base_page_ability_register_2 {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_local_device_base_page_ability_register_2_s {
+		u64 ld_link_partner_transmitted_nonce_field : 5;
+		u64 ld_1000base_kx                   : 1;
+		u64 ld_10gbase_kx4                   : 1;
+		u64 ld_10gbase_kr                    : 1;
+		u64 ld_40gbase_kr4                   : 1;
+		u64 ld_40gbase_cr4                   : 1;
+		u64 ld_100gbase_cr10                 : 1;
+		u64 ld_100gbase_kp4                  : 1;
+		u64 ld_100gbase_kr4                  : 1;
+		u64 ld_100gbase_cr4                  : 1;
+		u64 ld_25gbase_kr_s_or_25gbase_cr_s  : 1;
+		u64 ld_25gbase_kr_or_25gbase_cr      : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_local_device_base_page_ability_register_2_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_LOCAL_DEVICE_BASE_PAGE_ABILITY_REGISTER_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_LOCAL_DEVICE_BASE_PAGE_ABILITY_REGISTER_2(u64 a)
+{
+	return 0x48088 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_local_device_base_page_ability_register_3
+ *
+ * RPM An  Reg 802 3ap Local Device Base Page Ability Register 3 Register
+ */
+union rpmx_anx_reg_802_3ap_local_device_base_page_ability_register_3 {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_local_device_base_page_ability_register_3_s {
+		u64 ld_2_5g_kx                       : 1;
+		u64 ld_5g_kr                         : 1;
+		u64 ld_50g_krcr                      : 1;
+		u64 ld_100g_krcr2                    : 1;
+		u64 ld_200g_krcr4                    : 1;
+		u64 reserved_5_8                     : 4;
+		u64 ld_25g_r2_marvell_mode           : 1;
+		u64 ld_200g_krcr8                    : 1;
+		u64 ld_50g_r4_marvell_mode           : 1;
+		u64 ld_25g_rs_fec_requestedf2        : 1;
+		u64 ld_25g_base_r_requestedf3        : 1;
+		u64 ld_link_partner_fec_ability      : 1;
+		u64 ld_link_partner_requesting_fec_enable : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_local_device_base_page_ability_register_3_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_LOCAL_DEVICE_BASE_PAGE_ABILITY_REGISTER_3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_LOCAL_DEVICE_BASE_PAGE_ABILITY_REGISTER_3(u64 a)
+{
+	return 0x48090 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_an#_reg_802_3ap_next_page_transmit_register_extended_next_page_transmit_register
+ *
+ * RPM An  Reg 802 3ap Next Page Transmit Register Extended Next Page
+ * Transmit Register Register
+ */
+union rpmx_anx_reg_802_3ap_next_page_transmit_register_extended_next_page_transmit_register {
+	u64 u;
+	struct rpmx_anx_reg_802_3ap_next_page_transmit_register_extended_next_page_transmit_register_s {
+		u64 ld_np_messageunformatted_field   : 11;
+		u64 ld_np_toggle                     : 1;
+		u64 ld_np_acknowledge_2              : 1;
+		u64 ld_np_message_page_mode          : 1;
+		u64 reserved_14                      : 1;
+		u64 ld_np_next_page                  : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anx_reg_802_3ap_next_page_transmit_register_extended_next_page_transmit_register_s cn; */
+};
+
+static inline u64 RPMX_ANX_REG_802_3AP_NEXT_PAGE_TRANSMIT_REGISTER_EXTENDED_NEXT_PAGE_TRANSMIT_REGISTER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANX_REG_802_3AP_NEXT_PAGE_TRANSMIT_REGISTER_EXTENDED_NEXT_PAGE_TRANSMIT_REGISTER(u64 a)
+{
+	return 0x480b0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_an_abilities
+ *
+ * RPM Anp Global An Abilities Register Set default values of internal
+ * PACKAGE registers.
+ */
+union rpmx_anp_global_an_abilities {
+	u64 u;
+	struct rpmx_anp_global_an_abilities_s {
+		u64 runi_cfg_ability1_a              : 16;
+		u64 runi_cfg_ability2_a              : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_an_abilities_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_AN_ABILITIES(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_AN_ABILITIES(void)
+{
+	return 0x580e0;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_an_revision
+ *
+ * RPM Anp Global An Revision Register Set default value for internal
+ * IDENTIFIER registers.
+ */
+union rpmx_anp_global_an_revision {
+	u64 u;
+	struct rpmx_anp_global_an_revision_s {
+		u64 runi_oui_num_3_18_a              : 16;
+		u64 runi_cfg_rev_id_a                : 4;
+		u64 runi_cfg_model_num_a             : 6;
+		u64 runi_oui_num_19_24_a             : 6;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_an_revision_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_AN_REVISION(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_AN_REVISION(void)
+{
+	return 0x580e8;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_an_train_type
+ *
+ * RPM Anp Global An Train Type Register Set in advance the train type
+ * for any possible resolved speed. train_type can be: TX train (KR/TRX)
+ * , RX train and no train.
+ */
+union rpmx_anp_global_an_train_type {
+	u64 u;
+	struct rpmx_anp_global_an_train_type_s {
+		u64 an_train_type_mode_1g            : 2;
+		u64 an_train_type_mode_2p5g          : 2;
+		u64 an_train_type_mode_5g            : 2;
+		u64 an_train_type_mode_10g           : 2;
+		u64 an_train_type_mode_25g           : 2;
+		u64 an_train_type_mode_40gr4         : 2;
+		u64 an_train_type_mode_40gr2         : 2;
+		u64 an_train_type_mode_50gr2         : 2;
+		u64 an_train_type_mode_50g           : 2;
+		u64 an_train_type_mode_100gr4        : 2;
+		u64 an_train_type_mode_100gr2        : 2;
+		u64 an_train_type_mode_200gr4        : 2;
+		u64 an_train_type_mode_400gr8        : 2;
+		u64 an_train_type_mode_200gr8        : 2;
+		u64 reserved_28_63                   : 36;
+	} s;
+	/* struct rpmx_anp_global_an_train_type_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_AN_TRAIN_TYPE(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_AN_TRAIN_TYPE(void)
+{
+	return 0x580f0;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_clock_and_reset
+ *
+ * RPM Anp Global Clock And Reset Register Global clock and reset
+ * control. Controls PWM clock & reset. Controls HW/SW reset for each AN
+ * in the ANP.
+ */
+union rpmx_anp_global_clock_and_reset {
+	u64 u;
+	struct rpmx_anp_global_clock_and_reset_s {
+		u64 pwm_soft_reset_n                 : 1;
+		u64 pwm_clk_en                       : 1;
+		u64 an_hw_soft_reset_n               : 1;
+		u64 an_sw_soft_reset_n               : 1;
+		u64 p1_an_hw_soft_reset_n            : 1;
+		u64 p1_an_sw_soft_reset_n            : 1;
+		u64 p2_an_hw_soft_reset_n            : 1;
+		u64 p2_an_sw_soft_reset_n            : 1;
+		u64 p3_an_hw_soft_reset_n            : 1;
+		u64 p3_an_sw_soft_reset_n            : 1;
+		u64 p4_an_hw_soft_reset_n            : 1;
+		u64 p4_an_sw_soft_reset_n            : 1;
+		u64 p5_an_hw_soft_reset_n            : 1;
+		u64 p5_an_sw_soft_reset_n            : 1;
+		u64 p6_an_hw_soft_reset_n            : 1;
+		u64 p6_an_sw_soft_reset_n            : 1;
+		u64 p7_an_hw_soft_reset_n            : 1;
+		u64 p7_an_sw_soft_reset_n            : 1;
+		u64 reserved_18_63                   : 46;
+	} s;
+	/* struct rpmx_anp_global_clock_and_reset_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_CLOCK_AND_RESET(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_CLOCK_AND_RESET(void)
+{
+	return 0x58008;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_control
+ *
+ * RPM Anp Global Control Register Global configurations which are common
+ * to all ports in single ANP.
+ */
+union rpmx_anp_global_control {
+	u64 u;
+	struct rpmx_anp_global_control_s {
+		u64 an_ap_train_type                 : 2;
+		u64 reg_txclk_sync_en_width_s        : 8;
+		u64 reg_train_type_samp              : 2;
+		u64 reg_train_type_mx_samp           : 2;
+		u64 reg_reset_pulse_conf_delay       : 10;
+		u64 reg_ch_sm_cnt_saturate           : 1;
+		u64 reg_txstr_rxsd_clear_cnt         : 1;
+		u64 reg_tx_sm_cnt_saturate           : 1;
+		u64 reg_rx_sm_cnt_saturate           : 1;
+		u64 reg_tx_ready_loss_latch_en       : 1;
+		u64 reg_dsp_sigdet_loss_latch_en     : 1;
+		u64 reg_dsp_lock_loss_latch_en       : 1;
+		u64 divide_sd_clocks                 : 1;
+		u64 reserved_32_62                   : 31;
+		u64 coarse_clk_force                 : 1;
+	} s;
+	struct rpmx_anp_global_control_cn10ka {
+		u64 an_ap_train_type                 : 2;
+		u64 reg_txclk_sync_en_width_s        : 8;
+		u64 reg_train_type_samp              : 2;
+		u64 reg_train_type_mx_samp           : 2;
+		u64 reg_reset_pulse_conf_delay       : 10;
+		u64 reg_ch_sm_cnt_saturate           : 1;
+		u64 reg_txstr_rxsd_clear_cnt         : 1;
+		u64 reg_tx_sm_cnt_saturate           : 1;
+		u64 reg_rx_sm_cnt_saturate           : 1;
+		u64 reg_tx_ready_loss_latch_en       : 1;
+		u64 reg_dsp_sigdet_loss_latch_en     : 1;
+		u64 reg_dsp_lock_loss_latch_en       : 1;
+		u64 divide_sd_clocks                 : 1;
+		u64 reserved_32_63                   : 32;
+	} cn10ka;
+	/* struct rpmx_anp_global_control_s cn10kb; */
+	/* struct rpmx_anp_global_control_cn10ka cnf10ka; */
+	/* struct rpmx_anp_global_control_cn10ka cnf10kb; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_CONTROL(void)
+{
+	return 0x58000;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_control2
+ *
+ * RPM Anp Global Control2 Register Global configurations which are
+ * common to all ports in single ANP.
+ */
+union rpmx_anp_global_control2 {
+	u64 u;
+	struct rpmx_anp_global_control2_s {
+		u64 reg_pu_tx_conf_delay             : 4;
+		u64 reg_pu_rx_conf_delay             : 4;
+		u64 reg_dsp_on_conf_delay            : 5;
+		u64 reg_tx_idle_conf_dly             : 9;
+		u64 reg_pcs_tx_on_conf_delay         : 5;
+		u64 reg_pcs_rx_on_conf_delay         : 5;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_control2_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_CONTROL2(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_CONTROL2(void)
+{
+	return 0x58140;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_control3
+ *
+ * RPM Anp Global Control3 Register Global configurations which are
+ * common to all ports in single ANP.
+ */
+union rpmx_anp_global_control3 {
+	u64 u;
+	struct rpmx_anp_global_control3_s {
+		u64 reg_no_pre_selector              : 1;
+		u64 reg_hcd_resolved_clean           : 1;
+		u64 reg_reset_to_clock_cnt           : 6;
+		u64 reg_clock_to_reset_cnt           : 6;
+		u64 reg_start_ap_mode_cnt            : 6;
+		u64 reg_start_selector_cnt           : 6;
+		u64 reg_start_ungate_cnt             : 6;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_control3_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_CONTROL3(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_CONTROL3(void)
+{
+	return 0x58148;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_control4
+ *
+ * RPM Anp Global Control4 Register Global configurations which are
+ * common to all ports in single ANP.
+ */
+union rpmx_anp_global_control4 {
+	u64 u;
+	struct rpmx_anp_global_control4_s {
+		u64 reg_sd_dfe_update_dis_samp       : 2;
+		u64 reg_sd_dfe_pat_dis_samp          : 2;
+		u64 reg_sd_dfe_en_samp               : 2;
+		u64 reg_sd_tx_idle_samp              : 2;
+		u64 reg_tx_train_enable_samp         : 2;
+		u64 reg_rx_train_enable_samp         : 2;
+		u64 reg_rx_init_samp                 : 2;
+		u64 reg_rx_idle_count                : 1;
+		u64 reg_tx_idle_count                : 1;
+		u64 phy_gen_tx_done_ow               : 1;
+		u64 phy_gen_tx_done_ow_val           : 1;
+		u64 phy_gen_tx_load_ow               : 1;
+		u64 phy_gen_tx_load_ow_val           : 1;
+		u64 phy_gen_tx_start_cnt_done_ow     : 1;
+		u64 phy_gen_tx_start_cnt_done_ow_val : 1;
+		u64 phy_gen_rx_done_ow               : 1;
+		u64 phy_gen_rx_done_ow_val           : 1;
+		u64 phy_gen_rx_load_ow               : 1;
+		u64 phy_gen_rx_load_ow_val           : 1;
+		u64 phy_gen_rx_start_cnt_done_ow     : 1;
+		u64 phy_gen_rx_start_cnt_done_ow_val : 1;
+		u64 reg_phy_gen_dn_frc               : 1;
+		u64 reg_txstr_regret_enable          : 1;
+		u64 reg_rxstr_regret_enable          : 1;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_global_control4_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_CONTROL4(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_CONTROL4(void)
+{
+	return 0x58150;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_lane_delay
+ *
+ * RPM Anp Global Lane Delay Register Provides delay between the power up
+ * of the different COMPHYs in a single QUAD.
+ */
+union rpmx_anp_global_lane_delay {
+	u64 u;
+	struct rpmx_anp_global_lane_delay_s {
+		u64 lane_delay                       : 25;
+		u64 reserved_25_63                   : 39;
+	} s;
+	/* struct rpmx_anp_global_lane_delay_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_LANE_DELAY(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_LANE_DELAY(void)
+{
+	return 0x58020;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_phy_gen_load_to_pup_timer
+ *
+ * RPM Anp Global Phy Gen Load To Pup Timer Register Global
+ * configurations which are common to all ports in single ANP.
+ */
+union rpmx_anp_global_phy_gen_load_to_pup_timer {
+	u64 u;
+	struct rpmx_anp_global_phy_gen_load_to_pup_timer_s {
+		u64 reg_phy_gen_load_to_pup_timer    : 24;
+		u64 reserved_24_63                   : 40;
+	} s;
+	/* struct rpmx_anp_global_phy_gen_load_to_pup_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_PHY_GEN_LOAD_TO_PUP_TIMER(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_PHY_GEN_LOAD_TO_PUP_TIMER(void)
+{
+	return 0x58170;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_phy_gen_pdn_to_load_timer
+ *
+ * RPM Anp Global Phy Gen Pdn To Load Timer Register Global
+ * configurations which are common to all ports in single ANP.
+ */
+union rpmx_anp_global_phy_gen_pdn_to_load_timer {
+	u64 u;
+	struct rpmx_anp_global_phy_gen_pdn_to_load_timer_s {
+		u64 reg_phy_gen_pdn_to_load_timer    : 24;
+		u64 reserved_24_63                   : 40;
+	} s;
+	/* struct rpmx_anp_global_phy_gen_pdn_to_load_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_PHY_GEN_PDN_TO_LOAD_TIMER(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_PHY_GEN_PDN_TO_LOAD_TIMER(void)
+{
+	return 0x58168;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_sd_rx_idle_min_wait
+ *
+ * RPM Anp Global Sd Rx Idle Min Wait Register Global configurations
+ * which are common to all ports in single ANP.
+ */
+union rpmx_anp_global_sd_rx_idle_min_wait {
+	u64 u;
+	struct rpmx_anp_global_sd_rx_idle_min_wait_s {
+		u64 reg_rx_idle_min_wait_s           : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_global_sd_rx_idle_min_wait_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_SD_RX_IDLE_MIN_WAIT(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_SD_RX_IDLE_MIN_WAIT(void)
+{
+	return 0x58160;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_sd_tx_idle_min_wait
+ *
+ * RPM Anp Global Sd Tx Idle Min Wait Register Global configurations
+ * which are common to all ports in single ANP.
+ */
+union rpmx_anp_global_sd_tx_idle_min_wait {
+	u64 u;
+	struct rpmx_anp_global_sd_tx_idle_min_wait_s {
+		u64 reg_tx_idle_min_wait_s           : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_global_sd_tx_idle_min_wait_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_SD_TX_IDLE_MIN_WAIT(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_SD_TX_IDLE_MIN_WAIT(void)
+{
+	return 0x58158;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_speed_table
+ *
+ * RPM Anp Global Speed Table Register Speed table values per frequency.
+ */
+union rpmx_anp_global_speed_table {
+	u64 u;
+	struct rpmx_anp_global_speed_table_s {
+		u64 pm_speed_table_1p25g             : 5;
+		u64 pm_speed_table_2p578125g         : 5;
+		u64 pm_speed_table_3p125g            : 5;
+		u64 pm_speed_table_5g                : 5;
+		u64 pm_speed_table_5p15625g          : 5;
+		u64 pm_speed_table_10g               : 5;
+		u64 reserved_30_63                   : 34;
+	} s;
+	/* struct rpmx_anp_global_speed_table_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_SPEED_TABLE(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_SPEED_TABLE(void)
+{
+	return 0x580f8;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_speed_table1
+ *
+ * RPM Anp Global Speed Table1 Register Speed table values per frequency.
+ */
+union rpmx_anp_global_speed_table1 {
+	u64 u;
+	struct rpmx_anp_global_speed_table1_s {
+		u64 pm_speed_table_10p3125g          : 5;
+		u64 pm_speed_table_20p625g           : 5;
+		u64 pm_speed_table_25p78125g         : 5;
+		u64 pm_speed_table_26p5625g          : 5;
+		u64 pm_speed_table_27p5g             : 5;
+		u64 pm_speed_table_53p125g           : 5;
+		u64 reserved_30_63                   : 34;
+	} s;
+	/* struct rpmx_anp_global_speed_table1_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_SPEED_TABLE1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_SPEED_TABLE1(void)
+{
+	return 0x58100;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_speed_table2
+ *
+ * RPM Anp Global Speed Table2 Register Speed table values per frequency.
+ */
+union rpmx_anp_global_speed_table2 {
+	u64 u;
+	struct rpmx_anp_global_speed_table2_s {
+		u64 pm_speed_table_56g               : 5;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_anp_global_speed_table2_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_SPEED_TABLE2(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_SPEED_TABLE2(void)
+{
+	return 0x58108;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_100ms
+ *
+ * RPM Anp Global Timer 100ms Register Value for 100ms timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_100ms {
+	u64 u;
+	struct rpmx_anp_global_timer_100ms_s {
+		u64 rg_an_timers_100ms               : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_100ms_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_100MS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_100MS(void)
+{
+	return 0x58050;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_10ms
+ *
+ * RPM Anp Global Timer 10ms Register Value for 10ms timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_10ms {
+	u64 u;
+	struct rpmx_anp_global_timer_10ms_s {
+		u64 rg_an_timers_10ms                : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_10ms_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_10MS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_10MS(void)
+{
+	return 0x58028;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_12600ms_20s_high
+ *
+ * RPM Anp Global Timer 12600ms 20s High Register Values for 12600ms/20s
+ * timers according to system clock (allowed range 100-300Mhz). *16 high
+ * bits of the value*
+ */
+union rpmx_anp_global_timer_12600ms_20s_high {
+	u64 u;
+	struct rpmx_anp_global_timer_12600ms_20s_high_s {
+		u64 rg_an_timers_12600ms_high        : 16;
+		u64 rg_an_timers_20s_high            : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_12600ms_20s_high_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_12600MS_20S_HIGH(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_12600MS_20S_HIGH(void)
+{
+	return 0x580d0;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_12600ms_low
+ *
+ * RPM Anp Global Timer 12600ms Low Register Value for 12600ms timer
+ * according to system clock (allowed range 100-300Mhz). *32 low bits of
+ * the value*
+ */
+union rpmx_anp_global_timer_12600ms_low {
+	u64 u;
+	struct rpmx_anp_global_timer_12600ms_low_s {
+		u64 rg_an_timers_12600ms_low         : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_12600ms_low_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_12600MS_LOW(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_12600MS_LOW(void)
+{
+	return 0x580a8;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_12s_low
+ *
+ * RPM Anp Global Timer 12s Low Register Value for 12s timer according to
+ * system clock (allowed range 100-300Mhz). *32 low bits of the value*
+ */
+union rpmx_anp_global_timer_12s_low {
+	u64 u;
+	struct rpmx_anp_global_timer_12s_low_s {
+		u64 rg_an_timers_12s_low             : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_12s_low_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_12S_LOW(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_12S_LOW(void)
+{
+	return 0x580a0;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_1s
+ *
+ * RPM Anp Global Timer 1s Register Value for 1s timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_1s {
+	u64 u;
+	struct rpmx_anp_global_timer_1s_s {
+		u64 rg_an_timers_1s                  : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_1s_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_1S(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_1S(void)
+{
+	return 0x58070;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_200ms
+ *
+ * RPM Anp Global Timer 200ms Register Value for 200ms timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_200ms {
+	u64 u;
+	struct rpmx_anp_global_timer_200ms_s {
+		u64 rg_an_timers_200ms               : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_200ms_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_200MS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_200MS(void)
+{
+	return 0x58058;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_20s_low
+ *
+ * RPM Anp Global Timer 20s Low Register Value for 20s timer according to
+ * system clock (allowed range 100-300Mhz). *32 low bits of the value*
+ */
+union rpmx_anp_global_timer_20s_low {
+	u64 u;
+	struct rpmx_anp_global_timer_20s_low_s {
+		u64 rg_an_timers_20s_low             : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_20s_low_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_20S_LOW(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_20S_LOW(void)
+{
+	return 0x580b0;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_2s
+ *
+ * RPM Anp Global Timer 2s Register Value for 2s timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_2s {
+	u64 u;
+	struct rpmx_anp_global_timer_2s_s {
+		u64 rg_an_timers_2s                  : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_2s_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_2S(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_2S(void)
+{
+	return 0x58078;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_300ms
+ *
+ * RPM Anp Global Timer 300ms Register Value for 300ms timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_300ms {
+	u64 u;
+	struct rpmx_anp_global_timer_300ms_s {
+		u64 rg_an_timers_300ms               : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_300ms_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_300MS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_300MS(void)
+{
+	return 0x58060;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_30s_40s_high
+ *
+ * RPM Anp Global Timer 30s 40s High Register Values for 30s/40s timers
+ * according to system clock (allowed range 100-300Mhz). *16 high bits of
+ * the value*
+ */
+union rpmx_anp_global_timer_30s_40s_high {
+	u64 u;
+	struct rpmx_anp_global_timer_30s_40s_high_s {
+		u64 rg_an_timers_30s_high            : 16;
+		u64 rg_an_timers_40s_high            : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_30s_40s_high_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_30S_40S_HIGH(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_30S_40S_HIGH(void)
+{
+	return 0x580d8;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_30s_low
+ *
+ * RPM Anp Global Timer 30s Low Register Value for 30s timer according to
+ * system clock (allowed range 100-300Mhz). *32 low bits of the value*
+ */
+union rpmx_anp_global_timer_30s_low {
+	u64 u;
+	struct rpmx_anp_global_timer_30s_low_s {
+		u64 rg_an_timers_30s_low             : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_30s_low_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_30S_LOW(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_30S_LOW(void)
+{
+	return 0x580b8;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_3150ms
+ *
+ * RPM Anp Global Timer 3150ms Register Value for 3150ms timer according
+ * to system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_3150ms {
+	u64 u;
+	struct rpmx_anp_global_timer_3150ms_s {
+		u64 rg_an_timers_3150ms              : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_3150ms_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_3150MS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_3150MS(void)
+{
+	return 0x58080;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_35ms
+ *
+ * RPM Anp Global Timer 35ms Register Value for 35ms timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_35ms {
+	u64 u;
+	struct rpmx_anp_global_timer_35ms_s {
+		u64 rg_an_timers_35ms                : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_35ms_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_35MS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_35MS(void)
+{
+	return 0x58030;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_40ms
+ *
+ * RPM Anp Global Timer 40ms Register Value for 40ms timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_40ms {
+	u64 u;
+	struct rpmx_anp_global_timer_40ms_s {
+		u64 rg_an_timers_40ms                : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_40ms_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_40MS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_40MS(void)
+{
+	return 0x58038;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_40s_low
+ *
+ * RPM Anp Global Timer 40s Low Register Value for 40s timer according to
+ * system clock (allowed range 100-300Mhz). *32 low bits of the value*
+ */
+union rpmx_anp_global_timer_40s_low {
+	u64 u;
+	struct rpmx_anp_global_timer_40s_low_s {
+		u64 rg_an_timers_40s_low             : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_40s_low_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_40S_LOW(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_40S_LOW(void)
+{
+	return 0x580c0;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_500ms
+ *
+ * RPM Anp Global Timer 500ms Register Value for 500ms timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_500ms {
+	u64 u;
+	struct rpmx_anp_global_timer_500ms_s {
+		u64 rg_an_timers_500ms               : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_500ms_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_500MS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_500MS(void)
+{
+	return 0x58068;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_50ms
+ *
+ * RPM Anp Global Timer 50ms Register Value for 50ms timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_50ms {
+	u64 u;
+	struct rpmx_anp_global_timer_50ms_s {
+		u64 rg_an_timers_50ms                : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_50ms_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_50MS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_50MS(void)
+{
+	return 0x58040;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_5s
+ *
+ * RPM Anp Global Timer 5s Register Value for 5s timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_5s {
+	u64 u;
+	struct rpmx_anp_global_timer_5s_s {
+		u64 rg_an_timers_5s                  : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_5s_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_5S(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_5S(void)
+{
+	return 0x58088;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_6s
+ *
+ * RPM Anp Global Timer 6s Register Value for 6s timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_6s {
+	u64 u;
+	struct rpmx_anp_global_timer_6s_s {
+		u64 rg_an_timers_6s                  : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_6s_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_6S(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_6S(void)
+{
+	return 0x58090;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_70ms
+ *
+ * RPM Anp Global Timer 70ms Register Value for 70ms timer according to
+ * system clock (allowed range 100-300Mhz).
+ */
+union rpmx_anp_global_timer_70ms {
+	u64 u;
+	struct rpmx_anp_global_timer_70ms_s {
+		u64 rg_an_timers_70ms                : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_70ms_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_70MS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_70MS(void)
+{
+	return 0x58048;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_9s_12s_high
+ *
+ * RPM Anp Global Timer 9s 12s High Register Values for 9s/12s timers
+ * according to system clock (allowed range 100-300Mhz). *16 high bits of
+ * the value*
+ */
+union rpmx_anp_global_timer_9s_12s_high {
+	u64 u;
+	struct rpmx_anp_global_timer_9s_12s_high_s {
+		u64 rg_an_timers_9s_high             : 16;
+		u64 rg_an_timers_12s_high            : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_9s_12s_high_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_9S_12S_HIGH(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_9S_12S_HIGH(void)
+{
+	return 0x580c8;
+}
+
+/**
+ * Register (RSL) rpm#_anp_global_timer_9s_low
+ *
+ * RPM Anp Global Timer 9s Low Register Value for 9s timer according to
+ * system clock (allowed range 100-300Mhz). *32 low bits of the value*
+ */
+union rpmx_anp_global_timer_9s_low {
+	u64 u;
+	struct rpmx_anp_global_timer_9s_low_s {
+		u64 rg_an_timers_9s_low              : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_global_timer_9s_low_s cn; */
+};
+
+static inline u64 RPMX_ANP_GLOBAL_TIMER_9S_LOW(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_GLOBAL_TIMER_9S_LOW(void)
+{
+	return 0x58098;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_an_control
+ *
+ * RPM Anp Port An Control Register Control and overrides for AN related.
+ */
+union rpmx_anp_portx_an_control {
+	u64 u;
+	struct rpmx_anp_portx_an_control_s {
+		u64 phy_gen_ap_ow                    : 1;
+		u64 phy_gen_ap_ow_val                : 5;
+		u64 pm_ap_mode_ow                    : 1;
+		u64 pm_ap_mode_ow_val                : 1;
+		u64 pm_ap_reset_rx_ow                : 1;
+		u64 pm_ap_reset_rx_ow_val            : 1;
+		u64 pm_enclk_ap_fr_ow                : 1;
+		u64 pm_enclk_ap_fr_ow_val            : 1;
+		u64 pm_norm_x_state_ow               : 1;
+		u64 pm_norm_x_state_ow_val           : 1;
+		u64 pm_enclk_ap_sys_ow               : 1;
+		u64 pm_enclk_ap_sys_ow_val           : 1;
+		u64 pm_ap_reset_tx_ow                : 1;
+		u64 pm_ap_reset_tx_ow_val            : 1;
+		u64 pm_enclk_ap_ft_ow                : 1;
+		u64 pm_enclk_ap_ft_ow_val            : 1;
+		u64 an_pcs_sel_ow                    : 1;
+		u64 an_pcs_sel_ow_val                : 1;
+		u64 rg_st_pcslink_max_time_ap_inf_s  : 1;
+		u64 reg_ap_force_mode_s              : 1;
+		u64 rg_break_link_timer_fast         : 1;
+		u64 rg_autoneg_wait_timer_fast       : 1;
+		u64 rg_link_fail_inhibit_timer_fast  : 1;
+		u64 rg_timer2_fast                   : 1;
+		u64 reserved_28_63                   : 36;
+	} s;
+	/* struct rpmx_anp_portx_an_control_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_AN_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_AN_CONTROL(u64 a)
+{
+	return 0x5c038 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_an_hang_out
+ *
+ * RPM Anp Port An Hang Out Register AN unused outputs as status.
+ */
+union rpmx_anp_portx_an_hang_out {
+	u64 u;
+	struct rpmx_anp_portx_an_hang_out_s {
+		u64 ap_irq_s                         : 1;
+		u64 ap_rg_3_0_wr_s                   : 1;
+		u64 ag_mode_s                        : 5;
+		u64 aneg_int_s                       : 1;
+		u64 ag_reg_1_6_s                     : 1;
+		u64 ap_ag_link_down_pls_s            : 1;
+		u64 ieee_ag_aneg_enable_pls_s        : 1;
+		u64 reserved_11_63                   : 53;
+	} s;
+	/* struct rpmx_anp_portx_an_hang_out_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_AN_HANG_OUT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_AN_HANG_OUT(u64 a)
+{
+	return 0x5c058 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_an_restart_counter
+ *
+ * RPM Anp Port An Restart Counter Register AN restart counter.
+ */
+union rpmx_anp_portx_an_restart_counter {
+	u64 u;
+	struct rpmx_anp_portx_an_restart_counter_s {
+		u64 an_restart_counter               : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anp_portx_an_restart_counter_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_AN_RESTART_COUNTER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_AN_RESTART_COUNTER(u64 a)
+{
+	return 0x5c070 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_an_status1
+ *
+ * RPM Anp Port An Status1 Register AN resolved speed.
+ */
+union rpmx_anp_portx_an_status1 {
+	u64 u;
+	struct rpmx_anp_portx_an_status1_s {
+		u64 ap_pwrup_4x_s                    : 1;
+		u64 ap_pwrup_g_s                     : 1;
+		u64 ap_pwrup_2p5g_s                  : 1;
+		u64 ap_pwrup_5gr_s                   : 1;
+		u64 ap_pwrup_10gkr_s                 : 1;
+		u64 ap_pwrup_ieee25gs_s              : 1;
+		u64 ap_pwrup_ieee25gr_s              : 1;
+		u64 ap_pwrup_con25gkr_s              : 1;
+		u64 ap_pwrup_con25gcr_s              : 1;
+		u64 ap_pwrup_40gkr4_s                : 1;
+		u64 ap_pwrup_40gcr4_s                : 1;
+		u64 ap_pwrup_50gkr2_s                : 1;
+		u64 ap_pwrup_50gcr2_s                : 1;
+		u64 ap_pwrup_100gcr4_s               : 1;
+		u64 ap_pwrup_100gcr10_s              : 1;
+		u64 ap_pwrup_100gkr4_s               : 1;
+		u64 ap_pwrup_100gkp4_s               : 1;
+		u64 ap_pwrup_200gkr8_s               : 1;
+		u64 ap_pwrup_25gkr2_s                : 1;
+		u64 ap_pwrup_con40gr2_s              : 1;
+		u64 ap_pwrup_50gkr4_s                : 1;
+		u64 ap_pwrup_50grcr_s                : 1;
+		u64 ap_pwrup_100grcr2_s              : 1;
+		u64 ap_pwrup_200grcr4_s              : 1;
+		u64 ap_pwrup_100grcr_s               : 1;
+		u64 ap_pwrup_200grcr2_s              : 1;
+		u64 ap_pwrup_400grcr4_s              : 1;
+		u64 ap_pwrup_800grcr8_s              : 1;
+		u64 ap_pwrup_con400grcr8_s           : 1;
+		u64 reserved_29_63                   : 35;
+	} s;
+	/* struct rpmx_anp_portx_an_status1_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_AN_STATUS1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_AN_STATUS1(u64 a)
+{
+	return 0x5c060 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_an_status2
+ *
+ * RPM Anp Port An Status2 Register AN resolved fec/pause + indications.
+ */
+union rpmx_anp_portx_an_status2 {
+	u64 u;
+	struct rpmx_anp_portx_an_status2_s {
+		u64 ap_aa_clear_hcd_s                : 1;
+		u64 ieee_ag_aneg_enable_s            : 1;
+		u64 ap_ag_restart_aneg_s             : 1;
+		u64 ap_ag_link_s                     : 1;
+		u64 ap_ag_hcd_resolved_s             : 1;
+		u64 aa_link_good_s                   : 1;
+		u64 ap_ag_rx_pause_enable_s          : 1;
+		u64 ap_ag_tx_pause_enable_s          : 1;
+		u64 ap_fec_enable_s                  : 1;
+		u64 ap_rsfec_enable_s                : 1;
+		u64 ag_llfec_enable_s                : 1;
+		u64 reserved_11_63                   : 53;
+	} s;
+	/* struct rpmx_anp_portx_an_status2_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_AN_STATUS2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_AN_STATUS2(u64 a)
+{
+	return 0x5c068 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_an_tied_in
+ *
+ * RPM Anp Port An Tied In Register General inputs towards AN. should
+ * keep defaults in functional mode.
+ */
+union rpmx_anp_portx_an_tied_in {
+	u64 u;
+	struct rpmx_anp_portx_an_tied_in_s {
+		u64 pm_ap_aneg_remote_ready_s        : 1;
+		u64 pm_prbs_mode_s                   : 1;
+		u64 grg_3_0_15_s                     : 1;
+		u64 n_ag_mode_s                      : 5;
+		u64 n_aa_link_good_s                 : 1;
+		u64 far_clear_reset_all_s            : 1;
+		u64 far_set_restart_all_s            : 1;
+		u64 pm_kr_enable_s                   : 1;
+		u64 pm_loopback_s                    : 1;
+		u64 por_fec_adv_s                    : 1;
+		u64 ring_osc_a                       : 1;
+		u64 z80_ag_mode_s                    : 5;
+		u64 z80_fec_enable_s                 : 1;
+		u64 z80_llfec_enable_s               : 1;
+		u64 z80_resolved_s                   : 1;
+		u64 z80_rsfec_enable_s               : 1;
+		u64 reserved_24_63                   : 40;
+	} s;
+	/* struct rpmx_anp_portx_an_tied_in_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_AN_TIED_IN(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_AN_TIED_IN(u64 a)
+{
+	return 0x5c050 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_an_timers
+ *
+ * RPM Anp Port An Timers Register Short AN timers for simulation
+ * purpose.
+ */
+union rpmx_anp_portx_an_timers {
+	u64 u;
+	struct rpmx_anp_portx_an_timers_s {
+		u64 rg_break_link_timer_fast_val     : 16;
+		u64 rg_autoneg_wait_timer_fast_val   : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_an_timers_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_AN_TIMERS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_AN_TIMERS(u64 a)
+{
+	return 0x5c040 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_an_timers1
+ *
+ * RPM Anp Port An Timers1 Register Short AN timers for simulation
+ * purpose.
+ */
+union rpmx_anp_portx_an_timers1 {
+	u64 u;
+	struct rpmx_anp_portx_an_timers1_s {
+		u64 rg_link_fail_inhibit_timer_fast_val : 16;
+		u64 rg_timer2_fast_val               : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_an_timers1_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_AN_TIMERS1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_AN_TIMERS1(u64 a)
+{
+	return 0x5c048 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_dsp_rxup_max_timer
+ *
+ * RPM Anp Port Ch Dsp Rxup Max Timer Register CH SM Max timer for states
+ * RX_SD and TXRX_SD.
+ */
+union rpmx_anp_portx_ch_dsp_rxup_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_dsp_rxup_max_timer_s {
+		u64 rg_dsp_rxup_max_timer            : 15;
+		u64 rg_dsp_rxup_max_timer_inf        : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anp_portx_ch_dsp_rxup_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_DSP_RXUP_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_DSP_RXUP_MAX_TIMER(u64 a)
+{
+	return 0x5c0d8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_pcs_lost_min_timer
+ *
+ * RPM Anp Port Ch Pcs Lost Min Timer Register CH SM Min timer to be in
+ * NORM state.
+ */
+union rpmx_anp_portx_ch_pcs_lost_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_pcs_lost_min_timer_s {
+		u64 rg_pcs_lost_min_timer            : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_pcs_lost_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_PCS_LOST_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_PCS_LOST_MIN_TIMER(u64 a)
+{
+	return 0x5c0a0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_prog_max_timer
+ *
+ * RPM Anp Port Ch Prog Max Timer Register CH SM Max time to be in any
+ * PROG state.
+ */
+union rpmx_anp_portx_ch_prog_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_prog_max_timer_s {
+		u64 reg_prog_max_time_s              : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_prog_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_PROG_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_PROG_MAX_TIMER(u64 a)
+{
+	return 0x5c0e0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_pwrdn_min_timer
+ *
+ * RPM Anp Port Ch Pwrdn Min Timer Register Minimal timer for CH SM PWRDN
+ * state.
+ */
+union rpmx_anp_portx_ch_pwrdn_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_pwrdn_min_timer_s {
+		u64 reg_pwrdn_min_time_s             : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_pwrdn_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_PWRDN_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_PWRDN_MIN_TIMER(u64 a)
+{
+	return 0x5c078 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_rxon_max_timer
+ *
+ * RPM Anp Port Ch Rxon Max Timer Register CH SM Max time in RXON state.
+ */
+union rpmx_anp_portx_ch_rxon_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_rxon_max_timer_s {
+		u64 rg_rxon_max_timer                : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_rxon_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_RXON_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_RXON_MAX_TIMER(u64 a)
+{
+	return 0x5c0b8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_st_min_timer
+ *
+ * RPM Anp Port Ch St Min Timer Register CH SM Min timer for all states
+ * the dont have dedicated timer.
+ */
+union rpmx_anp_portx_ch_st_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_st_min_timer_s {
+		u64 rg_st_wait_min_s                 : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_st_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_ST_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_ST_MIN_TIMER(u64 a)
+{
+	return 0x5c0b0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_st_reset_min_timer
+ *
+ * RPM Anp Port Ch St Reset Min Timer Register CH SM Min timer in RESET
+ * state.
+ */
+union rpmx_anp_portx_ch_st_reset_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_st_reset_min_timer_s {
+		u64 rg_st_reset_min_time             : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_st_reset_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_ST_RESET_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_ST_RESET_MIN_TIMER(u64 a)
+{
+	return 0x5c0a8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_txon_max_timer
+ *
+ * RPM Anp Port Ch Txon Max Timer Register CH SM Max time in TXON state.
+ */
+union rpmx_anp_portx_ch_txon_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_txon_max_timer_s {
+		u64 rg_txon_max_timer                : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_txon_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_TXON_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_TXON_MAX_TIMER(u64 a)
+{
+	return 0x5c0c0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_txrx_max_timer
+ *
+ * RPM Anp Port Ch Txrx Max Timer Register CH SM Max timer to be in PWRUP
+ * state.
+ */
+union rpmx_anp_portx_ch_txrx_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_txrx_max_timer_s {
+		u64 rg_txrx_max_timer                : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_txrx_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_TXRX_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_TXRX_MAX_TIMER(u64 a)
+{
+	return 0x5c098 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_txrx_min_timer
+ *
+ * RPM Anp Port Ch Txrx Min Timer Register CH SM Min timer in state
+ * PWRUP.
+ */
+union rpmx_anp_portx_ch_txrx_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_txrx_min_timer_s {
+		u64 rg_txrx_min_timer                : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_txrx_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_TXRX_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_TXRX_MIN_TIMER(u64 a)
+{
+	return 0x5c090 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_wait_pwrdn_max_timer
+ *
+ * RPM Anp Port Ch Wait Pwrdn Max Timer Register CH SM Max timer to be in
+ * WAIT_PWRDN state.
+ */
+union rpmx_anp_portx_ch_wait_pwrdn_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_wait_pwrdn_max_timer_s {
+		u64 rg_wait_pwrdn_max_timer          : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_wait_pwrdn_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_WAIT_PWRDN_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_WAIT_PWRDN_MAX_TIMER(u64 a)
+{
+	return 0x5c080 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_ch_wait_pwrdn_min_timer
+ *
+ * RPM Anp Port Ch Wait Pwrdn Min Timer Register CH SM Min timer to be in
+ * WAIT_PWRDN state.
+ */
+union rpmx_anp_portx_ch_wait_pwrdn_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_ch_wait_pwrdn_min_timer_s {
+		u64 rg_wait_pwrdn_min_timer          : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_ch_wait_pwrdn_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CH_WAIT_PWRDN_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CH_WAIT_PWRDN_MIN_TIMER(u64 a)
+{
+	return 0x5c088 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_channel_sm_control
+ *
+ * RPM Anp Port Channel Sm Control Register Control Register for CH SM.
+ * provides - state status, ability to override state, ability to trap
+ * state.
+ */
+union rpmx_anp_portx_channel_sm_control {
+	u64 u;
+	struct rpmx_anp_portx_channel_sm_control_s {
+		u64 ch_sm_override_ctrl              : 2;
+		u64 ch_sm_amdisam                    : 1;
+		u64 ch_sm_bp_reached                 : 1;
+		u64 ch_sm_state                      : 5;
+		u64 reserved_9_63                    : 55;
+	} s;
+	/* struct rpmx_anp_portx_channel_sm_control_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CHANNEL_SM_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CHANNEL_SM_CONTROL(u64 a)
+{
+	return 0x5c020 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_cmd_line#_hi
+ *
+ * RPM Anp Port Cmd Line Hi Register 16MSB of command interface cmem in
+ * line 2*b and 2*b+1
+ */
+union rpmx_anp_portx_cmd_linex_hi {
+	u64 u;
+	struct rpmx_anp_portx_cmd_linex_hi_s {
+		u64 cmd_line_hi                      : 16;
+		u64 cmd_line2_hi                     : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_cmd_linex_hi_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CMD_LINEX_HI(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CMD_LINEX_HI(u64 a, u64 b)
+{
+	return 0x5c600 + 0x800 * a + 8 * b;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_cmd_line#_lo
+ *
+ * RPM Anp Port Cmd Line Lo Register 32LSB of command interface cmem in
+ * line b
+ */
+union rpmx_anp_portx_cmd_linex_lo {
+	u64 u;
+	struct rpmx_anp_portx_cmd_linex_lo_s {
+		u64 cmd_line_lo                      : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_cmd_linex_lo_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CMD_LINEX_LO(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CMD_LINEX_LO(u64 a, u64 b)
+{
+	return 0x5c400 + 0x800 * a + 8 * b;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control
+ *
+ * RPM Anp Port Control Register Set operating MODE + enable, when not
+ * operating AN. +Overrides.
+ */
+union rpmx_anp_portx_control {
+	u64 u;
+	struct rpmx_anp_portx_control_s {
+		u64 port_mode                        : 5;
+		u64 pcs_en                           : 1;
+		u64 power_down                       : 1;
+		u64 custom_phy_gen                   : 5;
+		u64 custom_num_of_lanes              : 2;
+		u64 reg_pwrup_cnt_clear_s            : 1;
+		u64 rg_st_pcslink_max_time_norm_inf_s : 1;
+		u64 rg_mode_1g_ow                    : 1;
+		u64 rg_mode_1g_ow_val                : 1;
+		u64 rg_mode_2p5g_ow                  : 1;
+		u64 rg_mode_2p5g_ow_val              : 1;
+		u64 rg_mode_5g_ow                    : 1;
+		u64 rg_mode_5g_ow_val                : 1;
+		u64 rg_mode_10g_ow                   : 1;
+		u64 rg_mode_10g_ow_val               : 1;
+		u64 rg_mode_25g_ow                   : 1;
+		u64 rg_mode_25g_ow_val               : 1;
+		u64 rg_mode_40gr4_ow                 : 1;
+		u64 rg_mode_40gr4_ow_val             : 1;
+		u64 rg_mode_40gr2_ow                 : 1;
+		u64 rg_mode_40gr2_ow_val             : 1;
+		u64 rg_mode_50gr2_ow                 : 1;
+		u64 rg_mode_50gr2_ow_val             : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL(u64 a)
+{
+	return 0x5c178 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control1
+ *
+ * RPM Anp Port Control1 Register Overrides.
+ */
+union rpmx_anp_portx_control1 {
+	u64 u;
+	struct rpmx_anp_portx_control1_s {
+		u64 rg_mode_50gr_ow                  : 1;
+		u64 rg_mode_50gr_ow_val              : 1;
+		u64 rg_mode_100gr4_ow                : 1;
+		u64 rg_mode_100gr4_ow_val            : 1;
+		u64 rg_mode_110gr4_ow                : 1;
+		u64 rg_mode_110gr4_ow_val            : 1;
+		u64 rg_mode_100gr2_ow                : 1;
+		u64 rg_mode_100gr2_ow_val            : 1;
+		u64 rg_mode_107gr2_ow                : 1;
+		u64 rg_mode_107gr2_ow_val            : 1;
+		u64 rg_mode_200gr8_ow                : 1;
+		u64 rg_mode_200gr8_ow_val            : 1;
+		u64 rg_mode_200gr4_ow                : 1;
+		u64 rg_mode_200gr4_ow_val            : 1;
+		u64 rg_mode_400gr8_ow                : 1;
+		u64 rg_mode_400gr8_ow_val            : 1;
+		u64 rg_mode_428gr8_ow                : 1;
+		u64 rg_mode_428gr8_ow_val            : 1;
+		u64 rg_mode_qsgmii_ow                : 1;
+		u64 rg_mode_qsgmii_ow_val            : 1;
+		u64 rg_mode_usgmii_ow                : 1;
+		u64 rg_mode_usgmii_ow_val            : 1;
+		u64 rg_mode_usx2p5g_ow               : 1;
+		u64 rg_mode_usx2p5g_ow_val           : 1;
+		u64 rg_mode_usx5g_ow                 : 1;
+		u64 rg_mode_usx5g_ow_val             : 1;
+		u64 rg_mode_usx10g_ow                : 1;
+		u64 rg_mode_usx10g_ow_val            : 1;
+		u64 rg_mode_usx20g_ow                : 1;
+		u64 rg_mode_usx20g_ow_val            : 1;
+		u64 rg_mode_custom_ow                : 1;
+		u64 rg_mode_custom_ow_val            : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control1_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL1(u64 a)
+{
+	return 0x5c180 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control10
+ *
+ * RPM Anp Port Control10 Register Overrides + configurations + CH SM
+ * options.
+ */
+union rpmx_anp_portx_control10 {
+	u64 u;
+	struct rpmx_anp_portx_control10_s {
+		u64 pm_pu_rx_req_s_ow                : 1;
+		u64 pm_pu_rx_req_s_ow_val            : 1;
+		u64 pm_pu_tx_req_s_ow                : 1;
+		u64 pm_pu_tx_req_s_ow_val            : 1;
+		u64 pm_st_normal_s_ow                : 1;
+		u64 pm_st_normal_s_ow_val            : 1;
+		u64 pm_st_pwrdn_s_ow                 : 1;
+		u64 pm_st_pwrdn_s_ow_val             : 1;
+		u64 pm_tx_idle_s_ow                  : 1;
+		u64 pm_tx_idle_s_ow_val              : 1;
+		u64 sd_phy_gen_ow                    : 1;
+		u64 sd_phy_gen_ow_val                : 5;
+		u64 txt_dsp_sigdet_loss_pwrdn_instead_rxstr : 1;
+		u64 txt_ignore_dsp_lock_loss         : 1;
+		u64 txt_ignore_dsp_sigdet_loss       : 1;
+		u64 txt_ignore_tx_ready_loss         : 1;
+		u64 txt_no_dsp_lock_pwrdn_instead_rxstr : 1;
+		u64 txt_rxstr_pu_pll_rx_value        : 1;
+		u64 txt_tx_ready_loss_pwrdn_instead_txstr : 1;
+		u64 txt_txrx_on_timeout_pwrdn_instead_rxstr : 1;
+		u64 txt_txrx_sd_timeout_pwrdn_instead_rxstr : 1;
+		u64 txt_txstr_pu_pll_tx_value        : 1;
+		u64 reg_tx_train_dsp_sigdet_sel_s    : 2;
+		u64 reg_reset_en_tx_train_s          : 1;
+		u64 reg_reset_en_rx_train_s          : 1;
+		u64 reg_reset_en_rx_init_s           : 1;
+		u64 reg_reset_en_pu_pll_s            : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control10_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL10(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL10(u64 a)
+{
+	return 0x5c1c8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control11
+ *
+ * RPM Anp Port Control11 Register Configurations + overrides.
+ */
+union rpmx_anp_portx_control11 {
+	u64 u;
+	struct rpmx_anp_portx_control11_s {
+		u64 pu_rx_both_in_idle               : 1;
+		u64 reg_pm_sd_pu_reset_on_sftrst_s   : 1;
+		u64 reg_prog_mask_rx_init_s          : 1;
+		u64 reg_prog_mask_rx_restr_s         : 1;
+		u64 reg_prog_mask_rx_train_s         : 1;
+		u64 reg_prog_mask_tx_restr_s         : 1;
+		u64 reg_prog_mask_tx_train_s         : 1;
+		u64 reg_prog_mask_norm_s             : 1;
+		u64 reg_prog_mask_pwrup_s            : 1;
+		u64 reg_prog_mask_rxon_s             : 1;
+		u64 reg_prog_mask_rxsd_s             : 1;
+		u64 reg_prog_mask_txon_s             : 1;
+		u64 reg_prog_mask_txrxon_s           : 1;
+		u64 reg_prog_mask_txrxsd_s           : 1;
+		u64 pu_tx_both_in_idle               : 1;
+		u64 sd_sw_resetn_ow                  : 1;
+		u64 sd_sw_resetn_ow_val              : 1;
+		u64 pm_clockout_gater_ow             : 1;
+		u64 pm_clockout_gater_ow_val         : 1;
+		u64 rg_wait_pwrdn_max_timer_inf      : 1;
+		u64 reserved_20_63                   : 44;
+	} s;
+	/* struct rpmx_anp_portx_control11_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL11(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL11(u64 a)
+{
+	return 0x5c1d0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control2
+ *
+ * RPM Anp Port Control2 Register Overrides.
+ */
+union rpmx_anp_portx_control2 {
+	u64 u;
+	struct rpmx_anp_portx_control2_s {
+		u64 pm_sd_phy_gen_tx_ow              : 1;
+		u64 pm_sd_phy_gen_tx_ow_val          : 5;
+		u64 pm_sd_phy_gen_rx_ow              : 1;
+		u64 pm_sd_phy_gen_rx_ow_val          : 5;
+		u64 pm_an_restart_ow                 : 1;
+		u64 pm_an_restart_ow_val             : 1;
+		u64 pm_nr_reset_ow                   : 1;
+		u64 pm_nr_reset_ow_val               : 1;
+		u64 pm_sd_pu_pll_ow                  : 1;
+		u64 pm_sd_pu_pll_ow_val              : 1;
+		u64 pm_sd_pu_tx_ow                   : 1;
+		u64 pm_sd_pu_tx_ow_val               : 1;
+		u64 pm_sd_pu_rx_ow                   : 1;
+		u64 pm_sd_pu_rx_ow_val               : 1;
+		u64 pm_sd_softrst_s_ow               : 1;
+		u64 pm_sd_softrst_s_ow_val           : 1;
+		u64 pm_sd_couple_mode_en_ow          : 1;
+		u64 pm_sd_couple_mode_en_ow_val      : 1;
+		u64 pm_sd_txclk_sync_en_pll_ow       : 1;
+		u64 pm_sd_txclk_sync_en_pll_ow_val   : 1;
+		u64 pm_st_en_ow                      : 1;
+		u64 pm_st_en_ow_val                  : 1;
+		u64 pm_softrst_s_ow                  : 1;
+		u64 pm_softrst_s_ow_val              : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control2_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL2(u64 a)
+{
+	return 0x5c188 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control3
+ *
+ * RPM Anp Port Control3 Register Overrides + TFIFO pointers update +
+ * timeout disable.
+ */
+union rpmx_anp_portx_control3 {
+	u64 u;
+	struct rpmx_anp_portx_control3_s {
+		u64 pm_pcs_couple_ow                 : 1;
+		u64 pm_pcs_couple_ow_val             : 1;
+		u64 pm_train_type_mx_ow              : 1;
+		u64 pm_train_type_mx_ow_val          : 2;
+		u64 reg_prog_max_time_s_inf          : 1;
+		u64 pm_pwrdn_ow                      : 1;
+		u64 pm_pwrdn_ow_val                  : 1;
+		u64 pm_an_hcd_clear_ow               : 1;
+		u64 pm_an_hcd_clear_ow_val           : 1;
+		u64 pm_sd_tx_idle_ow                 : 1;
+		u64 pm_sd_tx_idle_ow_val             : 1;
+		u64 pm_an_hcd_resolved_ow            : 1;
+		u64 pm_an_hcd_resolved_ow_val        : 1;
+		u64 pm_sd_dfe_update_dis_ow          : 1;
+		u64 pm_sd_dfe_update_dis_ow_val      : 1;
+		u64 pm_tx_train_poly_sel_ow          : 1;
+		u64 pm_tx_train_poly_sel_ow_val      : 4;
+		u64 pm_sd_dfe_pat_dis_ow             : 1;
+		u64 pm_sd_dfe_pat_dis_ow_val         : 1;
+		u64 pm_sd_dfe_en_ow                  : 1;
+		u64 pm_sd_dfe_en_ow_val              : 1;
+		u64 reg_tx_tfifo_w_upd               : 1;
+		u64 reg_tx_tfifo_r_upd               : 1;
+		u64 reg_rx_tfifo_w_upd               : 1;
+		u64 reg_rx_tfifo_r_upd               : 1;
+		u64 tx_train_error_s_ow              : 1;
+		u64 tx_train_error_s_ow_val          : 2;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control3_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL3(u64 a)
+{
+	return 0x5c190 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control4
+ *
+ * RPM Anp Port Control4 Register Overrides.
+ */
+union rpmx_anp_portx_control4 {
+	u64 u;
+	struct rpmx_anp_portx_control4_s {
+		u64 pm_ap_en_s_ow                    : 1;
+		u64 pm_ap_en_s_ow_val                : 1;
+		u64 pll_ready_tx_ow                  : 1;
+		u64 pll_ready_tx_ow_val              : 1;
+		u64 pll_ready_rx_ow                  : 1;
+		u64 pll_ready_rx_ow_val              : 1;
+		u64 sq_detected_lpf_ow               : 1;
+		u64 sq_detected_lpf_ow_val           : 1;
+		u64 rx_init_done_ow                  : 1;
+		u64 rx_init_done_ow_val              : 1;
+		u64 rx_train_complete_ow             : 1;
+		u64 rx_train_complete_ow_val         : 1;
+		u64 rx_train_failed_ow               : 1;
+		u64 rx_train_failed_ow_val           : 1;
+		u64 tx_train_complete_ow             : 1;
+		u64 tx_train_complete_ow_val         : 1;
+		u64 tx_train_failed_ow               : 1;
+		u64 tx_train_failed_ow_val           : 1;
+		u64 sd_txclk_sync_start_out_ow       : 1;
+		u64 sd_txclk_sync_start_out_ow_val   : 1;
+		u64 pm_dsp_txdn_ack_ow               : 1;
+		u64 pm_dsp_txdn_ack_ow_val           : 1;
+		u64 pm_dsp_rxdn_ack_ow               : 1;
+		u64 pm_dsp_rxdn_ack_ow_val           : 1;
+		u64 pm_dsp_tx_ready_ow               : 1;
+		u64 pm_dsp_tx_ready_ow_val           : 1;
+		u64 pm_dsp_sigdet_ow                 : 1;
+		u64 pm_dsp_sigdet_ow_val             : 1;
+		u64 pm_dsp_lock_ow                   : 1;
+		u64 pm_dsp_lock_ow_val               : 1;
+		u64 pm_rx_init_ow                    : 1;
+		u64 pm_rx_init_ow_val                : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control4_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL4(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL4(u64 a)
+{
+	return 0x5c198 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control5
+ *
+ * RPM Anp Port Control5 Register Overrides + timeout disable + CH SM
+ * options.
+ */
+union rpmx_anp_portx_control5 {
+	u64 u;
+	struct rpmx_anp_portx_control5_s {
+		u64 pm_rx_train_enable_ow            : 1;
+		u64 pm_rx_train_enable_ow_val        : 1;
+		u64 pm_tx_train_enable_ow            : 1;
+		u64 pm_tx_train_enable_ow_val        : 1;
+		u64 rg_txrx_max_timer_inf            : 1;
+		u64 reg_normal_state_lock            : 1;
+		u64 sd_rx_dtl_clamp_s_ow             : 1;
+		u64 sd_rx_dtl_clamp_s_ow_val         : 1;
+		u64 dsp_sigdet_loss_pwrdn_instead_rxstr : 1;
+		u64 ignore_dsp_lock_loss             : 1;
+		u64 ignore_dsp_sigdet_loss           : 1;
+		u64 ignore_tx_ready_loss             : 1;
+		u64 no_dsp_lock_pwrdn_instead_rxstr  : 1;
+		u64 rxstr_pu_pll_rx_value            : 1;
+		u64 tx_ready_loss_pwrdn_instead_txstr : 1;
+		u64 txrx_on_timeout_pwrdn_instead_rxstr : 1;
+		u64 txrx_sd_timeout_pwrdn_instead_rxstr : 1;
+		u64 txstr_pu_pll_tx_value            : 1;
+		u64 pm_prog_pwm_norm_en_mx_s_ow      : 1;
+		u64 pm_prog_pwm_norm_en_mx_s_ow_val  : 1;
+		u64 pm_prog_pwm_pwrup_en_mx_s_ow     : 1;
+		u64 pm_prog_pwm_pwrup_en_mx_s_ow_val : 1;
+		u64 pm_prog_pwm_rxon_en_mx_s_ow      : 1;
+		u64 pm_prog_pwm_rxon_en_mx_s_ow_val  : 1;
+		u64 pm_prog_pwm_rxsd_en_mx_s_ow      : 1;
+		u64 pm_prog_pwm_rxsd_en_mx_s_ow_val  : 1;
+		u64 pm_prog_pwm_txon_en_mx_s_ow      : 1;
+		u64 pm_prog_pwm_txon_en_mx_s_ow_val  : 1;
+		u64 pm_prog_pwm_txrxon_en_mx_s_ow    : 1;
+		u64 pm_prog_pwm_txrxon_en_mx_s_ow_val : 1;
+		u64 pm_prog_pwm_txrxsd_en_mx_s_ow    : 1;
+		u64 pm_prog_pwm_txrxsd_en_mx_s_ow_val : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control5_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL5(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL5(u64 a)
+{
+	return 0x5c1a0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control6
+ *
+ * RPM Anp Port Control6 Register Overrides + Configurations.
+ */
+union rpmx_anp_portx_control6 {
+	u64 u;
+	struct rpmx_anp_portx_control6_s {
+		u64 pm_pcs_rx_clk_ena_ow             : 1;
+		u64 pm_pcs_rx_clk_ena_ow_val         : 1;
+		u64 pm_pcs_tx_clk_ena_ow             : 1;
+		u64 pm_pcs_tx_clk_ena_ow_val         : 1;
+		u64 pm_pcs_sd_rx_resetn_ow           : 1;
+		u64 pm_pcs_sd_rx_resetn_ow_val       : 1;
+		u64 pm_pcs_sd_tx_resetn_ow           : 1;
+		u64 pm_pcs_sd_tx_resetn_ow_val       : 1;
+		u64 pm_an_pcs_clkout_sel_ow          : 1;
+		u64 pm_an_pcs_clkout_sel_ow_val      : 1;
+		u64 link_status_ow                   : 1;
+		u64 link_status_ow_val               : 1;
+		u64 reg_invert_sd_rx_in_s            : 1;
+		u64 reg_invert_sd_tx_out_s           : 1;
+		u64 reg_sigdet_mode                  : 2;
+		u64 rg_pwrdn_rdy_s                   : 1;
+		u64 rg_sel_los_sig_s                 : 1;
+		u64 tx_busy_no_pwrdn                 : 1;
+		u64 pcs_cfg_done_hw_clr              : 1;
+		u64 reg_tx_train_complete_latch      : 1;
+		u64 reg_rx_train_complete_latch      : 1;
+		u64 reg_tx_train_failed_latch        : 1;
+		u64 reg_rx_train_failed_latch        : 1;
+		u64 reg_an_restart_cnt_en            : 1;
+		u64 reg_dsp_lock_fail_cnt_en         : 1;
+		u64 reg_link_fail_cnt_en             : 1;
+		u64 rg_prog_enable_s                 : 1;
+		u64 rg_force_pg_start_s              : 1;
+		u64 cmem_mask                        : 1;
+		u64 int_valid_ow                     : 1;
+		u64 int_enabled_ow                   : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control6_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL6(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL6(u64 a)
+{
+	return 0x5c1a8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control7
+ *
+ * RPM Anp Port Control7 Register Overrides + Configurations.
+ */
+union rpmx_anp_portx_control7 {
+	u64 u;
+	struct rpmx_anp_portx_control7_s {
+		u64 pll_ready_rx_clean_ow            : 1;
+		u64 pll_ready_rx_clean_ow_val        : 1;
+		u64 pll_ready_tx_clean_ow            : 1;
+		u64 pll_ready_tx_clean_ow_val        : 1;
+		u64 reserved_4                       : 1;
+		u64 reg_prog_norm_en_s               : 1;
+		u64 reg_rxstr_abort_rx_train_s       : 1;
+		u64 reg_prog_pwrup_en_s              : 1;
+		u64 reg_prog_rxon_en_s               : 1;
+		u64 reg_prog_rxsd_en_s               : 1;
+		u64 reg_prog_txon_en_s               : 1;
+		u64 reg_prog_txrxon_en_s             : 1;
+		u64 reg_prog_txrxsd_en_s             : 1;
+		u64 cnt_clear_on_sd_rst              : 1;
+		u64 duration_clear_on_sd_rst         : 1;
+		u64 rx_init_ok_cnt_clear             : 1;
+		u64 rx_init_timeout_clear            : 1;
+		u64 rx_train_failed_cnt_clear        : 1;
+		u64 rx_train_ok_cnt_clear            : 1;
+		u64 rx_train_timeout_cnt_clear       : 1;
+		u64 tx_train_failed_cnt_clear        : 1;
+		u64 tx_train_ok_cnt_clear            : 1;
+		u64 tx_train_timeout_cnt_clear       : 1;
+		u64 reg_rxstr_abort_rx_init_s        : 1;
+		u64 dsp_rxstr_ack_s_ow               : 1;
+		u64 dsp_rxstr_ack_s_ow_val           : 1;
+		u64 dsp_txstr_ack_s_ow               : 1;
+		u64 dsp_txstr_ack_s_ow_val           : 1;
+		u64 reg_dfe_adaptation_en_s          : 1;
+		u64 reg_dfe_auto_ctrl_s              : 1;
+		u64 reg_dfe_frozen_s                 : 1;
+		u64 reg_norm_st_sq_detected_mask_s   : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control7_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL7(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL7(u64 a)
+{
+	return 0x5c1b0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control8
+ *
+ * RPM Anp Port Control8 Register Overrides + timeout disable +
+ * configurations.
+ */
+union rpmx_anp_portx_control8 {
+	u64 u;
+	struct rpmx_anp_portx_control8_s {
+		u64 pm_train_type_ow                 : 1;
+		u64 pm_train_type_ow_val             : 2;
+		u64 rg_txon_max_timer_inf            : 1;
+		u64 rg_rxon_max_timer_inf            : 1;
+		u64 reg_prog_en_rx_init_s            : 1;
+		u64 reg_prog_en_rx_train_s           : 1;
+		u64 rx_busy_no_pwrdn                 : 1;
+		u64 reg_prog_en_tx_train_s           : 1;
+		u64 pcs_cfg_done_fin_s_ow            : 1;
+		u64 pcs_cfg_done_fin_s_ow_val        : 1;
+		u64 reg_rx_auto_re_train_s           : 1;
+		u64 reg_sel_init_done_s              : 1;
+		u64 reg_tx_auto_re_train_s           : 1;
+		u64 comphy_int_ack_mx_s_ow           : 1;
+		u64 comphy_int_ack_mx_s_ow_val       : 1;
+		u64 prog_pwm_done_s_ow               : 1;
+		u64 prog_pwm_done_s_ow_val           : 1;
+		u64 prog_rx_done_s_ow                : 1;
+		u64 prog_rx_done_s_ow_val            : 1;
+		u64 prog_tx_done_s_ow                : 1;
+		u64 prog_tx_done_s_ow_val            : 1;
+		u64 opmode_match_mx_s_ow             : 1;
+		u64 opmode_match_mx_s_ow_val         : 1;
+		u64 couple_match_mx_s_ow             : 1;
+		u64 couple_match_mx_s_ow_val         : 1;
+		u64 ap_match_mx_s_ow                 : 1;
+		u64 ap_match_mx_s_ow_val             : 1;
+		u64 pg_en_mx_s_ow                    : 1;
+		u64 pg_en_mx_s_ow_val                : 1;
+		u64 int_data_ow                      : 1;
+		u64 int_code_ow                      : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control8_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL8(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL8(u64 a)
+{
+	return 0x5c1b8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_control9
+ *
+ * RPM Anp Port Control9 Register Overrides.
+ */
+union rpmx_anp_portx_control9 {
+	u64 u;
+	struct rpmx_anp_portx_control9_s {
+		u64 int_enabled_ow_val               : 1;
+		u64 int_valid_ow_val                 : 1;
+		u64 int_code_ow_val                  : 8;
+		u64 int_data_ow_val                  : 22;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_control9_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_CONTROL9(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_CONTROL9(u64 a)
+{
+	return 0x5c1c0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_counter
+ *
+ * RPM Anp Port Counter Register Last rx_init duration.
+ */
+union rpmx_anp_portx_counter {
+	u64 u;
+	struct rpmx_anp_portx_counter_s {
+		u64 stat_rx_init_duration_l          : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_counter_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_COUNTER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_COUNTER(u64 a)
+{
+	return 0x5c208 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_counter1
+ *
+ * RPM Anp Port Counter1 Register Last rx training duration.
+ */
+union rpmx_anp_portx_counter1 {
+	u64 u;
+	struct rpmx_anp_portx_counter1_s {
+		u64 stat_rx_train_duration_l         : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_counter1_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_COUNTER1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_COUNTER1(u64 a)
+{
+	return 0x5c210 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_counter2
+ *
+ * RPM Anp Port Counter2 Register Last tx training duration.
+ */
+union rpmx_anp_portx_counter2 {
+	u64 u;
+	struct rpmx_anp_portx_counter2_s {
+		u64 stat_tx_train_duration_l         : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_counter2_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_COUNTER2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_COUNTER2(u64 a)
+{
+	return 0x5c218 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_counter3
+ *
+ * RPM Anp Port Counter3 Register RX train/init counter + rx train
+ * duration.
+ */
+union rpmx_anp_portx_counter3 {
+	u64 u;
+	struct rpmx_anp_portx_counter3_s {
+		u64 stat_rx_init_ok_cnt              : 10;
+		u64 stat_rx_init_timeout_cnt         : 10;
+		u64 stat_rx_train_failed_cnt         : 10;
+		u64 stat_rx_train_duration_l_hi      : 2;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_counter3_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_COUNTER3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_COUNTER3(u64 a)
+{
+	return 0x5c220 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_counter4
+ *
+ * RPM Anp Port Counter4 Register RX + TX Counters + Last tx train
+ * duration.
+ */
+union rpmx_anp_portx_counter4 {
+	u64 u;
+	struct rpmx_anp_portx_counter4_s {
+		u64 stat_rx_train_ok_cnt             : 10;
+		u64 stat_rx_train_timeout_cnt        : 10;
+		u64 stat_tx_train_failed_cnt         : 10;
+		u64 stat_tx_train_duration_l_hi      : 2;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_counter4_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_COUNTER4(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_COUNTER4(u64 a)
+{
+	return 0x5c228 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_counter5
+ *
+ * RPM Anp Port Counter5 Register TX counters + CH SM PWRUP counter.
+ */
+union rpmx_anp_portx_counter5 {
+	u64 u;
+	struct rpmx_anp_portx_counter5_s {
+		u64 stat_tx_train_ok_cnt             : 10;
+		u64 stat_tx_train_timeout_cnt        : 10;
+		u64 pwrup_cnt_s                      : 10;
+		u64 reserved_30_63                   : 34;
+	} s;
+	/* struct rpmx_anp_portx_counter5_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_COUNTER5(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_COUNTER5(u64 a)
+{
+	return 0x5c230 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_dsp_lock_fail_counter
+ *
+ * RPM Anp Port Dsp Lock Fail Counter Register Count dsp_lock restart.
+ */
+union rpmx_anp_portx_dsp_lock_fail_counter {
+	u64 u;
+	struct rpmx_anp_portx_dsp_lock_fail_counter_s {
+		u64 dsp_lock_fail_coutner            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anp_portx_dsp_lock_fail_counter_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_DSP_LOCK_FAIL_COUNTER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_DSP_LOCK_FAIL_COUNTER(u64 a)
+{
+	return 0x5c238 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_link_fail_counter
+ *
+ * RPM Anp Port Link Fail Counter Register Count restarts due to link
+ * fail.
+ */
+union rpmx_anp_portx_link_fail_counter {
+	u64 u;
+	struct rpmx_anp_portx_link_fail_counter_s {
+		u64 link_fail_counter                : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_anp_portx_link_fail_counter_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_LINK_FAIL_COUNTER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_LINK_FAIL_COUNTER(u64 a)
+{
+	return 0x5c240 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_pcs_link_max_timer_ap
+ *
+ * RPM Anp Port Pcs Link Max Timer Ap Register CH SM Max time in TXRX_ON
+ * state when operating AN.
+ */
+union rpmx_anp_portx_pcs_link_max_timer_ap {
+	u64 u;
+	struct rpmx_anp_portx_pcs_link_max_timer_ap_s {
+		u64 pcs_link_max_timer_ap            : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_pcs_link_max_timer_ap_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_PCS_LINK_MAX_TIMER_AP(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_PCS_LINK_MAX_TIMER_AP(u64 a)
+{
+	return 0x5c0d0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_pcs_link_max_timer_norm
+ *
+ * RPM Anp Port Pcs Link Max Timer Norm Register CH SM Max time in
+ * TXRX_ON state when NOT operating AN.
+ */
+union rpmx_anp_portx_pcs_link_max_timer_norm {
+	u64 u;
+	struct rpmx_anp_portx_pcs_link_max_timer_norm_s {
+		u64 pcs_link_max_timer_norm          : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_pcs_link_max_timer_norm_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_PCS_LINK_MAX_TIMER_NORM(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_PCS_LINK_MAX_TIMER_NORM(u64 a)
+{
+	return 0x5c0c8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_idle_ap_min_timer
+ *
+ * RPM Anp Port Sd Idle Ap Min Timer Register COMPHY TX SM - Min timer to
+ * be in state tx_idle_remove_nokr when operating AN.
+ */
+union rpmx_anp_portx_sd_idle_ap_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_idle_ap_min_timer_s {
+		u64 reg_tx_idle_wait_time_ap_s       : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_idle_ap_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_IDLE_AP_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_IDLE_AP_MIN_TIMER(u64 a)
+{
+	return 0x5c130 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_idle_nap_min_timer
+ *
+ * RPM Anp Port Sd Idle Nap Min Timer Register COMPHY TX SM - Min timer
+ * to be in state tx_idle_remove_nokr when NOT operating AN.
+ */
+union rpmx_anp_portx_sd_idle_nap_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_idle_nap_min_timer_s {
+		u64 reg_tx_idle_wait_time_other_s    : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_idle_nap_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_IDLE_NAP_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_IDLE_NAP_MIN_TIMER(u64 a)
+{
+	return 0x5c138 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_idle_rm_min_timer
+ *
+ * RPM Anp Port Sd Idle Rm Min Timer Register COMPHY TX SM - Min timer
+ * for state tx_idle_remove_2kr.
+ */
+union rpmx_anp_portx_sd_idle_rm_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_idle_rm_min_timer_s {
+		u64 reg_tx_comphy_idle_remove_min_wait_s : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_idle_rm_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_IDLE_RM_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_IDLE_RM_MIN_TIMER(u64 a)
+{
+	return 0x5c128 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_pll_up_max_timer
+ *
+ * RPM Anp Port Sd Pll Up Max Timer Register Max time for COMPHY TX SM -
+ * tx_pll_up state. COMPHY RX SM - rx_pll_up state.
+ */
+union rpmx_anp_portx_sd_pll_up_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_pll_up_max_timer_s {
+		u64 reg_pll_up_time_out_s            : 31;
+		u64 reg_pll_up_time_out_s_inf        : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_sd_pll_up_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_PLL_UP_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_PLL_UP_MAX_TIMER(u64 a)
+{
+	return 0x5c0e8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_prog_max_timer
+ *
+ * RPM Anp Port Sd Prog Max Timer Register COMPHY SMs (TX & RX) Max timer
+ * for any PROG state.
+ */
+union rpmx_anp_portx_sd_prog_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_prog_max_timer_s {
+		u64 reg_sd_prog_max_time_s           : 31;
+		u64 reg_sd_prog_max_time_s_inf       : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_sd_prog_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_PROG_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_PROG_MAX_TIMER(u64 a)
+{
+	return 0x5c0f0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_rx_init_max_timer
+ *
+ * RPM Anp Port Sd Rx Init Max Timer Register COMPHY RX SM - Max timer
+ * for rx_init state.
+ */
+union rpmx_anp_portx_sd_rx_init_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_rx_init_max_timer_s {
+		u64 reg_rx_init_time_out_s           : 31;
+		u64 reg_rx_init_time_out_s_inf       : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_sd_rx_init_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_RX_INIT_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_RX_INIT_MAX_TIMER(u64 a)
+{
+	return 0x5c100 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_rx_init_min_timer
+ *
+ * RPM Anp Port Sd Rx Init Min Timer Register COMPHY RX SM - Min time for
+ * rx_init state.
+ */
+union rpmx_anp_portx_sd_rx_init_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_rx_init_min_timer_s {
+		u64 reg_rx_init_min_wait_s           : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_rx_init_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_RX_INIT_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_RX_INIT_MIN_TIMER(u64 a)
+{
+	return 0x5c0f8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_rx_pll_up_min_timer
+ *
+ * RPM Anp Port Sd Rx Pll Up Min Timer Register COMPHY RX SM - Min timer
+ * for rx_pll_up state.
+ */
+union rpmx_anp_portx_sd_rx_pll_up_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_rx_pll_up_min_timer_s {
+		u64 reg_rx_pll_up_min_wait_s         : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_rx_pll_up_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_RX_PLL_UP_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_RX_PLL_UP_MIN_TIMER(u64 a)
+{
+	return 0x5c108 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_rx_retrain_min_timer
+ *
+ * RPM Anp Port Sd Rx Retrain Min Timer Register When RX retrain is set.
+ * this is the COMPHY RX SM wait time after rx_train failed, before
+ * moving to rx_wait_plug.
+ */
+union rpmx_anp_portx_sd_rx_retrain_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_rx_retrain_min_timer_s {
+		u64 reg_rx_retrain_time_s            : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_rx_retrain_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_RX_RETRAIN_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_RX_RETRAIN_MIN_TIMER(u64 a)
+{
+	return 0x5c160 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_rx_wait_plug_min_timer
+ *
+ * RPM Anp Port Sd Rx Wait Plug Min Timer Register COMPHY RX SM - Min
+ * timer for rx_wait_plug state.
+ */
+union rpmx_anp_portx_sd_rx_wait_plug_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_rx_wait_plug_min_timer_s {
+		u64 reg_rx_wait_plug_min_wait_s      : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_rx_wait_plug_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_RX_WAIT_PLUG_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_RX_WAIT_PLUG_MIN_TIMER(u64 a)
+{
+	return 0x5c168 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_rx_wait_sq_det_min_timer
+ *
+ * RPM Anp Port Sd Rx Wait Sq Det Min Timer Register COMPHY RX SM - Min
+ * timer for rx_wait_sq_det state.
+ */
+union rpmx_anp_portx_sd_rx_wait_sq_det_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_rx_wait_sq_det_min_timer_s {
+		u64 reg_rx_wait_sq_det_min_wait_s    : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_rx_wait_sq_det_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_RX_WAIT_SQ_DET_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_RX_WAIT_SQ_DET_MIN_TIMER(u64 a)
+{
+	return 0x5c170 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_rxt_max_timer
+ *
+ * RPM Anp Port Sd Rxt Max Timer Register COMPHY RX SM - Max timer for
+ * rx_train state.
+ */
+union rpmx_anp_portx_sd_rxt_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_rxt_max_timer_s {
+		u64 reg_rx_train_time_out_s          : 31;
+		u64 reg_rx_train_time_out_s_inf      : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_sd_rxt_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_RXT_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_RXT_MAX_TIMER(u64 a)
+{
+	return 0x5c120 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_rxt_min_timer
+ *
+ * RPM Anp Port Sd Rxt Min Timer Register COMPHY RX SM - Min timer for
+ * rx_train state.
+ */
+union rpmx_anp_portx_sd_rxt_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_rxt_min_timer_s {
+		u64 reg_rx_train_min_wait_s          : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_rxt_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_RXT_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_RXT_MIN_TIMER(u64 a)
+{
+	return 0x5c110 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_rxt_ok_max_timer
+ *
+ * RPM Anp Port Sd Rxt Ok Max Timer Register COMPHY RX SM - time to wait
+ * after RX train complete successful, before moving to rx_done_ok state.
+ */
+union rpmx_anp_portx_sd_rxt_ok_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_rxt_ok_max_timer_s {
+		u64 reg_rx_train_ok_wait_timeout_s   : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_rxt_ok_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_RXT_OK_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_RXT_OK_MAX_TIMER(u64 a)
+{
+	return 0x5c118 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_tx_pll_up_min_timer
+ *
+ * RPM Anp Port Sd Tx Pll Up Min Timer Register COMPHY TX SM - Min timer
+ * for state tx_pll_up.
+ */
+union rpmx_anp_portx_sd_tx_pll_up_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_tx_pll_up_min_timer_s {
+		u64 reg_tx_pll_up_min_wait_s         : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_tx_pll_up_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_TX_PLL_UP_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_TX_PLL_UP_MIN_TIMER(u64 a)
+{
+	return 0x5c140 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_txt_max_timer
+ *
+ * RPM Anp Port Sd Txt Max Timer Register COMPHY TX SM - Max timer for
+ * tx_train state.
+ */
+union rpmx_anp_portx_sd_txt_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_txt_max_timer_s {
+		u64 reg_tx_train_time_out_s          : 31;
+		u64 reg_tx_train_time_out_s_inf      : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_sd_txt_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_TXT_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_TXT_MAX_TIMER(u64 a)
+{
+	return 0x5c158 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_txt_min_timer
+ *
+ * RPM Anp Port Sd Txt Min Timer Register COMPHY TX SM - Min timer for
+ * tx_train state.
+ */
+union rpmx_anp_portx_sd_txt_min_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_txt_min_timer_s {
+		u64 reg_tx_train_min_wait_s          : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_txt_min_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_TXT_MIN_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_TXT_MIN_TIMER(u64 a)
+{
+	return 0x5c148 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_sd_txt_ok_max_timer
+ *
+ * RPM Anp Port Sd Txt Ok Max Timer Register COMPHY TX SM - time to wait
+ * after tx_train complete successfully, before moving to tx_done_ok.
+ */
+union rpmx_anp_portx_sd_txt_ok_max_timer {
+	u64 u;
+	struct rpmx_anp_portx_sd_txt_ok_max_timer_s {
+		u64 reg_tx_train_ok_wait_timeout_s   : 31;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_sd_txt_ok_max_timer_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SD_TXT_OK_MAX_TIMER(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SD_TXT_OK_MAX_TIMER(u64 a)
+{
+	return 0x5c150 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_serdes_rx_sm_control
+ *
+ * RPM Anp Port Serdes Rx Sm Control Register Control Register for COMPHY
+ * RX SM. provides - state status, ability to override state, ability to
+ * trap state.
+ */
+union rpmx_anp_portx_serdes_rx_sm_control {
+	u64 u;
+	struct rpmx_anp_portx_serdes_rx_sm_control_s {
+		u64 sd_rx_sm_override_ctrl           : 2;
+		u64 sd_rx_sm_amdisam                 : 1;
+		u64 sd_rx_sm_bp_reached              : 1;
+		u64 sd_rx_sm_state                   : 4;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_anp_portx_serdes_rx_sm_control_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SERDES_RX_SM_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SERDES_RX_SM_CONTROL(u64 a)
+{
+	return 0x5c030 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_serdes_tx_sm_control
+ *
+ * RPM Anp Port Serdes Tx Sm Control Register Control Register for COMPHY
+ * TX SM. provides - state status, ability to override state, ability to
+ * trap state.
+ */
+union rpmx_anp_portx_serdes_tx_sm_control {
+	u64 u;
+	struct rpmx_anp_portx_serdes_tx_sm_control_s {
+		u64 sd_tx_sm_override_ctrl           : 2;
+		u64 sd_tx_sm_amdisam                 : 1;
+		u64 sd_tx_sm_bp_reached              : 1;
+		u64 sd_tx_sm_state                   : 4;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_anp_portx_serdes_tx_sm_control_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_SERDES_TX_SM_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_SERDES_TX_SM_CONTROL(u64 a)
+{
+	return 0x5c028 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_status
+ *
+ * RPM Anp Port Status Register Status + Self-Clear configurations.
+ */
+union rpmx_anp_portx_status {
+	u64 u;
+	struct rpmx_anp_portx_status_s {
+		u64 reg_tx_train_complete            : 1;
+		u64 reg_rx_train_complete            : 1;
+		u64 reg_tx_train_failed              : 1;
+		u64 reg_rx_train_failed              : 1;
+		u64 pcs_cfg_done                     : 1;
+		u64 reg_prog_pwm_done_s              : 1;
+		u64 reg_prog_rx_done_s               : 1;
+		u64 reg_prog_tx_done_s               : 1;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_anp_portx_status_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_STATUS(u64 a)
+{
+	return 0x5c1d8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_status1
+ *
+ * RPM Anp Port Status1 Register Status of internal signals.
+ */
+union rpmx_anp_portx_status1 {
+	u64 u;
+	struct rpmx_anp_portx_status1_s {
+		u64 stat_dsp_rxstr_req_mx_s          : 1;
+		u64 stat_dsp_rxstr_req_s             : 1;
+		u64 stat_dsp_txstr_req_mx_s          : 1;
+		u64 stat_dsp_txstr_req_s             : 1;
+		u64 stat_pm_an_en_hcd_resolved       : 1;
+		u64 stat_pm_an_hcd_clear             : 1;
+		u64 stat_pm_an_hcd_resolved          : 1;
+		u64 stat_pm_an_pcs_clkout_sel        : 1;
+		u64 stat_pm_an_pcs_sel               : 1;
+		u64 stat_pm_an_restart               : 1;
+		u64 stat_pm_ap_en_s                  : 1;
+		u64 stat_pm_ap_mode_s                : 1;
+		u64 stat_pm_ap_reset_rx_s            : 1;
+		u64 stat_pm_ap_reset_tx_s            : 1;
+		u64 stat_pm_enclk_ap_fr_s            : 1;
+		u64 stat_pm_enclk_ap_ft_s            : 1;
+		u64 stat_pm_enclk_ap_sys_s           : 1;
+		u64 stat_pm_mode_100gr2              : 1;
+		u64 stat_pm_mode_100gr4              : 1;
+		u64 stat_pm_mode_107gr2              : 1;
+		u64 stat_pm_mode_10g                 : 1;
+		u64 stat_pm_mode_110gr4              : 1;
+		u64 stat_pm_mode_1g                  : 1;
+		u64 stat_pm_mode_200gr4              : 1;
+		u64 stat_pm_mode_200gr8              : 1;
+		u64 stat_pm_mode_25g                 : 1;
+		u64 stat_pm_mode_2p5g                : 1;
+		u64 stat_pm_mode_400gr8              : 1;
+		u64 stat_pm_mode_40gr2               : 1;
+		u64 stat_pm_mode_40gr4               : 1;
+		u64 stat_pm_mode_428gr8              : 1;
+		u64 stat_pm_mode_50gr                : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_status1_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_STATUS1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_STATUS1(u64 a)
+{
+	return 0x5c1e0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_status2
+ *
+ * RPM Anp Port Status2 Register Internal signals status.
+ */
+union rpmx_anp_portx_status2 {
+	u64 u;
+	struct rpmx_anp_portx_status2_s {
+		u64 stat_pm_mode_50gr2               : 1;
+		u64 stat_pm_mode_5g                  : 1;
+		u64 stat_pm_mode_custom              : 1;
+		u64 stat_pm_mode_qsgmii              : 1;
+		u64 stat_pm_mode_usgmii              : 1;
+		u64 stat_pm_mode_usx10g              : 1;
+		u64 stat_pm_mode_usx20g              : 1;
+		u64 stat_pm_mode_usx2p5g             : 1;
+		u64 stat_pm_mode_usx5g               : 1;
+		u64 stat_pm_norm_x_state_s           : 1;
+		u64 stat_pm_nr_reset_s               : 1;
+		u64 stat_pm_pcs_couple_s             : 1;
+		u64 stat_pm_pcs_rx_clk_ena           : 1;
+		u64 stat_pm_pcs_sd_rx_reset_n        : 1;
+		u64 stat_pm_pcs_sd_tx_reset_n        : 1;
+		u64 stat_pm_pcs_tx_clk_ena           : 1;
+		u64 stat_pm_pwrdn_s                  : 1;
+		u64 stat_pm_sd_couple_mode_en_s      : 1;
+		u64 stat_pm_sd_phy_gen_rx_s          : 5;
+		u64 stat_pm_sd_phy_gen_tx_s          : 5;
+		u64 stat_pm_sd_pu_pll_s              : 1;
+		u64 stat_pm_sd_pu_rx_s               : 1;
+		u64 reserved_30_63                   : 34;
+	} s;
+	/* struct rpmx_anp_portx_status2_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_STATUS2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_STATUS2(u64 a)
+{
+	return 0x5c1e8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_status3
+ *
+ * RPM Anp Port Status3 Register Internal signals status.
+ */
+union rpmx_anp_portx_status3 {
+	u64 u;
+	struct rpmx_anp_portx_status3_s {
+		u64 stat_pm_sd_pu_tx_s               : 1;
+		u64 stat_pm_sd_softrst_s             : 1;
+		u64 stat_pm_sd_txclk_sync_en_pll_s   : 1;
+		u64 stat_pm_softrst_s                : 1;
+		u64 stat_pm_st_en_s                  : 1;
+		u64 stat_pm_tx_train_poly_sel_s      : 4;
+		u64 stat_dsp_lock_s                  : 1;
+		u64 stat_dsp_pwrdn_ack_s             : 1;
+		u64 stat_dsp_rxdn_ack_s              : 1;
+		u64 stat_dsp_sigdet_s                : 1;
+		u64 stat_dsp_txdn_ack_s              : 1;
+		u64 stat_pcs_lock_s                  : 1;
+		u64 stat_tx_ready_s                  : 1;
+		u64 stat_pll_ready_rx_clean_s        : 1;
+		u64 stat_pll_ready_rx_s              : 1;
+		u64 stat_pll_ready_tx_clean_s        : 1;
+		u64 stat_pll_ready_tx_s              : 1;
+		u64 stat_pm_dsp_lock_s               : 1;
+		u64 stat_pm_dsp_rxdn_ack_s           : 1;
+		u64 stat_pm_dsp_rxstr_ack_s          : 1;
+		u64 stat_pm_dsp_sigdet_s             : 1;
+		u64 stat_pm_dsp_txdn_ack_s           : 1;
+		u64 stat_pm_dsp_tx_ready_s           : 1;
+		u64 stat_pm_dsp_txstr_ack_s          : 1;
+		u64 stat_pm_rx_init_s                : 1;
+		u64 stat_pm_rx_train_enable_s        : 1;
+		u64 stat_pm_sd_dfe_en_s              : 1;
+		u64 stat_pm_sd_dfe_pat_dis_s         : 1;
+		u64 stat_pm_sd_dfe_update_dis_s      : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_anp_portx_status3_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_STATUS3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_STATUS3(u64 a)
+{
+	return 0x5c1f0 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_status4
+ *
+ * RPM Anp Port Status4 Register Internal signals status.
+ */
+union rpmx_anp_portx_status4 {
+	u64 u;
+	struct rpmx_anp_portx_status4_s {
+		u64 stat_pm_sd_tx_idle_s             : 1;
+		u64 stat_pm_train_type_s             : 2;
+		u64 stat_pm_tx_train_enable_s        : 1;
+		u64 stat_rx_init_done_s              : 1;
+		u64 stat_rx_train_complete_s         : 1;
+		u64 stat_rx_train_failed_s           : 1;
+		u64 stat_sd_rx_dtl_clamp_s           : 1;
+		u64 stat_sd_txclk_sync_start_out_s   : 1;
+		u64 stat_sq_detected_lpf_s           : 1;
+		u64 stat_tx_train_complete_s         : 1;
+		u64 stat_tx_train_error_l            : 2;
+		u64 stat_tx_train_error_s            : 2;
+		u64 stat_tx_train_failed_s           : 1;
+		u64 stat_pcs_cfg_done_fin_s          : 1;
+		u64 stat_sd_busy_rx_s                : 1;
+		u64 stat_sd_busy_tx_s                : 1;
+		u64 stat_pm_pu_rx_req_s              : 1;
+		u64 stat_pm_pu_tx_req_s              : 1;
+		u64 stat_pm_st_normal_s              : 1;
+		u64 stat_pm_st_pwrdn_s               : 1;
+		u64 stat_pm_tx_idle_s                : 1;
+		u64 stat_sd_phy_gen_s                : 5;
+		u64 stat_cmem_state                  : 2;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_status4_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_STATUS4(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_STATUS4(u64 a)
+{
+	return 0x5c1f8 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_anp_port#_status5
+ *
+ * RPM Anp Port Status5 Register Command interface SMs states + TFIFOs
+ * fill levels.
+ */
+union rpmx_anp_portx_status5 {
+	u64 u;
+	struct rpmx_anp_portx_status5_s {
+		u64 stat_pm_cmem_addr_s              : 6;
+		u64 stat_int_state                   : 2;
+		u64 stat_prog_state_s                : 3;
+		u64 reg_tx_tfifo_uw_w                : 5;
+		u64 reg_tx_tfifo_uw_r                : 5;
+		u64 reg_rx_tfifo_uw_w                : 5;
+		u64 reg_rx_tfifo_uw_r                : 5;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_anp_portx_status5_s cn; */
+};
+
+static inline u64 RPMX_ANP_PORTX_STATUS5(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_ANP_PORTX_STATUS5(u64 a)
+{
+	return 0x5c200 + 0x800 * a;
+}
+
+/**
+ * Register (RSL) rpm#_car_cken_ovrd
+ *
+ * RPM CAR CLKEN Override Register RPM CAR CLKEN Override Register
+ */
+union rpmx_car_cken_ovrd {
+	u64 u;
+	struct rpmx_car_cken_ovrd_s {
+		u64 car_an_sys_clken_ovrd            : 8;
+		u64 car_sd_rxclk_x1_clken_ovrd       : 8;
+		u64 car_sd_rxclk_x4_clken_ovrd       : 8;
+		u64 car_sd_txclk_x1_clken_ovrd       : 8;
+		u64 car_sd_txclk_x4_clken_ovrd       : 8;
+		u64 car_pm_clk_clken_ovrd            : 1;
+		u64 reserved_41_63                   : 23;
+	} s;
+	/* struct rpmx_car_cken_ovrd_s cn; */
+};
+
+static inline u64 RPMX_CAR_CKEN_OVRD(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CAR_CKEN_OVRD(void)
+{
+	return 0x61000;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_activity
+ *
+ * RPM CMR Activity Registers
+ */
+union rpmx_cmrx_activity {
+	u64 u;
+	struct rpmx_cmrx_activity_s {
+		u64 pause_tx_lat                     : 1;
+		u64 pause_rx_lat                     : 1;
+		u64 stop_tx_lat                      : 1;
+		u64 reserved_3_63                    : 61;
+	} s;
+	/* struct rpmx_cmrx_activity_s cn; */
+};
+
+static inline u64 RPMX_CMRX_ACTIVITY(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_ACTIVITY(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5d80 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6a00 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5d80 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5d80 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_bad
+ *
+ * RPM CMR Bad Registers
+ */
+union rpmx_cmrx_bad {
+	u64 u;
+	struct rpmx_cmrx_bad_s {
+		u64 rxb_nxl                          : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct rpmx_cmrx_bad_s cn; */
+};
+
+static inline u64 RPMX_CMRX_BAD(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_BAD(u64 a)
+{
+	return 0x6a10 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_chan_msk_and
+ *
+ * RPM CMR Backpressure Channel Mask AND Registers
+ */
+union rpmx_cmrx_chan_msk_and {
+	u64 u;
+	struct rpmx_cmrx_chan_msk_and_s {
+		u64 msk_and                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_cmrx_chan_msk_and_s cn; */
+};
+
+static inline u64 RPMX_CMRX_CHAN_MSK_AND(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_CHAN_MSK_AND(u64 a)
+{
+	return 0x3110 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_chan_msk_or
+ *
+ * RPM Backpressure Channel Mask OR Registers
+ */
+union rpmx_cmrx_chan_msk_or {
+	u64 u;
+	struct rpmx_cmrx_chan_msk_or_s {
+		u64 msk_or                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_cmrx_chan_msk_or_s cn; */
+};
+
+static inline u64 RPMX_CMRX_CHAN_MSK_OR(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_CHAN_MSK_OR(u64 a)
+{
+	return 0x3120 + 0x100000 * a;
+}
+#endif
+/**
+ * Register (RSL) rpm#_cmr#_config
+ *
+ * RPM CMR Configuration Registers Logical MAC/PCS configuration
+ * registers, one per LMAC. The maximum number of LMACs (and maximum LMAC
+ * ID) that can be enabled by these registers is limited by combining
+ * RPM()_CMR_RX_LMACS[LMAC_EXIST] and RPM()_CMR_TX_LMACS[LMAC_EXIST]
+ * (i.e. each enabled LMAC must have its LMAC_EXIST set, either for Tx or
+ * for Rx).
+ */
+union rpmx_cmrx_config {
+	u64 u;
+	struct rpmx_cmrx_config_s {
+		u64 reserved_0_15                    : 16;
+		u64 tx_byte_flip                     : 1;
+		u64 tx_ptp_1s_support                : 1;
+		u64 tx_ptp_1s_ts_byte_flip           : 1;
+		u64 tx_user_pream_strip              : 1;
+		u64 tx_user_pream_ovrd               : 1;
+		u64 rx_byte_flip                     : 1;
+		u64 rx_ts_prepend                    : 1;
+		u64 rx_ts_byte_flip                  : 1;
+		u64 rx_user_pream_prepend            : 1;
+		u64 user_pream_byte_flip             : 1;
+		u64 crc_inv_en                       : 1;
+		u64 pch_support_en                   : 1;
+		u64 tx_user_pream_strip_ptp_only     : 1;
+		u64 pch_packet_type                  : 2;
+		u64 pch_ext_field_type_check         : 1;
+		u64 pch_ext_field_type               : 2;
+		u64 pch_tx_crc_hw_calc               : 1;
+		u64 pch_tx_crc_err_gen               : 1;
+		u64 pch_rx_crc_hw_check              : 1;
+		u64 pch_crc_calc_byte_flip           : 1;
+		u64 pch_crc_calc_bu_en               : 1;
+		u64 pch_crc_calc_bu_reverse          : 1;
+		u64 reserved_40_54                   : 15;
+		u64 enable                           : 1;
+		u64 x2p_select                       : 3;
+		u64 p2x_select                       : 3;
+		u64 reserved_62_63                   : 2;
+	} s;
+};
+
+static inline u64 RPMX_CMRX_CONFIG(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_CONFIG(u64 a)
+{
+	return 0 + 0x100000 * a;
+}
+
+#if 0
+/**
+ * Register (RSL) rpm#_cmr#_fc_status
+ *
+ * RPM CMR Activity Registers
+ */
+union rpmx_cmrx_fc_status {
+	u64 u;
+	struct rpmx_cmrx_fc_status_s {
+		u64 pause_tx_stat                    : 16;
+		u64 pause_rx_stat                    : 16;
+		u64 stop_tx_stat                     : 1;
+		u64 reserved_33_63                   : 31;
+	} s;
+	/* struct rpmx_cmrx_fc_status_s cn; */
+};
+
+static inline u64 RPMX_CMRX_FC_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_FC_STATUS(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5d88 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6a08 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5d88 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5d88 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_int
+ *
+ * RPM CMR Interrupt Register
+ */
+union rpmx_cmrx_int {
+	u64 u;
+	struct rpmx_cmrx_int_s {
+		u64 reserved_0                       : 1;
+		u64 overflw                          : 1;
+		u64 p2x_nic_nxc                      : 1;
+		u64 p2x_nix0_nxc                     : 1;
+		u64 p2x_nix1_nxc                     : 1;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_cmrx_int_s cn; */
+};
+
+static inline u64 RPMX_CMRX_INT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_INT(u64 a)
+{
+	return 0x40 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_int_ena_w1c
+ *
+ * RPM CMR Interrupt Enable Clear Register This register clears interrupt
+ * enable bits.
+ */
+union rpmx_cmrx_int_ena_w1c {
+	u64 u;
+	struct rpmx_cmrx_int_ena_w1c_s {
+		u64 reserved_0                       : 1;
+		u64 overflw                          : 1;
+		u64 p2x_nic_nxc                      : 1;
+		u64 p2x_nix0_nxc                     : 1;
+		u64 p2x_nix1_nxc                     : 1;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_cmrx_int_ena_w1c_s cn; */
+};
+
+static inline u64 RPMX_CMRX_INT_ENA_W1C(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_INT_ENA_W1C(u64 a)
+{
+	return 0x50 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_int_ena_w1s
+ *
+ * RPM CMR Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
+ */
+union rpmx_cmrx_int_ena_w1s {
+	u64 u;
+	struct rpmx_cmrx_int_ena_w1s_s {
+		u64 reserved_0                       : 1;
+		u64 overflw                          : 1;
+		u64 p2x_nic_nxc                      : 1;
+		u64 p2x_nix0_nxc                     : 1;
+		u64 p2x_nix1_nxc                     : 1;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_cmrx_int_ena_w1s_s cn; */
+};
+
+static inline u64 RPMX_CMRX_INT_ENA_W1S(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_INT_ENA_W1S(u64 a)
+{
+	return 0x58 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_int_w1s
+ *
+ * RPM CMR Interrupt Set Register This register sets interrupt bits.
+ */
+union rpmx_cmrx_int_w1s {
+	u64 u;
+	struct rpmx_cmrx_int_w1s_s {
+		u64 reserved_0                       : 1;
+		u64 overflw                          : 1;
+		u64 p2x_nic_nxc                      : 1;
+		u64 p2x_nix0_nxc                     : 1;
+		u64 p2x_nix1_nxc                     : 1;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_cmrx_int_w1s_s cn; */
+};
+
+static inline u64 RPMX_CMRX_INT_W1S(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_INT_W1S(u64 a)
+{
+	return 0x48 + 0x100000 * a;
+}
+#endif
+/**
+ * Register (RSL) rpm#_cmr#_link_cfg
+ *
+ * Programmable Link Channel Register Each register specifies the base
+ * channel (start channel) number and the range of channels associated
+ * with the link. Must configure this CSR before enabling the channel,
+ * i.e. before setting RPM_CMR()_CONFIG.ENABLE to 1.
+ */
+union rpmx_cmrx_link_cfg {
+	u64 u;
+	struct rpmx_cmrx_link_cfg_s {
+		u64 base_chan                        : 12;
+		u64 reserved_12_15                   : 4;
+		u64 log2_range                       : 4;
+		u64 reserved_20_63                   : 44;
+	} s;
+	/* struct rpmx_cmrx_link_cfg_s cn; */
+};
+
+static inline u64 RPMX_CMRX_LINK_CFG(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_LINK_CFG(u64 a)
+{
+	return 0x1070 + 0x100000 * a;
+}
+
+#if 0
+/**
+ * Register (RSL) rpm#_cmr#_prt_cbfc_ctl
+ *
+ * RPM CMR LMAC PFC Control Registers Controls for masking the effect of
+ * specific classes and channels on FC logic.
+ */
+union rpmx_cmrx_prt_cbfc_ctl {
+	u64 u;
+	struct rpmx_cmrx_prt_cbfc_ctl_s {
+		u64 logl_en_tx                       : 16;
+		u64 phys_bp                          : 16;
+		u64 pause_mode_stop_tx_en            : 1;
+		u64 logl_en_rx                       : 16;
+		u64 reserved_49_63                   : 15;
+	} s;
+	/* struct rpmx_cmrx_prt_cbfc_ctl_s cn; */
+};
+
+static inline u64 RPMX_CMRX_PRT_CBFC_CTL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_PRT_CBFC_CTL(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5b08 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6510 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b08 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b08 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_bp_drop
+ *
+ * RPM Receive Backpressure Drop Register
+ */
+union rpmx_cmrx_rx_bp_drop {
+	u64 u;
+	struct rpmx_cmrx_rx_bp_drop_s {
+		u64 mark                             : 14;
+		u64 reserved_14_63                   : 50;
+	} s;
+	struct rpmx_cmrx_rx_bp_drop_cn10ka {
+		u64 mark                             : 7;
+		u64 reserved_7_63                    : 57;
+	} cn10ka;
+	/* struct rpmx_cmrx_rx_bp_drop_s cn10kb; */
+	/* struct rpmx_cmrx_rx_bp_drop_cn10ka cnf10ka; */
+	/* struct rpmx_cmrx_rx_bp_drop_cn10ka cnf10kb; */
+};
+
+static inline u64 RPMX_CMRX_RX_BP_DROP(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_BP_DROP(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x40e0 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x30e0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x40e0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x40e0 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_bp_off
+ *
+ * RPM Receive Backpressure Off Register
+ */
+union rpmx_cmrx_rx_bp_off {
+	u64 u;
+	struct rpmx_cmrx_rx_bp_off_s {
+		u64 mark                             : 14;
+		u64 reserved_14_63                   : 50;
+	} s;
+	struct rpmx_cmrx_rx_bp_off_cn10ka {
+		u64 mark                             : 7;
+		u64 reserved_7_63                    : 57;
+	} cn10ka;
+	/* struct rpmx_cmrx_rx_bp_off_s cn10kb; */
+	/* struct rpmx_cmrx_rx_bp_off_cn10ka cnf10ka; */
+	/* struct rpmx_cmrx_rx_bp_off_cn10ka cnf10kb; */
+};
+
+static inline u64 RPMX_CMRX_RX_BP_OFF(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_BP_OFF(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x40f0 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x30f0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x40f0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x40f0 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_bp_on
+ *
+ * RPM Receive Backpressure On Register
+ */
+union rpmx_cmrx_rx_bp_on {
+	u64 u;
+	struct rpmx_cmrx_rx_bp_on_s {
+		u64 mark                             : 14;
+		u64 reserved_14_63                   : 50;
+	} s;
+	/* struct rpmx_cmrx_rx_bp_on_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_BP_ON(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_BP_ON(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x40e8 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x30e8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x40e8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x40e8 + 0x100000 * a;
+	return -1;
+}
+#endif
+/**
+ * Register (RSL) rpm#_cmr#_rx_dmac_ctl0
+ *
+ * RPM CMR Receive DMAC Address-Control0 Register DMAC CAM control
+ * register for use by X2P/NIX bound traffic. Received packets are only
+ * passed to X2P/NIX when the DMAC0 filter result is ACCEPT and STEERING0
+ * filter result is PASS. See also RPM()_CMR_RX_DMAC()_CAM0 and
+ * RPM()_CMR_RX_STEERING0().
+ */
+union rpmx_cmrx_rx_dmac_ctl0 {
+	u64 u;
+	struct rpmx_cmrx_rx_dmac_ctl0_s {
+		u64 bcst_accept                      : 1;
+		u64 mcst_mode                        : 2;
+		u64 cam_accept                       : 1;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_cmrx_rx_dmac_ctl0_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_DMAC_CTL0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_DMAC_CTL0(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4ff8 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3ff8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4ff8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4ff8 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_fifo_len
+ *
+ * RPM CMR Receive Fifo Length Registers
+ */
+union rpmx_cmrx_rx_fifo_len {
+	u64 u;
+	struct rpmx_cmrx_rx_fifo_len_s {
+		u64 fifo_len                         : 14;
+		u64 busy                             : 1;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_cmrx_rx_fifo_len_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_FIFO_LEN(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_FIFO_LEN(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4108 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3108 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4108 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4108 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_id_map
+ *
+ * RPM CMR Receive ID Map Register These registers set the RX LMAC ID
+ * mapping for X2P/NIX.
+ */
+union rpmx_cmrx_rx_id_map {
+	u64 u;
+	struct rpmx_cmrx_rx_id_map_s {
+		u64 pknd                             : 6;
+		u64 reserved_6_7                     : 2;
+		u64 rid                              : 7;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_cmrx_rx_id_map_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_ID_MAP(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_ID_MAP(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x60 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x80 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x60 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x80 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_logl_xoff
+ *
+ * RPM CMR Receive Logical XOFF Registers
+ */
+union rpmx_cmrx_rx_logl_xoff {
+	u64 u;
+	struct rpmx_cmrx_rx_logl_xoff_s {
+		u64 xoff                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_cmrx_rx_logl_xoff_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_LOGL_XOFF(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_LOGL_XOFF(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x40f8 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x30f8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x40f8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x40f8 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_logl_xon
+ *
+ * RPM CMR Receive Logical XON Registers
+ */
+union rpmx_cmrx_rx_logl_xon {
+	u64 u;
+	struct rpmx_cmrx_rx_logl_xon_s {
+		u64 xon                              : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_cmrx_rx_logl_xon_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_LOGL_XON(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_LOGL_XON(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4100 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3100 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4100 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4100 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_ovr_bp
+ *
+ * RPM CMR Receive-Ports Backpressure Override Registers Per-LMAC
+ * backpressure override register.
+ */
+union rpmx_cmrx_rx_ovr_bp {
+	u64 u;
+	struct rpmx_cmrx_rx_ovr_bp_s {
+		u64 ign_fifo_bp                      : 1;
+		u64 bp                               : 1;
+		u64 en                               : 1;
+		u64 reserved_3_63                    : 61;
+	} s;
+	/* struct rpmx_cmrx_rx_ovr_bp_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_OVR_BP(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_OVR_BP(u64 a)
+{
+	return 0x3130 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat0
+ *
+ * RPM Receive Statistics Register 0 Good packet counter. These registers
+ * provide a count of received packets that meet the following
+ * conditions: * are not recognized as ERROR packets (any OPCODE). * are
+ * not dropped due to FIFO full or undersize * are not dropped due to
+ * DMAC0 or STEERING0 filtering.
+ */
+union rpmx_cmrx_rx_stat0 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat0_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat0_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT0(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4000 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3000 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4000 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4000 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat1
+ *
+ * RPM Receive Statistics Register 1 Good packet Octet counter.
+ */
+union rpmx_cmrx_rx_stat1 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat1_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat1_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT1(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4008 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3008 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4008 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4008 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat10
+ *
+ * RPM Receive Statistics Register 10 These registers provide a count of
+ * received packets that meet the following conditions:  * are recognized
+ * as Good packet that contain PCH with no CRC-8 error. Note that
+ * RX_STAT0 also counts these packets, since it counts all Good packets.
+ */
+union rpmx_cmrx_rx_stat10 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat10_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat10_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT10(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT10(u64 a)
+{
+	return 0x3050 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat11
+ *
+ * RPM Receive Statistics Register 11 These registers provide a count of
+ * received packets that meet the following conditions:  * are recognized
+ * as Error packet containing PCH with CRC-8 error. Note that RX_STAT6
+ * also counts these packets, since it counts all Error codes.
+ */
+union rpmx_cmrx_rx_stat11 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat11_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat11_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT11(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT11(u64 a)
+{
+	return 0x3058 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat2
+ *
+ * RPM Receive Statistics Register 2 Filtered packet counter. These
+ * registers provide a count of received packets that meet the following
+ * conditions: * are not recognized as ERROR packets (any OPCODE). * are
+ * not dropped due to FIFO full or undersize * are dropped due to DMAC0
+ * or STEERING0 filtering.
+ */
+union rpmx_cmrx_rx_stat2 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat2_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat2_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT2(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4010 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3010 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4010 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4010 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat3
+ *
+ * RPM Receive Statistics Register 3 Filtered packet Octet counter. These
+ * registers provide a count of octets of filtered DMAC0 or VLAN
+ * STEERING0 packets.
+ */
+union rpmx_cmrx_rx_stat3 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat3_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat3_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT3(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4018 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3018 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4018 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4018 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat4
+ *
+ * RPM Receive Statistics Register 4 FIFO Full dropped packets counter.
+ * These registers provide a count of received packets that meet the
+ * following conditions: * are not recognized as ERROR packets (any
+ * OPCODE). * are dropped due to FIFO full status (except truncated
+ * packets)  They do not count any packet that is truncated at the point
+ * of overflow and sent on to the NIX. The truncated packet will be
+ * marked with error and increment STAT6. These registers count only non-
+ * truncated packets dropped by the FIFO for a given LMAC.
+ */
+union rpmx_cmrx_rx_stat4 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat4_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat4_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT4(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT4(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4020 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3020 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4020 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4020 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat5
+ *
+ * RPM Receive Statistics Register 5 FIFO Full dropped packet Octet
+ * counter.
+ */
+union rpmx_cmrx_rx_stat5 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat5_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat5_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT5(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT5(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4028 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3028 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4028 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4028 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat6
+ *
+ * RPM Receive Statistics Register 6 Error packet counter. These
+ * registers provide a count of received packets that meet the following
+ * conditions:  * are recognized as ERROR packets (any OPCODE), including
+ * truncated packets.
+ */
+union rpmx_cmrx_rx_stat6 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat6_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat6_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT6(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT6(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4030 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3030 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4030 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4030 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat7
+ *
+ * RPM Receive Statistics Register 7 Count dropped undersized packets by
+ * CMR. See RPM_CMR(0..3)_RX_UNDERSIZE.
+ */
+union rpmx_cmrx_rx_stat7 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat7_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat7_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT7(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT7(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4038 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3038 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4038 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4038 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat8
+ *
+ * RPM Receive Statistics Register 8 Count octets of dropped undersized
+ * packets by CMR. See RPM_CMR(0..3)_RX_UNDERSIZE.
+ */
+union rpmx_cmrx_rx_stat8 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat8_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat8_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT8(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT8(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x4040 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x3040 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x4040 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x4040 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat9
+ *
+ * RPM Receive Statistics Register 9 These registers provide a count of
+ * received packets that meet the following conditions:  * are recognized
+ * as Inverted-CRC ERROR packets. Note that RX_STAT6 (Error counter) also
+ * counts these packets, since it counts all opcodes.
+ */
+union rpmx_cmrx_rx_stat9 {
+	u64 u;
+	struct rpmx_cmrx_rx_stat9_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat9_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT9(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT9(u64 a)
+{
+	return 0x3048 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat_defer_xoff
+ *
+ * RPM CMR Tx Defer XON to XOFF transition Registers
+ */
+union rpmx_cmrx_rx_stat_defer_xoff {
+	u64 u;
+	struct rpmx_cmrx_rx_stat_defer_xoff_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat_defer_xoff_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT_DEFER_XOFF(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT_DEFER_XOFF(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5c80 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6900 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5c80 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5c80 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_stat_pri#_xoff
+ *
+ * RPM CMR RX XON to XOFF transition Registers
+ */
+union rpmx_cmrx_rx_stat_prix_xoff {
+	u64 u;
+	struct rpmx_cmrx_rx_stat_prix_xoff_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_rx_stat_prix_xoff_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_STAT_PRIX_XOFF(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_STAT_PRIX_XOFF(u64 a, u64 b)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5c00 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6880 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CNF10KA))
+		return 0x5c00 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CNF10KB))
+		return 0x5c00 + 0x100000 * a + 8 * b;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_rx_undersize
+ *
+ * RPM Rx undersize frames control Register
+ */
+union rpmx_cmrx_rx_undersize {
+	u64 u;
+	struct rpmx_cmrx_rx_undersize_s {
+		u64 rx_ignore_minimal_frame_en       : 1;
+		u64 rx_drop_small_frame_en           : 1;
+		u64 rx_small_frame_min_size          : 7;
+		u64 reserved_9_63                    : 55;
+	} s;
+	/* struct rpmx_cmrx_rx_undersize_s cn; */
+};
+
+static inline u64 RPMX_CMRX_RX_UNDERSIZE(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_RX_UNDERSIZE(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5910 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6500 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5910 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5910 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_scratch#
+ *
+ * RPM CMR Scratch Registers
+ */
+union rpmx_cmrx_scratchx {
+	u64 u;
+	struct rpmx_cmrx_scratchx_s {
+		u64 scratch                          : 64;
+	} s;
+	/* struct rpmx_cmrx_scratchx_s cn; */
+};
+
+static inline u64 RPMX_CMRX_SCRATCHX(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_SCRATCHX(u64 a, u64 b)
+{
+	return 0x1050 + 0x100000 * a + 8 * b;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_sw_int
+ *
+ * RPM CMR Interrupt Register
+ */
+union rpmx_cmrx_sw_int {
+	u64 u;
+	struct rpmx_cmrx_sw_int_s {
+		u64 sw_set                           : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct rpmx_cmrx_sw_int_s cn; */
+};
+
+static inline u64 RPMX_CMRX_SW_INT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_SW_INT(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x180 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x1b0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x180 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x180 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_sw_int_ena_w1c
+ *
+ * RPM CMR Interrupt Enable Clear Register This register clears interrupt
+ * enable bits.
+ */
+union rpmx_cmrx_sw_int_ena_w1c {
+	u64 u;
+	struct rpmx_cmrx_sw_int_ena_w1c_s {
+		u64 sw_set                           : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct rpmx_cmrx_sw_int_ena_w1c_s cn; */
+};
+
+static inline u64 RPMX_CMRX_SW_INT_ENA_W1C(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_SW_INT_ENA_W1C(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x190 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x1c0 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x190 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x190 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_sw_int_ena_w1s
+ *
+ * RPM CMR Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
+ */
+union rpmx_cmrx_sw_int_ena_w1s {
+	u64 u;
+	struct rpmx_cmrx_sw_int_ena_w1s_s {
+		u64 sw_set                           : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct rpmx_cmrx_sw_int_ena_w1s_s cn; */
+};
+
+static inline u64 RPMX_CMRX_SW_INT_ENA_W1S(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_SW_INT_ENA_W1S(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x198 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x1c8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x198 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x198 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_sw_int_w1s
+ *
+ * RPM CMR Interrupt Set Register This register sets interrupt bits.
+ */
+union rpmx_cmrx_sw_int_w1s {
+	u64 u;
+	struct rpmx_cmrx_sw_int_w1s_s {
+		u64 sw_set                           : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct rpmx_cmrx_sw_int_w1s_s cn; */
+};
+
+static inline u64 RPMX_CMRX_SW_INT_W1S(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_SW_INT_W1S(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x188 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x1b8 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x188 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x188 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_tx_channel
+ *
+ * RPM CMR Transmit-Channels Registers
+ */
+union rpmx_cmrx_tx_channel {
+	u64 u;
+	struct rpmx_cmrx_tx_channel_s {
+		u64 msk                              : 16;
+		u64 ebp_coupling_en                  : 1;
+		u64 reserved_17_63                   : 47;
+	} s;
+	struct rpmx_cmrx_tx_channel_cn10ka {
+		u64 msk                              : 16;
+		u64 reserved_16_63                   : 48;
+	} cn10ka;
+	/* struct rpmx_cmrx_tx_channel_s cn10kb; */
+	/* struct rpmx_cmrx_tx_channel_cn10ka cnf10ka; */
+	/* struct rpmx_cmrx_tx_channel_s cnf10kb; */
+};
+
+static inline u64 RPMX_CMRX_TX_CHANNEL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_TX_CHANNEL(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5b00 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6508 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b00 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b00 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_tx_fifo_len
+ *
+ * RPM CMR Transmit Fifo Length Registers
+ */
+union rpmx_cmrx_tx_fifo_len {
+	u64 u;
+	struct rpmx_cmrx_tx_fifo_len_s {
+		u64 fifo_len                         : 14;
+		u64 lmac_idle                        : 1;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_cmrx_tx_fifo_len_s cn; */
+};
+
+static inline u64 RPMX_CMRX_TX_FIFO_LEN(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_TX_FIFO_LEN(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5b18 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6800 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b18 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b18 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_tx_ovr_bp
+ *
+ * RPM CMR Transmit-Channels Backpressure Override Registers
+ */
+union rpmx_cmrx_tx_ovr_bp {
+	u64 u;
+	struct rpmx_cmrx_tx_ovr_bp_s {
+		u64 tx_chan_bp                       : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_cmrx_tx_ovr_bp_s cn; */
+};
+
+static inline u64 RPMX_CMRX_TX_OVR_BP(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_TX_OVR_BP(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5b10 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6518 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b10 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b10 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_tx_stat0
+ *
+ * RPM Transmit Statistics Register 0 These registers provide a count of
+ * transmit packets that meet the following conditions:  * are recognized
+ * as inverted-CRC packets.
+ */
+union rpmx_cmrx_tx_stat0 {
+	u64 u;
+	struct rpmx_cmrx_tx_stat0_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_tx_stat0_s cn; */
+};
+
+static inline u64 RPMX_CMRX_TX_STAT0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_TX_STAT0(u64 a)
+{
+	return 0x6600 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_tx_stat1
+ *
+ * RPM Transmit Statistics Register 1 These registers provide a count of
+ * transmit packets that meet the following conditions:  * are recognized
+ * as a packet that contain PCH
+ */
+union rpmx_cmrx_tx_stat1 {
+	u64 u;
+	struct rpmx_cmrx_tx_stat1_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_tx_stat1_s cn; */
+};
+
+static inline u64 RPMX_CMRX_TX_STAT1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_TX_STAT1(u64 a)
+{
+	return 0x6608 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_tx_stat_pri#_xoff
+ *
+ * RPM CMR TX XON to XOFF transition Registers
+ */
+union rpmx_cmrx_tx_stat_prix_xoff {
+	u64 u;
+	struct rpmx_cmrx_tx_stat_prix_xoff_s {
+		u64 cnt                              : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_cmrx_tx_stat_prix_xoff_s cn; */
+};
+
+static inline u64 RPMX_CMRX_TX_STAT_PRIX_XOFF(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_TX_STAT_PRIX_XOFF(u64 a, u64 b)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5d00 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6980 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CNF10KA))
+		return 0x5d00 + 0x100000 * a + 8 * b;
+	if (otx_is_soc(CNF10KB))
+		return 0x5d00 + 0x100000 * a + 8 * b;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_tx_thresh
+ *
+ * RPM CMR TX Threshold Registers
+ */
+union rpmx_cmrx_tx_thresh {
+	u64 u;
+	struct rpmx_cmrx_tx_thresh_s {
+		u64 bulk_thresh                      : 13;
+		u64 macout_thresh                    : 3;
+		u64 ch_cred_only_after_mac_tx        : 1;
+		u64 reserved_17_63                   : 47;
+	} s;
+	/* struct rpmx_cmrx_tx_thresh_s cn; */
+};
+
+static inline u64 RPMX_CMRX_TX_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_TX_THRESH(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5b20 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6808 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b20 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b20 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr#_tx_user_pream_value
+ *
+ * User Preamble Tx value Register Override Value to push to MAC as User
+ * Preamble. When RPM()_CMR()_CONFIG[TX_USER_PREAM_OVRD] is 1, push this
+ * value to the MAC. Byte order: first network-order-Byte on the right
+ * side (lsb). This CSR is Not applied with USER_PREAM_BYTE_FLIP.
+ */
+union rpmx_cmrx_tx_user_pream_value {
+	u64 u;
+	struct rpmx_cmrx_tx_user_pream_value_s {
+		u64 reserved_0_7                     : 8;
+		u64 preamble                         : 48;
+		u64 sfd                              : 8;
+	} s;
+	/* struct rpmx_cmrx_tx_user_pream_value_s cn; */
+};
+
+static inline u64 RPMX_CMRX_TX_USER_PREAM_VALUE(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMRX_TX_USER_PREAM_VALUE(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5b28 + 0x100000 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6810 + 0x100000 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5b28 + 0x100000 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5b28 + 0x100000 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_bad
+ *
+ * RPM CMR Bad Registers
+ */
+union rpmx_cmr_bad {
+	u64 u;
+	struct rpmx_cmr_bad_s {
+		u64 rxb_nxl_0                        : 1;
+		u64 rxb_nxl_1                        : 1;
+		u64 rxb_nxl_2                        : 1;
+		u64 rxb_nxl_3                        : 1;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_cmr_bad_s cn; */
+};
+
+static inline u64 RPMX_CMR_BAD(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_BAD(void)
+{
+	return 0x5d90;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_chan_msk_and
+ *
+ * RPM CMR Backpressure Channel Mask AND Registers
+ */
+union rpmx_cmr_chan_msk_and {
+	u64 u;
+	struct rpmx_cmr_chan_msk_and_s {
+		u64 msk_and                          : 64;
+	} s;
+	/* struct rpmx_cmr_chan_msk_and_s cn; */
+};
+
+static inline u64 RPMX_CMR_CHAN_MSK_AND(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_CHAN_MSK_AND(void)
+{
+	return 0x4110;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_chan_msk_or
+ *
+ * RPM Backpressure Channel Mask OR Registers
+ */
+union rpmx_cmr_chan_msk_or {
+	u64 u;
+	struct rpmx_cmr_chan_msk_or_s {
+		u64 msk_or                           : 64;
+	} s;
+	/* struct rpmx_cmr_chan_msk_or_s cn; */
+};
+
+static inline u64 RPMX_CMR_CHAN_MSK_OR(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_CHAN_MSK_OR(void)
+{
+	return 0x4118;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_global_config
+ *
+ * RPM CMR Global Configuration Register These registers configure the
+ * global CMR, PCS, and MAC.
+ */
+union rpmx_cmr_global_config {
+	u64 u;
+	struct rpmx_cmr_global_config_s {
+		u64 pmux_sds_sel                     : 1;
+		u64 rpm_clk_enable                   : 1;
+		u64 cmr_x2p_reset                    : 3;
+		u64 interleave_mode                  : 1;
+		u64 fcs_strip                        : 1;
+		u64 reserved_7_9                     : 3;
+		u64 ts_val_bu_sync_en                : 1;
+		u64 ts_prescale_factor               : 4;
+		u64 ts_rls_filter_en                 : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	struct rpmx_cmr_global_config_cn10ka {
+		u64 pmux_sds_sel                     : 1;
+		u64 rpm_clk_enable                   : 1;
+		u64 cmr_x2p_reset                    : 3;
+		u64 interleave_mode                  : 1;
+		u64 fcs_strip                        : 1;
+		u64 cmr_clken_ovrd                   : 1;
+		u64 ts_val_fb_sync_en                : 1;
+		u64 reserved_9_63                    : 55;
+	} cn10ka;
+	struct rpmx_cmr_global_config_cn10kb {
+		u64 reserved_0                       : 1;
+		u64 rpm_clk_enable                   : 1;
+		u64 cmr_x2p_reset                    : 3;
+		u64 reserved_5                       : 1;
+		u64 fcs_strip                        : 1;
+		u64 cmr_clken_ovrd                   : 3;
+		u64 ts_val_bu_sync_en                : 1;
+		u64 ts_prescale_factor               : 4;
+		u64 ts_rls_filter_en                 : 1;
+		u64 reserved_16_63                   : 48;
+	} cn10kb;
+	/* struct rpmx_cmr_global_config_cn10ka cnf10ka; */
+	struct rpmx_cmr_global_config_cnf10kb {
+		u64 reserved_0                       : 1;
+		u64 rpm_clk_enable                   : 1;
+		u64 cmr_x2p_reset                    : 3;
+		u64 reserved_5                       : 1;
+		u64 fcs_strip                        : 1;
+		u64 cmr_clken_ovrd                   : 1;
+		u64 reserved_8_9                     : 2;
+		u64 ts_val_bu_sync_en                : 1;
+		u64 ts_prescale_factor               : 4;
+		u64 reserved_15_63                   : 49;
+	} cnf10kb;
+};
+
+static inline u64 RPMX_CMR_GLOBAL_CONFIG(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_GLOBAL_CONFIG(void)
+{
+	return 8;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_global_int
+ *
+ * RPM CMR Global Interrupt Register
+ */
+union rpmx_cmr_global_int {
+	u64 u;
+	struct rpmx_cmr_global_int_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 infifo_4_overfl                  : 1;
+		u64 infifo_5_overfl                  : 1;
+		u64 infifo_6_overfl                  : 1;
+		u64 infifo_7_overfl                  : 1;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 rsl_nxc_lmac_err                 : 1;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_cmr_global_int_s cn10kb; */
+	struct rpmx_cmr_global_int_cnf10kb {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_7                     : 4;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 reserved_9_63                    : 55;
+	} cnf10kb;
+};
+
+static inline u64 RPMX_CMR_GLOBAL_INT(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_GLOBAL_INT(void)
+{
+	return 0x10;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_global_int_ena_w1c
+ *
+ * RPM CMR Global Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
+ */
+union rpmx_cmr_global_int_ena_w1c {
+	u64 u;
+	struct rpmx_cmr_global_int_ena_w1c_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 infifo_4_overfl                  : 1;
+		u64 infifo_5_overfl                  : 1;
+		u64 infifo_6_overfl                  : 1;
+		u64 infifo_7_overfl                  : 1;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 rsl_nxc_lmac_err                 : 1;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_cmr_global_int_ena_w1c_s cn10kb; */
+	struct rpmx_cmr_global_int_ena_w1c_cnf10kb {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_7                     : 4;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 reserved_9_63                    : 55;
+	} cnf10kb;
+};
+
+static inline u64 RPMX_CMR_GLOBAL_INT_ENA_W1C(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_GLOBAL_INT_ENA_W1C(void)
+{
+	return 0x20;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_global_int_ena_w1s
+ *
+ * RPM CMR Global Interrupt Enable Set Register This register sets
+ * interrupt enable bits.
+ */
+union rpmx_cmr_global_int_ena_w1s {
+	u64 u;
+	struct rpmx_cmr_global_int_ena_w1s_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 infifo_4_overfl                  : 1;
+		u64 infifo_5_overfl                  : 1;
+		u64 infifo_6_overfl                  : 1;
+		u64 infifo_7_overfl                  : 1;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 rsl_nxc_lmac_err                 : 1;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_cmr_global_int_ena_w1s_s cn10kb; */
+	struct rpmx_cmr_global_int_ena_w1s_cnf10kb {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_7                     : 4;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 reserved_9_63                    : 55;
+	} cnf10kb;
+};
+
+static inline u64 RPMX_CMR_GLOBAL_INT_ENA_W1S(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_GLOBAL_INT_ENA_W1S(void)
+{
+	return 0x28;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_global_int_w1s
+ *
+ * RPM CMR Global Interrupt Set Register This register sets interrupt
+ * bits.
+ */
+union rpmx_cmr_global_int_w1s {
+	u64 u;
+	struct rpmx_cmr_global_int_w1s_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 infifo_4_overfl                  : 1;
+		u64 infifo_5_overfl                  : 1;
+		u64 infifo_6_overfl                  : 1;
+		u64 infifo_7_overfl                  : 1;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 rsl_nxc_lmac_err                 : 1;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_cmr_global_int_w1s_s cn10kb; */
+	struct rpmx_cmr_global_int_w1s_cnf10kb {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_7                     : 4;
+		u64 ts_bu_sync_fifo_of               : 1;
+		u64 reserved_9_63                    : 55;
+	} cnf10kb;
+};
+
+static inline u64 RPMX_CMR_GLOBAL_INT_W1S(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_GLOBAL_INT_W1S(void)
+{
+	return 0x18;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_mem_int
+ *
+ * RPM CMR Memory Interrupt Register
+ */
+union rpmx_cmr_mem_int {
+	u64 u;
+	struct rpmx_cmr_mem_int_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_cmr_mem_int_s cn; */
+};
+
+static inline u64 RPMX_CMR_MEM_INT(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_MEM_INT(void)
+{
+	return 0x10;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_mem_int_ena_w1c
+ *
+ * RPM CMR Memory Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
+ */
+union rpmx_cmr_mem_int_ena_w1c {
+	u64 u;
+	struct rpmx_cmr_mem_int_ena_w1c_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_cmr_mem_int_ena_w1c_s cn; */
+};
+
+static inline u64 RPMX_CMR_MEM_INT_ENA_W1C(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_MEM_INT_ENA_W1C(void)
+{
+	return 0x20;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_mem_int_ena_w1s
+ *
+ * RPM CMR Memory Interrupt Enable Set Register This register sets
+ * interrupt enable bits.
+ */
+union rpmx_cmr_mem_int_ena_w1s {
+	u64 u;
+	struct rpmx_cmr_mem_int_ena_w1s_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_cmr_mem_int_ena_w1s_s cn; */
+};
+
+static inline u64 RPMX_CMR_MEM_INT_ENA_W1S(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_MEM_INT_ENA_W1S(void)
+{
+	return 0x28;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_mem_int_w1s
+ *
+ * RPM CMR Memory Interrupt Set Register This register sets interrupt
+ * bits.
+ */
+union rpmx_cmr_mem_int_w1s {
+	u64 u;
+	struct rpmx_cmr_mem_int_w1s_s {
+		u64 infifo_0_overfl                  : 1;
+		u64 infifo_1_overfl                  : 1;
+		u64 infifo_2_overfl                  : 1;
+		u64 infifo_3_overfl                  : 1;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_cmr_mem_int_w1s_s cn; */
+};
+
+static inline u64 RPMX_CMR_MEM_INT_W1S(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_MEM_INT_W1S(void)
+{
+	return 0x18;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_p2x#_count
+ *
+ * RPM P2X Activity Register
+ */
+union rpmx_cmr_p2xx_count {
+	u64 u;
+	struct rpmx_cmr_p2xx_count_s {
+		u64 p2x_cnt                          : 64;
+	} s;
+	/* struct rpmx_cmr_p2xx_count_s cn; */
+};
+
+static inline u64 RPMX_CMR_P2XX_COUNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_P2XX_COUNT(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x140 + 8 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x140 + 0x10 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x140 + 8 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x140 + 8 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_p2x_nix0_nxc_adr
+ *
+ * RPM CMR NIX0 NXC Exception Registers
+ */
+union rpmx_cmr_p2x_nix0_nxc_adr {
+	u64 u;
+	struct rpmx_cmr_p2x_nix0_nxc_adr_s {
+		u64 channel                          : 12;
+		u64 lmac_id                          : 4;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_cmr_p2x_nix0_nxc_adr_s cn10ka; */
+	struct rpmx_cmr_p2x_nix0_nxc_adr_cn10kb {
+		u64 channel                          : 12;
+		u64 lmac_id                          : 3;
+		u64 reserved_15_63                   : 49;
+	} cn10kb;
+	/* struct rpmx_cmr_p2x_nix0_nxc_adr_s cnf10ka; */
+	/* struct rpmx_cmr_p2x_nix0_nxc_adr_s cnf10kb; */
+};
+
+static inline u64 RPMX_CMR_P2X_NIX0_NXC_ADR(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_P2X_NIX0_NXC_ADR(void)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x1038;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x1020;
+	if (otx_is_soc(CNF10KA))
+		return 0x1038;
+	if (otx_is_soc(CNF10KB))
+		return 0x1038;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_p2x_nix1_nxc_adr
+ *
+ * RPM CMR NIX1 NXC Exception Registers
+ */
+union rpmx_cmr_p2x_nix1_nxc_adr {
+	u64 u;
+	struct rpmx_cmr_p2x_nix1_nxc_adr_s {
+		u64 channel                          : 12;
+		u64 lmac_id                          : 3;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_cmr_p2x_nix1_nxc_adr_s cn; */
+};
+
+static inline u64 RPMX_CMR_P2X_NIX1_NXC_ADR(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_P2X_NIX1_NXC_ADR(void)
+{
+	return 0x1030;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_rsl_nxc_lmac_synd
+ *
+ * RPM CMR Bad RSL Address Interrupt Syndrome Register
+ */
+union rpmx_cmr_rsl_nxc_lmac_synd {
+	u64 u;
+	struct rpmx_cmr_rsl_nxc_lmac_synd_s {
+		u64 bad_addr                         : 24;
+		u64 reserved_24_63                   : 40;
+	} s;
+	/* struct rpmx_cmr_rsl_nxc_lmac_synd_s cn; */
+};
+
+static inline u64 RPMX_CMR_RSL_NXC_LMAC_SYND(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_RSL_NXC_LMAC_SYND(void)
+{
+	return 0x70;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_rx_dmac#_cam0
+ *
+ * RPM CMR Receive CAM Registers These registers provide access to the 32
+ * DMAC CAM0 entries in RPM, for use by X2P/NIX bound traffic.
+ */
+union rpmx_cmr_rx_dmacx_cam0 {
+	u64 u;
+	struct rpmx_cmr_rx_dmacx_cam0_s {
+		u64 adr                              : 48;
+		u64 en                               : 1;
+		u64 id                               : 3;
+		u64 reserved_52_63                   : 12;
+	} s;
+};
+
+static inline u64 RPMX_CMR_RX_DMACX_CAM0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_RX_DMACX_CAM0(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5000 + 8 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x4000 + 8 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5000 + 8 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5000 + 8 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_rx_lmacs
+ *
+ * RPM CMR Receive Logical MACs Registers Configure LMAC existence for Rx
+ * Bulk memory allocation. Rx Bulk FIFO memory is statically allocated
+ * among existing LMACs, as indicated by this CSR. This configuration may
+ * be written only once, before setting the RPM_CMR()_CONFIG[ENABLE]
+ * bits.
+ */
+union rpmx_cmr_rx_lmacs {
+	u64 u;
+	struct rpmx_cmr_rx_lmacs_s {
+		u64 lmac_exist                       : 8;
+		u64 hi_perf_lmac_0_3                 : 2;
+		u64 hi_perf_lmac_4_7                 : 2;
+		u64 reserved_12_63                   : 52;
+	} s;
+};
+
+static inline u64 RPMX_CMR_RX_LMACS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_RX_LMACS(void)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x128;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x100;
+	if (otx_is_soc(CNF10KA))
+		return 0x128;
+	if (otx_is_soc(CNF10KB))
+		return 0x128;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_rx_ovr_bp
+ *
+ * RPM CMR Receive-Ports Backpressure Override Registers Per-LMAC
+ * backpressure override register.
+ */
+union rpmx_cmr_rx_ovr_bp {
+	u64 u;
+	struct rpmx_cmr_rx_ovr_bp_s {
+		u64 ign_fifo_bp                      : 4;
+		u64 bp                               : 4;
+		u64 en                               : 4;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_cmr_rx_ovr_bp_s cn; */
+};
+
+static inline u64 RPMX_CMR_RX_OVR_BP(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_RX_OVR_BP(void)
+{
+	return 0x4120;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_rx_steering0#
+ *
+ * RPM CMR Receive Steering0 Registers These registers, along with
+ * RPM()_CMR_RX_STEERING_VETYPE0(), provide eight filters for identifying
+ * and steering receive traffic to X2P/NIX. Received packets are only
+ * passed to X2P/NIX when the DMAC0 filter result is ACCEPT and STEERING0
+ * filter result is PASS. See also RPM()_CMR()_RX_DMAC_CTL0.
+ */
+union rpmx_cmr_rx_steering0x {
+	u64 u;
+	struct rpmx_cmr_rx_steering0x_s {
+		u64 dmac                             : 48;
+		u64 dmac_en                          : 1;
+		u64 mcst_en                          : 1;
+		u64 pass                             : 1;
+		u64 reserved_51_63                   : 13;
+	} s;
+	/* struct rpmx_cmr_rx_steering0x_s cn; */
+};
+
+static inline u64 RPMX_CMR_RX_STEERING0X(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_RX_STEERING0X(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5800 + 8 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6000 + 8 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5800 + 8 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5800 + 8 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_rx_steering_default0
+ *
+ * RPM CMR Receive Steering Default0 Destination Register For determining
+ * destination of traffic that does not meet matching algorithm described
+ * in registers RPM()_CMR_RX_STEERING0() and
+ * RPM()_CMR_RX_STEERING_VETYPE0(). All 16B packets or smaller (20B in
+ * case of FCS strip) as the result of truncation will steer to default
+ * destination.
+ */
+union rpmx_cmr_rx_steering_default0 {
+	u64 u;
+	struct rpmx_cmr_rx_steering_default0_s {
+		u64 pass                             : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct rpmx_cmr_rx_steering_default0_s cn; */
+};
+
+static inline u64 RPMX_CMR_RX_STEERING_DEFAULT0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_RX_STEERING_DEFAULT0(void)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5900;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6400;
+	if (otx_is_soc(CNF10KA))
+		return 0x5900;
+	if (otx_is_soc(CNF10KB))
+		return 0x5900;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_rx_steering_vetype0#
+ *
+ * RPM CMR Receive VLAN Ethertype1 Register These registers, along with
+ * RPM()_CMR_RX_STEERING0(), provide eight filters for identifying and
+ * steering X2P/NIX receive traffic.
+ */
+union rpmx_cmr_rx_steering_vetype0x {
+	u64 u;
+	struct rpmx_cmr_rx_steering_vetype0x_s {
+		u64 vlan_etype                       : 16;
+		u64 vlan_tag_en                      : 1;
+		u64 vlan_id                          : 12;
+		u64 vlan_en                          : 1;
+		u64 reserved_30_63                   : 34;
+	} s;
+	/* struct rpmx_cmr_rx_steering_vetype0x_s cn; */
+};
+
+static inline u64 RPMX_CMR_RX_STEERING_VETYPE0X(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_RX_STEERING_VETYPE0X(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x5880 + 8 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x6200 + 8 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x5880 + 8 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x5880 + 8 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_tx_lmacs
+ *
+ * RPM CMR Transmit Logical MACs Registers Configure LMAC existence for
+ * Tx Bulk memory allocation. Tx Bulk FIFO memory is statically allocated
+ * among existing LMACs, as indicated by this CSR. This configuration may
+ * be written only once, before setting the RPM_CMR()_CONFIG[ENABLE]
+ * bits.
+ */
+union rpmx_cmr_tx_lmacs {
+	u64 u;
+	struct rpmx_cmr_tx_lmacs_s {
+		u64 reserved_0_7                     : 8;
+		u64 hi_perf_lmac_0_3                 : 2;
+		u64 hi_perf_lmac_4_7                 : 2;
+		u64 reserved_12_63                   : 52;
+	} s;
+	struct rpmx_cmr_tx_lmacs_cn10ka {
+		u64 lmac_exist                       : 4;
+		u64 hi_perf_lmac                     : 2;
+		u64 reserved_6_63                    : 58;
+	} cn10ka;
+	struct rpmx_cmr_tx_lmacs_cn10kb {
+		u64 lmac_exist                       : 8;
+		u64 hi_perf_lmac_0_3                 : 2;
+		u64 hi_perf_lmac_4_7                 : 2;
+		u64 reserved_12_63                   : 52;
+	} cn10kb;
+	/* struct rpmx_cmr_tx_lmacs_cn10ka cnf10ka; */
+	/* struct rpmx_cmr_tx_lmacs_cn10ka cnf10kb; */
+};
+
+static inline u64 RPMX_CMR_TX_LMACS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_TX_LMACS(void)
+{
+	return 0x1000;
+}
+
+/**
+ * Register (RSL) rpm#_cmr_x2p#_count
+ *
+ * RPM X2P Activity Register
+ */
+union rpmx_cmr_x2px_count {
+	u64 u;
+	struct rpmx_cmr_x2px_count_s {
+		u64 x2p_cnt                          : 64;
+	} s;
+	/* struct rpmx_cmr_x2px_count_s cn; */
+};
+
+static inline u64 RPMX_CMR_X2PX_COUNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CMR_X2PX_COUNT(u64 a)
+{
+	if (otx_is_soc(CN10KA))
+		return 0x160 + 8 * a;
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+		return 0x180 + 0x10 * a;
+	if (otx_is_soc(CNF10KA))
+		return 0x160 + 8 * a;
+	if (otx_is_soc(CNF10KB))
+		return 0x160 + 8 * a;
+	return -1;
+}
+
+/**
+ * Register (RSL) rpm#_const
+ *
+ * RPM CONST Registers This register contains constants for software
+ * discovery.
+ */
+union rpmx_const {
+	u64 u;
+	struct rpmx_const_s {
+		u64 tx_fifosz                        : 24;
+		u64 lmacs                            : 8;
+		u64 rx_fifosz                        : 24;
+		u64 ver                              : 8;
+	} s;
+	/* struct rpmx_const_s cn; */
+};
+
+static inline u64 RPMX_CONST(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CONST(void)
+{
+	return 0x2000;
+}
+
+#if 0
+/**
+ * Register (RSL) rpm#_const1
+ *
+ * RPM CONST1 Registers This register contains constants for software
+ * discovery.
+ */
+union rpmx_const1 {
+	u64 u;
+	struct rpmx_const1_s {
+		u64 rpm_sub_version                  : 11;
+		u64 reserved_11_63                   : 53;
+	} s;
+	/* struct rpmx_const1_s cn; */
+};
+
+static inline u64 RPMX_CONST1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_CONST1(void)
+{
+	return 0x2008;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_global_amps_lock_status
+ *
+ * RPM Ext MTI Global AMPS Lock Status Register Amps lock status for RS-
+ * FEC.
+ */
+union rpmx_ext_mti_global_amps_lock_status {
+	u64 u;
+	struct rpmx_ext_mti_global_amps_lock_status_s {
+		u64 amps_lock                        : 4;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_ext_mti_global_amps_lock_status_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_GLOBAL_AMPS_LOCK_STATUS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_GLOBAL_AMPS_LOCK_STATUS(void)
+{
+	return 0x50038;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_global_block_lock_status
+ *
+ * RPM Ext MTI Global Block Lock Status Register GearBox block lock per
+ * virtual lane. Irrelevant when RS-FEC is enabled.
+ */
+union rpmx_ext_mti_global_block_lock_status {
+	u64 u;
+	struct rpmx_ext_mti_global_block_lock_status_s {
+		u64 block_lock                       : 20;
+		u64 reserved_20_63                   : 44;
+	} s;
+	/* struct rpmx_ext_mti_global_block_lock_status_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_GLOBAL_BLOCK_LOCK_STATUS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_GLOBAL_BLOCK_LOCK_STATUS(void)
+{
+	return 0x50050;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_global_channel_control
+ *
+ * RPM Ext MTI Global Channel Control Register Controls port modes:
+ * 10/25/40/50/100G Full definition of the port mode is combined with PMA
+ * Width (define number of lanes), and values of the MTI registers for
+ * modes 10M, 100M, 1000M, QSGMII, USGMII, USXGMII-S. Distinguishing
+ * between 1G to 2.5G or 5G to 10G is done by serial line rate only.
+ */
+union rpmx_ext_mti_global_channel_control {
+	u64 u;
+	struct rpmx_ext_mti_global_channel_control_s {
+		u64 gc_mode40_ena_in0                : 1;
+		u64 reserved_1                       : 1;
+		u64 gc_pcs100_ena_in0                : 1;
+		u64 gc_pcs100_ena_in2                : 1;
+		u64 reserved_4_7                     : 4;
+		u64 gc_mlg_ena_in_0                  : 1;
+		u64 reserved_9                       : 1;
+		u64 gc_fec91_1lane_in0               : 1;
+		u64 gc_fec91_1lane_in2               : 1;
+		u64 reserved_12_13                   : 2;
+		u64 gc_rxlaui_ena_in0                : 1;
+		u64 gc_rxlaui_ena_in2                : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_ext_mti_global_channel_control_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_GLOBAL_CHANNEL_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_GLOBAL_CHANNEL_CONTROL(void)
+{
+	return 0x50010;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_global_clock_control
+ *
+ * RPM Ext MTI Global Clock Control Register Special clock control. -
+ * Mandatory setting for USXGMII - Lower jitter or low latency for 10G
+ */
+union rpmx_ext_mti_global_clock_control {
+	u64 u;
+	struct rpmx_ext_mti_global_clock_control_s {
+		u64 gc_fast_1lane_mode               : 8;
+		u64 gc_pacer_10g                     : 8;
+		u64 gc_cfg_clock_rate                : 4;
+		u64 reserved_20_63                   : 44;
+	} s;
+	/* struct rpmx_ext_mti_global_clock_control_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_GLOBAL_CLOCK_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_GLOBAL_CLOCK_CONTROL(void)
+{
+	return 0x50018;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_global_clock_enable
+ *
+ * RPM Ext MTI Global Clock Enable Register Clock gating control for the
+ * different domains.
+ */
+union rpmx_ext_mti_global_clock_enable {
+	u64 u;
+	struct rpmx_ext_mti_global_clock_enable_s {
+		u64 mac_clken_ovrd                   : 8;
+		u64 mac_pcs_cmn_clken_ovrd           : 1;
+		u64 fec91_clken_ovrd                 : 1;
+		u64 pcs_clken_ovrd                   : 1;
+		u64 reserved_11_12                   : 2;
+		u64 lpcs_clken_ovrd                  : 1;
+		u64 reg_clken_ovrd                   : 1;
+		u64 reserved_15_62                   : 48;
+		u64 coarse_clk_force                 : 1;
+	} s;
+	struct rpmx_ext_mti_global_clock_enable_cn10ka {
+		u64 mac_clken_ovrd                   : 4;
+		u64 reserved_4_7                     : 4;
+		u64 mac_pcs_cmn_clken_ovrd           : 1;
+		u64 fec91_clken_ovrd                 : 1;
+		u64 pcs_clken_ovrd                   : 1;
+		u64 reserved_11                      : 1;
+		u64 reserved_12                      : 1;
+		u64 lpcs_clken_ovrd                  : 1;
+		u64 reg_clken_ovrd                   : 1;
+		u64 reserved_15_63                   : 49;
+	} cn10ka;
+	struct rpmx_ext_mti_global_clock_enable_cn10kb {
+		u64 mac_clken_ovrd                   : 8;
+		u64 mac_pcs_cmn_clken_ovrd           : 1;
+		u64 fec91_clken_ovrd                 : 1;
+		u64 pcs_clken_ovrd                   : 1;
+		u64 reserved_11                      : 1;
+		u64 reserved_12                      : 1;
+		u64 lpcs_clken_ovrd                  : 1;
+		u64 reg_clken_ovrd                   : 1;
+		u64 reserved_15_62                   : 48;
+		u64 coarse_clk_force                 : 1;
+	} cn10kb;
+	/* struct rpmx_ext_mti_global_clock_enable_cn10ka cnf10ka; */
+	/* struct rpmx_ext_mti_global_clock_enable_cn10ka cnf10kb; */
+};
+
+static inline u64 RPMX_EXT_MTI_GLOBAL_CLOCK_ENABLE(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_GLOBAL_CLOCK_ENABLE(void)
+{
+	return 0x50020;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_global_fec_control
+ *
+ * RPM Ext MTI Global FEC Control Register Control FEC Capabilities - No
+ * FEC, Firecode FEC, RS-FEC (528,514), RS-FEC (544,514) In addition, in
+ * case of Firecode FEC, it can control error signaling to PCS.
+ */
+union rpmx_ext_mti_global_fec_control {
+	u64 u;
+	struct rpmx_ext_mti_global_fec_control_s {
+		u64 gc_fec_ena                       : 4;
+		u64 reserved_4_7                     : 4;
+		u64 gc_fec_err_ena                   : 4;
+		u64 reserved_12_15                   : 4;
+		u64 gc_fec91_ena_in                  : 4;
+		u64 reserved_20_23                   : 4;
+		u64 gc_kp_mode_in                    : 4;
+		u64 reserved_28_63                   : 36;
+	} s;
+	/* struct rpmx_ext_mti_global_fec_control_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_GLOBAL_FEC_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_GLOBAL_FEC_CONTROL(void)
+{
+	return 0x50008;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_global_fec_status
+ *
+ * RPM Ext MTI Global FEC Status Register Firecode FEC lock status.
+ */
+union rpmx_ext_mti_global_fec_status {
+	u64 u;
+	struct rpmx_ext_mti_global_fec_status_s {
+		u64 fec_locked                       : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_ext_mti_global_fec_status_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_GLOBAL_FEC_STATUS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_GLOBAL_FEC_STATUS(void)
+{
+	return 0x50040;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_global_pma_control
+ *
+ * RPM Ext MTI Global PMA Control Register This register controls the PMA
+ * Width (40/80)
+ */
+union rpmx_ext_mti_global_pma_control {
+	u64 u;
+	struct rpmx_ext_mti_global_pma_control_s {
+		u64 gc_sd_n2                         : 8;
+		u64 gc_sd_8x                         : 8;
+		u64 reserved_16_63                   : 48;
+	} s;
+	struct rpmx_ext_mti_global_pma_control_cn10ka {
+		u64 gc_sd_n2                         : 4;
+		u64 reserved_4_7                     : 4;
+		u64 gc_sd_8x                         : 4;
+		u64 reserved_12_63                   : 52;
+	} cn10ka;
+	/* struct rpmx_ext_mti_global_pma_control_s cn10kb; */
+	/* struct rpmx_ext_mti_global_pma_control_cn10ka cnf10ka; */
+	/* struct rpmx_ext_mti_global_pma_control_cn10ka cnf10kb; */
+};
+
+static inline u64 RPMX_EXT_MTI_GLOBAL_PMA_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_GLOBAL_PMA_CONTROL(void)
+{
+	return 0x50000;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_global_reset_control
+ *
+ * RPM Ext MTI Global Reset Control Register Reset control for the
+ * different domains.
+ */
+union rpmx_ext_mti_global_reset_control {
+	u64 u;
+	struct rpmx_ext_mti_global_reset_control_s {
+		u64 serdes_rx_reset                  : 4;
+		u64 reserved_4_7                     : 4;
+		u64 serdes_tx_reset                  : 4;
+		u64 reserved_12_15                   : 4;
+		u64 mac_reset                        : 8;
+		u64 reserved_24_26                   : 3;
+		u64 pcs_reset                        : 1;
+		u64 reserved_28                      : 1;
+		u64 fec91_reset                      : 1;
+		u64 lpcs_reset                       : 1;
+		u64 cmn_mac_pcs_reset                : 1;
+		u64 reg_reset                        : 1;
+		u64 reserved_33_63                   : 31;
+	} s;
+	struct rpmx_ext_mti_global_reset_control_cn10ka {
+		u64 serdes_rx_reset                  : 4;
+		u64 reserved_4_7                     : 4;
+		u64 serdes_tx_reset                  : 4;
+		u64 reserved_12_15                   : 4;
+		u64 mac_reset                        : 4;
+		u64 reserved_20_23                   : 4;
+		u64 reserved_24_25                   : 2;
+		u64 reserved_26                      : 1;
+		u64 pcs_reset                        : 1;
+		u64 reserved_28                      : 1;
+		u64 fec91_reset                      : 1;
+		u64 lpcs_reset                       : 1;
+		u64 cmn_mac_pcs_reset                : 1;
+		u64 reg_reset                        : 1;
+		u64 reserved_33_63                   : 31;
+	} cn10ka;
+	struct rpmx_ext_mti_global_reset_control_cn10kb {
+		u64 serdes_rx_reset                  : 4;
+		u64 reserved_4_7                     : 4;
+		u64 serdes_tx_reset                  : 4;
+		u64 reserved_12_15                   : 4;
+		u64 mac_reset                        : 8;
+		u64 reserved_24_25                   : 2;
+		u64 reserved_26                      : 1;
+		u64 pcs_reset                        : 1;
+		u64 reserved_28                      : 1;
+		u64 fec91_reset                      : 1;
+		u64 lpcs_reset                       : 1;
+		u64 cmn_mac_pcs_reset                : 1;
+		u64 reg_reset                        : 1;
+		u64 reserved_33_63                   : 31;
+	} cn10kb;
+	/* struct rpmx_ext_mti_global_reset_control_cn10ka cnf10ka; */
+	/* struct rpmx_ext_mti_global_reset_control_cn10ka cnf10kb; */
+};
+
+static inline u64 RPMX_EXT_MTI_GLOBAL_RESET_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_GLOBAL_RESET_CONTROL(void)
+{
+	return 0x50028;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_control
+ *
+ * RPM Ext MTI Port Control Register General port configurations.
+ */
+union rpmx_ext_mti_portx_control {
+	u64 u;
+	struct rpmx_ext_mti_portx_control_s {
+		u64 tx_loc_fault                     : 1;
+		u64 tx_rem_fault                     : 1;
+		u64 tx_li_fault                      : 1;
+		u64 tod_select                       : 1;
+		u64 rx_pause_control                 : 1;
+		u64 rx_pause_ow_val                  : 1;
+		u64 pause_802_3_reflect              : 1;
+		u64 loop_ena                         : 1;
+		u64 mask_sw_reset                    : 1;
+		u64 led_port_num                     : 6;
+		u64 led_port_en                      : 1;
+		u64 ff_tx_crc                        : 1;
+		u64 force_link_ok_en                 : 1;
+		u64 force_link_ok_dis                : 1;
+		u64 port_res_speed                   : 4;
+		u64 port_res_speed_from_hw           : 1;
+		u64 loop_rx_block_out                : 1;
+		u64 loop_tx_rdy_out                  : 1;
+		u64 ff_tx_crc_ovr_mode               : 1;
+		u64 ff_tx_crc_ovr                    : 1;
+		u64 reserved_28_63                   : 36;
+	} s;
+	struct rpmx_ext_mti_portx_control_cn10ka {
+		u64 tx_loc_fault                     : 1;
+		u64 tx_rem_fault                     : 1;
+		u64 tx_li_fault                      : 1;
+		u64 tod_select                       : 1;
+		u64 rx_pause_control                 : 1;
+		u64 rx_pause_ow_val                  : 1;
+		u64 pause_802_3_reflect              : 1;
+		u64 loop_ena                         : 1;
+		u64 mask_sw_reset                    : 1;
+		u64 led_port_num                     : 6;
+		u64 led_port_en                      : 1;
+		u64 ff_tx_crc                        : 1;
+		u64 force_link_ok_en                 : 1;
+		u64 force_link_ok_dis                : 1;
+		u64 port_res_speed                   : 4;
+		u64 port_res_speed_from_hw           : 1;
+		u64 loop_rx_block_out                : 1;
+		u64 loop_tx_rdy_out                  : 1;
+		u64 reserved_26_63                   : 38;
+	} cn10ka;
+	/* struct rpmx_ext_mti_portx_control_s cn10kb; */
+	/* struct rpmx_ext_mti_portx_control_cn10ka cnf10ka; */
+	/* struct rpmx_ext_mti_portx_control_cn10ka cnf10kb; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_CONTROL(u64 a)
+{
+	return 0x51000 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_frc_delta
+ *
+ * RPM Ext MTI Port FRC Delta Register FRC Delta.
+ */
+union rpmx_ext_mti_portx_frc_delta {
+	u64 u;
+	struct rpmx_ext_mti_portx_frc_delta_s {
+		u64 frc_delta                        : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_ext_mti_portx_frc_delta_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_FRC_DELTA(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_FRC_DELTA(u64 a)
+{
+	return 0x510a8 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_int
+ *
+ * RPM Ext MTI Interrupt Clear Register
+ */
+union rpmx_ext_mti_portx_int {
+	u64 u;
+	struct rpmx_ext_mti_portx_int_s {
+		u64 lpcs_an_done                     : 1;
+		u64 link_ok_change                   : 1;
+		u64 link_status_change               : 1;
+		u64 lpcs_link_status_change          : 1;
+		u64 mac_loc_fault                    : 1;
+		u64 mac_rem_fault                    : 1;
+		u64 mac_li_fault                     : 1;
+		u64 mac_tx_underflow                 : 1;
+		u64 mac_tx_overflow                  : 1;
+		u64 reserved_9                       : 1;
+		u64 hi_ber                           : 1;
+		u64 reserved_11                      : 1;
+		u64 tsu_rx_dff_err                   : 1;
+		u64 tsu_rx_am_err                    : 1;
+		u64 tsu_tx_sync_err                  : 1;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_ext_mti_portx_int_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_INT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_INT(u64 a)
+{
+	return 0x51800 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_int_ena_w1c
+ *
+ * RPM Ext MTI Interrupt Enable Clear Register This register clears
+ * interrupt enable bits.
+ */
+union rpmx_ext_mti_portx_int_ena_w1c {
+	u64 u;
+	struct rpmx_ext_mti_portx_int_ena_w1c_s {
+		u64 lpcs_an_done                     : 1;
+		u64 link_ok_change                   : 1;
+		u64 link_status_change               : 1;
+		u64 lpcs_link_status_change          : 1;
+		u64 mac_loc_fault                    : 1;
+		u64 mac_rem_fault                    : 1;
+		u64 mac_li_fault                     : 1;
+		u64 mac_tx_underflow                 : 1;
+		u64 mac_tx_overflow                  : 1;
+		u64 reserved_9                       : 1;
+		u64 hi_ber                           : 1;
+		u64 reserved_11                      : 1;
+		u64 tsu_rx_dff_err                   : 1;
+		u64 tsu_rx_am_err                    : 1;
+		u64 tsu_tx_sync_err                  : 1;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_ext_mti_portx_int_ena_w1c_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_INT_ENA_W1C(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_INT_ENA_W1C(u64 a)
+{
+	return 0x51810 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_int_ena_w1s
+ *
+ * RPM Ext MTI Interrupt Enable Set Register This register sets interrupt
+ * enable bits.
+ */
+union rpmx_ext_mti_portx_int_ena_w1s {
+	u64 u;
+	struct rpmx_ext_mti_portx_int_ena_w1s_s {
+		u64 lpcs_an_done                     : 1;
+		u64 link_ok_change                   : 1;
+		u64 link_status_change               : 1;
+		u64 lpcs_link_status_change          : 1;
+		u64 mac_loc_fault                    : 1;
+		u64 mac_rem_fault                    : 1;
+		u64 mac_li_fault                     : 1;
+		u64 mac_tx_underflow                 : 1;
+		u64 mac_tx_overflow                  : 1;
+		u64 reserved_9                       : 1;
+		u64 hi_ber                           : 1;
+		u64 reserved_11                      : 1;
+		u64 tsu_rx_dff_err                   : 1;
+		u64 tsu_rx_am_err                    : 1;
+		u64 tsu_tx_sync_err                  : 1;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_ext_mti_portx_int_ena_w1s_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_INT_ENA_W1S(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_INT_ENA_W1S(u64 a)
+{
+	return 0x51818 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_int_w1s
+ *
+ * RPM Ext MTI Interrupt Set Register This register sets interrupt bits.
+ */
+union rpmx_ext_mti_portx_int_w1s {
+	u64 u;
+	struct rpmx_ext_mti_portx_int_w1s_s {
+		u64 lpcs_an_done                     : 1;
+		u64 link_ok_change                   : 1;
+		u64 link_status_change               : 1;
+		u64 lpcs_link_status_change          : 1;
+		u64 mac_loc_fault                    : 1;
+		u64 mac_rem_fault                    : 1;
+		u64 mac_li_fault                     : 1;
+		u64 mac_tx_underflow                 : 1;
+		u64 mac_tx_overflow                  : 1;
+		u64 reserved_9                       : 1;
+		u64 hi_ber                           : 1;
+		u64 reserved_11                      : 1;
+		u64 tsu_rx_dff_err                   : 1;
+		u64 tsu_rx_am_err                    : 1;
+		u64 tsu_tx_sync_err                  : 1;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_ext_mti_portx_int_w1s_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_INT_W1S(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_INT_W1S(u64 a)
+{
+	return 0x51808 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_marker_status
+ *
+ * RPM Ext MTI Port Marker Status Register Marker insertion counters.
+ * Counts till reaching the marker interval value and then performs
+ * wraparound.
+ */
+union rpmx_ext_mti_portx_marker_status {
+	u64 u;
+	struct rpmx_ext_mti_portx_marker_status_s {
+		u64 marker_ins_cnt                   : 16;
+		u64 marker_ins_cnt_100               : 15;
+		u64 reserved_31_63                   : 33;
+	} s;
+	/* struct rpmx_ext_mti_portx_marker_status_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_MARKER_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_MARKER_STATUS(u64 a)
+{
+	return 0x51020 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_pause_and_err_stat
+ *
+ * RPM Ext Port 0 Pause And Err Stat Register Port Status of RX flow
+ * control per priority (in case of 802.3x, only bit[0] is meaningful);
+ * Port status of the last received packet.
+ */
+union rpmx_ext_mti_portx_pause_and_err_stat {
+	u64 u;
+	struct rpmx_ext_mti_portx_pause_and_err_stat_s {
+		u64 pause_on                         : 16;
+		u64 ff_rx_err_stat                   : 25;
+		u64 reserved_41_63                   : 23;
+	} s;
+	struct rpmx_ext_mti_portx_pause_and_err_stat_cn10ka {
+		u64 pause_on                         : 16;
+		u64 ff_rx_err_stat                   : 8;
+		u64 reserved_24_63                   : 40;
+	} cn10ka;
+	/* struct rpmx_ext_mti_portx_pause_and_err_stat_s cn10kb; */
+	/* struct rpmx_ext_mti_portx_pause_and_err_stat_cn10ka cnf10ka; */
+	/* struct rpmx_ext_mti_portx_pause_and_err_stat_cn10ka cnf10kb; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_PAUSE_AND_ERR_STAT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_PAUSE_AND_ERR_STAT(u64 a)
+{
+	return 0x51018 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_pause_override
+ *
+ * RPM Ext MTI Port Pause Override Register RX pause override. Can
+ * override RX pause indications towards CMR.
+ */
+union rpmx_ext_mti_portx_pause_override {
+	u64 u;
+	struct rpmx_ext_mti_portx_pause_override_s {
+		u64 pause_override_ctrl              : 16;
+		u64 pause_override_val               : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_ext_mti_portx_pause_override_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_PAUSE_OVERRIDE(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_PAUSE_OVERRIDE(u64 a)
+{
+	return 0x51048 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_peer_delay
+ *
+ * RPM Ext MTI Port Peer Delay Register Set peer delay value for Time
+ * Stamping purposes.
+ */
+union rpmx_ext_mti_portx_peer_delay {
+	u64 u;
+	struct rpmx_ext_mti_portx_peer_delay_s {
+		u64 peer_delay                       : 30;
+		u64 reserved_30                      : 1;
+		u64 peer_delay_valid                 : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_ext_mti_portx_peer_delay_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_PEER_DELAY(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_PEER_DELAY(u64 a)
+{
+	return 0x51038 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_status
+ *
+ * RPM Ext MTI Port Status Register Port status, such as link/lock
+ * change, traffic, etc.
+ */
+union rpmx_ext_mti_portx_status {
+	u64 u;
+	struct rpmx_ext_mti_portx_status_s {
+		u64 link_ok                          : 1;
+		u64 link_status                      : 1;
+		u64 lpcs_link_status                 : 1;
+		u64 lpcs_rx_sync                     : 1;
+		u64 lpcs_an_done                     : 1;
+		u64 mac_res_speed                    : 8;
+		u64 align_done                       : 1;
+		u64 ber_timer_done                   : 1;
+		u64 hi_ber                           : 1;
+		u64 rsfec_aligned                    : 1;
+		u64 rx_traffic_ind                   : 1;
+		u64 tx_traffic_ind                   : 1;
+		u64 mac_tx_empty                     : 1;
+		u64 mac_tx_isidle                    : 1;
+		u64 mac_tx_ts_frm_out                : 1;
+		u64 pfc_mode                         : 1;
+		u64 ff_tx_septy                      : 1;
+		u64 ff_rx_empty                      : 1;
+		u64 ff_rx_dsav                       : 1;
+		u64 link_ok_clean                    : 1;
+		u64 reserved_27_63                   : 37;
+	} s;
+	/* struct rpmx_ext_mti_portx_status_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_STATUS(u64 a)
+{
+	return 0x51008 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_status_2
+ *
+ * RPM Ext MTI Port Status 2 Register Port status2
+ */
+union rpmx_ext_mti_portx_status_2 {
+	u64 u;
+	struct rpmx_ext_mti_portx_status_2_s {
+		u64 sd_bit_slip                      : 6;
+		u64 reserved_6_63                    : 58;
+	} s;
+	/* struct rpmx_ext_mti_portx_status_2_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_STATUS_2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_STATUS_2(u64 a)
+{
+	return 0x51010 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_tsu_control_0
+ *
+ * RPM Ext MTI Port Tsu Control 0 Register TSU Control 0
+ */
+union rpmx_ext_mti_portx_tsu_control_0 {
+	u64 u;
+	struct rpmx_ext_mti_portx_tsu_control_0_s {
+		u64 tsu_rx_mode                      : 3;
+		u64 tsu_tx_mode                      : 3;
+		u64 tsu_deskew                       : 10;
+		u64 tsu_mii_mk_dly                   : 3;
+		u64 tsu_mii_cw_dly                   : 3;
+		u64 tsu_mii_tx_mk_cyc_dly            : 5;
+		u64 tsu_mii_tx_cw_cyc_dly            : 5;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_ext_mti_portx_tsu_control_0_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_CONTROL_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_CONTROL_0(u64 a)
+{
+	return 0x51080 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_tsu_control_1
+ *
+ * RPM Ext MTI Port Tsu Control 1 Register TSU Control 2
+ */
+union rpmx_ext_mti_portx_tsu_control_1 {
+	u64 u;
+	struct rpmx_ext_mti_portx_tsu_control_1_s {
+		u64 tsu_blocktime                    : 5;
+		u64 tsu_blocktime_dec                : 9;
+		u64 reserved_14_15                   : 2;
+		u64 tsu_markertime                   : 5;
+		u64 tsu_markertime_dec               : 9;
+		u64 reserved_30                      : 1;
+		u64 tsu_blks_per_clk                 : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_ext_mti_portx_tsu_control_1_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_CONTROL_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_CONTROL_1(u64 a)
+{
+	return 0x51088 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_tsu_control_3
+ *
+ * RPM Ext MTI Port Tsu Control 3 Register TSU Control 3
+ */
+union rpmx_ext_mti_portx_tsu_control_3 {
+	u64 u;
+	struct rpmx_ext_mti_portx_tsu_control_3_s {
+		u64 tsu_tx_sd_period                 : 15;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_ext_mti_portx_tsu_control_3_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_CONTROL_3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_CONTROL_3(u64 a)
+{
+	return 0x51098 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_tsu_modulo_rx
+ *
+ * RPM Ext MTI Port Tsu Modulo Rx Register TSU Control 1
+ */
+union rpmx_ext_mti_portx_tsu_modulo_rx {
+	u64 u;
+	struct rpmx_ext_mti_portx_tsu_modulo_rx_s {
+		u64 tsu_modulo_rx                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_ext_mti_portx_tsu_modulo_rx_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_MODULO_RX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_MODULO_RX(u64 a)
+{
+	return 0x51078 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_tsu_modulo_tx
+ *
+ * RPM Ext MTI Port Tsu Modulo Tx Register TSU Control 1
+ */
+union rpmx_ext_mti_portx_tsu_modulo_tx {
+	u64 u;
+	struct rpmx_ext_mti_portx_tsu_modulo_tx_s {
+		u64 tsu_modulo_tx                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_ext_mti_portx_tsu_modulo_tx_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_MODULO_TX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_MODULO_TX(u64 a)
+{
+	return 0x51070 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_tsu_status
+ *
+ * RPM Ext MTI Port Tsu Status Register TSU Status.
+ */
+union rpmx_ext_mti_portx_tsu_status {
+	u64 u;
+	struct rpmx_ext_mti_portx_tsu_status_s {
+		u64 tsu_rx_ready                     : 1;
+		u64 tsu_tx_ready                     : 1;
+		u64 reserved_2_7                     : 6;
+		u64 tsu_desk_rlevel                  : 7;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_ext_mti_portx_tsu_status_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_TSU_STATUS(u64 a)
+{
+	return 0x510a0 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_xoff_override
+ *
+ * RPM Ext MTI Port Xoff Override Register TX pause override. Can
+ * override TX pause generation indications towards MAC.
+ */
+union rpmx_ext_mti_portx_xoff_override {
+	u64 u;
+	struct rpmx_ext_mti_portx_xoff_override_s {
+		u64 xoff_override_ctrl               : 16;
+		u64 xoff_override_val                : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_ext_mti_portx_xoff_override_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_XOFF_OVERRIDE(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_XOFF_OVERRIDE(u64 a)
+{
+	return 0x51050 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_ext_mti_port#_xoff_status
+ *
+ * RPM Ext MTI Port Xoff Status Register Status of Pause frames triggers
+ * towards the MAC. When pause mode is 802.3x, only bit[0] is meaningful
+ * (Non-segmented ports).
+ */
+union rpmx_ext_mti_portx_xoff_status {
+	u64 u;
+	struct rpmx_ext_mti_portx_xoff_status_s {
+		u64 xoff_status                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_ext_mti_portx_xoff_status_s cn; */
+};
+
+static inline u64 RPMX_EXT_MTI_PORTX_XOFF_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_EXT_MTI_PORTX_XOFF_STATUS(u64 a)
+{
+	return 0x51040 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_msix_pba#
+ *
+ * RPM MSI-X Pending Bit Array Registers This register is the MSI-X PBA
+ * table, the bit number is indexed by the RPM_INT_VEC_E enumeration.
+ */
+union rpmx_msix_pbax {
+	u64 u;
+	struct rpmx_msix_pbax_s {
+		u64 pend                             : 64;
+	} s;
+	/* struct rpmx_msix_pbax_s cn; */
+};
+
+static inline u64 RPMX_MSIX_PBAX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MSIX_PBAX(u64 a)
+{
+	return 0xf0000 + 8 * a;
+}
+
+/**
+ * Register (RSL) rpm#_msix_vec#_addr
+ *
+ * RPM MSI-X Vector Table Address Registers This register is the MSI-X
+ * vector table, indexed by the RPM_INT_VEC_E enumeration.
+ */
+union rpmx_msix_vecx_addr {
+	u64 u;
+	struct rpmx_msix_vecx_addr_s {
+		u64 secvec                           : 1;
+		u64 reserved_1                       : 1;
+		u64 addr                             : 51;
+		u64 reserved_53_63                   : 11;
+	} s;
+	/* struct rpmx_msix_vecx_addr_s cn; */
+};
+
+static inline u64 RPMX_MSIX_VECX_ADDR(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MSIX_VECX_ADDR(u64 a)
+{
+	return 0 + 0x10 * a;
+}
+
+/**
+ * Register (RSL) rpm#_msix_vec#_ctl
+ *
+ * RPM MSI-X Vector Table Control and Data Registers This register is the
+ * MSI-X vector table, indexed by the RPM_INT_VEC_E enumeration.
+ */
+union rpmx_msix_vecx_ctl {
+	u64 u;
+	struct rpmx_msix_vecx_ctl_s {
+		u64 data                             : 32;
+		u64 mask                             : 1;
+		u64 reserved_33_63                   : 31;
+	} s;
+	/* struct rpmx_msix_vecx_ctl_s cn; */
+};
+
+static inline u64 RPMX_MSIX_VECX_CTL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MSIX_VECX_CTL(u64 a)
+{
+	return 8 + 0x10 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_fcfec#_cw_hi
+ *
+ * RPM MTI FC-FEC Codewords Count High Register
+ */
+union rpmx_mti_fcfecx_cw_hi {
+	u64 u;
+	struct rpmx_mti_fcfecx_cw_hi_s {
+		u64 cw_hi                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_fcfecx_cw_hi_s cn; */
+};
+
+static inline u64 RPMX_MTI_FCFECX_CW_HI(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_FCFECX_CW_HI(u64 a)
+{
+	return 0x38638 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_fcfec#_fec_ability
+ *
+ * RPM MTI FC-FEC Ability Register
+ */
+union rpmx_mti_fcfecx_fec_ability {
+	u64 u;
+	struct rpmx_mti_fcfecx_fec_ability_s {
+		u64 fec_ability                      : 1;
+		u64 fec_error_indication_ability     : 1;
+		u64 reserved_2_63                    : 62;
+	} s;
+	/* struct rpmx_mti_fcfecx_fec_ability_s cn; */
+};
+
+static inline u64 RPMX_MTI_FCFECX_FEC_ABILITY(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_FCFECX_FEC_ABILITY(u64 a)
+{
+	return 0x38600 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_fcfec#_fec_control
+ *
+ * RPM MTI FC-FEC Control Register
+ */
+union rpmx_mti_fcfecx_fec_control {
+	u64 u;
+	struct rpmx_mti_fcfecx_fec_control_s {
+		u64 fec_enable                       : 1;
+		u64 fec_enable_error_indication      : 1;
+		u64 reserved_2_63                    : 62;
+	} s;
+	/* struct rpmx_mti_fcfecx_fec_control_s cn; */
+};
+
+static inline u64 RPMX_MTI_FCFECX_FEC_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_FCFECX_FEC_CONTROL(u64 a)
+{
+	return 0x38608 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_fcfec#_fec_status
+ *
+ * RPM MTI FC-FEC Status Register
+ */
+union rpmx_mti_fcfecx_fec_status {
+	u64 u;
+	struct rpmx_mti_fcfecx_fec_status_s {
+		u64 fec_locked_vl0                   : 1;
+		u64 fec_locked_vl1                   : 1;
+		u64 reserved_2_63                    : 62;
+	} s;
+	/* struct rpmx_mti_fcfecx_fec_status_s cn; */
+};
+
+static inline u64 RPMX_MTI_FCFECX_FEC_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_FCFECX_FEC_STATUS(u64 a)
+{
+	return 0x38610 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_fcfec#_vl0_ccw_lo
+ *
+ * RPM MTI FC-FEC VL0 Corrected Codewords Count Low Register
+ */
+union rpmx_mti_fcfecx_vl0_ccw_lo {
+	u64 u;
+	struct rpmx_mti_fcfecx_vl0_ccw_lo_s {
+		u64 ccw_lo                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_fcfecx_vl0_ccw_lo_s cn; */
+};
+
+static inline u64 RPMX_MTI_FCFECX_VL0_CCW_LO(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_FCFECX_VL0_CCW_LO(u64 a)
+{
+	return 0x38618 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_fcfec#_vl0_nccw_lo
+ *
+ * RPM MTI FC-FEC VL0 Uncorrected Codewords Count Low Register
+ */
+union rpmx_mti_fcfecx_vl0_nccw_lo {
+	u64 u;
+	struct rpmx_mti_fcfecx_vl0_nccw_lo_s {
+		u64 nccw_lo                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_fcfecx_vl0_nccw_lo_s cn; */
+};
+
+static inline u64 RPMX_MTI_FCFECX_VL0_NCCW_LO(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_FCFECX_VL0_NCCW_LO(u64 a)
+{
+	return 0x38620 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_fcfec#_vl1_ccw_lo
+ *
+ * RPM MTI FC-FEC VL1 Corrected Codewords Count Low Register
+ */
+union rpmx_mti_fcfecx_vl1_ccw_lo {
+	u64 u;
+	struct rpmx_mti_fcfecx_vl1_ccw_lo_s {
+		u64 ccw_lo                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_fcfecx_vl1_ccw_lo_s cn; */
+};
+
+static inline u64 RPMX_MTI_FCFECX_VL1_CCW_LO(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_FCFECX_VL1_CCW_LO(u64 a)
+{
+	return 0x38628 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_fcfec#_vl1_nccw_lo
+ *
+ * RPM MTI FC-FEC VL1 Uncorrected Codewords Count Low Register
+ */
+union rpmx_mti_fcfecx_vl1_nccw_lo {
+	u64 u;
+	struct rpmx_mti_fcfecx_vl1_nccw_lo_s {
+		u64 nccw_lo                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_fcfecx_vl1_nccw_lo_s cn; */
+};
+
+static inline u64 RPMX_MTI_FCFECX_VL1_NCCW_LO(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_FCFECX_VL1_NCCW_LO(u64 a)
+{
+	return 0x38630 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_an_expansion
+ *
+ * RPM MTI LPCS Autonegotiation Expansion Register Autonegotiation
+ * Expansion Register.
+ */
+union rpmx_mti_lpcsx_an_expansion {
+	u64 u;
+	struct rpmx_mti_lpcsx_an_expansion_s {
+		u64 page_received_realtime           : 1;
+		u64 page_received                    : 1;
+		u64 next_page_able                   : 1;
+		u64 reserved_3_63                    : 61;
+	} s;
+	/* struct rpmx_mti_lpcsx_an_expansion_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_AN_EXPANSION(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_AN_EXPANSION(u64 a)
+{
+	return 0x30030 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_control
+ *
+ * RPM MTI LPCS Control Register Control register.
+ */
+union rpmx_mti_lpcsx_control {
+	u64 u;
+	struct rpmx_mti_lpcsx_control_s {
+		u64 reserved_0_5                     : 6;
+		u64 speed_6                          : 1;
+		u64 reserved_7                       : 1;
+		u64 duplex                           : 1;
+		u64 an_restart                       : 1;
+		u64 isolate                          : 1;
+		u64 powerdown                        : 1;
+		u64 an_enable                        : 1;
+		u64 speed_13                         : 1;
+		u64 loopback                         : 1;
+		u64 reset                            : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_control_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_CONTROL(u64 a)
+{
+	return 0x30000 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_decode_errors
+ *
+ * RPM MTI LPCS Decode Errors Register 10B decoder error counter for
+ * test/debug; May not exist in all Core Variants;
+ */
+union rpmx_mti_lpcsx_decode_errors {
+	u64 u;
+	struct rpmx_mti_lpcsx_decode_errors_s {
+		u64 decode_errors_counter            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_decode_errors_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_DECODE_ERRORS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_DECODE_ERRORS(u64 a)
+{
+	return 0x300a8 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_dev_ability
+ *
+ * RPM MTI LPCS Device Ability Register Local Device Abilities for
+ * Autonegotiation. Contents differs for 1000Base-X or SGMII mode.
+ */
+union rpmx_mti_lpcsx_dev_ability {
+	u64 u;
+	struct rpmx_mti_lpcsx_dev_ability_s {
+		u64 ability_rsv05                    : 5;
+		u64 fd                               : 1;
+		u64 hd                               : 1;
+		u64 ps1                              : 1;
+		u64 ps2                              : 1;
+		u64 ability_rsv9                     : 3;
+		u64 rf1                              : 1;
+		u64 rf2                              : 1;
+		u64 ack                              : 1;
+		u64 np                               : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_dev_ability_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_DEV_ABILITY(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_DEV_ABILITY(u64 a)
+{
+	return 0x30020 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_if_mode
+ *
+ * RPM MTI LPCS Interface Mode Register SGMII Mode Control.
+ */
+union rpmx_mti_lpcsx_if_mode {
+	u64 u;
+	struct rpmx_mti_lpcsx_if_mode_s {
+		u64 sgmii_ena                        : 1;
+		u64 use_sgmii_an                     : 1;
+		u64 sgmii_speed                      : 2;
+		u64 sgmii_duplex                     : 1;
+		u64 rsv5                             : 1;
+		u64 tx_preamble_sync                 : 1;
+		u64 rx_preamble_sync                 : 1;
+		u64 mode_xgmii_basex                 : 1;
+		u64 seq_ena                          : 1;
+		u64 rx_br_dis                        : 1;
+		u64 reserved_11_63                   : 53;
+	} s;
+	/* struct rpmx_mti_lpcsx_if_mode_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_IF_MODE(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_IF_MODE(u64 a)
+{
+	return 0x300a0 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_link_timer_hi
+ *
+ * RPM MTI LPCS Link Timer High Register Autonegotiation link timer upper
+ * 5 bits.
+ */
+union rpmx_mti_lpcsx_link_timer_hi {
+	u64 u;
+	struct rpmx_mti_lpcsx_link_timer_hi_s {
+		u64 timer20_16                       : 5;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_mti_lpcsx_link_timer_hi_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_LINK_TIMER_HI(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_LINK_TIMER_HI(u64 a)
+{
+	return 0x30098 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_link_timer_lo
+ *
+ * RPM MTI LPCS Link Timer Low Register Autonegotiation link timer lower
+ * 16 bits.
+ */
+union rpmx_mti_lpcsx_link_timer_lo {
+	u64 u;
+	struct rpmx_mti_lpcsx_link_timer_lo_s {
+		u64 timer0                           : 1;
+		u64 timer15_1                        : 15;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_link_timer_lo_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_LINK_TIMER_LO(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_LINK_TIMER_LO(u64 a)
+{
+	return 0x30090 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_lp_np_rx
+ *
+ * RPM MTI LPCS Link Partner Next Page RX Register Received Next Page
+ * data from link partner.
+ */
+union rpmx_mti_lpcsx_lp_np_rx {
+	u64 u;
+	struct rpmx_mti_lpcsx_lp_np_rx_s {
+		u64 data                             : 11;
+		u64 toggle                           : 1;
+		u64 ack2                             : 1;
+		u64 mp                               : 1;
+		u64 ack                              : 1;
+		u64 np                               : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_lp_np_rx_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_LP_NP_RX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_LP_NP_RX(u64 a)
+{
+	return 0x30040 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_np_tx
+ *
+ * RPM MTI LPCS Next Page TX Register Next Page data to transmit.
+ */
+union rpmx_mti_lpcsx_np_tx {
+	u64 u;
+	struct rpmx_mti_lpcsx_np_tx_s {
+		u64 data                             : 11;
+		u64 toggle                           : 1;
+		u64 ack2                             : 1;
+		u64 mp                               : 1;
+		u64 ack                              : 1;
+		u64 np                               : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_np_tx_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_NP_TX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_NP_TX(u64 a)
+{
+	return 0x30038 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_partner_ability
+ *
+ * RPM MTI LPCS Partner Ability Register Received Abilities during
+ * Autonegotiation. Contents differ depending on 1000Base-X or SGMII
+ * mode.
+ */
+union rpmx_mti_lpcsx_partner_ability {
+	u64 u;
+	struct rpmx_mti_lpcsx_partner_ability_s {
+		u64 pability_rsv05                   : 5;
+		u64 fd                               : 1;
+		u64 hd                               : 1;
+		u64 ps1                              : 1;
+		u64 ps2                              : 1;
+		u64 pability_rsv9                    : 1;
+		u64 pability_rsv10                   : 2;
+		u64 rf1                              : 1;
+		u64 rf2                              : 1;
+		u64 ack                              : 1;
+		u64 np                               : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_partner_ability_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_PARTNER_ABILITY(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_PARTNER_ABILITY(u64 a)
+{
+	return 0x30028 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_phy_id_hi
+ *
+ * RPM MTI LPCS PHY Identifier High Register PHY Identifier upper 16
+ * bits.
+ */
+union rpmx_mti_lpcsx_phy_id_hi {
+	u64 u;
+	struct rpmx_mti_lpcsx_phy_id_hi_s {
+		u64 phyid1                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_phy_id_hi_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_PHY_ID_HI(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_PHY_ID_HI(u64 a)
+{
+	return 0x30018 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_phy_id_lo
+ *
+ * RPM MTI LPCS PHY Identifier Low Register PHY Identifier lower 16 bits.
+ */
+union rpmx_mti_lpcsx_phy_id_lo {
+	u64 u;
+	struct rpmx_mti_lpcsx_phy_id_lo_s {
+		u64 phyid0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_phy_id_lo_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_PHY_ID_LO(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_PHY_ID_LO(u64 a)
+{
+	return 0x30010 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_rev
+ *
+ * RPM MTI LPCS Rev Register Core Revision.
+ */
+union rpmx_mti_lpcsx_rev {
+	u64 u;
+	struct rpmx_mti_lpcsx_rev_s {
+		u64 revision                         : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_rev_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_REV(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_REV(u64 a)
+{
+	return 0x30088 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_scratch
+ *
+ * RPM MTI LPCS Scratch Register General Purpose Test register.
+ */
+union rpmx_mti_lpcsx_scratch {
+	u64 u;
+	struct rpmx_mti_lpcsx_scratch_s {
+		u64 scratch                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcsx_scratch_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_SCRATCH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_SCRATCH(u64 a)
+{
+	return 0x30080 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_status
+ *
+ * RPM MTI LPCS Status Register Status indications.
+ */
+union rpmx_mti_lpcsx_status {
+	u64 u;
+	struct rpmx_mti_lpcsx_status_s {
+		u64 extd_capability                  : 1;
+		u64 reserved_1                       : 1;
+		u64 link_status                      : 1;
+		u64 an_ability                       : 1;
+		u64 reserved_4                       : 1;
+		u64 an_complete                      : 1;
+		u64 reserved_6_63                    : 58;
+	} s;
+	/* struct rpmx_mti_lpcsx_status_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_STATUS(u64 a)
+{
+	return 0x30008 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs#_usxgmii_rep
+ *
+ * RPM MTI LPCS USXGMII Replication Register 10G USXGMII replicator
+ * setting.
+ */
+union rpmx_mti_lpcsx_usxgmii_rep {
+	u64 u;
+	struct rpmx_mti_lpcsx_usxgmii_rep_s {
+		u64 usx_replication                  : 10;
+		u64 reserved_10_11                   : 2;
+		u64 usx_rep_2_5                      : 1;
+		u64 reserved_13_63                   : 51;
+	} s;
+	/* struct rpmx_mti_lpcsx_usxgmii_rep_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCSX_USXGMII_REP(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCSX_USXGMII_REP(u64 a)
+{
+	return 0x300b0 + 0x100 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs_cfg_clock_rate
+ *
+ * RPM MTI LPCS Config Clock Rate Register Global LPCS clock rate
+ * setting.
+ */
+union rpmx_mti_lpcs_cfg_clock_rate {
+	u64 u;
+	struct rpmx_mti_lpcs_cfg_clock_rate_s {
+		u64 cfgclockrate                     : 4;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_mti_lpcs_cfg_clock_rate_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCS_CFG_CLOCK_RATE(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCS_CFG_CLOCK_RATE(void)
+{
+	return 0x307e0;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs_gmode
+ *
+ * RPM MTI LPCS Global Mode Register Global LPCS Mode Configuration.
+ */
+union rpmx_mti_lpcs_gmode {
+	u64 u;
+	struct rpmx_mti_lpcs_gmode_s {
+		u64 lpcs_enable                      : 8;
+		u64 qsgmii_0_enable                  : 1;
+		u64 qsgmii_4_enable                  : 1;
+		u64 usgmii8_enable                   : 1;
+		u64 usgmii_scramble_enable           : 1;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_mti_lpcs_gmode_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCS_GMODE(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCS_GMODE(void)
+{
+	return 0x307c0;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs_gstatus
+ *
+ * RPM MTI LPCS Global Status Register Global LPCS status.
+ */
+union rpmx_mti_lpcs_gstatus {
+	u64 u;
+	struct rpmx_mti_lpcs_gstatus_s {
+		u64 gsync_status                     : 8;
+		u64 gan_done_status                  : 8;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_lpcs_gstatus_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCS_GSTATUS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCS_GSTATUS(void)
+{
+	return 0x307c8;
+}
+
+/**
+ * Register (RSL) rpm#_mti_lpcs_usxgmii_enable_indication
+ *
+ * RPM MTI LPCS USXGMII Enable Indication Register Informal indication of
+ * USXGMII channel replicator being enabled.
+ */
+union rpmx_mti_lpcs_usxgmii_enable_indication {
+	u64 u;
+	struct rpmx_mti_lpcs_usxgmii_enable_indication_s {
+		u64 usxgmii_enable_ind               : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_lpcs_usxgmii_enable_indication_s cn; */
+};
+
+static inline u64 RPMX_MTI_LPCS_USXGMII_ENABLE_INDICATION(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_LPCS_USXGMII_ENABLE_INDICATION(void)
+{
+	return 0x307e8;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cf_gen_status
+ *
+ * RPM Mti Mac100  Cf Gen Status Register
+ */
+union rpmx_mti_mac100x_cf_gen_status {
+	u64 u;
+	struct rpmx_mti_mac100x_cf_gen_status_s {
+		u64 cf_gen_ack_seen                  : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct rpmx_mti_mac100x_cf_gen_status_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CF_GEN_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CF_GEN_STATUS(u64 a)
+{
+	return 0x80f0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl01_pause_quanta
+ *
+ * RPM Mti Mac100  Cl01 Pause Quanta Register Class 0 and 1 pause quanta.
+ * When link pause mode is enabled, CL0_PAUSE_QUANTA is used.
+ */
+union rpmx_mti_mac100x_cl01_pause_quanta {
+	u64 u;
+	struct rpmx_mti_mac100x_cl01_pause_quanta_s {
+		u64 cl0_pause_quanta                 : 16;
+		u64 cl1_pause_quanta                 : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl01_pause_quanta_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL01_PAUSE_QUANTA(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL01_PAUSE_QUANTA(u64 a)
+{
+	return 0x80a8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl01_quanta_thresh
+ *
+ * RPM Mti Mac100  Cl01 Quanta Thresh Register Class 0 and 1 refresh
+ * threshold. When link pause mode is enabled, CL0_QUANTA_THRESH is used
+ * for refreshing pause frames.
+ */
+union rpmx_mti_mac100x_cl01_quanta_thresh {
+	u64 u;
+	struct rpmx_mti_mac100x_cl01_quanta_thresh_s {
+		u64 cl0_quanta_thresh                : 16;
+		u64 cl1_quanta_thresh                : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl01_quanta_thresh_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL01_QUANTA_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL01_QUANTA_THRESH(u64 a)
+{
+	return 0x80c8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl1011_pause_quanta
+ *
+ * RPM Mti Mac100  Cl1011 Pause Quanta Register PFC Class 10 and Class 11
+ * quanta value.
+ */
+union rpmx_mti_mac100x_cl1011_pause_quanta {
+	u64 u;
+	struct rpmx_mti_mac100x_cl1011_pause_quanta_s {
+		u64 cl10_pause_quanta                : 16;
+		u64 cl11_pause_quanta                : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl1011_pause_quanta_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL1011_PAUSE_QUANTA(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL1011_PAUSE_QUANTA(u64 a)
+{
+	return 0x8110 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl1011_quanta_thresh
+ *
+ * RPM Mti Mac100  Cl1011 Quanta Thresh Register PFC Class 10 and Class
+ * 11 refresh threshold.
+ */
+union rpmx_mti_mac100x_cl1011_quanta_thresh {
+	u64 u;
+	struct rpmx_mti_mac100x_cl1011_quanta_thresh_s {
+		u64 cl10_quanta_thresh               : 16;
+		u64 cl11_quanta_thresh               : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl1011_quanta_thresh_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL1011_QUANTA_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL1011_QUANTA_THRESH(u64 a)
+{
+	return 0x8130 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl1213_pause_quanta
+ *
+ * RPM Mti Mac100  Cl1213 Pause Quanta Register PFC Class 12 and Class 13
+ * quanta value.
+ */
+union rpmx_mti_mac100x_cl1213_pause_quanta {
+	u64 u;
+	struct rpmx_mti_mac100x_cl1213_pause_quanta_s {
+		u64 cl12_pause_quanta                : 16;
+		u64 cl13_pause_quanta                : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl1213_pause_quanta_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL1213_PAUSE_QUANTA(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL1213_PAUSE_QUANTA(u64 a)
+{
+	return 0x8118 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl1213_quanta_thresh
+ *
+ * RPM Mti Mac100  Cl1213 Quanta Thresh Register PFC Class 12 and Class
+ * 13 refresh threshold.
+ */
+union rpmx_mti_mac100x_cl1213_quanta_thresh {
+	u64 u;
+	struct rpmx_mti_mac100x_cl1213_quanta_thresh_s {
+		u64 cl12_quanta_thresh               : 16;
+		u64 cl13_quanta_thresh               : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl1213_quanta_thresh_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL1213_QUANTA_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL1213_QUANTA_THRESH(u64 a)
+{
+	return 0x8138 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl1415_pause_quanta
+ *
+ * RPM Mti Mac100  Cl1415 Pause Quanta Register PFC Class 14 and Class 15
+ * quanta value.
+ */
+union rpmx_mti_mac100x_cl1415_pause_quanta {
+	u64 u;
+	struct rpmx_mti_mac100x_cl1415_pause_quanta_s {
+		u64 cl14_pause_quanta                : 16;
+		u64 cl15_pause_quanta                : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl1415_pause_quanta_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL1415_PAUSE_QUANTA(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL1415_PAUSE_QUANTA(u64 a)
+{
+	return 0x8120 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl1415_quanta_thresh
+ *
+ * RPM Mti Mac100  Cl1415 Quanta Thresh Register PFC Class 14 and Class
+ * 15 refresh threshold.
+ */
+union rpmx_mti_mac100x_cl1415_quanta_thresh {
+	u64 u;
+	struct rpmx_mti_mac100x_cl1415_quanta_thresh_s {
+		u64 cl14_quanta_thresh               : 16;
+		u64 cl15_quanta_thresh               : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl1415_quanta_thresh_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL1415_QUANTA_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL1415_QUANTA_THRESH(u64 a)
+{
+	return 0x8140 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl23_pause_quanta
+ *
+ * RPM Mti Mac100  Cl23 Pause Quanta Register Class 2 and 3 pause quanta
+ */
+union rpmx_mti_mac100x_cl23_pause_quanta {
+	u64 u;
+	struct rpmx_mti_mac100x_cl23_pause_quanta_s {
+		u64 cl2_pause_quanta                 : 16;
+		u64 cl3_pause_quanta                 : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl23_pause_quanta_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL23_PAUSE_QUANTA(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL23_PAUSE_QUANTA(u64 a)
+{
+	return 0x80b0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl23_quanta_thresh
+ *
+ * RPM Mti Mac100  Cl23 Quanta Thresh Register Class 2 and 3 refresh
+ * threshold
+ */
+union rpmx_mti_mac100x_cl23_quanta_thresh {
+	u64 u;
+	struct rpmx_mti_mac100x_cl23_quanta_thresh_s {
+		u64 cl2_quanta_thresh                : 16;
+		u64 cl3_quanta_thresh                : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl23_quanta_thresh_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL23_QUANTA_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL23_QUANTA_THRESH(u64 a)
+{
+	return 0x80d0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl45_pause_quanta
+ *
+ * RPM Mti Mac100  Cl45 Pause Quanta Register Class 4 and 5 pause quanta
+ */
+union rpmx_mti_mac100x_cl45_pause_quanta {
+	u64 u;
+	struct rpmx_mti_mac100x_cl45_pause_quanta_s {
+		u64 cl4_pause_quanta                 : 16;
+		u64 cl5_pause_quanta                 : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl45_pause_quanta_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL45_PAUSE_QUANTA(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL45_PAUSE_QUANTA(u64 a)
+{
+	return 0x80b8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl45_quanta_thresh
+ *
+ * RPM Mti Mac100  Cl45 Quanta Thresh Register Class 4 and 5 refresh
+ * threshold
+ */
+union rpmx_mti_mac100x_cl45_quanta_thresh {
+	u64 u;
+	struct rpmx_mti_mac100x_cl45_quanta_thresh_s {
+		u64 cl4_quanta_thresh                : 16;
+		u64 cl5_quanta_thresh                : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl45_quanta_thresh_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL45_QUANTA_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL45_QUANTA_THRESH(u64 a)
+{
+	return 0x80d8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl67_pause_quanta
+ *
+ * RPM Mti Mac100  Cl67 Pause Quanta Register Class 6 and 7 pause quanta
+ */
+union rpmx_mti_mac100x_cl67_pause_quanta {
+	u64 u;
+	struct rpmx_mti_mac100x_cl67_pause_quanta_s {
+		u64 cl6_pause_quanta                 : 16;
+		u64 cl7_pause_quanta                 : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl67_pause_quanta_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL67_PAUSE_QUANTA(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL67_PAUSE_QUANTA(u64 a)
+{
+	return 0x80c0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl67_quanta_thresh
+ *
+ * RPM Mti Mac100  Cl67 Quanta Thresh Register Class 6 and 7 refresh
+ * threshold
+ */
+union rpmx_mti_mac100x_cl67_quanta_thresh {
+	u64 u;
+	struct rpmx_mti_mac100x_cl67_quanta_thresh_s {
+		u64 cl6_quanta_thresh                : 16;
+		u64 cl7_quanta_thresh                : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl67_quanta_thresh_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL67_QUANTA_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL67_QUANTA_THRESH(u64 a)
+{
+	return 0x80e0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl89_pause_quanta
+ *
+ * RPM Mti Mac100  Cl89 Pause Quanta Register Class 8 and 9 pause quanta.
+ */
+union rpmx_mti_mac100x_cl89_pause_quanta {
+	u64 u;
+	struct rpmx_mti_mac100x_cl89_pause_quanta_s {
+		u64 cl8_pause_quanta                 : 16;
+		u64 cl9_pause_quanta                 : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl89_pause_quanta_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL89_PAUSE_QUANTA(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL89_PAUSE_QUANTA(u64 a)
+{
+	return 0x8108 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_cl89_quanta_thresh
+ *
+ * RPM Mti Mac100  Cl89 Quanta Thresh Register Class 8 and 9 refresh
+ * threshold.
+ */
+union rpmx_mti_mac100x_cl89_quanta_thresh {
+	u64 u;
+	struct rpmx_mti_mac100x_cl89_quanta_thresh_s {
+		u64 cl8_quanta_thresh                : 16;
+		u64 cl9_quanta_thresh                : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_cl89_quanta_thresh_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CL89_QUANTA_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CL89_QUANTA_THRESH(u64 a)
+{
+	return 0x8128 + 0x100000 * a;
+}
+#endif
+/**
+ * Register (RSL) rpm#_mti_mac100#_command_config
+ *
+ * RPM Mti Mac100  Command Config Register Control and Configuration.
+ */
+union rpmx_mti_mac100x_command_config {
+	u64 u;
+	struct rpmx_mti_mac100x_command_config_s {
+		u64 tx_ena                           : 1;
+		u64 rx_ena                           : 1;
+		u64 reserved_2_3                     : 2;
+		u64 promis_en                        : 1;
+		u64 pad_en                           : 1;
+		u64 crc_fwd                          : 1;
+		u64 pause_fwd                        : 1;
+		u64 pause_ignore                     : 1;
+		u64 tx_addr_ins                      : 1;
+		u64 loopback_en                      : 1;
+		u64 tx_pad_en                        : 1;
+		u64 sw_reset                         : 1;
+		u64 cntl_frame_ena                   : 1;
+		u64 reserved_14                      : 1;
+		u64 phy_txena                        : 1;
+		u64 send_idle                        : 1;
+		u64 reserved_17_18                   : 2;
+		u64 pfc_mode                         : 1;
+		u64 pause_pfc_comp                   : 1;
+		u64 rx_sfd_any                       : 1;
+		u64 tx_flush                         : 1;
+		u64 tx_lowp_ena                      : 1;
+		u64 reg_lowp_rxempty                 : 1;
+		u64 reserved_25                      : 1;
+		u64 tx_fifo_reset                    : 1;
+		u64 flt_hdl_dis                      : 1;
+		u64 tx_p_disable                     : 1;
+		u64 rx_p_disable                     : 1;
+		u64 short_preamble                   : 1;
+		u64 no_preamble                      : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	struct rpmx_mti_mac100x_command_config_cn {
+		u64 tx_ena                           : 1;
+		u64 rx_ena                           : 1;
+		u64 reserved_2                       : 1;
+		u64 reserved_3                       : 1;
+		u64 promis_en                        : 1;
+		u64 pad_en                           : 1;
+		u64 crc_fwd                          : 1;
+		u64 pause_fwd                        : 1;
+		u64 pause_ignore                     : 1;
+		u64 tx_addr_ins                      : 1;
+		u64 loopback_en                      : 1;
+		u64 tx_pad_en                        : 1;
+		u64 sw_reset                         : 1;
+		u64 cntl_frame_ena                   : 1;
+		u64 reserved_14                      : 1;
+		u64 phy_txena                        : 1;
+		u64 send_idle                        : 1;
+		u64 reserved_17_18                   : 2;
+		u64 pfc_mode                         : 1;
+		u64 pause_pfc_comp                   : 1;
+		u64 rx_sfd_any                       : 1;
+		u64 tx_flush                         : 1;
+		u64 tx_lowp_ena                      : 1;
+		u64 reg_lowp_rxempty                 : 1;
+		u64 reserved_25                      : 1;
+		u64 tx_fifo_reset                    : 1;
+		u64 flt_hdl_dis                      : 1;
+		u64 tx_p_disable                     : 1;
+		u64 rx_p_disable                     : 1;
+		u64 short_preamble                   : 1;
+		u64 no_preamble                      : 1;
+		u64 reserved_32_63                   : 32;
+	} cn;
+};
+
+static inline u64 RPMX_MTI_MAC100X_COMMAND_CONFIG(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_COMMAND_CONFIG(u64 a)
+{
+	return 0x8010 + 0x100000 * a;
+}
+
+#if 0
+/**
+ * Register (RSL) rpm#_mti_mac100#_crc_inv_mask
+ *
+ * RPM Mti Mac100  Crc Mode Register Reserved.
+ */
+union rpmx_mti_mac100x_crc_inv_mask {
+	u64 u;
+	struct rpmx_mti_mac100x_crc_inv_mask_s {
+		u64 crc_inv_mask                     : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_crc_inv_mask_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CRC_INV_MASK(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CRC_INV_MASK(u64 a)
+{
+	return 0x8098 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_crc_mode
+ *
+ * RPM Mti Mac100  Crc Mode Register Reserved.
+ */
+union rpmx_mti_mac100x_crc_mode {
+	u64 u;
+	struct rpmx_mti_mac100x_crc_mode_s {
+		u64 reserved_0_15                    : 16;
+		u64 disable_rx_crc_check             : 1;
+		u64 reserved_17                      : 1;
+		u64 crc_1byte                        : 1;
+		u64 crc_2byte                        : 1;
+		u64 crc_0byte                        : 1;
+		u64 reserved_21_63                   : 43;
+	} s;
+	/* struct rpmx_mti_mac100x_crc_mode_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_CRC_MODE(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_CRC_MODE(u64 a)
+{
+	return 0x8090 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_frm_length
+ *
+ * RPM Mti Mac100  Frm Length Register Maximum Frame Size.
+ */
+union rpmx_mti_mac100x_frm_length {
+	u64 u;
+	struct rpmx_mti_mac100x_frm_length_s {
+		u64 frm_length                       : 16;
+		u64 tx_mtu                           : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_frm_length_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_FRM_LENGTH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_FRM_LENGTH(u64 a)
+{
+	return 0x8028 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_mac_addr_0
+ *
+ * RPM Mti Mac100  Mac Addr 0 Register First 4 bytes of MAC address.
+ */
+union rpmx_mti_mac100x_mac_addr_0 {
+	u64 u;
+	struct rpmx_mti_mac100x_mac_addr_0_s {
+		u64 mac_address_0                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_mac_addr_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_MAC_ADDR_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_MAC_ADDR_0(u64 a)
+{
+	return 0x8018 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_mac_addr_1
+ *
+ * RPM Mti Mac100  Mac Addr 1 Register Last 2 bytes of MAC address.
+ */
+union rpmx_mti_mac100x_mac_addr_1 {
+	u64 u;
+	struct rpmx_mti_mac100x_mac_addr_1_s {
+		u64 mac_address_1                    : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_mac100x_mac_addr_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_MAC_ADDR_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_MAC_ADDR_1(u64 a)
+{
+	return 0x8020 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_revision
+ *
+ * RPM Mti Mac100  Revision Register Package defined constants.
+ */
+union rpmx_mti_mac100x_revision {
+	u64 u;
+	struct rpmx_mti_mac100x_revision_s {
+		u64 core_revision                    : 8;
+		u64 core_version                     : 8;
+		u64 customer_revision                : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_revision_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_REVISION(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_REVISION(u64 a)
+{
+	return 0x8000 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_rx_fifo_sections
+ *
+ * RPM Mti Mac100  Rx Fifo Sections Register RX FIFO thresholds.
+ */
+union rpmx_mti_mac100x_rx_fifo_sections {
+	u64 u;
+	struct rpmx_mti_mac100x_rx_fifo_sections_s {
+		u64 rx_section_full                  : 16;
+		u64 rx_section_empty                 : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_rx_fifo_sections_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_RX_FIFO_SECTIONS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_RX_FIFO_SECTIONS(u64 a)
+{
+	return 0x8038 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_rx_pause_status
+ *
+ * RPM Mti Mac100  Rx Pause Status Register Current per class received
+ * pause status. 0 is used for link pause also.
+ */
+union rpmx_mti_mac100x_rx_pause_status {
+	u64 u;
+	struct rpmx_mti_mac100x_rx_pause_status_s {
+		u64 pausestatus                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_mac100x_rx_pause_status_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_RX_PAUSE_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_RX_PAUSE_STATUS(u64 a)
+{
+	return 0x80e8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_scf_config0
+ *
+ * RPM MTI MAC100 Specific Control Frame Configuration 0 Register
+ * Configures Specific Control Frame MAC DA.
+ */
+union rpmx_mti_mac100x_scf_config0 {
+	u64 u;
+	struct rpmx_mti_mac100x_scf_config0_s {
+		u64 mac_da                           : 48;
+		u64 reserved_48_63                   : 16;
+	} s;
+	/* struct rpmx_mti_mac100x_scf_config0_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_SCF_CONFIG0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_SCF_CONFIG0(u64 a)
+{
+	return 0x9000 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_scf_config1
+ *
+ * RPM MTI MAC100 Specific Control Frame Configuration 1 Register
+ * Configures Specific Control Frame EtherType and Opcode.
+ */
+union rpmx_mti_mac100x_scf_config1 {
+	u64 u;
+	struct rpmx_mti_mac100x_scf_config1_s {
+		u64 opcode                           : 16;
+		u64 ether_type                       : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_scf_config1_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_SCF_CONFIG1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_SCF_CONFIG1(u64 a)
+{
+	return 0x9008 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_scf_config2
+ *
+ * RPM MTI MAC100 Specific Control Frame Configuration 2 Register
+ * Configures Specific Control Frame payload.
+ */
+union rpmx_mti_mac100x_scf_config2 {
+	u64 u;
+	struct rpmx_mti_mac100x_scf_config2_s {
+		u64 data                             : 64;
+	} s;
+	/* struct rpmx_mti_mac100x_scf_config2_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_SCF_CONFIG2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_SCF_CONFIG2(u64 a)
+{
+	return 0x9010 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_scf_control
+ *
+ * RPM MTI MAC100 Specific Control Frame Control Register Trigger to send
+ * pre-configured Specific Control Frame.
+ */
+union rpmx_mti_mac100x_scf_control {
+	u64 u;
+	struct rpmx_mti_mac100x_scf_control_s {
+		u64 send                             : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct rpmx_mti_mac100x_scf_control_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_SCF_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_SCF_CONTROL(u64 a)
+{
+	return 0x9018 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_scratch
+ *
+ * RPM Mti Mac100  Scratch Register General Purpose.
+ */
+union rpmx_mti_mac100x_scratch {
+	u64 u;
+	struct rpmx_mti_mac100x_scratch_s {
+		u64 scratch                          : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_scratch_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_SCRATCH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_SCRATCH(u64 a)
+{
+	return 0x8008 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_status
+ *
+ * RPM Mti Mac100  Status Register General Purpose Status
+ */
+union rpmx_mti_mac100x_status {
+	u64 u;
+	struct rpmx_mti_mac100x_status_s {
+		u64 rx_loc_fault                     : 1;
+		u64 rx_rem_fault                     : 1;
+		u64 phy_los                          : 1;
+		u64 ts_avail                         : 1;
+		u64 rx_lowp                          : 1;
+		u64 tx_empty                         : 1;
+		u64 rx_empty                         : 1;
+		u64 rx_lint_fault                    : 1;
+		u64 tx_is_idle                       : 1;
+		u64 reserved_9_63                    : 55;
+	} s;
+	/* struct rpmx_mti_mac100x_status_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_STATUS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_STATUS(u64 a)
+{
+	return 0x8080 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_ts_timestamp
+ *
+ * RPM Mti Mac100  Ts Timestamp Register Transmit Timestamp.
+ */
+union rpmx_mti_mac100x_ts_timestamp {
+	u64 u;
+	struct rpmx_mti_mac100x_ts_timestamp_s {
+		u64 ts_timestamp                     : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_ts_timestamp_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_TS_TIMESTAMP(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_TS_TIMESTAMP(u64 a)
+{
+	return 0x80f8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_tx_fifo_sections
+ *
+ * RPM Mti Mac100  Tx Fifo Sections Register TX FIFO thresholds.
+ */
+union rpmx_mti_mac100x_tx_fifo_sections {
+	u64 u;
+	struct rpmx_mti_mac100x_tx_fifo_sections_s {
+		u64 tx_section_full                  : 16;
+		u64 tx_section_empty                 : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_tx_fifo_sections_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_TX_FIFO_SECTIONS(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_TX_FIFO_SECTIONS(u64 a)
+{
+	return 0x8040 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_tx_ipg_length
+ *
+ * RPM Mti Mac100  Tx Ipg Length Register TX InterPacketGap configuration
+ */
+union rpmx_mti_mac100x_tx_ipg_length {
+	u64 u;
+	struct rpmx_mti_mac100x_tx_ipg_length_s {
+		u64 txipg                            : 7;
+		u64 reserved_7                       : 1;
+		u64 compensation_msb                 : 8;
+		u64 compensation                     : 16;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_mac100x_tx_ipg_length_s cn; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_TX_IPG_LENGTH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_TX_IPG_LENGTH(u64 a)
+{
+	return 0x8088 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_mac100#_xif_mode
+ *
+ * RPM Mti Mac100  Xif Mode Register Interface Mode Configuration.
+ */
+union rpmx_mti_mac100x_xif_mode {
+	u64 u;
+	struct rpmx_mti_mac100x_xif_mode_s {
+		u64 xgmii                            : 1;
+		u64 reserved_1_3                     : 3;
+		u64 pausetimerx8                     : 1;
+		u64 onestepena                       : 1;
+		u64 rx_pause_bypass                  : 1;
+		u64 reserved_7                       : 1;
+		u64 tx_mac_rs_err                    : 1;
+		u64 ts_delta_mode                    : 1;
+		u64 ts_delay_mode                    : 1;
+		u64 ts_binary_mode                   : 1;
+		u64 ts_64upd_mode                    : 1;
+		u64 reserved_13_15                   : 3;
+		u64 rx_cnt_mode                      : 1;
+		u64 pfc_pulse_mode                   : 1;
+		u64 pfc_lp_mode                      : 1;
+		u64 pfc_lp_16pri                     : 1;
+		u64 ts_sfd_ena                       : 1;
+		u64 reserved_21_63                   : 43;
+	} s;
+	struct rpmx_mti_mac100x_xif_mode_cn10ka {
+		u64 xgmii                            : 1;
+		u64 reserved_1_3                     : 3;
+		u64 pausetimerx8                     : 1;
+		u64 onestepena                       : 1;
+		u64 rx_pause_bypass                  : 1;
+		u64 reserved_7                       : 1;
+		u64 tx_mac_rs_err                    : 1;
+		u64 ts_delta_mode                    : 1;
+		u64 ts_delay_mode                    : 1;
+		u64 ts_binary_mode                   : 1;
+		u64 ts_64upd_mode                    : 1;
+		u64 reserved_13_15                   : 3;
+		u64 rx_cnt_mode                      : 1;
+		u64 pfc_pulse_mode                   : 1;
+		u64 pfc_lp_mode                      : 1;
+		u64 pfc_lp_16pri                     : 1;
+		u64 reserved_20_63                   : 44;
+	} cn10ka;
+	/* struct rpmx_mti_mac100x_xif_mode_s cn10kb; */
+	/* struct rpmx_mti_mac100x_xif_mode_cn10ka cnf10ka; */
+	/* struct rpmx_mti_mac100x_xif_mode_cn10ka cnf10kb; */
+};
+
+static inline u64 RPMX_MTI_MAC100X_XIF_MODE(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_MAC100X_XIF_MODE(u64 a)
+{
+	return 0x8100 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_baser_status1
+ *
+ * RPM MTI PCS Baser Status1 Register Link Status Information.
+ */
+union rpmx_mti_pcs100x_baser_status1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_baser_status1_s {
+		u64 block_lock                       : 1;
+		u64 high_ber                         : 1;
+		u64 reserved_2_11                    : 10;
+		u64 receive_link                     : 1;
+		u64 reserved_13_63                   : 51;
+	} s;
+	/* struct rpmx_mti_pcs100x_baser_status1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_BASER_STATUS1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_BASER_STATUS1(u64 a)
+{
+	return 0x20100 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_baser_status2
+ *
+ * RPM MTI PCS Baser Status2 Register Link Status latches and error
+ * counters.
+ */
+union rpmx_mti_pcs100x_baser_status2 {
+	u64 u;
+	struct rpmx_mti_pcs100x_baser_status2_s {
+		u64 errored_cnt                      : 8;
+		u64 ber_counter                      : 6;
+		u64 high_ber                         : 1;
+		u64 block_lock                       : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_baser_status2_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_BASER_STATUS2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_BASER_STATUS2(u64 a)
+{
+	return 0x20108 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_baser_test_control
+ *
+ * RPM MTI PCS Baser Test Control Register Test Pattern Generator and
+ * Checker controls.
+ */
+union rpmx_mti_pcs100x_baser_test_control {
+	u64 u;
+	struct rpmx_mti_pcs100x_baser_test_control_s {
+		u64 data_pattern_sel                 : 1;
+		u64 select_square                    : 1;
+		u64 rx_testpattern                   : 1;
+		u64 tx_testpattern                   : 1;
+		u64 reserved_4_6                     : 3;
+		u64 select_random                    : 1;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_baser_test_control_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_BASER_TEST_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_BASER_TEST_CONTROL(u64 a)
+{
+	return 0x20150 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_baser_test_err_cnt
+ *
+ * RPM MTI PCS Baser Test Err Cnt Register Test Pattern Error Counter;
+ * Clears on read; None roll-over.
+ */
+union rpmx_mti_pcs100x_baser_test_err_cnt {
+	u64 u;
+	struct rpmx_mti_pcs100x_baser_test_err_cnt_s {
+		u64 counter                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_baser_test_err_cnt_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_BASER_TEST_ERR_CNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_BASER_TEST_ERR_CNT(u64 a)
+{
+	return 0x20158 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_ber_high_order_cnt
+ *
+ * RPM MTI PCS Ber High Order Cnt Register BER High Order Counter of BER
+ * bits 21:6; None roll-over.
+ */
+union rpmx_mti_pcs100x_ber_high_order_cnt {
+	u64 u;
+	struct rpmx_mti_pcs100x_ber_high_order_cnt_s {
+		u64 ber_counter                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_ber_high_order_cnt_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_BER_HIGH_ORDER_CNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_BER_HIGH_ORDER_CNT(u64 a)
+{
+	return 0x20160 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_bip_err_cnt_lane#
+ *
+ * RPM MTI PCS Bip Err Cnt Lane Register BIP Error Counter Lane \<b\>;
+ * Clears on read; None roll-over.
+ */
+union rpmx_mti_pcs100x_bip_err_cnt_lanex {
+	u64 u;
+	struct rpmx_mti_pcs100x_bip_err_cnt_lanex_s {
+		u64 error_counter                    : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_bip_err_cnt_lanex_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_BIP_ERR_CNT_LANEX(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_BIP_ERR_CNT_LANEX(u64 a, u64 b)
+{
+	return 0x20640 + 0x100000 * a + 8 * b;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_bip_err_cnt_lane2#
+ *
+ * RPM MTI PCS Bip Err Cnt Lane Register BIP Error Counter Lane \<b+8\>;
+ * Clears on read; None roll-over.
+ */
+union rpmx_mti_pcs100x_bip_err_cnt_lane2x {
+	u64 u;
+	struct rpmx_mti_pcs100x_bip_err_cnt_lane2x_s {
+		u64 error_counter                    : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_bip_err_cnt_lane2x_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_BIP_ERR_CNT_LANE2X(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_BIP_ERR_CNT_LANE2X(u64 a, u64 b)
+{
+	return 0x20680 + 0x100000 * a + 8 * b;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_bip_err_cnt_lane3#
+ *
+ * RPM MTI PCS Bip Err Cnt Lane Register BIP Error Counter Lane \<b+16\>;
+ * Clears on read; None roll-over.
+ */
+union rpmx_mti_pcs100x_bip_err_cnt_lane3x {
+	u64 u;
+	struct rpmx_mti_pcs100x_bip_err_cnt_lane3x_s {
+		u64 error_counter                    : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_bip_err_cnt_lane3x_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_BIP_ERR_CNT_LANE3X(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_BIP_ERR_CNT_LANE3X(u64 a, u64 b)
+{
+	return 0x206c0 + 0x100000 * a + 8 * b;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_control1
+ *
+ * RPM MTI PCS Control1 Register PCS Control.
+ */
+union rpmx_mti_pcs100x_control1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_control1_s {
+		u64 reserved_0_1                     : 2;
+		u64 speed_selection                  : 4;
+		u64 speed_always1                    : 1;
+		u64 reserved_7_10                    : 4;
+		u64 low_power                        : 1;
+		u64 reserved_12                      : 1;
+		u64 speed_select_always1             : 1;
+		u64 loopback                         : 1;
+		u64 reset                            : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_control1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_CONTROL1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_CONTROL1(u64 a)
+{
+	return 0x20000 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_control2
+ *
+ * RPM MTI PCS Control2 Register Operating speed indication.
+ */
+union rpmx_mti_pcs100x_control2 {
+	u64 u;
+	struct rpmx_mti_pcs100x_control2_s {
+		u64 pcs_type                         : 4;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_mti_pcs100x_control2_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_CONTROL2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_CONTROL2(u64 a)
+{
+	return 0x20038 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_device_id0
+ *
+ * RPM MTI PCS Device Id0 Register PHY Identifier constant from package
+ * parameter PHY_IDENTIFIER bits 15:4. Bits 3:0 always 0.
+ */
+union rpmx_mti_pcs100x_device_id0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_device_id0_s {
+		u64 identifier0                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_device_id0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_DEVICE_ID0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_DEVICE_ID0(u64 a)
+{
+	return 0x20010 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_device_id1
+ *
+ * RPM MTI PCS Device Id1 Register PHY Identifier constant from package
+ * parameter PHY_IDENTIFIER bits 31:16.
+ */
+union rpmx_mti_pcs100x_device_id1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_device_id1_s {
+		u64 identifier1                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_device_id1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_DEVICE_ID1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_DEVICE_ID1(u64 a)
+{
+	return 0x20018 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_devices_in_pkg1
+ *
+ * RPM MTI PCS Devices In Pkg1 Register Constant indicating PCS presence.
+ */
+union rpmx_mti_pcs100x_devices_in_pkg1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_devices_in_pkg1_s {
+		u64 clause22                         : 1;
+		u64 pmd_pma                          : 1;
+		u64 wis_pres                         : 1;
+		u64 pcs_pres                         : 1;
+		u64 phy_xs                           : 1;
+		u64 dte_xs                           : 1;
+		u64 tc_pres                          : 1;
+		u64 reserved_7_63                    : 57;
+	} s;
+	/* struct rpmx_mti_pcs100x_devices_in_pkg1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_DEVICES_IN_PKG1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_DEVICES_IN_PKG1(u64 a)
+{
+	return 0x20028 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_devices_in_pkg2
+ *
+ * RPM MTI PCS Devices In Pkg2 Register Vendor specific presence.
+ */
+union rpmx_mti_pcs100x_devices_in_pkg2 {
+	u64 u;
+	struct rpmx_mti_pcs100x_devices_in_pkg2_s {
+		u64 reserved_0_12                    : 13;
+		u64 clause22                         : 1;
+		u64 device1                          : 1;
+		u64 device2                          : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_devices_in_pkg2_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_DEVICES_IN_PKG2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_DEVICES_IN_PKG2(u64 a)
+{
+	return 0x20030 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_err_blk_high_order_cnt
+ *
+ * RPM MTI PCS Err Blk High Order Cnt Register Error Blocks High Order
+ * Counter bits 21:8; None roll-over.
+ */
+union rpmx_mti_pcs100x_err_blk_high_order_cnt {
+	u64 u;
+	struct rpmx_mti_pcs100x_err_blk_high_order_cnt_s {
+		u64 errored_blocks_counter           : 14;
+		u64 reserved_14                      : 1;
+		u64 high_order_present               : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_err_blk_high_order_cnt_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_ERR_BLK_HIGH_ORDER_CNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_ERR_BLK_HIGH_ORDER_CNT(u64 a)
+{
+	return 0x20168 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_lane_mapping#
+ *
+ * RPM MTI PCS Lane Mapping Register Lane \<b\> mapping.
+ */
+union rpmx_mti_pcs100x_lane_mappingx {
+	u64 u;
+	struct rpmx_mti_pcs100x_lane_mappingx_s {
+		u64 mapping                          : 5;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_mti_pcs100x_lane_mappingx_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_LANE_MAPPINGX(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_LANE_MAPPINGX(u64 a, u64 b)
+{
+	return 0x20c80 + 0x100000 * a + 8 * b;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_lane_mapping2#
+ *
+ * RPM MTI PCS Lane Mapping Register Lane \<b+16\> mapping.
+ */
+union rpmx_mti_pcs100x_lane_mapping2x {
+	u64 u;
+	struct rpmx_mti_pcs100x_lane_mapping2x_s {
+		u64 mapping                          : 5;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_mti_pcs100x_lane_mapping2x_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_LANE_MAPPING2X(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_LANE_MAPPING2X(u64 a, u64 b)
+{
+	return 0x20d00 + 0x100000 * a + 8 * b;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_multilane_align_stat1
+ *
+ * RPM MTI PCS Multilane Align Stat1 Register Lane Alignment Status Bits
+ * and Block Lock.
+ */
+union rpmx_mti_pcs100x_multilane_align_stat1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_multilane_align_stat1_s {
+		u64 lane_block_lock                  : 8;
+		u64 reserved_8_11                    : 4;
+		u64 lane_align_status                : 1;
+		u64 reserved_13_63                   : 51;
+	} s;
+	/* struct rpmx_mti_pcs100x_multilane_align_stat1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_MULTILANE_ALIGN_STAT1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_MULTILANE_ALIGN_STAT1(u64 a)
+{
+	return 0x20190 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_multilane_align_stat2
+ *
+ * RPM MTI PCS Multilane Align Stat2 Register Lane Alignment Status Bits
+ * and Block Lock.
+ */
+union rpmx_mti_pcs100x_multilane_align_stat2 {
+	u64 u;
+	struct rpmx_mti_pcs100x_multilane_align_stat2_s {
+		u64 lane_block_lock                  : 12;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_mti_pcs100x_multilane_align_stat2_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_MULTILANE_ALIGN_STAT2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_MULTILANE_ALIGN_STAT2(u64 a)
+{
+	return 0x20198 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_multilane_align_stat3
+ *
+ * RPM MTI PCS Multilane Align Stat3 Register Lane Alignment Marker Lock
+ * Status bits.
+ */
+union rpmx_mti_pcs100x_multilane_align_stat3 {
+	u64 u;
+	struct rpmx_mti_pcs100x_multilane_align_stat3_s {
+		u64 lane_align_mlock                 : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_multilane_align_stat3_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_MULTILANE_ALIGN_STAT3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_MULTILANE_ALIGN_STAT3(u64 a)
+{
+	return 0x201a0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_multilane_align_stat4
+ *
+ * RPM MTI PCS Multilane Align Stat4 Register Lane Alignment Marker Lock
+ * lane 8 to 19.
+ */
+union rpmx_mti_pcs100x_multilane_align_stat4 {
+	u64 u;
+	struct rpmx_mti_pcs100x_multilane_align_stat4_s {
+		u64 lane_align_mlock                 : 12;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_mti_pcs100x_multilane_align_stat4_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_MULTILANE_ALIGN_STAT4(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_MULTILANE_ALIGN_STAT4(u64 a)
+{
+	return 0x201a8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_pkg_id0
+ *
+ * RPM MTI PCS Pkg Id0 Register Constant from package parameter
+ * PACK_IDENTIFIER bits 15:0.
+ */
+union rpmx_mti_pcs100x_pkg_id0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_pkg_id0_s {
+		u64 identifier                       : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_pkg_id0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_PKG_ID0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_PKG_ID0(u64 a)
+{
+	return 0x20070 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_pkg_id1
+ *
+ * RPM MTI PCS Pkg Id1 Register Constant from package parameter
+ * PACK_IDENTIFIER bits 31:16.
+ */
+union rpmx_mti_pcs100x_pkg_id1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_pkg_id1_s {
+		u64 identifier                       : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_pkg_id1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_PKG_ID1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_PKG_ID1(u64 a)
+{
+	return 0x20078 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_seed_a0
+ *
+ * RPM MTI PCS Seed A0 Register 10G Base-R Test Pattern Seed A bits 15:0.
+ */
+union rpmx_mti_pcs100x_seed_a0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_seed_a0_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_seed_a0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_SEED_A0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_SEED_A0(u64 a)
+{
+	return 0x20110 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_seed_a1
+ *
+ * RPM MTI PCS Seed A1 Register 10G Base-R Test Pattern Seed A bits
+ * 31:16.
+ */
+union rpmx_mti_pcs100x_seed_a1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_seed_a1_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_seed_a1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_SEED_A1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_SEED_A1(u64 a)
+{
+	return 0x20118 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_seed_a2
+ *
+ * RPM MTI PCS Seed A2 Register 10G Base-R Test Pattern Seed A bits
+ * 47:32.
+ */
+union rpmx_mti_pcs100x_seed_a2 {
+	u64 u;
+	struct rpmx_mti_pcs100x_seed_a2_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_seed_a2_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_SEED_A2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_SEED_A2(u64 a)
+{
+	return 0x20120 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_seed_a3
+ *
+ * RPM MTI PCS Seed A3 Register 10G Base-R Test Pattern Seed A bits
+ * 57:48.
+ */
+union rpmx_mti_pcs100x_seed_a3 {
+	u64 u;
+	struct rpmx_mti_pcs100x_seed_a3_s {
+		u64 seed                             : 10;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_mti_pcs100x_seed_a3_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_SEED_A3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_SEED_A3(u64 a)
+{
+	return 0x20128 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_seed_b0
+ *
+ * RPM MTI PCS Seed B0 Register 10G Base-R Test Pattern Seed B bits 15:0.
+ */
+union rpmx_mti_pcs100x_seed_b0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_seed_b0_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_seed_b0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_SEED_B0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_SEED_B0(u64 a)
+{
+	return 0x20130 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_seed_b1
+ *
+ * RPM MTI PCS Seed B1 Register 10G Base-R Test Pattern Seed B bits
+ * 31:16.
+ */
+union rpmx_mti_pcs100x_seed_b1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_seed_b1_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_seed_b1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_SEED_B1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_SEED_B1(u64 a)
+{
+	return 0x20138 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_seed_b2
+ *
+ * RPM MTI PCS Seed B2 Register 10G Base-R Test Pattern Seed B bits
+ * 47:32.
+ */
+union rpmx_mti_pcs100x_seed_b2 {
+	u64 u;
+	struct rpmx_mti_pcs100x_seed_b2_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_seed_b2_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_SEED_B2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_SEED_B2(u64 a)
+{
+	return 0x20140 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_seed_b3
+ *
+ * RPM MTI PCS Seed B3 Register 10G Base-R Test Pattern Seed B bits
+ * 57:48.
+ */
+union rpmx_mti_pcs100x_seed_b3 {
+	u64 u;
+	struct rpmx_mti_pcs100x_seed_b3_s {
+		u64 seed                             : 10;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_mti_pcs100x_seed_b3_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_SEED_B3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_SEED_B3(u64 a)
+{
+	return 0x20148 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_speed_ability
+ *
+ * RPM MTI PCS Speed Ability Register PCS supported speeds (values as
+ * defined by standard only, no proprietary speeds).
+ */
+union rpmx_mti_pcs100x_speed_ability {
+	u64 u;
+	struct rpmx_mti_pcs100x_speed_ability_s {
+		u64 c10geth                          : 1;
+		u64 c10pass_ts                       : 1;
+		u64 c40g                             : 1;
+		u64 c100g                            : 1;
+		u64 c25g                             : 1;
+		u64 c50g                             : 1;
+		u64 reserved_6_63                    : 58;
+	} s;
+	/* struct rpmx_mti_pcs100x_speed_ability_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_SPEED_ABILITY(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_SPEED_ABILITY(u64 a)
+{
+	return 0x20020 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_status1
+ *
+ * RPM MTI PCS Status1 Register PCS Status.
+ */
+union rpmx_mti_pcs100x_status1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_status1_s {
+		u64 reserved_0                       : 1;
+		u64 low_power_ability                : 1;
+		u64 pcs_receive_link                 : 1;
+		u64 reserved_3_6                     : 4;
+		u64 fault                            : 1;
+		u64 rx_lpi_active                    : 1;
+		u64 tx_lpi_active                    : 1;
+		u64 rx_lpi                           : 1;
+		u64 tx_lpi                           : 1;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_mti_pcs100x_status1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_STATUS1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_STATUS1(u64 a)
+{
+	return 0x20008 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_status2
+ *
+ * RPM MTI PCS Status2 Register Fault status; Device capabilities.
+ */
+union rpmx_mti_pcs100x_status2 {
+	u64 u;
+	struct rpmx_mti_pcs100x_status2_s {
+		u64 c10gbase_r                       : 1;
+		u64 c10gbase_x                       : 1;
+		u64 c10gbase_w                       : 1;
+		u64 c10gbase_t                       : 1;
+		u64 c40gbase_r                       : 1;
+		u64 c100gbase_r                      : 1;
+		u64 reserved_6                       : 1;
+		u64 c25gbase_r                       : 1;
+		u64 c50gbase_r                       : 1;
+		u64 reserved_9                       : 1;
+		u64 receive_fault                    : 1;
+		u64 transmit_fault                   : 1;
+		u64 reserved_12_13                   : 2;
+		u64 device_present                   : 2;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_status2_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_STATUS2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_STATUS2(u64 a)
+{
+	return 0x20040 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vendor_core_rev
+ *
+ * RPM MTI PCS Vendor Core Rev Register Vendor Specific Reg; Core
+ * Revision as defined by CORE_REVISION package parameter.
+ */
+union rpmx_mti_pcs100x_vendor_core_rev {
+	u64 u;
+	struct rpmx_mti_pcs100x_vendor_core_rev_s {
+		u64 revision                         : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vendor_core_rev_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VENDOR_CORE_REV(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VENDOR_CORE_REV(u64 a)
+{
+	return 0x21008 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vendor_pcs_mode
+ *
+ * RPM MTI PCS Vendor Pcs Mode Register Vendor Specific Reg; Configure
+ * PCS supporting Clause 49 or 82 Encoder/Decoder, MLD.
+ */
+union rpmx_mti_pcs100x_vendor_pcs_mode {
+	u64 u;
+	struct rpmx_mti_pcs100x_vendor_pcs_mode_s {
+		u64 ena_clause49                     : 1;
+		u64 disable_mld                      : 1;
+		u64 hi_ber25                         : 1;
+		u64 hi_ber5                          : 1;
+		u64 reserved_4_7                     : 4;
+		u64 st_ena_clause49                  : 1;
+		u64 st_disable_mld                   : 1;
+		u64 st_hi_ber25                      : 1;
+		u64 st_hi_ber5                       : 1;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_mti_pcs100x_vendor_pcs_mode_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VENDOR_PCS_MODE(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VENDOR_PCS_MODE(u64 a)
+{
+	return 0x21080 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vendor_scratch
+ *
+ * RPM MTI PCS Vendor Scratch Register Vendor Specific Reg; Scratch
+ * Register.
+ */
+union rpmx_mti_pcs100x_vendor_scratch {
+	u64 u;
+	struct rpmx_mti_pcs100x_vendor_scratch_s {
+		u64 scratch                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vendor_scratch_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VENDOR_SCRATCH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VENDOR_SCRATCH(u64 a)
+{
+	return 0x21000 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vendor_txlane_thresh
+ *
+ * RPM MTI PCS Vendor Txlane Thresh Register Vendor Specific Reg; Defines
+ * the transmit line decoupling FIFOs almost full threshold. Relevant on
+ * PCS0 only. PCS0 configures serdes lanes 0..3. Writing to this register
+ * in other PCSs does not have any effect. Per serdes lane a 4-bit value
+ * to define the transmit line decoupling FIFOs almost full threshold.
+ * Valid values are 5 to 10. Lower values result in lower latency but
+ * require a higher system clock (netclk) to avoid the risk of buffer
+ * underflows that would lead to transmit data corruption. If a too low
+ * value is set and a FIFO underflow occurs the PCS Status 2 register bit
+ * 11 (tx error) is set.
+ */
+union rpmx_mti_pcs100x_vendor_txlane_thresh {
+	u64 u;
+	struct rpmx_mti_pcs100x_vendor_txlane_thresh_s {
+		u64 threshold0                       : 4;
+		u64 threshold1                       : 4;
+		u64 threshold2                       : 4;
+		u64 threshold3                       : 4;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vendor_txlane_thresh_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VENDOR_TXLANE_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VENDOR_TXLANE_THRESH(u64 a)
+{
+	return 0x21018 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vendor_vl_intvl
+ *
+ * RPM MTI PCS Vendor Vl Intvl Register Vendor Specific Reg; Set the
+ * amount of data between markers. (I.e. distance of markers-1).
+ */
+union rpmx_mti_pcs100x_vendor_vl_intvl {
+	u64 u;
+	struct rpmx_mti_pcs100x_vendor_vl_intvl_s {
+		u64 marker_counter                   : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vendor_vl_intvl_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VENDOR_VL_INTVL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VENDOR_VL_INTVL(u64 a)
+{
+	return 0x21010 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl0_0
+ *
+ * RPM MTI PCS Vl0 0 Register Vendor Specific Reg; Marker pattern for PCS
+ * Virtual Lane 0.
+ */
+union rpmx_mti_pcs100x_vl0_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl0_0_s {
+		u64 vl0_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl0_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL0_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL0_0(u64 a)
+{
+	return 0x21200 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl0_1
+ *
+ * RPM MTI PCS Vl0 1 Register Vendor Specific Reg; Last byte of PCS
+ * Virtual Lane 0 marker pattern.
+ */
+union rpmx_mti_pcs100x_vl0_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl0_1_s {
+		u64 vl0_1                            : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl0_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL0_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL0_1(u64 a)
+{
+	return 0x21208 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl10_0
+ *
+ * RPM MTI PCS Vl10 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl10_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl10_0_s {
+		u64 vl10_0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl10_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL10_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL10_0(u64 a)
+{
+	return 0x212a0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl10_1
+ *
+ * RPM MTI PCS Vl10 1 Register Marker pattern m2 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl10_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl10_1_s {
+		u64 vl10_1                           : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl10_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL10_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL10_1(u64 a)
+{
+	return 0x212a8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl11_0
+ *
+ * RPM MTI PCS Vl11 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl11_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl11_0_s {
+		u64 vl11_0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl11_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL11_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL11_0(u64 a)
+{
+	return 0x212b0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl11_1
+ *
+ * RPM MTI PCS Vl11 1 Register Marker pattern m2 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl11_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl11_1_s {
+		u64 vl11_1                           : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl11_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL11_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL11_1(u64 a)
+{
+	return 0x212b8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl12_0
+ *
+ * RPM MTI PCS Vl12 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl12_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl12_0_s {
+		u64 vl12_0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl12_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL12_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL12_0(u64 a)
+{
+	return 0x212c0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl12_1
+ *
+ * RPM MTI PCS Vl12 1 Register Marker pattern m2 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl12_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl12_1_s {
+		u64 vl12_1                           : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl12_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL12_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL12_1(u64 a)
+{
+	return 0x212c8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl13_0
+ *
+ * RPM MTI PCS Vl13 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl13_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl13_0_s {
+		u64 vl13_0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl13_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL13_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL13_0(u64 a)
+{
+	return 0x212d0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl13_1
+ *
+ * RPM MTI PCS Vl13 1 Register Marker pattern m2 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl13_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl13_1_s {
+		u64 vl13_1                           : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl13_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL13_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL13_1(u64 a)
+{
+	return 0x212d8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl14_0
+ *
+ * RPM MTI PCS Vl14 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl14_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl14_0_s {
+		u64 vl14_0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl14_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL14_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL14_0(u64 a)
+{
+	return 0x212e0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl14_1
+ *
+ * RPM MTI PCS Vl14 1 Register Marker pattern m2 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl14_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl14_1_s {
+		u64 vl14_1                           : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl14_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL14_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL14_1(u64 a)
+{
+	return 0x212e8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl15_0
+ *
+ * RPM MTI PCS Vl15 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl15_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl15_0_s {
+		u64 vl15_0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl15_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL15_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL15_0(u64 a)
+{
+	return 0x212f0 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl15_1
+ *
+ * RPM MTI PCS Vl15 1 Register Marker pattern m2 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl15_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl15_1_s {
+		u64 vl15_1                           : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl15_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL15_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL15_1(u64 a)
+{
+	return 0x212f8 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl16_0
+ *
+ * RPM MTI PCS Vl16 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl16_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl16_0_s {
+		u64 vl16_0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl16_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL16_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL16_0(u64 a)
+{
+	return 0x21300 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl16_1
+ *
+ * RPM MTI PCS Vl16 1 Register Marker pattern m2 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl16_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl16_1_s {
+		u64 vl16_1                           : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl16_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL16_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL16_1(u64 a)
+{
+	return 0x21308 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl17_0
+ *
+ * RPM MTI PCS Vl17 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl17_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl17_0_s {
+		u64 vl17_0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl17_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL17_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL17_0(u64 a)
+{
+	return 0x21310 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl17_1
+ *
+ * RPM MTI PCS Vl17 1 Register Marker pattern m2 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl17_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl17_1_s {
+		u64 vl17_1                           : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl17_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL17_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL17_1(u64 a)
+{
+	return 0x21318 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl18_0
+ *
+ * RPM MTI PCS Vl18 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl18_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl18_0_s {
+		u64 vl18_0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl18_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL18_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL18_0(u64 a)
+{
+	return 0x21320 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl18_1
+ *
+ * RPM MTI PCS Vl18 1 Register Marker pattern m2 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl18_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl18_1_s {
+		u64 vl18_1                           : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl18_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL18_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL18_1(u64 a)
+{
+	return 0x21328 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl19_0
+ *
+ * RPM MTI PCS Vl19 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl19_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl19_0_s {
+		u64 vl19_0                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl19_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL19_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL19_0(u64 a)
+{
+	return 0x21330 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl19_1
+ *
+ * RPM MTI PCS Vl19 1 Register Marker pattern m2 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl19_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl19_1_s {
+		u64 vl19_1                           : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl19_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL19_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL19_1(u64 a)
+{
+	return 0x21338 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl1_0
+ *
+ * RPM MTI PCS Vl1 0 Register Vendor Specific Reg; Marker pattern for PCS
+ * Virtual Lane 1.
+ */
+union rpmx_mti_pcs100x_vl1_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl1_0_s {
+		u64 vl1_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl1_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL1_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL1_0(u64 a)
+{
+	return 0x21210 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl1_1
+ *
+ * RPM MTI PCS Vl1 1 Register Vendor Specific Reg; Last byte of PCS
+ * Virtual Lane 1 marker pattern.
+ */
+union rpmx_mti_pcs100x_vl1_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl1_1_s {
+		u64 vl1_1                            : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl1_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL1_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL1_1(u64 a)
+{
+	return 0x21218 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl2_0
+ *
+ * RPM MTI PCS Vl2 0 Register Vendor Specific Reg; Marker pattern for PCS
+ * Virtual Lane 2.
+ */
+union rpmx_mti_pcs100x_vl2_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl2_0_s {
+		u64 vl2_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl2_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL2_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL2_0(u64 a)
+{
+	return 0x21220 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl2_1
+ *
+ * RPM MTI PCS Vl2 1 Register Vendor Specific Reg; Last byte of PCS
+ * Virtual Lane 2 marker pattern.
+ */
+union rpmx_mti_pcs100x_vl2_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl2_1_s {
+		u64 vl2_1                            : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl2_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL2_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL2_1(u64 a)
+{
+	return 0x21228 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl3_0
+ *
+ * RPM MTI PCS Vl3 0 Register Vendor Specific Reg; Marker pattern for PCS
+ * Virtual Lane 3.
+ */
+union rpmx_mti_pcs100x_vl3_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl3_0_s {
+		u64 vl3_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl3_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL3_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL3_0(u64 a)
+{
+	return 0x21230 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl3_1
+ *
+ * RPM MTI PCS Vl3 1 Register Vendor Specific Reg; Last byte of PCS
+ * Virtual Lane 3 marker pattern.
+ */
+union rpmx_mti_pcs100x_vl3_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl3_1_s {
+		u64 vl3_1                            : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl3_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL3_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL3_1(u64 a)
+{
+	return 0x21238 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl4_0
+ *
+ * RPM MTI PCS Vl4 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl4_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl4_0_s {
+		u64 vl4_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl4_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL4_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL4_0(u64 a)
+{
+	return 0x21240 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl4_1
+ *
+ * RPM MTI PCS Vl4 1 Register Marker pattern m2 for PCS Virtual Lane. RAZ
+ * for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl4_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl4_1_s {
+		u64 vl4_1                            : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl4_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL4_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL4_1(u64 a)
+{
+	return 0x21248 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl5_0
+ *
+ * RPM MTI PCS Vl5 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl5_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl5_0_s {
+		u64 vl5_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl5_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL5_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL5_0(u64 a)
+{
+	return 0x21250 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl5_1
+ *
+ * RPM MTI PCS Vl5 1 Register Marker pattern m2 for PCS Virtual Lane. RAZ
+ * for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl5_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl5_1_s {
+		u64 vl5_1                            : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl5_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL5_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL5_1(u64 a)
+{
+	return 0x21258 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl6_0
+ *
+ * RPM MTI PCS Vl6 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl6_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl6_0_s {
+		u64 vl6_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl6_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL6_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL6_0(u64 a)
+{
+	return 0x21260 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl6_1
+ *
+ * RPM MTI PCS Vl6 1 Register Marker pattern m2 for PCS Virtual Lane. RAZ
+ * for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl6_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl6_1_s {
+		u64 vl6_1                            : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl6_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL6_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL6_1(u64 a)
+{
+	return 0x21268 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl7_0
+ *
+ * RPM MTI PCS Vl7 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl7_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl7_0_s {
+		u64 vl7_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl7_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL7_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL7_0(u64 a)
+{
+	return 0x21270 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl7_1
+ *
+ * RPM MTI PCS Vl7 1 Register Marker pattern m2 for PCS Virtual Lane. RAZ
+ * for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl7_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl7_1_s {
+		u64 vl7_1                            : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl7_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL7_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL7_1(u64 a)
+{
+	return 0x21278 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl8_0
+ *
+ * RPM MTI PCS Vl8 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl8_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl8_0_s {
+		u64 vl8_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl8_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL8_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL8_0(u64 a)
+{
+	return 0x21280 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl8_1
+ *
+ * RPM MTI PCS Vl8 1 Register Marker pattern m2 for PCS Virtual Lane. RAZ
+ * for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl8_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl8_1_s {
+		u64 vl8_1                            : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl8_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL8_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL8_1(u64 a)
+{
+	return 0x21288 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl9_0
+ *
+ * RPM MTI PCS Vl9 0 Register Marker pattern m1,m0 for PCS Virtual Lane.
+ * RAZ for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl9_0 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl9_0_s {
+		u64 vl9_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl9_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL9_0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL9_0(u64 a)
+{
+	return 0x21290 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_pcs100#_vl9_1
+ *
+ * RPM MTI PCS Vl9 1 Register Marker pattern m2 for PCS Virtual Lane. RAZ
+ * for odd PCS channels.
+ */
+union rpmx_mti_pcs100x_vl9_1 {
+	u64 u;
+	struct rpmx_mti_pcs100x_vl9_1_s {
+		u64 vl9_1                            : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_pcs100x_vl9_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_PCS100X_VL9_1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_PCS100X_VL9_1(u64 a)
+{
+	return 0x21298 + 0x100000 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_ccw_hi#
+ *
+ * RPM MTI RSFEC Corrected Codewords High Register Counts number of
+ * corrected RSFEC codewords. Upper 16 bits. Clears on read. Non roll-
+ * over.
+ */
+union rpmx_mti_rsfec_ccw_hix {
+	u64 u;
+	struct rpmx_mti_rsfec_ccw_hix_s {
+		u64 ccw_hi                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_rsfec_ccw_hix_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_CCW_HIX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_CCW_HIX(u64 a)
+{
+	return 0x38018 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_ccw_lo#
+ *
+ * RPM MTI RSFEC Corrected Codewords Low Register Counts number of
+ * corrected RSFEC codewords. Lower 16 bits. Must be read first. Non
+ * roll-over when upper 16-bits are 0xffff.
+ */
+union rpmx_mti_rsfec_ccw_lox {
+	u64 u;
+	struct rpmx_mti_rsfec_ccw_lox_s {
+		u64 ccw_lo                           : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_rsfec_ccw_lox_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_CCW_LOX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_CCW_LOX(u64 a)
+{
+	return 0x38010 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_control#
+ *
+ * RPM MTI RSFEC Control Register Control register for enabling RS-FEC
+ * functions.
+ */
+union rpmx_mti_rsfec_controlx {
+	u64 u;
+	struct rpmx_mti_rsfec_controlx_s {
+		u64 bypass_correction                : 1;
+		u64 bypass_error_indication          : 1;
+		u64 degrade_enable                   : 1;
+		u64 am16_copy_dis                    : 1;
+		u64 reserved_4_7                     : 4;
+		u64 kp_enable                        : 1;
+		u64 tc_pad_value                     : 1;
+		u64 tc_pad_alter                     : 1;
+		u64 reserved_11_63                   : 53;
+	} s;
+	/* struct rpmx_mti_rsfec_controlx_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_CONTROLX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_CONTROLX(u64 a)
+{
+	return 0x38000 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_dec_thresh#
+ *
+ * RPM MTI RSFEC Decoder Channel Threshold Register RSFEC decoder channel
+ * threshold.
+ */
+union rpmx_mti_rsfec_dec_threshx {
+	u64 u;
+	struct rpmx_mti_rsfec_dec_threshx_s {
+		u64 dec_thresh                       : 6;
+		u64 reserved_6_63                    : 58;
+	} s;
+	/* struct rpmx_mti_rsfec_dec_threshx_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_DEC_THRESHX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_DEC_THRESHX(u64 a)
+{
+	return 0x38038 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_lane_map#
+ *
+ * RPM MTI RSFEC Lane Map Register RSFEC lane mappings.
+ */
+union rpmx_mti_rsfec_lane_mapx {
+	u64 u;
+	struct rpmx_mti_rsfec_lane_mapx_s {
+		u64 rsfec_lane_map                   : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_mti_rsfec_lane_mapx_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_LANE_MAPX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_LANE_MAPX(u64 a)
+{
+	return 0x38030 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_nccw_hi#
+ *
+ * RPM MTI RSFEC Uncorrected Codewords High Register Counts number of
+ * uncorrected RSFEC codewords. Upper 16 bits. Clears on read. Non roll-
+ * over.
+ */
+union rpmx_mti_rsfec_nccw_hix {
+	u64 u;
+	struct rpmx_mti_rsfec_nccw_hix_s {
+		u64 nccw_hi                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_rsfec_nccw_hix_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_NCCW_HIX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_NCCW_HIX(u64 a)
+{
+	return 0x38028 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_nccw_lo#
+ *
+ * RPM MTI RSFEC Uncorrected Codewords Low Register Counts number of
+ * uncorrected RSFEC codewords. Lower 16 bits. Non roll-over when upper
+ * 16-bits are 0xffff.
+ */
+union rpmx_mti_rsfec_nccw_lox {
+	u64 u;
+	struct rpmx_mti_rsfec_nccw_lox_s {
+		u64 nccw_lo                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_rsfec_nccw_lox_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_NCCW_LOX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_NCCW_LOX(u64 a)
+{
+	return 0x38020 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_rsfec_txfifo_control
+ *
+ * RPM MTI RSFEC TX FIFO Control Register RPM MTI RSFEC TX FIFO Control
+ * Register
+ */
+union rpmx_mti_rsfec_rsfec_txfifo_control {
+	u64 u;
+	struct rpmx_mti_rsfec_rsfec_txfifo_control_s {
+		u64 txfifo_lane_threshold            : 4;
+		u64 toggle_en                        : 1;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_mti_rsfec_rsfec_txfifo_control_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_RSFEC_TXFIFO_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_RSFEC_TXFIFO_CONTROL(void)
+{
+	return 0x38558;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_0
+ *
+ * RPM Mti Rsfec Stat Counter Capture 0 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_0 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_0_s {
+		u64 counter_low_0                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_0_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_0(void)
+{
+	return 0x40040;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_1
+ *
+ * RPM Mti Rsfec Stat Counter Capture 1 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_1 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_1_s {
+		u64 counter_low_1                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_1_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_1(void)
+{
+	return 0x40048;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_10
+ *
+ * RPM Mti Rsfec Stat Counter Capture 10 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_10 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_10_s {
+		u64 counter_low_10                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_10_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_10(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_10(void)
+{
+	return 0x40090;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_11
+ *
+ * RPM Mti Rsfec Stat Counter Capture 11 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_11 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_11_s {
+		u64 counter_low_11                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_11_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_11(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_11(void)
+{
+	return 0x40098;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_12
+ *
+ * RPM Mti Rsfec Stat Counter Capture 12 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_12 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_12_s {
+		u64 counter_low_12                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_12_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_12(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_12(void)
+{
+	return 0x400a0;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_13
+ *
+ * RPM Mti Rsfec Stat Counter Capture 13 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_13 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_13_s {
+		u64 counter_low_13                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_13_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_13(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_13(void)
+{
+	return 0x400a8;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_14
+ *
+ * RPM Mti Rsfec Stat Counter Capture 14 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_14 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_14_s {
+		u64 counter_low_14                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_14_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_14(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_14(void)
+{
+	return 0x400b0;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_15
+ *
+ * RPM Mti Rsfec Stat Counter Capture 15 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_15 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_15_s {
+		u64 counter_low_15                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_15_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_15(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_15(void)
+{
+	return 0x400b8;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_16
+ *
+ * RPM Mti Rsfec Stat Counter Capture 16 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_16 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_16_s {
+		u64 counter_low_16                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_16_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_16(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_16(void)
+{
+	return 0x400c0;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_17
+ *
+ * RPM Mti Rsfec Stat Counter Capture 17 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_17 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_17_s {
+		u64 counter_low_17                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_17_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_17(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_17(void)
+{
+	return 0x400c8;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_18
+ *
+ * RPM Mti Rsfec Stat Counter Capture 18 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_18 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_18_s {
+		u64 counter_low_18                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_18_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_18(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_18(void)
+{
+	return 0x400d0;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_19
+ *
+ * RPM Mti Rsfec Stat Counter Capture 19 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_19 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_19_s {
+		u64 counter_low_19                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_19_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_19(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_19(void)
+{
+	return 0x400d8;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_2
+ *
+ * RPM Mti Rsfec Stat Counter Capture 2 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_2 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_2_s {
+		u64 counter_low_2                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_2_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_2(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_2(void)
+{
+	return 0x40050;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_3
+ *
+ * RPM Mti Rsfec Stat Counter Capture 3 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_3 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_3_s {
+		u64 counter_low_3                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_3_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_3(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_3(void)
+{
+	return 0x40058;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_4
+ *
+ * RPM Mti Rsfec Stat Counter Capture 4 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_4 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_4_s {
+		u64 counter_low_4                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_4_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_4(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_4(void)
+{
+	return 0x40060;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_5
+ *
+ * RPM Mti Rsfec Stat Counter Capture 5 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_5 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_5_s {
+		u64 counter_low_5                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_5_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_5(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_5(void)
+{
+	return 0x40068;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_6
+ *
+ * RPM Mti Rsfec Stat Counter Capture 6 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_6 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_6_s {
+		u64 counter_low_6                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_6_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_6(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_6(void)
+{
+	return 0x40070;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_7
+ *
+ * RPM Mti Rsfec Stat Counter Capture 7 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_7 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_7_s {
+		u64 counter_low_7                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_7_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_7(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_7(void)
+{
+	return 0x40078;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_8
+ *
+ * RPM Mti Rsfec Stat Counter Capture 8 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_8 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_8_s {
+		u64 counter_low_8                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_8_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_8(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_8(void)
+{
+	return 0x40080;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_counter_capture_9
+ *
+ * RPM Mti Rsfec Stat Counter Capture 9 Register
+ */
+union rpmx_mti_rsfec_stat_counter_capture_9 {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_counter_capture_9_s {
+		u64 counter_low_9                    : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_counter_capture_9_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_9(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_COUNTER_CAPTURE_9(void)
+{
+	return 0x40088;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_fast_data_hi
+ *
+ * RPM Mti Rsfec Stat Fast Data Hi Register
+ */
+union rpmx_mti_rsfec_stat_fast_data_hi {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_fast_data_hi_s {
+		u64 latched_counter_hi_fast          : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_fast_data_hi_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_FAST_DATA_HI(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_FAST_DATA_HI(void)
+{
+	return 0x40000;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_page#_counter#
+ *
+ * RPM Mti Rsfec Stat Page Counter Register Per-LMAC RSFEC Statistics
+ * Page.
+ */
+union rpmx_mti_rsfec_stat_pagex_counterx {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_pagex_counterx_s {
+		u64 counter_low                      : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_pagex_counterx_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_PAGEX_COUNTERX(u64 a, u64 b)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_PAGEX_COUNTERX(u64 a, u64 b)
+{
+	return 0x41000 + 0x100 * a + 8 * b;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_slow_data_hi
+ *
+ * RPM Mti Rsfec Stat Slow Data Hi Register
+ */
+union rpmx_mti_rsfec_stat_slow_data_hi {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_slow_data_hi_s {
+		u64 latched_data_hi_slow             : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_slow_data_hi_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_SLOW_DATA_HI(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_SLOW_DATA_HI(void)
+{
+	return 0x40038;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_statn_clearvalue_hi
+ *
+ * RPM Mti Rsfec Stat Statn Clearvalue Hi Register
+ */
+union rpmx_mti_rsfec_stat_statn_clearvalue_hi {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_statn_clearvalue_hi_s {
+		u64 statm_high_32b                   : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_statn_clearvalue_hi_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_STATN_CLEARVALUE_HI(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_STATN_CLEARVALUE_HI(void)
+{
+	return 0x40028;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_statn_clearvalue_lo
+ *
+ * RPM Mti Rsfec Stat Statn Clearvalue Lo Register
+ */
+union rpmx_mti_rsfec_stat_statn_clearvalue_lo {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_statn_clearvalue_lo_s {
+		u64 statm_lower_32b                  : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_statn_clearvalue_lo_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_STATN_CLEARVALUE_LO(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_STATN_CLEARVALUE_LO(void)
+{
+	return 0x40020;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_statn_config
+ *
+ * RPM Mti Rsfec Stat Statn Config Register
+ */
+union rpmx_mti_rsfec_stat_statn_config {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_statn_config_s {
+		u64 saturate                         : 1;
+		u64 clear_on_read                    : 1;
+		u64 reserved_2_30                    : 29;
+		u64 soft_reset                       : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_statn_config_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_STATN_CONFIG(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_STATN_CONFIG(void)
+{
+	return 0x40010;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_statn_control
+ *
+ * RPM Mti Rsfec Stat Statn Control Register
+ */
+union rpmx_mti_rsfec_stat_statn_control {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_statn_control_s {
+		u64 chanmask                         : 8;
+		u64 reserved_8_27                    : 20;
+		u64 cmd_capture                      : 1;
+		u64 clear_pre                        : 1;
+		u64 reserved_30                      : 1;
+		u64 cmd_clear                        : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_statn_control_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_STATN_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_STATN_CONTROL(void)
+{
+	return 0x40018;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_stat_statn_status
+ *
+ * RPM Mti Rsfec Stat Statn Status Register
+ */
+union rpmx_mti_rsfec_stat_statn_status {
+	u64 u;
+	struct rpmx_mti_rsfec_stat_statn_status_s {
+		u64 stat_module_busy                 : 1;
+		u64 reserved_1_63                    : 63;
+	} s;
+	/* struct rpmx_mti_rsfec_stat_statn_status_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STAT_STATN_STATUS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STAT_STATN_STATUS(void)
+{
+	return 0x40008;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_status#
+ *
+ * RPM MTI RSFEC Status Register RS-FEC Status register.
+ */
+union rpmx_mti_rsfec_statusx {
+	u64 u;
+	struct rpmx_mti_rsfec_statusx_s {
+		u64 bypass_correction_ability        : 1;
+		u64 bypass_indication_ability        : 1;
+		u64 high_ser                         : 1;
+		u64 degrade_ser_ability              : 1;
+		u64 degrade_ser                      : 1;
+		u64 rx_am_sf2                        : 1;
+		u64 rx_am_sf1                        : 1;
+		u64 rx_am_sf0                        : 1;
+		u64 amps_lock                        : 4;
+		u64 reserved_12_13                   : 2;
+		u64 fec_align_status                 : 1;
+		u64 reserved_15_63                   : 49;
+	} s;
+	/* struct rpmx_mti_rsfec_statusx_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_STATUSX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_STATUSX(u64 a)
+{
+	return 0x38008 + 0x40 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_symblerr_hi#
+ *
+ * RPM MTI RSFEC Symbol Error High Register Upper 16 bits of counter
+ * (latched value after read of _LO).
+ */
+union rpmx_mti_rsfec_symblerr_hix {
+	u64 u;
+	struct rpmx_mti_rsfec_symblerr_hix_s {
+		u64 symblerr_hi                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_rsfec_symblerr_hix_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_SYMBLERR_HIX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_SYMBLERR_HIX(u64 a)
+{
+	return 0x38408 + 0x10 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_symblerr_lo#
+ *
+ * RPM MTI RSFEC Symbol Error Low Register Sum of (corrected) 10-bit
+ * symbol errors for a lane. Increments only for correctable codewords.
+ * Lower 16 bit of counter. Must be read first.
+ */
+union rpmx_mti_rsfec_symblerr_lox {
+	u64 u;
+	struct rpmx_mti_rsfec_symblerr_lox_s {
+		u64 symblerr_lo                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_rsfec_symblerr_lox_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_SYMBLERR_LOX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_SYMBLERR_LOX(u64 a)
+{
+	return 0x38400 + 0x10 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_vendor_align_status
+ *
+ * RPM MTI RSFEC Vendor Align Status Register Convenience register
+ * providing the status bit from each channel's RSFEC Status register bit
+ * 14.
+ */
+union rpmx_mti_rsfec_vendor_align_status {
+	u64 u;
+	struct rpmx_mti_rsfec_vendor_align_status_s {
+		u64 rsfec_vendor_align_status        : 10;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_mti_rsfec_vendor_align_status_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_VENDOR_ALIGN_STATUS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_VENDOR_ALIGN_STATUS(void)
+{
+	return 0x38520;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_vendor_decoder_thresh
+ *
+ * RPM MTI RSFEC Vendor Decoder Threshold Register RPM MTI RSFEC Vendor
+ * Decoder Threshold
+ */
+union rpmx_mti_rsfec_vendor_decoder_thresh {
+	u64 u;
+	struct rpmx_mti_rsfec_vendor_decoder_thresh_s {
+		u64 rsfec_vendor_decoder_thresh      : 6;
+		u64 reserved_6_63                    : 58;
+	} s;
+	/* struct rpmx_mti_rsfec_vendor_decoder_thresh_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_VENDOR_DECODER_THRESH(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_VENDOR_DECODER_THRESH(void)
+{
+	return 0x38550;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_vendor_hi_ser_thresh#
+ *
+ * RPM MTI RSFEC VENDOR HISER THRESH Register Achieving this threshold
+ * the PCS will enter to Hi-Ber state indicating local fault to the
+ * CGMII.
+ */
+union rpmx_mti_rsfec_vendor_hi_ser_threshx {
+	u64 u;
+	struct rpmx_mti_rsfec_vendor_hi_ser_threshx_s {
+		u64 fec_hi_ser_thr                   : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_rsfec_vendor_hi_ser_threshx_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_VENDOR_HI_SER_THRESHX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_VENDOR_HI_SER_THRESHX(u64 a)
+{
+	return 0x38580 + 0x10 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_vendor_info2
+ *
+ * RPM MTI RSFEC Vendor Info 2 Register Implementation specific status
+ * information; Clears on read.
+ */
+union rpmx_mti_rsfec_vendor_info2 {
+	u64 u;
+	struct rpmx_mti_rsfec_vendor_info2_s {
+		u64 amps_lock_lanes                  : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_rsfec_vendor_info2_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_VENDOR_INFO2(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_VENDOR_INFO2(void)
+{
+	return 0x38510;
+}
+
+/**
+ * Register (RSL) rpm#_mti_rsfec_vendor_revision
+ *
+ * RPM MTI RSFEC Vendor Revision Register A version information taken
+ * from package file parameter FEC91_DEV_VERSION.
+ */
+union rpmx_mti_rsfec_vendor_revision {
+	u64 u;
+	struct rpmx_mti_rsfec_vendor_revision_s {
+		u64 revision                         : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_mti_rsfec_vendor_revision_s cn; */
+};
+
+static inline u64 RPMX_MTI_RSFEC_VENDOR_REVISION(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_RSFEC_VENDOR_REVISION(void)
+{
+	return 0x38518;
+}
+
+/**
+ * Register (RSL) rpm#_mti_stat_captured_page_counter#
+ *
+ * RPM MTI Statistics Captured Page Counter Register Set of registers
+ * that contain all the RX or TX counters of a specific port, upon
+ * capture command. When TX statistics are captured only 34 entries
+ * contain the snapshot values. When RX statistics are captured only 43
+ * entries contain the snapshot values. These registers contain only the
+ * 32 lower bits of each counter. Reading a captured counter will latch
+ * its 32 upper bits in RPM_MTI_STAT_DATA_HI_CDC register.
+ */
+union rpmx_mti_stat_captured_page_counterx {
+	u64 u;
+	struct rpmx_mti_stat_captured_page_counterx_s {
+		u64 counter_low                      : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_stat_captured_page_counterx_s cn; */
+};
+
+static inline u64 RPMX_MTI_STAT_CAPTURED_PAGE_COUNTERX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_STAT_CAPTURED_PAGE_COUNTERX(u64 a)
+{
+	return 0x11000 + 8 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_stat_data_hi_cdc
+ *
+ * RPM MTI Statistics Data HI Register The upper 32-bit of the 64-Bit
+ * counter value latched from last counter read.
+ */
+union rpmx_mti_stat_data_hi_cdc {
+	u64 u;
+	struct rpmx_mti_stat_data_hi_cdc_s {
+		u64 data_hi_cdc                      : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_stat_data_hi_cdc_s cn; */
+};
+
+static inline u64 RPMX_MTI_STAT_DATA_HI_CDC(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_STAT_DATA_HI_CDC(void)
+{
+	return 0x10038;
+}
+
+/**
+ * Register (RSL) rpm#_mti_stat_rx_stat_pages_counter#
+ *
+ * RPM MTI Statistics RX Statistics Pages Register Per-port RX statistics
+ * pages. 43 counters per page/port. Only 4 ports are implemented.
+ * Indices 343:172 are reserved.
+ */
+union rpmx_mti_stat_rx_stat_pages_counterx {
+	u64 u;
+	struct rpmx_mti_stat_rx_stat_pages_counterx_s {
+		u64 counter_low                      : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_stat_rx_stat_pages_counterx_s cn; */
+};
+
+static inline u64 RPMX_MTI_STAT_RX_STAT_PAGES_COUNTERX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_STAT_RX_STAT_PAGES_COUNTERX(u64 a)
+{
+	return 0x12000 + 8 * a;
+}
+
+/**
+ * Register (RSL) rpm#_mti_stat_statn_clearvalue_hi
+ *
+ * RPM MTI Statistics Clear Value HI Register Upper 32bit of 64bit value
+ * written into statistics memory when a clear command is triggered, or
+ * clear-after-read is used.
+ */
+union rpmx_mti_stat_statn_clearvalue_hi {
+	u64 u;
+	struct rpmx_mti_stat_statn_clearvalue_hi_s {
+		u64 statn_clearvalue_hi              : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_stat_statn_clearvalue_hi_s cn; */
+};
+
+static inline u64 RPMX_MTI_STAT_STATN_CLEARVALUE_HI(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_STAT_STATN_CLEARVALUE_HI(void)
+{
+	return 0x10028;
+}
+
+/**
+ * Register (RSL) rpm#_mti_stat_statn_clearvalue_lo
+ *
+ * RPM MTI Statistics Clear Value LO Register Lower 32bit of 64bit value
+ * written into statistics memory when a clear command is triggered, or
+ * clear-after-read is used.
+ */
+union rpmx_mti_stat_statn_clearvalue_lo {
+	u64 u;
+	struct rpmx_mti_stat_statn_clearvalue_lo_s {
+		u64 statn_clearvalue_lo              : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_stat_statn_clearvalue_lo_s cn; */
+};
+
+static inline u64 RPMX_MTI_STAT_STATN_CLEARVALUE_LO(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_STAT_STATN_CLEARVALUE_LO(void)
+{
+	return 0x10020;
+}
+
+/**
+ * Register (RSL) rpm#_mti_stat_statn_config
+ *
+ * RPM MTI Statistics Config Register Configure Statistics Module
+ * Functions (saturate/wraparound, ...)
+ */
+union rpmx_mti_stat_statn_config {
+	u64 u;
+	struct rpmx_mti_stat_statn_config_s {
+		u64 saturate                         : 1;
+		u64 clear_on_read                    : 1;
+		u64 reserved_2_30                    : 29;
+		u64 reset                            : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_stat_statn_config_s cn; */
+};
+
+static inline u64 RPMX_MTI_STAT_STATN_CONFIG(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_STAT_STATN_CONFIG(void)
+{
+	return 0x10010;
+}
+
+/**
+ * Register (RSL) rpm#_mti_stat_statn_control
+ *
+ * RPM MTI Statistics Control Register Control commands to the module for
+ * clearing, latching statistics.
+ */
+union rpmx_mti_stat_statn_control {
+	u64 u;
+	struct rpmx_mti_stat_statn_control_s {
+		u64 portmask                         : 8;
+		u64 reserved_8_26                    : 19;
+		u64 cmd_capture_rx                   : 1;
+		u64 cmd_capture_tx                   : 1;
+		u64 clear_pre                        : 1;
+		u64 cmd_clear_rx                     : 1;
+		u64 cmd_clear_tx                     : 1;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_stat_statn_control_s cn; */
+};
+
+static inline u64 RPMX_MTI_STAT_STATN_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_STAT_STATN_CONTROL(void)
+{
+	return 0x10018;
+}
+
+/**
+ * Register (RSL) rpm#_mti_stat_statn_status
+ *
+ * RPM MTI Statistics Status Register Informal busy indicators providing
+ * a real-time indication that there is ongoing activity in a module.
+ * When a bit is 0 no counting activities do currently happen in that
+ * module.
+ */
+union rpmx_mti_stat_statn_status {
+	u64 u;
+	struct rpmx_mti_stat_statn_status_s {
+		u64 rx_statistics_busy               : 1;
+		u64 tx_statistics_busy               : 1;
+		u64 reserved_2_63                    : 62;
+	} s;
+	/* struct rpmx_mti_stat_statn_status_s cn; */
+};
+
+static inline u64 RPMX_MTI_STAT_STATN_STATUS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_STAT_STATN_STATUS(void)
+{
+	return 0x10008;
+}
+
+/**
+ * Register (RSL) rpm#_mti_stat_tx_stat_pages_counter#
+ *
+ * RPM MTI Statistics TX Statistics Pages Register Per-port TX statistics
+ * pages. 34 counters per page/port. Only 4 ports are implemented.
+ * Indices 271:136 are reserved.
+ */
+union rpmx_mti_stat_tx_stat_pages_counterx {
+	u64 u;
+	struct rpmx_mti_stat_tx_stat_pages_counterx_s {
+		u64 counter_low                      : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_mti_stat_tx_stat_pages_counterx_s cn; */
+};
+
+static inline u64 RPMX_MTI_STAT_TX_STAT_PAGES_COUNTERX(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_MTI_STAT_TX_STAT_PAGES_COUNTERX(u64 a)
+{
+	return 0x13000 + 8 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_baser_status1
+ *
+ * RPM USX PCS Baser Status1 Register Link Status Information.
+ */
+union rpmx_usx_pcsx_baser_status1 {
+	u64 u;
+	struct rpmx_usx_pcsx_baser_status1_s {
+		u64 block_lock                       : 1;
+		u64 high_ber                         : 1;
+		u64 reserved_2_11                    : 10;
+		u64 receive_link                     : 1;
+		u64 reserved_13_63                   : 51;
+	} s;
+	/* struct rpmx_usx_pcsx_baser_status1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_BASER_STATUS1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_BASER_STATUS1(u64 a)
+{
+	return 0x80100 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_baser_status2
+ *
+ * RPM USX PCS Baser Status2 Register Link Status latches and error
+ * counters.
+ */
+union rpmx_usx_pcsx_baser_status2 {
+	u64 u;
+	struct rpmx_usx_pcsx_baser_status2_s {
+		u64 errored_cnt                      : 8;
+		u64 ber_counter                      : 6;
+		u64 high_ber                         : 1;
+		u64 block_lock                       : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_baser_status2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_BASER_STATUS2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_BASER_STATUS2(u64 a)
+{
+	return 0x80108 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_baser_test_control
+ *
+ * RPM USX PCS Baser Test Control Register Test Pattern Generator and
+ * Checker controls.
+ */
+union rpmx_usx_pcsx_baser_test_control {
+	u64 u;
+	struct rpmx_usx_pcsx_baser_test_control_s {
+		u64 data_pattern_sel                 : 1;
+		u64 select_square                    : 1;
+		u64 rx_testpattern                   : 1;
+		u64 tx_testpattern                   : 1;
+		u64 reserved_4_6                     : 3;
+		u64 select_random                    : 1;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_usx_pcsx_baser_test_control_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_BASER_TEST_CONTROL(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_BASER_TEST_CONTROL(u64 a)
+{
+	return 0x80150 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_baser_test_err_cnt
+ *
+ * RPM USX PCS Baser Test Err Cnt Register Test Pattern Error Counter;
+ * Clears on read; None roll-over.
+ */
+union rpmx_usx_pcsx_baser_test_err_cnt {
+	u64 u;
+	struct rpmx_usx_pcsx_baser_test_err_cnt_s {
+		u64 counter                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_baser_test_err_cnt_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_BASER_TEST_ERR_CNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_BASER_TEST_ERR_CNT(u64 a)
+{
+	return 0x80158 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_ber_high_order_cnt
+ *
+ * RPM USX PCS Ber High Order Cnt Register BER High Order Counter of BER
+ * bits 21:6; None roll-over.
+ */
+union rpmx_usx_pcsx_ber_high_order_cnt {
+	u64 u;
+	struct rpmx_usx_pcsx_ber_high_order_cnt_s {
+		u64 ber_counter                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_ber_high_order_cnt_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_BER_HIGH_ORDER_CNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_BER_HIGH_ORDER_CNT(u64 a)
+{
+	return 0x80160 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_control1
+ *
+ * RPM MTI PCS Control1 Register PCS Control.
+ */
+union rpmx_usx_pcsx_control1 {
+	u64 u;
+	struct rpmx_usx_pcsx_control1_s {
+		u64 reserved_0_1                     : 2;
+		u64 speed_selection                  : 4;
+		u64 speed_always1                    : 1;
+		u64 reserved_7_10                    : 4;
+		u64 low_power                        : 1;
+		u64 reserved_12                      : 1;
+		u64 speed_select_always1             : 1;
+		u64 loopback                         : 1;
+		u64 reset                            : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_control1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_CONTROL1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_CONTROL1(u64 a)
+{
+	return 0x80000 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_control2
+ *
+ * RPM USX PCS Control2 Register Operating speed indication.
+ */
+union rpmx_usx_pcsx_control2 {
+	u64 u;
+	struct rpmx_usx_pcsx_control2_s {
+		u64 pcs_type                         : 4;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_usx_pcsx_control2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_CONTROL2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_CONTROL2(u64 a)
+{
+	return 0x80038 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_device_id0
+ *
+ * RPM USX PCS Device Id0 Register PHY Identifier constant from package
+ * parameter PHY_IDENTIFIER bits 15:4. Bits 3:0 always 0.
+ */
+union rpmx_usx_pcsx_device_id0 {
+	u64 u;
+	struct rpmx_usx_pcsx_device_id0_s {
+		u64 identifier0                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_device_id0_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_DEVICE_ID0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_DEVICE_ID0(u64 a)
+{
+	return 0x80010 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_device_id1
+ *
+ * RPM USX PCS Device Id1 Register PHY Identifier constant from package
+ * parameter PHY_IDENTIFIER bits 31:16.
+ */
+union rpmx_usx_pcsx_device_id1 {
+	u64 u;
+	struct rpmx_usx_pcsx_device_id1_s {
+		u64 identifier1                      : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_device_id1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_DEVICE_ID1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_DEVICE_ID1(u64 a)
+{
+	return 0x80018 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_devices_in_pkg1
+ *
+ * RPM USX PCS Devices In Pkg1 Register Constant indicating PCS presence.
+ */
+union rpmx_usx_pcsx_devices_in_pkg1 {
+	u64 u;
+	struct rpmx_usx_pcsx_devices_in_pkg1_s {
+		u64 clause22                         : 1;
+		u64 pmd_pma                          : 1;
+		u64 wis_pres                         : 1;
+		u64 pcs_pres                         : 1;
+		u64 phy_xs                           : 1;
+		u64 dte_xs                           : 1;
+		u64 tc_pres                          : 1;
+		u64 reserved_7_63                    : 57;
+	} s;
+	/* struct rpmx_usx_pcsx_devices_in_pkg1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_DEVICES_IN_PKG1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_DEVICES_IN_PKG1(u64 a)
+{
+	return 0x80028 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_devices_in_pkg2
+ *
+ * RPM USX PCS Devices In Pkg2 Register Vendor specific presence.
+ */
+union rpmx_usx_pcsx_devices_in_pkg2 {
+	u64 u;
+	struct rpmx_usx_pcsx_devices_in_pkg2_s {
+		u64 reserved_0_12                    : 13;
+		u64 clause22                         : 1;
+		u64 device1                          : 1;
+		u64 device2                          : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_devices_in_pkg2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_DEVICES_IN_PKG2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_DEVICES_IN_PKG2(u64 a)
+{
+	return 0x80030 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_err_blk_high_order_cnt
+ *
+ * RPM USX PCS Err Blk High Order Cnt Register Error Blocks High Order
+ * Counter bits 21:8; None roll-over.
+ */
+union rpmx_usx_pcsx_err_blk_high_order_cnt {
+	u64 u;
+	struct rpmx_usx_pcsx_err_blk_high_order_cnt_s {
+		u64 errored_blocks_counter           : 14;
+		u64 reserved_14                      : 1;
+		u64 high_order_present               : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_err_blk_high_order_cnt_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_ERR_BLK_HIGH_ORDER_CNT(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_ERR_BLK_HIGH_ORDER_CNT(u64 a)
+{
+	return 0x80168 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_multilane_align_stat1
+ *
+ * RPM USX PCS Multilane Align Stat1 Register Lane Alignment Status Bits
+ * and Block Lock.
+ */
+union rpmx_usx_pcsx_multilane_align_stat1 {
+	u64 u;
+	struct rpmx_usx_pcsx_multilane_align_stat1_s {
+		u64 lane_block_lock                  : 8;
+		u64 reserved_8_11                    : 4;
+		u64 lane_align_status                : 1;
+		u64 reserved_13_63                   : 51;
+	} s;
+	/* struct rpmx_usx_pcsx_multilane_align_stat1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_MULTILANE_ALIGN_STAT1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_MULTILANE_ALIGN_STAT1(u64 a)
+{
+	return 0x80190 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_pkg_id0
+ *
+ * RPM USX PCS Pkg Id0 Register Constant from package parameter
+ * PACK_IDENTIFIER bits 15:0.
+ */
+union rpmx_usx_pcsx_pkg_id0 {
+	u64 u;
+	struct rpmx_usx_pcsx_pkg_id0_s {
+		u64 identifier                       : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_pkg_id0_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_PKG_ID0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_PKG_ID0(u64 a)
+{
+	return 0x80070 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_pkg_id1
+ *
+ * RPM USX PCS Pkg Id1 Register Constant from package parameter
+ * PACK_IDENTIFIER bits 31:16.
+ */
+union rpmx_usx_pcsx_pkg_id1 {
+	u64 u;
+	struct rpmx_usx_pcsx_pkg_id1_s {
+		u64 identifier                       : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_pkg_id1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_PKG_ID1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_PKG_ID1(u64 a)
+{
+	return 0x80078 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_a0
+ *
+ * RPM USX PCS Seed A0 Register 10G Base-R Test Pattern Seed A bits 15:0.
+ */
+union rpmx_usx_pcsx_seed_a0 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_a0_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_a0_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_A0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_A0(u64 a)
+{
+	return 0x80110 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_a1
+ *
+ * RPM USX PCS Seed A1 Register 10G Base-R Test Pattern Seed A bits
+ * 31:16.
+ */
+union rpmx_usx_pcsx_seed_a1 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_a1_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_a1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_A1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_A1(u64 a)
+{
+	return 0x80118 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_a2
+ *
+ * RPM USX PCS Seed A2 Register 10G Base-R Test Pattern Seed A bits
+ * 47:32.
+ */
+union rpmx_usx_pcsx_seed_a2 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_a2_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_a2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_A2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_A2(u64 a)
+{
+	return 0x80120 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_a3
+ *
+ * RPM USX PCS Seed A3 Register 10G Base-R Test Pattern Seed A bits
+ * 57:48.
+ */
+union rpmx_usx_pcsx_seed_a3 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_a3_s {
+		u64 seed                             : 10;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_a3_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_A3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_A3(u64 a)
+{
+	return 0x80128 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_b0
+ *
+ * RPM USX PCS Seed B0 Register 10G Base-R Test Pattern Seed B bits 15:0.
+ */
+union rpmx_usx_pcsx_seed_b0 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_b0_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_b0_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_B0(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_B0(u64 a)
+{
+	return 0x80130 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_b1
+ *
+ * RPM USX PCS Seed B1 Register 10G Base-R Test Pattern Seed B bits
+ * 31:16.
+ */
+union rpmx_usx_pcsx_seed_b1 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_b1_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_b1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_B1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_B1(u64 a)
+{
+	return 0x80138 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_b2
+ *
+ * RPM USX PCS Seed B2 Register 10G Base-R Test Pattern Seed B bits
+ * 47:32.
+ */
+union rpmx_usx_pcsx_seed_b2 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_b2_s {
+		u64 seed                             : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_b2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_B2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_B2(u64 a)
+{
+	return 0x80140 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_seed_b3
+ *
+ * RPM USX PCS Seed B3 Register 10G Base-R Test Pattern Seed B bits
+ * 57:48.
+ */
+union rpmx_usx_pcsx_seed_b3 {
+	u64 u;
+	struct rpmx_usx_pcsx_seed_b3_s {
+		u64 seed                             : 10;
+		u64 reserved_10_63                   : 54;
+	} s;
+	/* struct rpmx_usx_pcsx_seed_b3_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SEED_B3(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SEED_B3(u64 a)
+{
+	return 0x80148 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_speed_ability
+ *
+ * RPM USX PCS Speed Ability Register PCS supported speeds (values as
+ * defined by standard only, no proprietary speeds).
+ */
+union rpmx_usx_pcsx_speed_ability {
+	u64 u;
+	struct rpmx_usx_pcsx_speed_ability_s {
+		u64 c10geth                          : 1;
+		u64 c10pass_ts                       : 1;
+		u64 c40g                             : 1;
+		u64 c100g                            : 1;
+		u64 c25g                             : 1;
+		u64 c50g                             : 1;
+		u64 reserved_6_63                    : 58;
+	} s;
+	/* struct rpmx_usx_pcsx_speed_ability_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_SPEED_ABILITY(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_SPEED_ABILITY(u64 a)
+{
+	return 0x80020 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_status1
+ *
+ * RPM USX PCS Status1 Register PCS Status.
+ */
+union rpmx_usx_pcsx_status1 {
+	u64 u;
+	struct rpmx_usx_pcsx_status1_s {
+		u64 reserved_0                       : 1;
+		u64 low_power_ability                : 1;
+		u64 pcs_receive_link                 : 1;
+		u64 reserved_3_6                     : 4;
+		u64 fault                            : 1;
+		u64 rx_lpi_active                    : 1;
+		u64 tx_lpi_active                    : 1;
+		u64 rx_lpi                           : 1;
+		u64 tx_lpi                           : 1;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_usx_pcsx_status1_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_STATUS1(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_STATUS1(u64 a)
+{
+	return 0x80008 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_status2
+ *
+ * RPM USX PCS Status2 Register Fault status; Device capabilities
+ */
+union rpmx_usx_pcsx_status2 {
+	u64 u;
+	struct rpmx_usx_pcsx_status2_s {
+		u64 c10gbase_r                       : 1;
+		u64 c10gbase_x                       : 1;
+		u64 c10gbase_w                       : 1;
+		u64 c10gbase_t                       : 1;
+		u64 c40gbase_r                       : 1;
+		u64 c100gbase_r                      : 1;
+		u64 reserved_6                       : 1;
+		u64 c25gbase_r                       : 1;
+		u64 c50gbase_r                       : 1;
+		u64 reserved_9                       : 1;
+		u64 receive_fault                    : 1;
+		u64 transmit_fault                   : 1;
+		u64 reserved_12_13                   : 2;
+		u64 device_present                   : 2;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_status2_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_STATUS2(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_STATUS2(u64 a)
+{
+	return 0x80040 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_vendor_core_rev
+ *
+ * RPM USX PCS Vendor Core Rev Register Vendor Specific Reg; Core
+ * Revision as defined by CORE_REVISION package parameter.
+ */
+union rpmx_usx_pcsx_vendor_core_rev {
+	u64 u;
+	struct rpmx_usx_pcsx_vendor_core_rev_s {
+		u64 revision                         : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_vendor_core_rev_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_VENDOR_CORE_REV(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_VENDOR_CORE_REV(u64 a)
+{
+	return 0x801e8 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_vendor_pcs_mode
+ *
+ * RPM USX PCS Vendor Pcs Mode Register Vendor Specific Reg; Configure
+ * PCS supporting Clause 49 or 82 Encoder/Decoder, MLD.
+ */
+union rpmx_usx_pcsx_vendor_pcs_mode {
+	u64 u;
+	struct rpmx_usx_pcsx_vendor_pcs_mode_s {
+		u64 ena_clause49                     : 1;
+		u64 disable_mld                      : 1;
+		u64 hi_ber25                         : 1;
+		u64 hi_ber5                          : 1;
+		u64 reserved_4_7                     : 4;
+		u64 st_ena_clause49                  : 1;
+		u64 st_disable_mld                   : 1;
+		u64 st_hi_ber25                      : 1;
+		u64 st_hi_ber5                       : 1;
+		u64 reserved_12_63                   : 52;
+	} s;
+	/* struct rpmx_usx_pcsx_vendor_pcs_mode_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_VENDOR_PCS_MODE(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_VENDOR_PCS_MODE(u64 a)
+{
+	return 0x801f0 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_vendor_scratch
+ *
+ * RPM USX PCS Vendor Scratch Register Vendor Specific Reg; Scratch
+ * Register.
+ */
+union rpmx_usx_pcsx_vendor_scratch {
+	u64 u;
+	struct rpmx_usx_pcsx_vendor_scratch_s {
+		u64 scratch                          : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_pcsx_vendor_scratch_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_VENDOR_SCRATCH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_VENDOR_SCRATCH(u64 a)
+{
+	return 0x801e0 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_pcs#_vendor_txlane_thresh
+ *
+ * RPM USX PCS Vendor Txlane Thresh Register A 4-bit value to define the
+ * transmit line decoupling FIFOs almost full threshold for lane0/4;
+ * Valid values are 5-10.
+ */
+union rpmx_usx_pcsx_vendor_txlane_thresh {
+	u64 u;
+	struct rpmx_usx_pcsx_vendor_txlane_thresh_s {
+		u64 threshold0                       : 4;
+		u64 reserved_4_63                    : 60;
+	} s;
+	/* struct rpmx_usx_pcsx_vendor_txlane_thresh_s cn; */
+};
+
+static inline u64 RPMX_USX_PCSX_VENDOR_TXLANE_THRESH(u64 a)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_PCSX_VENDOR_TXLANE_THRESH(u64 a)
+{
+	return 0x801f8 + 0x200 * a;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_align_match_err
+ *
+ * RPM USX Align Match Error Register
+ */
+union rpmx_usx_usxm_align_match_err {
+	u64 u;
+	struct rpmx_usx_usxm_align_match_err_s {
+		u64 mismatch_errcnt                  : 32;
+		u64 reserved_32_63                   : 32;
+	} s;
+	/* struct rpmx_usx_usxm_align_match_err_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_ALIGN_MATCH_ERR(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_ALIGN_MATCH_ERR(void)
+{
+	return 0x88020;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_control
+ *
+ * RPM USX MUX Control Register
+ */
+union rpmx_usx_usxm_control {
+	u64 u;
+	struct rpmx_usx_usxm_control_s {
+		u64 reserved_0_14                    : 15;
+		u64 reset                            : 1;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_control_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_CONTROL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_CONTROL(void)
+{
+	return 0x88000;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_ports_ena
+ *
+ * RPM USX Mux Ports Enable Register
+ */
+union rpmx_usx_usxm_ports_ena {
+	u64 u;
+	struct rpmx_usx_usxm_ports_ena_s {
+		u64 active_ports_used                : 5;
+		u64 reserved_5_63                    : 59;
+	} s;
+	/* struct rpmx_usx_usxm_ports_ena_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_PORTS_ENA(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_PORTS_ENA(void)
+{
+	return 0x88010;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_status
+ *
+ * RPM USX Mux Status Register
+ */
+union rpmx_usx_usxm_status {
+	u64 u;
+	struct rpmx_usx_usxm_status_s {
+		u64 receive_link_status              : 1;
+		u64 reserved_1                       : 1;
+		u64 receive_link_status_ll           : 1;
+		u64 reserved_3_63                    : 61;
+	} s;
+	/* struct rpmx_usx_usxm_status_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_STATUS(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_STATUS(void)
+{
+	return 0x88008;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl0_0
+ *
+ * RPM USX VL0_0 Register
+ */
+union rpmx_usx_usxm_vl0_0 {
+	u64 u;
+	struct rpmx_usx_usxm_vl0_0_s {
+		u64 vl0_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl0_0_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL0_0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL0_0(void)
+{
+	return 0x88080;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl0_1
+ *
+ * RPM USX VL0_1 Register
+ */
+union rpmx_usx_usxm_vl0_1 {
+	u64 u;
+	struct rpmx_usx_usxm_vl0_1_s {
+		u64 vl0_1                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl0_1_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL0_1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL0_1(void)
+{
+	return 0x88088;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl0_byte3
+ *
+ * RPM USX VL0 BYTE3 Register
+ */
+union rpmx_usx_usxm_vl0_byte3 {
+	u64 u;
+	struct rpmx_usx_usxm_vl0_byte3_s {
+		u64 vl0_byte3                        : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_usx_usxm_vl0_byte3_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL0_BYTE3(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL0_BYTE3(void)
+{
+	return 0x88028;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl1_0
+ *
+ * RPM USX VL1_0 Register
+ */
+union rpmx_usx_usxm_vl1_0 {
+	u64 u;
+	struct rpmx_usx_usxm_vl1_0_s {
+		u64 vl1_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl1_0_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL1_0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL1_0(void)
+{
+	return 0x88090;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl1_1
+ *
+ * RPM USX VL1_1 Register
+ */
+union rpmx_usx_usxm_vl1_1 {
+	u64 u;
+	struct rpmx_usx_usxm_vl1_1_s {
+		u64 vl1_1                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl1_1_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL1_1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL1_1(void)
+{
+	return 0x88098;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl2_0
+ *
+ * RPM USX VL2_0 Register
+ */
+union rpmx_usx_usxm_vl2_0 {
+	u64 u;
+	struct rpmx_usx_usxm_vl2_0_s {
+		u64 vl2_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl2_0_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL2_0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL2_0(void)
+{
+	return 0x880a0;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl2_1
+ *
+ * RPM USX VL2_1 Register
+ */
+union rpmx_usx_usxm_vl2_1 {
+	u64 u;
+	struct rpmx_usx_usxm_vl2_1_s {
+		u64 vl2_1                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl2_1_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL2_1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL2_1(void)
+{
+	return 0x880a8;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl3_0
+ *
+ * RPM USX VL3_0 Register
+ */
+union rpmx_usx_usxm_vl3_0 {
+	u64 u;
+	struct rpmx_usx_usxm_vl3_0_s {
+		u64 vl3_0                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl3_0_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL3_0(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL3_0(void)
+{
+	return 0x880b0;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl3_1
+ *
+ * RPM USX VL3_1 Register
+ */
+union rpmx_usx_usxm_vl3_1 {
+	u64 u;
+	struct rpmx_usx_usxm_vl3_1_s {
+		u64 vl3_1                            : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl3_1_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL3_1(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL3_1(void)
+{
+	return 0x880b8;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl_intvl
+ *
+ * RPM USX VL INTVL Register
+ */
+union rpmx_usx_usxm_vl_intvl {
+	u64 u;
+	struct rpmx_usx_usxm_vl_intvl_s {
+		u64 port_cycle_interval              : 16;
+		u64 reserved_16_63                   : 48;
+	} s;
+	/* struct rpmx_usx_usxm_vl_intvl_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL_INTVL(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL_INTVL(void)
+{
+	return 0x88018;
+}
+
+/**
+ * Register (RSL) rpm#_usx_usxm_vl_intvl_hi
+ *
+ * RPM USX VL INTVL HIGH Register
+ */
+union rpmx_usx_usxm_vl_intvl_hi {
+	u64 u;
+	struct rpmx_usx_usxm_vl_intvl_hi_s {
+		u64 vl_intvl_hi                      : 8;
+		u64 reserved_8_63                    : 56;
+	} s;
+	/* struct rpmx_usx_usxm_vl_intvl_hi_s cn; */
+};
+
+static inline u64 RPMX_USX_USXM_VL_INTVL_HI(void)
+	__attribute__ ((pure, always_inline));
+static inline u64 RPMX_USX_USXM_VL_INTVL_HI(void)
+{
+	return 0x88030;
+}
+#endif //#if 0
+#endif /* __CSRS_RPM_H__ */
