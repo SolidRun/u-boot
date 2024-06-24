@@ -228,6 +228,7 @@ obj-$(CONFIG_X86) += x86/
 
 obj-$(CONFIG_ARCH_MVEBU) += mvebu/
 
+obj-$(CONFIG_ARCH_CN20K) += marvell/
 obj-$(CONFIG_ARCH_CN10K) += marvell/
 obj-$(CONFIG_ARCH_OCTEONTX2) += marvell/
 obj-$(CONFIG_ARCH_OCTEONTX) += marvell/
