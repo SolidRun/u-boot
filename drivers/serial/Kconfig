@@ -1093,7 +1093,7 @@ config SYS_SDMR
 
 config FWLOG_TTYMEM
 	bool "Memory console"
-	depends on (ARCH_CN10K || ARCH_OCTEONTX2)
+	depends on (ARCH_CN10K || ARCH_OCTEONTX2 || ARCH_CN20K)
 	select CONSOLE_MUX
 	default n
 
