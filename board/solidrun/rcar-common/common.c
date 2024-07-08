@@ -41,7 +41,19 @@ int fdtdec_board_setup(const void *fdt_blob)
 
 int dram_init(void)
 {
-	return fdtdec_setup_mem_size_base();
+	int ret;
+
+	ret = fdtdec_setup_mem_size_base();
+
+#if defined(CONFIG_TARGET_RZG2L_SOLIDRUN)
+	if (rcar_atf_boot_args[2] && rcar_atf_boot_args[3]) {
+		gd->ram_size = (phys_size_t)rcar_atf_boot_args[3];
+		gd->ram_base = (unsigned long)rcar_atf_boot_args[2];
+		ret = 0;
+	}
+#endif
+
+	return ret;
 }
 
 int dram_init_banksize(void)
@@ -72,6 +84,13 @@ int dram_init_banksize(void)
 				}
 			}
 		}
+	}
+#endif
+
+#if defined(CONFIG_TARGET_RZG2L_SOLIDRUN)
+	if (rcar_atf_boot_args[2] && rcar_atf_boot_args[3]) {
+		gd->bd->bi_dram[0].size = (phys_size_t)rcar_atf_boot_args[3];
+		gd->bd->bi_dram[0].start = (unsigned long)rcar_atf_boot_args[2];
 	}
 #endif
 
