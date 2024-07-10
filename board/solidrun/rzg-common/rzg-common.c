@@ -91,6 +91,9 @@ int get_carrier(void)
 		if (sku[6] == 'E' || sku[6] == 'P')
 			board = CARRIER_HB_PRO;
 		break;
+	case 'I': // IIoT
+		board = CARRIER_HB_IIOT;
+		break;
 	default:
 		board = CARRIER_UNRECOGNIZED;
 		pr_warn("Did not recognise board variant in sku \"%s\"\n", sku);
