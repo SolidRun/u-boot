@@ -758,17 +758,14 @@ int nix_lf_setup_mac(struct udevice *dev)
 	 * Use this hook to update mac address in rpm lmac
 	 * and call mac filter setup to update new address.
 	 */
-printf("%s %d\n", __func__, __LINE__);
 	if (memcmp(nix->lmac->mac_addr, pdata->enetaddr, ARP_HLEN)) {
 		memcpy(nix->lmac->mac_addr, pdata->enetaddr, 6);
 		eth_env_set_enetaddr_by_index("eth", dev_seq(rvu->dev),
 					      pdata->enetaddr);
-printf("%s %d\n", __func__, __LINE__);
 		rpm_lmac_mac_filter_setup(nix->lmac);
 		/* Update user given MAC address to ATF for update
 		 * in sh_fwdata to use in Linux.
 		 */
-printf("%s %d\n", __func__, __LINE__);
 		//eth_intf_set_macaddr(dev);
 		debug("%s: lMAC %pM\n", __func__, nix->lmac->mac_addr);
 		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
