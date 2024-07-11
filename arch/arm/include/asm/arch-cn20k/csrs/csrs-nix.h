@@ -135,7 +135,7 @@
 #define NIX_LINK_E_MC_CN10KB (0x1b)
 #define NIX_LINK_E_MC_CNF10KA (0xf)
 #define NIX_LINK_E_MC_CNF10KB (0xf)
-#define NIX_LINK_E_RPMX_LMACX_CN20KA(a, b) (0 + 4 * (a) + (b))
+#define NIX_LINK_E_RPMX_LMACX_CN20KA(a, b) (0 + 8 * (a) + (b))
 #define NIX_LINK_E_RPMX_LMACX_CN10KA(a, b) (0 + 4 * (a) + (b))
 #define NIX_LINK_E_RPMX_LMACX_CN10KB(a, b) (0 + 8 * (a) + (b))
 #define NIX_LINK_E_RPMX_LMACX_CNF10KA(a, b) (0 + 4 * (a) + (b))
