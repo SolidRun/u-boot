@@ -31,11 +31,11 @@ config CMD_PHY_DIAGNOSTICS
 	   reading/writing PHY registers.
 
 config CMD_EFI_CMDS
-	depends on ARCH_CN10K
+	depends on ARCH_CN10K || ARCH_CN20K
 	bool "EFI commands"
 	help
-	   Support to load EFI Application Images from Secure SPI Flash
-	   on CN10K platforms.
+	   Support to load EFI Application Images from boot flash
+	   on CN10K/CN20K platforms.
 
 config CMD_SWITCH_CMDS
 	depends on ARCH_CN10K

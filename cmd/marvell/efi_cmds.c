@@ -8,6 +8,7 @@
 #include <command.h>
 #include <dm.h>
 #include <asm/arch/smc.h>
+#include <efi_loader.h>
 
 static int do_efi_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
@@ -24,7 +25,17 @@ static int do_efi_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!addr)
 		return ret;
 
+#ifdef CONFIG_TARGET_CN20K_A
+	u64 dev_flags = 0;
+	const char *str;
+
+	efi_get_boot_device_name(&str);
+	/* Load image from boot device */
+	efi_get_boot_device_mode(str, &dev_flags);
+	ret = smc_load_efi_img(addr, &size, dev_flags);
+#else
 	ret = smc_load_efi_img(addr, &size);
+#endif
 	if (ret)
 		return CMD_RET_FAILURE;
 
