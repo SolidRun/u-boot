@@ -270,11 +270,6 @@ unload:
 	return ret;
 }
 
-__weak int smc_load_efi_img(u64 img_addr, u64 *img_size)
-{
-	return 1;
-}
-
 static efi_status_t efi_load_from_secure_spi(efi_handle_t *handle,
 					     void **load_options)
 {
@@ -291,8 +286,18 @@ static efi_status_t efi_load_from_secure_spi(efi_handle_t *handle,
 
 	source_buffer = env_get_hex("loadaddr", 0x20080000);
 
+	/* Load image from boot device */
+#ifdef CONFIG_TARGET_CN20K_A
+	const char *str;
+	u64 dev_flags = 0;
+
+	efi_get_boot_device_name(&str);
+	efi_get_boot_device_mode(str, &dev_flags);
+	ret = smc_load_efi_img(source_buffer, &size, dev_flags);
+#else
 	/* Load image from Secure SPI Flash */
 	ret = smc_load_efi_img(source_buffer, &size);
+#endif
 	if (ret)
 		return EFI_LOAD_ERROR;
 

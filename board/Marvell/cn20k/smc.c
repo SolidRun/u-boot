@@ -62,7 +62,7 @@ ssize_t smc_flsf_clr_force_2ndry(void)
  * Perform EFI Application Image load to DRAM in ATF
  *
  * x1 - Image location
- * x2 - Pointer to store image size
+ * x2 - Flags for device to read image from
  *
  * Return:
  *	x0:
@@ -71,13 +71,16 @@ ssize_t smc_flsf_clr_force_2ndry(void)
  *		-2 -- SPI_CONFIG_ERR
  *		-3 -- SPI_MMAP_ERR
  *		-5 -- EIO
+ *
+ *	x1:	size of image that was loaded
  */
-int smc_load_efi_img(u64 img_addr, u64 *img_size)
+int smc_load_efi_img(u64 img_addr, u64 *img_size, u64 flags)
 {
 	struct pt_regs regs;
 
 	regs.regs[0] = PLAT_OCTEONTX_LOAD_EFI_APP;
 	regs.regs[1] = img_addr;
+	regs.regs[2] = flags;
 	smc_call(&regs);
 
 	*img_size = regs.regs[1];

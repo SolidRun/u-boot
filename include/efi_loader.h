@@ -1159,5 +1159,8 @@ efi_status_t efi_console_get_u16_string
 		 int row, int col);
 
 efi_status_t efi_disk_get_device_name(const efi_handle_t handle, char *buf, int size);
-
+efi_status_t efi_get_boot_device_name(const char **name);
+#ifdef CONFIG_TARGET_CN20K_A
+efi_status_t efi_get_boot_device_mode(const char *dev_name, u64 *mode);
+#endif
 #endif /* _EFI_LOADER_H */

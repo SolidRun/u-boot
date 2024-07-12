@@ -12,15 +12,61 @@
 #include <efi_variable.h>
 #include <log.h>
 #include <dm.h>
+#include <mmc.h>
+#include <asm/arch/update.h>
 
 #define OBJ_LIST_NOT_INITIALIZED 1
 
 efi_status_t __efi_runtime_data efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
 
-const char *get_boot_device(void)
+#ifdef CONFIG_TARGET_CN20K_A
+efi_status_t efi_get_boot_device_mode(const char *dev_name, u64 *mode)
+{
+	int dev_bus;
+	struct mmc *mmc_dev;
+	u64 cs;
+
+	*mode = 0;
+	if (!strcmp(dev_name, "EMMC_CS0")) {
+		dev_bus = 0;
+	} else {
+		dev_bus = -1;
+		return EFI_SUCCESS;
+	}
+
+	mmc_dev = find_mmc_device(dev_bus);
+	if (!mmc_dev) {
+		printf("No mmc device for bus %d\n", dev_bus);
+		return EFI_SUCCESS;
+	}
+	if (!mmc_getcd(mmc_dev))
+		mmc_dev->has_init = 0;
+	mmc_dev->user_speed_mode = MMC_MODES_END;
+	if (mmc_init(mmc_dev))
+		return EFI_DEVICE_ERROR;
+
+	cs = UPDATE_MMC_CS_RCA(mmc_dev->rca) | UPDATE_MMC_CS_FLAG;
+	if (!mmc_dev->high_capacity)
+		cs |= UPDATE_MMC_CS_FLAG_BYTE_ACCESS;
+	if (IS_SD(mmc_dev))
+		cs |= UPDATE_MMC_CS_FLAG_SD;
+	if (mmc_dev->ocr & BIT(7))
+		cs |= UPDATE_MMC_CS_FLAG_1_8V;
+	if (mmc_dev->ocr & 0xff8000)
+		cs |= UPDATE_MMC_CS_FLAG_3_3V;
+	pr_debug("%s: rca: 0x%x, ocr: 0x%x, signal voltage: 0x%x\n",
+		 __func__, mmc_dev->rca, mmc_dev->ocr, mmc_dev->signal_voltage);
+	*mode = cs;
+
+	return EFI_SUCCESS;
+}
+#endif
+
+efi_status_t efi_get_boot_device_name(const char **name)
 {
 	ofnode node;
-	const char *str = NULL;
+
+	*name = NULL;
 
 	if (IS_ENABLED(CONFIG_ARCH_CN20K))
 		node = ofnode_path("/marvell,ebf");
@@ -28,13 +74,13 @@ const char *get_boot_device(void)
 		node = ofnode_path("/cavium,bdk");
 	if (ofnode_valid(node))
 		if (IS_ENABLED(CONFIG_ARCH_CN10K) || IS_ENABLED(CONFIG_ARCH_CN20K))
-			str = ofnode_read_string(node, "BOOT-DEVICE");
+			*name = ofnode_read_string(node, "BOOT-DEVICE");
 		else
-			str = ofnode_read_string(node, "BOOT-DEVICE.N0");
+			*name = ofnode_read_string(node, "BOOT-DEVICE.N0");
 	else
 		printf("Error: cannot retrieve boot device from fdt\n");
 
-	return str;
+	return EFI_SUCCESS;
 }
 
 /*
@@ -239,7 +285,9 @@ out:
 efi_status_t efi_init_obj_list(void)
 {
 	efi_status_t ret = EFI_SUCCESS;
-	const char *str = get_boot_device();
+	const char *str;
+
+	efi_get_boot_device_name(&str);
 
 	/* Initialize once only */
 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
@@ -289,7 +337,6 @@ efi_status_t efi_init_obj_list(void)
 	}
 
 	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
-
 		if ((fdt_node_offset_by_compatible(gd->fdt_blob, -1, "tcg,tpm_tis-spi") >= 0) ||
 		    (fdt_node_offset_by_compatible(gd->fdt_blob, -1, "tcg,tpm-tis-i2c") >= 0)) {
 			ret = efi_tcg2_register();
