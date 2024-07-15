@@ -240,7 +240,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return ret;
 }
 
-u64 fdt_get_board_mac_addr(bool use_id, u8 id)
+u64 fdt_get_board_mac_addr(u8 id)
 {
 	int node, len = 16;
 	const char *str = NULL;
@@ -252,11 +252,8 @@ u64 fdt_get_board_mac_addr(bool use_id, u8 id)
 	if (!node)
 		return mac_addr;
 
-	debug("fdt: %d %d\n", use_id, id);
-	if (use_id)
-		snprintf(name, sizeof(name), "BOARD-MAC-ADDRESS-ID%d", id);
-	else
-		snprintf(name, sizeof(name), "BOARD-MAC-ADDRESS");
+	debug("fdt: %d\n", id);
+	snprintf(name, sizeof(name), "BOARD-MAC-ADDRESS-ID%d", id);
 
 	debug("fdt: %s\n", name);
 	str = fdt_getprop(fdt, node, name, &len);
@@ -266,7 +263,7 @@ u64 fdt_get_board_mac_addr(bool use_id, u8 id)
 	return mac_addr;
 }
 
-int fdt_get_board_mac_cnt(bool *use_id)
+int fdt_get_board_mac_cnt(void)
 {
 	int node, len = 16;
 	const char *str = NULL;
@@ -276,15 +273,7 @@ int fdt_get_board_mac_cnt(bool *use_id)
 	node = fdt_get_bdk_node();
 	if (!node)
 		return mac_count;
-	str = fdt_getprop(fdt, node, "BOARD-MAC-ADDRESS-NUM", &len);
-	if (str) {
-		mac_count = simple_strtol(str, NULL, 10);
-		if (!mac_count)
-			mac_count = simple_strtol(str, NULL, 16);
-		debug("fdt: MAC_NUM %d\n", mac_count);
-	} else {
-		printf("Error: cannot retrieve mac count prop from fdt\n");
-	}
+
 	str = fdt_getprop(fdt, node, "BOARD-MAC-ADDRESS-ID-NUM", &len);
 	if (str) {
 		mac_id_count = simple_strtol(str, NULL, 10);
@@ -294,9 +283,8 @@ int fdt_get_board_mac_cnt(bool *use_id)
 		if (mac_id_count)
 			mac_count = mac_id_count;
 	} else {
-		printf("Error: cannot retrieve mac count prop from fdt\n");
+		debug("Error: cannot retrieve mac count prop from fdt\n");
 	}
-	*use_id = mac_id_count ? true : false;
 	return mac_count;
 }
 

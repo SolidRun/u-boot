@@ -63,18 +63,14 @@ void cn20k_board_get_mac_addr(u8 index, u8 *mac_addr)
 {
 	u64 tmp_mac, mac;
 	static int mac_num;
-	bool use_id;
 
 	memset(mac_addr, 0, ARP_HLEN);
-	mac_num = fdt_get_board_mac_cnt(&use_id);
+	mac_num = fdt_get_board_mac_cnt();
 
 	if (mac_num && (index < mac_num)) {
-		mac = fdt_get_board_mac_addr(use_id, index);
+		mac = fdt_get_board_mac_addr(index);
 		if (!is_zero_ethaddr((u8 *)&mac)) {
-			tmp_mac = mac;
-			if (!use_id)
-				tmp_mac += index;
-			tmp_mac = swab64(tmp_mac) >> 16;
+			tmp_mac = swab64(mac) >> 16;
 			memcpy(mac_addr, (u8 *)&tmp_mac, ARP_HLEN);
 		}
 	}
