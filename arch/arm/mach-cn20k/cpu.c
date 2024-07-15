@@ -15,7 +15,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CN20K_MEM_MAP_USED 12
+#define CN20K_MEM_MAP_USED 11
 
 /* +1 is end of list which needs to be empty */
 #define CN20K_MEM_MAP_MAX (CN20K_MEM_MAP_USED + CONFIG_NR_DRAM_BANKS + 3)
