@@ -71,11 +71,6 @@ int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 	cf_read_tlv_data();
 
 	/* Apply build configuration options before runtime configuration */
-	if (IS_ENABLED(CONFIG_TARGET_CLEARFOG_BASE)) {
-		board_serdes_map[4].serdes_type = USB3_HOST0;
-		board_serdes_map[4].serdes_mode = SERDES_DEFAULT_MODE;
-	}
-
 	if (IS_ENABLED(CONFIG_CLEARFOG_SFP_25GB))
 		board_serdes_map[5].serdes_speed = SERDES_SPEED_3_125_GBPS;
 
