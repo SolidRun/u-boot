@@ -456,9 +456,7 @@ __weak void mmu_setup(void)
 			  MEMORY_ATTRIBUTES);
 
 	/* enable the mmu */
-#ifndef CONFIG_ARCH_CN20K
-		set_sctlr(get_sctlr() | CR_M);
-#endif
+	set_sctlr(get_sctlr() | CR_M);
 }
 
 /*
