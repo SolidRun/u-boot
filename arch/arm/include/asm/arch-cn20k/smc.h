@@ -11,6 +11,7 @@
 #include <asm/arch/smc-id.h>
 
 ssize_t smc_dram_size(unsigned int node);
+ssize_t smc_disable_rvu_lfs(unsigned int node);
 
 /*
  * Get RVU Reserved Memory Region Info

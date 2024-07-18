@@ -375,6 +375,17 @@ void board_quiesce_devices(void)
 		}
 	}
 
+	/* Bring down all lmac links */
+	if (IS_ENABLED(CONFIG_CN20K_ETH_INTF))
+		eth_intf_shutdown();
+
+	/* Removes all RPM and RVU AF devices */
+	if (IS_ENABLED(CONFIG_NET_CN20K))
+		probe_network_devices(false);
+
+	/* SMC call - removes all LF<->PF mappings */
+	smc_disable_rvu_lfs(0);
+
 #if CONFIG_IS_ENABLED(WDT)
 	/* Stop watchdog */
 	wdt_stop_all();

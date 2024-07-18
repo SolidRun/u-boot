@@ -55,4 +55,5 @@ void cn20k_board_get_mac_addr(u8 index, u8 *mac_addr);
 void init_sh_fwdata(void);
 struct udevice;
 int board_acquire_flash_arb(bool acquire);
+void eth_intf_shutdown(void);
 #endif /* __BOARD_H__ */
