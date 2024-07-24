@@ -12,8 +12,10 @@
 #include <efi_variable.h>
 #include <log.h>
 #include <dm.h>
+#ifdef CONFIG_TARGET_CN20K_A
 #include <mmc.h>
 #include <asm/arch/update.h>
+#endif
 
 #define OBJ_LIST_NOT_INITIALIZED 1
 

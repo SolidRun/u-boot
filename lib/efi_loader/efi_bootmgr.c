@@ -270,6 +270,12 @@ unload:
 	return ret;
 }
 
+#ifdef CONFIG_TARGET_CN20K_A
+__weak int smc_load_efi_img(u64 img_addr, u64 *img_size, u64 flags);
+#else
+__weak int smc_load_efi_img(u64 img_addr, u64 *img_size);
+#endif
+
 static efi_status_t efi_load_from_secure_spi(efi_handle_t *handle,
 					     void **load_options)
 {
