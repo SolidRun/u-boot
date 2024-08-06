@@ -487,6 +487,9 @@ static void board_id_from_tlv_info(void) {
 				if (hb_tlv_data.tlv_part_number[i][7] == 'X')
 					tmp = "extended";
 				break;
+				case 'I': // IIOT
+				tmp = "iiot-main";
+				break;
 			    default:
 				pr_err("%s: did not recognise board variant '%c' in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_part_number[i][5], hb_tlv_data.tlv_part_number[i]);
 				tmp = 0;
@@ -553,6 +556,9 @@ static void board_id_from_tlv_info(void) {
 			break;
 		    case 'R': // Ripple
 			tmp = "hummingboard-ripple";
+			break;
+		    case 'I': // IIOT
+			tmp = "hummingboard-iiot-main";
 			break;
 		    case 'X': // CuBox
 			tmp = "cubox-m";
