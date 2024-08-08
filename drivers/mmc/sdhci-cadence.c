@@ -323,6 +323,11 @@ static u16 sdhci_cdns_get_delay_element(struct sdhci_host *host);
 
 static void dump_sdhci_regs(struct sdhci_cdns_plat *plat);
 
+/*
+ * t_dat_output_min is the hold time
+ * t_dat_output_max is the period - setup_time
+ */
+
 static void init_hs(struct sdhci_cdns_sd6_phy_timings *t, int t_sdclk)
 {
 	DEBUG_DRV("%s\n", __func__);
@@ -450,7 +455,7 @@ static void init_emmc_hs400(struct sdhci_cdns_sd6_phy_timings *t, int t_sdclk)
 	DEBUG_DRV("%s\n", __func__);
 	*t = (struct sdhci_cdns_sd6_phy_timings){
 		.t_cmd_output_min = 800, .t_cmd_output_max = t_sdclk - 1400,
-		.t_dat_output_min = 400, .t_dat_output_max = (t_sdclk / 2) - 800,
+		.t_dat_output_min = 750, .t_dat_output_max = (t_sdclk / 2) - 1100,
 		.t_cmd_input_min = 1000, .t_cmd_input_max = t_sdclk + 1000,
 		.t_dat_input_min = 1000, .t_dat_input_max = t_sdclk + 1000,
 		.t_sdclk_min = 1000000 / 200, .t_sdclk_max = 1000000 / 100
