@@ -143,8 +143,8 @@ int npa_lf_setup(struct nix *nix, int npa_lf)
 	npa->q_len[NPA_POOL_SQB] = SQB_QLEN;
 	npa->q_len[NPA_POOL_RX_LPB] = RQ_LPB_QLEN;
 
-	npa->buf_size[NPA_POOL_RX] = MAX_MTU + NIX_CACHELINE_SIZE;
-	npa->buf_size[NPA_POOL_TX] = MAX_MTU + NIX_CACHELINE_SIZE;
+	npa->buf_size[NPA_POOL_RX] = MAX_MTU;
+	npa->buf_size[NPA_POOL_TX] = MAX_MTU;
 	npa->buf_size[NPA_POOL_SQB] = nix_af->sqb_size;
 	npa->buf_size[NPA_POOL_RX_LPB] = NIX_MAX_HW_MTU + NIX_CACHELINE_SIZE;
 
@@ -199,7 +199,7 @@ int npa_lf_setup(struct nix *nix, int npa_lf)
 
 		memset(pool, 0, sizeof(*pool));
 		pool->s.fc_ena = 0;
-		pool->s.nat_align = 1;
+		pool->s.nat_align = 0;
 		pool->s.stack_base = (u64)(npa->pool_stack[idx]);
 		debug("%s pool.s.stack_base %llx stack_base %p[%d]\n", __func__,
 		      pool->s.stack_base, npa->pool_stack[idx], idx);
