@@ -409,9 +409,14 @@ struct nix *nix_lf_alloc(struct udevice *dev, int nix_id)
 		return NULL;
 	}
 	debug("%s rpm is v2 %d\n", __func__, nix->lmac->rpm->is_v2);
-	nix->lmac->link_num =
+	if (otx_is_soc(CN20KA))
+		nix->lmac->link_num =
 		NIX_LINK_E_RPMX_LMACX_CN20KA(nix->lmac->rpm->rpm_id,
 					     nix->lmac->lmac_id);
+	else
+		nix->lmac->link_num =
+		NIX_LINK_E_RPMX_LMACX_CNF20KA(nix->lmac->rpm->rpm_id,
+					      nix->lmac->lmac_id);
 	nix->lmac->chan_num =
 		NIX_CHAN_RPM_LMAC_CHX(nix->lmac->rpm->rpm_id,
 				      nix->lmac->lmac_id, 0);

@@ -4841,7 +4841,7 @@ static inline u64 RPMX_CMRX_ACTIVITY(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5d80 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6a00 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5d80 + 0x100000 * a;
@@ -4987,7 +4987,7 @@ static inline u64 RPMX_CMRX_FC_STATUS(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5d88 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6a08 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5d88 + 0x100000 * a;
@@ -5149,7 +5149,7 @@ static inline u64 RPMX_CMRX_PRT_CBFC_CTL(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5b08 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6510 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5b08 + 0x100000 * a;
@@ -5184,7 +5184,7 @@ static inline u64 RPMX_CMRX_RX_BP_DROP(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x40e0 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x30e0 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x40e0 + 0x100000 * a;
@@ -5219,7 +5219,7 @@ static inline u64 RPMX_CMRX_RX_BP_OFF(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x40f0 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x30f0 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x40f0 + 0x100000 * a;
@@ -5248,7 +5248,7 @@ static inline u64 RPMX_CMRX_RX_BP_ON(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x40e8 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x30e8 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x40e8 + 0x100000 * a;
@@ -5283,7 +5283,7 @@ static inline u64 RPMX_CMRX_RX_DMAC_CTL0(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4ff8 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3ff8 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4ff8 + 0x100000 * a;
@@ -5313,7 +5313,7 @@ static inline u64 RPMX_CMRX_RX_FIFO_LEN(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4108 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3108 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4108 + 0x100000 * a;
@@ -5345,7 +5345,7 @@ static inline u64 RPMX_CMRX_RX_ID_MAP(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x60 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x80 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x60 + 0x100000 * a;
@@ -5374,7 +5374,7 @@ static inline u64 RPMX_CMRX_RX_LOGL_XOFF(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x40f8 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x30f8 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x40f8 + 0x100000 * a;
@@ -5403,7 +5403,7 @@ static inline u64 RPMX_CMRX_RX_LOGL_XON(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4100 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3100 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4100 + 0x100000 * a;
@@ -5460,7 +5460,7 @@ static inline u64 RPMX_CMRX_RX_STAT0(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4000 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3000 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4000 + 0x100000 * a;
@@ -5489,7 +5489,7 @@ static inline u64 RPMX_CMRX_RX_STAT1(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4008 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3008 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4008 + 0x100000 * a;
@@ -5570,7 +5570,7 @@ static inline u64 RPMX_CMRX_RX_STAT2(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4010 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3010 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4010 + 0x100000 * a;
@@ -5601,7 +5601,7 @@ static inline u64 RPMX_CMRX_RX_STAT3(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4018 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3018 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4018 + 0x100000 * a;
@@ -5637,7 +5637,7 @@ static inline u64 RPMX_CMRX_RX_STAT4(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4020 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3020 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4020 + 0x100000 * a;
@@ -5667,7 +5667,7 @@ static inline u64 RPMX_CMRX_RX_STAT5(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4028 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3028 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4028 + 0x100000 * a;
@@ -5699,7 +5699,7 @@ static inline u64 RPMX_CMRX_RX_STAT6(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4030 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3030 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4030 + 0x100000 * a;
@@ -5729,7 +5729,7 @@ static inline u64 RPMX_CMRX_RX_STAT7(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4038 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3038 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4038 + 0x100000 * a;
@@ -5759,7 +5759,7 @@ static inline u64 RPMX_CMRX_RX_STAT8(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x4040 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x3040 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x4040 + 0x100000 * a;
@@ -5812,7 +5812,7 @@ static inline u64 RPMX_CMRX_RX_STAT_DEFER_XOFF(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5c80 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6900 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5c80 + 0x100000 * a;
@@ -5841,7 +5841,7 @@ static inline u64 RPMX_CMRX_RX_STAT_PRIX_XOFF(u64 a, u64 b)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5c00 + 0x100000 * a + 8 * b;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6880 + 0x100000 * a + 8 * b;
 	if (otx_is_soc(CNF10KA))
 		return 0x5c00 + 0x100000 * a + 8 * b;
@@ -5872,7 +5872,7 @@ static inline u64 RPMX_CMRX_RX_UNDERSIZE(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5910 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6500 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5910 + 0x100000 * a;
@@ -5921,7 +5921,7 @@ static inline u64 RPMX_CMRX_SW_INT(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x180 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x1b0 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x180 + 0x100000 * a;
@@ -5951,7 +5951,7 @@ static inline u64 RPMX_CMRX_SW_INT_ENA_W1C(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x190 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x1c0 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x190 + 0x100000 * a;
@@ -5981,7 +5981,7 @@ static inline u64 RPMX_CMRX_SW_INT_ENA_W1S(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x198 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x1c8 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x198 + 0x100000 * a;
@@ -6010,7 +6010,7 @@ static inline u64 RPMX_CMRX_SW_INT_W1S(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x188 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x1b8 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x188 + 0x100000 * a;
@@ -6046,7 +6046,7 @@ static inline u64 RPMX_CMRX_TX_CHANNEL(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5b00 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6508 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5b00 + 0x100000 * a;
@@ -6076,7 +6076,7 @@ static inline u64 RPMX_CMRX_TX_FIFO_LEN(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5b18 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6800 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5b18 + 0x100000 * a;
@@ -6105,7 +6105,7 @@ static inline u64 RPMX_CMRX_TX_OVR_BP(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5b10 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6518 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5b10 + 0x100000 * a;
@@ -6180,7 +6180,7 @@ static inline u64 RPMX_CMRX_TX_STAT_PRIX_XOFF(u64 a, u64 b)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5d00 + 0x100000 * a + 8 * b;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6980 + 0x100000 * a + 8 * b;
 	if (otx_is_soc(CNF10KA))
 		return 0x5d00 + 0x100000 * a + 8 * b;
@@ -6211,7 +6211,7 @@ static inline u64 RPMX_CMRX_TX_THRESH(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5b20 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6808 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5b20 + 0x100000 * a;
@@ -6244,7 +6244,7 @@ static inline u64 RPMX_CMRX_TX_USER_PREAM_VALUE(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5b28 + 0x100000 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6810 + 0x100000 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5b28 + 0x100000 * a;
@@ -6658,7 +6658,7 @@ static inline u64 RPMX_CMR_P2XX_COUNT(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x140 + 8 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x140 + 0x10 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x140 + 8 * a;
@@ -6695,7 +6695,7 @@ static inline u64 RPMX_CMR_P2X_NIX0_NXC_ADR(void)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x1038;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x1020;
 	if (otx_is_soc(CNF10KA))
 		return 0x1038;
@@ -6769,7 +6769,7 @@ static inline u64 RPMX_CMR_RX_DMACX_CAM0(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5000 + 8 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x4000 + 8 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5000 + 8 * a;
@@ -6803,7 +6803,7 @@ static inline u64 RPMX_CMR_RX_LMACS(void)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x128;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x100;
 	if (otx_is_soc(CNF10KA))
 		return 0x128;
@@ -6863,7 +6863,7 @@ static inline u64 RPMX_CMR_RX_STEERING0X(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5800 + 8 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6000 + 8 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5800 + 8 * a;
@@ -6897,7 +6897,7 @@ static inline u64 RPMX_CMR_RX_STEERING_DEFAULT0(void)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5900;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6400;
 	if (otx_is_soc(CNF10KA))
 		return 0x5900;
@@ -6931,7 +6931,7 @@ static inline u64 RPMX_CMR_RX_STEERING_VETYPE0X(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x5880 + 8 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x6200 + 8 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x5880 + 8 * a;
@@ -6998,7 +6998,7 @@ static inline u64 RPMX_CMR_X2PX_COUNT(u64 a)
 {
 	if (otx_is_soc(CN10KA))
 		return 0x160 + 8 * a;
-	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA))
+	if (otx_is_soc(CN10KB) || otx_is_soc(CN20KA) || otx_is_soc(CNF20KA))
 		return 0x180 + 0x10 * a;
 	if (otx_is_soc(CNF10KA))
 		return 0x160 + 8 * a;
