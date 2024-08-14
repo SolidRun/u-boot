@@ -315,8 +315,8 @@ int dram_init(void)
 	int ret;
 
 	gd->ram_size = smc_dram_size(0);
-	/* Initial Secure region */
-	gd->ram_size += 0x1000000;
+	/* Initial Secure region, ECP region */
+	gd->ram_size += 0x2000000;
 	gd->ram_size -= CONFIG_SYS_SDRAM_BASE;
 
 	rvu_addr = 0;
