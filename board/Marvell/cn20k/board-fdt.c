@@ -334,3 +334,45 @@ void board_fdt_get_rsvd_size(u64 *addr, u64 *size)
 	}
 }
 #endif
+
+/*
+ * Get config option SWITCH-MICROINIT value if defined,
+ * otherwise default to 1.
+ */
+int fdt_get_switch_config(void)
+{
+	int node, config_switch = 1;
+	const char *str = NULL;
+	const void *fdt = gd->fdt_blob;
+
+	node = fdt_get_bdk_node();
+	if (!node)
+		return config_switch;
+
+	str = fdt_getprop(fdt, node, "SWITCH-MICROINIT", NULL);
+	if (str)
+		config_switch = (str[0] - '0');
+
+	return config_switch;
+}
+
+/*
+ * Get config option SWITCH-RESET value if defined,
+ * otherwise default to 1.
+ */
+int fdt_get_switch_reset(void)
+{
+	int node, config_switch = 1;
+	const char *str = NULL;
+	const void *fdt = gd->fdt_blob;
+
+	node = fdt_get_bdk_node();
+	if (!node)
+		return config_switch;
+
+	str = fdt_getprop(fdt, node, "SWITCH-RESET", NULL);
+	if (str)
+		config_switch = (str[0] - '0');
+
+	return config_switch;
+}

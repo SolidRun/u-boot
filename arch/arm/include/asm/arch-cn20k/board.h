@@ -56,4 +56,6 @@ void init_sh_fwdata(void);
 struct udevice;
 int board_acquire_flash_arb(bool acquire);
 void eth_intf_shutdown(void);
+int fdt_get_switch_config(void);
+int fdt_get_switch_reset(void);
 #endif /* __BOARD_H__ */
