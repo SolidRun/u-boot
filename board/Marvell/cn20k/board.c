@@ -24,6 +24,7 @@
 #include <asm/arch/smc.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/board.h>
+#include <asm/arch/switch.h>
 #include <dm/util.h>
 #include <spi.h>
 #include <wdt.h>
@@ -429,6 +430,9 @@ int board_late_init(void)
 
 	if (IS_ENABLED(CONFIG_NET_CN20K))
 		probe_network_devices(true);
+
+	if (IS_ENABLED(CONFIG_TARGET_CN20K_A))
+		board_switch_init();
 
 	if (save_env)
 		env_save();
