@@ -42,4 +42,22 @@ int smc_rvu_rsvd_reg_info(u64 *reg_addr, u64 *reg_size);
  */
 int smc_load_efi_img(u64 img_addr, u64 *img_size, u64 flags);
 
+/*
+ * Perform Switch Firmware load to DRAM in ATF
+ *
+ * x1 - super image location
+ * x2 - cm3 image location
+ * x3 - ptr to cm3 image size
+ *
+ * Return:
+ *	x0:
+ *		0 -- Success
+ *		-1 -- Invalid Arguments
+ *		-2 -- SPI_CONFIG_ERR
+ *		-3 -- SPI_MMAP_ERR
+ *		-5 -- EIO
+ */
+int smc_load_switch_fw(u64 super_img_addr, u64 cm3_img_addr,
+		       u64 *cm3_img_size);
+
 #endif	// __SMC_H__
