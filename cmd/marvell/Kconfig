@@ -38,7 +38,7 @@ config CMD_EFI_CMDS
 	   on CN10K/CN20K platforms.
 
 config CMD_SWITCH_CMDS
-	depends on ARCH_CN10K
+	depends on ARCH_CN10K || ARCH_CN20K
 	bool "Switch commands"
 	help
 	   Support command to configure switch ports on CN10K platforms.

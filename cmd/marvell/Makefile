@@ -30,4 +30,5 @@ ifdef CONFIG_ARCH_CN20K
 obj-$(CONFIG_CMD_ETH) += eth_cmds-cn10k.o
 obj-$(CONFIG_CMD_FAILSAFE) += octeontx2_failsafe_cmds.o
 obj-$(CONFIG_CMD_EFI_CMDS) += efi_cmds.o
+obj-$(CONFIG_CMD_SWITCH_CMDS) += switch_cmds.o
 endif

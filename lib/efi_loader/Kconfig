@@ -111,7 +111,7 @@ config EFI_SEC_SPI_NOR_FLASH
 
 config EFI_SWCFG_PROTOCOL
 	bool "Enable Switch Configuration protocol"
-	depends on ARCH_CN10K
+	depends on ARCH_CN10K || ARCH_CN20K
 	default n
 	help
 	  Select this option if you want to enable switch configuration
