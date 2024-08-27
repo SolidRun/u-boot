@@ -83,13 +83,23 @@ static void board_usb_init(int pin_type)
 
 int board_check_sd_emmc(void)
 {
-	int value = 0;
-	/* Read SD0_DEV_SEL_SW value - P22_1 */
-	/* eMMC/uSD Device Select - SD0_DEV_SEL_SW (LOW: uSD ; HIGH: eMMC) */
-	generic_clear_bit(1, PFC_PMC26); /* P22_1 Port GPIO mode */
-	generic_set_bit(2, PFC_PM26);	 /* P22_1 GPIO input mode */
-	value = ((u32)(((*(volatile u32 *)(PFC_PIN26)) & (1 << 1))) != 0); /* Port 22[1] read input value */
-	if (value == 0 || CONFIG_IS_ENABLED(SOLIDRUN_FORCE_SD_BOOT)) // Note: sd is LOW in g2l.
+	uint32_t reg_md_boot = 0;
+	/*
+	 * return 1 for uSD, 0 for eMMC
+	 * MD_BOOT[2:0]:
+	 * 0-uSD
+	 * 1-eMMC(1.8V)
+	 * 2-eMMC(3.3V)
+	 * 3-SPI(1.8V)
+	 * 4-SPI(3.3V)
+	 * 5-SCIF Downloading
+	 *
+	 * Note: eMMC/uSD Device Select - SD0_DEV_SEL_SW (LOW: uSD ; HIGH: eMMC)
+	 */
+	/* Extract MD_BOOT[2:0] (bits 0-2) */
+	reg_md_boot = (*(volatile u32 *)SYS_LSI_MODE) & 0x7;
+	printf("_MD_BOOT[2:0]=0x%x\n", reg_md_boot);
+	if (reg_md_boot == 0 || CONFIG_IS_ENABLED(SOLIDRUN_FORCE_SD_BOOT))
 		return 1;
 	return 0;
 }
