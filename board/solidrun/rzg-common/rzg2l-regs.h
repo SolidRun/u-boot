@@ -4,6 +4,7 @@
 
 
 #define PFC_BASE 0x11030000
+#define SYS_LSI_MODE 0x11020a00
 
 #define ETH_CH0 (PFC_BASE + 0x300c)
 #define ETH_CH1 (PFC_BASE + 0x3010)
