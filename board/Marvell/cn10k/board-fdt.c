@@ -21,6 +21,33 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* Below macro updates string property in FDT node.
+ * It makes sure that new string is not longer than the original one,
+ * so that all FDT offsets remain valid.
+ *
+ * In case new string is too long, either shorten new string or increase the size
+ * of given field within board-dedicated smbios-cn10k.dtsi file.
+ *
+ * Make sure 'value' is a char array, with size not less than size of the property.
+ *
+ * Here, do { code } while (0) ensures that the macro expands to a single statement,
+ * which can be safely used in if-else constructs without causing syntax errors.
+ */
+
+#define UPDATE_STRING_PROPERTY(node_off, prop, value) \
+	do { \
+		int curlen = 0;	\
+		fdt_getprop(fdt, node_off, prop, &curlen); \
+		if (strlen(value) >= curlen) { \
+			debug("SMBIOS: string for %s to long! Max len = %d\n", prop, curlen - 1); \
+			break; \
+		} \
+		memset(value + strlen(value), 0x20, sizeof(value) - strlen(value)); \
+		value[curlen - 1] = 0x00; \
+		fdt_setprop_inplace(fdt, node_off, prop, value, curlen); \
+		debug("SMBIOS: updated %d bytes of %s to %s\n", curlen, prop, value); \
+	} while (0)
+
 const char *fdt_get_run_platform(void)
 {
 	int node, ret, len = 32;
@@ -336,21 +363,19 @@ static void smbios_add_ddr_info(u8 dimm)
 
 	// Gather Module Supplier’s Data only when corresponding SPD data are available:
 	if (!skip_module_supplier_data) {
-		tmp_val32 = get_dram_serial();
-		sprintf(tmp_str, "%X", tmp_val32);
-		//fdt_setprop_string(fdt, node_offset, "serial-number", tmp_str);
-		debug("SMBIOS: updated serial-number to %s\n", tmp_str);
+		tmp_val32 = get_dram_serial();                                 // Get serial number
+		sprintf(tmp_str, "%X", tmp_val32);                             // Convert to string
+		UPDATE_STRING_PROPERTY(node_offset, "serial-number", tmp_str); // Update SN
 
 		tmp_val32 = get_module_manufacturer_id();
 		fdt_setprop_inplace_u32(fdt, node_offset, "module-manufacturer-id", tmp_val32);
 		debug("SMBIOS: updated module-manufacturer-id to 0x%x\n", tmp_val32);
 
-		// Updating "manufacturer" string node would require transalting table of
+		// Updating "manufacturer" string node would require translating table of
 		// module-manufacturer-id into corresponding string. Thus skipped "manufacturer" update.
 
-		get_dram_module_part_no(tmp_str);
-		//fdt_setprop_string(fdt, node_offset, "part-number", tmp_str);
-		debug("SMBIOS: updated part-number to %s\n", tmp_str);
+		get_dram_module_part_no(tmp_str);                            // Get part number
+		UPDATE_STRING_PROPERTY(node_offset, "part-number", tmp_str); // Update part number
 
 		tmp_val32 = get_product_id();
 		fdt_setprop_inplace_u32(fdt, node_offset, "module-product-id", tmp_val32);
@@ -402,18 +427,17 @@ void smbios_update_type4(void)
 		debug("SMBIOS: /soc@0 node found in FDT\n");
 
 		if (rev_str) {
-			//fdt_setprop_string(fdt, t4_node_offset, "processor-version", rev_str);
-			debug("SMBIOS: updated processor-version to %s\n", rev_str);
+			strcpy(tmp_str, rev_str);
+			// Update processor version
+			UPDATE_STRING_PROPERTY(t4_node_offset, "processor-version", tmp_str);
 		}
 	}
 
-	sprintf(tmp_str, "Not Specified");	// Might be adjusted by OEM
-	//fdt_setprop_string(fdt, t4_node_offset, "serial-number", tmp_str);
-	debug("SMBIOS: updated serial-number to %s\n", tmp_str);
+	sprintf(tmp_str, "Not Specified");                               // Might be adjusted by OEM
+	UPDATE_STRING_PROPERTY(t4_node_offset, "serial-number", tmp_str);// Update serial number
 
-	sprintf(tmp_str, "Not Specified");	// Might be adjusted by OEM
-	//fdt_setprop_string(fdt, t4_node_offset, "asset-tag", tmp_str);
-	debug("SMBIOS: updated asset-tag to %s\n", tmp_str);
+	sprintf(tmp_str, "Not Specified");                               // Might be adjusted by OEM
+	UPDATE_STRING_PROPERTY(t4_node_offset, "asset-tag", tmp_str);    // Update asset tag
 
 	switch (read_partnum()) {
 	case CN10KA:
@@ -433,8 +457,7 @@ void smbios_update_type4(void)
 		break;
 	}
 
-	//fdt_setprop_string(fdt, t4_node_offset, "part-number", tmp_str);
-	debug("SMBIOS: updated part-number to %s\n", tmp_str);
+	UPDATE_STRING_PROPERTY(t4_node_offset, "part-number", tmp_str); // Update part number
 
 	speed = fdt_getprop(fdt, cavium_bdk, "CORECLOCK-FREQ-MAX", NULL);
 	if (speed) {
