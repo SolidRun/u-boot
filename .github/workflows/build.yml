@@ -160,6 +160,7 @@ jobs:
           install -v -m644 -D u-boot-with-spl.kwb deploy/u-boot-clearfog-base-uart.kwb
 
       - name: Upload to S3
+        if: github.ref == 'refs/heads/v2024.04-solidrun-a38x' && github.event_name != 'pull_request'
         uses: shallwefootball/upload-s3-action@v1.3.3
         with:
           aws_key_id: ${{ secrets.IMAGES_S3_ACCESS }}
