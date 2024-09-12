@@ -1,0 +1,108 @@
+name: build
+
+on:
+  push:
+    branches: [ "v2018.01-solidrun-imx6" ]
+  pull_request:
+    branches: [ "v2018.01-solidrun-imx6" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  fetch_compile_publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: debian:buster-slim
+      env:
+        DEBIAN_FRONTEND: noninteractive
+        CROSS_COMPILE: arm-linux-gnueabihf-
+    outputs:
+      build_tag: ${{ steps.tag_step.outputs.build_tag }}
+      build_ver: ${{ steps.tag_step.outputs.build_ver }}
+
+    steps:
+      - name: Install Dependencies
+        run: |
+          apt-get update
+          apt-get upgrade -y
+          apt-get install -y bc bison build-essential crossbuild-essential-armhf flex git libncurses-dev libssl-dev
+
+      - name: Checkout pull-request
+        uses: actions/checkout@v4
+
+      - name: Get build tag
+        id: tag_step
+        run: |
+          build_tag=$(date +%Y-%m-%d)_$(echo ${{ github.sha }} | cut -c1-7)
+          echo "build_tag=$build_tag" >> "$GITHUB_OUTPUT"
+          echo "build_ver=v2018.01" >> "$GITHUB_OUTPUT"
+
+      - name: Build eMMC data
+        shell: bash
+        run: |
+          make mx6cuboxi_defconfig
+          make -j$(nproc)
+          install -v -m644 -D SPL deploy/spl-imx6-emmc
+          install -v -m644 -D u-boot.img deploy/u-boot-imx6-emmc.img
+
+      - name: Build eMMC boot0
+        shell: bash
+        run: |
+          make mx6cuboxi_defconfig
+          echo "CONFIG_SYS_MMC_ENV_PART=1" >> .config
+          make -j$(nproc)
+          install -v -m644 -D SPL deploy/spl-imx6-emmc-boot0
+          install -v -m644 -D u-boot.img deploy/u-boot-imx6-emmc-boot0.img
+
+      - name: Build eMMC boot1
+        shell: bash
+        run: |
+          make mx6cuboxi_defconfig
+          echo "CONFIG_SYS_MMC_ENV_PART=2" >> .config
+          make -j$(nproc)
+          install -v -m644 -D SPL deploy/spl-imx6-emmc-boot1
+          install -v -m644 -D u-boot.img deploy/u-boot-imx6-emmc-boot1.img
+
+      - name: Build SD
+        shell: bash
+        run: |
+          make mx6cuboxi_defconfig
+          echo "CONFIG_SPL_BOOT_DEVICE_SDHC=y" >> .config
+          make -j$(nproc)
+          install -v -m644 -D SPL deploy/spl-imx6-imx6-sd
+          install -v -m644 -D u-boot.img deploy/u-boot-imx6-sd.img
+
+
+      - name: Build SATA
+        shell: bash
+        run: |
+          make mx6cuboxi_defconfig
+          echo "CONFIG_SPL_BOOT_DEVICE_SATA=y" >> .config
+          echo "CONFIG_SCSI_AHCI=y" >> .config
+          echo "CONFIG_SPL_SATA_RAW_U_BOOT_USE_SECTOR=y" >> .config
+          echo "CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR=0x8a" >> .config
+          echo "CONFIG_ENV_IS_NOWHERE=y" >> .config
+          make -j$(nproc)
+          install -v -m644 -D SPL deploy/spl-imx6-sata
+          install -v -m644 -D u-boot.img deploy/u-boot-imx6-sata.img
+
+      - name: Build SPI
+        shell: bash
+        run: |
+          make mx6cuboxi_defconfig
+          echo "CONFIG_SPL_BOOT_DEVICE_SPI_FLASH=y" >> .config
+          make -j$(nproc)
+          install -v -m644 -D SPL deploy/spl-imx6-spi
+          install -v -m644 -D u-boot.img deploy/u-boot-imx6-spi.img
+
+      - name: Upload to S3
+        if: github.ref == 'refs/heads/v2018.01-solidrun-imx6' && github.event_name != 'pull_request'
+        uses: shallwefootball/upload-s3-action@v1.3.3
+        with:
+          aws_key_id: ${{ secrets.IMAGES_S3_ACCESS }}
+          aws_secret_access_key: ${{ secrets.IMAGES_S3_SECRET }}
+          aws_bucket: ${{ secrets.IMAGES_S3_BUCKET }}
+          endpoint: ${{ secrets.IMAGES_S3_HOST }}
+          source_dir: deploy
+          destination_dir: IMX6/U-Boot/${{ steps.tag_step.outputs.build_ver }}/${{ steps.tag_step.outputs.build_tag }}
