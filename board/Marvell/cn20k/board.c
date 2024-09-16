@@ -464,6 +464,9 @@ void board_quiesce_devices(void)
 	/* SMC call - removes all LF<->PF mappings */
 	smc_disable_rvu_lfs(0);
 
+	if (IS_ENABLED(CONFIG_TARGET_CN20K_A))
+		board_switch_reset();
+
 #if CONFIG_IS_ENABLED(WDT)
 	/* Stop watchdog */
 	wdt_stop_all();
