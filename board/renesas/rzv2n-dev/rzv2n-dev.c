@@ -250,6 +250,53 @@ static void board_usb_init(void)
 	(*(volatile u32 *)(USB20_BASE + HcRhDescriptorA)) |= (0x1u << 12);
 }
 
+static void board_pmic_i2c_check_val(struct udevice *dev, u8 reg_addr, u8 reg_val)
+{
+	u8 read_val;
+
+	/* Read back the value from register */
+	if (dm_i2c_read(dev, reg_addr, &read_val, 1)) {
+		printf("Error: Failed to read back value from register 0x%x\n", reg_addr);
+		return;
+	}
+
+	/* Check if the value was written correctly */
+	if (read_val != reg_val)
+		printf("Error: Written value was not correctly at register 0x%x\n", reg_addr);
+}
+
+static void board_pmic_i2c_init(void)
+{
+	struct udevice *bus, *dev;
+	int ret;
+	u8 reg_addr, reg_val;
+
+	/* Get the I2C bus */
+	ret = uclass_get_device_by_seq(UCLASS_I2C, 8, &bus);
+	if (ret)
+		goto pmic_failed;
+
+	/* Initialize I2C device at address 0x6a */
+	ret = dm_i2c_probe(bus, 0x6a, 0, &dev);
+	if (ret)
+		goto pmic_failed;
+
+	/* Write 0x00 to register 0x24 of device 0x6a */
+	reg_addr = 0x24;
+	reg_val = 0x00;
+	ret = dm_i2c_write(dev, reg_addr, &reg_val, 1);
+	if (ret)
+		goto pmic_failed;
+
+	board_pmic_i2c_check_val(dev, reg_addr, reg_val);
+
+	return;
+
+pmic_failed:
+	printf("Can not initialize PMIC settings via I2C8\n");
+	return;
+}
+
 int board_early_init_f(void)
 {
 	return 0;
@@ -261,6 +308,11 @@ int board_init(void)
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
 	board_usb_init();
+
+	/* Initialize PMIC I2C devices */
+#if (CONFIG_TARGET_RZV2N_EVK)
+	board_pmic_i2c_init();
+#endif
 
 	return 0;
 }
