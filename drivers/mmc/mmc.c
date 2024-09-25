@@ -948,16 +948,29 @@ static int mmc_set_card_speed(struct mmc *mmc, enum bus_mode mode,
 		return err;
 
 #if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	CONFIG_IS_ENABLED(MMC_HS400_SUPPORT) || \
+	CONFIG_IS_ENABLED(MMC_HS400ES_SUPPORT)
+
 	/*
-	 * In case the eMMC is in HS200/HS400 mode and we are downgrading
-	 * to HS mode, the card clock are still running much faster than
-	 * the supported HS mode clock, so we can not reliably read out
-	 * Extended CSD. Reconfigure the controller to run at HS mode.
+	 * In case the eMMC is in HS200/HS400/HS400ES mode and we are
+	 * downgrading to HS mode, the card clock are still running much
+	 * faster than the supported HS mode clock, so we can not reliably
+	 * read out Extended CSD. Reconfigure the controller to run at HS mode.
+	 * Also make sure emmc card switch to 8 bit SDR and disable ES mode
+	 * in case previous mode is HS400ES. Though this is handled in
+	 * mmc_select_mode_and_width(), Do it here to explicitly to avoid
+	 * failure in next exd_csd read command.
 	 */
 	if (hsdowngrade) {
 		mmc_select_mode(mmc, MMC_HS);
 		mmc_set_clock(mmc, mmc_mode2freq(mmc, MMC_HS), false);
+		err = __mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BUS_WIDTH,
+				   EXT_CSD_BUS_WIDTH_8 & ~EXT_CSD_DDR_FLAG &
+				   ~EXT_CSD_BUS_WIDTH_STROBE, !hsdowngrade);
+		if (err) {
+			printf("switch to bus width and mode failed\n");
+			return err;
+		}
 	}
 #endif
 
@@ -3017,6 +3030,7 @@ int mmc_init(struct mmc *mmc)
 int mmc_deinit(struct mmc *mmc)
 {
 	u32 caps_filtered;
+	int err = 0;
 
 	if (!mmc->has_init)
 		return 0;
@@ -3030,24 +3044,26 @@ int mmc_deinit(struct mmc *mmc)
 		return sd_select_mode_and_width(mmc, caps_filtered);
 	} else {
 		// if we are in enhanced strobe mode we have to disable it first in order
-		// to downgrade speed.
-		if (mmc->selected_mode == MMC_HS_200 ||
-		    mmc->selected_mode == MMC_HS_400 ||
-		    mmc->selected_mode == MMC_HS_400_ES) {
-	#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+		// to downgrade speed. Make sure to set card to HS400 before clearing
+		// strobe at host side. Othewise host and card goes out of sync as
+		// card remain in HS400ES
+		if (IS_ENABLED(CONFIG_MMC_HS400_ES_SUPPORT)) {
 			if (mmc->selected_mode == MMC_HS_400_ES) {
-				mmc_clear_enhanced_strobe(mmc);
-				mmc_set_card_speed(mmc, MMC_HS_400, false);
+				err = mmc_set_card_speed(mmc, MMC_HS_400, false);
+				if (err) {
+					pr_err("switch to bus for hs400 failed\n");
+					return err;
+				}
+				err = mmc_clear_enhanced_strobe(mmc);
+				if (err)
+					return err;
 			}
-
-			mmc_set_card_speed(mmc, MMC_HS, true);
-	#endif
-			caps_filtered = mmc->card_caps &
-				~(MMC_CAP(MMC_HS_200) |
-				  MMC_CAP(MMC_HS_400) |
-				  MMC_CAP(MMC_HS_400_ES));
-			return mmc_select_mode_and_width(mmc, caps_filtered);
 		}
+		caps_filtered = mmc->card_caps &
+			~(MMC_CAP(MMC_HS_200) |
+			  MMC_CAP(MMC_HS_400) |
+			  MMC_CAP(MMC_HS_400_ES));
+		return mmc_select_mode_and_width(mmc, caps_filtered);
 	}
 	return 0;
 }
