@@ -331,7 +331,7 @@ static int rpm_lmac_init(struct rpm *rpm)
 
 	rpm_const.u = rpm_read(rpm, RPMX_CONST());
 	rpm->max_lmac = rpm_const.s.lmacs;
-	rpm->is_v2 = (rpm_const.s.ver == 2);
+	rpm->is_v2 = (rpm_const.s.ver == 3);
 
 	rx_lmacs.u = rpm_read(rpm, RPMX_CMR_RX_LMACS());
 	lmac_exist = rx_lmacs.s.lmac_exist;
