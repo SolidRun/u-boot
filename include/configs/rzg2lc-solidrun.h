@@ -69,14 +69,17 @@
 #define KERNEL_ADDR_R       __stringify(0x48000000)
 #define KERNEL_COMP_ADDR_R  __stringify(0x4a000000)
 #define FDT_ADDR_R          __stringify(0x4c000000)
+#define FDTO_ADDR_R         __stringify(0x4c0f0000)
 #define SCRIPT_ADDR_R       __stringify(0x4c100000)
 #define PXEFILE_ADDR_R      __stringify(0x4c200000)
 #define RAMDISK_ADDR_R      __stringify(0x4c800000)
 #define KERNEL_COMP_SIZE    __stringify(0xb00000)
+#define FDT_BUFFER_SIZE     __stringify(0x4000)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
     "kernel_addr_r=" KERNEL_ADDR_R "\0" \
     "fdt_addr_r=" FDT_ADDR_R "\0" \
+    "fdtoverlay_addr_r=" FDTO_ADDR_R "\0" \
     "ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
     "scriptaddr=" SCRIPT_ADDR_R "\0" \
     "pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
@@ -85,8 +88,32 @@
     "fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
     "kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0" \
     "kernel_comp_size=" KERNEL_COMP_SIZE "\0" \
+    "fdt_buffer_size=" FDT_BUFFER_SIZE "\0" \
+    "fdtoverlay_dir=/boot\0" \
+    "fdtoverlay_emmc_filename=rzg-solidrun-mmc-overlay.dtbo\0" \
+    "fdtoverlay_sd_filename=rzg-solidrun-sd-overlay.dtbo\0" \
     "sdio_toggle=gpio toggle gpio-221; gpio toggle gpio-390; mmc rescan 1\0" \
-BOOTENV
+    "load_fdt_overlay="                                                     \
+        "echo Selecting FDT overlay based on sdio_select...; "\
+        "if test \"${sdio_select}\" = \"sd\"; then "\
+            "fdtoverlay_filename=${fdtoverlay_sd_filename}; "\
+        "else "\
+            "fdtoverlay_filename=${fdtoverlay_emmc_filename}; "\
+        "fi; "\
+        "echo Using FDT overlay: ${fdtoverlay_filename};" \
+        "echo Loading FDT overlay from device ${devnum}:${distro_bootpart}...; "  \
+        "load ${devtype} ${devnum}:${distro_bootpart} ${fdtoverlay_addr_r} \"${fdtoverlay_dir}/${fdtoverlay_filename}\"; "  \
+        "echo FDT overlay loaded to address ${fdtoverlay_addr_r};\0" \
+BOOTENV \
+    "scan_dev_for_extlinux="                                          \
+		"if test -e ${devtype} "                                  \
+				"${devnum}:${distro_bootpart} "           \
+				"${prefix}${boot_syslinux_conf}; then "   \
+			"echo Found ${prefix}${boot_syslinux_conf}; "     \
+            "run load_fdt_overlay; "                           \
+			"run boot_extlinux; "                             \
+			"echo SCRIPT FAILED: continuing...; "             \
+		"fi\0"                                                    \
 
 
 /* For board */

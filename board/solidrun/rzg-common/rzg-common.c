@@ -2,9 +2,12 @@
 
 #include <common.h>
 #include <env.h>
+#include <asm/gpio.h>
 #include <dm/uclass.h>
 #include <tlv_eeprom.h>
 #include <linux/err.h>
+#include <fdt_support.h>
+#include <mapmem.h>
 #include "rzg-common.h"
 
 #define SD_EMMC_SEL_ENV "sdio_select"
@@ -41,19 +44,20 @@ int get_sku_from_tlv_dev(struct udevice *dev, char *sku)
 {
 	int ret = 0;
 	char eeprom[2048];
-	struct tlvinfo_priv *tlv, *entry;
+	struct tlvinfo_priv *tlv;
+	struct tlvinfo_tlv *entry;
 
 	tlv = tlv_eeprom_read(dev, 0, eeprom, ARRAY_SIZE(eeprom));
 	if (IS_ERR(tlv))
 	{
-		pr_err("Can't parse the tlv: %d\n", tlv);
-		return tlv;
+		pr_err("Can't parse the tlv: %ld\n", IS_ERR(tlv));
+		return IS_ERR(tlv);
 	}
 	entry = tlv_entry_next_by_code(tlv, NULL, TLV_CODE_PART_NUMBER);
 	if (IS_ERR(entry))
 	{
-		pr_err("Bad entry, ret: %d\n", entry);
-		return entry;
+		pr_err("Bad entry, ret: %ld\n", IS_ERR(entry));
+		return IS_ERR(entry);
 	}
 	ret = tlv_entry_get_string(entry, sku, CARRIER_SKU_MAX_SIZE);
 	if (ret)
@@ -102,25 +106,83 @@ int get_carrier(void)
 	return board;
 }
 
-// Should return 1 on SD and 0 on eMMC
 __weak int board_check_sd_emmc(void)
 {
-	printf("Warning! %s not implemented!", __func__);
+	uint32_t reg_md_boot = 0;
+	/*
+	* return 1 for uSD, 0 for eMMC
+	* MD_BOOT[2:0]:
+	* 0-uSD
+	* 1-eMMC(1.8V)
+	* 2-eMMC(3.3V)
+	* 3-SPI(1.8V)
+	* 4-SPI(3.3V)
+	* 5-SCIF Downloading
+	*
+	* Note: eMMC/uSD Device Select - SD0_DEV_SEL_SW (LOW: eMMC ; HIGH: uSD)
+	*/
+	/* Extract MD_BOOT[2:0] (bits 0-2) */
+	reg_md_boot = (*(volatile u32 *)SYS_LSI_MODE) & 0x7;
+	debug("_MD_BOOT[2:0]=0x%x\n", reg_md_boot);
+	return (reg_md_boot == 0) ? SDIO_SELECT_SD : SDIO_SELECT_EMMC;
+}
+
+
+__weak int board_select_sd_emmc(int select_sd)
+{
+	struct gpio_desc gpio[2];	
+	ofnode node;
+	int i, count, ret;
+
+	if (select_sd < 0 || select_sd > 1)
+		return -EINVAL;
+
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node)) {
+		pr_err("%s: no /config node in device tree\n", __func__);
+		return -ENOENT;
+	}
+
+	count = gpio_request_list_by_name_nodev(node, "sdio_mux_gpios",
+					      gpio, ARRAY_SIZE(gpio),
+					      GPIOD_IS_OUT);
+	if (count < 0) {
+		pr_err("%s: failed to request sd mux gpios: %d\n", __func__, count);
+		return count;
+	}
+	for (i = 0; i < count; i++){
+		ret = dm_gpio_set_value(&(gpio[i]), select_sd);
+		if (ret) {
+			pr_err("%s: Failed to set gpio %d: %d\n", __func__, i, ret);
+			return ret;
+		}
+		ret = dm_gpio_free(NULL, &(gpio[i]));
+		if (ret) {
+			pr_err("%s: Failed to free gpio %d: %d\n", __func__, i, ret);
+			return ret;
+		}
+	}
+	pr_info("Select %s.\n", (select_sd == SDIO_SELECT_EMMC) ? "MMC" : "uSD");
 	return 0;
 }
 
-__weak void board_select_sd_emmc(int select_sd)
-{
-	printf("Warning! %s not implemented!", __func__);
-}
-
-static void set_bootsource_env(int select_sd)
+void rzg_set_bootsource_env(void)
 {
 	int ret;
-	if (select_sd)
+	int select_sd = board_check_sd_emmc();
+	char *sd_select_env = env_get(SD_EMMC_SEL_ENV);
+
+	if (CONFIG_IS_ENABLED(SOLIDRUN_FORCE_SD_BOOT))
 		ret = env_set(SD_EMMC_SEL_ENV, "sd");
-	else
-		ret = env_set(SD_EMMC_SEL_ENV, "emmc");
+	else if (CONFIG_IS_ENABLED(SOLIDRUN_FORCE_MMC_BOOT))
+		ret = env_set(SD_EMMC_SEL_ENV, "mmc");
+	else if (!sd_select_env)
+	{
+		if (select_sd)
+			ret = env_set(SD_EMMC_SEL_ENV, "sd");
+		else
+			ret = env_set(SD_EMMC_SEL_ENV, "mmc");
+	}
 	if (ret)
 		pr_err("Failed to set boot_source env, err: %d \n", ret);
 }
@@ -130,7 +192,76 @@ void rzg_sd_emmc_init(void)
 	/* Select eMMC/uSD based on SD0_DEV_SEL_SW (P22_1) GPIO value {High: uSD ; Low: eMMC}*/
 	int value = board_check_sd_emmc();
 	board_select_sd_emmc(value);
-	set_bootsource_env(value);
+}
+
+
+__weak int board_init_usb_vbus(int gpio_flags_extra)
+{
+	struct gpio_desc gpio[2];	
+	ofnode node;
+	int i, count, ret;
+
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node)) {
+		pr_err("%s: no /config node in device tree\n", __func__);
+		return -ENOENT;
+	}
+
+	count = gpio_request_list_by_name_nodev(node, "usb_vbus_gpios",
+					      gpio, ARRAY_SIZE(gpio),
+					      GPIOD_IS_OUT | gpio_flags_extra);
+	if (count < 0) {
+		pr_err("%s: failed to request vbus gpios: %d\n", __func__, count);
+		return count;
+	}
+	for (i = 0; i < count; i++){
+		ret = dm_gpio_set_value(&(gpio[i]), 1);
+		if (ret) {
+			pr_err("%s: Failed to set gpio %d: %d\n", __func__, i, ret);
+			return ret;
+		}
+		ret = dm_gpio_free(NULL, &(gpio[i]));
+		if (ret) {
+			pr_err("%s: Failed to free gpio %d: %d\n", __func__, i, ret);
+			return ret;
+		}
+	}
+	return 0;
+}
+
+int rzg_board_usb_init(int gpio_flags_extra)
+{
+	int ret = board_init_usb_vbus(gpio_flags_extra);
+	if (ret)
+	{
+		pr_err("Failed to enable USB VBUS, %d\n", ret);
+		return ret;
+	}
+	/*Enable USB*/
+	(*(volatile u32 *)CPG_RST_USB) = 0x000f000f;
+	(*(volatile u32 *)CPG_CLKON_USB) = 0x000f000f;
+
+	/* Setup  */
+	/* Disable GPIO Write Protect */
+	(*(volatile u32 *)PFC_PWPR) &= ~(0x1u << 7); /* PWPR.BOWI = 0 */
+	(*(volatile u32 *)PFC_PWPR) |= (0x1u << 6);	 /* PWPR.PFCWE = 1 */
+
+	// /* Enable write protect */
+	(*(volatile u32 *)PFC_PWPR) &= ~(0x1u << 6); /* PWPR.PFCWE = 0 */
+	(*(volatile u32 *)PFC_PWPR) |= (0x1u << 7);	 /* PWPR.BOWI = 1 */
+
+	/*Enable 2 USB ports*/
+	(*(volatile u32 *)USBPHY_RESET) = 0x00001000u;
+	/*USB0 is HOST*/
+	(*(volatile u32 *)(USB0_BASE + COMMCTRL)) = 0;
+	/*USB1 is HOST*/
+	(*(volatile u32 *)(USB1_BASE + COMMCTRL)) = 0;
+	/* Set USBPHY normal operation (Function only) */
+	(*(volatile u16 *)(USBF_BASE + LPSTS)) |= (0x1u << 14); /* USBPHY.SUSPM = 1 (func only) */
+	/* Overcurrent is not supported */
+	(*(volatile u32 *)(USB0_BASE + HcRhDescriptorA)) |= (0x1u << 12); /* NOCP = 1 */
+	(*(volatile u32 *)(USB1_BASE + HcRhDescriptorA)) |= (0x1u << 12); /* NOCP = 1 */
+	return 0;
 }
 
 uint mmc_get_env_part(struct mmc *mmc)
@@ -142,115 +273,51 @@ uint mmc_get_env_part(struct mmc *mmc)
 		return CONFIG_SYS_MMC_ENV_PART;
 }
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_SYSTEM_SETUP)
-/*
- * Configure the correct sdhi0 node (eMMC/SD) in device-tree:
- *  Set up board-specific details in device tree before boot
- */
+// #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_SYSTEM_SETUP)
+// /*
+//  * Configure the correct sdhi0 node (eMMC/SD) in device-tree:
+//  *  Set up board-specific details in device tree before boot
+//  */
 
-static bool preboot_check_sd_emmc(void)
+static int preboot_check_sd_emmc(void)
 {
 	int sd_select = 0;
-	char *sd_select_env = from_env(SD_EMMC_SEL_ENV); // here is the fail!!
+	char *sd_select_env = from_env(SD_EMMC_SEL_ENV);
 	if (!sd_select_env)
-	{
 		sd_select = board_check_sd_emmc();
-	}
 	else if (strcmp(sd_select_env, "sd") == 0)
+		sd_select = SDIO_SELECT_SD;
+	else if (strcmp(sd_select_env, "mmc") == 0)
+		sd_select = SDIO_SELECT_EMMC;
+	else
 	{
-		sd_select = 1;
+		printf("Unknown " SD_EMMC_SEL_ENV " value, using default\n");
+		sd_select = SDIO_SELECT_EMMC;
 	}
-
-	return (sd_select || CONFIG_IS_ENABLED(SOLIDRUN_FORCE_SD_BOOT)) && !CONFIG_IS_ENABLED(SOLIDRUN_FORCE_MMC_BOOT);
+	return (sd_select);
 }
 
 int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
 {
-	int ret, node_sdhi0, node = 0;
-	bool enable_sdhc = preboot_check_sd_emmc();
-	bool legacy_dt = false;
+	int ret = 0;
+	ulong overlay_addr;
+	struct fdt_header *overlay_blob;
+	pr_info("Applying overlay...\n");
 
-	if (enable_sdhc)
-	{
-		printf("patching DTS | Select uSD...\n");
-		/* dts changes (
-		set | gpio-sd0-dev-sel-emmc-hog | replace output-low with output-high
-		set | gpio-sd0-vdd-18v-hog | replace output-low with output-high
-		------------------------------------------------
-		# sdhi0 ->
-		set | bus-width = <4>;
-		add | max-frequency = <50000000>;
-		remove | mmc-hs200-1_8v;
-		remove | non-removable;
-		remove | fixed-emmc-driver-type = <1>;
-		*/
-
-		/* select uSD and set SD0_VDD=3.3V */
-		node = fdt_path_offset(blob, "/soc/pinctrl@11030000/gpio-sd0-dev-sel-hog");
-
-		ret = fdt_delprop(blob, node, "output-high");
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s: failed to disable gpio-sd0-dev-sel-hog in dtb!\n", __func__);
-
-		ret = fdt_setprop_empty(blob, node, "output-low");
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s: failed to set output-low -> gpio-sd0-dev-sel-hog in dtb!\n", __func__);
-
-		node = fdt_path_offset(blob, "/soc/pinctrl@11030000/gpio-sd0-vdd-18v-hog");
-		if (node >= 0) {
-			/* This is a legacy node as new device-tree has a vccq regulator to manage this gpio */
-			ret = fdt_delprop(blob, node, "output-high");
-			if (ret < 0 && enable_sdhc)
-				pr_err("%s: failed to delete output-high gpio-sd0-vdd-18v-hog in dtb!\n", __func__);
-
-			ret = fdt_setprop((blob), (node), ("output-low"), ((void *)0), 0);
-			if (ret < 0 && enable_sdhc)
-				pr_err("%s: failed to set output-low -> gpio-sd0-vdd-18v-hog in dtb!\n", __func__);
-			legacy_dt = true;
-		}
-
-		/* update sdhi0 settings (SD/eMMC) mmc@11c00000 */
-		node_sdhi0 = fdt_path_offset(blob, "/soc/mmc@11c00000");
-
-		ret = fdt_setprop_u32(blob, node_sdhi0, "bus-width", 4);
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s : failed to set bus-width at node mmc@11c00000 in dtb!\n", __func__);
-
-		// if (legacy_dt) {
-			ret = fdt_setprop_u32(blob, node_sdhi0, "max-frequency", 50000000);
-			if (ret < 0 && enable_sdhc)
-				pr_err("%s : failed to set max-frequency at node mmc@11c00000 in dtb!\n", __func__);
-		// } else {
-
-		// 	ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr50");
-		// 	if (ret < 0 && enable_sdhc)
-		// 		pr_err("%s: failed to set sd-uhs-sdr50 at node mmc@11c00000 in dtb!\n", __func__);
-
-		// 	ret = fdt_setprop_empty(blob, node_sdhi0, "sd-uhs-sdr104");
-		// 	if (ret < 0 && enable_sdhc)
-		// 		pr_err("%s: failed to set sd-uhs-sdr104 at node mmc@11c00000 in dtb!\n", __func__);
-		// }
-
-		ret = fdt_delprop(blob, node_sdhi0, "mmc-hs200-1_8v");
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s : ffailed to set mmc-hs200-1_8v at node mmc@11c00000 in dtb!\n", __func__);
-
-		ret = fdt_delprop(blob, node_sdhi0, "non-removable");
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s : failed to set non-removable at node mmc@11c00000 in dtb!\n", __func__);
-
-		ret = fdt_delprop(blob, node_sdhi0, "fixed-emmc-driver-type");
-		if (ret < 0 && enable_sdhc)
-			pr_err("%s : failed to set fixed-emmc-driver-type at node mmc@11c00000 in dtb!\n", __func__);
-	}
-	else
-	{
-		printf("patching DTS | keep default settings \n");
-	}
-
-	return 0;
+	overlay_addr = env_get_hex("fdtoverlay_addr_r", 0);
+	overlay_blob = map_sysmem(overlay_addr, 0);
+	ret = fdt_valid(&overlay_blob);
+	if (!ret)
+		return !ret;
+	ret = fdt_overlay_apply_verbose(blob, overlay_blob);
+	return ret;
 }
-#endif
+
+void board_preboot_os(void)
+{
+	int enable_sdhc = preboot_check_sd_emmc();
+	board_select_sd_emmc(enable_sdhc);
+}
 
 int tlv_get_mac_eeprom_udevice(struct udevice **dev)
 {

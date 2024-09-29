@@ -31,6 +31,25 @@
 		/* first 128MB is reserved for secure area. */
 		reg = <0 0x48000000 0 0x38000000>;
 	};
+
+	config {
+		sdio_mux_gpios = <&P22 1 GPIO_ACTIVE_HIGH>, <&P39 0 GPIO_ACTIVE_HIGH>;
+		usb_vbus_gpios = <&P4 0 GPIO_ACTIVE_HIGH>, <&P5 0 GPIO_ACTIVE_HIGH>;
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdt0>;
+	};
+};
+
+&P18 {
+	gpio_power_hog {
+		gpio-hog;
+		output-high;
+		line-name = "SD Power On";
+		gpios = <1 GPIO_ACTIVE_LOW>;
+	};
 };
 
 &ehci0 {
@@ -77,13 +96,6 @@
 };
 
 &pinctrl {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_hog>;
-
-	pinctrl_hog: hoggrp {
-		pinmux = <RZG2L_PINMUX(22, 1, 0)>; /* SD0_DEV_SEL_SW */
-	};
-
 	eth0_pins: eth0 {
 		pinmux = <RZG2L_PINMUX(20, 0, 1)>,
 			 <RZG2L_PINMUX(20, 1, 1)>,
@@ -112,12 +124,6 @@
 };
 
 &sdhi0 {
-	/* pinctrl placeholder
-	 * If this channel is used for interfacing with a SD card, a power enable
-	 * pin (SD0_PWR_EN) must be defined.
-	 * The SD0_PWR_EN pin is associated with P4_1.
-	 * A HIGH signal on SD0_PWR_EN will enable supply voltage for SD card.
-	*/
 	bus-width = <8>;
 	mutual-channel;
 	status = "okay";
@@ -137,4 +143,8 @@
 
 &xinclk {
 	clock-frequency = <24000000>;
+};
+
+&wdt0 {
+	status = "okay";
 };
