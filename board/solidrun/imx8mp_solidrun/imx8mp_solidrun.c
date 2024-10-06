@@ -474,7 +474,15 @@ static void board_id_from_tlv_info(void) {
 	for(int i = 0; i < TLV_MAX_DEVICES; i++) {
 		// parse sku - processor or carrier indicated at index 2-6
 		if(memcmp(&hb_tlv_data.tlv_part_number[i][2], "HBC", 3) == 0) {
-			// HummingBoard
+			/*
+			HummingBoard:
+				SKU - Board_Name {xx: board version}:
+				SRHBCUE000CVxx  HB-Pulse
+				SRHBCUEXT0CVxx  HB-Extended
+				SRHBCUPRO0IVxx  HB-Pro
+				SRHBCME000CVxx  HB-Mate
+				SRHBCRE000CVxx  HB-Ripple
+			*/
 			switch(hb_tlv_data.tlv_part_number[i][5]) {
 			    case 'M': // Mate
 				tmp = "mate";
@@ -482,10 +490,13 @@ static void board_id_from_tlv_info(void) {
 			    case 'R': // Ripple
 				tmp = "ripple";
 				break;
-			    case 'U': // Pulse or Extended
-				tmp = "pulse";
-				if (hb_tlv_data.tlv_part_number[i][7] == 'X')
-					tmp = "extended";
+			    case 'U': // Pulse, Extended or Pro
+				tmp = "pulse"; // Default to Pulse
+				// Check if it's Extended or Pro, both set to "pro"
+				if (memcmp(&hb_tlv_data.tlv_part_number[i][6], "EXT", 3) == 0 ||
+					memcmp(&hb_tlv_data.tlv_part_number[i][6], "PRO", 3) == 0) {
+					tmp = "pro";
+				}
 				break;
 				case 'I': // IIOT
 				tmp = "iiot-main";
@@ -556,6 +567,10 @@ static void board_id_from_tlv_info(void) {
 			break;
 		    case 'R': // Ripple
 			tmp = "hummingboard-ripple";
+			break;
+			case 'P': // Pro
+			case 'T': // Extended (treated as Pro)
+			tmp = "hummingboard-pro";
 			break;
 		    case 'I': // IIOT
 			tmp = "hummingboard-iiot-main";
