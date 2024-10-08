@@ -145,6 +145,8 @@ struct ravb_priv {
 	struct gpio_desc	reset_gpio;
 };
 
+extern int mac_read_from_eeprom(void);
+
 static inline void ravb_flush_dcache(u32 addr, u32 len)
 {
 	flush_dcache_range(addr, addr + len);
