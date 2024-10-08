@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Device Tree Source for the SolidRun G2L Carriers
+ * Device Tree Source for the SolidRun G2L SoM
  *
- * Copyright (C) 2023 SolidRun Ltd.
+ * Copyright (C) 2024 SolidRun Ltd.
  */
 
 /dts-v1/;
@@ -20,39 +20,4 @@
 		reg = <0 0x48000000 0 0x38000000>;
 	};
 
-};
-
-&i2c0 {
-	pinctrl-names = "default";
-	status = "okay";
-
-	adv7535: hdmi@3d {
-		compatible = "adi,adv7535";
-		reg = <0x3d>;
-	};
-
-	eeprom_carrier: eeprom@57 {
-		compatible = "st,24c02", "atmel,24c02";
-		reg = <0x57>;
-		pagesize = <8>;
-	};
-};
-
-&usb2_phy0 {
-	status = "okay";
-};
-
-&usb2_phy1 {
-	status = "okay";
-};
-
-
-&ehci0 {
-	status = "okay";
-	phys = <&usb2_phy0>;
-};
-
-&ehci1 {
-	status = "okay";
-	phys = <&usb2_phy1>;
 };
