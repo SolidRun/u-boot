@@ -2,27 +2,50 @@ config RZG_SOLIDRUN_COMMON
     bool "Common configuration for RZG2L_SOLIDRUN targets"
     depends on TARGET_RZG2L_SOLIDRUN || TARGET_RZG2LC_SOLIDRUN || TARGET_RZV2L_SOLIDRUN
     default y
+    select NET
+    select DM_ETH
+    select RENESAS_RAVB
+    select BITBANGMII
+    select USB
+    select DM_USB
+    select USB_GADGET
+    select USB_RENESAS_USBHS
+    select USB_EHCI_HCD
+    select USB_EHCI_GENERIC
+    select PHY_RCAR_GEN3
+    select DM_I2C
+    select SYS_I2C_RZG2L_RIIC
+    select I2C_EEPROM
+    select EEPROM_TLV_LIB
+    select DM_GPIO
+    select GPIO_HOG
+    select PINCTRL_PFC_RZG2L
+    select RZG2L_GPIO
+    select CLK
+    select CLK_RENESAS
+    select CLK_R9A07G044L
+    select CLK_R9A07G054L
+    select DM_REGULATOR
+    select WATCHDOG
+    select SYSRESET
+    select SYSRESET_WATCHDOG
+    select RENESAS_RZG2LWDT
+    select MISC
+    select SCIF_CONSOLE
+    select SH_SDHI
+    select OF_CONTROL
+    select OF_PLATDATA
+    select OF_LIBFDT_OVERLAY
+    select OF_SYSTEM_SETUP
+    select BOARD_EARLY_INIT_R
+    select BOARD_LATE_INIT
+
     help
       This option enables common board support code for both RZG2L/RZG2LC solidrun SOMs.
-
-config SOLIDRUN_VBUS_OUT_PP
-    bool "Set USB VBUS Push-Pull"
-    depends on RZG_SOLIDRUN_COMMON
-    default n
-    help
-      Set USB VBUS Push-Pull
-
-config SOLIDRUN_VBUS_OUT_OD
-    bool "Set USB VBUS Open-Drain"
-    depends on RZG_SOLIDRUN_COMMON && !SOLIDRUN_VBUS_OUT_PP
-    default n
-    help
-      Set USB VBUS Open-Drain
 
 config SOLIDRUN_DISABLE_TLV
     bool "Do not use tlv eeprom for dts selection and vbus output type choice"
 	depends on RZG_SOLIDRUN_COMMON
-	depends on SOLIDRUN_VBUS_OUT_PP || SOLIDRUN_VBUS_OUT_OD
     default n
     help
       Do not use tlv eeprom for dts selection and vbus output type choice.
