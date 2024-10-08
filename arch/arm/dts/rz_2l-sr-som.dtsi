@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Device Tree Source for the SolidRun RZG2L and RZV2L SOMs
+ * Device Tree Source for the SolidRun G2L/V2L Common parts
  *
- * Copyright (C) 2017 Jacopo Mondi <jacopo+renesas@jmondi.org>
- * Copyright (C) 2016 Renesas Electronics
+ * Copyright (C) 2024 SolidRun Ltd.
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -20,16 +19,51 @@
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};
+
+	config {
+		sdio_mux_gpios = <&P22 1 GPIO_ACTIVE_LOW>, <&P39 0 GPIO_ACTIVE_HIGH>;
+		usb_vbus_gpios = <&P4 0 GPIO_ACTIVE_HIGH>, <&P42 0 GPIO_ACTIVE_HIGH>;
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdt0>;
+	};
+
+	/* 32.768kHz crystal */
+	xin32k: xin32k-clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <32768>;
+	};
+};
+
+&P4 {
+	gpio_power_hog {
+		gpio-hog;
+		output-high;
+		line-name = "SD Power On";
+		gpios = <1 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&P23 {
+	bt_reg_on {
+		gpio-hog;
+		output-low;
+		line-name = "bt_reg_on";
+		gpios = <0 GPIO_ACTIVE_HIGH>;
+	};
+
+	wl_reg_on {
+		gpio-hog;
+		output-low;
+		line-name = "wl_reg_on";
+		gpios = <1 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &pinctrl {
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_hog>;
-	pinctrl_hog: hoggrp {
-		pinmux = <RZG2L_PINMUX(22, 1, 0)>; /* SD0_DEV_SEL_SW */
-	};
-
 	eth0_pins: eth0 {
 		pinmux = <RZG2L_PINMUX(28, 1, 1)>, /* ET0_LINKSTA */
 			<RZG2L_PINMUX(27, 1, 1)>, /* ET0_MDC */
@@ -64,7 +98,12 @@
 			<RZG2L_PINMUX(35, 0, 1)>, /* ET1_RXD1 */
 			<RZG2L_PINMUX(35, 1, 1)>, /* ET1_RXD2 */
 			<RZG2L_PINMUX(36, 0, 1)>; /* ET1_RXD3 */
-  };
+  	};
+
+  	i2c3_pins: i2c3 {
+		pinmux = <RZG2L_PINMUX(18, 0, 3)>, /* SDA */
+		 <RZG2L_PINMUX(18, 1, 3)>; /* SCL */
+	};
 
 };
 
@@ -137,8 +176,23 @@
 	};
 };
 
-&i2c1 {
+&i2c0 {
+	pinctrl-names = "default";
+	status = "okay";
 
+	adv7535: hdmi@3d {
+		compatible = "adi,adv7535";
+		reg = <0x3d>;
+	};
+
+	eeprom_carrier: eeprom@57 {
+		compatible = "st,24c02", "atmel,24c02";
+		reg = <0x57>;
+		pagesize = <8>;
+	};
+};
+
+&i2c1 {
 	pinctrl-names = "default";
 	status = "okay";
 
@@ -146,4 +200,44 @@
 		compatible = "atmel,24c02";
 		reg = <0x50>;
 	};
+};
+
+&i2c3 {
+	pinctrl-0 = <&i2c3_pins>;
+	pinctrl-names = "default";
+	clock-frequency = <400000>;
+
+	status = "okay";
+
+	raa215300: pmic@12 {
+		compatible = "renesas,raa215300";
+		reg = <0x12>, <0x6f>;
+		reg-names = "main", "rtc";
+
+		clocks = <&xin32k>;
+		clock-names = "xin";
+	};
+};
+
+&usb2_phy0 {
+	status = "okay";
+};
+
+&usb2_phy1 {
+	status = "okay";
+};
+
+
+&ehci0 {
+	status = "okay";
+	phys = <&usb2_phy0>;
+};
+
+&ehci1 {
+	status = "okay";
+	phys = <&usb2_phy1>;
+};
+
+&wdt0 {
+	status = "okay";
 };
