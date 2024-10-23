@@ -78,7 +78,7 @@
 
 &fec {
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_fec>;
+	pinctrl-0 = <&pinctrl_fec>, <&pinctrl_phy1>;
 	phy-mode = "rgmii-id";
 	phy-handle = <&ethphy1>;
 	fsl,magic-packet;
@@ -97,7 +97,7 @@
 
 &eqos {
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_eqos>;
+	pinctrl-0 = <&pinctrl_eqos>, <&pinctrl_phy0>;
 	phy-mode = "rgmii-id";
 	phy-handle = <&ethphy0>;
 	status = "okay";
@@ -387,7 +387,13 @@
 			MX8MP_IOMUXC_ENET_TD3__ENET_QOS_RGMII_TD3	0x1f
 			MX8MP_IOMUXC_ENET_TX_CTL__ENET_QOS_RGMII_TX_CTL	0x1f
 			MX8MP_IOMUXC_ENET_TXC__CCM_ENET_QOS_CLOCK_GENERATE_TX_CLK	0x1f
-			MX8MP_IOMUXC_SAI1_TXD7__GPIO4_IO19		0x34
+		>;
+	};
+
+	pinctrl_phy0: phy0grp {
+		fsl,pins = <
+			/* RESET_N: weak i/o, open drain, external 1k pull-up */
+			MX8MP_IOMUXC_SAI1_TXD7__GPIO4_IO19		0x20
 		>;
 	};
 
@@ -407,7 +413,13 @@
 			MX8MP_IOMUXC_SAI1_TXD3__ENET1_RGMII_TD3		0x1f
 			MX8MP_IOMUXC_SAI1_TXD4__ENET1_RGMII_TX_CTL	0x1f
 			MX8MP_IOMUXC_SAI1_TXD5__ENET1_RGMII_TXC		0x1f
-			MX8MP_IOMUXC_SAI1_RXD0__GPIO4_IO02		0x34
+		>;
+	};
+
+	pinctrl_phy1: phy1grp {
+		fsl,pins = <
+			/* RESET_N: weak i/o, open drain, external 1k pull-up */
+			MX8MP_IOMUXC_SAI1_RXD0__GPIO4_IO02		0x20
 		>;
 	};
 
