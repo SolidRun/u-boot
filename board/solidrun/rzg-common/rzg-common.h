@@ -30,7 +30,6 @@ enum sd_emmc_select_type
 #define CARRIER_SKU_MAX_SIZE 25
 
 int rzg_get_carrier(void);
-int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd);
 void rzg_sd_emmc_init(void);
 void rzg_set_bootsource_env(void);
 void rzg_carrier_usb_init(int carrier);

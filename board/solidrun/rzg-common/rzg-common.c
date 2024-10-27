@@ -6,14 +6,18 @@
 #include <common.h>
 #include <env.h>
 #include <asm/gpio.h>
+#include <blk.h>
+#include <command.h>
 #include <dm/uclass.h>
 #include <tlv_eeprom.h>
 #include <linux/err.h>
 #include <fdt_support.h>
 #include <mapmem.h>
+#include <mmc.h>
 #include "rzg-common.h"
 
 #define SD_EMMC_SEL_ENV "sdio_select"
+static int sdio_sd_mmc_state = SDIO_SELECT_EMMC;
 
 static int get_tlv_udevice_by_alias(struct udevice **dev, const char *alias)
 {
@@ -109,7 +113,7 @@ int rzg_get_carrier(void)
 	return board;
 }
 
-__weak int board_check_sd_emmc(void)
+__weak int board_check_initial_boot_source(void)
 {
 	uint32_t reg_md_boot = 0;
 	/*
@@ -127,7 +131,13 @@ __weak int board_check_sd_emmc(void)
 	/* Extract MD_BOOT[2:0] (bits 0-2) */
 	reg_md_boot = (*(volatile u32 *)SYS_LSI_MODE) & 0x7;
 	debug("_MD_BOOT[2:0]=0x%x\n", reg_md_boot);
-	return (reg_md_boot == 0) ? SDIO_SELECT_SD : SDIO_SELECT_EMMC;
+	sdio_sd_mmc_state = (reg_md_boot == 0) ? SDIO_SELECT_SD : SDIO_SELECT_EMMC;
+	return sdio_sd_mmc_state;
+}
+
+__weak int board_check_sd_emmc(void)
+{
+	return sdio_sd_mmc_state;
 }
 
 __weak int board_select_sd_emmc(int select_sd)
@@ -168,6 +178,7 @@ __weak int board_select_sd_emmc(int select_sd)
 			pr_err("%s: Failed to free gpio %d: %d\n", __func__, i, ret);
 			return ret;
 		}
+		sdio_sd_mmc_state = select_sd;
 	}
 	pr_info("Select %s.\n", (select_sd == SDIO_SELECT_EMMC) ? "MMC" : "uSD");
 	return 0;
@@ -200,7 +211,7 @@ void rzg_set_bootsource_env(void)
 
 void rzg_sd_emmc_init(void)
 {
-	int value = board_check_sd_emmc();
+	int value = board_check_initial_boot_source();
 	board_select_sd_emmc(value);
 }
 
@@ -298,7 +309,7 @@ void rzg_carrier_usb_init(int carrier)
 uint mmc_get_env_part(struct mmc *mmc)
 {
 	int value = board_check_sd_emmc();
-	if (value == 1)
+	if (value == SDIO_SELECT_SD)
 		return 0;
 	else
 		return CONFIG_SYS_MMC_ENV_PART;
@@ -322,24 +333,27 @@ static int preboot_check_sd_emmc(void)
 	return (sd_select);
 }
 
-int rzg_preboot_sd_emmc_setup(void *blob, struct bd_info *bd)
-{
-	int ret = 0;
-	ulong overlay_addr;
-	struct fdt_header *overlay_blob;
-	pr_info("Applying overlay...\n");
-
-	overlay_addr = env_get_hex("fdtoverlay_addr_r", 0);
-	overlay_blob = map_sysmem(overlay_addr, 0);
-	ret = fdt_valid(&overlay_blob);
-	if (!ret)
-		return !ret;
-	ret = fdt_overlay_apply_verbose(blob, overlay_blob);
-	return ret;
-}
-
 void board_preboot_os(void)
 {
+	int ret = 0;
+	const char *cmd_load = "run load_sdio_overlay";
+	const char *cmd_apply = "run apply_sdio_overlay";
+
+	pr_info("Loading and extracting overlay... \n");
+	ret = run_command(cmd_load, 0);
+	if(ret != 0)
+	{
+		pr_err("Failed to run command \"%s\": ret %d\n", cmd_load, ret);
+		return;
+	}
+
+	pr_info("Applying overlay...\n");
+	ret = run_command(cmd_apply, 0);
+	if(ret != 0)
+	{
+		pr_err("Failed to run command \"%s\": ret %d\n", cmd_apply, ret);
+		return;
+	}
 	int enable_sdhc = preboot_check_sd_emmc();
 	board_select_sd_emmc(enable_sdhc);
 }

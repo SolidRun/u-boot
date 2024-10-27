@@ -75,14 +75,8 @@
 #define RAMDISK_ADDR_R      __stringify(0x4c800000)
 #define KERNEL_COMP_SIZE    __stringify(0xb00000)
 #define FDT_BUFFER_SIZE     __stringify(0x4000)
-
-#ifndef SR_SD_BOOT_OVERLAY
-#define SR_SD_BOOT_OVERLAY "rzg2l-solidrun-sd-overlay.dtbo"
-#endif
-
-#ifndef SR_MMC_BOOT_OVERLAY
-#define SR_MMC_BOOT_OVERLAY "rzg2l-solidrun-mmc-overlay.dtbo"
-#endif
+#define OVERLAYS_FIT_OFFSET_BLK __stringify(0x1800)
+#define OVERLAYS_FIT_MAX_SIZE_BLK __stringify(0x10)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
     "kernel_addr_r=" KERNEL_ADDR_R "\0" \
@@ -97,31 +91,20 @@
     "kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0" \
     "kernel_comp_size=" KERNEL_COMP_SIZE "\0" \
     "fdt_buffer_size=" FDT_BUFFER_SIZE "\0" \
-    "fdtoverlay_dir=/renesas\0" \
-    "fdtoverlay_mmc_filename=" SR_MMC_BOOT_OVERLAY "\0" \
-    "fdtoverlay_sd_filename=" SR_SD_BOOT_OVERLAY "\0" \
     "sdio_toggle=gpio toggle gpio-221; gpio toggle gpio-390; mmc rescan 1\0" \
-    "load_fdt_overlay="                                                     \
-        "echo Selecting FDT overlay based on sdio_select...; "\
-        "if test \"${sdio_select}\" = \"sd\"; then "\
-            "fdtoverlay_filename=${fdtoverlay_sd_filename}; "\
-        "else "\
-            "fdtoverlay_filename=${fdtoverlay_mmc_filename}; "\
-        "fi; "\
-        "echo Using FDT overlay: ${fdtoverlay_filename};" \
-        "echo Loading FDT overlay from device ${devnum}:${distro_bootpart}...; "  \
-        "load ${devtype} ${devnum}:${distro_bootpart} ${fdtoverlay_addr_r} \"${fdtoverlay_dir}/${fdtoverlay_filename}\"; "  \
-        "echo FDT overlay loaded to address ${fdtoverlay_addr_r};\0" \
-BOOTENV \
-    "scan_dev_for_extlinux="                                          \
-		"if test -e ${devtype} "                                  \
-				"${devnum}:${distro_bootpart} "           \
-				"${prefix}${boot_syslinux_conf}; then "   \
-			"echo Found ${prefix}${boot_syslinux_conf}; "     \
-            "run load_fdt_overlay; "                           \
-			"run boot_extlinux; "                             \
-			"echo SCRIPT FAILED: continuing...; "             \
-		"fi\0"                                                    \
+    "overlays_fit_offset_blk=" OVERLAYS_FIT_OFFSET_BLK "\0" \
+    "overlays_fit_max_size_blk=" OVERLAYS_FIT_MAX_SIZE_BLK "\0" \
+    "load_overlay_fit=read mmc 0:0 ${loadaddr} ${overlays_fit_offset_blk} ${overlays_fit_max_size_blk}\0" \
+    "extract_overlay_sd=imxtract ${loadaddr} sd_overlay ${fdtoverlay_addr_r}\0" \
+    "extract_overlay_mmc=imxtract ${loadaddr} mmc_overlay ${fdtoverlay_addr_r}\0" \
+    "load_sdio_overlay=run load_overlay_fit; " \
+        "if test \"${sdio_select}\" = \"sd\"; then " \
+            "run extract_overlay_sd;" \
+        "else " \
+            "run extract_overlay_mmc; " \
+        "fi; \0" \
+    "apply_sdio_overlay=fdt addr ${fdt_addr_r}; fdt resize ${fdt_buffer_size}; fdt apply ${fdtoverlay_addr_r};\0" \
+    BOOTENV
 
 
 /* For board */
