@@ -11,7 +11,7 @@ CONFIG_DEFAULT_DEVICE_TREE="rzg2lc-solidrun"
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="rw rootwait root=/dev/mmcblk0p2"
 CONFIG_USE_BOOTCOMMAND=y
-CONFIG_DEFAULT_FDT_FILE="rzg2lc-hummingboard.dtb"
+CONFIG_DEFAULT_FDT_FILE="renesas/rzg2lc-hummingboard.dtb"
 CONFIG_OF_LIST="rzg2lc-solidrun"
 CONFIG_ENV_IS_IN_MMC=y
 CONFIG_SYS_MMC_ENV_DEV=0

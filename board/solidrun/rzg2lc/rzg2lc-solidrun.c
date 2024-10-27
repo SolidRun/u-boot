@@ -56,10 +56,10 @@ static void carrier_select_fdt(int carrier)
 	case CARRIER_HB_RIPPLE:
 	case CARRIER_HB_PULSE:
 	case CARRIER_HB_PRO:
-		env_set("fdtfile", "rzg2lc-hummingboard.dtb");
+		env_set("fdtfile", "renesas/rzg2lc-hummingboard.dtb");
 		break;
 	case CARRIER_HB_IIOT:
-		env_set("fdtfile", "rzg2lc-hummingboard-iiot.dtb");
+		env_set("fdtfile", "renesas/rzg2lc-hummingboard-iiot.dtb");
 		break;
 	default:
 		pr_warn("Leaving default fdtfile \n");
