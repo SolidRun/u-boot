@@ -36,9 +36,9 @@ config RZG_SOLIDRUN_COMMON
     select OF_CONTROL
     select OF_PLATDATA
     select OF_LIBFDT_OVERLAY
-    select OF_SYSTEM_SETUP
     select BOARD_EARLY_INIT_R
     select BOARD_LATE_INIT
+    select CMD_READ
 
     help
       This option enables common board support code for both RZG2L/RZG2LC solidrun SOMs.

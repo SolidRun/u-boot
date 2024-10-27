@@ -83,10 +83,3 @@ int board_late_init(void)
 	rzg_set_bootsource_env();
 	return 0;
 }
-
-int ft_system_setup(void *blob, struct bd_info *bd)
-{
-	return rzg_preboot_sd_emmc_setup(blob, bd);
-}
-
-void ft_board_setup_ex(void *blob, struct bd_info *bd) {}
