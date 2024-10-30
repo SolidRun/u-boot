@@ -96,6 +96,14 @@ jobs:
           install -v -m644 -D SPL deploy/spl-imx6-spi
           install -v -m644 -D u-boot.img deploy/u-boot-imx6-spi.img
 
+      - name: Upload to GitHub
+        uses: actions/upload-artifact@v4
+        if: github.event_name == 'pull_request'
+        with:
+          name: imx6-uboot-${{ steps.tag_step.outputs.build_ver }}_${{ steps.tag_step.outputs.build_tag }}
+          path: deploy/
+          if-no-files-found: error
+
       - name: Upload to S3
         if: github.ref == 'refs/heads/v2018.01-solidrun-imx6' && github.event_name != 'pull_request'
         uses: shallwefootball/upload-s3-action@v1.3.3
