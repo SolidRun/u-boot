@@ -134,9 +134,31 @@ static bool tlvinfo_check_crc(struct tlvinfo_priv *priv)
 struct udevice *tlv_eeprom_get_by_index(unsigned int index)
 {
 	int ret;
+	char alias_name[7];
 	int count_dev = 0;
+	ofnode node;
 	struct udevice *dev;
 
+	/* find by alias */
+	for (int i = 0; i < MAX_TLV_DEVICES; i++) {
+		snprintf(alias_name, sizeof(alias_name), "tlv%d", i);
+		node = ofnode_get_aliases_node(alias_name);
+		if (!ofnode_valid(node))
+			continue;
+
+		ret = uclass_get_device_by_ofnode(UCLASS_I2C_EEPROM, node, &dev);
+		if (ret) {
+			pr_debug("get device \"%s\" failed with %d\n", alias_name, ret);
+			dev = ERR_PTR(ret);
+		}
+
+		if (count_dev++ == index)
+			return dev;
+	}
+	if (count_dev)
+		return ERR_PTR(-ENODEV);
+
+	/* fall-back: find among all eeproms */
 	for (ret = uclass_first_device_check(UCLASS_I2C_EEPROM, &dev);
 		 !IS_ERR(dev);
 		 ret = uclass_next_device_check(&dev)) {
