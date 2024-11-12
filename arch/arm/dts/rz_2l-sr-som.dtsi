@@ -38,14 +38,14 @@
 	};
 };
 
-&P4 {
-	gpio_power_hog {
-		gpio-hog;
-		output-high;
-		line-name = "SD Power On";
-		gpios = <1 GPIO_ACTIVE_LOW>;
-	};
-};
+// &P4 {
+// 	gpio_power_hog {
+// 		gpio-hog;
+// 		output-high;
+// 		line-name = "SD Power On";
+// 		gpios = <1 GPIO_ACTIVE_LOW>;
+// 	};
+// };
 
 &P23 {
 	bt_reg_on {
