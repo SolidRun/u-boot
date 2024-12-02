@@ -473,7 +473,8 @@ static void board_id_from_tlv_info(void) {
 
 	for(int i = 0; i < TLV_MAX_DEVICES; i++) {
 		// parse sku - processor or carrier indicated at index 2-6
-		if(memcmp(&hb_tlv_data.tlv_part_number[i][2], "HBC", 3) == 0) {
+		if(memcmp(&hb_tlv_data.tlv_part_number[i][2], "HBC", 3) == 0 ||
+			memcmp(&hb_tlv_data.tlv_part_number[i][2], "HBI", 3) == 0 ) {
 			/*
 			HummingBoard:
 				SKU - Board_Name {xx: board version}:
@@ -482,6 +483,7 @@ static void board_id_from_tlv_info(void) {
 				SRHBCUPRO0IVxx  HB-Pro
 				SRHBCME000CVxx  HB-Mate
 				SRHBCRE000CVxx  HB-Ripple
+				SRHBIIOTIVxx  	HB-IIOT
 			*/
 			switch(hb_tlv_data.tlv_part_number[i][5]) {
 			    case 'M': // Mate
