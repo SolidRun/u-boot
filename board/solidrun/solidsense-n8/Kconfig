@@ -1,0 +1,18 @@
+if TARGET_SOLIDSENSE_N8
+
+config SYS_BOARD
+	default "solidsense-n8"
+
+config SYS_VENDOR
+	default "solidrun"
+
+config SYS_CONFIG_NAME
+	default "imx8mn_evk"
+
+config IMX8MN_LOW_DRIVE_MODE
+	bool "Enable the low drive mode of iMX8MN on SolidSense N8"
+
+config IMX_CONFIG
+	default "board/freescale/imx8mn_evk/imximage-8mn-ddr4.cfg"
+
+endif

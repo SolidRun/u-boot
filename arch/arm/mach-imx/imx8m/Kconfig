@@ -458,6 +458,15 @@ config TARGET_LIBREM5
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
+config TARGET_SOLIDSENSE_N8
+	bool "SolidRun SolidSense N8 Compact"
+	select IMX8MN
+	select SUPPORT_SPL
+	select IMX8M_DDR4
+	select FSL_CAAM
+	select FSL_BLOB
+	select SPL_CRYPTO if SPL
+
 endchoice
 
 source "board/advantech/imx8mp_rsb3720a1/Kconfig"
@@ -491,10 +500,11 @@ source "board/purism/librem5/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/solidrun/imx8mm_som/Kconfig"
 source "board/solidrun/imx8mp_solidrun/Kconfig"
+source "board/solidrun/solidsense-n8/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
 source "board/variscite/imx8mn_var_som/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
 source "board/toradex/verdin-imx8mp/Kconfig"
-source "board/voxelbotics/navqp/Kconfig"
+source "board/voxelbotics/navqp/Kconfig""
 
 endif

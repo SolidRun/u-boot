@@ -1,0 +1,167 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2019, 2021 NXP
+ * Copyright 2025 Josua Mayer <josua@solid-run.com>
+ */
+
+#include "imx8mn-u-boot.dtsi"
+#include "imx8mn-sec-def.h"
+
+/ {
+	mcu_rdc {
+		compatible = "imx8m,mcu_rdc";
+			    /* rdc config when MCU starts
+			     * master
+			     *   SDMA3p --> domain 1
+			     *   SDMA3b --> domian 1
+			     *   SDMA3_SPBA2  --> domian 1
+			     * peripheral:
+			     *   SAI3   --> Only Domian 1 can access
+			     *   GPT1   --> Only Domian 1 can access
+			     * memory:
+			     *   TCM    --> Only Domian 1 can access (0x7E0000~0x81FFFF)
+			     *   DDR    --> Only Domian 1 can access (0x80000000~0x81000000)
+			     * end.
+			     */
+		start-config = <
+			    RDC_MDA  RDC_MDA_SDMA3p DID1 0x0 0x0
+			    RDC_MDA  RDC_MDA_SDMA3b DID1 0x0 0x0
+			    RDC_MDA  RDC_MDA_SDMA3_SPBA2 DID1 0x0 0x0
+			    RDC_PDAP RDC_PDAP_SAI3  PDAP_D1_ACCESS 0x0 0x0
+			    RDC_PDAP RDC_PDAP_GPT1  PDAP_D1_ACCESS 0x0 0x0
+			    RDC_MEM_REGION 26 TCM_START TCM_END MEM_D1_ACCESS
+			    RDC_MEM_REGION 0 M4_EVK_DDR4_START M4_EVK_DDR4_END MEM_D1_ACCESS
+			    0x0      0x0            0x0  0x0 0x0
+			  >;
+			    /* rdc config when MCU stops
+			     * memory:
+			     *   TCM    --> domain 0/1 can access (0x7E0000~0x81FFFF)
+			     *   DDR    --> domain 0/1 can access (0x80000000~0x81000000)
+			     * end.
+			     */
+		stop-config = <
+			    RDC_MEM_REGION 26 TCM_START TCM_END MEM_D0D1_ACCESS
+			    RDC_MEM_REGION 0 M4_EVK_DDR4_START M4_EVK_DDR4_END MEM_D0D1_ACCESS
+			    0x0      0x0            0x0  0x0 0x0
+			  >;
+	};
+};
+
+&fec1 {
+	phy-handle = <&phy>;
+
+	mdio {
+		ethernet-phy@0 {
+			status = "disabled";
+		};
+
+		ethernet-phy@4 {
+			status = "disabled";
+		};
+
+		phy: ethernet-phy@ffffffff {
+			/*
+			 * The PHY can appear either:
+			 * - AR8035: at address 4
+			 * - ADIN1300: at address 0
+			 * Actual address being detected at runtime.
+			 */
+			reg = <0xffffffff>;
+			reset-gpios = <&gpio3 19 GPIO_ACTIVE_LOW>;
+			reset-assert-us = <10000>;
+			reset-deassert-us = <5000>;
+		};
+	};
+};
+
+&i2c1 {
+	bootph-all;
+
+	pmic@4b {
+		bootph-all;
+
+		regulators {
+			bootph-all;
+		};
+	};
+
+};
+
+&gpio1 {
+	bootph-all;
+};
+
+&gpio2 {
+	bootph-all;
+};
+
+&i2c1_pins {
+	bootph-all;
+};
+
+&pmic_pins {
+	bootph-all;
+};
+
+&reg_vdd_1v8 {
+	bootph-all;
+};
+
+&reg_vdd_3v3 {
+	bootph-all;
+};
+
+&reg_usdhc2_vmmc {
+	bootph-all;
+	u-boot,off-on-delay-us = <20000>;
+};
+
+&regulator_usdhc2_vmmc_pins {
+	bootph-all;
+};
+
+&uart2 {
+	bootph-all;
+};
+
+&uart2_pins {
+	bootph-all;
+};
+
+&usbg1 {
+	status = "disabled";
+};
+
+&usdhc2 {
+	bootph-all;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
+	assigned-clocks = <&clk IMX8MN_CLK_USDHC2>;
+	assigned-clock-rates = <400000000>;
+	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_400M>;
+};
+
+&usdhc2_pins {
+	bootph-all;
+};
+
+&usdhc3 {
+	bootph-all;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+	assigned-clocks = <&clk IMX8MN_CLK_USDHC3>;
+	assigned-clock-rates = <400000000>;
+	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_400M>;
+	/* fsl_esdhc_imx needs explicit pinctrl for each mode */
+	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	pinctrl-1 = <&usdhc3_pins>;
+	pinctrl-2 = <&usdhc3_pins>;
+};
+
+&usdhc3_pins {
+	bootph-all;
+};
+
+&wdog1_pins {
+	bootph-all;
+};
