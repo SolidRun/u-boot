@@ -774,13 +774,15 @@ static int esdhc_set_voltage(struct mmc *mmc)
 			return -ENOTSUPP;
 		if (CONFIG_IS_ENABLED(DM_REGULATOR) &&
 		    !IS_ERR_OR_NULL(priv->vqmmc_dev)) {
-			ret = regulator_set_value(priv->vqmmc_dev,
-						  3300000);
-			if (ret) {
-				printf("Setting to 3.3V error");
-				return -EIO;
-			}
+			if (regulator_get_value(priv->vqmmc_dev) != 3300000) {
+				ret = regulator_set_value(priv->vqmmc_dev,
+							  3300000);
+				if (ret) {
+					printf("Setting to 3.3V error");
+					return -EIO;
+				}
 			mdelay(5);
+			}
 		}
 
 		esdhc_clrbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
@@ -792,11 +794,13 @@ static int esdhc_set_voltage(struct mmc *mmc)
 	case MMC_SIGNAL_VOLTAGE_180:
 		if (CONFIG_IS_ENABLED(DM_REGULATOR) &&
 		    !IS_ERR_OR_NULL(priv->vqmmc_dev)) {
-			ret = regulator_set_value(priv->vqmmc_dev,
-						  1800000);
-			if (ret) {
-				printf("Setting to 1.8V error");
-				return -EIO;
+			if (regulator_get_value(priv->vqmmc_dev) != 1800000) {
+				ret = regulator_set_value(priv->vqmmc_dev,
+							  1800000);
+				if (ret) {
+					printf("Setting to 1.8V error");
+					return -EIO;
+				}
 			}
 		}
 		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
