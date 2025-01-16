@@ -45,14 +45,16 @@ int board_early_init_f(void)
 	return 0;
 }
 
+static struct mii_dev *bus = NULL;
+
 static int find_ethernet_phy(void)
 {
-	struct mii_dev *bus = NULL;
 	struct phy_device *phydev = NULL;
 	int phy_addr = -ENOENT;
 
 	if (IS_ENABLED(CONFIG_FEC_MXC)) {
-		bus = fec_get_miibus(ENET1_BASE_ADDR, -1);
+		if (bus == NULL)
+			bus = fec_get_miibus(ENET1_BASE_ADDR, -1);
 		if (!bus)
 			return -ENOENT;
 
