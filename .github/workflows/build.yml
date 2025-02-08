@@ -159,6 +159,32 @@ jobs:
           make -j$(nproc)
           install -v -m644 -D u-boot-with-spl.kwb deploy/u-boot-clearfog-base-uart.kwb
 
+      - name: Build Helios-4 SD
+        shell: bash
+        run: |
+          make helios4_defconfig
+          make -j$(nproc)
+          install -v -m644 -D u-boot-with-spl.kwb deploy/u-boot-helios-4-sd.kwb
+
+      - name: Build Helios-4 SPI
+        shell: bash
+        run: |
+          make helios4_defconfig spiboot.config
+          make -j$(nproc)
+          install -v -m644 -D u-boot-with-spl.kwb deploy/u-boot-helios-4-spi.kwb
+
+      - name: Build Helios-4 UART
+        shell: bash
+        run: |
+          make helios4_defconfig
+          ./scripts/config --disable MVEBU_SPL_BOOT_DEVICE_MMC
+          ./scripts/config --disable ENV_IS_IN_MMC
+          ./scripts/config --disable SPL_MMC
+          ./scripts/config --enable MVEBU_SPL_BOOT_DEVICE_UART
+          ./scripts/config --enable ENV_IS_NOWHERE
+          make -j$(nproc)
+          install -v -m644 -D u-boot-with-spl.kwb deploy/u-boot-helios-4-uart.kwb
+
       - name: Upload to GitHub
         uses: actions/upload-artifact@v4
         if: github.event_name == 'pull_request'
