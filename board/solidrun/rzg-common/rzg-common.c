@@ -105,6 +105,9 @@ int rzg_get_carrier(void)
 	case 'I': // IIoT
 		board = CARRIER_HB_IIOT;
 		break;
+	case 'E': // EU-205
+		board = CARRIER_HB_EU205;
+		break;
 	default:
 		board = CARRIER_UNRECOGNIZED;
 		pr_warn("Did not recognise board variant in sku \"%s\"\n", sku);
