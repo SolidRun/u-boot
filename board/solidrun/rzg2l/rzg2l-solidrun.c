@@ -60,6 +60,9 @@ static void carrier_select_fdt(int carrier)
 	case CARRIER_HB_IIOT:
 		env_set("fdtfile", "renesas/rzg2l-hummingboard-iiot.dtb");
 		break;
+	case CARRIER_HB_EU205:
+		env_set("fdtfile", "renesas/rzg2l-hummingboard-eu205.dtb");
+		break;
 	default:
 		pr_warn("Leaving default fdtfile \n");
 		break;
