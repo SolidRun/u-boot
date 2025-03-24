@@ -197,14 +197,6 @@
 	/delete-property/ assigned-clock-rates;
 };
 
-&usb3_0 {
-	/delete-property/ power-domains;
-};
-
-&usb3_1 {
-	/delete-property/ power-domains;
-};
-
 &usb_dwc3_0 {
 	compatible = "fsl,imx8mq-dwc3", "snps,dwc3";
 	assigned-clocks = <&clk IMX8MP_CLK_HSIO_AXI>;
