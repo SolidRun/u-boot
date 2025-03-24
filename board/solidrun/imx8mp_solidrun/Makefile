@@ -4,7 +4,7 @@
 # SPDX-License-Identifier:      GPL-2.0+
 #
 
-obj-y += imx8mp_solidrun.o mmc.o ../common/tlv_data.o
+obj-y += imx8mp_solidrun.o ../common/mmc.o ../common/tlv_data.o
 
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
