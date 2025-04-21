@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+&watchdog {
+	bootph-pre-ram;
+};
+
 &spi1 {
 	bootph-pre-ram;
 
