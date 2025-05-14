@@ -46,6 +46,8 @@ static int nop_phy_init(struct phy *phy)
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	/* Take phy out of reset */
 	if (dm_gpio_is_valid(&priv->reset_gpio)) {
+		dm_gpio_set_value(&priv->reset_gpio, true);
+		udelay(10000);
 		ret = dm_gpio_set_value(&priv->reset_gpio, false);
 		if (ret) {
 			if (CONFIG_IS_ENABLED(CLK))
