@@ -584,7 +584,6 @@ static void board_id_from_tlv_info(void) {
 
 int board_late_init(void)
 {
-	char fdtfile[48] = {0};
 #ifdef CONFIG_ENV_IS_IN_MMC
 	board_late_mmc_env_init();
 #endif
@@ -619,16 +618,6 @@ int board_late_init(void)
 		printf("%s: could not identify som, defaulting to i.MX8M Plus Revision 1.1!\n", __func__);
 		strcpy(board_id.som_name, "imx8mp");
 		strcpy(board_id.som_rev, "11");
-	}
-
-	// auto-select device-tree
-	if (!env_get("fdtfile")) {
-		if(snprintf(fdtfile, sizeof(fdtfile), "freescale/%s-%s.dtb", board_id.som_name, board_id.carrier_name) >= sizeof(fdtfile)) {
-			pr_err("%s: buffer too small, fdtfile truncated!\n", __func__);
-		}
-		env_set("fdtfile", fdtfile);
-	} else {
-		printf("%s: fdtfile set in environment, keeping as is.\n", __func__);
 	}
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
