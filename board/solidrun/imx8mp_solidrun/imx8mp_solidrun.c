@@ -75,14 +75,6 @@ static iomux_v3_cfg_t const wdog_pads[] = {
 	MX8MP_PAD_GPIO1_IO02__WDOG1_WDOG_B  | MUX_PAD_CTRL(WDOG_PAD_CTRL),
 };
 
-#ifdef CONFIG_NAND_MXS
-
-static void setup_gpmi_nand(void)
-{
-	init_nand_clk();
-}
-#endif
-
 #if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
 struct efi_fw_image fw_images[] = {
 	{
@@ -389,39 +381,13 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 
 #endif
 
-static void setup_fec(void)
-{
-	struct iomuxc_gpr_base_regs *gpr =
-		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
-
-	/* Enable RGMII TX clk output */
-	setbits_le32(&gpr->gpr[1], BIT(22));
-}
-
-#define DISPMIX				13
-#define MIPI				15
-
 int board_init(void)
 {
 	struct arm_smccc_res res;
 
-	if (CONFIG_IS_ENABLED(FEC_MXC)) {
-		setup_fec();
-	}
-
-#ifdef CONFIG_NAND_MXS
-	setup_gpmi_nand();
-#endif
-
 #if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_IMX8M)
 	init_usb_clk();
 #endif
-
-	/* enable the dispmix & mipi phy power domain */
-	arm_smccc_smc(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
-		      DISPMIX, true, 0, 0, 0, 0, &res);
-	arm_smccc_smc(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
-		      MIPI, true, 0, 0, 0, 0, &res);
 
 	return 0;
 }
