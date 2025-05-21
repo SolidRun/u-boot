@@ -681,6 +681,27 @@ int board_get_mac(int dev_id, unsigned char *mac) {
 	return -ENOENT;
 }
 
+int board_fit_config_name_match(const char *name) {
+	char match[7+32] = "imx8mp-cubox-m";
+
+	hb_read_tlv_data();
+	board_id_from_tlv_info();
+
+	if (board_id.product_name[0])
+		snprintf(match, sizeof(match), "%s-%s", "imx8mp", board_id.product_name);
+	else
+		printf("%s: could not identify board, defaulting to CuBox-M!\n", __func__);
+
+	if (!strcmp(name, match))
+		return 0;
+
+	// always match old common name when there was single dtb only */
+	if (!strcmp(name, "imx8mp-solidrun"))
+		return 0;
+
+	return -EINVAL;
+}
+
 #ifdef CONFIG_ANDROID_SUPPORT
 bool is_power_key_pressed(void) {
 	return (bool)(!!(readl(SNVS_HPSR) & (0x1 << 6)));
