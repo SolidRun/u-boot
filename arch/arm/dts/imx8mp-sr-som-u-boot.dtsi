@@ -46,6 +46,14 @@
 	};
 };
 
+&i2c3_pins {
+	bootph-pre-ram;
+};
+
+&i2c3_gpio_pins {
+	bootph-pre-ram;
+};
+
 &pmic {
 	bootph-pre-ram;
 
