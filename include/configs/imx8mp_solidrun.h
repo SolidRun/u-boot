@@ -57,6 +57,9 @@
 	JAILHOUSE_ENV \
 	SR_IR_V2_COMMAND \
 	BOOTENV \
+	"stdout=vidconsole,serial\0"		\
+	"stderr=vidconsole,serial\0"		\
+	"stdin=vidconsole,serial\0"		\
 	"prepare_mcore=setenv mcore_clk clk-imx8mp.mcore_booted;\0" \
 	"scriptaddr=0x43500000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \

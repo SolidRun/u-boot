@@ -15,32 +15,32 @@
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
 &gpio1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &gpio5 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &i2c1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &i2c1_pins {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &i2c1_gpio_pins {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &i2c3 {
-	bootph-pre-ram;
+	bootph-all;
 
 	/* enable known eeprom for board identification */
 	carrier_eeprom: eeprom@57 {
@@ -52,44 +52,44 @@
 };
 
 &i2c3_pins {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &i2c3_gpio_pins {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pmic {
-	bootph-pre-ram;
+	bootph-all;
 
 	regulators {
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
 &som_eeprom {
 	pagesize = <1>;
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &uart2 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &uart2_pins {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usdhc2_pins {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usdhc3_pins {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usdhc3 {
-	bootph-pre-ram;
+	bootph-all;
 	mmc-hs400-1_8v;
 	mmc-hs400-enhanced-strobe;
 	assigned-clocks = <&clk IMX8MP_CLK_USDHC3>;
@@ -98,9 +98,9 @@
 };
 
 &wdog1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &wdog1_pins {
-	bootph-pre-ram;
+	bootph-all;
 };
