@@ -22,6 +22,11 @@
 	model = "NXP i.MX8MPlus LPDDR4 SolidRun board";
 	compatible = "fsl,imx8mp-solidrun", "fsl,imx8mp";
 
+	aliases {
+		tlv0 = &eeprom;
+		tlv1 = &eeprom_carrier;
+	};
+
 	chosen {
 		bootargs = "console=ttymxc1,115200 earlycon=ec_imx6q,0x30890000,115200";
 		stdout-path = &uart2;

@@ -7,6 +7,11 @@
 #include "imx8mp-u-boot.dtsi"
 
 / {
+	aliases {
+		tlv0 = &som_eeprom;
+		tlv1 = &carrier_eeprom;
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
