@@ -6,15 +6,13 @@
 #ifndef __BOARD_SR_COMMON_H_
 #define __BOARD_SR_COMMON_H_
 
-#define TLV_MAX_DEVICES			2
-
 struct tlv_data {
 	/* Store product name of both SOM and carrier */
-	char tlv_product_name[TLV_MAX_DEVICES][32];
-	char tlv_part_number[TLV_MAX_DEVICES][257];
-	char tlv_kit_number[TLV_MAX_DEVICES][257];
-	unsigned char tlv_mac_base[TLV_MAX_DEVICES][6];
-	u16 tlv_mac_count[TLV_MAX_DEVICES];
+	char tlv_product_name[32];
+	char tlv_part_number[257];
+	char tlv_kit_number[257];
+	unsigned char tlv_mac_base[6];
+	u16 tlv_mac_count;
 	unsigned int ram_size;
 	uint8_t ram_channels;
 };
@@ -35,7 +33,7 @@ enum sr_tlv_code {
 	SR_TLV_CODE_RAM_SIZE    = 0x81,
 };
 
-void read_tlv_data(struct tlv_data *td);
+int read_tlv_data(int dev_num, struct tlv_data *td);
 bool sr_product_is(const struct tlv_data *td, const char *product);
 
 #endif /* __BOARD_SR_COMMON_H_ */

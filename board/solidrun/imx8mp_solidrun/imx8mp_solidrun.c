@@ -40,25 +40,27 @@
 
 #define ONE_GB 0x40000000ULL
 
-static struct tlv_data hb_tlv_data;
+static struct tlv_data hb_tlv_data[2];
+int hb_tlv_ret[2];
 static bool tlv_read_once;
 
 static struct board_id {
-	char carrier_name[32];
+	const char *carrier_name;
 	char carrier_rev[3];
-	char som_name[8];
+	const char *som_name;
 	char som_rev[3];
-	char product_name[32];
+	const char *product_name;
 	char product_rev[3];
 } board_id = {0};
 
 static void hb_read_tlv_data(void)
 {
-        if (tlv_read_once)
-                return;
-        tlv_read_once = true;
+	if (tlv_read_once)
+		return;
+	tlv_read_once = true;
 
-        read_tlv_data(&hb_tlv_data);
+	hb_tlv_ret[0] = read_tlv_data(0, &hb_tlv_data[0]);
+	hb_tlv_ret[1] = read_tlv_data(1, &hb_tlv_data[1]);
 }
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -383,8 +385,6 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 
 int board_init(void)
 {
-	struct arm_smccc_res res;
-
 #if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_IMX8M)
 	init_usb_clk();
 #endif
@@ -392,23 +392,57 @@ int board_init(void)
 	return 0;
 }
 
-static bool find_i2c_dev(u8 i2c_bus, u8 address) {
-	struct udevice *bus;
-	struct udevice *i2c_dev = NULL;
-	int ret;
+/*
+ * Identify board from TLV EEPROM - store result in board_id:
+ * - product_name: name of kit
+ * - product_rev: revision of kit
+ */
+static void board_id_kit_from_tlv_info(struct tlv_data *data) {
+	const char *product_name = "";
 
-	ret = uclass_get_device_by_seq(UCLASS_I2C, i2c_bus, &bus);
-	if (ret) {
-		pr_err("%s: failed to get i2c bus %u: %i\n", __func__, i2c_bus, ret);
-		return false;
+	/* sample kit SKU: SRMP8QDW00D01GE008X01CE */
+	if (!data->tlv_kit_number[0]) {
+		return;
+	} else if (strlen(data->tlv_kit_number) != 23) {
+		pr_err("%s: kit sku \"%s\" has wrong length (expecting %d)\n", __func__, data->tlv_kit_number, 23);
+	} else if (memcmp(&data->tlv_kit_number[2], "MP8", 3) != 0) {
+		pr_err("%s: kit sku \"%s\" is not i.MX8M Plus (expecting XX%s...)\n", __func__, data->tlv_kit_number, "MP8");
+	} else {
+		// board type at index 18
+		switch (data->tlv_kit_number[18]) {
+		case 'M': // Mate
+			product_name = "hummingboard-mate";
+			break;
+		case 'U': // Pulse
+			product_name = "hummingboard-pulse";
+			break;
+		case 'R': // Ripple
+			product_name = "hummingboard-ripple";
+			break;
+		case 'P': // Pro
+		case 'T': // Extended (treated as Pro)
+			product_name = "hummingboard-pro";
+			break;
+		case 'I': // IIOT
+			product_name = "hummingboard-iiot-main";
+			break;
+		case 'X': // CuBox
+			product_name = "cubox-m";
+			break;
+		default:
+			pr_err("%s: did not recognize kit variant '%c' in sku \"%s\"!\n", __func__, data->tlv_kit_number[18], data->tlv_kit_number);
+		}
+
+		if (board_id.product_name && (strcmp(board_id.product_name, product_name) != 0)) {
+			pr_err("%s: kit mismatch between som and carrier, have \"%s\" and \"%s\", using the latter!\n", __func__, board_id.product_name, product_name);
+		}
+		board_id.product_name = product_name;
+
+		// kit revision at index 19-20
+		board_id.product_rev[0] = data->tlv_kit_number[19];
+		board_id.product_rev[1] = data->tlv_kit_number[20];
+		board_id.product_rev[2] = 0;
 	}
-
-	ret = dm_i2c_probe(bus, address, 0, &i2c_dev);
-	if (ret) {
-		return false;
-	}
-
-	return true;
 }
 
 /*
@@ -419,132 +453,95 @@ static bool find_i2c_dev(u8 i2c_bus, u8 address) {
  * - som_rev: revision of SoM
  */
 static void board_id_from_tlv_info(void) {
-	char *tmp;
+	hb_read_tlv_data();
 
-	for(int i = 0; i < TLV_MAX_DEVICES; i++) {
-		// parse sku - processor or carrier indicated at index 2-6
-		if(memcmp(&hb_tlv_data.tlv_part_number[i][2], "HBC", 3) == 0 ||
-			memcmp(&hb_tlv_data.tlv_part_number[i][2], "HBI", 3) == 0 ) {
-			/*
-			HummingBoard:
-				SKU - Board_Name {xx: board version}:
-				SRHBCUE000CVxx  HB-Pulse
-				SRHBCUEXT0CVxx  HB-Extended
-				SRHBCUPRO0IVxx  HB-Pro
-				SRHBCME000CVxx  HB-Mate
-				SRHBCRE000CVxx  HB-Ripple
-				SRHBIIOTIVxx  	HB-IIOT
-			*/
-			switch(hb_tlv_data.tlv_part_number[i][5]) {
-			    case 'M': // Mate
-				tmp = "mate";
-				break;
-			    case 'R': // Ripple
-				tmp = "ripple";
-				break;
-			    case 'U': // Pulse, Extended or Pro
-				tmp = "pulse"; // Default to Pulse
-				// Check if it's Extended or Pro, both set to "pro"
-				if (memcmp(&hb_tlv_data.tlv_part_number[i][6], "EXT", 3) == 0 ||
-					memcmp(&hb_tlv_data.tlv_part_number[i][6], "PRO", 3) == 0) {
-					tmp = "pro";
-				}
-				break;
-				case 'I': // IIOT
-				tmp = "iiot-main";
-				break;
-			    default:
-				pr_err("%s: did not recognize board variant '%c' in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_part_number[i][5], hb_tlv_data.tlv_part_number[i]);
-				tmp = 0;
-			}
-
-			if(tmp) {
-				if(snprintf(board_id.carrier_name, sizeof(board_id.carrier_name), "hummingboard-%s", tmp) >= sizeof(board_id.carrier_name)) {
-					pr_err("%s: buffer too small, carrier_name skipped!\n", __func__);
-					board_id.carrier_name[0] = 0;
-				}
-			}
-
-			// board revision at index 12-13
-			if(hb_tlv_data.tlv_part_number[i][12] && hb_tlv_data.tlv_part_number[i][13]) {
-				board_id.carrier_rev[0] = hb_tlv_data.tlv_part_number[i][12];
-				board_id.carrier_rev[1] = hb_tlv_data.tlv_part_number[i][13];
-				board_id.carrier_rev[2] = 0;
-			} else {
-			    pr_err("%s: did not find board revision in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_part_number[i]);
-			}
-		} else if(memcmp(&hb_tlv_data.tlv_part_number[i][2], "MP8", 3) == 0) {
-			// i.MX8MP SoM
-			strcpy(board_id.som_name, "imx8mp");
-
-			// variant
-			switch(hb_tlv_data.tlv_part_number[i][5]) {
-			    case 'D':
-				break;
-			    case 'Q':
-				break;
-			    default:
-				pr_err("%s: did not recognize cpu variant '%c' in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_part_number[i][5], hb_tlv_data.tlv_part_number[i]);
-			}
+	/* SoM EEPROM */
+	if (!hb_tlv_ret[0]) {
+		/* sample SKU: SRMP8QDWB1D01GE008V11C0 */
+		if (hb_tlv_data[0].tlv_part_number[0] && strlen(hb_tlv_data[0].tlv_part_number) < 21) {
+			pr_err("%s: som sku \"%s\" has wrong length (expecting >= %d)\n", __func__, hb_tlv_data[0].tlv_part_number, 21);
+		} else if (memcmp(&hb_tlv_data[0].tlv_part_number[2], "MP8", 3) != 0) {
+			pr_err("%s: som sku \"%s\" is not i.MX8M Plus (expecting XX%s...)\n", __func__, hb_tlv_data[0].tlv_part_number, "MP8");
+		} else {
+			board_id.som_name = "imx8mp";
 
 			// SoM revision at index 19-20
-			if(hb_tlv_data.tlv_part_number[i][19] && hb_tlv_data.tlv_part_number[i][20]) {
-				board_id.som_rev[0] = hb_tlv_data.tlv_part_number[i][19];
-				board_id.som_rev[1] = hb_tlv_data.tlv_part_number[i][20];
+			if (strlen(hb_tlv_data[0].tlv_part_number) >= 20) {
+				board_id.som_rev[0] = hb_tlv_data[0].tlv_part_number[19];
+				board_id.som_rev[1] = hb_tlv_data[0].tlv_part_number[20];
 				board_id.som_rev[2] = 0;
-			} else {
-			    pr_err("%s: did not find som revision in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_part_number[i]);
 			}
+		}
+
+		/* evalue kit if programmed to SoM EEPROM */
+		board_id_kit_from_tlv_info(&hb_tlv_data[0]);
+	}
+
+	/* fall-back when identification failed */
+	if(!board_id.som_name) {
+		// could be anything ...
+		printf("%s: could not identify som, defaulting to i.MX8M Plus Revision 1.1!\n", __func__);
+		board_id.som_name = "imx8mp";
+		strcpy(board_id.som_rev, "11");
+	}
+
+	/* Carrier EEPROM */
+	if (!hb_tlv_ret[1]) {
+		int rev_offset = 12;
+		/* Example SKUs:
+		 * - SRHBCUE000CVxx  HB-Pulse
+		 * - SRHBCUEXT0CVxx  HB-Extended
+		 * - SRHBCUPRO0IVxx  HB-Pro
+		 * - SRHBCME000CVxx  HB-Mate
+		 * - SRHBCRE000CVxx  HB-Ripple
+		 * - SRHBIIOTIVxx    HB-IIOT
+		 */
+		if ((memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBCUEXT", 7) == 0) ||
+			 (memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBCUPRO", 7) == 0)) {
+			board_id.carrier_name = "hummingboard-pro";
+		} else if (memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBCUE", 5) == 0) {
+			board_id.carrier_name = "hummingboard-pulse";
+		} else if (memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBCME", 5) == 0) {
+			board_id.carrier_name = "hummingboard-mate";
+		} else if (memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBCRE", 5) == 0) {
+			board_id.carrier_name = "hummingboard-ripple";
+		} else if (memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBIIOT", 6) == 0) {
+			board_id.carrier_name = "hummingboard-iiot-main";
+			rev_offset = 10;
 		} else {
-			pr_err("%s: did not recognize SKU %s!\n", __func__, hb_tlv_data.tlv_part_number[i]);
+			pr_err("%s: did not recognize carrier sku \"%s\"!\n", __func__, hb_tlv_data[1].tlv_part_number);
+			rev_offset = 0;
 		}
 
-		pr_info("%s: read kit sku %s\n", __func__, hb_tlv_data.tlv_kit_number[i]);
-
-		// SRMP8QDW00D01GE008X01CE
-		if(!hb_tlv_data.tlv_kit_number[i][0])
-			continue;
-		else if (strlen(hb_tlv_data.tlv_kit_number[i]) != 23) {
-			pr_err("%s: kit sku \"%s\" has wrong length (expecting %0X)\n", __func__, hb_tlv_data.tlv_kit_number[i], 23);
-			continue;
+		if (rev_offset) {
+			board_id.carrier_rev[0] = hb_tlv_data[1].tlv_part_number[rev_offset];
+			board_id.carrier_rev[1] = hb_tlv_data[1].tlv_part_number[rev_offset+1];
+			board_id.carrier_rev[2] = 0;
 		}
 
-		// kit type
-		switch(hb_tlv_data.tlv_kit_number[i][18]) {
-		    case 'M': // Mate
-			tmp = "hummingboard-mate";
-			break;
-		    case 'U': // Pulse
-			tmp = "hummingboard-pulse";
-			break;
-		    case 'R': // Ripple
-			tmp = "hummingboard-ripple";
-			break;
-			case 'P': // Pro
-			case 'T': // Extended (treated as Pro)
-			tmp = "hummingboard-pro";
-			break;
-		    case 'I': // IIOT
-			tmp = "hummingboard-iiot-main";
-			break;
-		    case 'X': // CuBox
-			tmp = "cubox-m";
-			break;
-		    default:
-			tmp = 0;
-			pr_err("%s: did not recognize kit variant '%c' in sku \"%s\"!\n", __func__, hb_tlv_data.tlv_kit_number[i][18], hb_tlv_data.tlv_kit_number[i]);
-		}
-		if(tmp) {
-			if(board_id.product_name[0] && strcmp(board_id.product_name, tmp) != 0) {
-				pr_err("%s: components mixed between kits, found %s and %s!\n", __func__, board_id.product_name, tmp);
-			}
-			strcpy(board_id.product_name, tmp);
-		}
+		/* evalue kit if programmed to Carrier EEPROM (takes precedence over previous call) */
+		board_id_kit_from_tlv_info(&hb_tlv_data[1]);
+	}
 
-		// kit revision
-		board_id.product_rev[0] = hb_tlv_data.tlv_kit_number[i][19];
-		board_id.product_rev[1] = hb_tlv_data.tlv_kit_number[i][20];
-		board_id.product_rev[2] = 0;
+	/* fall-back when identification failed */
+	if(!board_id.carrier_name) {
+		// could be HummingBoard or CuBox ...
+		if(board_id.product_name && strcmp(board_id.product_name, "cubox-m") == 0) {
+			// we have a kit and it's a CuBox
+			printf("%s: SoM is part of a CuBox-M Kit, infering that carrier is CuBox-M!\n", __func__);
+			board_id.carrier_name = board_id.product_name;
+		}
+		else if (hb_tlv_ret[1] == -ENODEV) {
+			// no eeprom, likely a Cubox
+			printf("%s: could not identify board, defaulting to CuBox-M!\n", __func__);
+			board_id.carrier_name = "cubox-m";
+		}
+		else {
+			// if EEPROM exists, it must be HummingBoard
+			printf("%s: could not identify board, defaulting to HummingBoard Pulse Revision 2.5!\n", __func__);
+			board_id.carrier_name = "hummingboard-pulse";
+			strcpy(board_id.carrier_rev, "25");
+		}
 	}
 }
 
@@ -554,52 +551,17 @@ int board_late_init(void)
 	board_late_mmc_env_init();
 #endif
 
-	// populate tlv_data
-	hb_read_tlv_data();
-
 	// identify device
 	board_id_from_tlv_info();
 
-	// fall-back when identification fails
-	if(!board_id.carrier_name[0]) {
-		// could be HummingBoard or CuBox ...
-		if(board_id.product_name[0] && strcmp(board_id.product_name, "cubox-m") == 0) {
-			// we have a kit and it's a CuBox
-			printf("%s: SoM is part of a CuBox-M Kit, infering that carrier is CuBox-M!\n", __func__);
-			strcpy(board_id.carrier_name, board_id.product_name);
-		}
-		else if(find_i2c_dev(2, 0x57)) {
-			// if EEPROM exists, it must be HummingBoard
-			printf("%s: could not identify board, defaulting to HummingBoard Pulse Revision 2.5!\n", __func__);
-			strcpy(board_id.carrier_name, "hummingboard-pulse");
-			strcpy(board_id.carrier_rev, "25");
-		} else {
-			// likely a CuBox
-			printf("%s: could not identify board, defaulting to CuBox-M!\n", __func__);
-			strcpy(board_id.carrier_name, "cubox-m");
-		}
-	}
-	if(!board_id.som_name[0]) {
-		// could be anything ...
-		printf("%s: could not identify som, defaulting to i.MX8M Plus Revision 1.1!\n", __func__);
-		strcpy(board_id.som_name, "imx8mp");
-		strcpy(board_id.som_rev, "11");
-	}
-
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	// expose identity to environment
-	if(board_id.carrier_name[0])
-		env_set("carrier_name", board_id.carrier_name);
-	if(board_id.carrier_rev[0])
-		env_set("carrier_rev", board_id.carrier_rev);
-	if(board_id.som_name[0])
-		env_set("som_name", board_id.som_name);
-	if(board_id.som_rev[0])
-		env_set("som_rev", board_id.som_rev);
-	if(board_id.product_name[0])
-		env_set("product_name", board_id.product_name);
-	if(board_id.product_rev[0])
-		env_set("product_rev", board_id.product_rev);
+	env_set("carrier_name", board_id.carrier_name);
+	env_set("carrier_rev", board_id.carrier_rev);
+	env_set("som_name", board_id.som_name);
+	env_set("som_rev", board_id.som_rev);
+	env_set("product_name", board_id.product_name);
+	env_set("product_rev", board_id.product_rev);
 #endif
 
 	return 0;
@@ -639,27 +601,21 @@ static void mac_add_n(unsigned char *base, u16 n) {
 int board_get_mac(int dev_id, unsigned char *mac) {
 	int i;
 
-	/*
-	 * Note: Environment ethaddr (eth1addr, eth2addr, ...) has first priority,
-	 * therefore it should be read and returned here.
-	 * However the fec driver will write the result from this function to the environment,
-	 * causing a feedback loop.
-	 */
-
 	// tlv eeproms
+	hb_read_tlv_data();
 	i = dev_id;
-	for(int j = 0; j < TLV_MAX_DEVICES; j++) {
-		if(!is_valid_ethaddr((const u8 *)hb_tlv_data.tlv_mac_base[j]))
+	for(int j = 0; j < ARRAY_SIZE(hb_tlv_data); j++) {
+		if(!is_valid_ethaddr((const u8 *)hb_tlv_data[j].tlv_mac_base))
 			continue;
 
 		// count if enough macs are provided
-		if (i >= hb_tlv_data.tlv_mac_count[j]) {
-			i -= hb_tlv_data.tlv_mac_count[j];
+		if (i >= hb_tlv_data[j].tlv_mac_count) {
+			i -= hb_tlv_data[j].tlv_mac_count;
 			continue;
 		}
 
 		// compute i-th mac
-		memcpy(mac, &hb_tlv_data.tlv_mac_base[j], 6);
+		memcpy(mac, &hb_tlv_data[j].tlv_mac_base, 6);
 		mac_add_n(mac, i);
 
 		if (is_valid_ethaddr(mac)) {
@@ -671,24 +627,18 @@ int board_get_mac(int dev_id, unsigned char *mac) {
 		}
 	}
 
-	// fuses
-	imx_get_mac_from_fuse(dev_id, mac);
-	if(is_valid_ethaddr(mac)) {
-		printf("%s: interface %i: using mac from fuses: %02X:%02X:%02X:%02X:%02X:%02X\n", __func__, dev_id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-		return 0;
-	}
-
 	return -ENOENT;
 }
 
 int board_fit_config_name_match(const char *name) {
 	char match[7+32] = "imx8mp-cubox-m";
 
-	hb_read_tlv_data();
 	board_id_from_tlv_info();
 
-	if (board_id.product_name[0])
+	if (board_id.product_name)
 		snprintf(match, sizeof(match), "%s-%s", "imx8mp", board_id.product_name);
+	else if (board_id.carrier_name)
+		snprintf(match, sizeof(match), "%s-%s", "imx8mp", board_id.carrier_name);
 	else
 		printf("%s: could not identify board, defaulting to CuBox-M!\n", __func__);
 
