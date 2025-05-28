@@ -54,7 +54,7 @@
 };
 
 &usdhc2 {
-	bootph-pre-ram;
+	bootph-all;
 	sd-uhs-sdr104;
 	sd-uhs-ddr50;
 	assigned-clocks = <&clk IMX8MP_CLK_USDHC2>;
@@ -64,9 +64,9 @@
 };
 
 &usdhc2_pins {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &vmmc {
-	bootph-pre-ram;
+	bootph-all;
 };

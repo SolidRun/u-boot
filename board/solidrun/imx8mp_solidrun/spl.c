@@ -435,6 +435,9 @@ int power_init_board(void)
 	/* set WDOG_B_CFG to cold reset */
 	pmic_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
 
+	/* enable i2c level shifter */
+	pmic_reg_write(dev, PCA9450_CONFIG2, 0x01);
+
 	return 0;
 }
 #endif

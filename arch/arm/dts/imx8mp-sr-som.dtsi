@@ -45,9 +45,13 @@
 	pinctrl-0 = <&eqos_pins>, <&phy0_pins>;
 	phy-mode = "rgmii-id";
 	phy = <&phy0>;
+	snps,force_thresh_dma_mode;
+	snps,mtl-tx-config = <&mtl_tx_setup>;
+	snps,mtl-rx-config = <&mtl_rx_setup>;
 	status = "okay";
 
 	mdio {
+		compatible = "snps,dwmac-mdio";
 		#address-cells = <1>;
 		#size-cells = <0>;
 
@@ -55,6 +59,71 @@
 			compatible = "ethernet-phy-ieee802.3-c22";
 			reg = <0>;
 			reset-gpios = <&gpio4 19 GPIO_ACTIVE_LOW>;
+		};
+	};
+
+	mtl_tx_setup: tx-queues-config {
+		snps,tx-queues-to-use = <5>;
+		snps,tx-sched-sp;
+
+		queue0 {
+			snps,dcb-algorithm;
+			snps,priority = <0x1>;
+		};
+
+		queue1 {
+			snps,dcb-algorithm;
+			snps,priority = <0x2>;
+		};
+
+		queue2 {
+			snps,dcb-algorithm;
+			snps,priority = <0x4>;
+		};
+
+		queue3 {
+			snps,dcb-algorithm;
+			snps,priority = <0x8>;
+		};
+
+		queue4 {
+			snps,dcb-algorithm;
+			snps,priority = <0xf0>;
+		};
+	};
+
+	mtl_rx_setup: rx-queues-config {
+		snps,rx-queues-to-use = <5>;
+		snps,rx-sched-sp;
+
+		queue0 {
+			snps,dcb-algorithm;
+			snps,priority = <0x1>;
+			snps,map-to-dma-channel = <0>;
+		};
+
+		queue1 {
+			snps,dcb-algorithm;
+			snps,priority = <0x2>;
+			snps,map-to-dma-channel = <1>;
+		};
+
+		queue2 {
+			snps,dcb-algorithm;
+			snps,priority = <0x4>;
+			snps,map-to-dma-channel = <2>;
+		};
+
+		queue3 {
+			snps,dcb-algorithm;
+			snps,priority = <0x8>;
+			snps,map-to-dma-channel = <3>;
+		};
+
+		queue4 {
+			snps,dcb-algorithm;
+			snps,priority = <0xf0>;
+			snps,map-to-dma-channel = <4>;
 		};
 	};
 };
@@ -91,13 +160,21 @@
 	status = "okay";
 };
 
+&gpu_2d {
+	status = "okay";
+};
+
+&gpu_3d {
+	status = "okay";
+};
+
 &i2c1 {
 	clock-frequency = <400000>;
 	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&i2c1_pins>;
 	pinctrl-1 = <&i2c1_gpio_pins>;
-	scl-gpios = <&gpio5 14 GPIO_ACTIVE_HIGH>;
-	sda-gpios = <&gpio5 15 GPIO_ACTIVE_HIGH>;
+	scl-gpios = <&gpio5 14 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio5 15 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 	status = "okay";
 
 	som_eeprom: eeprom@50{
@@ -113,6 +190,7 @@
 		pinctrl-names = "default";
 		interrupt-parent = <&gpio1>;
 		interrupts = <3 GPIO_ACTIVE_LOW>;
+		nxp,i2c-lt-enable;
 
 		regulators {
 			buck1: BUCK1 {
@@ -202,13 +280,23 @@
 	};
 };
 
+&i2c2 {
+	clock-frequency = <100000>;
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&i2c2_pins>;
+	pinctrl-1 = <&i2c2_gpio_pins>;
+	scl-gpios = <&gpio5 16 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio5 17 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	status = "okay";
+};
+
 &i2c3 {
 	clock-frequency = <100000>;
 	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&i2c3_pins>;
 	pinctrl-1 = <&i2c3_gpio_pins>;
-	scl-gpios = <&gpio5 18 GPIO_ACTIVE_HIGH>;
-	sda-gpios = <&gpio5 19 GPIO_ACTIVE_HIGH>;
+	scl-gpios = <&gpio5 18 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio5 19 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 	status = "okay";
 };
 
@@ -262,6 +350,20 @@
 		fsl,pins = <
 			MX8MP_IOMUXC_I2C1_SCL__GPIO5_IO14		0x400001c3
 			MX8MP_IOMUXC_I2C1_SDA__GPIO5_IO15		0x400001c3
+		>;
+	};
+
+	i2c2_pins: i2c2-pins {
+		fsl,pins = <
+			MX8MP_IOMUXC_I2C2_SCL__I2C2_SCL			0x400001c3
+			MX8MP_IOMUXC_I2C2_SDA__I2C2_SDA			0x400001c3
+		>;
+	};
+
+	i2c2_gpio_pins: i2c2-gpio-pins {
+		fsl,pins = <
+			MX8MP_IOMUXC_I2C2_SCL__GPIO5_IO16		0x400001c3
+			MX8MP_IOMUXC_I2C2_SDA__GPIO5_IO17		0x400001c3
 		>;
 	};
 
@@ -413,6 +515,14 @@
 	};
 };
 
+&mix_gpu_ml {
+	status = "okay";
+};
+
+&ml_vipsi {
+	status = "okay";
+};
+
 &snvs_rtc {
 	status = "okay";
 };
@@ -466,8 +576,32 @@
 	status = "okay";
 };
 
+&vpu_g1 {
+	status = "okay";
+};
+
+&vpu_g2 {
+	status = "okay";
+};
+
+&vpu_vc8000e {
+	status = "okay";
+};
+
+&vpu_v4l2 {
+	status = "okay";
+};
+
 &wdog1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&wdog1_pins>;
 	status = "okay";
+};
+
+/*
+ * Reserve all physical memory from within the first 1GB of DDR address
+ * space to avoid panic on low memory systems.
+ */
+&gpu_reserved {
+	reg = <0x0 0x70000000 0 0x10000000>;
 };
