@@ -31,7 +31,6 @@
 #include <mmc.h>
 #include <malloc.h>
 #include <fsl_esdhc.h>
-#include <power/bd71837.h>
 #include <asm/mach-imx/video.h>
 #include <linux/delay.h>
 #include <env.h>
@@ -618,10 +617,108 @@ int board_fit_config_name_match(const char *name) {
 	return -EINVAL;
 }
 
+#if defined(CONFIG_OF_BOARD_SETUP) || defined(CONFIG_OF_BOARD_FIXUP)
+/* sample hdmi encoder power-down signal initial state to derive i2c address and line polarity */
+static int find_hdmi_encoder(uint8_t *addr_encoder, uint8_t *addr_encoder_cec, uint8_t *addr_encoder_edid, uint8_t *addr_encoder_pkt) {
+	struct udevice *bus = NULL;
+	struct udevice *dev = NULL;
+	uint16_t chipid;
+	struct encoder_addr {
+		uint8_t main;
+		uint8_t cec;
+		uint8_t edid;
+		uint8_t pkt;
+		bool pol;
+	} const addr[2] = { { 0x3d, 0x3c, 0x3f, 0x38, true }, { 0x39, 0x38, 0x3b, 0x34, false }, };
+	int ret;
+
+	ret = uclass_get_device_by_name(UCLASS_I2C, "i2c@30a40000", &bus);
+	if (ret)
+		return ret;
+
+	for (int i = 0; i < ARRAY_SIZE(addr); i++) {
+		ret = dm_i2c_probe(bus, addr[i].main, 0, &dev);
+		if (ret) {
+			pr_err("%s: failed to probe i2c device 0x%x\n", __func__, addr[i].main);
+			continue;
+		}
+
+		/* chip-id at 0xf5-0xf6 */
+		ret = dm_i2c_read(dev, 0xf5, (uint8_t *)&chipid, 2);
+		if (ret) {
+			pr_err("%s: failed to read i2c device 0x%x register 0x%x: %d\n", __func__, addr[i].main, 0xf5, ret);
+			continue;
+		}
+
+		switch (chipid) {
+		case 0x8989:
+			*addr_encoder = addr[i].main;
+			*addr_encoder_cec = addr[i].cec;
+			*addr_encoder_edid = addr[i].edid;
+			*addr_encoder_pkt = addr[i].pkt;
+			*addr_encoder_pkt = addr[i].pkt;
+			return 0;
+		default:
+			pr_err("%s: read unknown chipid 0x%x from device at 0x%x\n", __func__, chipid, addr[i].main);
+			continue;
+		}
+	}
+
+	return -ENODEV;
+}
+
+/*
+ * Patch device-tree for HDMI encoder (i2c address depending on optional R185)
+ */
+static int board_fix_hdmi(void *fdt, const char *stage) {
+	uint8_t addr_encoder, addr_encoder_cec, addr_encoder_edid, addr_encoder_pkt;
+	int node_encoder;
+	const char *node_encoder_path[] = {
+		"/soc@0/bus@30800000/i2c@30a40000/hdmi@3d"
+	};
+	int ret;
+
+	printf("board_fix_hdmi\n");
+
+	/* find hdmi encoder node */
+	for (uint8_t i = 0; i < ARRAY_SIZE(node_encoder_path); i++) {
+		node_encoder = fdt_path_offset(fdt, node_encoder_path[i]);
+		if(node_encoder >= 0)
+			break;
+	}
+
+	/* dtb without encoder does not need fixup or detection */
+	if(node_encoder < 0)
+		return 0;
+
+	printf("board_fix_hdmi: detecting encoder ...\n");
+
+	/* detect encoder */
+	ret = find_hdmi_encoder(&addr_encoder, &addr_encoder_cec, &addr_encoder_edid, &addr_encoder_pkt);
+	if (ret) {
+		pr_err("%s: couldn't detect hdmi encoder, not patching %s dtb: %d!\n", __func__, stage, ret);
+		return 0;
+	}
+	printf("%s: Found HDMI encoder at 0x%x!\n", __func__, addr_encoder);
+
+	/* patch fdt node with probed address */
+	ret = fdt_setprop_u32(fdt, node_encoder, "reg", addr_encoder);
+	fdt_setprop_u32(fdt, node_encoder, "adi,addr-cec", addr_encoder_cec);
+	fdt_setprop_u32(fdt, node_encoder, "adi,addr-edid", addr_encoder_edid);
+	fdt_setprop_u32(fdt, node_encoder, "adi,addr-pkt", addr_encoder_pkt);
+
+	if(ret < 0)
+		pr_err("%s: failed to patch hdmi encoder address in %s dtb!\n", __func__, stage);
+
+	return 0;
+}
+
 #if defined(CONFIG_OF_BOARD_SETUP)
 /* Patch device-tree for OS */
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	board_fix_hdmi(blob, "os");
+
 #ifdef CONFIG_IMX8M_DRAM_INLINE_ECC
 	int rc;
 	phys_addr_t ecc0_start = 0xb0000000;
@@ -651,6 +748,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) */
+/* TODO: implement board_fix_fdt for u-boot own dtb */
+#endif /* defined(CONFIG_OF_BOARD_SETUP) || defined(CONFIG_OF_BOARD_FIXUP) */
 
 #ifdef CONFIG_ANDROID_SUPPORT
 bool is_power_key_pressed(void) {
