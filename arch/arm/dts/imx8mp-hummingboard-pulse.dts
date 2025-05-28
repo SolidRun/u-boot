@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2025 Josua Mayer <josua@solid-run.com>
+ */
+
+#include "imx8mp-hummingboard-ripple.dts"
+
+/ {
+	model = "SolidRun i.MX8MP HummingBoard Pulse";
+	compatible = "solidrun,imx8mp-hummingboard-pulse",
+		     "solidrun,imx8mp-sr-som", "fsl,imx8mp";
+};
