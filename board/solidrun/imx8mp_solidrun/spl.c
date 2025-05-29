@@ -407,9 +407,9 @@ int power_init_board(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = pmic_get("pca9450@25", &dev);
+	ret = pmic_get("pmic@25", &dev);
 	if (ret == -ENODEV) {
-		puts("No pca9450@25\n");
+		puts("No pmic@25\n");
 		return 0;
 	}
 	if (ret != 0)
