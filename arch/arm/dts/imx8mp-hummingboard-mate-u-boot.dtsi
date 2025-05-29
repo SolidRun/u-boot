@@ -5,4 +5,3 @@
 
 #include "imx8mp-sr-som-u-boot.dtsi"
 #include "imx8mp-hummingboard-pulse-common-u-boot.dtsi"
-#include "imx8mp-hummingboard-pulse-mini-hdmi-u-boot.dtsi"

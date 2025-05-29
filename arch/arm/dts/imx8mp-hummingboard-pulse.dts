@@ -8,7 +8,8 @@
 #include <dt-bindings/phy/phy-imx8-pcie.h>
 
 #include "imx8mp-sr-som.dtsi"
-#include "imx8mp-hummingboard-common.dtsi"
+#include "imx8mp-hummingboard-pulse-common.dtsi"
+#include "imx8mp-hummingboard-pulse-mini-hdmi.dtsi"
 
 / {
 	model = "SolidRun i.MX8MP HummingBoard Pulse";
@@ -76,7 +77,7 @@
 
 &iomuxc {
 	pinctrl-names = "default";
-	pinctrl-0 = <&mikro_pwm_pins>, <&mikro_int_pins>, <&hdmi_pins>,
+	pinctrl-0 = <&mikro_pwm_pins>, <&mikro_int_pins>,
 		    <&m2_wwan_wake_pins>, <&m2_wwan_reset_pins>;
 
 	sai3_pins: sai3-pins {
@@ -86,15 +87,6 @@
 			MX8MP_IOMUXC_SAI3_TXC__AUDIOMIX_SAI3_TX_BCLK	0xd6
 			MX8MP_IOMUXC_SAI3_TXD__AUDIOMIX_SAI3_TX_DATA00	0xd6
 			MX8MP_IOMUXC_SAI3_RXD__AUDIOMIX_SAI3_RX_DATA00	0xd6
-		>;
-	};
-
-	hdmi_pins: hdmi-pins {
-		fsl,pins = <
-			MX8MP_IOMUXC_HDMI_DDC_SCL__HDMIMIX_HDMI_SCL	0x400001c3
-			MX8MP_IOMUXC_HDMI_DDC_SDA__HDMIMIX_HDMI_SDA	0x400001c3
-			MX8MP_IOMUXC_HDMI_CEC__HDMIMIX_HDMI_CEC		0x154
-			MX8MP_IOMUXC_HDMI_HPD__HDMIMIX_HDMI_HPD		0x154
 		>;
 	};
 
@@ -125,10 +117,6 @@
 			MX8MP_IOMUXC_GPIO1_IO06__GPIO1_IO06		0x20
 		>;
 	};
-};
-
-&sdma2 {
-	status = "okay";
 };
 
 &pcie {

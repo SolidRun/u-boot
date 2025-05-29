@@ -7,11 +7,10 @@
 
 #include "imx8mp-sr-som.dtsi"
 #include "imx8mp-hummingboard-pulse-common.dtsi"
-#include "imx8mp-hummingboard-pulse-mini-hdmi.dtsi"
 
 / {
-	model = "SolidRun i.MX8MP HummingBoard Ripple";
-	compatible = "solidrun,imx8mp-hummingboard-ripple",
+	model = "SolidRun i.MX8MP HummingBoard Mate";
+	compatible = "solidrun,imx8mp-hummingboard-mate",
 		     "solidrun,imx8mp-sr-som", "fsl,imx8mp";
 
 	aliases {
