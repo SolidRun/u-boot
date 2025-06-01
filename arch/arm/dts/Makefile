@@ -1169,6 +1169,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-ddr4-evk.dtb \
 	imx8mp-cubox-m.dtb \
 	imx8mp-hummingboard-mate.dtb \
+	imx8mp-hummingboard-pro.dtb \
 	imx8mp-hummingboard-pulse.dtb \
 	imx8mp-hummingboard-ripple.dtb \
 	imx8mp-solidrun.dtb \

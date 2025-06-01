@@ -14,52 +14,27 @@
 #include "imx8mp-hummingboard-pulse-mini-hdmi.dtsi"
 
 / {
-	model = "SolidRun i.MX8MP HummingBoard Pulse";
-	compatible = "solidrun,imx8mp-hummingboard-pulse",
+	model = "SolidRun i.MX8MP HummingBoard Pro";
+	compatible = "solidrun,imx8mp-hummingboard-pro",
 		     "solidrun,imx8mp-sr-som", "fsl,imx8mp";
 
 	aliases {
 		ethernet0 = &eqos;
-		ethernet1 = &pcie_eth;
+		ethernet1 = &fec;
 	};
-};
-
-&fec {
-	/* this board does not use second phy / ethernet on SoM */
-	status = "disabled";
 };
 
 &iomuxc {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mikro_pwm_pins>, <&mikro_int_pins>,
 		    <&m2_wwan_wake_pins>, <&m2_reset_pins>;
-
-	pcie_eth_pins: pcie-eth-pins {
-		fsl,pins = <
-			MX8MP_IOMUXC_SAI3_RXFS__GPIO4_IO28		0x0
-		>;
-	};
 };
 
 &pcie {
-	pinctrl-0 = <&pcie_eth_pins>;
+	pinctrl-0 = <&m2_reset_pins>;
 	pinctrl-names = "default";
-	reset-gpio = <&gpio4 28 GPIO_ACTIVE_LOW>;
+	reset-gpio = <&gpio1 6 GPIO_ACTIVE_LOW>;
 	status = "okay";
-
-	root@0,0 {
-		compatible = "pci16c3,abcd";
-		reg = <0x00000000 0 0 0 0>;
-
-		#address-cells = <3>;
-		#size-cells = <2>;
-
-		/* Intel i210 */
-		pcie_eth: ethernet@1,0 {
-			compatible = "pci8086,157b";
-			reg = <0x00010000 0 0 0 0>;
-		};
-	};
 };
 
 &pcie_phy {
@@ -68,4 +43,33 @@
 	fsl,clkreq-unsupported;
 	fsl,refclk-pad-mode = <IMX8_PCIE_REFCLK_PAD_OUTPUT>;
 	status = "okay";
+};
+
+&phy0 {
+	leds {
+		/* ADIN1300 LED_0 pin */
+		led@0 {
+			reg = <0>;
+			color = <LED_COLOR_ID_ORANGE>;
+			function = LED_FUNCTION_LAN;
+			default-state = "keep";
+		};
+
+		/delete-node/ led@1;
+	};
+};
+
+&phy1 {
+	leds {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		/* ADIN1300 LED_0 pin */
+		led@0 {
+			reg = <0>;
+			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_LAN;
+			default-state = "keep";
+		};
+	};
 };
