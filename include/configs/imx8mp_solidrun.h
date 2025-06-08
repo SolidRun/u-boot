@@ -37,14 +37,6 @@
 			   "else run jh_netboot; fi; \0" \
 	"jh_netboot=setenv fdtfile ${jh_root_dtb}; setenv jh_clk clk_ignore_unused mem=1920MB; run netboot; \0 "
 
-#define SR_IR_V2_COMMAND \
-	"nodes=/busfreq /power-domains /soc@0/caam-sm@100000 /soc@0/bus@30000000/caam_secvio /soc@0/bus@30000000/caam-snvs@30370000 /soc@0/bus@30800000/flexspi_nand@30bb0000 /soc@0/bus@32c00000/mipi_dsi@32e60000 /soc@0/bus@32c00000/lcd-controller@32e80000 /soc@0/bus@32c00000/blk-ctl@32ec0000 /soc@0/bus@30800000/i2c@30a20000/pca9450@25 /soc@0/bus@30800000/i2c@30a30000/adv7535@3d /soc@0/bus@30800000/i2c@30a30000/tcpc@50 /wdt-reboot /mcu_rdc /soc@0/bus@30800000/ethernet@30bf0000 /dsi-host /rm67199_panel /cbtl04gp /binman /vpu_g1@38300000 /vpu_g2@38310000 /vpu_vc8000e@38320000 /vpu_v4l2 /gpu3d@38000000 /gpu2d@38008000 /vipsi@38500000 /mix_gpu_ml \0" \
-	"sr_ir_v2_cmd=cp.b ${fdtcontroladdr} ${fdt_addr_r} 0x10000;"\
-	"fdt addr ${fdt_addr_r};"\
-	"fdt set /soc@0/usb@32f10100/usb@38100000 compatible snps,dwc3;" \
-	"fdt set /soc@0/usb@32f10108/usb@38200000 compatible snps,dwc3;" \
-	"for i in ${nodes}; do fdt rm ${i}; done \0"
-
 #define CFG_MFG_ENV_SETTINGS \
 	CFG_MFG_ENV_SETTINGS_DEFAULT \
 	"initrd_addr=0x43800000\0" \
@@ -52,88 +44,49 @@
 	"emmc_dev=2\0"\
 	"sd_dev=1\0"
 
-#define CFG_EXTRA_ENV_SETTINGS		\
-	CFG_MFG_ENV_SETTINGS \
-	JAILHOUSE_ENV \
-	SR_IR_V2_COMMAND \
-	BOOTENV \
-	"stdout=vidconsole,serial\0"		\
-	"stderr=vidconsole,serial\0"		\
-	"stdin=vidconsole,serial\0"		\
-	"prepare_mcore=setenv mcore_clk clk-imx8mp.mcore_booted;\0" \
-	"scriptaddr=0x43500000\0" \
-	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
-	"bsp_script=boot.scr\0" \
-	"image=Image\0" \
-	"splashimage=0x50000000\0" \
-	"console=ttymxc1,115200\0" \
-	"fdt_addr_r=0x43000000\0"			\
-	"fdt_addr=0x43000000\0"			\
-	"fdtoverlay_addr_r=0x43100000\0"		\
-	"boot_fdt=try\0" \
-	"fdt_high=0xffffffffffffffff\0"		\
-	"boot_fit=no\0" \
-	"findfdt=setenv fdtfile freescale/imx8mp-$carrier_name.dtb\0" \
+/*
+ * Load Adresses (different from imx8mp_evk.h):
+ * - 1MB for boot-script
+ * - 1MB for pxe
+ * - 1MB for DTB
+ * - 1MB for DTB Overlays
+ * - 56MB for compressed kernel
+ * - 192MB for uncompressed kernel
+ * - 761MB for ramdisk (1GB SoM DDR, more otherwise)
+ */
+#define SCRIPT_ADDR_R		__stringify(0x40400000)
+#define PXEFILE_ADDR_R		__stringify(0x40500000)
+#define FDT_ADDR_R		__stringify(0x40600000)
+#define FDTOVERLAY_ADDR_R	__stringify(0x40700000)
+#define KERNEL_COMP_ADDR_R	__stringify(0x40800000)
+#define KERNEL_COMP_SIZE	__stringify(0x03800000)
+#define KERNEL_ADDR_R		__stringify(0x44000000)
+#define RAMDISK_ADDR_R		__stringify(0x50000000)
+#define FDT_RELOCATION_LIMIT	__stringify(0xffffffff)
+
+#define CFG_EXTRA_ENV_SETTINGS						\
+	CFG_MFG_ENV_SETTINGS						\
+	JAILHOUSE_ENV							\
+	BOOTENV								\
+	"scriptaddr=" SCRIPT_ADDR_R "\0"				\
+	"pxefile_addr_r=" PXEFILE_ADDR_R "\0"				\
+	"fdt_addr_r=" FDT_ADDR_R "\0"					\
+	"fdtoverlay_addr_r=" FDTOVERLAY_ADDR_R "\0"			\
+	"fdt_high=" FDT_RELOCATION_LIMIT "\0"				\
+	"kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0"			\
+	"kernel_comp_size=" KERNEL_COMP_SIZE "\0"			\
+	"kernel_addr_r=" KERNEL_ADDR_R "\0"				\
+	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0"				\
+	"stdout=vidconsole,serial\0"					\
+	"stderr=vidconsole,serial\0"					\
+	"stdin=vidconsole,serial\0"					\
+	"console=ttymxc1,115200\0" 					\
+	"findfdt=setenv fdtfile freescale/imx8mp-$carrier_name.dtb\0"	\
 	"fdtfile=undefined\0" \
-	"bootm_size=0x10000000\0" \
-	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
-	"mmcpart=1\0" \
-	"mmcroot=/dev/mmcblk1p2 rootwait rw\0" \
-	"mmcautodetect=yes\0" \
-	"mmcargs=setenv bootargs ${jh_clk} ${mcore_clk} console=${console} root=${mmcroot}\0 " \
-	"loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${bsp_script};\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-		"source\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr_r} ${fdtfile}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"if test ${boot_fit} = yes || test ${boot_fit} = try; then " \
-			"bootm ${loadaddr}; " \
-		"else " \
-			"if run loadfdt; then " \
-				"booti ${loadaddr} - ${fdt_addr_r}; " \
-			"else " \
-				"echo WARN: Cannot load the DT; " \
-			"fi; " \
-		"fi;\0" \
-	"netargs=setenv bootargs ${jh_clk} ${mcore_clk} console=${console} " \
-		"root=/dev/nfs " \
-		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
-	"netboot=echo Booting from net ...; " \
-		"run netargs;  " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"${get_cmd} ${loadaddr} ${image}; " \
-		"if test ${boot_fit} = yes || test ${boot_fit} = try; then " \
-			"bootm ${loadaddr}; " \
-		"else " \
-			"if ${get_cmd} ${fdt_addr_r} ${fdtfile}; then " \
-				"booti ${loadaddr} - ${fdt_addr_r}; " \
-			"else " \
-				"echo WARN: Cannot load the DT; " \
-			"fi; " \
-		"fi;\0" \
-	"bsp_bootcmd=echo Running BSP bootcmd ...; " \
-		"mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			   "if run loadimage; then " \
-				   "run mmcboot; " \
-			   "else run netboot; " \
-			   "fi; " \
-		   "fi; " \
-	   "fi;"
 
 /* Link Definitions */
 #define CFG_SYS_INIT_RAM_ADDR		0x40000000
 #define CFG_SYS_INIT_RAM_SIZE		0x80000
-
-#define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 
 /* Totally 8GB DDR */
 #define CFG_SYS_SDRAM_BASE		0x40000000
