@@ -17,8 +17,8 @@
 	aliases {
 		ethernet0 = &eqos;
 		/delete-property/ ethernet1;
-		rtc0 = <&carrier_rtc>;
-		rtc1 = <&snvs_rtc>;
+		rtc0 = &carrier_rtc;
+		rtc1 = &snvs_rtc;
 	};
 
 	ir-receiver {
@@ -61,7 +61,7 @@
 		regulator-name = "vmmc";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio2 19 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio2 19 GPIO_ACTIVE_LOW>;
 		startup-delay-us = <250>;
 	};
 };
