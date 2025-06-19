@@ -607,7 +607,12 @@ int board_fit_config_name_match(const char *name) {
 	else
 		printf("%s: could not identify board, defaulting to CuBox-M!\n", __func__);
 
-	if (!strcmp(name, match))
+	/*
+	 * match prefix only, e.g. imx8mp-hummingboard-iiot should also match
+	 * imx8mp-hummingboard-iiot-main. Take care in OF_LIST and imx-mkimage
+	 * to place generic name last as fall-back.
+	 */
+	if (!strncmp(name, match, strlen(name)))
 		return 0;
 
 	// always match old common name when there was single dtb only */
