@@ -6,3 +6,10 @@
 #include "imx8mp-sr-som-u-boot.dtsi"
 #include "imx8mp-hummingboard-pulse-common-u-boot.dtsi"
 #include "imx8mp-hummingboard-pulse-mini-hdmi-u-boot.dtsi"
+
+&gpio1 {
+	m2-reset-hog {
+		/* assert to ensure M.2 devices receive reset (released from Linux) */
+		output-high;
+	};
+};
