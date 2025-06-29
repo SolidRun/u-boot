@@ -45,7 +45,6 @@
 		regulator-max-microvolt = <11200000>;
 		gpios = <&tca6416_u20 15 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-		regulator-always-on;
 	};
 
 	/* power for M.2 B-Key connector (J6) */
@@ -308,7 +307,7 @@
 				 * supported through reset framework with
 				 * Linux v6.9 or later.
 				 *
-				 * reset-gpios = <&tca6416_u21 4 GPIO_ACTIVE_LOW>;
+				 * reset-gpios = <&tca6416_u21 4 (GPIO_ACTIVE_LOW|GPIO_PULL_UP|GPIO_OPEN_DRAIN)>;
 				 */
 				gpio-controller;
 				#gpio-cells = <2>;
@@ -332,7 +331,7 @@
 				 * supported through reset framework with
 				 * Linux v6.9 or later.
 				 *
-				 * reset-gpios = <&tca6416_u21 4 GPIO_ACTIVE_LOW>;
+				 * reset-gpios = <&tca6416_u21 4 (GPIO_ACTIVE_LOW|GPIO_PULL_UP|GPIO_OPEN_DRAIN)>;
 				 */
 				gpio-controller;
 				#gpio-cells = <2>;
@@ -346,8 +345,15 @@
 };
 
 &i2c3 {
+	/* highest i2c clock supported by all peripherals is 400kHz */
+	clock-frequency = <400000>;
+
 	tca6416_u20: gpio@20 {
-		compatible = "ti,tca6416";
+		/*
+		 * This is a TI TCAL6416 using same programming model as
+		 * NXP PCAL6416, not to be confused with TI TCA6416.
+		 */
+		compatible = "nxp,pcal6416";
 		reg = <0x20>;
 		gpio-controller;
 		#gpio-cells = <2>;
@@ -369,7 +375,11 @@
 	};
 
 	tca6416_u21: gpio@21 {
-		compatible = "ti,tca6416";
+		/*
+		 * This is a TI TCAL6416 using same programming model as
+		 * NXP PCAL6416, not to be confused with TI TCA6416.
+		 */
+		compatible = "nxp,pcal6416";
 		reg = <0x21>;
 		gpio-controller;
 		#gpio-cells = <2>;
@@ -392,6 +402,24 @@
 			gpios = <3 GPIO_ACTIVE_LOW>;
 			output-low;
 			line-name = "rs232-shutdown";
+		};
+
+		lcd-i2c-reset-hog {
+			/* reset shared between U37 and U48, to be
+			 * supported through reset framework with
+			 * Linux v6.9 or later.
+			*/
+			gpio-hog;
+			gpios = <4 (GPIO_ACTIVE_LOW|GPIO_PULL_UP|GPIO_OPEN_DRAIN)>;
+			output-low;
+			line-name = "lcd-i2c-reset";
+		};
+
+		m2-m-clkreq-hog {
+			gpio-hog;
+			gpios = <12 GPIO_ACTIVE_LOW>;
+			input;
+			line-name = "m2-m-clkreq";
 		};
 	};
 
@@ -468,7 +496,7 @@
 		reg = <0x69>;
 		abracon,tc-diode = "schottky";
 		abracon,tc-resistor = <3>;
-		interrupts-extended = <&tca6416_u21 12 IRQ_TYPE_EDGE_FALLING>;
+		interrupts-extended = <&tca6416_u21 10 IRQ_TYPE_EDGE_FALLING>;
 	};
 };
 

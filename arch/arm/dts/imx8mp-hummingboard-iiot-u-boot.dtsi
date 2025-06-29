@@ -5,12 +5,41 @@
 
 #include "imx8mp-sr-som-u-boot.dtsi"
 
+&{/} {
+	/* gpio-mux and spi-mux not supported in u-boot */
+	/delete-node/ spi-mux-controller;
+};
+
+&ecspi2 {
+	/* gpio-mux and spi-mux not supported in u-boot */
+	/delete-node/ spi@0;
+
+	/* describe tpm on mux channel 1 */
+	tpm@0 {
+		reg = <0>;
+		compatible = "infineon,slb9670", "tcg,tpm_tis-spi";
+		spi-max-frequency = <43000000>;
+		reset-gpios = <&tca6416_u21 1 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
+		interrupts-extended = <&tca6416_u21 9 IRQ_TYPE_EDGE_FALLING>;
+	};
+};
+
 &i2c3 {
 	gpio@20 {
 		m2-b-reset-hog {
 			/* assert to ensure M.2 devices receive reset (released from Linux) */
 			output-high;
 		};
+	};
+};
+
+&tca6416_u21 {
+	/* gpio-mux and spi-mux not supported in u-boot, hog to onboard tpm */
+	spi-mux-hog {
+		gpio-hog;
+		gpios = <0 GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "spi-mux";
 	};
 };
 
