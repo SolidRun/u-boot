@@ -389,7 +389,7 @@ static void board_id_kit_from_tlv_info(struct tlv_data *data) {
 			product_name = "hummingboard-pro";
 			break;
 		case 'I': // IIOT
-			product_name = "hummingboard-iiot-main";
+			product_name = "hummingboard-iiot";
 			break;
 		case 'X': // CuBox
 			product_name = "cubox-m";
@@ -471,7 +471,7 @@ static void board_id_from_tlv_info(void) {
 		} else if (memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBCRE", 5) == 0) {
 			board_id.carrier_name = "hummingboard-ripple";
 		} else if (memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBIIOT", 6) == 0) {
-			board_id.carrier_name = "hummingboard-iiot-main";
+			board_id.carrier_name = "hummingboard-iiot";
 			rev_offset = 10;
 		} else {
 			pr_err("%s: did not recognize carrier sku \"%s\"!\n", __func__, hb_tlv_data[1].tlv_part_number);
