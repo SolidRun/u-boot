@@ -38,7 +38,7 @@ static void apply_atf_overlay(void *fdt_blob)
 	void *atf_fdt_blob = (void *)(rcar_atf_boot_args[1]);
 
 #if !(defined(CONFIG_R9A07G044L) || defined(CONFIG_R9A07G044C) || defined(CONFIG_R9A07G054L) || \
-defined(CONFIG_R9A07G043U) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A09G057) || defined(CONFIG_R9A08G045S))
+defined(CONFIG_R9A07G043U) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G056) || defined(CONFIG_R9A08G045S))
 	if (fdt_magic(atf_fdt_blob) == FDT_MAGIC)
 		fdt_overlay_apply_node(fdt_blob, 0, atf_fdt_blob, 0);
 #endif
