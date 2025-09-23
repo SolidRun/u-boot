@@ -457,7 +457,7 @@ static int eqos_set_half_duplex(struct udevice *dev)
 static int eqos_set_tx_clk_speed_rzv2h(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
-#if IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2H)
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2H) || IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2N)
 	debug("%s(dev=%p):\n", __func__, dev);
 
 	switch (eqos->phy->speed) {
@@ -1638,6 +1638,11 @@ static const struct udevice_id eqos_ids[] = {
 		.data = (ulong)&eqos_rzv2h_config
 	},
 #endif
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2N)
+	{
+		.compatible = "renesas,rzv2n-eqos",
+		.data = (ulong)&eqos_rzv2h_config
+	},
 	{ }
 };
 
