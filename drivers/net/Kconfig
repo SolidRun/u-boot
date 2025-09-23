@@ -272,6 +272,14 @@ config DWC_ETH_QOS_RZV2H
 	  The Synopsys Designware Ethernet QOS IP block with specific
 	  configuration used in RZV2H.
 
+config DWC_ETH_QOS_RZV2N
+	bool "Synopsys DWC Ethernet QOS device support for RZV2N"
+	depends on DWC_ETH_QOS
+	default y if TARGET_RZV2N_DEV
+	help
+	  The Synopsys Designware Ethernet QOS IP block with specific
+	  configuration used in RZV2N.
+
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
 	depends on PCI
