@@ -7,10 +7,56 @@
 
 /dts-v1/;
 #include "r9a09g056.dtsi"
+#include <dt-bindings/pinctrl/rzv2n-pinctrl.h>
+
+/*
+ * Jumper setting
+ *
+ * Please change the jumper setting corresponding to below Macros:
+ *
+ * SW2 (SEL_SD0): 1: eMMC (default);	0: SD
+ */
+
+/*
+ * There is a conflict between SD0_PWR_EN pin and SD1_CD pins.
+ * They all use PA1 pin.
+ * So SD0 and SD1 can not be used at the same time.
+
+ * Just only one SDHI interface must be chosen.
+ * Macro to select between SDHI0 and SDHI1:
+ * SEL_SD0_SD1:	0: SDHI0	1: SDHI1
+ *
+ * JP7 is a connection between QSD1_CD and PA1 pins.
+ * JP7_34 (connect QSD1_CD to PA1):
+ *      0 (open):       unconnected
+ *      1 (short):      connected
+ */
+
+#define SEL_SD0_SD1	0
+#if (SEL_SD0_SD1)
+#define JP7_34  1
+#else
+#define SW2	1
+#define JP7_34	0
+#endif
 
 / {
 	model = "Renesas Development EVK based on r9a09g056";
 	compatible = "renesas,r9a09g056";
+
+	aliases {
+		serial0 = &scif0;
+#if (!SEL_SD0_SD1)
+		mmc0 = &sdhi0;
+		mmc1 = &sdhi2;
+#else
+		mmc1 = &sdhi1;
+#endif
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
 
 	memory@48000000 {
 		device_type = "memory";
@@ -30,9 +76,99 @@
 			reg = <0x0 0x58000000 0x0 0x10000000>;
 		};
 	};
+
+	reg_1p8v: regulator0 {
+		compatible = "regulator-fixed";
+
+		regulator-name = "fixed-1.8V";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	reg_3p3v: regulator1 {
+		compatible = "regulator-fixed";
+
+		regulator-name = "fixed-3.3V";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+};
+
+&pinctrl {
+	sdhi2_pins: sdhi2 {
+		pinmux = <RZV2N_PINMUX(11, 0, 1)>,	/* SD2CLK	*/
+			 <RZV2N_PINMUX(11, 1, 1)>,	/* SD2DAT0	*/
+			 <RZV2N_PINMUX(11, 2, 1)>,	/* SD2DAT1	*/
+			 <RZV2N_PINMUX(11, 3, 1)>,	/* SD2DAT2	*/
+			 <RZV2N_PINMUX(11, 4, 1)>,	/* SD2DAT3	*/
+			 <RZV2N_PINMUX(11, 5, 1)>;	/* SD2CMD	*/
+	};
 };
 
 &extal_clk {
 	clock-frequency = <24000000>;
 };
 
+&scif0 {
+
+	status = "okay";
+};
+
+#if (!SEL_SD0_SD1)
+#if (SW2)
+&sdhi0 {
+	bus-width = <8>;
+	non-removable;
+	fixed-emmc-driver-type = <1>;
+	status = "okay";
+};
+#else
+&sdhi0 {
+
+	bus-width = <4>;
+	sd-uhs-sdr50;
+	sd-uhs-sdr104;
+	status = "okay";
+};
+#endif
+&sdhi2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdhi2_pins>;
+	bus-width = <4>;
+	status = "okay";
+};
+#else
+&sdhi1 {
+
+	bus-width = <4>;
+	sd-uhs-sdr50;
+	sd-uhs-sdr104;
+	status = "okay";
+};
+#endif
+
+&eth0 {
+	status = "okay";
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		phy0: ethernet-phy@0 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <0>;
+			txc-skew-ps = <1700>;
+			txen-skew-ps = <(-700)>;
+			txd0-skew-ps = <0>;
+			txd1-skew-ps = <0>;
+			txd2-skew-ps = <0>;
+			txd3-skew-ps = <0>;
+		};
+	};
+};
