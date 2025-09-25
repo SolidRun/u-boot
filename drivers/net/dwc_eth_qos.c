@@ -487,7 +487,7 @@ static int eqos_probe_resources_rzv2h(struct udevice *dev)
 	return 0;
 }
 
-static phy_interface_t eqos_get_interface_rzv2h(struct udevice *dev)
+static phy_interface_t eqos_get_interface_rzv2h(const struct udevice *dev)
 {
 	const char *phy_mode;
 	phy_interface_t interface = PHY_INTERFACE_MODE_NA;
@@ -1643,6 +1643,7 @@ static const struct udevice_id eqos_ids[] = {
 		.compatible = "renesas,rzv2n-eqos",
 		.data = (ulong)&eqos_rzv2h_config
 	},
+#endif
 	{ }
 };
 

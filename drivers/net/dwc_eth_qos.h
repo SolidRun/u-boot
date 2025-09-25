@@ -194,7 +194,7 @@ struct eqos_tegra186_regs {
 
 #define EQOS_AUTO_CAL_STATUS_ACTIVE			BIT(31)
 
-#if IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2H)
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2H) || IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2N)
 /* These registers are rzv2h-specific */
 #define CPG_BASE					0x10420000
 #define CPG_CSDIV0					(CPG_BASE + 0x0500)
