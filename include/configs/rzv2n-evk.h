@@ -29,7 +29,6 @@
 /* console */
 #define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_MAXARGS		64
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 38400 }
 
 /* PHY needs a longer autoneg timeout */
@@ -38,17 +37,12 @@
 /* MEMORY */
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
+#define	DRAM_RSV_SIZE			0x08000000
+#define	CFG_MAX_MEM_MAPPED		(0x80000000u - DRAM_RSV_SIZE)
+
 /* SDHI clock freq */
 #define CONFIG_SH_SDHI_FREQ		133000000
 
-#define DRAM_RSV_SIZE			0x08000000
-#define CONFIG_SYS_SDRAM_BASE		(0x40000000 + DRAM_RSV_SIZE)
-#define CONFIG_SYS_SDRAM_SIZE		(0x200000000u - DRAM_RSV_SIZE) //total 8GB
-#define CONFIG_SYS_LOAD_ADDR		0x58000000
-/* Default load address for tfpt,bootp */
-#define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
-#define CONFIG_VERY_BIG_RAM
-#define CONFIG_MAX_MEM_MAPPED		(0x80000000u - DRAM_RSV_SIZE)
 
 /* The HF/QSPI layout permits up to 1 MiB large bootloader blob */
 #define CONFIG_BOARD_SIZE_LIMIT		1048576
