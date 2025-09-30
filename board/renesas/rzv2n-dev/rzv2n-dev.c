@@ -276,12 +276,12 @@ static void board_pmic_i2c_init(void)
 	if (ret)
 		goto pmic_failed;
 
-	/* Initialize I2C device at address 0x6a */
-	ret = dm_i2c_probe(bus, 0x6a, 0, &dev);
+	/* Initialize I2C device at address 0x6f */
+	ret = dm_i2c_probe(bus, 0x6f, 0, &dev);
 	if (ret)
 		goto pmic_failed;
 
-	/* Write 0x00 to register 0x24 of device 0x6a */
+	/* Write 0x00 to register 0x24 of device 0x6f */
 	reg_addr = 0x24;
 	reg_val = 0x00;
 	ret = dm_i2c_write(dev, reg_addr, &reg_val, 1);
