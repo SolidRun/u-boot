@@ -77,8 +77,15 @@ typedef unsigned long uintptr_t;
 #define iowrite8 writeb
 #define ioread32 readl
 #else
+
+#ifndef iowrite32_rep
 #define iowrite32_rep __raw_writesl
+#endif
+
+#ifndef ioread32_rep
 #define ioread32_rep __raw_readsl
+#endif
+
 #define iowrite8 writeb
 #define ioread32 readl
 #endif
