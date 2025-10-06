@@ -556,7 +556,7 @@ static int usbhsf_pio_try_push(struct usbhs_pkt *pkt, int *is_done)
 	 * 32-bit access only
 	 */
 	if (len >= 4 && !((unsigned long)buf & 0x03)) {
-		iowrite32_rep((unsigned long)addr, buf, len / 4);
+		iowrite32_rep((volatile void __iomem *)addr, buf, len / 4);
 		len %= 4;
 		buf += total_len - len;
 	}
@@ -731,7 +731,7 @@ static int usbhsf_pio_try_pop(struct usbhs_pkt *pkt, int *is_done)
 	 * 32-bit access only
 	 */
 	if (len >= 4 && !((unsigned long)buf & 0x03)) {
-		ioread32_rep((unsigned long)addr, buf, len / 4);
+		ioread32_rep((const volatile void __iomem *)addr, buf, len / 4);
 		len %= 4;
 		buf += total_len - len;
 	}

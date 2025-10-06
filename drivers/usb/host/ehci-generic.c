@@ -67,6 +67,9 @@ static int ehci_usb_probe(struct udevice *dev)
 	int err, ret;
 
 	err = 0;
+	
+	#if !defined(CONFIG_RCAR_GEN3)
+	
 	ret = clk_get_bulk(dev, &priv->clocks);
 	if (ret && ret != -ENOENT) {
 		dev_err(dev, "Failed to get clocks (ret=%d)\n", ret);
@@ -79,7 +82,6 @@ static int ehci_usb_probe(struct udevice *dev)
 		goto clk_err;
 	}
 
-	#if !defined(CONFIG_RCAR_GEN3)
 		err = reset_get_bulk(dev, &priv->resets);
 		printf("%s:  Error = %X\n", __func__, err);
 		if (err && err != -ENOENT) {
@@ -126,11 +128,12 @@ reset_err:
 	ret = reset_release_bulk(&priv->resets);
 	if (ret)
 		dev_err(dev, "failed to release resets (ret=%d)\n", ret);
+#if !defined(CONFIG_RCAR_GEN3)
 clk_err:
 	ret = clk_release_bulk(&priv->clocks);
 	if (ret)
 		dev_err(dev, "failed to release clocks (ret=%d)\n", ret);
-
+#endif
 	return err;
 }
 

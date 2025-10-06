@@ -25,3 +25,4 @@ obj-$(CONFIG_PINCTRL_RZN1) += pinctrl-rzn1.o
 obj-$(CONFIG_PINCTRL_PFC_RZG2L)	   += pfc-rzg2l.o
 obj-$(CONFIG_PINCTRL_RZG2L)	   += pfc-rzg2l.o
 obj-$(CONFIG_PINCTRL_PFC_RZV2H)	   += pfc-rzv2h.o
+obj-$(CONFIG_PINCTRL_PFC_RZV2N)	   += pfc-rzv2n.o

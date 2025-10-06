@@ -352,6 +352,12 @@ config RZV2H_GPIO
 	help
 	  This driver supports the GPIO banks on Renesas RZ/V2H SoCs.
 
+config RZV2N_GPIO
+	bool "Renesas RZ/V2H GPIO driver"
+	depends on DM_GPIO && PINCTRL_PFC_RZV2N
+	help
+	  This driver supports the GPIO banks on Renesas RZ/V2N SoCs.
+
 config RZA1_GPIO
 	bool "Renesas RZ/A1 GPIO driver"
 	depends on DM_GPIO && RZA1

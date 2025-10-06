@@ -457,7 +457,7 @@ static int eqos_set_half_duplex(struct udevice *dev)
 static int eqos_set_tx_clk_speed_rzv2h(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
-#if IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2H)
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2H) || IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2N)
 	debug("%s(dev=%p):\n", __func__, dev);
 
 	switch (eqos->phy->speed) {
@@ -487,7 +487,7 @@ static int eqos_probe_resources_rzv2h(struct udevice *dev)
 	return 0;
 }
 
-static phy_interface_t eqos_get_interface_rzv2h(struct udevice *dev)
+static phy_interface_t eqos_get_interface_rzv2h(const struct udevice *dev)
 {
 	const char *phy_mode;
 	phy_interface_t interface = PHY_INTERFACE_MODE_NA;
@@ -1635,6 +1635,12 @@ static const struct udevice_id eqos_ids[] = {
 #if IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2H)
 	{
 		.compatible = "renesas,rzv2h-eqos",
+		.data = (ulong)&eqos_rzv2h_config
+	},
+#endif
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_RZV2N)
+	{
+		.compatible = "renesas,rzv2n-eqos",
 		.data = (ulong)&eqos_rzv2h_config
 	},
 #endif

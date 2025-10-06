@@ -41,12 +41,12 @@ void usbhs_write32(struct usbhs_priv *priv, u32 reg, u32 data)
 {
 	writel(data, priv->base + reg);
 }
-
+#if defined(CONFIG_R8A774C0)
 static u32 usbhs_read32(struct usbhs_priv *priv, u32 reg)
 {
 	return readl(priv->base + reg);
 }
-
+#endif
 static int usbhs_rcar3_power_ctrl(struct platform_device *pdev,
 				void __iomem *base, int enable)
 {

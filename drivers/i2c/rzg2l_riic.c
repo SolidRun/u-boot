@@ -21,7 +21,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 
-#if defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A08G045S)
+#if defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G056) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A08G045S)
 #define RIIC_ICCR1	0x00
 #define RIIC_ICCR2	0x01
 #define RIIC_ICMR1	0x02
@@ -163,7 +163,7 @@ struct riic_priv {
 
 static unsigned char riic_read(struct riic_priv *priv, unsigned long addr)
 {
-#if defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A08G045S)
+#if defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G056) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A08G045S)
 	return readb(priv->base + addr);
 #else
 	return readl(priv->base + addr);
@@ -173,7 +173,7 @@ static unsigned char riic_read(struct riic_priv *priv, unsigned long addr)
 static void riic_write(struct riic_priv *priv, unsigned char data,
 		       unsigned long addr)
 {
-#if defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A08G045S)
+#if defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G056) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A08G045S)
 	writeb(data, priv->base + addr);
 #else
 	writel(data, priv->base + addr);
@@ -624,7 +624,7 @@ static int riic_probe_chip(struct udevice *dev, uint addr, uint flags)
 static int riic_probe(struct udevice *dev)
 {
 	struct riic_priv *priv = dev_get_priv(dev);
-#if !(defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A08G045S))
+#if !(defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G056) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A08G045S))
 	int ret;
 
 	writel(0x000F000F, 0x11010880);
@@ -636,7 +636,7 @@ static int riic_probe(struct udevice *dev)
 #endif
 	priv->base = dev_read_addr_ptr(dev);
 
-#if !(defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A08G045S))
+#if !(defined(CONFIG_R9A09G057) || defined(CONFIG_R9A09G056) || defined(CONFIG_R9A09G047) || defined(CONFIG_R9A08G045S))
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret)
 		return ret;
@@ -662,6 +662,7 @@ static const struct udevice_id riic_ids[] = {
 	{ .compatible = "renesas,riic-r9a07g043u", },
 	{ .compatible = "renesas,riic-r9a07g043f", },
 	{ .compatible = "renesas,riic-r9a09g057",  },
+	{ .compatible = "renesas,riic-r9a09g056",  },
 	{ .compatible = "renesas,riic-r9a09g047",  },
 	{ .compatible = "renesas,riic-r9a08g045s", },
 	{ .compatible = "renesas,riic-rz", },
