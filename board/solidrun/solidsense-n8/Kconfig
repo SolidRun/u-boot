@@ -7,7 +7,7 @@ config SYS_VENDOR
 	default "solidrun"
 
 config SYS_CONFIG_NAME
-	default "imx8mn_evk"
+	default "imx8mn_solidsense_n8"
 
 config IMX8MN_LOW_DRIVE_MODE
 	bool "Enable the low drive mode of iMX8MN on SolidSense N8"
