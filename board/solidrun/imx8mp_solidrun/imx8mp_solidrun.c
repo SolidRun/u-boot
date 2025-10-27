@@ -623,6 +623,41 @@ int board_fit_config_name_match(const char *name) {
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP) || defined(CONFIG_OF_BOARD_FIXUP)
+/*
+ * set u32 array property inplace
+ * (based on scripts/dtc/libfdt/fdt_wip.c:fdt_setprop_inplace_namelen_partial)
+ */
+static int fdt_setprop_idx_inplace(void *fdt, int nodeoffset,
+				   const char *name, uint32_t idx,
+				   const void *val, int len)
+{
+	const void *propval;
+	int proplen;
+
+	propval = fdt_getprop(fdt, nodeoffset, name, &proplen);
+	if (!propval)
+		return proplen;
+
+	if ((unsigned)proplen < (len + idx))
+		return -FDT_ERR_NOSPACE;
+
+	memcpy((char *)propval + idx, val, len);
+	return 0;
+}
+
+/* set u32 array at named index in-place */
+static int fdt_set_named_u32_inplace(void *fdt, int node, const char *property,  const char *prop_names, const char *name, u32 val)
+{
+	int idx, ret;
+	fdt32_t tmp = cpu_to_fdt32(val);
+
+	ret = idx = fdt_stringlist_search(fdt, node, prop_names, name);
+	if (idx < 0)
+		return ret;
+
+	return fdt_setprop_idx_inplace(fdt, node, property, idx * sizeof(tmp), &tmp, sizeof(tmp));
+}
+
 /* sample hdmi encoder power-down signal initial state to derive i2c address and line polarity */
 static int find_hdmi_encoder(uint8_t *addr_encoder, uint8_t *addr_encoder_cec, uint8_t *addr_encoder_edid, uint8_t *addr_encoder_pkt) {
 	struct udevice *bus = NULL;
@@ -683,8 +718,6 @@ static int board_fix_hdmi(void *fdt, const char *stage) {
 	};
 	int ret;
 
-	printf("board_fix_hdmi\n");
-
 	/* find hdmi encoder node */
 	for (uint8_t i = 0; i < ARRAY_SIZE(node_encoder_path); i++) {
 		node_encoder = fdt_path_offset(fdt, node_encoder_path[i]);
@@ -696,8 +729,6 @@ static int board_fix_hdmi(void *fdt, const char *stage) {
 	if(node_encoder < 0)
 		return 0;
 
-	printf("board_fix_hdmi: detecting encoder ...\n");
-
 	/* detect encoder */
 	ret = find_hdmi_encoder(&addr_encoder, &addr_encoder_cec, &addr_encoder_edid, &addr_encoder_pkt);
 	if (ret) {
@@ -706,11 +737,48 @@ static int board_fix_hdmi(void *fdt, const char *stage) {
 	}
 	printf("%s: Found HDMI encoder at 0x%x!\n", __func__, addr_encoder);
 
-	/* patch fdt node with probed address */
-	ret = fdt_setprop_u32(fdt, node_encoder, "reg", addr_encoder);
-	fdt_setprop_u32(fdt, node_encoder, "adi,addr-cec", addr_encoder_cec);
-	fdt_setprop_u32(fdt, node_encoder, "adi,addr-edid", addr_encoder_edid);
-	fdt_setprop_u32(fdt, node_encoder, "adi,addr-pkt", addr_encoder_pkt);
+	/* patch known fdt nodes with probed address */
+	for (uint8_t i = 0; i < ARRAY_SIZE(node_encoder_path); i++) {
+		node_encoder = fdt_path_offset(fdt, node_encoder_path[i]);
+		if(node_encoder < 0)
+			continue;
+
+		ret = fdtdec_get_bool(fdt, node_encoder, "reg-names");
+		if (ret) {
+			ret = fdt_set_named_u32_inplace(fdt, node_encoder, "reg", "reg-names", "main", addr_encoder);
+			if (ret)
+				break;
+
+			ret = fdt_set_named_u32_inplace(fdt, node_encoder, "reg", "reg-names", "edid", addr_encoder_edid);
+			if (ret)
+				break;
+
+			ret = fdt_set_named_u32_inplace(fdt, node_encoder, "reg", "reg-names", "cec", addr_encoder_cec);
+			if (ret)
+				break;
+
+			ret = fdt_set_named_u32_inplace(fdt, node_encoder, "reg", "reg-names", "packet", addr_encoder_pkt);
+			if (ret)
+				break;
+		} else {
+			/* older kernels with individual i2c address properties */
+			ret = fdt_setprop_u32(fdt, node_encoder, "reg", addr_encoder);
+			if (ret)
+				break;
+
+			ret = fdt_setprop_u32(fdt, node_encoder, "adi,addr-cec", addr_encoder_cec);
+			if (ret)
+				break;
+
+			ret = fdt_setprop_u32(fdt, node_encoder, "adi,addr-edid", addr_encoder_edid);
+			if (ret)
+				break;
+
+			ret = fdt_setprop_u32(fdt, node_encoder, "adi,addr-pkt", addr_encoder_pkt);
+			if (ret)
+				break;
+		}
+	}
 
 	if(ret < 0)
 		pr_err("%s: failed to patch hdmi encoder address in %s dtb!\n", __func__, stage);
