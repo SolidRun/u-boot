@@ -490,13 +490,16 @@ static void board_id_from_tlv_info(void) {
 
 	/* fall-back when identification failed */
 	if(!board_id.carrier_name) {
-		// could be HummingBoard or CuBox ...
-		if(board_id.product_name && strcmp(board_id.product_name, "cubox-m") == 0) {
+		// could be HummingBoard, CuBox, custom ...
+		if ((strcmp(CONFIG_DEFAULT_DEVICE_TREE, "cubox-m") != 0) && strlen(CONFIG_DEFAULT_DEVICE_TREE >= 7)) {
+			// custom uboot fdt selected, default to that minus "imx8mp-" prefix
+			printf("%s: could not identify board, defaulting to %s!\n", __func__, CONFIG_DEFAULT_DEVICE_TREE);
+			board_id.carrier_name = &(CONFIG_DEFAULT_DEVICE_TREE[7]);
+		} else if(board_id.product_name && strcmp(board_id.product_name, "cubox-m") == 0) {
 			// we have a kit and it's a CuBox
 			printf("%s: SoM is part of a CuBox-M Kit, infering that carrier is CuBox-M!\n", __func__);
 			board_id.carrier_name = board_id.product_name;
-		}
-		else if (hb_tlv_ret[1] == -ENODEV) {
+		} else if (hb_tlv_ret[1] == -ENODEV) {
 			// no eeprom, likely a Cubox
 			printf("%s: could not identify board, defaulting to CuBox-M!\n", __func__);
 			board_id.carrier_name = "cubox-m";
@@ -596,7 +599,7 @@ int board_get_mac(int dev_id, unsigned char *mac) {
 }
 
 int board_fit_config_name_match(const char *name) {
-	char match[7+32] = "imx8mp-cubox-m";
+	char match[7+32] = CONFIG_DEFAULT_DEVICE_TREE;
 
 	board_id_from_tlv_info();
 
@@ -605,7 +608,7 @@ int board_fit_config_name_match(const char *name) {
 	else if (board_id.carrier_name)
 		snprintf(match, sizeof(match), "%s-%s", "imx8mp", board_id.carrier_name);
 	else
-		printf("%s: could not identify board, defaulting to CuBox-M!\n", __func__);
+		printf("%s: could not identify board, defaulting to %s!\n", __func__, CONFIG_DEFAULT_DEVICE_TREE);
 
 	/*
 	 * match prefix only, e.g. imx8mp-hummingboard-iiot should also match
