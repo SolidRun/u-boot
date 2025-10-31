@@ -491,7 +491,7 @@ static void board_id_from_tlv_info(void) {
 	/* fall-back when identification failed */
 	if(!board_id.carrier_name) {
 		// could be HummingBoard, CuBox, custom ...
-		if ((strcmp(CONFIG_DEFAULT_DEVICE_TREE, "cubox-m") != 0) && strlen(CONFIG_DEFAULT_DEVICE_TREE >= 7)) {
+		if ((strcmp(CONFIG_DEFAULT_DEVICE_TREE, "imx8mp-cubox-m") != 0) && strlen(CONFIG_DEFAULT_DEVICE_TREE >= 7)) {
 			// custom uboot fdt selected, default to that minus "imx8mp-" prefix
 			printf("%s: could not identify board, defaulting to %s!\n", __func__, CONFIG_DEFAULT_DEVICE_TREE);
 			board_id.carrier_name = &(CONFIG_DEFAULT_DEVICE_TREE[7]);
