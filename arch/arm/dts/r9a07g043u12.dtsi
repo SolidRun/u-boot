@@ -81,6 +81,22 @@
 		#size-cells = <2>;
 		ranges;
 
+		wdt0: watchdog@12800800 {
+			compatible = "renesas,r9a07g043u-wdt";
+			reg = <0 0x12800800 0 0x400>;
+			clocks = <&xinclk>;
+			power-domains = <&cpg>;
+			status = "disabled";
+		};
+
+		wdt2: watchdog@12800400 {
+			compatible = "renesas,r9a07g043u-wdt";
+			reg = <0 0x12800400 0 0x400>;
+			clocks = <&xinclk>;
+			power-domains = <&cpg>;
+			status = "disabled";
+		};
+
 		cpg: clock-controller@11010000 {
 			compatible = "renesas,r9a07g043u-cpg";
 			reg = <0 0x11010000 0 0x10000>;
