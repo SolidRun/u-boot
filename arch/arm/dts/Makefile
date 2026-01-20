@@ -977,7 +977,8 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	rzg3s-dev.dtb \
 	smarc-rzg3s.dtb \
 	rzv2n-dev.dtb \
-	rzv2n-evk.dtb
+	rzv2n-evk.dtb \
+	rzv2n-hummingboard-iiot.dtb
 
 dtb-$(CONFIG_RCAR_GEN4) += \
 	r8a779h0-gray-hawk.dtb

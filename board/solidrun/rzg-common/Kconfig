@@ -1,0 +1,68 @@
+config RZG_SOLIDRUN_COMMON
+    bool "Common configuration for RZG2L_SOLIDRUN targets"
+    depends on TARGET_RZG2L_SOLIDRUN || TARGET_RZG2LC_SOLIDRUN || TARGET_RZG2UL_SOLIDRUN || TARGET_RZV2L_SOLIDRUN || TARGET_RZV2N_SOLIDRUN
+    default y
+    select NET
+    select DM_ETH
+    select RENESAS_RAVB
+    select BITBANGMII
+    select USB
+    select DM_USB
+    select USB_GADGET
+    select USB_RENESAS_USBHS
+    select USB_EHCI_HCD
+    select USB_EHCI_GENERIC
+    select PHY_RCAR_GEN3
+    select DM_I2C
+    select SYS_I2C_RZG2L_RIIC
+    select I2C_EEPROM
+    select EEPROM_TLV_LIB
+    select DM_GPIO
+    select GPIO_HOG
+    select PINCTRL_PFC_RZG2L if !TARGET_RZV2N_SOLIDRUN
+    select RZG2L_GPIO if !TARGET_RZV2N_SOLIDRUN
+    select CLK
+    select CLK_RENESAS
+    select CLK_R9A07G044L if !TARGET_RZV2N_SOLIDRUN
+    select CLK_R9A07G054L if !TARGET_RZV2N_SOLIDRUN
+    select CLK_R9A09G056 if TARGET_RZV2N_SOLIDRUN
+    select DM_REGULATOR
+    select WATCHDOG if !TARGET_RZV2N_SOLIDRUN
+    select SYSRESET if !TARGET_RZV2N_SOLIDRUN
+    select SYSRESET_WATCHDOG if !TARGET_RZV2N_SOLIDRUN
+    select RENESAS_RZG2LWDT if !TARGET_RZV2N_SOLIDRUN
+    select MISC
+    select SCIF_CONSOLE
+    select SH_SDHI
+    select OF_CONTROL
+    select OF_PLATDATA
+    select OF_LIBFDT_OVERLAY
+    select BOARD_EARLY_INIT_R
+    select BOARD_LATE_INIT
+    select CMD_READ
+
+    help
+      This option enables common board support code for RZG2L/RZG2LC/RZV2N solidrun SOMs.
+
+config SOLIDRUN_DISABLE_TLV
+    bool "Do not use tlv eeprom for dts selection and vbus output type choice"
+	depends on RZG_SOLIDRUN_COMMON
+    default n
+    help
+      Do not use tlv eeprom for dts selection and vbus output type choice.
+
+config SOLIDRUN_FORCE_SD_BOOT
+    bool "Force the SD/eMMC selection to always use SD"
+	depends on RZG_SOLIDRUN_COMMON
+    default n
+    help
+      Force the SD/eMMC selection to always use SD.
+
+config SOLIDRUN_FORCE_MMC_BOOT
+    bool "Force the SD/eMMC selection to always use eMMC"
+	depends on RZG_SOLIDRUN_COMMON && !SOLIDRUN_FORCE_SD_BOOT
+    default n
+    help
+      Force the SD/eMMC selection to always use SD.
+
+

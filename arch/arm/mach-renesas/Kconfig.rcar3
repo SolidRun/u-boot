@@ -257,6 +257,11 @@ config TARGET_RZV2N_EVK
 	help
           Support for Renesas RZ/V2N Dev Platform
 
+config TARGET_RZV2N_SOLIDRUN
+	bool "RZ/V2N SolidRun board"
+	help
+          Support for Solidrun RZ/V2N Dev Platform
+
 config TARGET_RZV2H_EVK_ALPHA
 	bool "RZ/V2H EVK Alpha board"
 	help
@@ -301,6 +306,7 @@ source "board/renesas/rzg2lc-dev/Kconfig"
 source "board/renesas/rzg2ul-dev/Kconfig"
 source "board/renesas/rzv2h-dev/Kconfig"
 source "board/renesas/rzv2n-dev/Kconfig"
+source "board/solidrun/rzv2n/Kconfig"
 source "board/renesas/rzg3e-dev/Kconfig"
 source "board/renesas/rzg3s-dev/Kconfig"
 

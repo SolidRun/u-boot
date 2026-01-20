@@ -1,0 +1,15 @@
+if TARGET_RZV2N_SOLIDRUN
+
+config SYS_SOC
+        default "renesas"
+
+config SYS_BOARD
+        default "rzv2n"
+
+config SYS_VENDOR
+        default "solidrun"
+
+config SYS_CONFIG_NAME
+        default "rzv2n-solidrun"
+
+endif
