@@ -23,6 +23,8 @@
 		i2c7 = &i2c7;
 		i2c8 = &i2c8;
 		spi0 = &xspi;
+		eeprom_carrier = &eeprom_carrier;
+		eeprom_som = &eeprom_som;
 	};
 
 	chosen {
@@ -87,6 +89,8 @@
 
 &sdhi1 {
 	bus-width = <4>;
+	vmmc-supply = <&reg_3p3v>;
+	vqmmc-supply = <&reg_3p3v>;
 	status = "okay";
 };
 

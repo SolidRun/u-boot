@@ -9,6 +9,7 @@
 #include <blk.h>
 #include <command.h>
 #include <dm/uclass.h>
+#include <i2c_eeprom.h>
 #include <tlv_eeprom.h>
 #include <linux/err.h>
 #include <fdt_support.h>
@@ -49,30 +50,51 @@ static int get_tlv_udevice_by_alias(struct udevice **dev, const char *alias)
 
 int get_sku_from_tlv_dev(struct udevice *dev, char *sku)
 {
-	int ret = 0;
-	char eeprom[2048];
-	struct tlvinfo_priv *tlv;
+	u8 eeprom[TLV_INFO_MAX_LEN];
+	struct tlvinfo_header *hdr;
 	struct tlvinfo_tlv *entry;
+	unsigned int offset, total;
+	int ret, len;
 
-	tlv = tlv_eeprom_read(dev, 0, eeprom, ARRAY_SIZE(eeprom));
-	if (IS_ERR(tlv))
-	{
-		pr_err("Can't parse the tlv: %ld\n", IS_ERR(tlv));
-		return IS_ERR(tlv);
-	}
-	entry = tlv_entry_next_by_code(tlv, NULL, TLV_CODE_PART_NUMBER);
-	if (IS_ERR(entry))
-	{
-		pr_err("Bad entry, ret: %ld\n", IS_ERR(entry));
-		return IS_ERR(entry);
-	}
-	ret = tlv_entry_get_string(entry, sku, CARRIER_SKU_MAX_SIZE);
-	if (ret)
-	{
-		pr_err("Can't get tlv_entry_get_string, ret: %d\n", ret);
+	/* Read the TLV header first */
+	ret = i2c_eeprom_read(dev, 0, eeprom, sizeof(struct tlvinfo_header));
+	if (ret) {
+		pr_err("Failed to read TLV header: %d\n", ret);
 		return ret;
 	}
-	return 0;
+
+	hdr = (struct tlvinfo_header *)eeprom;
+	if (!is_valid_tlvinfo_header(hdr)) {
+		pr_err("Invalid TLV header\n");
+		return -EINVAL;
+	}
+
+	/* Read the TLV entries */
+	ret = i2c_eeprom_read(dev, sizeof(struct tlvinfo_header),
+			      eeprom + sizeof(struct tlvinfo_header),
+			      be16_to_cpu(hdr->totallen));
+	if (ret) {
+		pr_err("Failed to read TLV data: %d\n", ret);
+		return ret;
+	}
+
+	/* Walk TLV entries to find TLV_CODE_PART_NUMBER */
+	offset = sizeof(struct tlvinfo_header);
+	total = sizeof(struct tlvinfo_header) + be16_to_cpu(hdr->totallen);
+	while (offset < total) {
+		entry = (struct tlvinfo_tlv *)&eeprom[offset];
+		if (entry->type == TLV_CODE_PART_NUMBER) {
+			len = min_t(int, entry->length,
+				    CARRIER_SKU_MAX_SIZE - 1);
+			memcpy(sku, entry->value, len);
+			sku[len] = '\0';
+			return 0;
+		}
+		offset += sizeof(struct tlvinfo_tlv) + entry->length;
+	}
+
+	pr_err("TLV_CODE_PART_NUMBER not found in EEPROM\n");
+	return -ENOENT;
 }
 
 int rzg_get_carrier(void)

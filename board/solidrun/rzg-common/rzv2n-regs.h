@@ -62,8 +62,28 @@
 #define USB2_PHY_RESET			0x000
 #define USB2_PHY_OTGR			0x600
 
+/* SYS */
+#define SYS_BASE			0x10430000
+#define SYS_LSI_MODE			(SYS_BASE + 0xA00)
+
 /* ADC */
 #define SYS_ADC_CFG			0x10431600
 
+/*
+ * USB register aliases for rzg-common.c compatibility.
+ * RZV2N has a single USB2.0 host controller at USB20_BASE.
+ */
+#define USBPHY_RESET			USBPHY20_RESET
+#define USB0_BASE			USB20_BASE
+#define USB1_BASE			USB20_BASE
+
+/*
+ * MMC environment partition (eMMC boot partition index).
+ * Environment is on SPI flash for RZV2N, so this is only
+ * used as a fallback value in mmc_get_env_part().
+ */
+#ifndef CONFIG_SYS_MMC_ENV_PART
+#define CONFIG_SYS_MMC_ENV_PART		1
+#endif
 
 #endif // __RZV2N_REGS_H__

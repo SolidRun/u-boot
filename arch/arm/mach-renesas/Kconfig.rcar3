@@ -307,6 +307,7 @@ source "board/renesas/rzg2ul-dev/Kconfig"
 source "board/renesas/rzv2h-dev/Kconfig"
 source "board/renesas/rzv2n-dev/Kconfig"
 source "board/solidrun/rzv2n/Kconfig"
+source "board/solidrun/rzg-common/Kconfig"
 source "board/renesas/rzg3e-dev/Kconfig"
 source "board/renesas/rzg3s-dev/Kconfig"
 

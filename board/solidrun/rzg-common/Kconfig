@@ -16,7 +16,7 @@ config RZG_SOLIDRUN_COMMON
     select DM_I2C
     select SYS_I2C_RZG2L_RIIC
     select I2C_EEPROM
-    select EEPROM_TLV_LIB
+    select CMD_TLV_EEPROM
     select DM_GPIO
     select GPIO_HOG
     select PINCTRL_PFC_RZG2L if !TARGET_RZV2N_SOLIDRUN
