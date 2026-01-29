@@ -10,7 +10,7 @@
 #include <dt-bindings/pinctrl/rzv2n-pinctrl.h>
 
 / {
-	model = "Renesas EVK based on r9a09g056";
+	model = "SolidRun HummingBoard-IIoT based on r9a09g056";
 	compatible = "renesas,r9a09g056";
 
 	aliases {
