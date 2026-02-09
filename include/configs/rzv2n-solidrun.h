@@ -65,6 +65,7 @@
 
 #define KERNEL_ADDR_R       __stringify(0x48000000)
 #define FDT_ADDR_R          __stringify(0x4c000000)
+#define FDTO_ADDR_R         __stringify(0x4c0f0000)
 #define SCRIPT_ADDR_R       __stringify(0x4c100000)
 #define PXEFILE_ADDR_R      __stringify(0x4c200000)
 #define RAMDISK_ADDR_R      __stringify(0x4c800000)
@@ -74,6 +75,7 @@
 #define CFG_EXTRA_ENV_SETTINGS \
         "kernel_addr_r=" KERNEL_ADDR_R "\0" \
         "fdt_addr_r=" FDT_ADDR_R "\0" \
+        "fdtoverlay_addr_r=" FDTO_ADDR_R "\0" \
         "ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
         "scriptaddr=" SCRIPT_ADDR_R "\0" \
         "pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
