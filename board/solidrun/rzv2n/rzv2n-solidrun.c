@@ -214,8 +214,36 @@ int board_early_init_f(void)
 	return 0;
 }
 
+static void board_sd1_power_cycle(void)
+{
+	/* Power-cycle SD1 card to ensure clean state after warm reset.
+	 * PA3 controls SD1 power enable, PA2 is SD1 reset.
+	 * PWPR write-protect was already unlocked/relocked in s_init(),
+	 * but the GPIO output register (P) can be written without PWPR. */
+	*(volatile u32 *)PWPR |= (PWPR_REGWE_A | PWPR_REGWE_B);
+
+	/* Deassert SD1 power: PA3=0 */
+	*(volatile u8 *)P_2A = (*(volatile u8 *)P_2A & ~(0x03 << 2)); /* PA3=0,PA2=0 */
+
+	*(volatile u32 *)PWPR &= ~(PWPR_REGWE_A | PWPR_REGWE_B);
+
+	/* Wait 10ms for power rail to discharge */
+	mdelay(10);
+
+	*(volatile u32 *)PWPR |= (PWPR_REGWE_A | PWPR_REGWE_B);
+
+	/* Re-enable SD1 power: PA3=1, PA2=0 */
+	*(volatile u8 *)P_2A = (*(volatile u8 *)P_2A & ~(0x03 << 2)) | (0x01 << 3); /* PA3=1,PA2=0 */
+
+	*(volatile u32 *)PWPR &= ~(PWPR_REGWE_A | PWPR_REGWE_B);
+
+	/* Wait for power to stabilize before SDHI driver probes */
+	mdelay(10);
+}
+
 int board_early_init_r(void)
 {
+	board_sd1_power_cycle();
 	rzg_sd_emmc_init();
 	return 0;
 }
