@@ -204,6 +204,11 @@ static void board_pmic_i2c_check_val(struct udevice *dev, u8 reg_addr, u8 reg_va
 	if (read_val != reg_val)
 		printf("Error: Written value was not correctly at register 0x%x\n", reg_addr);
 }
+void board_preboot_os(void)
+{
+	/* RZV2N has separate MMC0/MMC1 interfaces, no SDIO mux overlay needed */
+}
+
 int board_early_init_f(void)
 {
 	return 0;
@@ -304,13 +309,13 @@ static void carrier_select_fdt(int carrier)
 	case CARRIER_HB_MATE:
 	case CARRIER_HB_RIPPLE:
 	case CARRIER_HB_PULSE:
-		env_set("fdtfile", "renesas/r9a09g056n44-hummingboard-puls.dtb");
+		env_set("fdtfile", "renesas/r9a09g056n48-hummingboard-puls.dtb");
 		break;
 	case CARRIER_HB_PRO:
-		env_set("fdtfile", "renesas/r9a09g056n44-hummingboard-pro.dtb");
+		env_set("fdtfile", "renesas/r9a09g056n48-hummingboard-pro.dtb");
 		break;
 	case CARRIER_HB_IIOT:
-		env_set("fdtfile", "renesas/r9a09g056n44-hummingboard-iiot.dtb");
+		env_set("fdtfile", "renesas/r9a09g056n48-hummingboard-iiot.dtb");
 		break;
 	default:
 		pr_warn("Leaving default fdtfile \n");

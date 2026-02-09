@@ -358,7 +358,7 @@ static int preboot_check_sd_emmc(void)
 	return (sd_select);
 }
 
-void board_preboot_os(void)
+__weak void board_preboot_os(void)
 {
 	int ret = 0;
 	const char *cmd_load = "run load_sdio_overlay";
