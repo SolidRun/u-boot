@@ -70,6 +70,16 @@
 		regulator-always-on;
 	};
 
+	/* SD1 card power controlled by PA3 (port 10, pin 3 = GPIO 83) */
+	reg_sd1_vmmc: regulator-sd1-vmmc {
+		compatible = "regulator-fixed";
+		regulator-name = "sd1-vmmc";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpios = <&pinctrl 83 0>; /* PA3, active-high */
+		enable-active-high;
+	};
+
 };
 
 &extal_clk {
@@ -89,7 +99,7 @@
 
 &sdhi1 {
 	bus-width = <4>;
-	vmmc-supply = <&reg_3p3v>;
+	vmmc-supply = <&reg_sd1_vmmc>;
 	vqmmc-supply = <&reg_3p3v>;
 	status = "okay";
 };
