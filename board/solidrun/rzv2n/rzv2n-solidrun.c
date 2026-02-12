@@ -48,7 +48,11 @@ void s_init(void)
 	*(volatile u8 *)P_2A      = (*(volatile u32 *)P_2A  & ~(0x03<<2)) | (0x01 <<3); /* PA3=1,PA2=0		*/
 	*(volatile u16 *)PM_2A    = (*(volatile u32 *)PM_2A & ~(0x0f<<4)) | (0x0a <<4); /* PA3,PA2 output	*/
 
-	/* I2C8 */
+	/* I2C2: P2_0=SDA(func4), P2_1=SCL(func4) */
+	*(volatile u32 *)PFC_22  = (*(volatile u32 *)PFC_22 & ~0xFF) | (0x04 << 4) | (0x04 << 0);
+	*(volatile u8 *)PMC_22   |= 0x03;		/* P2_0,P2_1 multiplexed function */
+
+	/* I2C8: P0_6=SDA(func1), P0_7=SCL(func1) */
 	*(volatile u32 *)PFC_20  = (*(volatile u32 *)PFC_20 & 0x00FFFFFF) | (0x01 << 28) | (0x01 << 24);
 	*(volatile u8 *)PMC_20   |= (0x03) << 6;	/* P07,P06 multiplexed function	*/
 

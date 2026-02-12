@@ -25,6 +25,8 @@
 
 #define	PMC_20				(PFC_BASE + 0x0220)
 #define	PFC_20				(PFC_BASE + 0x0480)
+#define	PMC_22				(PFC_BASE + 0x0222)
+#define	PFC_22				(PFC_BASE + 0x0488)
 #define PFC_PWPR                        (PFC_BASE + 0x3C04)
 
 #define ICU_IPTSR_REG			0x10400060
