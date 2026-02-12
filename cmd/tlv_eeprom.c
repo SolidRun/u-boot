@@ -1031,12 +1031,24 @@ int mac_read_from_eeprom(void)
 	int maccount;
 	u8 macbase[6];
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
-	int devnum = 0; // TODO: support multiple EEPROMs
+	int devnum;
 
 	puts("EEPROM: ");
 
-	if (read_eeprom(devnum, eeprom)) {
-		printf("Read failed.\n");
+	/*
+	 * Search all TLV EEPROM devices for one containing a MAC address.
+	 * The SoM EEPROM may not be device 0 when a carrier EEPROM is
+	 * also present.
+	 */
+	for (devnum = 0; devnum < MAX_TLV_DEVICES; devnum++) {
+		if (read_eeprom(devnum, eeprom))
+			continue;
+		if (tlvinfo_find_tlv(eeprom, TLV_CODE_MAC_BASE, &eeprom_index))
+			break;
+	}
+
+	if (devnum >= MAX_TLV_DEVICES) {
+		printf("No MAC address found in any TLV EEPROM.\n");
 		return -1;
 	}
 
