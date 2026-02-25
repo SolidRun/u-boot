@@ -1048,8 +1048,8 @@ int mac_read_from_eeprom(void)
 	}
 
 	if (devnum >= MAX_TLV_DEVICES) {
-		printf("No MAC address found in any TLV EEPROM.\n");
-		return -1;
+		printf("No MAC address found in any TLV EEPROM (continuing with default).\n");
+		return 0;
 	}
 
 	maccount = 1;

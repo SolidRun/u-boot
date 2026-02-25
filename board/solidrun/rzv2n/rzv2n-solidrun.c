@@ -266,38 +266,25 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	struct udevice *dev;
-	const u8 pmic_i2c_bus = 8;
-	u8 reg;
-	int ret;
-
-	ret = i2c_get_chip_for_busnum(pmic_i2c_bus, 0x12, 1, &dev);
-
-	if (!ret)
-	{
-		dm_i2c_read(dev, 0x2E, &reg, 1);
-		reg &= (~0x01);
-
-		dm_i2c_write(dev, 0x2E, &reg, 1);
-
-		udelay(2);
-		reg |= (0x01);
-
-		dm_i2c_write(dev, 0x2E, &reg, 1);
-	}
+	/*
+	 * PMIC at I2C8@0x12 may not be ready at this point on some
+	 * board revisions, causing the I2C probe to hang. The critical
+	 * PMIC setup is handled at 0x6f in board_pmic_i2c_init().
+	 */
 
 #ifdef CONFIG_RZG_SOLIDRUN_COMMON
 #ifndef CONFIG_SOLIDRUN_DISABLE_TLV
 	int carrier = rzg_get_carrier();
 	if (carrier < 0)
 	{
-		pr_err("Can't recognize the carrier board \n");
+		pr_warn("Can't detect carrier board (ret=%d), using default FDT\n", carrier);
+	} else {
+		carrier_select_fdt(carrier);
 	}
-	carrier_select_fdt(carrier);
 #endif
 	rzg_set_bootsource_env();
 #endif
-	return ret;
+	return 0;
 }
 
 static void board_pmic_i2c_init(void)
