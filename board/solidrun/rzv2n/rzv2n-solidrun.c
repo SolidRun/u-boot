@@ -294,6 +294,22 @@ int board_late_init(void)
 #endif
 	rzg_set_bootsource_env();
 #endif
+
+	/*
+	 * On a freshly-flashed board the SPI environment region is unprogrammed
+	 * (or has a stale CRC), so U-Boot prints "bad CRC, using default
+	 * environment" and falls back to defaults — which means the random MAC
+	 * and any other runtime tweaks above don't persist across reboots.
+	 *
+	 * Detect that case and write the defaults to flash once. Subsequent
+	 * boots then find a valid CRC and skip this branch.
+	 */
+	if (gd->env_valid != ENV_VALID) {
+		printf("Env invalid: writing defaults to storage...\n");
+		if (env_save())
+			pr_err("env_save() failed\n");
+	}
+
 	return 0;
 }
 
