@@ -218,6 +218,16 @@ int board_early_init_f(void)
 	return 0;
 }
 
+/*
+ * RZ/V2N SoM has separate MMC0 (eMMC) and MMC1 (uSD) interfaces, with no
+ * SDIO/MMC GPIO mux. Override the rzg-common default which looks for a
+ * /config node + sdio_mux_gpios (RZG2L/G2LC/G2UL/V2L only).
+ */
+int board_select_sd_emmc(int select_sd)
+{
+	return 0;
+}
+
 static void board_sd1_power_cycle(void)
 {
 	/* Power-cycle SD1 card to ensure clean state after warm reset.
