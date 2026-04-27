@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <init.h>
+#include <fdt_support.h>
 #include <asm/global_data.h>
 #include <dm/uclass-internal.h>
 #include <asm/arch/renesas.h>
@@ -23,6 +24,7 @@
 
 #include "../rzg-common/common.h"
 #endif
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -45,7 +47,7 @@ int dram_init(void)
 
 	ret = fdtdec_setup_mem_size_base();
 
-#if defined(CONFIG_TARGET_RZG2L_SOLIDRUN) || defined(CONFIG_TARGET_RZG2LC_SOLIDRUN) || defined(CONFIG_TARGET_RZV2L_SOLIDRUN)
+#if defined(CONFIG_TARGET_RZG2L_SOLIDRUN) || defined(CONFIG_TARGET_RZG2LC_SOLIDRUN) || defined(CONFIG_TARGET_RZV2L_SOLIDRUN) || defined(CONFIG_TARGET_RZV2N_SOLIDRUN)
 	if (rcar_atf_boot_args[2] && rcar_atf_boot_args[3]) {
 		gd->ram_size = (phys_size_t)rcar_atf_boot_args[3];
 		gd->ram_base = (unsigned long)rcar_atf_boot_args[2];
@@ -87,7 +89,7 @@ int dram_init_banksize(void)
 	}
 #endif
 
-#if defined(CONFIG_TARGET_RZG2L_SOLIDRUN) || defined(CONFIG_TARGET_RZG2LC_SOLIDRUN) || defined(CONFIG_TARGET_RZV2L_SOLIDRUN)
+#if defined(CONFIG_TARGET_RZG2L_SOLIDRUN) || defined(CONFIG_TARGET_RZG2LC_SOLIDRUN) || defined(CONFIG_TARGET_RZV2L_SOLIDRUN) || defined(CONFIG_TARGET_RZV2N_SOLIDRUN)
 	if (rcar_atf_boot_args[2] && rcar_atf_boot_args[3]) {
 		gd->bd->bi_dram[0].size = (phys_size_t)rcar_atf_boot_args[3];
 		gd->bd->bi_dram[0].start = (unsigned long)rcar_atf_boot_args[2];
@@ -136,6 +138,15 @@ static int is_mem_overlap(void *blob, int first_mem_node, int curr_mem_node)
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+#if defined(CONFIG_TARGET_RZV2N_SOLIDRUN)
+	if (gd->bd->bi_dram[0].size) {
+		u64 start = gd->bd->bi_dram[0].start;
+		u64 size = gd->bd->bi_dram[0].size;
+
+		fdt_fixup_memory_banks(blob, &start, &size, 1);
+	}
+#endif
+
 	/*
 	 * Scrub duplicate /memory@* node entries here. Some R-Car DTs might
 	 * contain multiple /memory@* nodes, however fdt_fixup_memory_banks()
