@@ -63,6 +63,9 @@ static void carrier_select_fdt(int carrier)
 	case CARRIER_HB_EU205:
 		env_set("fdtfile", "renesas/r9a07g044l2-hummingboard-eu205.dtb");
 		break;
+	case CARRIER_SOLIDSENSE_AIOT:
+		env_set("fdtfile", "renesas/r9a07g044l2-solidsense-aiot.dtb");
+		break;
 	default:
 		pr_warn("Leaving default fdtfile \n");
 		break;
