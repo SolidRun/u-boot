@@ -130,6 +130,9 @@ int rzg_get_carrier(void)
 	case 'E': // EU-205
 		board = CARRIER_HB_EU205;
 		break;
+	case 'O': // SolidSense AIOT (sku "SRSAIOTIV11")
+		board = CARRIER_SOLIDSENSE_AIOT;
+		break;
 	default:
 		board = CARRIER_UNRECOGNIZED;
 		pr_warn("Did not recognise board variant in sku \"%s\"\n", sku);

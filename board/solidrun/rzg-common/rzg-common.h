@@ -17,6 +17,7 @@ enum carrier_boards
 	CARRIER_HB_PRO,
 	CARRIER_HB_IIOT,
 	CARRIER_HB_EU205,
+	CARRIER_SOLIDSENSE_AIOT,
 };
 
 enum vbus_out_type
