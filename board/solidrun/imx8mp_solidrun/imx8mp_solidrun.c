@@ -460,6 +460,7 @@ static void board_id_from_tlv_info(void) {
 		 * - SRHBCME000CVxx  HB-Mate
 		 * - SRHBCRE000CVxx  HB-Ripple
 		 * - SRHBIIOTIVxx    HB-IIOT
+		 * - SRSAIOTIVxx     SolidSense-AIOT
 		 */
 		if ((memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBCUEXT", 7) == 0) ||
 			 (memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBCUPRO", 7) == 0)) {
@@ -473,6 +474,9 @@ static void board_id_from_tlv_info(void) {
 		} else if (memcmp(&hb_tlv_data[1].tlv_part_number[2], "HBIIOT", 6) == 0) {
 			board_id.carrier_name = "hummingboard-iiot";
 			rev_offset = 10;
+		} else if (memcmp(&hb_tlv_data[1].tlv_part_number[2], "SAIOT", 5) == 0) {
+			board_id.carrier_name = "solidsense-aiot";
+			rev_offset = 9;
 		} else {
 			pr_err("%s: did not recognize carrier sku \"%s\"!\n", __func__, hb_tlv_data[1].tlv_part_number);
 			rev_offset = 0;
