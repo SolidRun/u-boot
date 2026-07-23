@@ -92,6 +92,7 @@ jobs:
           ./scripts/config --disable SPL_MMC
           ./scripts/config --enable MVEBU_SPL_BOOT_DEVICE_UART
           ./scripts/config --enable ENV_IS_NOWHERE
+          ./scripts/config --set-val WATCHDOG_TIMEOUT_MSECS 120000
           make -j$(nproc)
           install -v -m644 -D u-boot-with-spl.kwb deploy/u-boot-clearfog-pro-uart.kwb
 
@@ -156,6 +157,7 @@ jobs:
           ./scripts/config --disable SPL_MMC
           ./scripts/config --enable MVEBU_SPL_BOOT_DEVICE_UART
           ./scripts/config --enable ENV_IS_NOWHERE
+          ./scripts/config --set-val WATCHDOG_TIMEOUT_MSECS 120000
           make -j$(nproc)
           install -v -m644 -D u-boot-with-spl.kwb deploy/u-boot-clearfog-base-uart.kwb
 
@@ -182,6 +184,7 @@ jobs:
           ./scripts/config --disable SPL_MMC
           ./scripts/config --enable MVEBU_SPL_BOOT_DEVICE_UART
           ./scripts/config --enable ENV_IS_NOWHERE
+          ./scripts/config --set-val WATCHDOG_TIMEOUT_MSECS 120000
           make -j$(nproc)
           install -v -m644 -D u-boot-with-spl.kwb deploy/u-boot-helios-4-uart.kwb
 
