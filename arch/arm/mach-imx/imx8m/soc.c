@@ -274,11 +274,8 @@ int dram_init(void)
 	if (ret)
 		return ret;
 
-	/* rom_pointer[1] contains the size of TEE occupies */
-	if (!IS_ENABLED(CONFIG_ARMV8_PSCI) && !IS_ENABLED(CONFIG_SPL_BUILD) && rom_pointer[1])
-		gd->ram_size = sdram_size - rom_pointer[1];
-	else
-		gd->ram_size = sdram_size;
+	/* ignore rom_pointer[1] with TEE ram size, and report complete ram */
+	gd->ram_size = sdram_size;
 
 	ret = board_phys_sdram2_size(&sdram_size);
 	if (ret)
@@ -309,25 +306,9 @@ int dram_init_banksize(void)
 		sdram_b2_size = 0;
 	}
 
+	/* ignore rom_pointer[1] and do not create a fake hole */
 	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
-	if (!IS_ENABLED(CONFIG_ARMV8_PSCI) && !IS_ENABLED(CONFIG_SPL_BUILD) && rom_pointer[1]) {
-		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
-		phys_size_t optee_size = (size_t)rom_pointer[1];
-
-		gd->bd->bi_dram[bank].size = optee_start - gd->bd->bi_dram[bank].start;
-		if ((optee_start + optee_size) < (PHYS_SDRAM + sdram_b1_size)) {
-			if (++bank >= CONFIG_NR_DRAM_BANKS) {
-				puts("CONFIG_NR_DRAM_BANKS is not enough\n");
-				return -1;
-			}
-
-			gd->bd->bi_dram[bank].start = optee_start + optee_size;
-			gd->bd->bi_dram[bank].size = PHYS_SDRAM +
-				sdram_b1_size - gd->bd->bi_dram[bank].start;
-		}
-	} else {
-		gd->bd->bi_dram[bank].size = sdram_b1_size;
-	}
+	gd->bd->bi_dram[bank].size = sdram_b1_size;
 
 #ifdef PHYS_SDRAM_2_SIZE
 	ret = board_phys_sdram2_size(&sdram_b2_size);
