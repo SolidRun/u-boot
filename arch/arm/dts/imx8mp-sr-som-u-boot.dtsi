@@ -19,6 +19,37 @@
 	};
 };
 
+&binman {
+	os-dtbs {
+		type = "section";
+
+		os-dtb-hummingboard-iiot {
+			type = "blob";
+			filename = "freescale/imx8mp-hummingboard-iiot.dtb";
+		};
+
+		os-dtb-hummingboard-mate {
+			type = "blob";
+			filename = "freescale/imx8mp-hummingboard-mate.dtb";
+		};
+
+		os-dtb-hummingboard-pro {
+			type = "blob";
+			filename = "freescale/imx8mp-hummingboard-pro.dtb";
+		};
+
+		os-dtb-hummingboard-pulse {
+			type = "blob";
+			filename = "freescale/imx8mp-hummingboard-pulse.dtb";
+		};
+
+		os-dtb-hummingboard-ripple {
+			type = "blob";
+			filename = "freescale/imx8mp-hummingboard-ripple.dtb";
+		};
+	};
+};
+
 &gpio1 {
 	bootph-all;
 };

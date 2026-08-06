@@ -518,6 +518,8 @@ static void board_id_from_tlv_info(void) {
 	}
 }
 
+extern int board_preload_os_fdt(void);
+
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_IS_IN_MMC
@@ -536,6 +538,8 @@ int board_late_init(void)
 	env_set("product_name", board_id.product_name);
 	env_set("product_rev", board_id.product_rev);
 #endif
+
+	board_preload_os_fdt();
 
 	return 0;
 }
