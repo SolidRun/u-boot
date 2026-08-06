@@ -11,13 +11,28 @@
 };
 
 &lcdif1 {
-	status = "okay";
+	/* reparent pixel clock for 148.5MHz */
+	assigned-clocks = <&clk IMX8MP_VIDEO_PLL1>,
+			  <&clk IMX8MP_CLK_MEDIA_DISP1_PIX>,
+			  <&clk IMX8MP_CLK_MEDIA_AXI>,
+			  <&clk IMX8MP_CLK_MEDIA_APB>;
+	assigned-clock-parents = <&clk IMX8MP_VIDEO_PLL1_REF_SEL>,
+				 <&clk IMX8MP_VIDEO_PLL1_OUT>,
+				 <&clk IMX8MP_SYS_PLL2_1000M>,
+				 <&clk IMX8MP_SYS_PLL1_800M>;
+	assigned-clock-rates = <594000000>, <148500000>, <500000000>, <200000000>;
+	/* link u-boot display node */
+	display = <&display0>;
+
+	display0: display@0 {
+		bits-per-pixel = <24>;
+		bus-width = <24>;
+	};
 };
 
 &mipi_dsi {
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-parents;
-	/delete-property/ assigned-clock-rates;
+	/* select 24MHz reference clock */
+	assigned-clock-rates = <24000000>;
 
 	/*
 	 * Linux imx8mp.dtsi has ports at this level,
