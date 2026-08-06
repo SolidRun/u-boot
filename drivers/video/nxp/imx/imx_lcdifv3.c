@@ -33,6 +33,7 @@
 
 struct lcdifv3_priv {
 	fdt_addr_t reg_base;
+	struct udevice *dev;
 	struct udevice *disp_dev;
 
 	u32 thres_low_mul;
@@ -162,9 +163,20 @@ static void lcdifv3_enable_plane_panic(struct lcdifv3_priv *priv)
 	       priv->reg_base + LCDIFV3_INT_ENABLE_D1);
 }
 
-static void lcdifv3_enable_controller(struct lcdifv3_priv *priv)
+static void lcdifv3_enable_controller(struct lcdifv3_priv *priv, struct ctfb_res_modes *mode)
 {
 	u32 disp_para, ctrldescl0_5;
+
+	/* Enable media block control gasket 0 for i.MX8MP LCDIF1 with DSI */
+	if (device_is_compatible(priv->dev, "fsl,imx8mp-lcdif1") &&
+	    priv->disp_dev && device_is_compatible(priv->disp_dev, "fsl,imx8mp-mipi-dsim")) {
+		/* set active frame dimensions */
+		writel(mode->xres, 0x32ec0064); /* GASKET_0_HSIZE */
+		writel(mode->yres, 0x32ec0068); /* GASKET_0_VSIZE */
+
+		/* Enable Gasket 0 (Bit 0 = 1) */
+		writel(0x1, 0x32ec0060);        /* GASKET_0_CTRL */
+	}
 
 	disp_para = readl((ulong)(priv->reg_base + LCDIFV3_DISP_PARA));
 	ctrldescl0_5 = readl((ulong)(priv->reg_base + LCDIFV3_CTRLDESCL0_5));
@@ -196,6 +208,13 @@ static void lcdifv3_disable_controller(struct lcdifv3_priv *priv)
 	/* disp off */
 	disp_para &= ~DISP_PARA_DISP_ON;
 	writel(disp_para, (ulong)(priv->reg_base + LCDIFV3_DISP_PARA));
+
+	/* Disable media block control gasket 0 for i.MX8MP LCDIF1 with DSI */
+	if (device_is_compatible(priv->dev, "fsl,imx8mp-lcdif1") &&
+	    priv->disp_dev && device_is_compatible(priv->disp_dev, "fsl,imx8mp-mipi-dsim")) {
+		/* Disable Gasket 0 (Bit 0 = 0) */
+		writel(0x0, 0x32ec0060);        /* GASKET_0_CTRL */
+	}
 }
 
 static void lcdifv3_init(struct udevice *dev,
@@ -229,7 +248,7 @@ static void lcdifv3_init(struct udevice *dev,
 	writel(CTRLDESCL0_3_P_SIZE(1) |CTRLDESCL0_3_T_SIZE(1) | CTRLDESCL0_3_PITCH(mode->xres * 4),
 		(ulong)(priv->reg_base + LCDIFV3_CTRLDESCL0_3));
 
-	lcdifv3_enable_controller(priv);
+	lcdifv3_enable_controller(priv, mode);
 }
 
 void lcdifv3_power_down(struct lcdifv3_priv *priv)
@@ -337,6 +356,7 @@ static int lcdifv3_video_probe(struct udevice *dev)
 	debug("%s() plat: base 0x%lx, size 0x%x\n",
 	       __func__, plat->base, plat->size);
 
+	priv->dev = dev;
 	priv->reg_base = dev_read_addr(dev);
 	if (priv->reg_base == FDT_ADDR_T_NONE) {
 		dev_err(dev, "lcdif base address is not found\n");
