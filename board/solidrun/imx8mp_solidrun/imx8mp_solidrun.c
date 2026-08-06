@@ -35,6 +35,7 @@
 #include <linux/delay.h>
 #include <env.h>
 #include <tlv_eeprom.h>
+#include <video.h>
 #include "../common/tlv_data.h"
 
 #define ONE_GB 0x40000000ULL
@@ -793,11 +794,34 @@ static int board_fix_hdmi(void *fdt, const char *stage) {
 	return 0;
 }
 
+/* reserve u-boot framebuffer memory */
+void board_reserve_framebuffer(void *blob)
+{
+	struct udevice *vdev;
+	struct video_uc_plat *plat;
+	struct fdt_memory fb_mem;
+
+	/* logic follows efi_gop.c */
+	if (!uclass_first_device_err(UCLASS_VIDEO, &vdev)) {
+		plat = dev_get_uclass_plat(vdev);
+
+		/* Use the same logic as EFI GOP driver */
+		fb_mem.start = IS_ENABLED(CONFIG_VIDEO_COPY) ? plat->copy_base : plat->base;
+		fb_mem.end = fb_mem.start + plat->size;
+
+		if (fb_mem.start && fb_mem.end)
+			fdtdec_add_reserved_memory(blob, "framebuffer", &fb_mem, NULL, 0, NULL, FDTDEC_RESERVED_MEMORY_NO_MAP);
+	}
+}
+
 #if defined(CONFIG_OF_BOARD_SETUP)
 /* Patch device-tree for OS */
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	board_fix_hdmi(blob, "os");
+
+	/* reserve u-boot framebuffer memory */
+	board_reserve_framebuffer(blob);
 
 #ifdef CONFIG_IMX8M_DRAM_INLINE_ECC
 	int rc;
