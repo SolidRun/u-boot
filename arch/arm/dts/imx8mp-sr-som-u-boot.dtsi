@@ -59,12 +59,24 @@
 	bootph-all;
 };
 
+&mix_gpu_ml {
+	/* drop reference to legacy memory reservation */
+	/delete-property/ memory-region;
+};
+
 &pmic {
 	bootph-all;
 
 	regulators {
 		bootph-all;
 	};
+};
+
+/* Drop legacy memory reservation above 4GB.
+ * SolidRun SoMs start at 1Gb SDRAM, hence this area was always invalid.
+ */
+&resmem {
+	/delete-node/ gpu_reserved@100000000;
 };
 
 &som_eeprom {

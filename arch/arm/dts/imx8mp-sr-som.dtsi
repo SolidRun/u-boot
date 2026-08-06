@@ -605,11 +605,3 @@
 	pinctrl-0 = <&wdog1_pins>;
 	status = "okay";
 };
-
-/*
- * Reserve all physical memory from within the first 1GB of DDR address
- * space to avoid panic on low memory systems.
- */
-&gpu_reserved {
-	reg = <0x0 0x70000000 0 0x10000000>;
-};
