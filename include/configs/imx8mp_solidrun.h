@@ -46,7 +46,8 @@
 
 /*
  * Load Adresses (different from imx8mp_evk.h):
- * - 1MB for boot-script
+ * - 4kB for data encryption key
+ * - 1020kB for boot-script
  * - 1MB for pxe
  * - 1MB for DTB
  * - 1MB for DTB Overlays
@@ -54,7 +55,8 @@
  * - 192MB for uncompressed kernel
  * - 761MB for ramdisk (1GB SoM DDR, more otherwise)
  */
-#define SCRIPT_ADDR_R		__stringify(0x40400000)
+#define CAAM_DEK		__stringify(0x40400000)
+#define SCRIPT_ADDR_R		__stringify(0x40401000)
 #define PXEFILE_ADDR_R		__stringify(0x40500000)
 #define FDT_ADDR_R		__stringify(0x40600000)
 #define FDTOVERLAY_ADDR_R	__stringify(0x40700000)
