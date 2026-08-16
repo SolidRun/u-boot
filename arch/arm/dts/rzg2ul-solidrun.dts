@@ -26,15 +26,23 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	config {
+		sdio_mux_gpios = <&P2 1 GPIO_ACTIVE_HIGH>, <&P13 2 GPIO_ACTIVE_HIGH>;
+		usb_vbus_gpios = <&P5 0 GPIO_ACTIVE_HIGH>, <&P5 2 GPIO_ACTIVE_HIGH>;
+	};
+
+	firmware {
+		/* for u-boot control dts only, to discover optee */
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+
 	memory@48000000 {
 		device_type = "memory";
 		/* first 128MB is reserved for secure area. */
 		reg = <0 0x48000000 0 0x38000000>;
-	};
-
-	config {
-		sdio_mux_gpios = <&P2 1 GPIO_ACTIVE_HIGH>, <&P13 2 GPIO_ACTIVE_HIGH>;
-		usb_vbus_gpios = <&P5 0 GPIO_ACTIVE_HIGH>, <&P5 2 GPIO_ACTIVE_HIGH>;
 	};
 
 	wdt-reboot {

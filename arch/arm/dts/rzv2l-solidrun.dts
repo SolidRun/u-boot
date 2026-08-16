@@ -14,6 +14,14 @@
 	model = "sr-rzv2l";
 	compatible = "renesas,r9a07g054l", "renesas,rzv2l";
 
+	firmware {
+		/* for u-boot control dts only, to discover optee */
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+
 	memory@48000000 {
 		device_type = "memory";
 		/* first 128MB is reserved for secure area. */
