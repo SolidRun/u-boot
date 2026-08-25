@@ -104,8 +104,11 @@ int rzg_get_carrier(void)
 	char sku[CARRIER_SKU_MAX_SIZE];
 
 	ret = get_tlv_udevice_by_alias(&dev, "eeprom_carrier");
-	if (ret)
-		return ret;
+	if (ret) {
+		ret = get_tlv_udevice_by_alias(&dev, "eeprom_carrier_alt");
+		if (ret)
+			return ret;
+	}
 
 	ret = get_sku_from_tlv_dev(dev, sku);
 	if (ret)

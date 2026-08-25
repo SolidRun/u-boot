@@ -1,0 +1,14 @@
+/ {
+	aliases {
+		/* register aiot board carrier eeprom as fallback for board detection */
+		eeprom_carrier_alt = &carrier_eeprom_aiot;
+	};
+};
+
+&i2c1 {
+	/* aiot board has tlv eeprom on i2c1 */
+	carrier_eeprom_aiot: at24c02@57 {
+		compatible = "atmel,24c02";
+		reg = <0x57>;
+	};
+};
