@@ -66,14 +66,25 @@
 
 #include <config_distro_bootcmd.h>
 
+/*
+ * Load address layout:
+ * - Base address: 0x48000000
+ * - kernel: 44M
+ * - compressed kernel (during decompress): 20M
+ * - dtb: 960k
+ * - dtb overlay: 64k
+ * - boot-script: 1M
+ * - pxe: 6M
+ * - ramdisk: till end of ram
+ */
 #define KERNEL_ADDR_R       __stringify(0x48000000)
-#define KERNEL_COMP_ADDR_R  __stringify(0x4a000000)
+#define KERNEL_COMP_ADDR_R  __stringify(0x4ac00000)
+#define KERNEL_COMP_SIZE    __stringify(0x01400000)
 #define FDT_ADDR_R          __stringify(0x4c000000)
 #define FDTO_ADDR_R         __stringify(0x4c0f0000)
 #define SCRIPT_ADDR_R       __stringify(0x4c100000)
 #define PXEFILE_ADDR_R      __stringify(0x4c200000)
 #define RAMDISK_ADDR_R      __stringify(0x4c800000)
-#define KERNEL_COMP_SIZE    __stringify(0xb00000)
 #define FDT_BUFFER_SIZE     __stringify(0x4000)
 #define OVERLAYS_FIT_OFFSET_BLK __stringify(0x1800)
 #define OVERLAYS_FIT_MAX_SIZE_BLK __stringify(0x10)
