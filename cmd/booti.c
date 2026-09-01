@@ -28,8 +28,8 @@ static int booti_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	ulong relocated_addr;
 	ulong image_size;
 	uint8_t *temp;
-	ulong dest;
-	ulong dest_end;
+	ulong comp;
+	ulong ld_end;
 	unsigned long comp_len;
 	unsigned long decomp_len;
 	int ctype;
@@ -50,27 +50,45 @@ static int booti_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	temp = map_sysmem(ld, 0);
 	ctype = image_decomp_type(temp, 2);
 	if (ctype > 0) {
-		dest = env_get_ulong("kernel_comp_addr_r", 16, 0);
+		comp = env_get_ulong("kernel_comp_addr_r", 16, 0);
 		comp_len = env_get_ulong("kernel_comp_size", 16, 0);
-		if (!dest || !comp_len) {
+		if (!comp || !comp_len) {
 			puts("kernel_comp_addr_r or kernel_comp_size is not provided!\n");
 			return -EINVAL;
 		}
-		if (dest < gd->ram_base || dest > gd->ram_top) {
+		if (comp < gd->ram_base || comp + comp_len > gd->ram_top) {
 			puts("kernel_comp_addr_r is outside of DRAM range!\n");
 			return -EINVAL;
 		}
+		/* image is decompressed back to ld, must not overlap with comp+comp_len */
+		if (comp + comp_len > ld && comp < ld + comp_len) {
+			printf("kernel_comp_addr_r 0x%08lx..0x%08lx overlaps image at 0x%08lx!\n",
+			       comp, comp + comp_len, ld);
+			return -EINVAL;
+		}
+		if (ld + comp_len > gd->ram_top) {
+			puts("kernel_comp_size exceeds DRAM range at load address!\n");
+			return -EINVAL;
+		}
 
-		debug("kernel image compression type %d size = 0x%08lx address = 0x%08lx\n",
-			ctype, comp_len, (ulong)dest);
+		/*
+		 * Copy compressed image to scratch buffer. Avoid memmove because ld is unbounded.
+		 * Upper limit for compressed image is defined by kernel_comp_size.
+		 */
+		memcpy((void *)comp, (void *)ld, comp_len);
+
+		/* Decompress from comp into ld. */
+		debug("kernel image compression type %d size = 0x%08lx "
+		      "address = 0x%08lx dest = 0x%08lx\n",
+		      ctype, comp_len, (ulong)comp, (ulong)ld);
+		/* ld bounds are undefined, allow 10x comp_len */
 		decomp_len = comp_len * 10;
-		ret = image_decomp(ctype, 0, ld, IH_TYPE_KERNEL,
-				 (void *)dest, (void *)ld, comp_len,
-				 decomp_len, &dest_end);
+		ret = image_decomp(ctype, 0, comp, IH_TYPE_KERNEL,
+				 (void *)ld, (void *)comp, comp_len,
+				 decomp_len, &ld_end);
 		if (ret)
 			return ret;
-		/* dest_end contains the uncompressed Image size */
-		memmove((void *) ld, (void *)dest, dest_end);
+		/* uncompressed image at ld, ld_end contains the uncompressed size */
 	}
 	unmap_sysmem((void *)ld);
 
