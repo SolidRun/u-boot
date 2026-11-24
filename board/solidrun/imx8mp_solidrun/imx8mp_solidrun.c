@@ -47,6 +47,7 @@ static bool tlv_read_once;
 static struct board_id {
 	const char *carrier_name;
 	char carrier_rev[3];
+	bool carrier_from_tlv; /* carrier_name was read from carrier eeprom, not guessed */
 	const char *som_name;
 	char som_rev[3];
 	const char *product_name;
@@ -487,6 +488,7 @@ static void board_id_from_tlv_info(void) {
 			board_id.carrier_rev[0] = hb_tlv_data[1].tlv_part_number[rev_offset];
 			board_id.carrier_rev[1] = hb_tlv_data[1].tlv_part_number[rev_offset+1];
 			board_id.carrier_rev[2] = 0;
+			board_id.carrier_from_tlv = true;
 		}
 
 		/* evalue kit if programmed to Carrier EEPROM (takes precedence over previous call) */
@@ -528,6 +530,11 @@ int board_late_init(void)
 
 	// identify device
 	board_id_from_tlv_info();
+
+	if (board_id.carrier_from_tlv && board_id.product_name &&
+	    strcmp(board_id.product_name, board_id.carrier_name) != 0)
+		printf("Warning: kit sku says \"%s\" but carrier eeprom says \"%s\", using carrier!\n",
+		       board_id.product_name, board_id.carrier_name);
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	// expose identity to environment
@@ -612,7 +619,15 @@ int board_fit_config_name_match(const char *name) {
 
 	board_id_from_tlv_info();
 
-	if (board_id.product_name)
+	/*
+	 * The carrier dictates the device tree (pin mux, regulators, peripherals).
+	 * A carrier identified from its own eeprom is authoritative - kit info is
+	 * stored on the SoM, which may have been moved to a different carrier.
+	 * Otherwise prefer kit info over the carrier fall-back guess.
+	 */
+	if (board_id.carrier_from_tlv)
+		snprintf(match, sizeof(match), "%s-%s", "imx8mp", board_id.carrier_name);
+	else if (board_id.product_name)
 		snprintf(match, sizeof(match), "%s-%s", "imx8mp", board_id.product_name);
 	else if (board_id.carrier_name)
 		snprintf(match, sizeof(match), "%s-%s", "imx8mp", board_id.carrier_name);
